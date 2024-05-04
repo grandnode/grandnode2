@@ -15,7 +15,11 @@
         </li>
         <template>
             <li>
-                <b-sidebar id="sidebar-wishlist" backdrop @if (!supportRtl) { <text>right</text> }>
+                <b-sidebar id="sidebar-wishlist" backdrop
+                           @if (!supportRtl)
+                           {
+                               <text>right</text>
+                           }>
                     <template v-slot:title v-if="wishindicator > 0">
                         @Html.Raw(string.Format(Loc["Wishlist.Mini.ItemsText"], $"<a href=\"{Url.RouteUrl("Wishlist")}\">{string.Format(Loc["Wishlist.Mini.Items"], "{{wishindicator}}")}</a>"))
                     </template>
@@ -35,8 +39,12 @@
                             <div class="attributes p-2" v-if="item.AttributeInfo">
                                 <div v-html="item.AttributeInfo"></div>
                             </div>
-                            <div class="price"><span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{item.UnitPrice}}</strong></div>
-                            <div class="quantity"><span>@Loc["Wishlist.Mini.Quantity"]:</span> <strong>{{item.Quantity}}</strong></div>
+                            <div class="price">
+                                <span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{item.UnitPrice}}</strong>
+                            </div>
+                            <div class="quantity">
+                                <span>@Loc["Wishlist.Mini.Quantity"]:</span> <strong>{{item.Quantity}}</strong>
+                            </div>
                         </div>
                     </div>
                     <template v-slot:footer v-if="wishindicator > 0">
@@ -45,7 +53,7 @@
                                 <div class="form-row">
                                     <div class="col-lg col-12">
                                         <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("Wishlist")">
-                                            <b-icon icon="heart" class="@if (supportRtl) { <text>pl-2</text> } else { <text>pr-2</text> }"></b-icon>
+                                            <b-icon icon="heart" class="@if (supportRtl) { <text>pl-2</text> }else { <text>pr-2</text> }"></b-icon>
                                             @Loc["Wishlist"]
                                         </a>
                                     </div>

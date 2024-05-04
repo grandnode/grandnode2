@@ -1,23 +1,22 @@
-namespace Grand.Domain.Pages
+namespace Grand.Domain.Pages;
+
+/// <summary>
+///     Represents a page layout
+/// </summary>
+public class PageLayout : BaseEntity
 {
     /// <summary>
-    /// Represents a page layout
+    ///     Gets or sets the layout name
     /// </summary>
-    public class PageLayout : BaseEntity
-    {
-        /// <summary>
-        /// Gets or sets the layout name
-        /// </summary>
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        /// <summary>
-        /// Gets or sets the view path
-        /// </summary>
-        public string ViewPath { get; set; }
+    /// <summary>
+    ///     Gets or sets the view path
+    /// </summary>
+    public string ViewPath { get; set; }
 
-        /// <summary>
-        /// Gets or sets the display order
-        /// </summary>
-        public int DisplayOrder { get; set; }
-    }
+    /// <summary>
+    ///     Gets or sets the display order
+    /// </summary>
+    public int DisplayOrder { get; set; }
 }

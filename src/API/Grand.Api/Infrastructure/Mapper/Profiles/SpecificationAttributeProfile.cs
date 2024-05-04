@@ -3,25 +3,22 @@ using Grand.Api.DTOs.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Mapper;
 
-namespace Grand.Api.Infrastructure.Mapper.Profiles
+namespace Grand.Api.Infrastructure.Mapper.Profiles;
+
+public class SpecificationAttributeProfile : Profile, IAutoMapperProfile
 {
-    public class SpecificationAttributeProfile : Profile, IAutoMapperProfile
+    public SpecificationAttributeProfile()
     {
-        public SpecificationAttributeProfile()
-        {
+        CreateMap<SpecificationAttributeDto, SpecificationAttribute>()
+            .ForMember(dest => dest.UserFields, mo => mo.Ignore());
 
-            CreateMap<SpecificationAttributeDto, SpecificationAttribute>()
-                .ForMember(dest => dest.UserFields, mo => mo.Ignore());
+        CreateMap<SpecificationAttribute, SpecificationAttributeDto>();
 
-            CreateMap<SpecificationAttribute, SpecificationAttributeDto>();
+        CreateMap<SpecificationAttributeOption, SpecificationAttributeOptionDto>();
 
-            CreateMap<SpecificationAttributeOption, SpecificationAttributeOptionDto>();
-
-            CreateMap<SpecificationAttributeOptionDto, SpecificationAttributeOption>()
-                .ForMember(dest => dest.Locales, mo => mo.Ignore());
-
-        }
-
-        public int Order => 1;
+        CreateMap<SpecificationAttributeOptionDto, SpecificationAttributeOption>()
+            .ForMember(dest => dest.Locales, mo => mo.Ignore());
     }
+
+    public int Order => 1;
 }

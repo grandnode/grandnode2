@@ -1,25 +1,24 @@
 ﻿using Grand.Business.Core.Queries.Messages;
-using Grand.Domain.Customers;
 using Grand.Data;
+using Grand.Domain.Customers;
 using MediatR;
 
-namespace Grand.Business.Messages.Queries.Handlers
+namespace Grand.Business.Messages.Queries.Handlers;
+
+public class GetCustomerByIdQueryHandler : IRequestHandler<GetCustomerByIdQuery, Customer>
 {
-    public class GetCustomerByIdQueryHandler : IRequestHandler<GetCustomerByIdQuery, Customer>
+    private readonly IRepository<Customer> _customerRepository;
+
+    public GetCustomerByIdQueryHandler(IRepository<Customer> customerRepository)
     {
-        private readonly IRepository<Customer> _customerRepository;
+        _customerRepository = customerRepository;
+    }
 
-        public GetCustomerByIdQueryHandler(IRepository<Customer> customerRepository)
-        {
-            _customerRepository = customerRepository;
-        }
+    public async Task<Customer> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Id))
+            return null;
 
-        public async Task<Customer> Handle(GetCustomerByIdQuery request, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(request.Id))
-                return null;
-
-            return await _customerRepository.GetByIdAsync(request.Id);
-        }
+        return await _customerRepository.GetByIdAsync(request.Id);
     }
 }

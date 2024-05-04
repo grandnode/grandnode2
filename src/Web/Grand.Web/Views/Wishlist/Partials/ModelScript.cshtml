@@ -1,5 +1,5 @@
 ﻿@model WishlistModel
-@{ 
+@{
     var addToCartUrl = Model.EmailWishlistEnabled && !Model.IsEditable ? Url.RouteUrl("AddItemToCartFromWishlist", new { customerGuid = Model.CustomerGuid }) + "&shoppingcartId=" : Url.RouteUrl("AddItemToCartFromWishlist") + "?shoppingcartId=";
 }
 <script asp-location="Footer" asp-order="300">

@@ -1,7 +1,6 @@
-﻿namespace Grand.Business.Core.Interfaces.System.ScheduleTasks
+﻿namespace Grand.Business.Core.Interfaces.System.ScheduleTasks;
+
+public interface IScheduleTask
 {
-    public interface IScheduleTask
-    {
-        Task Execute();
-    }
+    Task Execute();
 }

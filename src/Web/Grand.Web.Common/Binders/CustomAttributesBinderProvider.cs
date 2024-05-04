@@ -9,6 +9,8 @@ public class CustomAttributesBinderProvider : IModelBinderProvider
     public IModelBinder GetBinder(ModelBinderProviderContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-        return context.Metadata.ModelType == typeof(IList<CustomAttributeModel>) ? new BinderTypeModelBinder(typeof(CustomAttributesBinder)) : null;
+        return context.Metadata.ModelType == typeof(IList<CustomAttributeModel>)
+            ? new BinderTypeModelBinder(typeof(CustomAttributesBinder))
+            : null;
     }
 }

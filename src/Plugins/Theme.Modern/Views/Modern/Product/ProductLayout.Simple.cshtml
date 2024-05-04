@@ -7,14 +7,14 @@
     Layout = "_SingleColumn";
 
     //title, meta
-    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddTitleParts(!string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
     pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
     pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
 
     //canonical URL
     if (seoSettings.CanonicalUrlsEnabled)
     {
-        var productUrl = Url.RouteUrl("Product", new { Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        var productUrl = Url.RouteUrl("Product", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(productUrl);
     }
 }
@@ -22,30 +22,31 @@
 @section meta {
     @if (seoSettings.OpenGraphMetaTags)
     {
-        <meta property=og:type content=product />
-        <meta property="og:title" content="@Html.Encode(Model.Name)" />
-        <meta property="og:description" content="@Html.Encode(Model.MetaDescription)" />
-        <meta property="og:image" content="@Model.DefaultPictureModel.ImageUrl" />
-        <meta property="og:image:url" content="@Model.DefaultPictureModel.ImageUrl" />
-        <meta property="og:url" content="@this.Url.ActionContext.HttpContext.Request.GetEncodedUrl()" />
-        <meta property="og:site_name" content="@Html.Encode(Model.CurrentStoreName)" />
+        <meta property=og:type content=product/>
+        <meta property="og:title" content="@Html.Encode(Model.Name)"/>
+        <meta property="og:description" content="@Html.Encode(Model.MetaDescription)"/>
+        <meta property="og:image" content="@Model.DefaultPictureModel.ImageUrl"/>
+        <meta property="og:image:url" content="@Model.DefaultPictureModel.ImageUrl"/>
+        <meta property="og:url" content="@Url.ActionContext.HttpContext.Request.GetEncodedUrl()"/>
+        <meta property="og:site_name" content="@Html.Encode(Model.CurrentStoreName)"/>
     }
 
     @if (seoSettings.TwitterMetaTags)
     {
-        <meta property="twitter:card" content="summary" />
-        <meta property="twitter:site" content="@Html.Encode(Model.CurrentStoreName)" />
-        <meta property="twitter:title" content="@Html.Encode(Model.Name)" />
-        <meta property="twitter:description" content="@Html.Encode(Model.MetaDescription)" />
-        <meta property="twitter:image" content="@Model.DefaultPictureModel.ImageUrl" />
-        <meta property="twitter:url" content="@this.Url.ActionContext.HttpContext.Request.GetEncodedUrl()" />
+        <meta property="twitter:card" content="summary"/>
+        <meta property="twitter:site" content="@Html.Encode(Model.CurrentStoreName)"/>
+        <meta property="twitter:title" content="@Html.Encode(Model.Name)"/>
+        <meta property="twitter:description" content="@Html.Encode(Model.MetaDescription)"/>
+        <meta property="twitter:image" content="@Model.DefaultPictureModel.ImageUrl"/>
+        <meta property="twitter:url" content="@Url.ActionContext.HttpContext.Request.GetEncodedUrl()"/>
     }
 }
 
 <!--product breadcrumb-->
+
 @section Breadcrumb
 {
-    <partial name="Partials/Breadcrumbs" model="Model.Breadcrumb" />
+    <partial name="Partials/Breadcrumbs" model="Model.Breadcrumb"/>
 }
 
 <vc:widget widget-zone="productdetails_after_breadcrumb" additional-data="@Model.Id"></vc:widget>
@@ -57,20 +58,20 @@
                     <b-row>
                         <vc:widget widget-zone="productdetails_before_pictures" additional-data="@Model.Id"></vc:widget>
                         <!--product pictures-->
-                        <partial name="Partials/Pictures" model="Model" />
+                        <partial name="Partials/Pictures" model="Model"/>
                         <vc:widget widget-zone="productdetails_after_pictures" additional-data="@Model.Id"></vc:widget>
                         <b-col xl="5" lg="6" md="7" cols="12" class="overview pl-md-3 pl-0 pr-0">
-                            <partial name="Partials/Unavailable" model="Model" />
+                            <partial name="Partials/Unavailable" model="Model"/>
                             <h1 class="generalTitle" itemprop="name">
                                 @Model.Name
                             </h1>
                             <!--product reviews-->
                             @if (Model.ProductReviewOverview.AllowCustomerReviews)
                             {
-                                <partial name="Partials/ProductReviewOverview" model="Model.ProductReviewOverview" />
+                                <partial name="Partials/ProductReviewOverview" model="Model.ProductReviewOverview"/>
                             }
                             <vc:widget widget-zone="productdetails_overview_top" additional-data="@Model.Id"></vc:widget>
-                            @if (!String.IsNullOrEmpty(Model.ShortDescription))
+                            @if (!string.IsNullOrEmpty(Model.ShortDescription))
                             {
                                 <div class="short-description generalMarginSupporter">
                                     @Html.Raw(Model.ShortDescription)
@@ -79,40 +80,40 @@
                             <!--collections-->
                             @if (Model.ProductCollections.Any())
                             {
-                                <partial name="Partials/Collections" model="Model.ProductCollections" />
+                                <partial name="Partials/Collections" model="Model.ProductCollections"/>
                             }
                             <!--availability-->
-                            @if (!String.IsNullOrWhiteSpace(Model.StockAvailability) || Model.DisplayOutOfStockSubscription)
+                            @if (!string.IsNullOrWhiteSpace(Model.StockAvailability) || Model.DisplayOutOfStockSubscription)
                             {
-                                <partial name="Partials/Availability" model="Model" />
+                                <partial name="Partials/Availability" model="Model"/>
                             }
                             <!--Code products - SKU, MAN, GTIN, Vendor info -->
-                            <partial name="Partials/Codes" model="Model" />
+                            <partial name="Partials/Codes" model="Model"/>
                             <!--delivery-->
                             @if ((Model.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !string.IsNullOrWhiteSpace(Model.DeliveryDate)
-                                || Model.NotReturnable || Model.AdditionalShippingCharge > 0)
+                                                                                                 || Model.NotReturnable || Model.AdditionalShippingCharge > 0)
                             {
-                                <partial name="Partials/DeliveryInfo" model="Model" />
+                                <partial name="Partials/DeliveryInfo" model="Model"/>
                             }
                             <!--sample download-->
                             @if (Model.HasSampleDownload)
                             {
-                                <partial name="Partials/DownloadSample" model="Model" />
+                                <partial name="Partials/DownloadSample" model="Model"/>
                             }
                             <!--product bundles-->
                             @if (Model.ProductBundleModels.Any())
                             {
-                                <partial name="Partials/ProductBundles" model="Model" />
+                                <partial name="Partials/ProductBundles" model="Model"/>
                             }
                             <!--attributes-->
                             @if (Model.ProductAttributes.Any())
                             {
-                                <partial name="Partials/ProductAttributes" model="Model" />
-                            }         
+                                <partial name="Partials/ProductAttributes" model="Model"/>
+                            }
                             <!--warehouses-->
                             @if (Model.AllowToSelectWarehouse)
                             {
-                                <partial name="Partials/Warehouses" model="Model" />
+                                <partial name="Partials/Warehouses" model="Model"/>
                             }
                             <!--gift voucher-->
                             @{
@@ -131,14 +132,14 @@
                                         HtmlFieldPrefix = $"reservation_{Model.Id}"
                                     }
                                 };
-                                <partial name="Partials/ReservationInfo" model="Model" view-data="dataDictReservation" />
+                                <partial name="Partials/ReservationInfo" model="Model" view-data="dataDictReservation"/>
                             }
                             <!--price & add to cart-->
                             <div class="overview-buttons generalMarginSupporter">
                                 @if (Model.TierPrices.Any())
                                 {
                                     <div class="col-lg-12 px-0">
-                                        <partial name="Partials/TierPrices" model="Model.TierPrices" />
+                                        <partial name="Partials/TierPrices" model="Model.TierPrices"/>
                                     </div>
                                 }
                                 <div class="col-lg-12 px-0">
@@ -150,7 +151,7 @@
                                                 HtmlFieldPrefix = $"price_{Model.Id}"
                                             }
                                         };
-                                        <partial name="Partials/Prices" model="Model.ProductPrice" view-data="dataDictPrice" />
+                                        <partial name="Partials/Prices" model="Model.ProductPrice" view-data="dataDictPrice"/>
                                     }
                                 </div>
                                 <div class="generalMarginSupporter">
@@ -164,7 +165,7 @@
                                                 HtmlFieldPrefix = $"auction_{Model.Id}"
                                             }
                                         };
-                                        <partial name="Partials/AuctionInfo" model="Model" view-data="dataDictAuction" />
+                                        <partial name="Partials/AuctionInfo" model="Model" view-data="dataDictAuction"/>
                                     }
                                     @{
                                         var dataDictAddToWishlist = new ViewDataDictionary(ViewData)
@@ -182,24 +183,24 @@
                                             }
                                         };
                                     }
-                                    <partial name="Partials/AddToCart" model="Model.AddToCart" view-data="dataDictAddToCart" />
+                                    <partial name="Partials/AddToCart" model="Model.AddToCart" view-data="dataDictAddToCart"/>
                                     <b-btn-group class="mt-2 mb-3 w-100 flex-wrap">
                                         @if (Model.ProductType == ProductType.SimpleProduct || Model.ProductType == ProductType.BundledProduct)
                                         {
-                                            <partial name="Partials/AddToWishlist" model="Model.AddToCart" view-data="dataDictAddToWishlist" />
-                                            <partial name="Partials/ProductsComparison" model="Model" />
+                                            <partial name="Partials/AddToWishlist" model="Model.AddToCart" view-data="dataDictAddToWishlist"/>
+                                            <partial name="Partials/ProductsComparison" model="Model"/>
                                         }
                                         @if (Model.EmailAFriendEnabled)
                                         {
-                                            <partial name="Partials/SendFriend" model="Model" />
+                                            <partial name="Partials/SendFriend" model="Model"/>
                                         }
                                     </b-btn-group>
                                 </div>
                             </div>
-                            @if (!String.IsNullOrWhiteSpace(Model.PageShareCode))
+                            @if (!string.IsNullOrWhiteSpace(Model.PageShareCode))
                             {
                                 <div class="col-12 product-share px-0">
-                                    <partial name="Partials/ShareButton" model="Model" />
+                                    <partial name="Partials/ShareButton" model="Model"/>
                                 </div>
                             }
                             <vc:widget widget-zone="productdetails_overview_bottom" additional-data="@Model.Id"></vc:widget>
@@ -216,13 +217,13 @@
                             @if (Model.ProductTags.Any())
                             {
                                 <b-tab title="@Loc["Products.Tags"]">
-                                    <partial name="Partials/ProductTags" model="Model.ProductTags" />
+                                    <partial name="Partials/ProductTags" model="Model.ProductTags"/>
                                 </b-tab>
                             }
                             @if (Model.ProductSpecifications.Any())
                             {
                                 <b-tab title="@Loc["Products.Specs"]">
-                                    <partial name="Partials/ProductSpecifications" model="Model.ProductSpecifications" />
+                                    <partial name="Partials/ProductSpecifications" model="Model.ProductSpecifications"/>
                                 </b-tab>
                             }
                             @if (Model.ProductReviewOverview.AllowCustomerReviews)
@@ -234,7 +235,7 @@
                             @if (Model.AskQuestionOnProduct)
                             {
                                 <b-tab title="@Loc["Products.ContactUs"]">
-                                    <partial name="Partials/AskQuestionOnProduct" model="Model.ProductAskQuestion" />
+                                    <partial name="Partials/AskQuestionOnProduct" model="Model.ProductAskQuestion"/>
                                 </b-tab>
                             }
                         </b-tabs>
@@ -248,7 +249,7 @@
     </validation-observer>
     @if (Model.EmailAFriendEnabled)
     {
-        @await  Component.InvokeAsync("ProductEmailAFriend", new { productId = Model.Id })
+        @await Component.InvokeAsync("ProductEmailAFriend", new { productId = Model.Id })
     }
     <vc:widget widget-zone="productdetails_bottom" additional-data="@Model.Id"></vc:widget>
 </div>

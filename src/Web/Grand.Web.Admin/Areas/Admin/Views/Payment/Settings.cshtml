@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["Admin.Configuration.Payment.Settings"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Payment" asp-action="Settings" method="post">
-    
+
     <div asp-validation-summary="All"></div>
 
     <div class="row">
@@ -17,10 +17,12 @@
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
                         </div>
                     </div>
-                    <vc:admin-widget widget-zone="payment_settings_buttons" additional-data="null" />
+                    <vc:admin-widget widget-zone="payment_settings_buttons" additional-data="null"/>
                 </div>
                 <div class="x_content">
                     <div class="form-horizontal">
@@ -30,16 +32,16 @@
                     </div>
                 </div>
                 <div class="x_content form">
-                    <vc:admin-widget widget-zone="payment_settings_top" additional-data="null" />
+                    <vc:admin-widget widget-zone="payment_settings_top" additional-data="null"/>
                     <div class="form-horizontal">
                         <div class="form-body">
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="AllowRePostingPayments" class="control-label" />
+                                    <admin-label asp-for="AllowRePostingPayments" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="AllowRePostingPayments" />
+                                        <admin-input asp-for="AllowRePostingPayments"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="AllowRePostingPayments"></span>
@@ -47,11 +49,11 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="SkipPaymentIfOnlyOne" class="control-label" />
+                                    <admin-label asp-for="SkipPaymentIfOnlyOne" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="SkipPaymentIfOnlyOne" />
+                                        <admin-input asp-for="SkipPaymentIfOnlyOne"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="SkipPaymentIfOnlyOne"></span>
@@ -59,11 +61,11 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="ShowPaymentIfCartIsZero" class="control-label" />
+                                    <admin-label asp-for="ShowPaymentIfCartIsZero" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="ShowPaymentIfCartIsZero" />
+                                        <admin-input asp-for="ShowPaymentIfCartIsZero"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="ShowPaymentIfCartIsZero"></span>
@@ -71,11 +73,11 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="ShowPaymentDescriptions" class="control-label" />
+                                    <admin-label asp-for="ShowPaymentDescriptions" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="ShowPaymentDescriptions" />
+                                        <admin-input asp-for="ShowPaymentDescriptions"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="ShowPaymentDescriptions"></span>
@@ -83,11 +85,11 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
-                                    <admin-label asp-for="SkipPaymentInfo" class="control-label" />
+                                    <admin-label asp-for="SkipPaymentInfo" class="control-label"/>
                                 </div>
                                 <div class="col-4 col-md-8 col-sm-8">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="SkipPaymentInfo" />
+                                        <admin-input asp-for="SkipPaymentInfo"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="SkipPaymentInfo"></span>
@@ -95,7 +97,7 @@
                             </div>
                         </div>
                     </div>
-                    <vc:admin-widget widget-zone="payment_settings_bottom" additional-data="null" />
+                    <vc:admin-widget widget-zone="payment_settings_bottom" additional-data="null"/>
                 </div>
             </div>
         </div>

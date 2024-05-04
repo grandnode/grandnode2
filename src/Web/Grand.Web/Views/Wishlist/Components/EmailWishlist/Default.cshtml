@@ -1,14 +1,22 @@
 ﻿@model WishlistEmailAFriendModel
-@if (Model.DisplayCaptcha) { 
+@if (Model.DisplayCaptcha)
+{
     <div id="captcha-container">
         <div class="captcha-box" id="captcha-box">
-            <captcha />
+            <captcha/>
         </div>
     </div>
 }
-<b-modal id="ModalEmailWishlist" ref="ModalEmailWishlist" :dark-theme="darkMode" size="xl" @if (Model.DisplayCaptcha) { <text> @@shown="emailwishlist.modalEmailWishlistShown()" @@hide="emailwishlist.modalEmailWishlistClose()" </text> } centered hide-footer hide-header>
+<b-modal id="ModalEmailWishlist" ref="ModalEmailWishlist" :dark-theme="darkMode" size="xl"
+         @if (Model.DisplayCaptcha)
+         {
+             <text> @@shown="emailwishlist.modalEmailWishlistShown()" @@hide="emailwishlist.modalEmailWishlistClose()" </text>
+         }
+         centered hide-footer hide-header>
     <div class="card">
-        <a class="modal-close" @@click="$bvModal.hide('ModalEmailWishlist')"><b-icon icon="x"></b-icon></a>
+        <a class="modal-close" @@click="$bvModal.hide('ModalEmailWishlist')">
+            <b-icon icon="x"></b-icon>
+        </a>
         <div class="card-header">
             <h4 class="h4 generalTitle text-xs-center">@Loc["Wishlist.EmailAFriend.Title"]</h4>
         </div>
@@ -35,8 +43,8 @@
                                     <validation-provider tag="div" rules="required|email" name="FriendEmail" v-slot="{ errors, classes }">
                                         <label asp-for="FriendEmail" class="col-form-label">@Loc["Wishlist.EmailAFriend.FriendEmail"]:</label>
                                         <span class="required">*</span>
-                                        <input asp-for="FriendEmail" v-model="emailwishlist.FriendEmail" placeholder="@Loc["Wishlist.EmailAFriend.FriendEmail.Hint"]" v-bind:class="[classes , 'form-control']" 
-                                               data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Wishlist.EmailAFriend.YourEmailAddress.Required"] />
+                                        <input asp-for="FriendEmail" v-model="emailwishlist.FriendEmail" placeholder="@Loc["Wishlist.EmailAFriend.FriendEmail.Hint"]" v-bind:class="[classes , 'form-control']"
+                                               data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Wishlist.EmailAFriend.YourEmailAddress.Required"]/>
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                         <span asp-validation-for="FriendEmail"></span>
                                     </validation-provider>
@@ -45,8 +53,8 @@
                                     <validation-provider tag="div" rules="required|email" name="YourEmailAddress" v-slot="{ errors, classes }">
                                         <label asp-for="YourEmailAddress" class="col-form-label">@Loc["Wishlist.EmailAFriend.YourEmailAddress"]:</label>
                                         <span class="required">*</span>
-                                        <input asp-for="YourEmailAddress" v-model="emailwishlist.YourEmailAddress" placeholder="@Loc["Wishlist.EmailAFriend.YourEmailAddress.Hint"]" v-bind:class="[classes , 'form-control']" 
-                                               data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Wishlist.EmailAFriend.YourEmailAddress.Required"] />
+                                        <input asp-for="YourEmailAddress" v-model="emailwishlist.YourEmailAddress" placeholder="@Loc["Wishlist.EmailAFriend.YourEmailAddress.Hint"]" v-bind:class="[classes , 'form-control']"
+                                               data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Wishlist.EmailAFriend.YourEmailAddress.Required"]/>
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                         <span asp-validation-for="YourEmailAddress"></span>
                                     </validation-provider>
@@ -84,8 +92,9 @@
                                 }
                             }),
                             methods: {
-                                        @{ 
-                                            if (Model.DisplayCaptcha) { 
+                                        @{
+                                            if (Model.DisplayCaptcha)
+                                            {
                                                 <text>
                                                     modalEmailWishlistShown: function () {
                                                         if (document.querySelector("#ModalEmailWishlist .captcha-box") == null && !emailwishlist.Message.SuccessfullyAdded) {

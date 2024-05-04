@@ -5,7 +5,7 @@
     ViewBag.Title = Loc["Admin.System.QueuedEmails"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="QueuedEmail" asp-action="List" method="post">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit popup-window">
@@ -15,9 +15,9 @@
                         @Loc["Admin.System.QueuedEmails"]
                     </div>
                     <div class="actions btn-group btn-group-devided">
-                        <input type="button" id="delete-selected" class="btn green" value="@Loc["Admin.System.QueuedEmails.DeleteSelected"]" />
-                        <input type="submit" name="delete-all" asp-action="DeleteAll" class="btn red" value="@Loc["Admin.System.QueuedEmails.DeleteAll"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " />
-                        <vc:admin-widget widget-zone="queued_email_list_buttons" additional-data="null" />
+                        <input type="button" id="delete-selected" class="btn green" value="@Loc["Admin.System.QueuedEmails.DeleteSelected"]"/>
+                        <input type="submit" name="delete-all" asp-action="DeleteAll" class="btn red" value="@Loc["Admin.System.QueuedEmails.DeleteAll"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
+                        <vc:admin-widget widget-zone="queued_email_list_buttons" additional-data="null"/>
                     </div>
                 </div>
                 <div class="x_content form">
@@ -27,20 +27,20 @@
                                 <div class="row align-items-end">
                                     <div class="col-md-3 col-ms-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="SearchFromEmail" class="control-label" />
-                                            <admin-input asp-for="SearchFromEmail" />
+                                            <admin-label asp-for="SearchFromEmail" class="control-label"/>
+                                            <admin-input asp-for="SearchFromEmail"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-ms-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="SearchToEmail" class="control-label" />
-                                            <admin-input asp-for="SearchToEmail" />
+                                            <admin-label asp-for="SearchToEmail" class="control-label"/>
+                                            <admin-input asp-for="SearchToEmail"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-ms-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="SearchText" class="control-label" />
-                                            <admin-input asp-for="SearchText" />
+                                            <admin-label asp-for="SearchText" class="control-label"/>
+                                            <admin-input asp-for="SearchText"/>
                                         </div>
                                     </div>
                                     <div class="col-md-3 col-sm-12 col-12">
@@ -60,30 +60,30 @@
                             <div class="collapse" id="filterCollapse">
                                 <div class="drop-filters-container w-100">
                                     <div class="form-group">
-                                        <admin-label asp-for="SearchStartDate" class="col-sm-3 control-label" />
+                                        <admin-label asp-for="SearchStartDate" class="col-sm-3 control-label"/>
                                         <div class="col-md-4 col-sm-6">
-                                            <admin-input asp-for="SearchStartDate" />
+                                            <admin-input asp-for="SearchStartDate"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <admin-label asp-for="SearchEndDate" class="col-sm-3 control-label" />
+                                        <admin-label asp-for="SearchEndDate" class="col-sm-3 control-label"/>
                                         <div class="col-md-4 col-sm-6">
-                                            <admin-input asp-for="SearchEndDate" />
+                                            <admin-input asp-for="SearchEndDate"/>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <admin-label asp-for="SearchLoadNotSent" class="col-sm-3 control-label" />
+                                        <admin-label asp-for="SearchLoadNotSent" class="col-sm-3 control-label"/>
                                         <div class="col-md-4 col-sm-6">
                                             <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                                <admin-input asp-for="SearchLoadNotSent" />
+                                                <admin-input asp-for="SearchLoadNotSent"/>
                                                 <div class="control__indicator"></div>
                                             </label>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <admin-label asp-for="SearchMaxSentTries" class="col-sm-3 control-label" />
+                                        <admin-label asp-for="SearchMaxSentTries" class="col-sm-3 control-label"/>
                                         <div class="col-md-9 col-sm-9">
-                                            <admin-input asp-for="SearchMaxSentTries" />
+                                            <admin-input asp-for="SearchMaxSentTries"/>
                                         </div>
                                     </div>
                                 </div>

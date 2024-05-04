@@ -7,55 +7,54 @@ using Grand.Infrastructure;
 using Grand.Web.Commands.Models.News;
 using MediatR;
 
-namespace Grand.Web.Commands.Handler.News
+namespace Grand.Web.Commands.Handler.News;
+
+public class InsertNewsCommentCommandHandler : IRequestHandler<InsertNewsCommentCommand, NewsComment>
 {
-    public class InsertNewsCommentCommandHandler : IRequestHandler<InsertNewsCommentCommand, NewsComment>
+    private readonly ICustomerService _customerService;
+    private readonly LanguageSettings _languageSettings;
+    private readonly IMessageProviderService _messageProviderService;
+    private readonly INewsService _newsService;
+
+    private readonly NewsSettings _newsSettings;
+    private readonly IWorkContext _workContext;
+
+    public InsertNewsCommentCommandHandler(IWorkContext workContext, INewsService newsService,
+        ICustomerService customerService, IMessageProviderService messageProviderService, NewsSettings newsSettings,
+        LanguageSettings languageSettings)
     {
-        private readonly IWorkContext _workContext;
-        private readonly INewsService _newsService;
-        private readonly ICustomerService _customerService;
-        private readonly IMessageProviderService _messageProviderService;
+        _workContext = workContext;
+        _newsService = newsService;
+        _customerService = customerService;
+        _messageProviderService = messageProviderService;
 
-        private readonly NewsSettings _newsSettings;
-        private readonly LanguageSettings _languageSettings;
+        _newsSettings = newsSettings;
+        _languageSettings = languageSettings;
+    }
 
-        public InsertNewsCommentCommandHandler(IWorkContext workContext, INewsService newsService,
-            ICustomerService customerService, IMessageProviderService messageProviderService, NewsSettings newsSettings,
-            LanguageSettings languageSettings)
-        {
-            _workContext = workContext;
-            _newsService = newsService;
-            _customerService = customerService;
-            _messageProviderService = messageProviderService;
+    public async Task<NewsComment> Handle(InsertNewsCommentCommand request, CancellationToken cancellationToken)
+    {
+        var comment = new NewsComment {
+            NewsItemId = request.NewsItem.Id,
+            CustomerId = _workContext.CurrentCustomer.Id,
+            StoreId = _workContext.CurrentStore.Id,
+            CommentTitle = request.Model.CommentTitle,
+            CommentText = request.Model.CommentText
+        };
+        request.NewsItem.NewsComments.Add(comment);
 
-            _newsSettings = newsSettings;
-            _languageSettings = languageSettings;
-        }
+        //update totals
+        request.NewsItem.CommentCount = request.NewsItem.NewsComments.Count;
 
-        public async Task<NewsComment> Handle(InsertNewsCommentCommand request, CancellationToken cancellationToken)
-        {
-            var comment = new NewsComment
-            {
-                NewsItemId = request.NewsItem.Id,
-                CustomerId = _workContext.CurrentCustomer.Id,
-                StoreId = _workContext.CurrentStore.Id,
-                CommentTitle = request.Model.CommentTitle,
-                CommentText = request.Model.CommentText
-            };
-            request.NewsItem.NewsComments.Add(comment);
+        await _newsService.UpdateNews(request.NewsItem);
 
-            //update totals
-            request.NewsItem.CommentCount = request.NewsItem.NewsComments.Count;
+        await _customerService.UpdateContributions(_workContext.CurrentCustomer);
 
-            await _newsService.UpdateNews(request.NewsItem);
+        //notify a store owner;
+        if (_newsSettings.NotifyAboutNewNewsComments)
+            await _messageProviderService.SendNewsCommentMessage(request.NewsItem, comment,
+                _languageSettings.DefaultAdminLanguageId);
 
-            await _customerService.UpdateContributions(_workContext.CurrentCustomer);
-
-            //notify a store owner;
-            if (_newsSettings.NotifyAboutNewNewsComments)
-                await _messageProviderService.SendNewsCommentMessage(request.NewsItem, comment, _languageSettings.DefaultAdminLanguageId);
-
-            return comment;
-        }
+        return comment;
     }
 }

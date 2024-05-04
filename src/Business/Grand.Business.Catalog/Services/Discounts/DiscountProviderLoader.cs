@@ -4,17 +4,18 @@ namespace Grand.Business.Catalog.Services.Discounts;
 
 public class DiscountProviderLoader : IDiscountProviderLoader
 {
-    private readonly IEnumerable<IDiscountProvider> _discountProviders;
     private readonly IEnumerable<IDiscountAmountProvider> _discountAmountProviders;
+    private readonly IEnumerable<IDiscountProvider> _discountProviders;
 
-    public DiscountProviderLoader(IEnumerable<IDiscountProvider> discountProviders, IEnumerable<IDiscountAmountProvider> discountAmountProviders)
+    public DiscountProviderLoader(IEnumerable<IDiscountProvider> discountProviders,
+        IEnumerable<IDiscountAmountProvider> discountAmountProviders)
     {
         _discountProviders = discountProviders;
         _discountAmountProviders = discountAmountProviders;
     }
 
     /// <summary>
-    /// Load discount provider by rule system name
+    ///     Load discount provider by rule system name
     /// </summary>
     /// <param name="ruleSystemName">Rule system name</param>
     /// <returns>Found discount</returns>
@@ -29,36 +30,36 @@ public class DiscountProviderLoader : IDiscountProviderLoader
                 continue;
             return discountPlugin;
         }
+
         return null;
     }
 
     /// <summary>
-    /// Load all discount providers
+    ///     Load all discount providers
     /// </summary>
     /// <returns>Discount providers</returns>
     public virtual IList<IDiscountProvider> LoadAllDiscountProviders()
     {
         return _discountProviders.ToList();
     }
-    
+
     /// <summary>
-    /// Get all discount amount providers
+    ///     Get all discount amount providers
     /// </summary>
     /// <returns></returns>
     public virtual IList<IDiscountAmountProvider> LoadDiscountAmountProviders()
     {
         return _discountAmountProviders.ToList();
     }
-    
+
     /// <summary>
-    /// Load discount amountProviderBySystemName
+    ///     Load discount amountProviderBySystemName
     /// </summary>
     /// <param name="systemName"></param>
     /// <returns></returns>
     public virtual IDiscountAmountProvider LoadDiscountAmountProviderBySystemName(string systemName)
     {
-        return _discountAmountProviders.FirstOrDefault(x => x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));
+        return _discountAmountProviders.FirstOrDefault(x =>
+            x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));
     }
-
-
 }

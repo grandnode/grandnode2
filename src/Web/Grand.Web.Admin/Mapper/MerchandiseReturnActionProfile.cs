@@ -4,19 +4,18 @@ using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Settings;
 using Grand.Web.Common.Extensions;
 
-namespace Grand.Web.Admin.Mapper
-{
-    public class MerchandiseReturnActionProfile : Profile, IAutoMapperProfile
-    {
-        public MerchandiseReturnActionProfile()
-        {
-            CreateMap<MerchandiseReturnAction, MerchandiseReturnActionModel>()
-                .ForMember(dest => dest.Locales, mo => mo.Ignore());
-            CreateMap<MerchandiseReturnActionModel, MerchandiseReturnAction>()
-                .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()))
-                .ForMember(dest => dest.Id, mo => mo.Ignore());
-        }
+namespace Grand.Web.Admin.Mapper;
 
-        public int Order => 0;
+public class MerchandiseReturnActionProfile : Profile, IAutoMapperProfile
+{
+    public MerchandiseReturnActionProfile()
+    {
+        CreateMap<MerchandiseReturnAction, MerchandiseReturnActionModel>()
+            .ForMember(dest => dest.Locales, mo => mo.Ignore());
+        CreateMap<MerchandiseReturnActionModel, MerchandiseReturnAction>()
+            .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()))
+            .ForMember(dest => dest.Id, mo => mo.Ignore());
     }
+
+    public int Order => 0;
 }

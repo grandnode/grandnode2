@@ -1,7 +1,6 @@
-﻿namespace Grand.Web.Common.Models
+﻿namespace Grand.Web.Common.Models;
+
+public interface ISlugModelLocal
 {
-    public interface ISlugModelLocal
-    {
-        string SeName { get; set; }
-    }
+    string SeName { get; set; }
 }

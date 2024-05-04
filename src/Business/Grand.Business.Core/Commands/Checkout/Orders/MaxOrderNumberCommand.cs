@@ -1,9 +1,8 @@
 ﻿using MediatR;
 
-namespace Grand.Business.Core.Commands.Checkout.Orders
+namespace Grand.Business.Core.Commands.Checkout.Orders;
+
+public class MaxOrderNumberCommand : IRequest<int?>
 {
-    public class MaxOrderNumberCommand : IRequest<int?>
-    {
-        public int? OrderNumber { get; set; }
-    }
+    public int? OrderNumber { get; set; }
 }

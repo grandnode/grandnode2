@@ -5,13 +5,16 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Auctions"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Auctions })
 }
 
 <div class="page account-page auction-list-page pl-lg-3 pt-3 pt-lg-0">
-    <h1 class="h2 generalTitle"><div>@Loc["Account.CustomerAuctions"]</div></h1>
+    <h1 class="h2 generalTitle">
+        <div>@Loc["Account.CustomerAuctions"]</div>
+    </h1>
     <a class="left-side-toggler mb-3" onclick="sideToggle()">
         <div class="inner">
             <span></span>
@@ -32,50 +35,63 @@
                         <div id="auction-table-ongoing" class="table-responsive">
                             <table class="table">
                                 <thead role="rowgroup">
-                                    <tr role="row">
-                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.ProductName"]</div></th>
-                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.Status"]</div></th>
-                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.Highestbid"]</div></th>
-                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.AuctionEndTime"]</div></th>
-                                    </tr>
+                                <tr role="row">
+                                    <th role="columnheader">
+                                        <div>@Loc["Account.CustomerAuctions.ProductName"]</div>
+                                    </th>
+                                    <th role="columnheader">
+                                        <div>@Loc["Account.CustomerAuctions.Status"]</div>
+                                    </th>
+                                    <th role="columnheader">
+                                        <div>@Loc["Account.CustomerAuctions.Highestbid"]</div>
+                                    </th>
+                                    <th role="columnheader">
+                                        <div>@Loc["Account.CustomerAuctions.AuctionEndTime"]</div>
+                                    </th>
+                                </tr>
                                 </thead>
                                 <tbody role="rowgroup">
-                                    @{
-                                        var ongoing = Model.ProductBidList.Where(x => !x.Ended);
-                                    }
-                                    @foreach (var item in ongoing)
-                                    {
-                                        <tr role="row">
-                                            <td>
-                                                <div><a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a></div>
-                                            </td>
-                                            @if (item.HighestBidder)
-                                            {
-                                                <td>
-                                                    <div>
-                                                        <span class="text-success">@Loc["Account.CustomerAuctions.Status.HighestBidder"]</span>
-                                                    </div>
-                                                </td>
-                                            }
-                                            else
-                                            {
-                                                <td>
-                                                    <div>
-                                                        <span class="text-danger">@Loc["Account.CustomerAuctions.Status.Outbid"]</span>
-                                                    </div>
-                                                </td>
-                                            }
+                                @{
+                                    var ongoing = Model.ProductBidList.Where(x => !x.Ended);
+                                }
+                                @foreach (var item in ongoing)
+                                {
+                                    <tr role="row">
+                                        <td>
+                                            <div>
+                                                <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
+                                            </div>
+                                        </td>
+                                        @if (item.HighestBidder)
+                                        {
                                             <td>
                                                 <div>
-                                                    @item.CurrentBidAmount @if (item.CurrentBidAmountValue > item.BidAmountValue)
-                                                    {<small>(@item.BidAmount)</small>}
+                                                    <span class="text-success">@Loc["Account.CustomerAuctions.Status.HighestBidder"]</span>
                                                 </div>
                                             </td>
+                                        }
+                                        else
+                                        {
                                             <td>
-                                                <div>@item.EndBidDate</div>
+                                                <div>
+                                                    <span class="text-danger">@Loc["Account.CustomerAuctions.Status.Outbid"]</span>
+                                                </div>
                                             </td>
-                                        </tr>
-                                    }
+                                        }
+                                        <td>
+                                            <div>
+                                                @item.CurrentBidAmount
+                                                @if (item.CurrentBidAmountValue > item.BidAmountValue)
+                                                {
+                                                    <small>(@item.BidAmount)</small>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>@item.EndBidDate</div>
+                                        </td>
+                                    </tr>
+                                }
                                 </tbody>
                             </table>
                         </div>
@@ -90,55 +106,67 @@
                 <b-tab title="@Loc["Account.Auctions.Tab.Ended"]">
                     @if (Model.ProductBidList.Any(x => x.Ended))
                     {
-
                         <div id="auction-table-ended" class="table-responsive">
                             <table class="table">
                                 <thead role="rowgroup">
-                                    <tr role="row">
-                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.ProductName"]</div></th>
-                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.Status"]</div></th>
-                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.Highestbid"]</div></th>
-                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.AuctionEndTime"]</div></th>
-                                    </tr>
+                                <tr role="row">
+                                    <th role="columnheader">
+                                        <div>@Loc["Account.CustomerAuctions.ProductName"]</div>
+                                    </th>
+                                    <th role="columnheader">
+                                        <div>@Loc["Account.CustomerAuctions.Status"]</div>
+                                    </th>
+                                    <th role="columnheader">
+                                        <div>@Loc["Account.CustomerAuctions.Highestbid"]</div>
+                                    </th>
+                                    <th role="columnheader">
+                                        <div>@Loc["Account.CustomerAuctions.AuctionEndTime"]</div>
+                                    </th>
+                                </tr>
                                 </thead>
                                 <tbody role="rowgroup">
-                                    @{
-                                        var ended = Model.ProductBidList.Where(x => x.Ended);
-                                    }
+                                @{
+                                    var ended = Model.ProductBidList.Where(x => x.Ended);
+                                }
 
-                                    @foreach (var item in ended)
-                                    {
-                                        <tr role="row">
-                                            <td>
-                                                <div><a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a></div>
-                                            </td>
-                                            @if (item.HighestBidder)
-                                            {
-                                                <td>
-                                                    <div>
-                                                        <span class="text-success">@Loc["Account.CustomerAuctions.Status.HighestBidder"]</span>
-                                                    </div>
-                                                </td>
-                                            }
-                                            else
-                                            {
-                                                <td>
-                                                    <div>
-                                                        <span class="text-danger">@Loc["Account.CustomerAuctions.Status.Outbid"]</span>
-                                                    </div>
-                                                </td>
-                                            }
+                                @foreach (var item in ended)
+                                {
+                                    <tr role="row">
+                                        <td>
+                                            <div>
+                                                <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
+                                            </div>
+                                        </td>
+                                        @if (item.HighestBidder)
+                                        {
                                             <td>
                                                 <div>
-                                                    @item.CurrentBidAmount @if (item.CurrentBidAmountValue > item.BidAmountValue)
-                                                    {<small>(@item.BidAmount)</small>}
+                                                    <span class="text-success">@Loc["Account.CustomerAuctions.Status.HighestBidder"]</span>
                                                 </div>
                                             </td>
+                                        }
+                                        else
+                                        {
                                             <td>
-                                                <div>@item.EndBidDate</div>
+                                                <div>
+                                                    <span class="text-danger">@Loc["Account.CustomerAuctions.Status.Outbid"]</span>
+                                                </div>
                                             </td>
-                                        </tr>
-                                    }
+                                        }
+                                        <td>
+                                            <div>
+                                                @item.CurrentBidAmount
+                                                @if (item.CurrentBidAmountValue > item.BidAmountValue)
+                                                {
+                                                    <small>(@item.BidAmount)</small>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>@item.EndBidDate</div>
+                                        </td>
+                                    </tr>
+                                }
                                 </tbody>
                             </table>
                         </div>

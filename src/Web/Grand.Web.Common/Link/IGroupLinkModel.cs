@@ -1,7 +1,6 @@
-﻿namespace Grand.Web.Common.Link
+﻿namespace Grand.Web.Common.Link;
+
+public interface IGroupLinkModel
 {
-    public interface IGroupLinkModel
-    {
-        string[] CustomerGroups { get; set; }
-    }
+    string[] CustomerGroups { get; set; }
 }

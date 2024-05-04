@@ -1,22 +1,21 @@
-namespace Grand.Business.Core.Interfaces.Catalog.Directory
+namespace Grand.Business.Core.Interfaces.Catalog.Directory;
+
+/// <summary>
+///     GEO lookup service
+/// </summary>
+public interface IGeoLookupService
 {
     /// <summary>
-    /// GEO lookup service
+    ///     Get country name
     /// </summary>
-    public interface IGeoLookupService
-    {
-        /// <summary>
-        /// Get country name
-        /// </summary>
-        /// <param name="ipAddress">IP address</param>
-        /// <returns>Country name</returns>
-        string CountryIsoCode(string ipAddress);
+    /// <param name="ipAddress">IP address</param>
+    /// <returns>Country name</returns>
+    string CountryIsoCode(string ipAddress);
 
-        /// <summary>
-        /// Get country name
-        /// </summary>
-        /// <param name="ipAddress">IP address</param>
-        /// <returns>Country name</returns>
-        string CountryName(string ipAddress);
-    }
+    /// <summary>
+    ///     Get country name
+    /// </summary>
+    /// <param name="ipAddress">IP address</param>
+    /// <returns>Country name</returns>
+    string CountryName(string ipAddress);
 }

@@ -1,48 +1,41 @@
 ﻿using Grand.Domain.Payments;
 
-namespace Grand.Business.Core.Utilities.Checkout
+namespace Grand.Business.Core.Utilities.Checkout;
+
+/// <summary>
+///     Refund payment result
+/// </summary>
+public class RefundPaymentResult
 {
     /// <summary>
-    /// Refund payment result
+    ///     Ctor
     /// </summary>
-    public class RefundPaymentResult
+    public RefundPaymentResult()
     {
-        private TransactionStatus _newTransactionStatus = TransactionStatus.Pending;
+        Errors = new List<string>();
+    }
 
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        public RefundPaymentResult()
-        {
-            this.Errors = new List<string>();
-        }
+    /// <summary>
+    ///     Gets a value indicating whether request has been completed successfully
+    /// </summary>
+    public bool Success => Errors.Count == 0;
 
-        /// <summary>
-        /// Gets a value indicating whether request has been completed successfully
-        /// </summary>
-        public bool Success => this.Errors.Count == 0;
+    /// <summary>
+    ///     Errors
+    /// </summary>
+    public IList<string> Errors { get; set; }
 
-        /// <summary>
-        /// Add error
-        /// </summary>
-        /// <param name="error">Error</param>
-        public void AddError(string error)
-        {
-            this.Errors.Add(error);
-        }
+    /// <summary>
+    ///     Gets or sets a transaction status after processing
+    /// </summary>
+    public TransactionStatus NewTransactionStatus { get; set; } = TransactionStatus.Pending;
 
-        /// <summary>
-        /// Errors
-        /// </summary>
-        public IList<string> Errors { get; set; }
-
-        /// <summary>
-        /// Gets or sets a transaction status after processing
-        /// </summary>
-        public TransactionStatus NewTransactionStatus
-        {
-            get => _newTransactionStatus;
-            set => _newTransactionStatus = value;
-        }
+    /// <summary>
+    ///     Add error
+    /// </summary>
+    /// <param name="error">Error</param>
+    public void AddError(string error)
+    {
+        Errors.Add(error);
     }
 }

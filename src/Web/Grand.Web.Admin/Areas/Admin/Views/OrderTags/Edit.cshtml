@@ -12,17 +12,21 @@
                     <div class="caption">
                         <i class="fa fa-cube"></i>
                         @Loc["Admin.Orders.OrderTags.EditTagDetails"] - @Model.Name
-                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Orders.OrderTags.BackToList"], "List")</small>
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Orders.OrderTags.BackToList"], "List")
+                        </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                            <vc:admin-widget widget-zone="order_tag_details_buttons" additional-data="Model" />
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <vc:admin-widget widget-zone="order_tag_details_buttons" additional-data="Model"/>
                         </div>
                     </div>
                 </div>
                 <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model" />
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
                 </div>
             </div>
         </div>

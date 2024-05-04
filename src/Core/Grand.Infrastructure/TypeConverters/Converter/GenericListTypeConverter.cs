@@ -1,103 +1,99 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 
-namespace Grand.Infrastructure.TypeConverters.Converter
+namespace Grand.Infrastructure.TypeConverters.Converter;
+
+/// <summary>
+///     Generic List type converted
+/// </summary>
+/// <typeparam name="T">Type</typeparam>
+public class GenericListTypeConverter<T> : TypeConverter
 {
     /// <summary>
-    /// Generic List type converted
+    ///     Type converter
     /// </summary>
-    /// <typeparam name="T">Type</typeparam>
-    public class GenericListTypeConverter<T> : TypeConverter
+    private readonly TypeConverter _typeConverter;
+
+    /// <summary>
+    ///     Ctor
+    /// </summary>
+    public GenericListTypeConverter()
     {
-        /// <summary>
-        /// Type converter
-        /// </summary>
-        private readonly TypeConverter _typeConverter;
+        _typeConverter = TypeDescriptor.GetConverter(typeof(T));
+        if (_typeConverter == null)
+            throw new InvalidOperationException("No type converter exists for type " + typeof(T).FullName);
+    }
 
-        /// <summary>
-        /// Ctor
-        /// </summary>
-        public GenericListTypeConverter()
+    /// <summary>
+    ///     Get string array from a comma-separate string
+    /// </summary>
+    /// <param name="input">Input</param>
+    /// <returns>Array</returns>
+    protected virtual string[] GetStringArray(string input)
+    {
+        return string.IsNullOrEmpty(input) ? Array.Empty<string>() : input.Split(',').Select(x => x.Trim()).ToArray();
+    }
+
+    /// <summary>
+    ///     Gets a value indicating whether this converter can
+    ///     convert an object in the given source type to the native type of the converter
+    ///     using the context.
+    /// </summary>
+    /// <param name="context">Context</param>
+    /// <param name="sourceType">Source type</param>
+    /// <returns>Result</returns>
+    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    {
+        if (sourceType != typeof(string)) return base.CanConvertFrom(context, sourceType);
+        var items = GetStringArray(sourceType.ToString());
+        return items.Any();
+    }
+
+    /// <summary>
+    ///     Converts the given object to the converter's native type.
+    /// </summary>
+    /// <param name="context">Context</param>
+    /// <param name="culture">Culture</param>
+    /// <param name="value">Value</param>
+    /// <returns>Result</returns>
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    {
+        if (value is not string strValue) return base.ConvertFrom(context, culture, value);
+        var items = GetStringArray(strValue);
+        var result = new List<T>();
+        Array.ForEach(items, s =>
         {
-            _typeConverter = TypeDescriptor.GetConverter(typeof(T));
-            if (_typeConverter == null)
-                throw new InvalidOperationException("No type converter exists for type " + typeof(T).FullName);
+            var item = _typeConverter.ConvertFromInvariantString(s);
+            if (item != null) result.Add((T)item);
+        });
+
+        return result;
+    }
+
+    /// <summary>
+    ///     Converts the given value object to the specified destination type using the specified context and arguments
+    /// </summary>
+    /// <param name="context">Context</param>
+    /// <param name="culture">Culture</param>
+    /// <param name="value">Value</param>
+    /// <param name="destinationType">Destination type</param>
+    /// <returns>Result</returns>
+    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+        Type destinationType)
+    {
+        if (destinationType != typeof(string)) return base.ConvertTo(context, culture, value, destinationType);
+        var result = string.Empty;
+        if (value == null) return result;
+        //we don't use string.Join() because it doesn't support invariant culture
+        for (var i = 0; i < ((IList<T>)value).Count; i++)
+        {
+            var str1 = Convert.ToString(((IList<T>)value)[i], CultureInfo.InvariantCulture);
+            result += str1;
+            //don't add comma after the last element
+            if (i != ((IList<T>)value).Count - 1)
+                result += ",";
         }
 
-        /// <summary>
-        /// Get string array from a comma-separate string
-        /// </summary>
-        /// <param name="input">Input</param>
-        /// <returns>Array</returns>
-        protected virtual string[] GetStringArray(string input)
-        {
-            return string.IsNullOrEmpty(input) ? Array.Empty<string>() : input.Split(',').Select(x => x.Trim()).ToArray();
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether this converter can        
-        /// convert an object in the given source type to the native type of the converter
-        /// using the context.
-        /// </summary>
-        /// <param name="context">Context</param>
-        /// <param name="sourceType">Source type</param>
-        /// <returns>Result</returns>
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            if (sourceType != typeof(string)) return base.CanConvertFrom(context, sourceType);
-            var items = GetStringArray(sourceType.ToString());
-            return items.Any();
-
-        }
-
-        /// <summary>
-        /// Converts the given object to the converter's native type.
-        /// </summary>
-        /// <param name="context">Context</param>
-        /// <param name="culture">Culture</param>
-        /// <param name="value">Value</param>
-        /// <returns>Result</returns>
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            if (value is not string strValue) return base.ConvertFrom(context, culture, value);
-            var items = GetStringArray(strValue);
-            var result = new List<T>();
-            Array.ForEach(items, s =>
-            {
-                var item = _typeConverter.ConvertFromInvariantString(s);
-                if (item != null)
-                {
-                    result.Add((T)item);
-                }
-            });
-
-            return result;
-        }
-
-        /// <summary>
-        /// Converts the given value object to the specified destination type using the specified context and arguments
-        /// </summary>
-        /// <param name="context">Context</param>
-        /// <param name="culture">Culture</param>
-        /// <param name="value">Value</param>
-        /// <param name="destinationType">Destination type</param>
-        /// <returns>Result</returns>
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-        {
-            if (destinationType != typeof(string)) return base.ConvertTo(context, culture, value, destinationType);
-            var result = string.Empty;
-            if (value == null) return result;
-            //we don't use string.Join() because it doesn't support invariant culture
-            for (var i = 0; i < ((IList<T>)value).Count; i++)
-            {
-                var str1 = Convert.ToString(((IList<T>)value)[i], CultureInfo.InvariantCulture);
-                result += str1;
-                //don't add comma after the last element
-                if (i != ((IList<T>)value).Count - 1)
-                    result += ",";
-            }
-            return result;
-
-        }
+        return result;
     }
 }

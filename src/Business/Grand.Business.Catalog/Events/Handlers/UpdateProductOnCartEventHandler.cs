@@ -1,35 +1,33 @@
 ﻿using Grand.Business.Core.Events.Catalog;
-using Grand.Domain.Customers;
 using Grand.Data;
+using Grand.Domain.Customers;
 using MediatR;
 
-namespace Grand.Business.Catalog.Events.Handlers
+namespace Grand.Business.Catalog.Events.Handlers;
+
+public class UpdateProductOnCartEventHandler : INotificationHandler<UpdateProductOnCartEvent>
 {
-    public class UpdateProductOnCartEventHandler : INotificationHandler<UpdateProductOnCartEvent>
+    private readonly IRepository<Customer> _customerRepository;
+
+    public UpdateProductOnCartEventHandler(IRepository<Customer> customerRepository)
     {
-        private readonly IRepository<Customer> _customerRepository;
+        _customerRepository = customerRepository;
+    }
 
-        public UpdateProductOnCartEventHandler(IRepository<Customer> customerRepository)
+    public async Task Handle(UpdateProductOnCartEvent notification, CancellationToken cancellationToken)
+    {
+        var customers = _customerRepository.Table
+            .Where(x => x.ShoppingCartItems.Any(y => y.ProductId == notification.Product.Id)).ToList();
+        foreach (var cs in customers)
+        foreach (var item in cs.ShoppingCartItems.Where(x => x.ProductId == notification.Product.Id))
         {
-            _customerRepository = customerRepository;
-        }
+            item.AdditionalShippingChargeProduct = notification.Product.AdditionalShippingCharge;
+            item.IsFreeShipping = notification.Product.IsFreeShipping;
+            item.IsGiftVoucher = notification.Product.IsGiftVoucher;
+            item.IsShipEnabled = notification.Product.IsShipEnabled;
+            item.IsTaxExempt = notification.Product.IsTaxExempt;
 
-        public async Task Handle(UpdateProductOnCartEvent notification, CancellationToken cancellationToken)
-        {
-            var customers = _customerRepository.Table.Where(x => x.ShoppingCartItems.Any(y => y.ProductId == notification.Product.Id)).ToList();
-            foreach (var cs in customers)
-            {
-                foreach (var item in cs.ShoppingCartItems.Where(x => x.ProductId == notification.Product.Id))
-                {
-                    item.AdditionalShippingChargeProduct = notification.Product.AdditionalShippingCharge;
-                    item.IsFreeShipping = notification.Product.IsFreeShipping;
-                    item.IsGiftVoucher = notification.Product.IsGiftVoucher;
-                    item.IsShipEnabled = notification.Product.IsShipEnabled;
-                    item.IsTaxExempt = notification.Product.IsTaxExempt;
-
-                    await _customerRepository.UpdateToSet(cs.Id, x => x.ShoppingCartItems, z => z.Id, item.Id, item);
-                }
-            }
+            await _customerRepository.UpdateToSet(cs.Id, x => x.ShoppingCartItems, z => z.Id, item.Id, item);
         }
     }
 }

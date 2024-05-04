@@ -1,21 +1,22 @@
-namespace Grand.Infrastructure.Plugins
+namespace Grand.Infrastructure.Plugins;
+
+/// <summary>
+///     Represents a status to load plugins
+/// </summary>
+public enum LoadPluginsStatus
 {
     /// <summary>
-    /// Represents a status to load plugins
+    ///     All
     /// </summary>
-    public enum LoadPluginsStatus
-    {
-        /// <summary>
-        /// All 
-        /// </summary>
-        All = 0,
-        /// <summary>
-        /// Installed only
-        /// </summary>
-        InstalledOnly = 1,
-        /// <summary>
-        /// Not installed only
-        /// </summary>
-        NotInstalledOnly = 2
-    }
+    All = 0,
+
+    /// <summary>
+    ///     Installed only
+    /// </summary>
+    InstalledOnly = 1,
+
+    /// <summary>
+    ///     Not installed only
+    /// </summary>
+    NotInstalledOnly = 2
 }

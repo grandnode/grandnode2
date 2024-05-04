@@ -1,6 +1,7 @@
 ﻿@{
     Layout = "";
 }
+@using System.Text.Encodings.Web
 @model DiscountRules.Standard.Models.RequirementAllProductsModel
 
 <script>
@@ -25,13 +26,13 @@
                 success: function (data) {
                     $('#pnl-save-requirement-result@(Model.RequirementId)').fadeIn("slow").delay(1000).fadeOut("slow");
                     //notify parent if it's a new requirement
-                    @if (String.IsNullOrEmpty(Model.RequirementId))
+                    @if (string.IsNullOrEmpty(Model.RequirementId))
                     {
                         <text>$("#discountRequirementContainer").trigger('grandnewdiscountruleadded', [data.NewRequirementId]);</text>
                     }
                 },
                 error:function (xhr, ajaxOptions, thrownError){
-                    alert('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["admin.marketing.Discounts.Requirements.FailedToSave"]))');
+                    alert('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["admin.marketing.Discounts.Requirements.FailedToSave"]))');
                 }
             });
         });
@@ -39,12 +40,12 @@
 </script>
 
 <div class="form-body">
-    <admin-label asp-for="Products" />
+    <admin-label asp-for="Products"/>
     <div class="col-md-8 col-sm-8">
-        <admin-input asp-for="Products" />
+        <admin-input asp-for="Products"/>
         <span class="control-label" style="text-align:left" id="discountrequirement-product-names@(Model.RequirementId)"></span>
         <div class="group-btn btn-group-devided margin-top-10">
-            <input type="button" id="saveHasAllProductsrequirement@(Model.RequirementId)" class="btn default" value="@Loc["Admin.Common.Save"]" />
+            <input type="button" id="saveHasAllProductsrequirement@(Model.RequirementId)" class="btn default" value="@Loc["Admin.Common.Save"]"/>
             <a id="btnAddNewDiscountRequirementProduct@(Model.RequirementId)" href="@(Url.RouteUrl("Plugin.DiscountRules.HasAllProducts.ProductAddPopup", new { btnId = "btnRefreshDiscountRequirementProducts" + Model.RequirementId, productIdsInput = Html.IdFor(model => model.Products) }))" class="btn default">
                 @Loc["Plugins.DiscountRules.HasAllProducts.Fields.Products.AddNew"]
             </a>
@@ -53,7 +54,7 @@
 
         <span id="discountrequirement-products-check-progress@(Model.RequirementId)" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
 
-        <input type="submit" id="btnRefreshDiscountRequirementProducts@(Model.RequirementId)" style="display: none" />
+        <input type="submit" id="btnRefreshDiscountRequirementProducts@(Model.RequirementId)" style="display: none"/>
         <script>
                 $(document).ready(function () {
                     $('#btnAddNewDiscountRequirementProduct@(Model.RequirementId)').magnificPopup({

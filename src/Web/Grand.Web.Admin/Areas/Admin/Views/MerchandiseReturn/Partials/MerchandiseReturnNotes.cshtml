@@ -1,15 +1,16 @@
-﻿@model MerchandiseReturnModel
+﻿@using Grand.Domain.Media
+@model MerchandiseReturnModel
 @{
-    ViewData["DownloadType"] = Grand.Domain.Media.DownloadType.MerchandiseReturn;
+    ViewData["DownloadType"] = DownloadType.MerchandiseReturn;
     ViewData["ReferenceId"] = Model.Id;
 }
 
 <div class="panel panel-default">
-    <vc:admin-widget widget-zone="merchandisereturn_details_notes_top" additional-data="Model" />
+    <vc:admin-widget widget-zone="merchandisereturn_details_notes_top" additional-data="Model"/>
     <div class="panel-body">
         <div id="merchandisereturnnotes-grid"></div>
     </div>
-    <vc:admin-widget widget-zone="merchandisereturn_details_notes_bottom" additional-data="Model" />
+    <vc:admin-widget widget-zone="merchandisereturn_details_notes_bottom" additional-data="Model"/>
 </div>
 <script>
         $(document).ready(function () {
@@ -125,30 +126,30 @@
 <div class="form-horizontal">
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="AddMerchandiseReturnNoteMessage" />
+            <admin-label asp-for="AddMerchandiseReturnNoteMessage"/>
             <div class="col-md-9 col-sm-9">
                 <admin-textarea asp-for="AddMerchandiseReturnNoteMessage"></admin-textarea>
                 <span asp-validation-for="AddMerchandiseReturnNoteMessage"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="AddMerchandiseReturnNoteDownloadId" />
+            <admin-label asp-for="AddMerchandiseReturnNoteDownloadId"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AddMerchandiseReturnNoteHasDownload" />
+                    <admin-input asp-for="AddMerchandiseReturnNoteHasDownload"/>
                     <div class="control__indicator"></div>
                 </label>
                 <div id="pnlAddMerchandiseReturnNoteDownloadId">
-                    <admin-input asp-for="AddMerchandiseReturnNoteDownloadId" />
+                    <admin-input asp-for="AddMerchandiseReturnNoteDownloadId"/>
                     <span asp-validation-for="AddMerchandiseReturnNoteDownloadId"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="AddMerchandiseReturnNoteDisplayToCustomer" />
+            <admin-label asp-for="AddMerchandiseReturnNoteDisplayToCustomer"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AddMerchandiseReturnNoteDisplayToCustomer" />
+                    <admin-input asp-for="AddMerchandiseReturnNoteDisplayToCustomer"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="AddMerchandiseReturnNoteDisplayToCustomer"></span>

@@ -7,10 +7,12 @@
     pagebuilder.AddTitleParts(Loc["Title.Login"]);
 
     //register URL with return URL (if specified)
-    var registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] });
+    var registerUrl = Url.RouteUrl("Register", new { returnUrl = Context.Request.Query["returnUrl"] });
 }
 <div class="page login-page">
-    <h2 class="generalTitle text-center mt-3"><div>@Loc["Account.Login.Welcome"]</div></h2>
+    <h2 class="generalTitle text-center mt-3">
+        <div>@Loc["Account.Login.Welcome"]</div>
+    </h2>
     <div cols="12">
         <div class="my-3">
             @* login main block *@
@@ -34,7 +36,7 @@
                                             </div>
                                             <div class="col-lg-9 col-12">
                                                 <validation-provider tag="div" rules="required" name="UserName" v-slot="{ errors, classes }">
-                                                    <input asp-for="Username" v-model="login.Username" v-bind:class="[classes , 'form-control']"  />
+                                                    <input asp-for="Username" v-model="login.Username" v-bind:class="[classes , 'form-control']"/>
                                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                                     <span asp-validation-for="Username"></span>
                                                 </validation-provider>
@@ -49,7 +51,7 @@
                                             </div>
                                             <div class="col-lg-9 col-12">
                                                 <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
-                                                    <input asp-for="Email" v-model="login.Email" v-bind:class="[classes , 'form-control']"  />
+                                                    <input asp-for="Email" v-model="login.Email" v-bind:class="[classes , 'form-control']"/>
                                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                                     <span asp-validation-for="Email"></span>
                                                 </validation-provider>
@@ -63,7 +65,7 @@
                                         </div>
                                         <div class="col-lg-9 col-12">
                                             <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors, classes }">
-                                                <input asp-for="Password" v-model="login.Password" v-bind:class="[classes , 'form-control']" />
+                                                <input asp-for="Password" v-model="login.Password" v-bind:class="[classes , 'form-control']"/>
                                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                                 <span asp-validation-for="Password"></span>
                                             </validation-provider>
@@ -71,7 +73,7 @@
                                     </div>
                                     <div class="inputs d-flex flex-sm-row flex-column justify-content-center">
                                         <label class="custom-control custom-checkbox">
-                                            <input class="custom-control-input" asp-for="RememberMe" />
+                                            <input class="custom-control-input" asp-for="RememberMe"/>
                                             <input class="custom-control-label" name="RememberMe" type="hidden" value="false">
                                             <span class="custom-control-label"></span>
                                             <span class="custom-control-description">@Loc["Account.Login.Fields.RememberMe"]</span>
@@ -83,7 +85,7 @@
                                     @if (Model.DisplayCaptcha)
                                     {
                                         <div class="captcha-box">
-                                            <captcha />
+                                            <captcha/>
                                         </div>
                                     }
                                 </div>

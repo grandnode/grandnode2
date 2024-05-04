@@ -6,10 +6,12 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Account"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.LoyaltyPoints })
 }
+
 <section class="page account-page loyalty-points-page pl-lg-3 pt-3 pt-lg-0">
     <h1 class="h2 generalTitle">@Loc["Account.MyAccount"] - @Loc["Account.LoyaltyPoints"]</h1>
     <div class="loyalty-points-overview">
@@ -20,49 +22,59 @@
         }
     </div>
     <div class="loyalty-points-history">
-        <h5><strong>@Loc["LoyaltyPoints.History"]</strong></h5>
+        <h5>
+            <strong>@Loc["LoyaltyPoints.History"]</strong>
+        </h5>
         @if (Model.LoyaltyPoints.Any())
         {
-                        <div id="customer-loyalty-points" class="table-responsive">
-                            <table class="table">
-                                <thead role="rowgroup">
-                                    <tr role="row">
-                                        <th role="columnheader"><div>@Loc["LoyaltyPoints.Fields.Date"]</div></th>
-                                        <th role="columnheader"><div>@Loc["LoyaltyPoints.Fields.Points"]</div></th>
-                                        <th role="columnheader"><div>@Loc["LoyaltyPoints.Fields.PointsBalance"]</div></th>
-                                        <th role="columnheader"><div>@Loc["LoyaltyPoints.Fields.Message"]</div></th>
-                                    </tr>
-                                </thead>
-                                <tbody role="rowgroup">
-                                    @for (var i = 0; i < Model.LoyaltyPoints.Count; i++)
-                                    {
-                                        var item = Model.LoyaltyPoints[i];
-                                        <tr role="row">
-                                            <td>
-                                                <div>
-                                                    @item.CreatedOn
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    @item.Points
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    @item.PointsBalance
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    @item.Message
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+            <div id="customer-loyalty-points" class="table-responsive">
+                <table class="table">
+                    <thead role="rowgroup">
+                    <tr role="row">
+                        <th role="columnheader">
+                            <div>@Loc["LoyaltyPoints.Fields.Date"]</div>
+                        </th>
+                        <th role="columnheader">
+                            <div>@Loc["LoyaltyPoints.Fields.Points"]</div>
+                        </th>
+                        <th role="columnheader">
+                            <div>@Loc["LoyaltyPoints.Fields.PointsBalance"]</div>
+                        </th>
+                        <th role="columnheader">
+                            <div>@Loc["LoyaltyPoints.Fields.Message"]</div>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody role="rowgroup">
+                    @for (var i = 0; i < Model.LoyaltyPoints.Count; i++)
+                    {
+                        var item = Model.LoyaltyPoints[i];
+                        <tr role="row">
+                            <td>
+                                <div>
+                                    @item.CreatedOn
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    @item.Points
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    @item.PointsBalance
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    @item.Message
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
         }
         else
         {

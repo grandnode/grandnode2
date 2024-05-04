@@ -1,33 +1,32 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Models.Orders
+namespace Grand.Web.Models.Orders;
+
+public class CustomerLoyaltyPointsModel : BaseModel
 {
-    public class CustomerLoyaltyPointsModel : BaseModel
+    public IList<LoyaltyPointsHistoryModel> LoyaltyPoints { get; set; } = new List<LoyaltyPointsHistoryModel>();
+    public int LoyaltyPointsBalance { get; set; }
+    public string LoyaltyPointsAmount { get; set; }
+    public int MinimumLoyaltyPointsBalance { get; set; }
+    public string MinimumLoyaltyPointsAmount { get; set; }
+
+    #region Nested classes
+
+    public class LoyaltyPointsHistoryModel : BaseEntityModel
     {
-        public IList<LoyaltyPointsHistoryModel> LoyaltyPoints { get; set; } = new List<LoyaltyPointsHistoryModel>();
-        public int LoyaltyPointsBalance { get; set; }
-        public string LoyaltyPointsAmount { get; set; }
-        public int MinimumLoyaltyPointsBalance { get; set; }
-        public string MinimumLoyaltyPointsAmount { get; set; }
+        [GrandResourceDisplayName("LoyaltyPoints.Fields.Points")]
+        public int Points { get; set; }
 
-        #region Nested classes
+        [GrandResourceDisplayName("LoyaltyPoints.Fields.PointsBalance")]
+        public int PointsBalance { get; set; }
 
-        public class LoyaltyPointsHistoryModel : BaseEntityModel
-        {
-            [GrandResourceDisplayName("LoyaltyPoints.Fields.Points")]
-            public int Points { get; set; }
+        [GrandResourceDisplayName("LoyaltyPoints.Fields.Message")]
+        public string Message { get; set; }
 
-            [GrandResourceDisplayName("LoyaltyPoints.Fields.PointsBalance")]
-            public int PointsBalance { get; set; }
-
-            [GrandResourceDisplayName("LoyaltyPoints.Fields.Message")]
-            public string Message { get; set; }
-
-            [GrandResourceDisplayName("LoyaltyPoints.Fields.Date")]
-            public DateTime CreatedOn { get; set; }
-        }
-
-        #endregion
+        [GrandResourceDisplayName("LoyaltyPoints.Fields.Date")]
+        public DateTime CreatedOn { get; set; }
     }
+
+    #endregion
 }

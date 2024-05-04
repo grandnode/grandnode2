@@ -11,7 +11,7 @@
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
 
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -28,15 +28,19 @@
                                 <div class="row align-items-end">
                                     <div class="col-md-8 col-sm-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="SearchBrandName" class="control-label" />
-                                            <admin-input asp-for="SearchBrandName" />
+                                            <admin-label asp-for="SearchBrandName" class="control-label"/>
+                                            <admin-input asp-for="SearchBrandName"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-12 col-12">
                                         <div class="form-actions">
                                             <div class="btn-group btn-group-devided">
-                                                <button class="btn btn-success filter-submit" id="search-brands"><i class="fa fa-search"></i> @Loc["Admin.Common.Search"]</button>
-                                                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                                                <button class="btn btn-success filter-submit" id="search-brands">
+                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                </button>
+                                                <button class="btn btn-success" type="submit" name="save">
+                                                    <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                                </button>
                                             </div>
                                         </div>
                                     </div>

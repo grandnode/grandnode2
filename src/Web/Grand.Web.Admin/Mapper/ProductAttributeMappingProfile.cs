@@ -3,18 +3,17 @@ using Grand.Domain.Catalog;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Catalog;
 
-namespace Grand.Web.Admin.Mapper
+namespace Grand.Web.Admin.Mapper;
+
+public class ProductAttributeMappingProfile : Profile, IAutoMapperProfile
 {
-    public class ProductAttributeMappingProfile : Profile, IAutoMapperProfile
+    public ProductAttributeMappingProfile()
     {
-        public ProductAttributeMappingProfile()
-        {
-            CreateMap<ProductAttributeMapping, ProductModel.ProductAttributeMappingModel>();
+        CreateMap<ProductAttributeMapping, ProductModel.ProductAttributeMappingModel>();
 
-            CreateMap<ProductModel.ProductAttributeMappingModel, ProductAttributeMapping>()
-                .ForMember(dest => dest.Id, mo => mo.Ignore());
-        }
-
-        public int Order => 0;
+        CreateMap<ProductModel.ProductAttributeMappingModel, ProductAttributeMapping>()
+            .ForMember(dest => dest.Id, mo => mo.Ignore());
     }
+
+    public int Order => 0;
 }

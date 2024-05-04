@@ -1,23 +1,20 @@
 ﻿using Grand.Domain.Messages;
 using MediatR;
 
-namespace Grand.Business.Core.Events.Messages
+namespace Grand.Business.Core.Events.Messages;
+
+/// <summary>
+///     A container for tokens that are added.
+/// </summary>
+public class MessageTokensAddedEvent : INotification
 {
-    /// <summary>
-    /// A container for tokens that are added.
-    /// </summary>
-    public class MessageTokensAddedEvent : INotification
+    public MessageTokensAddedEvent(MessageTemplate message, LiquidObject liquidObject)
     {
-        private readonly MessageTemplate _message;
-        private readonly LiquidObject _liquidObject;
-
-        public MessageTokensAddedEvent(MessageTemplate message, LiquidObject liquidObject)
-        {
-            _message = message;
-            _liquidObject = liquidObject;
-        }
-
-        public MessageTemplate Message => _message;
-        public LiquidObject LiquidObject => _liquidObject;
+        Message = message;
+        LiquidObject = liquidObject;
     }
+
+    public MessageTemplate Message { get; }
+
+    public LiquidObject LiquidObject { get; }
 }

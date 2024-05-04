@@ -1,9 +1,7 @@
-﻿
-namespace Grand.Infrastructure.Caching.Message
+﻿namespace Grand.Infrastructure.Caching.Message;
+
+public class MessageEvent : IMessageEvent
 {
-    public class MessageEvent : IMessageEvent
-    {
-        public string Key { get; set; }
-        public int MessageType { get; set; }
-    }
+    public string Key { get; set; }
+    public int MessageType { get; set; }
 }

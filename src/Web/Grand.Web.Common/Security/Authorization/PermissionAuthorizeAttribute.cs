@@ -5,37 +5,37 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Grand.Web.Common.Security.Authorization
+namespace Grand.Web.Common.Security.Authorization;
+
+[AttributeUsage(AttributeTargets.Class)]
+public class PermissionAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public class PermissionAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
+    public PermissionAuthorizeAttribute(string permission)
     {
-        public PermissionAuthorizeAttribute(string permission)
-        {
-            Permission = permission;
-        }
+        Permission = permission;
+    }
 
-        // Get or set the permission property by manipulating
-        public string Permission { get; set; }
+    // Get or set the permission property by manipulating
+    public string Permission { get; set; }
 
-        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
-        {
-            //ignore filter (the action available even when navigation is not allowed)
-            ArgumentNullException.ThrowIfNull(context);
+    public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
+    {
+        //ignore filter (the action available even when navigation is not allowed)
+        ArgumentNullException.ThrowIfNull(context);
 
-            if (string.IsNullOrEmpty(Permission))
-                return;
+        if (string.IsNullOrEmpty(Permission))
+            return;
 
-            var permissionService = context.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
-            //check whether current customer has access to a public store
-            if (await permissionService.Authorize(Permission))
-                return;
+        var permissionService = context.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
+        //check whether current customer has access to a public store
+        if (await permissionService.Authorize(Permission))
+            return;
 
-            //authorize permission of access to the admin area
-            if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
-                context.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
-            else
-                context.Result = new RedirectToActionResult("AccessDenied", "Home", new { pageUrl = context.HttpContext.Request.Path });
-        }
+        //authorize permission of access to the admin area
+        if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
+            context.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
+        else
+            context.Result = new RedirectToActionResult("AccessDenied", "Home",
+                new { pageUrl = context.HttpContext.Request.Path });
     }
 }

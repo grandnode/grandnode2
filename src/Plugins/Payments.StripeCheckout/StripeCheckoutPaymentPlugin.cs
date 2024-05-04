@@ -6,18 +6,10 @@ using Grand.Infrastructure.Plugins;
 namespace Payments.StripeCheckout;
 
 /// <summary>
-/// StripeCheckout payment processor
+///     StripeCheckout payment processor
 /// </summary>
 public class StripeCheckoutPaymentPlugin : BasePlugin, IPlugin
 {
-    #region Fields
-
-    private readonly ITranslationService _translationService;
-    private readonly ILanguageService _languageService;
-    private readonly ISettingService _settingService;
-
-    #endregion
-
     #region Ctor
 
     public StripeCheckoutPaymentPlugin(
@@ -32,10 +24,18 @@ public class StripeCheckoutPaymentPlugin : BasePlugin, IPlugin
 
     #endregion
 
+    #region Fields
+
+    private readonly ITranslationService _translationService;
+    private readonly ILanguageService _languageService;
+    private readonly ISettingService _settingService;
+
+    #endregion
+
     #region Methods
 
     /// <summary>
-    /// Gets a configuration page URL
+    ///     Gets a configuration page URL
     /// </summary>
     public override string ConfigurationUrl()
     {
@@ -43,13 +43,14 @@ public class StripeCheckoutPaymentPlugin : BasePlugin, IPlugin
     }
 
     /// <summary>
-    /// Install the plugin
+    ///     Install the plugin
     /// </summary>
     public override async Task Install()
     {
         //settings
         await _settingService.SaveSetting(new StripeCheckoutPaymentSettings {
-            Description = "Enjoy seamless transactions with the flexibility to pay using your preferred payment method through Stripe Checkout. We ensure a secure and hassle-free payment experience, accommodating a wide range of payment options to suit your convenience.",
+            Description =
+                "Enjoy seamless transactions with the flexibility to pay using your preferred payment method through Stripe Checkout. We ensure a secure and hassle-free payment experience, accommodating a wide range of payment options to suit your convenience.",
             DisplayOrder = 0,
             Line = "Order number {0}"
         });
@@ -72,7 +73,7 @@ public class StripeCheckoutPaymentPlugin : BasePlugin, IPlugin
     }
 
     /// <summary>
-    /// Uninstall the plugin
+    ///     Uninstall the plugin
     /// </summary>
     public override async Task Uninstall()
     {

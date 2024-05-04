@@ -30,16 +30,16 @@
                     <div class="basic-search">
                         <label class="col-form-label" asp-for="q">@Loc["Search.SearchTerm"]:</label>
                         <div class="input-group mb-2">
-                            <input asp-for="q" type="search" class="form-control search-text" />
+                            <input asp-for="q" type="search" class="form-control search-text"/>
                             <div class="input-group-append">
-                                <input type="submit" class="btn btn-info search-button" value="@Loc["Search.Button"]" />
+                                <input type="submit" class="btn btn-info search-button" value="@Loc["Search.Button"]"/>
                             </div>
                         </div>
                         @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_basic" })
                         <div class="inputs reversed">
                             <label for="adv" class="custom-control custom-checkbox">
                                 <span class="sr-only">adv</span>
-                                <input asp-for="adv" class="custom-control-input" />
+                                <input asp-for="adv" class="custom-control-input"/>
                                 <span class="custom-control-label"></span>
                                 <span class="custom-control-description">@Loc["search.advancedsearch"]</span>
                             </label>
@@ -80,18 +80,18 @@
                                     <div class="price-range flex-sm-row row">
                                         <div class="col">
                                             <label class="col-form-label" asp-for="pf">@Loc["Search.PriceRange.From"]</label>
-                                            <input asp-for="pf" class="form-control price-from" />
+                                            <input asp-for="pf" class="form-control price-from"/>
                                         </div>
                                         <div class="col">
                                             <label class="col-form-label" asp-for="pt">@Loc["Search.PriceRange.To"]</label>
-                                            <input asp-for="pt" class="form-control price-to" />
+                                            <input asp-for="pt" class="form-control price-to"/>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="inputs reversed">
                                 <label for="sid" class="custom-control custom-checkbox">
-                                    <input asp-for="sid" class="custom-control-input" />
+                                    <input asp-for="sid" class="custom-control-input"/>
                                     <span class="custom-control-label"></span>
                                     <span class="custom-control-description">@Loc["search.searchindescriptions"]</span>
                                 </label>
@@ -107,14 +107,14 @@
     <div class="search-results">
         <div id="catalog-products">
             @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_before_results" })
-            <partial name="Partials/Selectors" />
+            <partial name="Partials/Selectors"/>
             <template v-if="catalog.Model.Products.length > 0">
                 <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
                     <div class="col-12 product-grid px-0">
                         <div class="form-row">
                             <template v-for="Model in catalog.Model.Products">
                                 <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                                    <partial name="Partials/CatalogProductGridView" />
+                                    <partial name="Partials/CatalogProductGridView"/>
                                 </div>
                             </template>
                         </div>
@@ -125,13 +125,13 @@
                         <div class="col-12">
                             <div class="row">
                                 <template v-for="Model in catalog.Model.Products">
-                                    <partial name="Partials/CatalogProductListView" />
+                                    <partial name="Partials/CatalogProductListView"/>
                                 </template>
                             </div>
                         </div>
                     </div>
                 </template>
-                <partial name="Partials/Pagination" />
+                <partial name="Partials/Pagination"/>
             </template>
         </div>
         @if (!string.IsNullOrEmpty(Model.Warning))
@@ -153,6 +153,7 @@
 @section filters
 {
     @*Rendering filtering section*@
-    <partial name="Partials/Filtering" model="Model.PagingFilteringContext.SpecificationFilter" />
+    <partial name="Partials/Filtering" model="Model.PagingFilteringContext.SpecificationFilter"/>
 }
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />
+
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>

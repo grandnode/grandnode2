@@ -1,9 +1,10 @@
 ﻿using Grand.Business.Catalog.Services.Categories;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Catalog;
-using Grand.Domain.Customers;
 using Grand.Data;
 using Grand.Data.Mongo;
+using Grand.Domain.Catalog;
+using Grand.Domain.Customers;
+using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
@@ -13,179 +14,182 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
+namespace Grand.Business.Catalog.Tests.Services.Categories;
 
-namespace Grand.Business.Catalog.Tests.Services.Categories
+[TestClass]
+public class CategoryServiceTests
 {
-    [TestClass()]
-    public class CategoryServiceTests
+    private Mock<IAclService> _aclServiceMock;
+    private Mock<ICacheBase> _casheManagerMock;
+    private Mock<IRepository<Category>> _categoryRepositoryMock;
+    private CategoryService _categoryService;
+    private Mock<IMediator> _mediatorMock;
+    private ProductCategoryService _productCategoryService;
+    private Mock<MongoRepository<Product>> _productRepositoryMock;
+    private CatalogSettings _settings;
+    private Mock<IWorkContext> _workContextMock;
+
+    [TestInitialize]
+    public void Init()
     {
-        private Mock<ICacheBase> _casheManagerMock;
-        private Mock<IRepository<Category>> _categoryRepositoryMock;
-        private Mock<MongoRepository<Product>> _productRepositoryMock;
-        private Mock<IWorkContext> _workContextMock;
-        private Mock<IMediator> _mediatorMock;
-        private Mock<IAclService> _aclServiceMock;
-        private ProductCategoryService _productCategoryService;
-        private CatalogSettings _settings;
-        private CategoryService _categoryService;
+        CommonPath.BaseDirectory = "";
 
-        [TestInitialize()]
-        public void Init()
-        {
-            CommonPath.BaseDirectory = "";
+        _casheManagerMock = new Mock<ICacheBase>();
+        _categoryRepositoryMock = new Mock<IRepository<Category>>();
+        _productRepositoryMock = new Mock<MongoRepository<Product>>(Mock.Of<IAuditInfoProvider>());
+        _workContextMock = new Mock<IWorkContext>();
+        _mediatorMock = new Mock<IMediator>();
+        _aclServiceMock = new Mock<IAclService>();
+        _settings = new CatalogSettings();
+        _categoryService = new CategoryService(_casheManagerMock.Object, _categoryRepositoryMock.Object,
+            _workContextMock.Object,
+            _mediatorMock.Object, _aclServiceMock.Object, new AccessControlConfig());
+        _productCategoryService = new ProductCategoryService(_productRepositoryMock.Object, _casheManagerMock.Object,
+            _workContextMock.Object, _mediatorMock.Object, new AccessControlConfig());
+    }
 
-            _casheManagerMock = new Mock<ICacheBase>();
-            _categoryRepositoryMock = new Mock<IRepository<Category>>();
-            _productRepositoryMock = new Mock<MongoRepository<Product>>(Mock.Of<IAuditInfoProvider>());
-            _workContextMock = new Mock<IWorkContext>();
-            _mediatorMock = new Mock<IMediator>();
-            _aclServiceMock = new Mock<IAclService>();
-            _settings = new CatalogSettings();
-            _categoryService = new CategoryService(_casheManagerMock.Object, _categoryRepositoryMock.Object, _workContextMock.Object,
-                 _mediatorMock.Object, _aclServiceMock.Object, new AccessControlConfig());
-            _productCategoryService = new ProductCategoryService(_productRepositoryMock.Object, _casheManagerMock.Object, _workContextMock.Object, _mediatorMock.Object, new AccessControlConfig());
-        }
+    [TestMethod]
+    public void InsertCategory_NullArgument_ThrowException()
+    {
+        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _categoryService.InsertCategory(null),
+            "category");
+    }
 
-        [TestMethod()]
-        public void InsertCategory_NullArgument_ThrowException()
-        {
-            Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _categoryService.InsertCategory(null), "category");
-        }
-
-        [TestMethod()]
-        public async Task InsertCategory_ValidArgument_InvokeRepositoryAndCache()
-        {
-            await _categoryService.InsertCategory(new Category());
-            _categoryRepositoryMock.Verify(c => c.InsertAsync(It.IsAny<Category>()), Times.Once);
-            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Category>>(), default), Times.Once);
-            _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(2));
-        }
+    [TestMethod]
+    public async Task InsertCategory_ValidArgument_InvokeRepositoryAndCache()
+    {
+        await _categoryService.InsertCategory(new Category());
+        _categoryRepositoryMock.Verify(c => c.InsertAsync(It.IsAny<Category>()), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Category>>(), default), Times.Once);
+        _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(2));
+    }
 
 
-        [TestMethod()]
-        public void UpdateCategory_NullArgument_ThrowException()
-        {
-            Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _categoryService.UpdateCategory(null), "category");
-        }
+    [TestMethod]
+    public void UpdateCategory_NullArgument_ThrowException()
+    {
+        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _categoryService.UpdateCategory(null),
+            "category");
+    }
 
-        [TestMethod()]
-        public async Task UpdateCategory_ValidArgument_InvokeRepositoryAndCache()
-        {
-            await _categoryService.UpdateCategory(new Category());
-            _categoryRepositoryMock.Verify(c => c.UpdateAsync(It.IsAny<Category>()), Times.Once);
-            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Category>>(), default), Times.Once);
-            _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(2));
-        }
+    [TestMethod]
+    public async Task UpdateCategory_ValidArgument_InvokeRepositoryAndCache()
+    {
+        await _categoryService.UpdateCategory(new Category());
+        _categoryRepositoryMock.Verify(c => c.UpdateAsync(It.IsAny<Category>()), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Category>>(), default), Times.Once);
+        _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(2));
+    }
 
-        [TestMethod()]
-        public void GetCategoryBreadCrumb_ShouldReturnEmptyList()
-        {
-            var allCategory = GetMockCategoryList();
-            var category = new Category { ParentCategoryId = "3" };
-            _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
-            _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-            var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
-            Assert.IsTrue(result.Count == 0);
-        }
+    [TestMethod]
+    public void GetCategoryBreadCrumb_ShouldReturnEmptyList()
+    {
+        var allCategory = GetMockCategoryList();
+        var category = new Category { ParentCategoryId = "3" };
+        _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
+        _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
+        Assert.IsTrue(result.Count == 0);
+    }
 
-        [TestMethod()]
-        public void GetCategoryBreadCrumb_ShouldReturnTwoElement()
-        {
-            var allCategory = GetMockCategoryList();
-            var category = new Category { Id = "6", ParentCategoryId = "3", Published = true };
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
-            _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
-            _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-            var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
-            Assert.IsTrue(result.Count == 2);
-            Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
-            Assert.IsTrue(result.Any(c => c.Id.Equals("3")));
-        }
+    [TestMethod]
+    public void GetCategoryBreadCrumb_ShouldReturnTwoElement()
+    {
+        var allCategory = GetMockCategoryList();
+        var category = new Category { Id = "6", ParentCategoryId = "3", Published = true };
+        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
+        _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
+        _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
+        Assert.IsTrue(result.Count == 2);
+        Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
+        Assert.IsTrue(result.Any(c => c.Id.Equals("3")));
+    }
 
-        [TestMethod()]
-        public void GetCategoryBreadCrumb_ShouldReturnThreeElement()
-        {
-            var allCategory = GetMockCategoryList();
-            var category = new Category { Id = "6", ParentCategoryId = "1", Published = true };
-            _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store { Id = "" });
-            _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
-            _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-            var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
-            Assert.IsTrue(result.Count == 3);
-            Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
-            Assert.IsTrue(result.Any(c => c.Id.Equals("1")));
-            Assert.IsTrue(result.Any(c => c.Id.Equals("5")));
-        }
+    [TestMethod]
+    public void GetCategoryBreadCrumb_ShouldReturnThreeElement()
+    {
+        var allCategory = GetMockCategoryList();
+        var category = new Category { Id = "6", ParentCategoryId = "1", Published = true };
+        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
+        _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
+        _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
+        var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
+        Assert.IsTrue(result.Count == 3);
+        Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
+        Assert.IsTrue(result.Any(c => c.Id.Equals("1")));
+        Assert.IsTrue(result.Any(c => c.Id.Equals("5")));
+    }
 
-        [TestMethod()]
-        public void GetFormattedBreadCrumb_ReturnExprectedString()
-        {
-            var exprectedString = "cat5 >> cat1 >> cat6";
-            var allCategory = GetMockCategoryList();
-            var category = new Category { Id = "6", Name = "cat6", ParentCategoryId = "1", Published = true };
-            _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
-            _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-            var result = _categoryService.GetFormattedBreadCrumb(category, allCategory);
-            Assert.IsTrue(exprectedString.Equals(result));
-        }
+    [TestMethod]
+    public void GetFormattedBreadCrumb_ReturnExprectedString()
+    {
+        var exprectedString = "cat5 >> cat1 >> cat6";
+        var allCategory = GetMockCategoryList();
+        var category = new Category { Id = "6", Name = "cat6", ParentCategoryId = "1", Published = true };
+        _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
+        _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
+        var result = _categoryService.GetFormattedBreadCrumb(category, allCategory);
+        Assert.IsTrue(exprectedString.Equals(result));
+    }
 
-        [TestMethod()]
-        public void GetFormattedBreadCrumb_ReturnEmptyString()
-        {
-            var allCategory = GetMockCategoryList();
-            _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
-            _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
-            var result = _categoryService.GetFormattedBreadCrumb(null, allCategory);
-            Assert.IsTrue(string.IsNullOrEmpty(result));
-        }
+    [TestMethod]
+    public void GetFormattedBreadCrumb_ReturnEmptyString()
+    {
+        var allCategory = GetMockCategoryList();
+        _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
+        _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
+        var result = _categoryService.GetFormattedBreadCrumb(null, allCategory);
+        Assert.IsTrue(string.IsNullOrEmpty(result));
+    }
 
-        [TestMethod()]
-        public async Task DeleteProductCategory_InvokreRepositoryAndClearCache()
-        {
-            //var collectonMock = new Mock<IMongoCollection<Product>>();
-            //_productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
-            await _productCategoryService.DeleteProductCategory(new ProductCategory(), "1");
-            //TODO
-            //collectonMock.Verify(c => c.UpdateOneAsync(It.IsAny<FilterDefinition<Product>>(), It.IsAny<UpdateDefinition<Product>>(), null, default(CancellationToken)), Times.Once);
-            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<ProductCategory>>(), default), Times.Once);
-            //clear product cache and ProductCategory
-            _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(2));
-        }
+    [TestMethod]
+    public async Task DeleteProductCategory_InvokreRepositoryAndClearCache()
+    {
+        //var collectonMock = new Mock<IMongoCollection<Product>>();
+        //_productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
+        await _productCategoryService.DeleteProductCategory(new ProductCategory(), "1");
+        //TODO
+        //collectonMock.Verify(c => c.UpdateOneAsync(It.IsAny<FilterDefinition<Product>>(), It.IsAny<UpdateDefinition<Product>>(), null, default(CancellationToken)), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<ProductCategory>>(), default), Times.Once);
+        //clear product cache and ProductCategory
+        _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(2));
+    }
 
-        [TestMethod()]
-        public void DeleteProductCategory_NullArgument_ThrowException()
-        {
-            Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _productCategoryService.DeleteProductCategory(null, "id"), "productCategory");
-        }
+    [TestMethod]
+    public void DeleteProductCategory_NullArgument_ThrowException()
+    {
+        Assert.ThrowsExceptionAsync<ArgumentNullException>(
+            async () => await _productCategoryService.DeleteProductCategory(null, "id"), "productCategory");
+    }
 
-        [TestMethod()]
-        public async Task InsertProductCategory_InvokreRepositoryAndClearCache()
-        {
-            //var collectonMock = new Mock<IMongoCollection<Product>>();
-            //_productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
-            await _productCategoryService.InsertProductCategory(new ProductCategory(), "id");
-            //TODO
-            //collectonMock.Verify(c => c.UpdateOneAsync(It.IsAny<FilterDefinition<Product>>(), It.IsAny<UpdateDefinition<Product>>(), null, default(CancellationToken)), Times.Once);
-            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<ProductCategory>>(), default), Times.Once);
-            _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(2));
-        }
+    [TestMethod]
+    public async Task InsertProductCategory_InvokreRepositoryAndClearCache()
+    {
+        //var collectonMock = new Mock<IMongoCollection<Product>>();
+        //_productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
+        await _productCategoryService.InsertProductCategory(new ProductCategory(), "id");
+        //TODO
+        //collectonMock.Verify(c => c.UpdateOneAsync(It.IsAny<FilterDefinition<Product>>(), It.IsAny<UpdateDefinition<Product>>(), null, default(CancellationToken)), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<ProductCategory>>(), default), Times.Once);
+        _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(2));
+    }
 
-        [TestMethod()]
-        public void InsertProductCategory_NullArgument_ThrowException()
-        {
-            Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _productCategoryService.InsertProductCategory(null, "id"), "productCategory");
-        }
+    [TestMethod]
+    public void InsertProductCategory_NullArgument_ThrowException()
+    {
+        Assert.ThrowsExceptionAsync<ArgumentNullException>(
+            async () => await _productCategoryService.InsertProductCategory(null, "id"), "productCategory");
+    }
 
-        private IList<Category> GetMockCategoryList()
-        {
-            return new List<Category> {
-                new Category { Id="1" ,Name="cat1",Published=true,ParentCategoryId="5"},
-                new Category { Id="2" ,Name="cat2",Published=true},
-                new Category { Id="3" ,Name="cat3",Published=true},
-                new Category { Id="4" ,Name="cat4",Published=true},
-                new Category { Id="5" ,Name="cat5",Published=true}
-            };
-        }
-
+    private IList<Category> GetMockCategoryList()
+    {
+        return new List<Category> {
+            new() { Id = "1", Name = "cat1", Published = true, ParentCategoryId = "5" },
+            new() { Id = "2", Name = "cat2", Published = true },
+            new() { Id = "3", Name = "cat3", Published = true },
+            new() { Id = "4", Name = "cat4", Published = true },
+            new() { Id = "5", Name = "cat5", Published = true }
+        };
     }
 }

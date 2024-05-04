@@ -1,5 +1,5 @@
 ﻿@model IList<NewsletterSimpleCategory>
-@if(Model.Any())
+@if (Model.Any())
 {
     <div class="row">
         <div class="col-12 form-group register-category-newsletter">
@@ -11,8 +11,8 @@
                             var controlId = $"customerNewsletterCategory_{attribute.Id}";
                         }
                         <label for="@(controlId)" class="custom-control custom-checkbox">
-                            <input class="custom-control-input" id="@(controlId)" type="checkbox" name="SelectedNewsletterCategory" value="@(attribute.Id)" 
-                                   checked="@(attribute.Selected)" />
+                            <input class="custom-control-input" id="@(controlId)" type="checkbox" name="SelectedNewsletterCategory" value="@(attribute.Id)"
+                                   checked="@(attribute.Selected)"/>
                             <span class="custom-control-label"></span>
                             <span class="custom-control-description">@(attribute.Name)</span>
                         </label>

@@ -7,7 +7,6 @@ public class ThemeContextFactory : IThemeContextFactory
     public ThemeContextFactory(IEnumerable<IThemeContext> themeContexts)
     {
         _themeContexts = themeContexts.ToDictionary(f => f.AreaName, f => f);
-
     }
 
     public IThemeContext GetThemeContext(string areaName)

@@ -52,10 +52,12 @@
                     </div>
                     <img class="img-fluid" src="@Model.PictureUrl">
                     <div class="card-body">
-                        <h2 class="d-flex flex-column">@Model.Name<span class="h6">(@Model.CourseLevel)</span></h2>
+                        <h2 class="d-flex flex-column">
+                            @Model.Name<span class="h6">(@Model.CourseLevel)</span>
+                        </h2>
                         @if (Model.DownloadFile)
                         {
-                            <a class="btn btn-secondary" id="btnDownloadFile" href="@Url.Action("DownloadFile", "Course", new { id = Model.Id  })">@Loc["Course.DownloadLesson"]</a>
+                            <a class="btn btn-secondary" id="btnDownloadFile" href="@Url.Action("DownloadFile", "Course", new { id = Model.Id })">@Loc["Course.DownloadLesson"]</a>
                         }
                         @if (!string.IsNullOrWhiteSpace(Model.ShortDescription))
                         {
@@ -72,7 +74,7 @@
     {
         <div>
             <video controls controlsList="nodownload">
-                <source src="@Url.Action("VideoFile", "Course", new { id = Model.Id  })" type="video/mp4">
+                <source src="@Url.Action("VideoFile", "Course", new { id = Model.Id })" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
         </div>

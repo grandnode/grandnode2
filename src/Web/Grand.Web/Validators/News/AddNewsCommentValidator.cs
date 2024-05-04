@@ -24,15 +24,17 @@ public class AddNewsCommentValidator : BaseGrandValidator<AddNewsCommentModel>
         ITranslationService translationService)
         : base(validators)
     {
-        RuleFor(x => x.CommentTitle).NotEmpty().WithMessage(translationService.GetResource("News.Comments.CommentTitle.Required"));
-        RuleFor(x => x.CommentTitle).Length(1, 200).WithMessage(string.Format(translationService.GetResource("News.Comments.CommentTitle.MaxLengthValidation"), 200));
-        RuleFor(x => x.CommentText).NotEmpty().WithMessage(translationService.GetResource("News.Comments.CommentText.Required"));
+        RuleFor(x => x.CommentTitle).NotEmpty()
+            .WithMessage(translationService.GetResource("News.Comments.CommentTitle.Required"));
+        RuleFor(x => x.CommentTitle).Length(1, 200).WithMessage(
+            string.Format(translationService.GetResource("News.Comments.CommentTitle.MaxLengthValidation"), 200));
+        RuleFor(x => x.CommentText).NotEmpty()
+            .WithMessage(translationService.GetResource("News.Comments.CommentText.Required"));
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            if (await groupService.IsGuest(workContext.CurrentCustomer) && !newsSettings.AllowNotRegisteredUsersToLeaveComments)
-            {
+            if (await groupService.IsGuest(workContext.CurrentCustomer) &&
+                !newsSettings.AllowNotRegisteredUsersToLeaveComments)
                 context.AddFailure(translationService.GetResource("News.Comments.OnlyRegisteredUsersLeaveComments"));
-            }
             var newsItem = await newsService.GetNewsById(x.Id);
             if (newsItem is not { Published: true } || !newsItem.AllowComments)
                 context.AddFailure(translationService.GetResource("News.Comments.NotAllowed"));
@@ -44,4 +46,5 @@ public class AddNewsCommentValidator : BaseGrandValidator<AddNewsCommentModel>
             RuleFor(x => x.Captcha)
                 .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
         }
-    }}
+    }
+}

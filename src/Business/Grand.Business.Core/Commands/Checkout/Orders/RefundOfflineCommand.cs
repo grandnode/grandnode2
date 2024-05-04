@@ -1,10 +1,9 @@
 ﻿using Grand.Domain.Payments;
 using MediatR;
 
-namespace Grand.Business.Core.Commands.Checkout.Orders
+namespace Grand.Business.Core.Commands.Checkout.Orders;
+
+public class RefundOfflineCommand : IRequest<bool>
 {
-    public class RefundOfflineCommand : IRequest<bool>
-    {
-        public PaymentTransaction PaymentTransaction { get; set; }
-    }
+    public PaymentTransaction PaymentTransaction { get; set; }
 }

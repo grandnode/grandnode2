@@ -1,13 +1,13 @@
 ﻿@model CustomerTagModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-
     if (string.IsNullOrEmpty(Model.Id))
     {
         <div class="note note-info">
             @Loc["Admin.Customers.CustomerTags.Customers.SaveBeforeEdit"]
         </div>
     }
+
     if (!string.IsNullOrEmpty(Model.Id))
     {
         <div class="panel panel-default">
@@ -21,7 +21,7 @@
                     dataSource: {
                         transport: {
                             read: {
-                                url: "@Html.Raw(Url.Action("Customers", "CustomerTag", new {customerTagId = Model.Id, area = Constants.AreaAdmin }))",
+                                url: "@Html.Raw(Url.Action("Customers", "CustomerTag", new { customerTagId = Model.Id, area = Constants.AreaAdmin }))",
                                 type: "POST",
                                 dataType: "json",
                                 data: addAntiForgeryToken

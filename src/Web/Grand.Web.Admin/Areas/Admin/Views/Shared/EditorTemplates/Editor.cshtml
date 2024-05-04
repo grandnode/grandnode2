@@ -1,9 +1,11 @@
-﻿@model string
-@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
+﻿@using Grand.Business.Core.Interfaces.Common.Security
 @using Grand.Business.Core.Utilities.Common.Security
+@using Constants = Grand.SharedUIResources.Constants
+@model string
+@inject IPermissionService permissionService
 @{
     var allowFileman = await permissionService.Authorize(StandardPermission.HtmlEditorManagePictures);
-    var random = CommonHelper.GenerateRandomInteger();    
+    var random = CommonHelper.GenerateRandomInteger();
 }
 <div id="s-@(random)-summernote" class="summernote" data-name="null" data-file="null" data-format="null">
     @Html.Raw(ViewData.TemplateInfo.FormattedModelValue)
@@ -15,7 +17,7 @@
     function elfinderDialog@(random)(context) { // <------------------ +context
         var fm = $('<div/>').dialogelfinder({
             url: '@Url.Action("Connector", "ElFinder")',
-            baseUrl: '@(Grand.SharedUIResources.Constants.WwwRoot)/administration/elfinder/',
+            baseUrl: '@(Constants.WwwRoot)/administration/elfinder/',
             lang: 'en',
             width: 840,
             height: 450,
@@ -86,7 +88,7 @@
                 ['view', ['fullscreen', 'codeview', 'help']],
             ],
             buttons: {
-                @if(allowFileman)
+                @if (allowFileman)
                 {
                     <text> elfinder: FileManager, </text>
                 }
@@ -100,4 +102,3 @@
         });
     });
 </script>
-

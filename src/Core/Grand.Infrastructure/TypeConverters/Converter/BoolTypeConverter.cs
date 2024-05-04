@@ -1,21 +1,20 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 
-namespace Grand.Infrastructure.TypeConverters.Converter
+namespace Grand.Infrastructure.TypeConverters.Converter;
+
+public class BoolTypeConverter : BooleanConverter
 {
-    public class BoolTypeConverter : BooleanConverter
+    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
     {
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        try
         {
-            try
-            {
-                var result = base.ConvertFrom(context, culture, value);
-                return result;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            var result = base.ConvertFrom(context, culture, value);
+            return result;
+        }
+        catch (Exception)
+        {
+            return false;
         }
     }
 }

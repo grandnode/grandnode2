@@ -4,12 +4,11 @@ using Grand.Domain.Localization;
 using Grand.Web.Models.Customer;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Customers
+namespace Grand.Web.Features.Models.Customers;
+
+public class GetCustomAttributes : IRequest<IList<CustomerAttributeModel>>
 {
-    public class GetCustomAttributes : IRequest<IList<CustomerAttributeModel>>
-    {
-        public Customer Customer { get; set; }
-        public Language Language { get; set; }
-        public IList<CustomAttribute> OverrideAttributes { get; set; }
-    }
+    public Customer Customer { get; set; }
+    public Language Language { get; set; }
+    public IList<CustomAttribute> OverrideAttributes { get; set; }
 }

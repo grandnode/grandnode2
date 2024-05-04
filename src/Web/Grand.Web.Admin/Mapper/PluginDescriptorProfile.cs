@@ -3,15 +3,14 @@ using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Models.Plugins;
 
-namespace Grand.Web.Admin.Mapper
-{
-    public class PluginDescriptorProfile : Profile, IAutoMapperProfile
-    {
-        public PluginDescriptorProfile()
-        {
-            CreateMap<PluginInfo, PluginModel>();
-        }
+namespace Grand.Web.Admin.Mapper;
 
-        public int Order => 0;
+public class PluginDescriptorProfile : Profile, IAutoMapperProfile
+{
+    public PluginDescriptorProfile()
+    {
+        CreateMap<PluginInfo, PluginModel>();
     }
+
+    public int Order => 0;
 }

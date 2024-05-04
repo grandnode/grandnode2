@@ -1,8 +1,9 @@
-﻿@model Payments.BrainTree.Models.PaymentInfoModel
+﻿@using Grand.Infrastructure
+@model Payments.BrainTree.Models.PaymentInfoModel
 @{
     Layout = "";
 }
-@inject Grand.Infrastructure.IWorkContext _workContext
+@inject IWorkContext _workContext
 
 <style type="text/css">
     .braintree-input {
@@ -47,13 +48,13 @@
         </div>
         <div class="col-md-4 col-12 text-right">
             <div class="braintree-input form-control" id="cc-cvv"></div>
-            <input id="CardNonce" name="CardNonce" type="hidden" />
+            <input id="CardNonce" name="CardNonce" type="hidden"/>
         </div>
     </div>
 </div>
 
 
-<input type="hidden" asp-for="Errors" />
+<input type="hidden" asp-for="Errors"/>
 <div style="color:red; margin:0 auto" id="braintree-errors"></div>
 <div id="braintree-authentication"></div>
 <div class="script-tag-info">

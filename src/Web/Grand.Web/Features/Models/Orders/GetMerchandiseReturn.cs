@@ -4,12 +4,11 @@ using Grand.Domain.Stores;
 using Grand.Web.Models.Orders;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Orders
+namespace Grand.Web.Features.Models.Orders;
+
+public class GetMerchandiseReturn : IRequest<MerchandiseReturnModel>
 {
-    public class GetMerchandiseReturn : IRequest<MerchandiseReturnModel>
-    {
-        public Order Order { get; set; }
-        public Language Language { get; set; }
-        public Store Store { get; set; }
-    }
+    public Order Order { get; set; }
+    public Language Language { get; set; }
+    public Store Store { get; set; }
 }

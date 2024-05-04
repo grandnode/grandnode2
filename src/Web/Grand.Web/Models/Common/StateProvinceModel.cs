@@ -1,9 +1,7 @@
-﻿
-namespace Grand.Web.Models.Common
+﻿namespace Grand.Web.Models.Common;
+
+public class StateProvinceModel
 {
-    public class StateProvinceModel 
-    {
-        public string id { get; set; }
-        public string name { get; set; }
-    }
+    public string id { get; set; }
+    public string name { get; set; }
 }

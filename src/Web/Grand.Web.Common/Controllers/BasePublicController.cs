@@ -2,54 +2,54 @@
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Common.Controllers
+namespace Grand.Web.Common.Controllers;
+
+[PublicStore]
+[ClosedStore]
+[Language]
+[Affiliate]
+[SharedKernel.Attributes.ApiController]
+public abstract class BasePublicController : BaseController
 {
-    [PublicStore]
-    [ClosedStore]
-    [Language]
-    [Affiliate]
-    [SharedKernel.Attributes.ApiController]
-    public abstract class BasePublicController : BaseController
+    protected IActionResult InvokeHttp404()
     {
-        protected IActionResult InvokeHttp404()
-        {
-            Response.StatusCode = 404;
-            return new EmptyResult();
-        }
+        Response.StatusCode = 404;
+        return new EmptyResult();
+    }
 
-        private bool IsJsonResponseView()
-        {
-            if (Request.Method.Equals("GET", StringComparison.InvariantCultureIgnoreCase))
-                return Request.Headers.Accept.ToString().Contains("application/json", StringComparison.InvariantCultureIgnoreCase) ||
-                       Request.Headers.Accept.ToString().Equals("*/*", StringComparison.InvariantCultureIgnoreCase);
+    private bool IsJsonResponseView()
+    {
+        if (Request.Method.Equals("GET", StringComparison.InvariantCultureIgnoreCase))
+            return Request.Headers.Accept.ToString()
+                       .Contains("application/json", StringComparison.InvariantCultureIgnoreCase) ||
+                   Request.Headers.Accept.ToString().Equals("*/*", StringComparison.InvariantCultureIgnoreCase);
 
-            if (Request.Method.Equals("POST", StringComparison.InvariantCultureIgnoreCase))
-                return Request.ContentType?.Contains("application/json") ?? false;
-            
-            return false;
-        }
-        
-        [IgnoreApi]
-        public new IActionResult View(object model)
-        {
-            if (IsJsonResponseView())
-                return Ok(model);
+        if (Request.Method.Equals("POST", StringComparison.InvariantCultureIgnoreCase))
+            return Request.ContentType?.Contains("application/json") ?? false;
 
-            return base.View(model);
-        }
-        
-        [IgnoreApi]
-        public new IActionResult View(string viewName, object model)
-        {
-            if (IsJsonResponseView())
-                return Json(model);
+        return false;
+    }
 
-            return base.View(viewName, model);
-        }
+    [IgnoreApi]
+    public new IActionResult View(object model)
+    {
+        if (IsJsonResponseView())
+            return Ok(model);
 
-        public override RedirectToRouteResult RedirectToRoute(string routeName)
-        {
-            return IsJsonResponseView() ? RedirectToRoute("Route", new { routeName }) : base.RedirectToRoute(routeName);
-        }
+        return base.View(model);
+    }
+
+    [IgnoreApi]
+    public new IActionResult View(string viewName, object model)
+    {
+        if (IsJsonResponseView())
+            return Json(model);
+
+        return base.View(viewName, model);
+    }
+
+    public override RedirectToRouteResult RedirectToRoute(string routeName)
+    {
+        return IsJsonResponseView() ? RedirectToRoute("Route", new { routeName }) : base.RedirectToRoute(routeName);
     }
 }

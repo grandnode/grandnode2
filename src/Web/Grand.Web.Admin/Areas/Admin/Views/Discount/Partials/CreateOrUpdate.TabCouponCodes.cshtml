@@ -1,15 +1,15 @@
 ﻿@model DiscountModel
 @inject AdminAreaSettings adminAreaSettings
- 
+
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-<div class="panel panel-default">
-    <vc:admin-widget widget-zone="discount_details_coupon_codes_top" additional-data="Model" />
-    <div class="panel-body">
-        <div id="couponcode-grid"></div>
+    <div class="panel panel-default">
+        <vc:admin-widget widget-zone="discount_details_coupon_codes_top" additional-data="Model"/>
+        <div class="panel-body">
+            <div id="couponcode-grid"></div>
+        </div>
+        <vc:admin-widget widget-zone="discount_details_coupon_codes_bottom" additional-data="Model"/>
     </div>
-    <vc:admin-widget widget-zone="discount_details_coupon_codes_bottom" additional-data="Model" />
-</div>
     <script>
             $(document).ready(function () {
                 $("#couponcode-grid").kendoGrid({
@@ -93,7 +93,6 @@
                 });
             });
     </script>
-
 }
 else
 {

@@ -6,7 +6,7 @@
         <p>@Loc["Admin.Catalog.Products.AssociatedProducts.Note2"]</p>
     </div>
     <div class="panel panel-default">
-        <vc:admin-widget widget-zone="product_details_associated_products_top" additional-data="Model" />
+        <vc:admin-widget widget-zone="product_details_associated_products_top" additional-data="Model"/>
         <div class="panel-body">
             <div id="associatedproducts-grid"></div>
         </div>
@@ -14,9 +14,9 @@
             <a id="btnAddNewAssociatedProduct" href="@(Url.Action("AssociatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshAssociatedProducts", formId = "product-form", area = Constants.AreaAdmin }))" class="k-button">
                 @Loc["Admin.Catalog.Products.AssociatedProducts.AddNew"]
             </a>
-            <input type="submit" id="btnRefreshAssociatedProducts" style="display: none" />
+            <input type="submit" id="btnRefreshAssociatedProducts" style="display: none"/>
         </div>
-        <vc:admin-widget widget-zone="product_details_associated_products_bottom" additional-data="Model" />
+        <vc:admin-widget widget-zone="product_details_associated_products_bottom" additional-data="Model"/>
     </div>
     <script>
         $(document).ready(function () {
@@ -98,7 +98,7 @@
                 columns: [{
                     field: "ProductName",
                     title: "@Loc["Admin.Catalog.Products.AssociatedProducts.Fields.Product"]",
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id ="", area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(ProductName)#</a>'
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(ProductName)#</a>'
                 }, {
                     field: "DisplayOrder",
                     title: "@Loc["Admin.Catalog.Products.AssociatedProducts.Fields.DisplayOrder"]",
@@ -122,7 +122,7 @@
             });
         });
     </script>
-            
+
     <script>
         $(document).ready(function () {
             $('#btnRefreshAssociatedProducts').click(function () {
@@ -135,7 +135,6 @@
             });
         });
     </script>
-          
 }
 else
 {

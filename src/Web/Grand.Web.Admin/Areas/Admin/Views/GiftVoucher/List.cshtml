@@ -15,8 +15,10 @@
                     @Loc["Admin.GiftVouchers"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
-                    <vc:admin-widget widget-zone="gift_voucher_list_buttons" additional-data="null" />
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                    <vc:admin-widget widget-zone="gift_voucher_list_buttons" additional-data="null"/>
                 </div>
             </div>
             <div class="x_content form">
@@ -25,20 +27,20 @@
                         <div class="row align-items-end">
                             <div class="col-md-3 col-sm-12 col-12">
                                 <div class="form-group mb-0">
-                                    <admin-label asp-for="ActivatedId" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
-                                    <admin-select asp-for="ActivatedId" asp-items="Model.ActivatedList" />
+                                    <admin-label asp-for="ActivatedId" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-select asp-for="ActivatedId" asp-items="Model.ActivatedList"/>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-12 col-12">
                                 <div class="form-group mb-0">
-                                    <admin-label asp-for="CouponCode" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
-                                    <admin-input asp-for="CouponCode" />
+                                    <admin-label asp-for="CouponCode" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-input asp-for="CouponCode"/>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-12 col-12">
                                 <div class="form-group mb-0">
-                                    <admin-label asp-for="RecipientName" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
-                                    <admin-input asp-for="RecipientName" />
+                                    <admin-label asp-for="RecipientName" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-input asp-for="RecipientName"/>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">

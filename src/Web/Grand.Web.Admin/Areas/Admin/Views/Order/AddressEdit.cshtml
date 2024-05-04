@@ -1,5 +1,5 @@
 ﻿@model OrderAddressModel
-@{  
+@{
     //page title
     ViewBag.Title = Loc["Admin.Orders.Address.EditAddress"];
 }
@@ -7,7 +7,7 @@
       asp-route-addressId="@Context.Request.Query["addressId"]"
       asp-route-billingAddress="@Context.Request.Query["BillingAddress"]"
       asp-route-orderId="@Context.Request.Query["orderId"]">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -21,12 +21,14 @@
                         </small>
                     </div>
                     <div class="actions">
-                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                        <vc:admin-widget widget-zone="order_address_details_buttons" additional-data="Model" />
+                        <button class="btn btn-success" type="submit" name="save">
+                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                        </button>
+                        <vc:admin-widget widget-zone="order_address_details_buttons" additional-data="Model"/>
                     </div>
                 </div>
                 <div class="x_content form">
-                   <partial name="Partials/CreateOrUpdateAddress" model="Model" />
+                    <partial name="Partials/CreateOrUpdateAddress" model="Model"/>
                 </div>
             </div>
         </div>

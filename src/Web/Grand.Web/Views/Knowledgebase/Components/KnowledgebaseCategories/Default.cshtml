@@ -3,14 +3,18 @@
 @if (Model.Categories.Any())
 {
     <div id="block-knowledgebase-navigation" class="block block-category-navigation d-lg-block d-none">
-        <h2 class="h5 bg-light p-3 d-lg-none"><strong>@Loc["Knowledgebase.Categories"]</strong><span class="mdi mdi-chevron-down float-xs-right"></span></h2>
-        <h5 class="generalTitle d-none d-lg-block"><strong>@Loc["Knowledgebase.Categories"]</strong></h5>
+        <h2 class="h5 bg-light p-3 d-lg-none">
+            <strong>@Loc["Knowledgebase.Categories"]</strong><span class="mdi mdi-chevron-down float-xs-right"></span>
+        </h2>
+        <h5 class="generalTitle d-none d-lg-block">
+            <strong>@Loc["Knowledgebase.Categories"]</strong>
+        </h5>
 
         <div class="viewBox listbox">
             <ul class="list">
                 @foreach (var category in Model.Categories)
                 {
-                    <partial name="Partials/KnowledgebaseCategoryLine.Navigation" model="category" />
+                    <partial name="Partials/KnowledgebaseCategoryLine.Navigation" model="category"/>
                 }
             </ul>
         </div>

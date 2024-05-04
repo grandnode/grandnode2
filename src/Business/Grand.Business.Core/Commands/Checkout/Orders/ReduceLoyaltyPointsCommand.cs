@@ -1,10 +1,9 @@
 ﻿using Grand.Domain.Orders;
 using MediatR;
 
-namespace Grand.Business.Core.Commands.Checkout.Orders
+namespace Grand.Business.Core.Commands.Checkout.Orders;
+
+public class ReduceLoyaltyPointsCommand : IRequest<bool>
 {
-    public class ReduceLoyaltyPointsCommand : IRequest<bool>
-    {
-        public Order Order { get; set; }
-    }
+    public Order Order { get; set; }
 }

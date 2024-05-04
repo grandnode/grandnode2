@@ -7,11 +7,12 @@ namespace Grand.Web.Common.Middleware;
 
 public class ContextLoggingMiddleware
 {
-    private readonly RequestDelegate _next;
     private const string CustomerPropertyName = "Customer";
     private const string StorePropertyName = "Store";
     private const string CurrencyPropertyName = "Currency";
     private const string LanguagePropertyName = "Language";
+    private readonly RequestDelegate _next;
+
     public ContextLoggingMiddleware(RequestDelegate next)
     {
         _next = next;

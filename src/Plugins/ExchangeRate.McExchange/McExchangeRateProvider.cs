@@ -2,55 +2,51 @@
 using Grand.SharedKernel;
 using System.Net.Http;
 
-namespace ExchangeRate.McExchange
+namespace ExchangeRate.McExchange;
+
+public class McExchangeRateProvider : IExchangeRateProvider
 {
-    public class McExchangeRateProvider : IExchangeRateProvider
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    private readonly IDictionary<string, IRateProvider> _providers;
+
+    public McExchangeRateProvider(IHttpClientFactory httpClientFactory)
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
-        private readonly IDictionary<string, IRateProvider> _providers;
+        _providers = new Dictionary<string, IRateProvider> {
+            { "eur", new EcbExchange(_httpClientFactory) },
+            { "pln", new NbpExchange(_httpClientFactory) }
+        };
+    }
 
-        public McExchangeRateProvider(IHttpClientFactory httpClientFactory)
-        {
-            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+    public string ConfigurationUrl => "";
 
-            _providers = new Dictionary<string, IRateProvider> {
-                {"eur", new EcbExchange(_httpClientFactory)},
-                {"pln", new NbpExchange(_httpClientFactory)}
-            };
-        }
+    public string SystemName => "CurrencyExchange.MoneyConverter";
 
-        public string ConfigurationUrl => "";
+    public string FriendlyName => "Money converter exchange rate provider";
 
-        public string SystemName => "CurrencyExchange.MoneyConverter";
+    public int Priority => 0;
 
-        public string FriendlyName => "Money converter exchange rate provider";
+    public IList<string> LimitedToStores => new List<string>();
 
-        public int Priority => 0;
+    public IList<string> LimitedToGroups => new List<string>();
 
-        public IList<string> LimitedToStores => new List<string>();
+    /// <summary>
+    ///     Gets currency live rates
+    /// </summary>
+    /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
+    /// <returns>Exchange rates</returns>
+    public Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode)
+    {
+        if (string.IsNullOrEmpty(exchangeRateCurrencyCode))
+            throw new ArgumentNullException(nameof(exchangeRateCurrencyCode));
 
-        public IList<string> LimitedToGroups => new List<string>();
+        exchangeRateCurrencyCode = exchangeRateCurrencyCode.ToLowerInvariant();
 
-        /// <summary>
-        /// Gets currency live rates
-        /// </summary>
-        /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
-        /// <returns>Exchange rates</returns>
-        public Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode)
-        {
-            if (string.IsNullOrEmpty(exchangeRateCurrencyCode))
-                throw new ArgumentNullException(nameof(exchangeRateCurrencyCode));
+        if (_providers.TryGetValue(exchangeRateCurrencyCode, out var provider)) return provider.GetCurrencyLiveRates();
 
-            exchangeRateCurrencyCode = exchangeRateCurrencyCode.ToLowerInvariant();
-
-            if (_providers.TryGetValue(exchangeRateCurrencyCode, out var provider))
-            {
-                return provider.GetCurrencyLiveRates();
-            }
-
-            throw new GrandException("You can use ECB (European central bank) exchange rate provider only when the primary exchange rate currency is set to EURO");
-        }
-
+        throw new GrandException(
+            "You can use ECB (European central bank) exchange rate provider only when the primary exchange rate currency is set to EURO");
     }
 }

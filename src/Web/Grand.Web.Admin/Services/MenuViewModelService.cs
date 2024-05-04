@@ -46,10 +46,7 @@ public class MenuViewModelService : IMenuViewModelService
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        if (!string.IsNullOrEmpty(parentId))
-        {
-            return await AddChildNodeSiteMap();
-        }
+        if (!string.IsNullOrEmpty(parentId)) return await AddChildNodeSiteMap();
 
         var entity = model.ToEntity();
         await _adminSiteMapService.InsertSiteMap(entity);
@@ -89,7 +86,9 @@ public class MenuViewModelService : IMenuViewModelService
         var sitemap = await _adminSiteMapService.GetSiteMap();
         var parentEntity = FindTopLevelNodeById(sitemap, id);
         if (parentEntity?.Id == id)
+        {
             await _adminSiteMapService.DeleteSiteMap(parentEntity);
+        }
         else
         {
             var adminSiteMap = FindParentNodeById(parentEntity, id);
@@ -100,35 +99,30 @@ public class MenuViewModelService : IMenuViewModelService
             }
         }
     }
-    
+
     private static AdminSiteMap FindTopLevelNodeById(IList<AdminSiteMap> adminSiteMaps, string targetId)
     {
         return adminSiteMaps.FirstOrDefault(adminSiteMap => GetAllIdsFromChildren(adminSiteMap).Contains(targetId));
     }
+
     private static List<string> GetAllIdsFromChildren(AdminSiteMap rootNode)
     {
-        List<string> allIds = new List<string>();
+        var allIds = new List<string>();
         GetAllIdsFromChildrenRecursive(rootNode, allIds);
         return allIds;
     }
+
     private static void GetAllIdsFromChildrenRecursive(AdminSiteMap currentNode, List<string> allIds)
     {
-        if (currentNode == null)
-        {
-            return;
-        }
+        if (currentNode == null) return;
 
         allIds.Add(currentNode.Id);
 
         if (currentNode.ChildNodes != null)
-        {
             foreach (var childNode in currentNode.ChildNodes)
-            {
                 GetAllIdsFromChildrenRecursive(childNode, allIds);
-            }
-        }
     }
-    
+
     private static AdminSiteMap FindAdminSiteMapById(AdminSiteMap rootNode, string id)
     {
         if (rootNode == null) return null;

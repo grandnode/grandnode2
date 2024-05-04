@@ -13,7 +13,6 @@
         var courseUrl = Url.RouteUrl("Course", new { Model.SeName }, Url.ActionContext.HttpContext.Request.Scheme);
         pagebuilder.AddCanonicalUrlParts(courseUrl);
     }
-
 }
 
 <div class="page category-page">
@@ -21,9 +20,11 @@
     <div class="jumbotron p-4 mt-3">
         <div class="container d-inline-flex px-0">
             <div class="d-inline-flex flex-sm-row flex-column align-items-sm-start w-100">
-                <img src="@Model.PictureUrl" class="mr-3" />
+                <img src="@Model.PictureUrl" class="mr-3"/>
                 <div class="media-body">
-                    <h2 class="d-flex flex-column">@Model.Name<span class="h6">(@Model.Level)</span></h2>
+                    <h2 class="d-flex flex-column">
+                        @Model.Name<span class="h6">(@Model.Level)</span>
+                    </h2>
                     @if (!string.IsNullOrWhiteSpace(Model.Description))
                     {
                         <p>
@@ -62,7 +63,7 @@
                     @foreach (var lesson in Model.Lessons.Where(x => x.SubjectId == subject.Id).OrderBy(x => x.DisplayOrder))
                     {
                         <li class="media mb-3">
-                            <img src="@lesson.PictureUrl" class="mr-3" />
+                            <img src="@lesson.PictureUrl" class="mr-3"/>
                             <div class="media-body d-inline-flex">
                                 <div class="w-100">
 
@@ -90,7 +91,6 @@
                     }
                 </ul>
             </div>
-
         }
     </div>
 </div>

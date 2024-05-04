@@ -1,48 +1,39 @@
-﻿using Grand.Domain.Common;
-using Grand.Data;
+﻿using Grand.Data;
+using Grand.Domain.Common;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Microsoft.AspNetCore.Http;
 
-namespace Grand.Web.Common.Middleware
+namespace Grand.Web.Common.Middleware;
+
+public class DbVersionCheckMiddleware
 {
-    public class DbVersionCheckMiddleware
+    private readonly RequestDelegate _next;
+
+    public DbVersionCheckMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
+        _next = next;
+    }
 
-        public DbVersionCheckMiddleware(RequestDelegate next)
+    public async Task Invoke(
+        HttpContext context,
+        ICacheBase cacheBase,
+        IRepository<GrandNodeVersion> repository)
+    {
+        if (context?.Request == null) return;
+
+        var version = cacheBase.Get(CacheKey.GRAND_NODE_VERSION, () => repository.Table.FirstOrDefault());
+        if (version == null)
         {
-            _next = next;
+            await context.Response.WriteAsync("The database does not exist.");
+            return;
         }
 
-        public async Task Invoke(
-            HttpContext context, 
-            ICacheBase cacheBase, 
-
-            IRepository<GrandNodeVersion> repository)
-        {
-            if (context?.Request == null)
-            {
-                return;
-            }
-
-            var version = cacheBase.Get(CacheKey.GRAND_NODE_VERSION, () => repository.Table.FirstOrDefault());
-            if (version == null)
-            {
-                await context.Response.WriteAsync("The database does not exist.");
-                return;
-            }
-
-            if (!version.DataBaseVersion.Equals(GrandVersion.SupportedDBVersion))
-            {
-                await context.Response.WriteAsync("The database version is not supported in this software version. " +
-                    $"Supported version: {GrandVersion.SupportedDBVersion} , your version: {version.DataBaseVersion}");
-            }
-            else
-            {
-                await _next(context);
-            }
-        }
+        if (!version.DataBaseVersion.Equals(GrandVersion.SupportedDBVersion))
+            await context.Response.WriteAsync("The database version is not supported in this software version. " +
+                                              $"Supported version: {GrandVersion.SupportedDBVersion} , your version: {version.DataBaseVersion}");
+        else
+            await _next(context);
     }
 }

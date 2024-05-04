@@ -1,7 +1,6 @@
-﻿namespace Grand.Web.Common.Link
+﻿namespace Grand.Web.Common.Link;
+
+public interface IStoreLinkModel
 {
-    public interface IStoreLinkModel
-    {
-        string[] Stores { get; set; }
-    }
+    string[] Stores { get; set; }
 }

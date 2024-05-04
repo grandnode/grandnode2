@@ -19,22 +19,27 @@
                         {
                             addressLine += ", " + address.Address1;
                         }
+
                         if (address.CityEnabled && !string.IsNullOrEmpty(address.City))
                         {
                             addressLine += ", " + address.City;
                         }
+
                         if (address.StateProvinceEnabled && !string.IsNullOrEmpty(address.StateProvinceName))
                         {
                             addressLine += ", " + address.StateProvinceName;
                         }
+
                         if (address.ZipPostalCodeEnabled && !string.IsNullOrEmpty(address.ZipPostalCode))
                         {
                             addressLine += " " + address.ZipPostalCode;
                         }
+
                         if (address.CountryEnabled && !string.IsNullOrWhiteSpace(address.CountryName))
                         {
                             addressLine += ", " + address.CountryName;
                         }
+
                         <option value="@(address.Id)">@(addressLine)</option>
                     }
                     <option value="" selected="@Model.NewAddressPreselected">@Loc["Checkout.NewAddress"]</option>
@@ -53,7 +58,7 @@
                         HtmlFieldPrefix = "BillingNewAddress"
                     }
                 };
-                <partial name="Partials/CreateOrUpdateAddress" model="Model.BillingNewAddress" view-data="dataDictAddress" />
+                <partial name="Partials/CreateOrUpdateAddress" model="Model.BillingNewAddress" view-data="dataDictAddress"/>
             }
             <div asp-validation-summary="All" class="message-error"></div>
             <template v-if="vmorder.billingAddressErrors !== null">

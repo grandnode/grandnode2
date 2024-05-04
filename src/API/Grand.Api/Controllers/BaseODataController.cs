@@ -6,17 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Routing.Attributes;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 
-namespace Grand.Api.Controllers
+namespace Grand.Api.Controllers;
+
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[ODataRouteComponent]
+[AuthorizeApiAdmin]
+[ServiceFilter(typeof(ModelValidationAttribute))]
+public abstract class BaseODataController : ODataController
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [ODataRouteComponent]
-    [AuthorizeApiAdmin]
-    [ServiceFilter(typeof(ModelValidationAttribute))]
-    public abstract class BaseODataController : ODataController
+    public override ForbidResult Forbid()
     {
-        public override ForbidResult Forbid()
-        {
-            return new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
-        }
+        return new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
     }
 }

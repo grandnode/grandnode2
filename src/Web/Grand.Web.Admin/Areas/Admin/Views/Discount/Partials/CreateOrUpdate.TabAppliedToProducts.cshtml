@@ -4,18 +4,17 @@
 @{
     if (!string.IsNullOrEmpty(Model.Id))
     {
-
-<div class="panel panel-default">
-    <vc:admin-widget widget-zone="discount_details_applied_to_products_top" additional-data="Model" />
-    <div class="panel-body">
-        <div id="products-grid"></div>
-    </div>
-    <div class="panel-footer">
-        <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshProducts", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToProducts.AddNew"]</a>
-        <input type="submit" id="btnRefreshProducts" style="display: none" />
-    </div>
-    <vc:admin-widget widget-zone="discount_details_applied_to_products_bottom" additional-data="Model" />
-</div>
+        <div class="panel panel-default">
+            <vc:admin-widget widget-zone="discount_details_applied_to_products_top" additional-data="Model"/>
+            <div class="panel-body">
+                <div id="products-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshProducts", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToProducts.AddNew"]</a>
+                <input type="submit" id="btnRefreshProducts" style="display: none"/>
+            </div>
+            <vc:admin-widget widget-zone="discount_details_applied_to_products_bottom" additional-data="Model"/>
+        </div>
 
         <script>
             $(document).ready(function () {
@@ -106,7 +105,6 @@
                 });
             });
         </script>
-
     }
     else
     {

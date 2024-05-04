@@ -1,11 +1,11 @@
 @model ProductModel
 
 <div class="panel panel-default">
-    <vc:admin-widget widget-zone="product_details_product_attributes_top" additional-data="Model" />
+    <vc:admin-widget widget-zone="product_details_product_attributes_top" additional-data="Model"/>
     <div class="panel-body">
         <div id="productattributemappings-grid"></div>
     </div>
-    <vc:admin-widget widget-zone="product_details_product_attributes_bottom" additional-data="Model" />
+    <vc:admin-widget widget-zone="product_details_product_attributes_bottom" additional-data="Model"/>
     <div class="panel-footer">
         <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.ProductAttributes.AddNew"]</a>
     </div>
@@ -167,7 +167,7 @@
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("ProductAttributeValueDelete", "Product", new {area = Constants.AreaAdmin }))?pam=" + e.data.Id + "&productId=@Model.Id",
+                            url: "@Html.Raw(Url.Action("ProductAttributeValueDelete", "Product", new { area = Constants.AreaAdmin }))?pam=" + e.data.Id + "&productId=@Model.Id",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -250,8 +250,8 @@
             });
         }
 </script>
-<input type="submit" id="btnRefreshProductAttributes" style="display: none" />
-<input type="button" id="btnRefreshProductAttributesValues" style="display: none" />
+<input type="submit" id="btnRefreshProductAttributes" style="display: none"/>
+<input type="button" id="btnRefreshProductAttributesValues" style="display: none"/>
 <script>
     $(document).ready(function () {
         $('#btnRefreshProductAttributes').click(function () {

@@ -2,38 +2,38 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Knowledgebase;
 
-namespace Grand.Web.Admin.Extensions.Mapping
+namespace Grand.Web.Admin.Extensions.Mapping;
+
+public static class KnowledgebaseCategoryMappingExtensions
 {
-    public static class KnowledgebaseCategoryMappingExtensions
+    public static KnowledgebaseCategory ToEntity(this KnowledgebaseCategoryModel model)
     {
-        public static KnowledgebaseCategory ToEntity(this KnowledgebaseCategoryModel model)
-        {
-            return model.MapTo<KnowledgebaseCategoryModel, KnowledgebaseCategory>();
-        }
+        return model.MapTo<KnowledgebaseCategoryModel, KnowledgebaseCategory>();
+    }
 
-        public static KnowledgebaseCategoryModel ToModel(this KnowledgebaseCategory entity)
-        {
-            return entity.MapTo<KnowledgebaseCategory, KnowledgebaseCategoryModel>();
-        }
+    public static KnowledgebaseCategoryModel ToModel(this KnowledgebaseCategory entity)
+    {
+        return entity.MapTo<KnowledgebaseCategory, KnowledgebaseCategoryModel>();
+    }
 
-        public static KnowledgebaseCategory ToEntity(this KnowledgebaseCategoryModel model, KnowledgebaseCategory destination)
-        {
-            return model.MapTo(destination);
-        }
+    public static KnowledgebaseCategory ToEntity(this KnowledgebaseCategoryModel model,
+        KnowledgebaseCategory destination)
+    {
+        return model.MapTo(destination);
+    }
 
-        public static KnowledgebaseArticle ToEntity(this KnowledgebaseArticleModel model)
-        {
-            return model.MapTo<KnowledgebaseArticleModel, KnowledgebaseArticle>();
-        }
+    public static KnowledgebaseArticle ToEntity(this KnowledgebaseArticleModel model)
+    {
+        return model.MapTo<KnowledgebaseArticleModel, KnowledgebaseArticle>();
+    }
 
-        public static KnowledgebaseArticleModel ToModel(this KnowledgebaseArticle entity)
-        {
-            return entity.MapTo<KnowledgebaseArticle, KnowledgebaseArticleModel>();
-        }
+    public static KnowledgebaseArticleModel ToModel(this KnowledgebaseArticle entity)
+    {
+        return entity.MapTo<KnowledgebaseArticle, KnowledgebaseArticleModel>();
+    }
 
-        public static KnowledgebaseArticle ToEntity(this KnowledgebaseArticleModel model, KnowledgebaseArticle destination)
-        {
-            return model.MapTo(destination);
-        }
+    public static KnowledgebaseArticle ToEntity(this KnowledgebaseArticleModel model, KnowledgebaseArticle destination)
+    {
+        return model.MapTo(destination);
     }
 }

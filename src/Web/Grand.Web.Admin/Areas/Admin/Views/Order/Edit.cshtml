@@ -1,11 +1,13 @@
-﻿@model OrderModel
-@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
+﻿@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Business.Core.Utilities.Common.Security
+@model OrderModel
+@inject IPermissionService permissionService
 @{
     //page title
     ViewBag.Title = Loc["Admin.Orders.EditOrderDetails"];
     //has "Manage Documents" permission?
-    var canManageDocuments = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageDocuments);
-    var canManageMessageQueue = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageMessageQueue);
+    var canManageDocuments = await permissionService.Authorize(StandardPermission.ManageDocuments);
+    var canManageMessageQueue = await permissionService.Authorize(StandardPermission.ManageMessageQueue);
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="Edit" method="post" id="order-form">
     <input type="hidden" asp-for="Id"/>

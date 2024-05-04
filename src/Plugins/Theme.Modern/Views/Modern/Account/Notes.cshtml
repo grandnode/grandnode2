@@ -5,13 +5,16 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Notes"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Notes })
 }
 
 <div class="page account-page auction-list-page pl-lg-3 pt-3 pt-lg-0">
-    <h1 class="h2 generalTitle"><div>@Loc["Account.CustomerNotes"]</div></h1>
+    <h1 class="h2 generalTitle">
+        <div>@Loc["Account.CustomerNotes"]</div>
+    </h1>
     <a class="left-side-toggler mb-3" onclick="sideToggle()">
         <div class="inner">
             <span></span>
@@ -46,7 +49,7 @@
                         <div class="d-inline-flex">
                             <span class="mb-2">
                                 <b-label class="col-form-label">@Loc["Account.CustomerNotes.Attachment"]:</b-label>
-                                <b-link class="mx-2" href="@Url.RouteUrl("GetCustomerNoteFile", new { customerNoteId = item.NoteId})">@Loc["Customer.Notes.Download"]</b-link>
+                                <b-link class="mx-2" href="@Url.RouteUrl("GetCustomerNoteFile", new { customerNoteId = item.NoteId })">@Loc["Customer.Notes.Download"]</b-link>
                             </span>
                         </div>
                     }

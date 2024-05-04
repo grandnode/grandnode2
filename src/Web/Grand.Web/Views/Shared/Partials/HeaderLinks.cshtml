@@ -1,7 +1,7 @@
 ﻿@using Grand.Business.Core.Interfaces.Common.Directory
 @using Grand.Business.Core.Interfaces.Common.Security
 @using Grand.Business.Core.Utilities.Common.Security
-@inject IGroupService  groupService
+@inject IGroupService groupService
 @inject IWorkContext workContext
 @inject IPageHeadBuilder pagebuilder
 @inject IPermissionService permissionService
@@ -31,6 +31,7 @@
                 <span class="text text-uppercase ml-3">@Loc["admin"]</span>
             </a>
         }
+
         @if (isVendor)
         {
             <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.Content("~/Vendor")">
@@ -38,13 +39,15 @@
                 <span class="text text-uppercase ml-3">@Loc["vendor.portal"]</span>
             </a>
         }
+
         @if (!string.IsNullOrEmpty(pagebuilder.EditPageUrl))
         {
-            <a target="_blank"  class="btn btn-outline-secondary w-100 mb-2" href="@pagebuilder.EditPageUrl">
+            <a target="_blank" class="btn btn-outline-secondary w-100 mb-2" href="@pagebuilder.EditPageUrl">
                 <b-icon icon="wrench"></b-icon>
                 <span class="text text-uppercase ml-3">@Loc["edit"]</span>
             </a>
         }
+
         <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("CustomerInfo")">
             <b-icon icon="person"></b-icon>
             <span class="text text-uppercase ml-3">@Loc["Account.MyAccount"]</span>
@@ -77,4 +80,3 @@
     }
 </div>
 @await Component.InvokeAsync("Widget", new { widgetZone = "header_links_after" })
-

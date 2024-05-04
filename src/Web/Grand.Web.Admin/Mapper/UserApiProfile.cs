@@ -3,22 +3,20 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Customers;
 
-namespace Grand.Web.Admin.Mapper
+namespace Grand.Web.Admin.Mapper;
+
+public class UserApiProfile : Profile, IAutoMapperProfile
 {
-    public class UserApiProfile : Profile, IAutoMapperProfile
+    public UserApiProfile()
     {
-        public UserApiProfile()
-        {
-            CreateMap<UserApi, UserApiModel>()
-                .ForMember(dest => dest.Password, mo => mo.Ignore());
-            CreateMap<UserApiModel, UserApi>()
-                .ForMember(dest => dest.Password, mo => mo.Ignore())
-                .ForMember(dest => dest.Id, mo => mo.Ignore());
-            
-            CreateMap<UserApiCreateModel, UserApi>();
+        CreateMap<UserApi, UserApiModel>()
+            .ForMember(dest => dest.Password, mo => mo.Ignore());
+        CreateMap<UserApiModel, UserApi>()
+            .ForMember(dest => dest.Password, mo => mo.Ignore())
+            .ForMember(dest => dest.Id, mo => mo.Ignore());
 
-        }
-
-        public int Order => 0;
+        CreateMap<UserApiCreateModel, UserApi>();
     }
+
+    public int Order => 0;
 }

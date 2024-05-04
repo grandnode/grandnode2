@@ -2,7 +2,6 @@
 
 namespace Grand.Web.Models.Catalog;
 
-public class VendorPagingModel: BasePageableModel
+public class VendorPagingModel : BasePageableModel
 {
-    
 }

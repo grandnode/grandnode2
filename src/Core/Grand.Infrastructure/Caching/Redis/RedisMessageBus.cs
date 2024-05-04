@@ -1,80 +1,78 @@
-﻿using StackExchange.Redis;
-using Microsoft.Extensions.DependencyInjection;
-using Grand.Infrastructure.Caching.Message;
+﻿using Grand.Infrastructure.Caching.Message;
 using Grand.Infrastructure.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 using System.Diagnostics;
 using System.Text.Json;
 
-namespace Grand.Infrastructure.Caching.Redis
+namespace Grand.Infrastructure.Caching.Redis;
+
+public sealed class RedisMessageBus : IMessageBus
 {
-    public sealed class RedisMessageBus : IMessageBus
+    private static readonly string ClientId = Guid.NewGuid().ToString("N");
+    private readonly RedisConfig _redisConfig;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ISubscriber _subscriber;
+
+    public RedisMessageBus(ISubscriber subscriber, IServiceProvider serviceProvider, RedisConfig redisConfig)
     {
-        private readonly ISubscriber _subscriber;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly RedisConfig _redisConfig;
+        _subscriber = subscriber;
+        _serviceProvider = serviceProvider;
+        _redisConfig = redisConfig;
+        SubscribeAsync();
+    }
 
-        private static readonly string ClientId = Guid.NewGuid().ToString("N");
-
-        public RedisMessageBus(ISubscriber subscriber, IServiceProvider serviceProvider, RedisConfig redisConfig)
+    public async Task PublishAsync<TMessage>(TMessage msg) where TMessage : IMessageEvent
+    {
+        try
         {
-            _subscriber = subscriber;
-            _serviceProvider = serviceProvider;
-            _redisConfig = redisConfig;
-            SubscribeAsync();
+            var client = new MessageEventClient {
+                ClientId = ClientId,
+                Key = msg.Key,
+                MessageType = msg.MessageType
+            };
+            var message = JsonSerializer.Serialize(client);
+            await _subscriber.PublishAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel), message);
         }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex.Message);
+        }
+    }
 
-        public async Task PublishAsync<TMessage>(TMessage msg) where TMessage : IMessageEvent
+    public Task SubscribeAsync()
+    {
+        _subscriber.SubscribeAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel), (_, redisValue) =>
         {
             try
             {
-                var client = new MessageEventClient {
-                    ClientId = ClientId,
-                    Key = msg.Key,
-                    MessageType = msg.MessageType
-                };
-                var message = JsonSerializer.Serialize(client);
-                await _subscriber.PublishAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel), message);
+                var message = JsonSerializer.Deserialize<MessageEventClient>(redisValue);
+                if (message != null && message.ClientId != ClientId)
+                    OnSubscriptionChanged(message);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
             }
-        }
+        });
+        return Task.CompletedTask;
+    }
 
-        public Task SubscribeAsync()
+    public void OnSubscriptionChanged(IMessageEvent message)
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var cache = scope.ServiceProvider.GetRequiredService<ICacheBase>();
+        switch (message.MessageType)
         {
-            _subscriber.SubscribeAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel),  (_, redisValue) =>
-            {
-                try
-                {
-                    var message = JsonSerializer.Deserialize<MessageEventClient>(redisValue);
-                    if (message != null && message.ClientId != ClientId)
-                        OnSubscriptionChanged(message);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.Message);
-                }
-            });
-            return Task.CompletedTask;
-        }
-
-        public void OnSubscriptionChanged(IMessageEvent message)
-        {
-            using var scope = _serviceProvider.CreateScope();
-            var cache = scope.ServiceProvider.GetRequiredService<ICacheBase>();
-            switch (message.MessageType)
-            {
-                case (int)MessageEventType.RemoveKey:
-                    _ = cache.RemoveAsync(message.Key, false);
-                    break;
-                case (int)MessageEventType.RemoveByPrefix:
-                    _ = cache.RemoveByPrefix(message.Key, false);
-                    break;
-                case (int)MessageEventType.ClearCache:
-                    _ = cache.Clear(false);
-                    break;
-            }
+            case (int)MessageEventType.RemoveKey:
+                _ = cache.RemoveAsync(message.Key, false);
+                break;
+            case (int)MessageEventType.RemoveByPrefix:
+                _ = cache.RemoveByPrefix(message.Key, false);
+                break;
+            case (int)MessageEventType.ClearCache:
+                _ = cache.Clear(false);
+                break;
         }
     }
 }

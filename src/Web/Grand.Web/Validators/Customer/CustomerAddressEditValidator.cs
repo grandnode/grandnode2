@@ -8,20 +8,20 @@ using Grand.Web.Models.Customer;
 using Grand.Web.Validators.Common;
 using MediatR;
 
-namespace Grand.Web.Validators.Customer
+namespace Grand.Web.Validators.Customer;
+
+public class CustomerAddressEditValidator : BaseGrandValidator<CustomerAddressEditModel>
 {
-    public class CustomerAddressEditValidator : BaseGrandValidator<CustomerAddressEditModel>
+    public CustomerAddressEditValidator(
+        IEnumerable<IValidatorConsumer<CustomerAddressEditModel>> validators,
+        IEnumerable<IValidatorConsumer<AddressModel>> addressValidators,
+        IMediator mediator, IAddressAttributeParser addressAttributeParser,
+        ITranslationService translationService,
+        ICountryService countryService,
+        AddressSettings addressSettings)
+        : base(validators)
     {
-        public CustomerAddressEditValidator(
-            IEnumerable<IValidatorConsumer<CustomerAddressEditModel>> validators,
-            IEnumerable<IValidatorConsumer<AddressModel>> addressValidators,
-            IMediator mediator, IAddressAttributeParser addressAttributeParser,
-            ITranslationService translationService,
-            ICountryService countryService,
-            AddressSettings addressSettings)
-            : base(validators)
-        {
-            RuleFor(x => x.Address).SetValidator(new AddressValidator(addressValidators, mediator, addressAttributeParser, translationService, countryService, addressSettings));
-        }
+        RuleFor(x => x.Address).SetValidator(new AddressValidator(addressValidators, mediator, addressAttributeParser,
+            translationService, countryService, addressSettings));
     }
 }

@@ -1,12 +1,11 @@
-﻿@model TaxRateListModel
-@using Tax.CountryStateZip.Models
-@using Grand.Domain.Common;
+﻿@using Grand.Domain.Common
 @using Microsoft.AspNetCore.Routing
+@model Tax.CountryStateZip.Models.TaxRateListModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "_ConfigurePlugin";
 }
-<input id="active-menu-item" type="hidden" value="/Admin/Tax/Providers" />
+<input id="active-menu-item" type="hidden" value="/Admin/Tax/Providers"/>
 <div id="tax-countrystatezip-grid"></div>
 <script>
     $(document).ready(function () {
@@ -142,7 +141,7 @@
     });
 </script>
 <form asp-controller="TaxCountryStateZip" asp-action="Configure" method="post">
-    
+
     <div class="form-horizontal">
         <div class="form-body">
             <div class="form-group">
@@ -152,55 +151,55 @@
             </div>
             <div class="form-group">
                 <div class="col-md-3 col-sm-3 text-right">
-                    <admin-label asp-for="AddStoreId" class="control-label" />
+                    <admin-label asp-for="AddStoreId" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="AddStoreId" asp-items="Model.AvailableStores" />
+                    <admin-select asp-for="AddStoreId" asp-items="Model.AvailableStores"/>
                     <span asp-validation-for="AddStoreId"></span>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-3 col-sm-3 text-right">
-                    <admin-label asp-for="AddCountryId" class="control-label" />
+                    <admin-label asp-for="AddCountryId" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="AddCountryId" asp-items="Model.AvailableCountries" />
+                    <admin-select asp-for="AddCountryId" asp-items="Model.AvailableCountries"/>
                     <span asp-validation-for="AddCountryId"></span>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-3 col-sm-3 text-right">
-                    <admin-label asp-for="AddStateProvinceId" class="control-label" />
+                    <admin-label asp-for="AddStateProvinceId" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="AddStateProvinceId" asp-items="Model.AvailableStates" />
+                    <admin-select asp-for="AddStateProvinceId" asp-items="Model.AvailableStates"/>
                     <span asp-validation-for="AddStateProvinceId"></span>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-3 col-sm-3 text-right">
-                    <admin-label asp-for="AddZip" class="control-label" />
+                    <admin-label asp-for="AddZip" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="AddZip" />
+                    <admin-input asp-for="AddZip"/>
                     <span asp-validation-for="AddZip"></span>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-3 col-sm-3 text-right">
-                    <admin-label asp-for="AddTaxCategoryId" class="control-label" />
+                    <admin-label asp-for="AddTaxCategoryId" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="AddTaxCategoryId" asp-items="Model.AvailableTaxCategories" />
+                    <admin-select asp-for="AddTaxCategoryId" asp-items="Model.AvailableTaxCategories"/>
                     <span asp-validation-for="AddTaxCategoryId"></span>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-3 col-sm-3 text-right">
-                    <admin-label asp-for="AddPercentage" class="control-label" />
+                    <admin-label asp-for="AddPercentage" class="control-label"/>
                 </div>
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="AddPercentage" />
+                    <admin-input asp-for="AddPercentage"/>
                     <span asp-validation-for="AddPercentage"></span>
                 </div>
             </div>
@@ -208,7 +207,7 @@
         <div class="form-actions">
             <div class="row">
                 <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-                    <input type="button" id="addtaxrate" class="btn green" value="@Loc["Plugins.Tax.CountryStateZip.AddRecord"]" />
+                    <input type="button" id="addtaxrate" class="btn green" value="@Loc["Plugins.Tax.CountryStateZip.AddRecord"]"/>
                 </div>
             </div>
         </div>

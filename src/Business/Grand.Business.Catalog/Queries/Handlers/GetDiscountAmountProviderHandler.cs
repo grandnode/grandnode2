@@ -20,18 +20,20 @@ public class GetDiscountAmountProviderHandler : IRequestHandler<GetDiscountAmoun
     {
         return GetDiscountAmountProvider(request.Discount, request.Customer, request.Product, request.Amount);
     }
-    
+
     /// <summary>
-    /// Get amount from discount amount provider 
+    ///     Get amount from discount amount provider
     /// </summary>
     /// <param name="discount"></param>
     /// <param name="product"></param>
     /// <param name="amount"></param>
     /// <param name="customer"></param>
     /// <returns></returns>
-    private async Task<double> GetDiscountAmountProvider(Discount discount, Customer customer, Product product, double amount)
+    private async Task<double> GetDiscountAmountProvider(Discount discount, Customer customer, Product product,
+        double amount)
     {
-        var discountAmountProvider = _discountProviderLoader.LoadDiscountAmountProviderBySystemName(discount.DiscountPluginName);
+        var discountAmountProvider =
+            _discountProviderLoader.LoadDiscountAmountProviderBySystemName(discount.DiscountPluginName);
         if (discountAmountProvider == null)
             return 0;
         return await discountAmountProvider.DiscountAmount(discount, customer, product, amount);

@@ -15,10 +15,12 @@
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
                         </div>
                     </div>
-                    <vc:admin-widget widget-zone="general_common_settings_buttons" additional-data="null" />
+                    <vc:admin-widget widget-zone="general_common_settings_buttons" additional-data="null"/>
                 </div>
                 <div class="x_content">
                     <div class="form-horizontal">
@@ -28,48 +30,48 @@
                     </div>
                 </div>
                 <div class="x_content form">
-                    <vc:admin-widget widget-zone="general_common_settings_top" additional-data="null" />
+                    <vc:admin-widget widget-zone="general_common_settings_top" additional-data="null"/>
                     <admin-tabstrip name="generalsettings-edit">
                         <items>
                             <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.StoreInformationSettings"]" tab-index="0">
                                 <content>
                                     <div>
-                                        <partial name="Partials/GeneralCommon.TabStoreInformationSettings" model="Model" />
+                                        <partial name="Partials/GeneralCommon.TabStoreInformationSettings" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
                             <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.SEOSettings"]" tab-index="1">
                                 <content>
                                     <div>
-                                        <partial name="Partials/GeneralCommon.TabSEOSettings" model="Model" />
+                                        <partial name="Partials/GeneralCommon.TabSEOSettings" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
                             <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.SecuritySettings"]" tab-index="2">
                                 <content>
                                     <div>
-                                        <partial name="Partials/GeneralCommon.TabSecuritySettings" model="Model" />
+                                        <partial name="Partials/GeneralCommon.TabSecuritySettings" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
                             <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.PdfSettings"]" tab-index="3">
                                 <content>
                                     <div>
-                                        <partial name="Partials/GeneralCommon.TabPdfSettings" model="Model" />
+                                        <partial name="Partials/GeneralCommon.TabPdfSettings" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
                             <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.DisplayMenu"]" tab-index="4">
                                 <content>
                                     <div>
-                                        <partial name="Partials/GeneralCommon.TabMenuSettings" model="Model" />
+                                        <partial name="Partials/GeneralCommon.TabMenuSettings" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
-                            <vc:admin-widget widget-zone="general_common_settings_details_tabs" additional-data="Model" />
+                            <vc:admin-widget widget-zone="general_common_settings_details_tabs" additional-data="Model"/>
                         </items>
                     </admin-tabstrip>
-                    <vc:admin-widget widget-zone="general_common_settings_bottom" additional-data="null" />
+                    <vc:admin-widget widget-zone="general_common_settings_bottom" additional-data="null"/>
                 </div>
             </div>
         </div>

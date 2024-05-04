@@ -1,33 +1,32 @@
 ﻿using Grand.Infrastructure.Caching.Message;
 using MassTransit;
 
-namespace Grand.Infrastructure.Caching.RabbitMq
+namespace Grand.Infrastructure.Caching.RabbitMq;
+
+public class CacheMessageEventConsumer : IConsumer<CacheMessageEvent>
 {
-    public class CacheMessageEventConsumer : IConsumer<CacheMessageEvent>
+    private readonly ICacheBase _cache;
+
+    public CacheMessageEventConsumer(ICacheBase cache)
     {
-        private readonly ICacheBase _cache;
+        _cache = cache;
+    }
 
-        public CacheMessageEventConsumer(ICacheBase cache)
+    public async Task Consume(ConsumeContext<CacheMessageEvent> context)
+    {
+        var message = context.Message;
+        if (RabbitMqMessageCacheManager.ManageClientId.Equals(message.ClientId)) return;
+        switch (message.MessageType)
         {
-            _cache = cache;
-        }
-
-        public async Task Consume(ConsumeContext<CacheMessageEvent> context)
-        {
-            var message = context.Message;
-            if (RabbitMqMessageCacheManager.ManageClientId.Equals(message.ClientId)) return;
-            switch (message.MessageType)
-            {
-                case (int)MessageEventType.RemoveKey:
-                    await _cache.RemoveAsync(message.Key, false);
-                    break;
-                case (int)MessageEventType.RemoveByPrefix:
-                    await _cache.RemoveByPrefix(message.Key, false);
-                    break;
-                case (int)MessageEventType.ClearCache:
-                    await _cache.Clear(false);
-                    break;
-            }
+            case (int)MessageEventType.RemoveKey:
+                await _cache.RemoveAsync(message.Key, false);
+                break;
+            case (int)MessageEventType.RemoveByPrefix:
+                await _cache.RemoveByPrefix(message.Key, false);
+                break;
+            case (int)MessageEventType.ClearCache:
+                await _cache.Clear(false);
+                break;
         }
     }
 }

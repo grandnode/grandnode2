@@ -2,77 +2,87 @@
 using Grand.Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Grand.Web.Models.Catalog
+namespace Grand.Web.Models.Catalog;
+
+public class SearchModel : BaseModel
 {
-    public class SearchModel : BaseModel
+    public string Warning { get; set; }
+
+    public bool NoResults { get; set; }
+
+    public string SearchCategoryId { get; set; }
+
+    /// <summary>
+    ///     Query string
+    /// </summary>
+    [GrandResourceDisplayName("Search.SearchTerm")]
+    public string q { get; set; }
+
+    /// <summary>
+    ///     Category ID
+    /// </summary>
+    [GrandResourceDisplayName("Search.Category")]
+    public string cid { get; set; }
+
+    [GrandResourceDisplayName("Search.IncludeSubCategories")]
+    public bool isc { get; set; }
+
+    /// <summary>
+    ///     Collection ID
+    /// </summary>
+    [GrandResourceDisplayName("Search.Collection")]
+    public string mid { get; set; }
+
+    /// <summary>
+    ///     Vendor ID
+    /// </summary>
+    [GrandResourceDisplayName("Search.Vendor")]
+    public string vid { get; set; }
+
+    /// <summary>
+    ///     Price - From
+    /// </summary>
+    [GrandResourceDisplayName("Search.PriceRange.From")]
+    public string pf { get; set; }
+
+    /// <summary>
+    ///     Price - To
+    /// </summary>
+    [GrandResourceDisplayName("Search.PriceRange.To")]
+    public string pt { get; set; }
+
+    /// <summary>
+    ///     A value indicating whether to search in descriptions
+    /// </summary>
+    [GrandResourceDisplayName("Search.SearchInDescriptions")]
+    public bool sid { get; set; }
+
+    /// <summary>
+    ///     A value indicating whether "advanced search" is enabled
+    /// </summary>
+    [GrandResourceDisplayName("Search.AdvancedSearch")]
+    public bool adv { get; set; }
+
+    /// <summary>
+    ///     A value indicating whether "allow search by vendor" is enabled
+    /// </summary>
+    public bool asv { get; set; }
+
+    public bool Box { get; set; }
+
+    public IList<SelectListItem> AvailableCategories { get; set; } = new List<SelectListItem>();
+    public IList<SelectListItem> AvailableCollections { get; set; } = new List<SelectListItem>();
+    public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
+
+    public CatalogPagingFilteringModel PagingFilteringContext { get; set; } = new();
+    public IList<ProductOverviewModel> Products { get; set; } = new List<ProductOverviewModel>();
+
+    #region Nested classes
+
+    public class CategoryModel : BaseEntityModel
     {
-        public string Warning { get; set; }
-
-        public bool NoResults { get; set; }
-        
-        public string SearchCategoryId { get; set; }
-        /// <summary>
-        /// Query string
-        /// </summary>
-        [GrandResourceDisplayName("Search.SearchTerm")]
-        public string q { get; set; }
-        /// <summary>
-        /// Category ID
-        /// </summary>
-        [GrandResourceDisplayName("Search.Category")]
-        public string cid { get; set; }
-        [GrandResourceDisplayName("Search.IncludeSubCategories")]
-        public bool isc { get; set; }
-        /// <summary>
-        /// Collection ID
-        /// </summary>
-        [GrandResourceDisplayName("Search.Collection")]
-        public string mid { get; set; }
-        /// <summary>
-        /// Vendor ID
-        /// </summary>
-        [GrandResourceDisplayName("Search.Vendor")]
-        public string vid { get; set; }
-        /// <summary>
-        /// Price - From 
-        /// </summary>
-        [GrandResourceDisplayName("Search.PriceRange.From")]
-        public string pf { get; set; }
-        /// <summary>
-        /// Price - To
-        /// </summary>
-        [GrandResourceDisplayName("Search.PriceRange.To")]
-        public string pt { get; set; }
-        /// <summary>
-        /// A value indicating whether to search in descriptions
-        /// </summary>
-        [GrandResourceDisplayName("Search.SearchInDescriptions")]
-        public bool sid { get; set; }
-        /// <summary>
-        /// A value indicating whether "advanced search" is enabled
-        /// </summary>
-        [GrandResourceDisplayName("Search.AdvancedSearch")]
-        public bool adv { get; set; }
-        /// <summary>
-        /// A value indicating whether "allow search by vendor" is enabled
-        /// </summary>
-        public bool asv { get; set; }
-        public bool Box { get; set; }
-
-        public IList<SelectListItem> AvailableCategories { get; set; } = new List<SelectListItem>();
-        public IList<SelectListItem> AvailableCollections { get; set; } = new List<SelectListItem>();
-        public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
-
-        public CatalogPagingFilteringModel PagingFilteringContext { get; set; } = new();
-        public IList<ProductOverviewModel> Products { get; set; } = new List<ProductOverviewModel>();
-
-        #region Nested classes
-
-        public class CategoryModel : BaseEntityModel
-        {
-            public string Breadcrumb { get; set; }
-        }
-
-        #endregion
+        public string Breadcrumb { get; set; }
     }
+
+    #endregion
 }

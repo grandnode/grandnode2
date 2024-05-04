@@ -33,14 +33,14 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_after_featured_products", additionalData = Model.Id })
     <div id="catalog-products">
         @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_before_filters", additionalData = Model.Id })
-        <partial name="Partials/Selectors" />
+        <partial name="Partials/Selectors"/>
         <template v-if="catalog.Model.Products.length > 0">
             <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
                 <div class="col-12 product-grid px-0">
                     <div class="row">
                         <template v-for="Model in catalog.Model.Products">
                             <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                                <partial name="Partials/CatalogProductGridView" />
+                                <partial name="Partials/CatalogProductGridView"/>
                             </div>
                         </template>
                     </div>
@@ -51,13 +51,13 @@
                     <div class="col-12">
                         <div class="row">
                             <template v-for="Model in catalog.Model.Products">
-                                <partial name="Partials/CatalogProductListView" />
+                                <partial name="Partials/CatalogProductListView"/>
                             </template>
                         </div>
                     </div>
                 </div>
             </template>
-            <partial name="Partials/Pagination" />
+            <partial name="Partials/Pagination"/>
         </template>
         <template v-else>
             <div class="alert alerty-info my-3">
@@ -84,7 +84,8 @@
     @*Rendering filtering section*@
     @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
     {
-        <partial name="Partials/Filtering" />
+        <partial name="Partials/Filtering"/>
     }
 }
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />
+
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>

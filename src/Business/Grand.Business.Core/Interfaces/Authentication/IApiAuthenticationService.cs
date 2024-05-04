@@ -1,14 +1,12 @@
 ﻿using Grand.Domain.Customers;
-using Microsoft.AspNetCore.Http;
 
-namespace Grand.Business.Core.Interfaces.Authentication
+namespace Grand.Business.Core.Interfaces.Authentication;
+
+public interface IApiAuthenticationService
 {
-    public interface IApiAuthenticationService
-    {
-        /// <summary>
-        /// Get authenticated customer
-        /// </summary>
-        /// <returns>Customer</returns>
-        Task<Customer> GetAuthenticatedCustomer();
-    }
+    /// <summary>
+    ///     Get authenticated customer
+    /// </summary>
+    /// <returns>Customer</returns>
+    Task<Customer> GetAuthenticatedCustomer();
 }

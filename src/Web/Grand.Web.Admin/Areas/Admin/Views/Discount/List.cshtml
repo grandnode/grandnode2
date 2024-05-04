@@ -14,8 +14,10 @@
                     @Loc["admin.marketing.Discounts"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
-                    <vc:admin-widget widget-zone="discount_list_buttons" additional-data="null" />
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                    <vc:admin-widget widget-zone="discount_list_buttons" additional-data="null"/>
                 </div>
             </div>
             <div class="x_content form">
@@ -24,20 +26,20 @@
                         <div class="row align-items-end">
                             <div class="col-md-3 col-sm-12 col-12">
                                 <div class="form-group mb-0">
-                                    <admin-label asp-for="SearchDiscountName" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
-                                    <admin-input asp-for="SearchDiscountName" />
+                                    <admin-label asp-for="SearchDiscountName" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-input asp-for="SearchDiscountName"/>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-12 col-12">
                                 <div class="form-group mb-0">
-                                    <admin-label asp-for="SearchDiscountCouponCode" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
-                                    <admin-input asp-for="SearchDiscountCouponCode" />
+                                    <admin-label asp-for="SearchDiscountCouponCode" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-input asp-for="SearchDiscountCouponCode"/>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-12 col-12">
                                 <div class="form-group mb-0">
-                                    <admin-label asp-for="SearchDiscountTypeId" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
-                                    <admin-select asp-for="SearchDiscountTypeId" asp-items="Model.AvailableDiscountTypes" />
+                                    <admin-label asp-for="SearchDiscountTypeId" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-select asp-for="SearchDiscountTypeId" asp-items="Model.AvailableDiscountTypes"/>
                                 </div>
                             </div>
                             <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">

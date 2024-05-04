@@ -5,10 +5,12 @@
 
     pagebuilder.AddTitleParts(Loc["Title.OutOfStockSubscriptions"]);
 }
+
 @section left
-    {
+{
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.OutOfStockSubscriptions })
 }
+
 <div class="page account-page out-of-stock-subscription-list-page pl-lg-3 pt-lg-0 pt-3">
     <h1 class="h2 generalTitle">@Loc["Account.OutOfStockSubscriptions"]</h1>
     @if (Model.Subscriptions.Count > 0)
@@ -31,52 +33,52 @@
                 <div class="table-responsive">
                     <table class="table table-hover data-table">
                         <colgroup>
-                            <col width="1" />
-                            <col />
+                            <col width="1"/>
+                            <col/>
                         </colgroup>
                         <thead class="table-inverse">
-                            <tr>
-                                <th class="select-boxes">
+                        <tr>
+                            <th class="select-boxes">
+                                <label class="custom-control custom-checkbox">
+                                    <input id="selectall" type="checkbox" class="custom-control-input">
+                                    <span class="custom-control-label"></span>
+                                    <span class="custom-control-description">&nbsp;</span>
+                                </label>
+                            </th>
+                            <th class="product">
+                                @Loc["Account.OutOfStockSubscriptions.ProductColumn"]
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @for (var i = 0; i < Model.Subscriptions.Count; i++)
+                        {
+                            var item = Model.Subscriptions[i];
+                            <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
+                                <td class="select-boxes">
                                     <label class="custom-control custom-checkbox">
-                                        <input id="selectall" type="checkbox" class="custom-control-input">
+                                        <input id="selectall" type="checkbox" name="subscriptions" value="@(item.Id)" class="rowcheckbox custom-control-input">
                                         <span class="custom-control-label"></span>
                                         <span class="custom-control-description">&nbsp;</span>
                                     </label>
-                                </th>
-                                <th class="product">
-                                    @Loc["Account.OutOfStockSubscriptions.ProductColumn"]
-                                </th>
+                                </td>
+                                <td class="product">
+                                    @Html.RouteLink(item.ProductName, "Product", new { item.SeName })
+                                    @if (!string.IsNullOrEmpty(item.AttributeDescription))
+                                    {
+                                        <br/>
+                                        @Html.Raw(item.AttributeDescription)
+                                    }
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @for (var i = 0; i < Model.Subscriptions.Count; i++)
-                            {
-                                var item = Model.Subscriptions[i];
-                                <tr @(i % 2 == 0 ? Html.Raw(" class=\"odd\"") : Html.Raw(" class=\"even\""))>
-                                    <td class="select-boxes">
-                                        <label class="custom-control custom-checkbox">
-                                            <input id="selectall" type="checkbox" name="subscriptions" value="@(item.Id)" class="rowcheckbox custom-control-input">
-                                            <span class="custom-control-label"></span>
-                                            <span class="custom-control-description">&nbsp;</span>
-                                        </label>
-                                    </td>
-                                    <td class="product">
-                                        @Html.RouteLink(item.ProductName, "Product", new { item.SeName })
-                                        @if (!string.IsNullOrEmpty(item.AttributeDescription))
-                                        {
-                                            <br />
-                                            @Html.Raw(item.AttributeDescription)
-                                        }
-                                    </td>
-                                </tr>
-                            }
+                        }
                         </tbody>
                     </table>
                 </div>
-                <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagerModel" />
+                <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagerModel"/>
 
                 <div class="buttons mb-2 mt-2">
-                    <input type="submit" value="@Loc["Account.OutOfStockSubscriptions.DeleteSelected"]" class="btn btn-secondary delete-selected-biss-button" />
+                    <input type="submit" value="@Loc["Account.OutOfStockSubscriptions.DeleteSelected"]" class="btn btn-secondary delete-selected-biss-button"/>
                 </div>
             </div>
         </form>

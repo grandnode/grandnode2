@@ -1,14 +1,14 @@
-namespace Grand.Domain.Permissions
+namespace Grand.Domain.Permissions;
+
+/// <summary>
+///     Represents an entity which entity group linking
+/// </summary>
+public interface IGroupLinkEntity
 {
     /// <summary>
-    /// Represents an entity which entity group linking
+    ///     Gets or sets a value indicating whether the entity is subject to group
     /// </summary>
-    public interface IGroupLinkEntity
-    {
-        /// <summary>
-        /// Gets or sets a value indicating whether the entity is subject to group
-        /// </summary>
-        bool LimitedToGroups { get; set; }
-        IList<string> CustomerGroups { get; set; }
-    }
+    bool LimitedToGroups { get; set; }
+
+    IList<string> CustomerGroups { get; set; }
 }

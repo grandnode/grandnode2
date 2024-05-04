@@ -1,32 +1,26 @@
 ﻿using DotLiquid;
 
-namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
+namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
+
+public class LiquidAskQuestion : Drop
 {
-    public class LiquidAskQuestion : Drop
+    public LiquidAskQuestion(string message, string email, string fullName, string phone)
     {
-        private readonly string message;
-        private readonly string email;
-        private readonly string fullName;
-        private readonly string phone;
+        Message = message;
+        Email = email;
+        FullName = fullName;
+        Phone = phone;
 
-        public LiquidAskQuestion(string message, string email, string fullName, string phone)
-        {
-            this.message = message;
-            this.email = email;
-            this.fullName = fullName;
-            this.phone = phone;
-
-            AdditionalTokens = new Dictionary<string, string>();
-        }
-
-        public string Email => email;
-
-        public string Message => message;
-
-        public string FullName => fullName;
-
-        public string Phone => phone;
-
-        public IDictionary<string, string> AdditionalTokens { get; set; }
+        AdditionalTokens = new Dictionary<string, string>();
     }
+
+    public string Email { get; }
+
+    public string Message { get; }
+
+    public string FullName { get; }
+
+    public string Phone { get; }
+
+    public IDictionary<string, string> AdditionalTokens { get; set; }
 }

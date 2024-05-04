@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["admin.marketing.Campaigns.EditCampaignDetails"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Campaign" asp-action="Edit" method="post" id="campaign-form">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -12,22 +12,30 @@
                     <div class="caption">
                         <i class="fa fa-envelope"></i>
                         @Loc["admin.marketing.Campaigns.EditCampaignDetails"] - @Model.Name
-                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["admin.marketing.Campaigns.BackToList"], "List")</small>
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["admin.marketing.Campaigns.BackToList"], "List")
+                        </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
                             <button class="btn default" type="submit" name="send-mass-email" asp-action="SendMassEmail">
                                 <i class="fa fa-send"></i> @Loc["admin.marketing.Campaigns.SendMassEmail"]
                             </button>
-                            <span id="campaign-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                            <span id="campaign-delete" class="btn red">
+                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                            </span>
                         </div>
                     </div>
                 </div>
-                <vc:admin-widget widget-zone="campaign_details_buttons" additional-data="Model" />
+                <vc:admin-widget widget-zone="campaign_details_buttons" additional-data="Model"/>
                 <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model" />
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
                 </div>
             </div>
         </div>

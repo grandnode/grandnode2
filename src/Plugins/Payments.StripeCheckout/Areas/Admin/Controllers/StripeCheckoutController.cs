@@ -19,11 +19,11 @@ namespace Payments.StripeCheckout.Areas.Admin.Controllers;
 [PermissionAuthorize(PermissionSystemName.PaymentMethods)]
 public class StripeCheckoutController : BasePaymentController
 {
-    private readonly IWorkContext _workContext;
-    private readonly IStoreService _storeService;
-    private readonly ISettingService _settingService;
-    private readonly ITranslationService _translationService;
     private readonly IPermissionService _permissionService;
+    private readonly ISettingService _settingService;
+    private readonly IStoreService _storeService;
+    private readonly ITranslationService _translationService;
+    private readonly IWorkContext _workContext;
 
     public StripeCheckoutController(IWorkContext workContext,
         IStoreService storeService,

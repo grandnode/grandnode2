@@ -2,7 +2,7 @@
 
 @if (Model.Category.IncludeInMenu)
 {
-    <li class="@(!Model.Category.SubCategories.Any() ? "category": "category -hasSubmenu")">
+    <li class="@(!Model.Category.SubCategories.Any() ? "category" : "category -hasSubmenu")">
 
         @if (Model.Category.SubCategories.Count == 0)
         {
@@ -62,11 +62,12 @@
                                 Level = Model.Level + 1,
                                 ResponsiveMobileMenu = Model.ResponsiveMobileMenu
                             };
-                            <partial name="Components/Menu/Partials/CategoryLine.Menu" model="categoryLineModel" />
+                            <partial name="Components/Menu/Partials/CategoryLine.Menu" model="categoryLineModel"/>
                         }
                     </ul>
                 }
             }
+
             if (Model.Level >= 1 && subCategories.Any())
             {
                 levelClass = "next-level";
@@ -88,11 +89,10 @@
                             Level = Model.Level + 1,
                             ResponsiveMobileMenu = Model.ResponsiveMobileMenu
                         };
-                        <partial name="Components/Menu/Partials/CategoryLine.Menu" model="categoryLineModel" />
+                        <partial name="Components/Menu/Partials/CategoryLine.Menu" model="categoryLineModel"/>
                     }
                 </ul>
             }
         }
     </li>
 }
-

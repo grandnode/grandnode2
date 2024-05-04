@@ -4,7 +4,6 @@
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.Login"]);
-
 }
 <div class="page login-page">
     <h1 class="generalTitle h2 text-center">@Loc["Login.TwoFactorAuth.EnterCode"]</h1>
@@ -14,22 +13,22 @@
             <div class="col-sm-8 col-12">
                 <div class="card p-3">
                     <form asp-route="TwoFactorAuthorization" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post">
-                            <div class="row">
-                                <div asp-validation-summary="All" class="col-12 justify-content-around text-danger"></div>
-                                <div class="col-12 form-group mb-0 d-flex justify-content-around">
-                                    <div class="form-group row">
-                                        <div class="col-lg-3 col-12">
-                                            <label name="token" class="col-form-label">@Loc["Login.TwoFactorAuth.DigitCode"]</label>
-                                        </div>
-                                        <div class="col-lg-9 col-12">
-                                            <input name="token" type="text" class="form-control" autofocus />
-                                        </div>
+                        <div class="row">
+                            <div asp-validation-summary="All" class="col-12 justify-content-around text-danger"></div>
+                            <div class="col-12 form-group mb-0 d-flex justify-content-around">
+                                <div class="form-group row">
+                                    <div class="col-lg-3 col-12">
+                                        <label name="token" class="col-form-label">@Loc["Login.TwoFactorAuth.DigitCode"]</label>
+                                    </div>
+                                    <div class="col-lg-9 col-12">
+                                        <input name="token" type="text" class="form-control" autofocus/>
                                     </div>
                                 </div>
                             </div>
-                            <div class="buttons">
-                                <input class="btn btn-info login-button" type="submit" value="@Loc["Login.TwoFactorAuth.SendCode"]" />
-                            </div>
+                        </div>
+                        <div class="buttons">
+                            <input class="btn btn-info login-button" type="submit" value="@Loc["Login.TwoFactorAuth.SendCode"]"/>
+                        </div>
                     </form>
                 </div>
             </div>

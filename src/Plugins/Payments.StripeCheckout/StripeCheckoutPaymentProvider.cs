@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
-using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Microsoft.AspNetCore.Http;
@@ -12,11 +12,11 @@ namespace Payments.StripeCheckout;
 
 public class StripeCheckoutPaymentProvider : IPaymentProvider
 {
-    private readonly ITranslationService _translationService;
-    private readonly IStripeCheckoutService _stripeCheckoutService;
-    private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IOrderService _orderService;
+    private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
+    private readonly IStripeCheckoutService _stripeCheckoutService;
+    private readonly ITranslationService _translationService;
 
     #region Ctor
 
@@ -50,7 +50,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     #region Properties
 
     /// <summary>
-    /// Init a process a payment transaction
+    ///     Init a process a payment transaction
     /// </summary>
     /// <returns>Payment transaction</returns>
     public async Task<PaymentTransaction> InitPaymentTransaction()
@@ -59,7 +59,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Process a payment
+    ///     Process a payment
     /// </summary>
     /// <param name="paymentTransaction"></param>
     /// <returns>Process payment result</returns>
@@ -76,7 +76,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Post process payment (used by payment gateways that require redirecting to a third-party URL)
+    ///     Post process payment (used by payment gateways that require redirecting to a third-party URL)
     /// </summary>
     /// <param name="paymentTransaction"></param>
     public async Task PostRedirectPayment(PaymentTransaction paymentTransaction)
@@ -87,7 +87,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Returns a value indicating whether payment method should be hidden during checkout
+    ///     Returns a value indicating whether payment method should be hidden during checkout
     /// </summary>
     /// <param name="cart">Shopping cart</param>
     /// <returns>true - hide; false - display.</returns>
@@ -100,7 +100,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Gets additional handling fee
+    ///     Gets additional handling fee
     /// </summary>
     /// <param name="cart">Shopping cart</param>
     /// <returns>Additional handling fee</returns>
@@ -110,7 +110,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Captures payment
+    ///     Captures payment
     /// </summary>
     /// <returns>Capture payment result</returns>
     public async Task<CapturePaymentResult> Capture(PaymentTransaction paymentTransaction)
@@ -121,7 +121,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Refunds a payment
+    ///     Refunds a payment
     /// </summary>
     /// <param name="refundPaymentRequest">Request</param>
     /// <returns>Result</returns>
@@ -133,7 +133,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Voids a payment
+    ///     Voids a payment
     /// </summary>
     /// <returns>Result</returns>
     public async Task<VoidPaymentResult> Void(PaymentTransaction paymentTransaction)
@@ -144,7 +144,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Cancel a payment
+    ///     Cancel a payment
     /// </summary>
     /// <returns>Result</returns>
     public Task CancelPayment(PaymentTransaction paymentTransaction)
@@ -154,7 +154,8 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
 
 
     /// <summary>
-    /// Gets a value indicating whether customers can complete a payment after order is placed but not completed (for redirection payment methods)
+    ///     Gets a value indicating whether customers can complete a payment after order is placed but not completed (for
+    ///     redirection payment methods)
     /// </summary>
     /// <returns>Result</returns>
     public async Task<bool> CanRePostRedirectPayment(PaymentTransaction paymentTransaction)
@@ -167,7 +168,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Validate payment form
+    ///     Validate payment form
     /// </summary>
     /// <param name="model"></param>
     /// <returns>List of validating errors</returns>
@@ -177,7 +178,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Get payment information
+    ///     Get payment information
     /// </summary>
     /// <param name="model"></param>
     /// <returns>Payment info holder</returns>
@@ -188,7 +189,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
 
 
     /// <summary>
-    /// Gets a value indicating whether capture is supported
+    ///     Gets a value indicating whether capture is supported
     /// </summary>
     public async Task<bool> SupportCapture()
     {
@@ -196,7 +197,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Gets a value indicating whether partial refund is supported
+    ///     Gets a value indicating whether partial refund is supported
     /// </summary>
     public async Task<bool> SupportPartiallyRefund()
     {
@@ -204,7 +205,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Gets a value indicating whether refund is supported
+    ///     Gets a value indicating whether refund is supported
     /// </summary>
     public async Task<bool> SupportRefund()
     {
@@ -212,7 +213,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Gets a value indicating whether void is supported
+    ///     Gets a value indicating whether void is supported
     /// </summary>
     public async Task<bool> SupportVoid()
     {
@@ -220,12 +221,12 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Gets a payment method type
+    ///     Gets a payment method type
     /// </summary>
     public PaymentMethodType PaymentMethodType => PaymentMethodType.Redirection;
 
     /// <summary>
-    /// Gets a value indicating whether we should display a payment information page for this plugin
+    ///     Gets a value indicating whether we should display a payment information page for this plugin
     /// </summary>
     public async Task<bool> SkipPaymentInfo()
     {
@@ -233,7 +234,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     }
 
     /// <summary>
-    /// Gets a payment method description that will be displayed on checkout pages in the public store
+    ///     Gets a payment method description that will be displayed on checkout pages in the public store
     /// </summary>
     public async Task<string> Description()
     {

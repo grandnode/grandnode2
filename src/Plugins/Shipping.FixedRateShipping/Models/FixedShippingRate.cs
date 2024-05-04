@@ -1,7 +1,6 @@
-﻿namespace Shipping.FixedRateShipping.Models
+﻿namespace Shipping.FixedRateShipping.Models;
+
+public class FixedShippingRate
 {
-    public class FixedShippingRate
-    {
-        public double Rate { get; set; }
-    }
+    public double Rate { get; set; }
 }

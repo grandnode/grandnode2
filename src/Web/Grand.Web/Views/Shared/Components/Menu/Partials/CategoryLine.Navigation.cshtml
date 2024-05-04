@@ -1,5 +1,7 @@
 ﻿@model CategoryNavigationModel.CategoryLineModel
+
 @functions{
+
     public bool BreadCrumbContainsCurrentCategoryId(CategorySimpleModel category)
     {
         if (string.IsNullOrEmpty(Model.CurrentCategoryId))
@@ -18,7 +20,9 @@
 
         return false;
     }
+
 }
+
 @{
     var active = Model.Category.Id == Model.CurrentCategoryId || Model.Category.SubCategories.Count(BreadCrumbContainsCurrentCategoryId) > 0;
     var last = Model.Category.Id == Model.CurrentCategoryId;
@@ -54,7 +58,7 @@
                             CurrentCategoryId = Model.CurrentCategoryId,
                             Category = subCategory
                         };
-                        <partial name="Components/Menu/Partials/CategoryLine.Navigation" model="categoryLineModel" />
+                        <partial name="Components/Menu/Partials/CategoryLine.Navigation" model="categoryLineModel"/>
                     }
                 </ul>
             }

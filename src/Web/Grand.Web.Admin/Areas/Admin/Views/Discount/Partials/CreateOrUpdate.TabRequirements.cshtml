@@ -1,10 +1,9 @@
 ﻿@model DiscountModel
 
 @{
-<vc:admin-widget widget-zone="discount_details_requirements_top" additional-data="Model" />
+    <vc:admin-widget widget-zone="discount_details_requirements_top" additional-data="Model"/>
     if (!string.IsNullOrEmpty(Model.Id))
     {
-
         <script>
 
             $(document).ready(function () {
@@ -99,11 +98,14 @@
             //array of exisiting discount requirements
             var discountRequirements = [
                      @for (var i = 0; i < Model.DiscountRequirementMetaInfos.Count; i++)
-                    {
-                        var drmi = Model.DiscountRequirementMetaInfos[i];
-                        <text>{ discountRequirementId: "@(drmi.DiscountRequirementId)", ruleName: "@(drmi.RuleName)", url:  "@(Html.Raw(drmi.ConfigurationUrl))" } </text> if (i != Model.DiscountRequirementMetaInfos.Count - 1)
-                                                                                                                                                                         {<text>, </text>}
-                    }
+                     {
+                         var drmi = Model.DiscountRequirementMetaInfos[i];
+                         <text>{ discountRequirementId: "@(drmi.DiscountRequirementId)", ruleName: "@(drmi.RuleName)", url:  "@(Html.Raw(drmi.ConfigurationUrl))" } </text>
+                         if (i != Model.DiscountRequirementMetaInfos.Count - 1)
+                         {
+                             <text>, </text>
+                         }
+                     }
             ];
 
             //load HTML for exisiting requirements
@@ -160,16 +162,18 @@
 
         </script>
 
-    <!-- Template container -->
+        <!-- Template container -->
         <div class="form-horizontal" id="discountRequirementContainer">
         </div>
-    <!-- Discount requirement template -->
+        <!-- Discount requirement template -->
         <script id="discountRequirementTemplate" type="text/html">
             <div class="form-body" id="editrequirement{{= discountRequirementId }}">
-                <div class="note note-info">@Loc["admin.marketing.Discounts.Requirements.DiscountRequirementType"] <strong>{{= ruleName }}</strong></div>
+                <div class="note note-info">
+                    @Loc["admin.marketing.Discounts.Requirements.DiscountRequirementType"] <strong>{{= ruleName }}</strong>
+                </div>
                 <div class="form-group" id="editrequirementplaceholder{{= discountRequirementId }}"></div>
                 <div class="offset-md-3 offset-sm-3 pb-3">
-                    <input type="button" id="deleterequirement{{= discountRequirementId }}" onclick="deleteRequirement('{{= discountRequirementId }}')" class="k-button" value="@Loc["admin.marketing.Discounts.Requirements.Remove"]" />
+                    <input type="button" id="deleterequirement{{= discountRequirementId }}" onclick="deleteRequirement('{{= discountRequirementId }}')" class="k-button" value="@Loc["admin.marketing.Discounts.Requirements.Remove"]"/>
                 </div>
             </div>
         </script>
@@ -180,9 +184,9 @@
                     <strong>@Loc["admin.marketing.Discounts.Requirements.AddNew"]</strong>
                 </div>
                 <div class="form-group">
-                    <admin-label asp-for="AddDiscountRequirement" />
+                    <admin-label asp-for="AddDiscountRequirement"/>
                     <div class="col-md-9 col-sm-9">
-                        <admin-select asp-for="AddDiscountRequirement" asp-items="Model.AvailableDiscountRequirementRules" />
+                        <admin-select asp-for="AddDiscountRequirement" asp-items="Model.AvailableDiscountRequirementRules"/>
                         <span asp-validation-for="AddDiscountRequirement"></span>
                     </div>
                 </div>
@@ -201,5 +205,6 @@
             @Loc["admin.marketing.Discounts.Requirements.SaveBeforeEdit"]
         </div>
     }
-<vc:admin-widget widget-zone="discount_details_requirements_bottom" additional-data="Model" />
+
+    <vc:admin-widget widget-zone="discount_details_requirements_bottom" additional-data="Model"/>
 }

@@ -122,6 +122,7 @@
         {
             <div>@Html.Raw(_pdfSettings.InvoiceHeaderText)</div>
         }
+
         <h4>@store.CompanyName</h4>
         if (logoExists)
         {
@@ -130,6 +131,7 @@
                 <img src="@url" title="logo" alt="logo"/>
             </div>
         }
+
         <h6>@(string.Format(_translationService.GetResource("PDFInvoice.Order#", order.CustomerLanguageId), order.OrderNumber)) (@order.CreatedOnUtc)</h6>
         <table class="CodeTable">
             <tr>
@@ -142,6 +144,7 @@
                         {
                             @(string.Format(_translationService.GetResource("PDFInvoice.Company", order.CustomerLanguageId), order.BillingAddress.Company))<br/>
                         }
+
                         @(string.Format(_translationService.GetResource("PDFInvoice.Name", order.CustomerLanguageId), order.BillingAddress.FirstName + " " + order.BillingAddress.LastName))<br/>
                         @(string.Format(_translationService.GetResource("PDFInvoice.Phone", order.CustomerLanguageId), order.BillingAddress.PhoneNumber))<br/>
                         @(string.Format(_translationService.GetResource("PDFInvoice.Address", order.CustomerLanguageId), order.BillingAddress.Address1))<br/>
@@ -150,9 +153,9 @@
                         <br/>
                         var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(order.PaymentMethodSystemName);
                         var paymentMethodStr = paymentMethod != null ? paymentMethod.FriendlyName : order.PaymentMethodSystemName;
-                        <b>@(string.Format(_translationService.GetResource("PDFInvoice.PaymentMethod", order.CustomerLanguageId), paymentMethodStr))</b><br/>
+                        <b>@(string.Format(_translationService.GetResource("PDFInvoice.PaymentMethod", order.CustomerLanguageId), paymentMethodStr))</b>
+                        <br/>
                         @await Component.InvokeAsync("Widget", new { widgetZone = "pdf_payment_method_below", additionalData = order.Id })
-
                     }
                 </td>
                 <td class="line">
@@ -164,13 +167,15 @@
                         {
                             @(string.Format(_translationService.GetResource("PDFInvoice.Company", order.CustomerLanguageId), order.ShippingAddress.Company))<br/>
                         }
+
                         @(string.Format(_translationService.GetResource("PDFInvoice.Name", order.CustomerLanguageId), order.ShippingAddress.FirstName + " " + order.ShippingAddress.LastName))<br/>
                         @(string.Format(_translationService.GetResource("PDFInvoice.Phone", order.CustomerLanguageId), order.ShippingAddress.PhoneNumber))<br/>
                         @(string.Format(_translationService.GetResource("PDFInvoice.Address", order.CustomerLanguageId), order.ShippingAddress.Address1))<br/>
                         @(order.ShippingAddress.City + ", " + order.ShippingAddress.ZipPostalCode)<br/>
                         @((await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name)<br/>
                         <br/>
-                        <b>@(string.Format(_translationService.GetResource("PDFInvoice.ShippingMethod", order.CustomerLanguageId), order.ShippingMethod))</b><br/>
+                        <b>@(string.Format(_translationService.GetResource("PDFInvoice.ShippingMethod", order.CustomerLanguageId), order.ShippingMethod))</b>
+                        <br/>
                     }
                 </td>
             </tr>
@@ -243,25 +248,27 @@
                     @if (order.OrderSubTotalDiscountInclTax > 0 || order.OrderSubTotalDiscountExclTax > 0)
                     {
                         @(_translationService.GetResource("PDFInvoice.Discount", order.CustomerLanguageId)) @if (priceIncludesTax)
-                                                                                                            {
-                                                                                                                @order.OrderSubTotalDiscountInclTax.ToString("N2")
-                                                                                                            }
-                                                                                                            else
-                                                                                                            {
-                                                                                                                @order.OrderSubTotalDiscountExclTax.ToString("N2")
-                                                                                                            }
+                        {
+                            @order.OrderSubTotalDiscountInclTax.ToString("N2")
+                        }
+                        else
+                        {
+                            @order.OrderSubTotalDiscountExclTax.ToString("N2")
+                        }
+
                         @order.CustomerCurrencyCode
                     }
                     @if (order.PaymentMethodAdditionalFeeInclTax > 0 || order.PaymentMethodAdditionalFeeExclTax > 0)
                     {
                         @(_translationService.GetResource("PDFInvoice.PaymentmethodAdditionalFee", order.CustomerLanguageId)) @if (priceIncludesTax)
-                                                                                                                              {
-                                                                                                                                  @order.PaymentMethodAdditionalFeeInclTax.ToString("N2")
-                                                                                                                              }
-                                                                                                                              else
-                                                                                                                              {
-                                                                                                                                  @order.PaymentMethodAdditionalFeeExclTax.ToString("N2")
-                                                                                                                              }
+                        {
+                            @order.PaymentMethodAdditionalFeeInclTax.ToString("N2")
+                        }
+                        else
+                        {
+                            @order.PaymentMethodAdditionalFeeExclTax.ToString("N2")
+                        }
+
                         @order.CustomerCurrencyCode<br/>
                     }
                     @(_translationService.GetResource("PDFInvoice.Shipping", order.CustomerLanguageId))
@@ -295,21 +302,26 @@
                         @order.OrderTax.ToString("N2")
                         @order.CustomerCurrencyCode<br/>
                     }
-                    <b>@(_translationService.GetResource("PDFInvoice.OrderTotal", order.CustomerLanguageId)) @order.OrderTotal.ToString("N2") @order.CustomerCurrencyCode<br/></b>
+                    <b>
+                        @(_translationService.GetResource("PDFInvoice.OrderTotal", order.CustomerLanguageId)) @order.OrderTotal.ToString("N2") @order.CustomerCurrencyCode<br/>
+                    </b>
 
                 </div>
             </div>
         }
+
         if (!string.IsNullOrEmpty(_pdfSettings.InvoiceFooterText))
         {
             <footer class="footer">
                 @Html.Raw(_pdfSettings.InvoiceFooterText)
             </footer>
         }
+
         if (Model.Item1.Count - 1 > i)
         {
             <div style="display:block; clear:both; page-break-after:always;"></div>
         }
+
         i++;
     }
 </main>

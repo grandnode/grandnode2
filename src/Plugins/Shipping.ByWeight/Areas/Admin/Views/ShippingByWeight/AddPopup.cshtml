@@ -1,13 +1,12 @@
 ﻿@{
     Layout = "";
 }
-@model ShippingByWeightModel
-@using Shipping.ByWeight.Models;
+@model Shipping.ByWeight.Models.ShippingByWeightModel
 <form id="AddPopup" asp-controller="ShippingByWeight" asp-action="AddPopup" method="post"
       asp-route-ShippingByWeightId="@Context.Request.Query["ShippingByWeightId"]"
-    asp-route-btnId="@Context.Request.Query["btnId"]"
-    asp-route-formId="@Context.Request.Query["formId"]">
-    
+      asp-route-btnId="@Context.Request.Query["btnId"]"
+      asp-route-formId="@Context.Request.Query["formId"]">
+
 
     <div class="row">
         <div class="col-md-12">
@@ -19,7 +18,7 @@
                     </div>
                 </div>
                 <div class="x_content form">
-                    <partial name="_CreateOrUpdate" model="Model" />
+                    <partial name="_CreateOrUpdate" model="Model"/>
                 </div>
             </div>
         </div>

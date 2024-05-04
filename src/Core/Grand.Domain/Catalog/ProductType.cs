@@ -1,32 +1,32 @@
-namespace Grand.Domain.Catalog
+namespace Grand.Domain.Catalog;
+
+/// <summary>
+///     Represents a product type
+/// </summary>
+public enum ProductType
 {
     /// <summary>
-    /// Represents a product type
+    ///     Simple
     /// </summary>
-    public enum ProductType
-    {
-        /// <summary>
-        /// Simple
-        /// </summary>
-        SimpleProduct = 0,
-        /// <summary>
-        /// Grouped product
-        /// </summary>
-        GroupedProduct = 10,
+    SimpleProduct = 0,
 
-        /// <summary>
-        /// Reservation product
-        /// </summary>
-        Reservation = 20,
+    /// <summary>
+    ///     Grouped product
+    /// </summary>
+    GroupedProduct = 10,
 
-        /// <summary>
-		/// Bundled product
-		/// </summary>
-		BundledProduct = 30,
+    /// <summary>
+    ///     Reservation product
+    /// </summary>
+    Reservation = 20,
 
-        /// <summary>
-        /// Auction product
-        /// </summary>
-        Auction = 40
-    }
+    /// <summary>
+    ///     Bundled product
+    /// </summary>
+    BundledProduct = 30,
+
+    /// <summary>
+    ///     Auction product
+    /// </summary>
+    Auction = 40
 }

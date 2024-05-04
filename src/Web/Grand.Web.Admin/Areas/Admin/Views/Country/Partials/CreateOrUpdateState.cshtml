@@ -1,31 +1,32 @@
-﻿@model StateProvinceModel
-@using Microsoft.AspNetCore.Mvc.Razor;
+﻿@using Microsoft.AspNetCore.Mvc.Razor
+@model StateProvinceModel
 
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden" />
-<input asp-for="CountryId" type="hidden" />
-<vc:admin-widget widget-zone="country_state_details_top" additional-data="Model" />
+<input asp-for="Id" type="hidden"/>
+<input asp-for="CountryId" type="hidden"/>
+<vc:admin-widget widget-zone="country_state_details_top" additional-data="Model"/>
 
-@{ Func<int, HelperResult>
-         template = @<div class="form-body">
-            <div class="form-group">
-                <admin-label asp-for="@Model.Locales[item].Name" />
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="@Model.Locales[item].Name" />
-                    <span asp-validation-for="@Model.Locales[item].Name"></span>
-                </div>
-            </div>
-            <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
-        </div>;
+@{
+    Func<int, HelperResult>
+        template = @<div class="form-body">
+                       <div class="form-group">
+                           <admin-label asp-for="@Model.Locales[item].Name"/>
+                           <div class="col-md-9 col-sm-9">
+                               <admin-input asp-for="@Model.Locales[item].Name"/>
+                               <span asp-validation-for="@Model.Locales[item].Name"></span>
+                           </div>
+                       </div>
+                       <input type="hidden" asp-for="@Model.Locales[item].LanguageId"/>
+                   </div>;
 }
 
 <div class="form-horizontal">
-    <localized-editor localized-template=@template name="state-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+    <localized-editor localized-template="@template" name="state-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
         <div class="form-body">
             <div class="form-group">
-                <admin-label asp-for="Name" />
+                <admin-label asp-for="Name"/>
                 <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name" />
+                    <admin-input asp-for="Name"/>
                     <span asp-validation-for="Name"></span>
                 </div>
             </div>
@@ -33,35 +34,37 @@
     </localized-editor>
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="Abbreviation" />
+            <admin-label asp-for="Abbreviation"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Abbreviation" />
+                <admin-input asp-for="Abbreviation"/>
                 <span asp-validation-for="Abbreviation"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="Published" />
+            <admin-label asp-for="Published"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="Published" />
+                    <admin-input asp-for="Published"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="Published"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="DisplayOrder" />
+            <admin-label asp-for="DisplayOrder"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder" />
+                <admin-input asp-for="DisplayOrder"/>
                 <span asp-validation-for="DisplayOrder"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
-                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                <vc:admin-widget widget-zone="country_state_details_buttons" additional-data="null" />
+                <button class="btn btn-success" type="submit" name="save">
+                    <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                </button>
+                <vc:admin-widget widget-zone="country_state_details_buttons" additional-data="null"/>
             </div>
         </div>
     </div>
 </div>
-<vc:admin-widget widget-zone="country_state_details_bottom" additional-data="Model" />
+<vc:admin-widget widget-zone="country_state_details_bottom" additional-data="Model"/>

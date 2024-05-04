@@ -1,16 +1,14 @@
-﻿
-namespace Authentication.Facebook
+﻿namespace Authentication.Facebook;
+
+/// <summary>
+///     Default values used by the Facebook authentication middleware
+/// </summary>
+public static class FacebookAuthenticationDefaults
 {
     /// <summary>
-    /// Default values used by the Facebook authentication middleware
+    ///     System name of the external authentication method
     /// </summary>
-    public static class FacebookAuthenticationDefaults
-    {
-        /// <summary>
-        /// System name of the external authentication method
-        /// </summary>
-        public const string ProviderSystemName = "ExternalAuth.Facebook";
+    public const string ProviderSystemName = "ExternalAuth.Facebook";
 
-        public const string ConfigurationUrl = "../FacebookAuthenticationSettings/Configure";
-    }
+    public const string ConfigurationUrl = "../FacebookAuthenticationSettings/Configure";
 }

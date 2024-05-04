@@ -1,8 +1,7 @@
-﻿namespace Grand.Business.Core.Interfaces.Messages
+﻿namespace Grand.Business.Core.Interfaces.Messages;
+
+public interface IMessageTokenProvider
 {
-    public interface IMessageTokenProvider
-    {
-        string[] GetListOfCampaignAllowedTokens();
-        string[] GetListOfAllowedTokens();
-    }
+    string[] GetListOfCampaignAllowedTokens();
+    string[] GetListOfAllowedTokens();
 }

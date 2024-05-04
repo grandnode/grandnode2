@@ -2,10 +2,9 @@
 using Grand.Web.Models.News;
 using MediatR;
 
-namespace Grand.Web.Features.Models.News
+namespace Grand.Web.Features.Models.News;
+
+public class GetNewsItem : IRequest<NewsItemModel>
 {
-    public class GetNewsItem : IRequest<NewsItemModel>
-    {
-        public NewsItem NewsItem { get; set; }
-    }
+    public NewsItem NewsItem { get; set; }
 }

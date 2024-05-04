@@ -1,10 +1,9 @@
 ﻿using Grand.Domain.Catalog;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Catalog
+namespace Grand.Web.Features.Models.Catalog;
+
+public class GetProductAttribute : IRequest<ProductAttribute>
 {
-    public class GetProductAttribute : IRequest<ProductAttribute>
-    {
-        public string Id { get; set; }
-    }
+    public string Id { get; set; }
 }

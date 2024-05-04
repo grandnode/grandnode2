@@ -6,7 +6,9 @@ using MediatR;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 
-public class GetDiscountUsageHistoryQueryHandler : IRequestHandler<GetDiscountUsageHistoryQuery, IPagedList<DiscountUsageHistory>>
+public class
+    GetDiscountUsageHistoryQueryHandler : IRequestHandler<GetDiscountUsageHistoryQuery,
+    IPagedList<DiscountUsageHistory>>
 {
     private readonly IRepository<DiscountUsageHistory> _discountUsageHistoryRepository;
 
@@ -15,7 +17,8 @@ public class GetDiscountUsageHistoryQueryHandler : IRequestHandler<GetDiscountUs
         _discountUsageHistoryRepository = discountUsageHistoryRepository;
     }
 
-    public async Task<IPagedList<DiscountUsageHistory>> Handle(GetDiscountUsageHistoryQuery request, CancellationToken cancellationToken)
+    public async Task<IPagedList<DiscountUsageHistory>> Handle(GetDiscountUsageHistoryQuery request,
+        CancellationToken cancellationToken)
     {
         var query = from d in _discountUsageHistoryRepository.Table
             select d;

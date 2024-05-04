@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel;
@@ -13,173 +13,183 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Admin.Controllers
+namespace Grand.Web.Admin.Controllers;
+
+[PermissionAuthorize(PermissionSystemName.EmailAccounts)]
+public class EmailAccountController : BaseAdminController
 {
-    [PermissionAuthorize(PermissionSystemName.EmailAccounts)]
-    public class EmailAccountController : BaseAdminController
+    private readonly ICacheBase _cacheBase;
+    private readonly IEmailAccountService _emailAccountService;
+    private readonly EmailAccountSettings _emailAccountSettings;
+    private readonly IEmailAccountViewModelService _emailAccountViewModelService;
+    private readonly ISettingService _settingService;
+    private readonly ITranslationService _translationService;
+
+    public EmailAccountController(IEmailAccountViewModelService emailAccountViewModelService,
+        IEmailAccountService emailAccountService,
+        ITranslationService translationService, ISettingService settingService,
+        EmailAccountSettings emailAccountSettings, ICacheBase cacheBase)
     {
-        private readonly IEmailAccountViewModelService _emailAccountViewModelService;
-        private readonly IEmailAccountService _emailAccountService;
-        private readonly ITranslationService _translationService;
-        private readonly ISettingService _settingService;
-        private readonly EmailAccountSettings _emailAccountSettings;
-        private readonly ICacheBase _cacheBase;
+        _emailAccountViewModelService = emailAccountViewModelService;
+        _emailAccountService = emailAccountService;
+        _translationService = translationService;
+        _emailAccountSettings = emailAccountSettings;
+        _settingService = settingService;
+        _cacheBase = cacheBase;
+    }
 
-        public EmailAccountController(IEmailAccountViewModelService emailAccountViewModelService, IEmailAccountService emailAccountService,
-            ITranslationService translationService, ISettingService settingService,
-            EmailAccountSettings emailAccountSettings, ICacheBase cacheBase)
+    public IActionResult List()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    public async Task<IActionResult> List(DataSourceRequest command)
+    {
+        var emailAccountModels = (await _emailAccountService.GetAllEmailAccounts())
+            .Select(x => x.ToModel())
+            .ToList();
+        foreach (var eam in emailAccountModels)
+            eam.IsDefaultEmailAccount = eam.Id == _emailAccountSettings.DefaultEmailAccountId;
+
+        var gridModel = new DataSourceResult {
+            Data = emailAccountModels,
+            Total = emailAccountModels.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> MarkAsDefaultEmail(string id)
+    {
+        var defaultEmailAccount = await _emailAccountService.GetEmailAccountById(id);
+        if (defaultEmailAccount != null)
         {
-            _emailAccountViewModelService = emailAccountViewModelService;
-            _emailAccountService = emailAccountService;
-            _translationService = translationService;
-            _emailAccountSettings = emailAccountSettings;
-            _settingService = settingService;
-            _cacheBase = cacheBase;
+            _emailAccountSettings.DefaultEmailAccountId = defaultEmailAccount.Id;
+            await _settingService.SaveSetting(_emailAccountSettings);
         }
 
-        public IActionResult List()
+        //now clear cache
+        await _cacheBase.Clear();
+
+        return RedirectToAction("List");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public IActionResult Create()
+    {
+        var model = _emailAccountViewModelService.PrepareEmailAccountModel();
+        return View(model);
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public async Task<IActionResult> Create(EmailAccountModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
         {
-            return View();
+            var emailAccount = await _emailAccountViewModelService.InsertEmailAccountModel(model);
+            Success(_translationService.GetResource("Admin.Configuration.EmailAccounts.Added"));
+            return continueEditing ? RedirectToAction("Edit", new { id = emailAccount.Id }) : RedirectToAction("List");
         }
 
-        [HttpPost]
-        [PermissionAuthorizeAction(PermissionActionName.List)]
-        public async Task<IActionResult> List(DataSourceRequest command)
-        {
-            var emailAccountModels = (await _emailAccountService.GetAllEmailAccounts())
-                                    .Select(x => x.ToModel())
-                                    .ToList();
-            foreach (var eam in emailAccountModels)
-                eam.IsDefaultEmailAccount = eam.Id == _emailAccountSettings.DefaultEmailAccountId;
+        //If we got this far, something failed, redisplay form
+        return View(model);
+    }
 
-            var gridModel = new DataSourceResult
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var emailAccount = await _emailAccountService.GetEmailAccountById(id);
+        if (emailAccount == null)
+            //No email account found with the specified id
+            return RedirectToAction("List");
+
+        return View(emailAccount.ToModel());
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> Edit(EmailAccountModel model, bool continueEditing)
+    {
+        var emailAccount = await _emailAccountService.GetEmailAccountById(model.Id);
+        if (emailAccount == null)
+            //No email account found with the specified id
+            return RedirectToAction("List");
+
+        if (ModelState.IsValid)
+        {
+            emailAccount = await _emailAccountViewModelService.UpdateEmailAccountModel(emailAccount, model);
+            Success(_translationService.GetResource("Admin.Configuration.EmailAccounts.Updated"));
+            return continueEditing ? RedirectToAction("Edit", new { id = emailAccount.Id }) : RedirectToAction("List");
+        }
+
+        //If we got this far, something failed, redisplay form
+        return View(model);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> SendTestEmail(EmailAccountModel model)
+    {
+        var emailAccount = await _emailAccountService.GetEmailAccountById(model.Id);
+        if (emailAccount == null)
+            //No email account found with the specified id
+            return RedirectToAction("List");
+        try
+        {
+            if (string.IsNullOrWhiteSpace(model.SendTestEmailTo))
+                throw new GrandException("Enter test email address");
+            if (ModelState.IsValid)
             {
-                Data = emailAccountModels,
-                Total = emailAccountModels.Count
-            };
-
-            return Json(gridModel);
-        }
-        [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        public async Task<IActionResult> MarkAsDefaultEmail(string id)
-        {
-            var defaultEmailAccount = await _emailAccountService.GetEmailAccountById(id);
-            if (defaultEmailAccount != null)
-            {
-                _emailAccountSettings.DefaultEmailAccountId = defaultEmailAccount.Id;
-                await _settingService.SaveSetting(_emailAccountSettings);
+                await _emailAccountViewModelService.SendTestEmail(emailAccount, model);
+                Success(_translationService.GetResource("Admin.Configuration.EmailAccounts.SendTestEmail.Success"),
+                    false);
             }
+            else
+            {
+                Error(ModelState);
+            }
+        }
+        catch (Exception exc)
+        {
+            Error(exc.Message);
+        }
 
-            //now clear cache
-            await _cacheBase.Clear();
+        //If we got this far, something failed, redisplay form
+        return RedirectToAction("Edit", new { id = model.Id });
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var emailAccount = await _emailAccountService.GetEmailAccountById(id);
+        if (emailAccount == null)
+            //No email account found with the specified id
+            return RedirectToAction("List");
+        try
+        {
+            if (ModelState.IsValid)
+            {
+                await _emailAccountService.DeleteEmailAccount(emailAccount);
+                Success(_translationService.GetResource("Admin.Configuration.EmailAccounts.Deleted"));
+            }
+            else
+            {
+                Error(ModelState);
+            }
 
             return RedirectToAction("List");
         }
-        [PermissionAuthorizeAction(PermissionActionName.Create)]
-        public IActionResult Create()
+        catch (Exception exc)
         {
-            var model = _emailAccountViewModelService.PrepareEmailAccountModel();
-            return View(model);
-        }
-
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        [PermissionAuthorizeAction(PermissionActionName.Create)]
-        public async Task<IActionResult> Create(EmailAccountModel model, bool continueEditing)
-        {
-            if (ModelState.IsValid)
-            {
-                var emailAccount = await _emailAccountViewModelService.InsertEmailAccountModel(model);
-                Success(_translationService.GetResource("Admin.Configuration.EmailAccounts.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = emailAccount.Id }) : RedirectToAction("List");
-            }
-            //If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Preview)]
-        public async Task<IActionResult> Edit(string id)
-        {
-            var emailAccount = await _emailAccountService.GetEmailAccountById(id);
-            if (emailAccount == null)
-                //No email account found with the specified id
-                return RedirectToAction("List");
-
-            return View(emailAccount.ToModel());
-        }
-
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        public async Task<IActionResult> Edit(EmailAccountModel model, bool continueEditing)
-        {
-            var emailAccount = await _emailAccountService.GetEmailAccountById(model.Id);
-            if (emailAccount == null)
-                //No email account found with the specified id
-                return RedirectToAction("List");
-
-            if (ModelState.IsValid)
-            {
-                emailAccount = await _emailAccountViewModelService.UpdateEmailAccountModel(emailAccount, model);
-                Success(_translationService.GetResource("Admin.Configuration.EmailAccounts.Updated"));
-                return continueEditing ? RedirectToAction("Edit", new { id = emailAccount.Id }) : RedirectToAction("List");
-            }
-            //If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        [HttpPost]
-        [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        public async Task<IActionResult> SendTestEmail(EmailAccountModel model)
-        {
-            var emailAccount = await _emailAccountService.GetEmailAccountById(model.Id);
-            if (emailAccount == null)
-                //No email account found with the specified id
-                return RedirectToAction("List");
-            try
-            {
-                if (string.IsNullOrWhiteSpace(model.SendTestEmailTo))
-                    throw new GrandException("Enter test email address");
-                if (ModelState.IsValid)
-                {
-                    await _emailAccountViewModelService.SendTestEmail(emailAccount, model);
-                    Success(_translationService.GetResource("Admin.Configuration.EmailAccounts.SendTestEmail.Success"), false);
-                }
-                else
-                    Error(ModelState);
-            }
-            catch (Exception exc)
-            {
-                Error(exc.Message);
-            }
-
-            //If we got this far, something failed, redisplay form
-            return RedirectToAction("Edit", new { id = model.Id });
-        }
-
-        [HttpPost]
-        [PermissionAuthorizeAction(PermissionActionName.Delete)]
-        public async Task<IActionResult> Delete(string id)
-        {
-            var emailAccount = await _emailAccountService.GetEmailAccountById(id);
-            if (emailAccount == null)
-                //No email account found with the specified id
-                return RedirectToAction("List");
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    await _emailAccountService.DeleteEmailAccount(emailAccount);
-                    Success(_translationService.GetResource("Admin.Configuration.EmailAccounts.Deleted"));
-                }
-                else
-                    Error(ModelState);
-
-                return RedirectToAction("List");
-            }
-            catch (Exception exc)
-            {
-                Error(exc);
-                return RedirectToAction("Edit", new { id = emailAccount.Id });
-            }
+            Error(exc);
+            return RedirectToAction("Edit", new { id = emailAccount.Id });
         }
     }
 }

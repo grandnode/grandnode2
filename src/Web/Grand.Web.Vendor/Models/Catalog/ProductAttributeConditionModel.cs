@@ -5,45 +5,47 @@ using Grand.Web.Common.Binders;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Vendor.Models.Catalog
+namespace Grand.Web.Vendor.Models.Catalog;
+
+public class ProductAttributeConditionModel : BaseModel, IProductValidVendor
 {
-    public class ProductAttributeConditionModel : BaseModel, IProductValidVendor
+    [GrandResourceDisplayName("Vendor.Catalog.Products.ProductAttributes.Attributes.Condition.EnableCondition")]
+    public bool EnableCondition { get; set; }
+
+    [GrandResourceDisplayName("Vendor.Catalog.Products.ProductAttributes.Attributes.Condition.Attributes")]
+    public string SelectedProductAttributeId { get; set; }
+
+    public IList<ProductAttributeModel> ProductAttributes { get; set; } = new List<ProductAttributeModel>();
+
+    [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
+    public IList<CustomAttributeModel> SelectedAttributes { get; set; }
+
+    public string ProductAttributeMappingId { get; set; }
+    public string ProductId { get; set; }
+
+    #region Nested classes
+
+    public class ProductAttributeModel : BaseEntityModel
     {
-        [GrandResourceDisplayName("Vendor.Catalog.Products.ProductAttributes.Attributes.Condition.EnableCondition")]
-        public bool EnableCondition { get; set; }
+        public string ProductAttributeId { get; set; }
 
-        [GrandResourceDisplayName("Vendor.Catalog.Products.ProductAttributes.Attributes.Condition.Attributes")]
-        public string SelectedProductAttributeId { get; set; }
-        public IList<ProductAttributeModel> ProductAttributes { get; set; } = new List<ProductAttributeModel>();
+        public string Name { get; set; }
 
-        [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
-        public IList<CustomAttributeModel> SelectedAttributes { get; set; }
-        public string ProductAttributeMappingId { get; set; }
-        public string ProductId { get; set; }
+        public string TextPrompt { get; set; }
 
-        #region Nested classes
+        public bool IsRequired { get; set; }
 
-        public class ProductAttributeModel : BaseEntityModel
-        {
-            public string ProductAttributeId { get; set; }
+        public AttributeControlType AttributeControlType { get; set; }
 
-            public string Name { get; set; }
-
-            public string TextPrompt { get; set; }
-
-            public bool IsRequired { get; set; }
-
-            public AttributeControlType AttributeControlType { get; set; }
-
-            public IList<ProductAttributeValueModel> Values { get; set; } = new List<ProductAttributeValueModel>();
-        }
-
-        public class ProductAttributeValueModel : BaseEntityModel
-        {
-            public string Name { get; set; }
-
-            public bool IsPreSelected { get; set; }
-        }
-        #endregion
+        public IList<ProductAttributeValueModel> Values { get; set; } = new List<ProductAttributeValueModel>();
     }
+
+    public class ProductAttributeValueModel : BaseEntityModel
+    {
+        public string Name { get; set; }
+
+        public bool IsPreSelected { get; set; }
+    }
+
+    #endregion
 }

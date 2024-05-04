@@ -1,11 +1,9 @@
-﻿
-namespace Widgets.Slider.Domain
+﻿namespace Widgets.Slider.Domain;
+
+public enum SliderType
 {
-    public enum SliderType
-    {
-        HomePage = 0,
-        Category = 1,
-        Collection = 2,
-        Brand = 3
-    }
+    HomePage = 0,
+    Category = 1,
+    Collection = 2,
+    Brand = 3
 }

@@ -3,7 +3,7 @@
     <script asp-location="Footer" asp-order="300" asp-src="/Plugins/Theme.Modern/Content/script/parallax.min.js"></script>
 
     //current category ID
-    string currentCategoryId = "";
+    var currentCategoryId = "";
     if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
         Url.ActionContext.RouteData.Values["action"].ToString().Equals("category", StringComparison.OrdinalIgnoreCase))
     {
@@ -12,7 +12,7 @@
 
 
     //current collection ID
-    string currentCollectionId = "";
+    var currentCollectionId = "";
     if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
         Url.ActionContext.RouteData.Values["action"].ToString().Equals("collection", StringComparison.OrdinalIgnoreCase))
     {
@@ -21,7 +21,7 @@
 
 
     //current product ID
-    string currentProductId = "";
+    var currentProductId = "";
     if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("product", StringComparison.OrdinalIgnoreCase) &&
         Url.ActionContext.RouteData.Values["action"].ToString().Equals("productdetails", StringComparison.OrdinalIgnoreCase))
     {
@@ -34,13 +34,16 @@
         @await RenderSectionAsync("Breadcrumb")
     }
 }
+
 @section meta {
-    @await RenderSectionAsync("meta", required: false)
+    @await RenderSectionAsync("meta", false)
 }
+
 @section head {
-    @await RenderSectionAsync("head", required: false)
+    @await RenderSectionAsync("head", false)
     <script asp-location="Footer" asp-order="301" src="/Plugins/Theme.Modern/Content/script/catalog.js"></script>
 }
+
 @if (!string.IsNullOrEmpty(currentCategoryId))
 {
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_category", additionalData = Model.Id })
@@ -51,7 +54,9 @@
 }
 <b-row id="TwoColumns" class="custom-container mt-3">
     <b-col xl="3" lg="4" md="6" sm="8" cols="9" class="generalLeftSide" onclick="StopPropagation(event)">
-        <div class="modal-close" onclick="closeLeftSide()"><b-icon icon="x"></b-icon></div>
+        <div class="modal-close" onclick="closeLeftSide()">
+            <b-icon icon="x"></b-icon>
+        </div>
         @if (IsSectionDefined("left"))
         {
             @await RenderSectionAsync("left")
@@ -77,4 +82,4 @@
         @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_after" })
     </b-col>
 </b-row>
-<partial name="Partials/ProductBoxListVue" />
+<partial name="Partials/ProductBoxListVue"/>

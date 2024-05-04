@@ -1,8 +1,7 @@
-﻿namespace Grand.Web.Admin.Models.Common
+﻿namespace Grand.Web.Admin.Models.Common;
+
+public class SearchModel
 {
-    public class SearchModel
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-    }
+    public string Id { get; set; }
+    public string Name { get; set; }
 }

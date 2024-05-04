@@ -5,13 +5,13 @@
         <div class="stock">
             <span class="label">@Loc["Products.Availability"]:</span>
             <span class="value" id="stock-availability-value-@Model.Id">
-                <link itemprop="availability" href="http://schema.org/InStock" />
+                <link itemprop="availability" href="http://schema.org/InStock"/>
                 @Model.StockAvailability
             </span>
         </div>
     }
     @if (Model.DisplayOutOfStockSubscription)
     {
-        <partial name="Partials/OutOfStockSubscription" model="Model" />
+        <partial name="Partials/OutOfStockSubscription" model="Model"/>
     }
 </div>

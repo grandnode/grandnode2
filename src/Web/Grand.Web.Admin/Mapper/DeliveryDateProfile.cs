@@ -4,20 +4,19 @@ using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Shipping;
 using Grand.Web.Common.Extensions;
 
-namespace Grand.Web.Admin.Mapper
+namespace Grand.Web.Admin.Mapper;
+
+public class DeliveryDateProfile : Profile, IAutoMapperProfile
 {
-    public class DeliveryDateProfile : Profile, IAutoMapperProfile
+    public DeliveryDateProfile()
     {
-        public DeliveryDateProfile()
-        {
-            CreateMap<DeliveryDate, DeliveryDateModel>()
-                .ForMember(dest => dest.Locales, mo => mo.Ignore());
+        CreateMap<DeliveryDate, DeliveryDateModel>()
+            .ForMember(dest => dest.Locales, mo => mo.Ignore());
 
-            CreateMap<DeliveryDateModel, DeliveryDate>()
-                .ForMember(dest => dest.Id, mo => mo.Ignore())
-                .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()));
-        }
-
-        public int Order => 0;
+        CreateMap<DeliveryDateModel, DeliveryDate>()
+            .ForMember(dest => dest.Id, mo => mo.Ignore())
+            .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()));
     }
+
+    public int Order => 0;
 }

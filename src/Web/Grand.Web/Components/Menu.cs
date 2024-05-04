@@ -6,36 +6,36 @@ using Grand.Web.Features.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Components
+namespace Grand.Web.Components;
+
+public class MenuViewComponent : BaseViewComponent
 {
-    public class MenuViewComponent : BaseViewComponent
+    private readonly IMediator _mediator;
+    private readonly IPermissionService _permissionService;
+    private readonly IWorkContext _workContext;
+
+    public MenuViewComponent(
+        IMediator mediator,
+        IWorkContext workContext,
+        IPermissionService permissionService)
     {
-        private readonly IMediator _mediator;
-        private readonly IWorkContext _workContext;
-        private readonly IPermissionService _permissionService;
+        _mediator = mediator;
+        _workContext = workContext;
+        _permissionService = permissionService;
+    }
 
-        public MenuViewComponent(
-            IMediator mediator,
-            IWorkContext workContext,
-            IPermissionService permissionService)
-        {
-            _mediator = mediator;
-            _workContext = workContext;
-            _permissionService = permissionService;
-        }
+    public async Task<IViewComponentResult> InvokeAsync()
+    {
+        if (!await _permissionService.Authorize(StandardPermission.PublicStoreAllowNavigation,
+                _workContext.CurrentCustomer))
+            return Content("");
 
-        public async Task<IViewComponentResult> InvokeAsync()
-        {
-            if (!await _permissionService.Authorize(StandardPermission.PublicStoreAllowNavigation, _workContext.CurrentCustomer))
-                return Content("");
+        var model = await _mediator.Send(new GetMenu {
+            Customer = _workContext.CurrentCustomer,
+            Language = _workContext.WorkingLanguage,
+            Store = _workContext.CurrentStore
+        });
 
-            var model = await _mediator.Send(new GetMenu {
-                Customer = _workContext.CurrentCustomer,
-                Language = _workContext.WorkingLanguage,
-                Store = _workContext.CurrentStore
-            });
-
-            return View(model);
-        }
+        return View(model);
     }
 }

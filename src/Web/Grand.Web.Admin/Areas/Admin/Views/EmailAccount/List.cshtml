@@ -9,11 +9,13 @@
             <div class="x_title">
                 <div class="caption">
                     <i class="fa fa-users"></i>
-                   @Loc["Admin.Configuration.EmailAccounts"]
+                    @Loc["Admin.Configuration.EmailAccounts"]
                 </div>
                 <div class="actions">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
-                    <vc:admin-widget widget-zone="email_account_list_buttons" additional-data="null" />
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                    <vc:admin-widget widget-zone="email_account_list_buttons" additional-data="null"/>
                 </div>
             </div>
             <div class="x_content form">

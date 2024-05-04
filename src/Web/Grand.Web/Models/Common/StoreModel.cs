@@ -1,10 +1,9 @@
 ﻿using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Models.Common
+namespace Grand.Web.Models.Common;
+
+public class StoreModel : BaseEntityModel
 {
-    public class StoreModel : BaseEntityModel
-    {
-        public string Name { get; set; }
-        public string Shortcut { get; set; }
-    }
+    public string Name { get; set; }
+    public string Shortcut { get; set; }
 }

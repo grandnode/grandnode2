@@ -2,22 +2,20 @@
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Grand.Api.Infrastructure.Filters
+namespace Grand.Api.Infrastructure.Filters;
+
+public class EnumSchemaFilter : ISchemaFilter
 {
-    public class EnumSchemaFilter : ISchemaFilter
+    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
     {
-        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        if (!context.Type.IsEnum) return;
+
+        var enumValues = schema.Enum.ToArray();
+        foreach (var item in enumValues)
         {
-            if (!context.Type.IsEnum) return;
-            
-            var enumValues = schema.Enum.ToArray();
-            foreach (var item in enumValues)
-            {
-                var value = (OpenApiPrimitive<int>)item;
-                var name = Enum.GetName(context.Type, value.Value);
-                schema.Description += $"{value.Value} - {name}; ";
-            }
+            var value = (OpenApiPrimitive<int>)item;
+            var name = Enum.GetName(context.Type, value.Value);
+            schema.Description += $"{value.Value} - {name}; ";
         }
     }
 }
-

@@ -17,27 +17,30 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Options;
 using System.Reflection;
+using ApiControllerAttribute = Grand.SharedKernel.Attributes.ApiControllerAttribute;
 
 namespace Grand.Api.ApiExplorer;
 
 public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 {
-    private readonly MvcOptions _mvcOptions;
-    private readonly RouteOptions _routeOptions;
     private readonly IInlineConstraintResolver _constraintResolver;
     private readonly IModelMetadataProvider _modelMetadataProvider;
+    private readonly MvcOptions _mvcOptions;
     private readonly ApiResponseTypeProvider _responseTypeProvider;
+    private readonly RouteOptions _routeOptions;
 
     /// <summary>
-    /// Creates a new instance of <see cref="DefaultApiDescriptionProvider"/>.
+    ///     Creates a new instance of <see cref="DefaultApiDescriptionProvider" />.
     /// </summary>
-    /// <param name="optionsAccessor">The accessor for <see cref="MvcOptions"/>.</param>
-    /// <param name="constraintResolver">The <see cref="IInlineConstraintResolver"/> used for resolving inline
-    /// constraints.</param>
-    /// <param name="modelMetadataProvider">The <see cref="IModelMetadataProvider"/>.</param>
-    /// <param name="mapper">The <see cref="IActionResultTypeMapper"/>.</param>
-    /// <param name="routeOptions">The accessor for <see cref="RouteOptions"/>.</param>
-    /// <remarks>The <paramref name="mapper"/> parameter is currently ignored.</remarks>
+    /// <param name="optionsAccessor">The accessor for <see cref="MvcOptions" />.</param>
+    /// <param name="constraintResolver">
+    ///     The <see cref="IInlineConstraintResolver" /> used for resolving inline
+    ///     constraints.
+    /// </param>
+    /// <param name="modelMetadataProvider">The <see cref="IModelMetadataProvider" />.</param>
+    /// <param name="mapper">The <see cref="IActionResultTypeMapper" />.</param>
+    /// <param name="routeOptions">The accessor for <see cref="RouteOptions" />.</param>
+    /// <remarks>The <paramref name="mapper" /> parameter is currently ignored.</remarks>
     public MetadataApiDescriptionProvider(
         IOptions<MvcOptions> optionsAccessor,
         IInlineConstraintResolver constraintResolver,
@@ -62,23 +65,17 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
         foreach (var action in context.Actions.OfType<ControllerActionDescriptor>())
         {
-            if (!action.ControllerTypeInfo.GetCustomAttributes<SharedKernel.Attributes.ApiControllerAttribute>(true)
+            if (!action.ControllerTypeInfo.GetCustomAttributes<ApiControllerAttribute>(true)
                     .Any())
                 continue;
 
             if (action.MethodInfo.GetCustomAttributes<IgnoreApiAttribute>(true).Any())
                 continue;
 
-            if (action.AttributeRouteInfo is { SuppressPathMatching: true })
-            {
-                continue;
-            }
+            if (action.AttributeRouteInfo is { SuppressPathMatching: true }) continue;
 
             var httpMethods = GetHttpMethods(action);
-            foreach (var httpMethod in httpMethods)
-            {
-                context.Results.Add(CreateApiDescription(action, httpMethod, "v2"));
-            }
+            foreach (var httpMethod in httpMethods) context.Results.Add(CreateApiDescription(action, httpMethod, "v2"));
         }
     }
 
@@ -107,17 +104,12 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         var parameterContext = new ApiParameterContext(_modelMetadataProvider, action, templateParameters);
         foreach (var parameter in GetParameters(parameterContext,
                      httpMethod.Equals("GET", StringComparison.CurrentCultureIgnoreCase)))
-        {
             apiDescription.ParameterDescriptions.Add(parameter);
-        }
 
         var requestMetadataAttributes = GetRequestMetadataAttributes(action);
 
         var apiResponseTypes = _responseTypeProvider.GetApiResponseTypes(action);
-        foreach (var apiResponseType in apiResponseTypes)
-        {
-            apiDescription.SupportedResponseTypes.Add(apiResponseType);
-        }
+        foreach (var apiResponseType in apiResponseTypes) apiDescription.SupportedResponseTypes.Add(apiResponseType);
 
         // It would be possible here to configure an action with multiple body parameters, in which case you
         // could end up with duplicate data.
@@ -125,29 +117,22 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         {
             var contentTypes = GetDeclaredContentTypes(requestMetadataAttributes);
             foreach (var parameter in apiDescription.ParameterDescriptions)
-            {
                 if (parameter.Source == BindingSource.Body ||
                     parameter.Source == BindingSource.Form)
                 {
                     // For request body bound parameters, determine the content types supported
                     // by input formatters.
                     var requestFormats = GetSupportedFormats(contentTypes, parameter.Type);
-                    foreach (var format in requestFormats)
-                    {
-                        apiDescription.SupportedRequestFormats.Add(format);
-                    }
+                    foreach (var format in requestFormats) apiDescription.SupportedRequestFormats.Add(format);
                 }
                 else if (parameter.Source == BindingSource.FormFile)
                 {
                     // Add all declared media types since FormFiles do not get processed by formatters.
                     foreach (var contentType in contentTypes)
-                    {
                         apiDescription.SupportedRequestFormats.Add(new ApiRequestFormat {
                             MediaType = contentType
                         });
-                    }
                 }
-            }
         }
 
         return apiDescription;
@@ -163,19 +148,15 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             ModelMetadata metadata;
             if (actionParameter is ControllerParameterDescriptor controllerParameterDescriptor &&
                 _modelMetadataProvider is ModelMetadataProvider provider)
-            {
                 // The default model metadata provider derives from ModelMetadataProvider
                 // and can therefore supply information about attributes applied to parameters.
                 metadata = provider.GetMetadataForParameter(controllerParameterDescriptor.ParameterInfo);
-            }
             else
-            {
                 // For backward compatibility, if there's a custom model metadata provider that
                 // only implements the older IModelMetadataProvider interface, access the more
                 // limited metadata information it supplies. In this scenario, validation attributes
                 // are not supported on parameters.
                 metadata = _modelMetadataProvider.GetMetadataForType(actionParameter.ParameterType);
-            }
 
             if (!httpGet &&
                 actionParameter.BindingInfo == null &&
@@ -186,7 +167,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                     new BindingInfo {
                         BindingSource = new BindingSource("Body", "Body", true, true)
                     },
-                    propertyName: actionParameter.Name);
+                    actionParameter.Name);
                 visitor.WalkParameter(bindingContext);
             }
             else
@@ -194,7 +175,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                 var bindingContext = new ApiParameterDescriptionContext(
                     metadata,
                     actionParameter.BindingInfo,
-                    propertyName: actionParameter.Name);
+                    actionParameter.Name);
                 visitor.WalkParameter(bindingContext);
             }
         }
@@ -203,19 +184,18 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         {
             var visitor = new PseudoModelBindingVisitor(context, actionParameter);
             var modelMetadata = context.MetadataProvider.GetMetadataForProperty(
-                containerType: context.ActionDescriptor.ControllerTypeInfo.AsType(),
-                propertyName: actionParameter.Name);
+                context.ActionDescriptor.ControllerTypeInfo.AsType(),
+                actionParameter.Name);
 
             var bindingContext = new ApiParameterDescriptionContext(
                 modelMetadata,
                 actionParameter.BindingInfo,
-                propertyName: actionParameter.Name);
+                actionParameter.Name);
 
             visitor.WalkParameter(bindingContext);
         }
 
         for (var i = context.Results.Count - 1; i >= 0; i--)
-        {
             // Remove any 'hidden' parameters. These are things that can't come from user input,
             // so they aren't worth showing.
             if (!context.Results[i].Source.IsFromRequest)
@@ -228,7 +208,6 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                     metadata.Attributes.Attributes.OfType<IgnoreApiUrlAttribute>().Any())
                     context.Results.RemoveAt(i);
             }
-        }
 
         // Next, we want to join up any route parameters with those discovered from the action's parameters.
         // This will result us in creating a parameter representation for each route parameter that does not
@@ -248,16 +227,12 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
     {
         var routeParameters = new Dictionary<string, ApiParameterRouteInfo>(StringComparer.OrdinalIgnoreCase);
         foreach (var routeParameter in context.RouteParameters)
-        {
             routeParameters.Add(routeParameter.Name!, CreateRouteInfo(routeParameter));
-        }
 
         foreach (var parameter in context.Results)
-        {
             if (parameter.Source == BindingSource.Path ||
                 parameter.Source == BindingSource.ModelBinding ||
                 parameter.Source == BindingSource.Custom)
-            {
                 if (routeParameters.TryGetValue(parameter.Name, out var routeInfo))
                 {
                     parameter.RouteInfo = routeInfo;
@@ -265,25 +240,19 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
                     if (parameter.Source == BindingSource.ModelBinding &&
                         !parameter.RouteInfo.IsOptional)
-                    {
                         // If we didn't see any information about the parameter, but we have
                         // a route parameter that matches, let's switch it to path.
                         parameter.Source = BindingSource.Path;
-                    }
                 }
-            }
-        }
 
         // Lastly, create a parameter representation for each route parameter that did not find
         // a partner.
         foreach (var routeParameter in routeParameters)
-        {
             context.Results.Add(new ApiParameterDescription {
                 Name = routeParameter.Key,
                 RouteInfo = routeParameter.Value,
                 Source = BindingSource.Path
             });
-        }
     }
 
     internal static void ProcessIsRequired(ApiParameterContext context, MvcOptions mvcOptions)
@@ -294,36 +263,24 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             {
                 if (parameter.BindingInfo == null ||
                     parameter.BindingInfo.EmptyBodyBehavior == EmptyBodyBehavior.Default)
-                {
                     parameter.IsRequired = !mvcOptions.AllowEmptyInputInBodyModelBinding;
-                }
                 else
-                {
                     parameter.IsRequired = parameter.BindingInfo.EmptyBodyBehavior != EmptyBodyBehavior.Allow;
-                }
             }
 
-            if (parameter.ModelMetadata is { IsBindingRequired: true })
-            {
-                parameter.IsRequired = true;
-            }
+            if (parameter.ModelMetadata is { IsBindingRequired: true }) parameter.IsRequired = true;
 
             if (parameter.Source == BindingSource.Path && parameter.RouteInfo is { IsOptional: false })
-            {
                 parameter.IsRequired = true;
-            }
         }
     }
 
     internal static void ProcessParameterDefaultValue(ApiParameterContext context)
     {
         foreach (var parameter in context.Results)
-        {
             if (parameter.Source == BindingSource.Path)
-            {
                 parameter.DefaultValue = parameter.RouteInfo?.DefaultValue;
-            }
-            /*else
+        /*else
             {
                 if (parameter.ParameterDescriptor is ControllerParameterDescriptor controllerParameter &&
                     ParameterDefaultValues.TryGetDeclaredParameterDefaultValue(controllerParameter.ParameterInfo,
@@ -332,16 +289,13 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                     parameter.DefaultValue = defaultValue;
                 }
             }*/
-        }
     }
 
     private ApiParameterRouteInfo CreateRouteInfo(TemplatePart routeParameter)
     {
         var constraints = new List<IRouteConstraint>();
         foreach (var constraint in routeParameter.InlineConstraints)
-        {
             constraints.Add(_constraintResolver.ResolveConstraint(constraint.Constraint)!);
-        }
 
         return new ApiParameterRouteInfo {
             Constraints = constraints,
@@ -366,10 +320,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
     private string? GetRelativePath(ControllerActionDescriptor action, RouteTemplate? parsedTemplate)
     {
-        if (parsedTemplate == null)
-        {
-            return $"/{action.ControllerName}/{action.ActionName}";
-        }
+        if (parsedTemplate == null) return $"/{action.ControllerName}/{action.ActionName}";
 
         var segments = new List<string>();
 
@@ -377,16 +328,9 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         {
             var currentSegment = string.Empty;
             foreach (var part in segment.Parts)
-            {
                 if (part.IsLiteral)
-                {
                     currentSegment += _routeOptions.LowercaseUrls ? part.Text!.ToLowerInvariant() : part.Text;
-                }
-                else if (part.IsParameter)
-                {
-                    currentSegment += "{" + part.Name + "}";
-                }
-            }
+                else if (part.IsParameter) currentSegment += "{" + part.Name + "}";
 
             segments.Add(currentSegment);
         }
@@ -396,33 +340,22 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
     private IReadOnlyList<ApiRequestFormat> GetSupportedFormats(MediaTypeCollection contentTypes, Type type)
     {
-        if (contentTypes.Count == 0)
-        {
-            contentTypes = ["application/json"];
-        }
+        if (contentTypes.Count == 0) contentTypes = ["application/json"];
 
         var results = new List<ApiRequestFormat>();
         foreach (var contentType in contentTypes)
-        {
-            foreach (var formatter in _mvcOptions.InputFormatters.OfType<SystemTextJsonInputFormatter>())
+        foreach (var formatter in _mvcOptions.InputFormatters.OfType<SystemTextJsonInputFormatter>())
+            if (formatter is IApiRequestFormatMetadataProvider requestFormatMetadataProvider)
             {
-                if (formatter is IApiRequestFormatMetadataProvider requestFormatMetadataProvider)
-                {
-                    var supportedTypes = requestFormatMetadataProvider.GetSupportedContentTypes(contentType, type);
+                var supportedTypes = requestFormatMetadataProvider.GetSupportedContentTypes(contentType, type);
 
-                    if (supportedTypes != null)
-                    {
-                        foreach (var supportedType in supportedTypes.Where(x => x == "application/json"))
-                        {
-                            results.Add(new ApiRequestFormat {
-                                Formatter = formatter,
-                                MediaType = supportedType
-                            });
-                        }
-                    }
-                }
+                if (supportedTypes != null)
+                    foreach (var supportedType in supportedTypes.Where(x => x == "application/json"))
+                        results.Add(new ApiRequestFormat {
+                            Formatter = formatter,
+                            MediaType = supportedType
+                        });
             }
-        }
 
         return results;
     }
@@ -434,12 +367,8 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         // the results of the previous ones. This is similar to the execution path for content-negotiation.
         var contentTypes = new MediaTypeCollection();
         if (requestMetadataAttributes != null)
-        {
             foreach (var metadataAttribute in requestMetadataAttributes)
-            {
                 metadataAttribute.SetContentTypes(contentTypes);
-            }
-        }
 
         return contentTypes;
     }
@@ -458,16 +387,6 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
     private class ApiParameterDescriptionContext
     {
-        public ModelMetadata ModelMetadata { get; }
-
-        public string? BinderModelName { get; }
-
-        public BindingSource? BindingSource { get; }
-
-        public string? PropertyName { get; }
-
-        public BindingInfo? BindingInfo { get; }
-
         public ApiParameterDescriptionContext(
             ModelMetadata metadata,
             BindingInfo? bindingInfo,
@@ -480,6 +399,16 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             PropertyName = propertyName ?? metadata.Name;
             BindingInfo = bindingInfo;
         }
+
+        public ModelMetadata ModelMetadata { get; }
+
+        public string? BinderModelName { get; }
+
+        public BindingSource? BindingSource { get; }
+
+        public string? PropertyName { get; }
+
+        public BindingInfo? BindingInfo { get; }
     }
 
     private class PseudoModelBindingVisitor
@@ -505,7 +434,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             //
             // The default is ModelBinding (aka all default value providers)
             var source = BindingSource.ModelBinding;
-            Visit(context, source, containerName: string.Empty);
+            Visit(context, source, string.Empty);
         }
 
         private void Visit(
@@ -564,10 +493,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
             // We don't want to append the **parameter** name when building a model name.
             var newContainerName = containerName;
-            if (modelMetadata.ContainerType != null)
-            {
-                newContainerName = GetName(containerName, bindingContext);
-            }
+            if (modelMetadata.ContainerType != null) newContainerName = GetName(containerName, bindingContext);
 
             var metadataProperties = modelMetadata.Properties;
             var metadataPropertiesCount = metadataProperties.Count;
@@ -579,8 +505,8 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
 
                 var propertyContext = new ApiParameterDescriptionContext(
                     propertyMetadata,
-                    bindingInfo: bindingInfo,
-                    propertyName: null);
+                    bindingInfo,
+                    null);
 
                 if (Visited.Add(key))
                 {

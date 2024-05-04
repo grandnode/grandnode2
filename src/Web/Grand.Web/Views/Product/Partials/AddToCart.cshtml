@@ -24,6 +24,7 @@
     {
         <div class="min-qty-notification text-danger w-100 mb-2">@Model.MinimumQuantityNotification</div>
     }
+
     <div role="group" class="input-group product-add-to-cart flex-nowrap">
 
         @if (!Model.DisableBuyButton)
@@ -59,19 +60,22 @@
             {
                 addToCartText = Loc["ShoppingCart.AddToCart"];
             }
+
             if (Model.IsReservation)
             {
                 addToCartText = Loc["ShoppingCart.Reservation"];
             }
+
             if (Model.AvailableForPreOrder)
             {
                 addToCartText = Loc["ShoppingCart.PreOrder"];
             }
+
             if (Model.IsAuction)
             {
                 addToCartText = Loc["ShoppingCart.BuyNow"];
             }
-            
+
             <div class="input-group-append">
                 <button type="button" id="add-to-cart-button-@Model.ProductId" class="btn btn-info w-100 add-to-cart-button d-inline-flex" data-productid="@Model.ProductId" onclick="AxiosCart.addproducttocart_details('@Url.RouteUrl("AddProductDetails", new { productId = Model.ProductId, shoppingCartTypeId = (int)shoppingCartType })', @($"'#product-details-form-{Model.ProductId}'"));return false;">
                     <span>@addToCartText</span>

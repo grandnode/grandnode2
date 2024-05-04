@@ -1,10 +1,9 @@
-namespace Grand.Domain.Localization
+namespace Grand.Domain.Localization;
+
+/// <summary>
+///     Represents a translation entity
+/// </summary>
+public interface ITranslationEntity
 {
-    /// <summary>
-    /// Represents a translation entity
-    /// </summary>
-    public interface ITranslationEntity
-    {
-        IList<TranslationEntity> Locales { get; set; }
-    }
+    IList<TranslationEntity> Locales { get; set; }
 }

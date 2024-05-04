@@ -1,11 +1,10 @@
 ﻿using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Models.Blogs
-{
-    public class BlogPostTagModel : BaseModel
-    {
-        public string Name { get; set; }
+namespace Grand.Web.Models.Blogs;
 
-        public int BlogPostCount { get; set; }
-    }
+public class BlogPostTagModel : BaseModel
+{
+    public string Name { get; set; }
+
+    public int BlogPostCount { get; set; }
 }

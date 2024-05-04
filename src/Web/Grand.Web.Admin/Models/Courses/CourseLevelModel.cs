@@ -1,15 +1,13 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Admin.Models.Courses
+namespace Grand.Web.Admin.Models.Courses;
+
+public class CourseLevelModel : BaseEntityModel
 {
-    public class CourseLevelModel : BaseEntityModel
-    {
-        [GrandResourceDisplayName("Admin.Courses.Level.Fields.Name")]
-        public string Name { get; set; }
+    [GrandResourceDisplayName("Admin.Courses.Level.Fields.Name")]
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Courses.Level.Fields.DisplayOrder")]
-        public int DisplayOrder { get; set; }
-
-    }
+    [GrandResourceDisplayName("Admin.Courses.Level.Fields.DisplayOrder")]
+    public int DisplayOrder { get; set; }
 }

@@ -1,7 +1,9 @@
 ﻿@model PopularProductTagsModel
 
 <div id="block-popular-tags" class="block block-popular-tags">
-    <h2 class="h5 d-block"><strong>@Loc["Products.Tags.Popular"]</strong></h2>
+    <h2 class="h5 d-block">
+        <strong>@Loc["Products.Tags.Popular"]</strong>
+    </h2>
     <div class="btn-toolbar btn-group-sm">
         @foreach (var item in Model.Tags)
         {

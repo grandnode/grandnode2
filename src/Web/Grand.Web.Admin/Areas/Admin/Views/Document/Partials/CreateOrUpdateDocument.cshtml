@@ -1,34 +1,34 @@
 ﻿@model DocumentModel
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden" />
-<input asp-for="CustomerId" type="hidden" />
+<input asp-for="Id" type="hidden"/>
+<input asp-for="CustomerId" type="hidden"/>
 
-<input id="active-menu-item" type="hidden" value="/@Constants.AreaAdmin/Document/List" />
+<input id="active-menu-item" type="hidden" value="/@Constants.AreaAdmin/Document/List"/>
 
 <admin-tabstrip name="document-edit">
     <items>
         <tabstrip-item text="@Loc["Admin.Documents.Document.Info"]" tab-index="0">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdateDocument.TabInfo" model="Model" />
+                    <partial name="Partials/CreateOrUpdateDocument.TabInfo" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
         <tabstrip-item text="@Loc["Admin.Documents.Document.Account"]" tab-index="1">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdateDocument.Account" model="Model" />
+                    <partial name="Partials/CreateOrUpdateDocument.Account" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
         <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="2">
             <content>
                 <div>
-                    <partial name="Partials/UserFields" model="Model" />
+                    <partial name="Partials/UserFields" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
-        <vc:admin-widget widget-zone="document_details_tabs" additional-data="Model" />
+        <vc:admin-widget widget-zone="document_details_tabs" additional-data="Model"/>
     </items>
 </admin-tabstrip>
 
@@ -40,7 +40,7 @@
 
         function toggleReferenceType() {
             var selectedReferenceId = $("#@Html.IdFor(model => model.ReferenceId)").val();
-            if (selectedReferenceId == @(((int) Reference.None).ToString())) {
+            if (selectedReferenceId == @(((int)Reference.None).ToString())) {
                 $('.object-reference').hide();
             } else {
                 $('.object-reference').show();

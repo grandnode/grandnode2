@@ -1,7 +1,6 @@
-﻿namespace Grand.Domain.Common
+﻿namespace Grand.Domain.Common;
+
+public class GrandNodeVersion : BaseEntity
 {
-    public class GrandNodeVersion: BaseEntity
-    {
-        public string DataBaseVersion { get; set; }
-    }
+    public string DataBaseVersion { get; set; }
 }

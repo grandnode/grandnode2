@@ -3,19 +3,18 @@ using Grand.Domain.Shipping;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Shipping;
 
-namespace Grand.Web.Admin.Mapper
+namespace Grand.Web.Admin.Mapper;
+
+public class ShippingSettingsProfile : Profile, IAutoMapperProfile
 {
-    public class ShippingSettingsProfile : Profile, IAutoMapperProfile
+    public ShippingSettingsProfile()
     {
-        public ShippingSettingsProfile()
-        {
-            CreateMap<ShippingSettings, ShippingSettingsModel>()
-                .ForMember(dest => dest.ActiveStore, mo => mo.Ignore())
-                .ForMember(dest => dest.UserFields, mo => mo.Ignore());
+        CreateMap<ShippingSettings, ShippingSettingsModel>()
+            .ForMember(dest => dest.ActiveStore, mo => mo.Ignore())
+            .ForMember(dest => dest.UserFields, mo => mo.Ignore());
 
-            CreateMap<ShippingSettingsModel, ShippingSettings>();
-        }
-
-        public int Order => 0;
+        CreateMap<ShippingSettingsModel, ShippingSettings>();
     }
+
+    public int Order => 0;
 }

@@ -7,57 +7,53 @@ using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Blogs;
 using MediatR;
 
-namespace Grand.Web.Commands.Handler.Blogs
+namespace Grand.Web.Commands.Handler.Blogs;
+
+public class InsertBlogCommentCommandHandler : IRequestHandler<InsertBlogCommentCommand, BlogComment>
 {
-    public class InsertBlogCommentCommandHandler : IRequestHandler<InsertBlogCommentCommand, BlogComment>
+    private readonly IBlogService _blogService;
+    private readonly BlogSettings _blogSettings;
+    private readonly ICustomerService _customerService;
+
+    private readonly LanguageSettings _languageSettings;
+    private readonly IMessageProviderService _messageProviderService;
+    private readonly IWorkContext _workContext;
+
+    public InsertBlogCommentCommandHandler(IBlogService blogService, IWorkContext workContext,
+        ICustomerService customerService, IMessageProviderService messageProviderService,
+        LanguageSettings languageSettings, BlogSettings blogSettings)
     {
-        private readonly IBlogService _blogService;
-        private readonly IWorkContext _workContext;
-        private readonly ICustomerService _customerService;
-        private readonly IMessageProviderService _messageProviderService;
+        _blogService = blogService;
+        _workContext = workContext;
+        _customerService = customerService;
+        _messageProviderService = messageProviderService;
 
-        private readonly LanguageSettings _languageSettings;
-        private readonly BlogSettings _blogSettings;
+        _languageSettings = languageSettings;
+        _blogSettings = blogSettings;
+    }
 
-        public InsertBlogCommentCommandHandler(IBlogService blogService, IWorkContext workContext, 
-            ICustomerService customerService, IMessageProviderService messageProviderService,
-            LanguageSettings languageSettings, BlogSettings blogSettings)
-        {
-            _blogService = blogService;
-            _workContext = workContext;
-            _customerService = customerService;
-            _messageProviderService = messageProviderService;
+    public async Task<BlogComment> Handle(InsertBlogCommentCommand request, CancellationToken cancellationToken)
+    {
+        var customer = _workContext.CurrentCustomer;
+        var comment = new BlogComment {
+            BlogPostId = request.BlogPost.Id,
+            CustomerId = customer.Id,
+            StoreId = _workContext.CurrentStore.Id,
+            CommentText = request.Model.CommentText,
+            BlogPostTitle = request.BlogPost.Title
+        };
+        await _blogService.InsertBlogComment(comment);
 
-            _languageSettings = languageSettings;
-            _blogSettings = blogSettings;
-        }
+        //update totals
+        var comments = await _blogService.GetBlogCommentsByBlogPostId(request.BlogPost.Id);
+        request.BlogPost.CommentCount = comments.Count;
+        await _blogService.UpdateBlogPost(request.BlogPost);
+        if (!customer.HasContributions) await _customerService.UpdateContributions(customer);
+        //notify a store owner
+        if (_blogSettings.NotifyAboutNewBlogComments)
+            await _messageProviderService.SendBlogCommentMessage(request.BlogPost, comment,
+                _languageSettings.DefaultAdminLanguageId);
 
-        public async Task<BlogComment> Handle(InsertBlogCommentCommand request, CancellationToken cancellationToken)
-        {
-            var customer = _workContext.CurrentCustomer;
-            var comment = new BlogComment
-            {
-                BlogPostId = request.BlogPost.Id,
-                CustomerId = customer.Id,
-                StoreId = _workContext.CurrentStore.Id,
-                CommentText = request.Model.CommentText,
-                BlogPostTitle = request.BlogPost.Title
-            };
-            await _blogService.InsertBlogComment(comment);
-
-            //update totals
-            var comments = await _blogService.GetBlogCommentsByBlogPostId(request.BlogPost.Id);
-            request.BlogPost.CommentCount = comments.Count;
-            await _blogService.UpdateBlogPost(request.BlogPost);
-            if (!customer.HasContributions)
-            {
-                await _customerService.UpdateContributions(customer);
-            }
-            //notify a store owner
-            if (_blogSettings.NotifyAboutNewBlogComments)
-                await _messageProviderService.SendBlogCommentMessage(request.BlogPost, comment, _languageSettings.DefaultAdminLanguageId);
-
-            return comment;
-        }
+        return comment;
     }
 }

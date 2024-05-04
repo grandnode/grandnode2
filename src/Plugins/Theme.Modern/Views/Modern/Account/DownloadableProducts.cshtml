@@ -6,12 +6,16 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Account"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.DownloadableProducts })
 }
+
 <section class="page account-page downloadable-products-page pl-lg-3 pt-lg-0 pt-3">
-    <h1 class="h2 generalTitle"><div>@Loc["Account.DownloadableProducts"]</div></h1>
+    <h1 class="h2 generalTitle">
+        <div>@Loc["Account.DownloadableProducts"]</div>
+    </h1>
     <a class="left-side-toggler mb-3" onclick="sideToggle()">
         <div class="inner">
             <span></span>
@@ -24,7 +28,6 @@
     </a>
     @if (Model.Items.Any())
     {
-
         <div id="downloadable-products"></div>
         <script>
                                 var DownloadableProducts = Vue.extend({
@@ -38,7 +41,7 @@
                                                 { key: 'download', label: '@Loc["DownloadableProducts.Fields.Download"]'},
                                             ],
                                             items: [
-                                                @for (int i = 0; i < Model.Items.Count; i++)
+                                                @for (var i = 0; i < Model.Items.Count; i++)
                                                 {
                                                     var item = Model.Items[i];
                                                     <text>
@@ -50,10 +53,24 @@
                                                         date: '@item.CreatedOn.ToString("d")'
                                                     },
                                                     product: {
-                                                        product: '<a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>@if (!String.IsNullOrEmpty(item.ProductAttributes)) {<div class="attributes">@Html.Raw(item.ProductAttributes)</div>}'
+                                                        product: '<a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>@if (!string.IsNullOrEmpty(item.ProductAttributes))
+                                                                                                                                                               {
+                                                                                                                                                                   <div class="attributes">@Html.Raw(item.ProductAttributes)</div>
+                                                                                                                                                               }'
                                                     },
                                                     download: {
-                                                        download: '@if (!String.IsNullOrEmpty(item.DownloadId)) { <a href="@Url.RouteUrl("GetDownload", new { orderItemId = item.OrderItemGuid })">@Loc["DownloadableProducts.Fields.Download"]</a>}else {@Loc["DownloadableProducts.Fields.Download.NA"]}@if (!String.IsNullOrEmpty(item.LicenseId))@if (!String.IsNullOrEmpty(item.LicenseId)) {<a href="@Url.RouteUrl("GetLicense", new { orderItemId = item.OrderItemGuid })">@Loc["DownloadableProducts.Fields.DownloadLicense"]</a> }'
+                                                        download: '@if (!string.IsNullOrEmpty(item.DownloadId))
+                                                                   {
+                                                                       <a href="@Url.RouteUrl("GetDownload", new { orderItemId = item.OrderItemGuid })">@Loc["DownloadableProducts.Fields.Download"]</a>
+                                                                   }
+                                                                   else
+                                                                   {
+                                                                       @Loc["DownloadableProducts.Fields.Download.NA"]
+                                                                   }
+                                                        @if (!string.IsNullOrEmpty(item.LicenseId)) @if (!string.IsNullOrEmpty(item.LicenseId))
+                                                        {
+                                                            <a href="@Url.RouteUrl("GetLicense", new { orderItemId = item.OrderItemGuid })">@Loc["DownloadableProducts.Fields.DownloadLicense"]</a>
+                                                        }'
                                                     },
 
                                                 },

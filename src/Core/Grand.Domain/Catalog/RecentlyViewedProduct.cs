@@ -1,8 +1,7 @@
-﻿namespace Grand.Domain.Catalog
+﻿namespace Grand.Domain.Catalog;
+
+public class RecentlyViewedProduct : BaseEntity
 {
-    public class RecentlyViewedProduct: BaseEntity
-    {
-        public string CustomerId { get; set; }
-        public string ProductId { get; set; }
-    }
+    public string CustomerId { get; set; }
+    public string ProductId { get; set; }
 }

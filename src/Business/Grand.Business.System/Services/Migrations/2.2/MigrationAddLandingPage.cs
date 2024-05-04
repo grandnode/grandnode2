@@ -5,18 +5,19 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Business.System.Services.Migrations._2._2;
 
-public class MigrationAddLandingPage: IMigration
+public class MigrationAddLandingPage : IMigration
 {
     public int Priority => 0;
     public DbVersion Version => new(2, 2);
     public Guid Identity => new("0833f104-54d5-41d0-83da-375d2520f709");
     public string Name => "Add new landing page - VendorPortalInfo";
+
     public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
     {
         var pageLayoutRepository = serviceProvider.GetRequiredService<IRepository<PageLayout>>();
         var defaultPageLayout =
             pageLayoutRepository.Table.FirstOrDefault(tt => tt.Name == "Default layout");
-        
+
         var repository = serviceProvider.GetRequiredService<IRepository<Page>>();
         var page = new Page {
             SystemName = "VendorPortalInfo",

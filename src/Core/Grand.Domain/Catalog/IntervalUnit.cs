@@ -1,23 +1,22 @@
-﻿namespace Grand.Domain.Catalog
+﻿namespace Grand.Domain.Catalog;
+
+/// <summary>
+///     Represents a interval unit type for product
+/// </summary>
+public enum IntervalUnit
 {
     /// <summary>
-    /// Represents a interval unit type for product
+    ///     Minute
     /// </summary>
-    public enum IntervalUnit
-    {
-        /// <summary>
-        /// Minute
-        /// </summary>
-        Minute = 0,
+    Minute = 0,
 
-        /// <summary>
-        /// Hour
-        /// </summary>
-        Hour = 5,
+    /// <summary>
+    ///     Hour
+    /// </summary>
+    Hour = 5,
 
-        /// <summary>
-        /// Day
-        /// </summary>
-        Day = 10
-    }
+    /// <summary>
+    ///     Day
+    /// </summary>
+    Day = 10
 }

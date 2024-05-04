@@ -17,9 +17,10 @@ public class StartupApplication : IStartupApplication
     }
 
     public int Priority => 10;
+
     public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
     {
-
     }
+
     public bool BeforeConfigure => false;
 }

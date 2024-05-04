@@ -4,9 +4,9 @@
         @if (Model.PictureModels.Count > 1)
         {
             <b-img-lazy id="main-product-img-@Model.Id" class="image main-image"
-                 src="@Model.DefaultPictureModel.ImageUrl"
-                 alt="@Model.DefaultPictureModel.AlternateText"
-                 title="@Model.DefaultPictureModel.Title" />
+                        src="@Model.DefaultPictureModel.ImageUrl"
+                        alt="@Model.DefaultPictureModel.AlternateText"
+                        title="@Model.DefaultPictureModel.Title"/>
             @foreach (var picture in Model.PictureModels)
             {
                 <img class="image thumb-image"
@@ -14,7 +14,7 @@
                      alt="@picture.AlternateText"
                      title="@picture.Title"
                      data-src="@picture.ImageUrl"
-                     @@click="changeImg($event)" />
+                     @@click="changeImg($event)"/>
             }
         }
         else
@@ -25,7 +25,7 @@
                         data-fullsize="@Model.DefaultPictureModel.FullSizeImageUrl"
                         title="@Model.DefaultPictureModel.Title"
                         itemprop="image"
-                        id="main-product-img-@Model.Id" />
+                        id="main-product-img-@Model.Id"/>
         }
     </div>
 </div>

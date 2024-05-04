@@ -25,7 +25,6 @@ public class CustomerGroupAclUpdateValidator : BaseGrandValidator<CustomerGroupA
             var permissionRecord = await permissionService.GetPermissionById(x.Id);
             if (permissionRecord == null)
                 context.AddFailure("No permission found with the specified id");
-            
         });
     }
 }

@@ -8,7 +8,7 @@
         </div>
         <div class="panel-footer">
             <button type="button" id="btnAddNewArticle" onclick="window.location.href='@(Url.Action("CreateArticle", "Knowledgebase", new { parentCategoryId = Model.Id, area = Constants.AreaAdmin }))'" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Content.Knowledgebase.CreateKnowledgebaseArticle"]</button>
-            <input type="submit" id="btnRefreshArticles" style="display: none" />
+            <input type="submit" id="btnRefreshArticles" style="display: none"/>
         </div>
     </div>
     <script>

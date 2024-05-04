@@ -1,10 +1,9 @@
 ﻿using Grand.Domain.Shipping;
 using MediatR;
 
-namespace Grand.Business.Core.Queries.Checkout.Orders
+namespace Grand.Business.Core.Queries.Checkout.Orders;
+
+public class GetPickupPointById : IRequest<PickupPoint>
 {
-    public class GetPickupPointById : IRequest<PickupPoint>
-    {
-        public string Id { get; set; }
-    }
+    public string Id { get; set; }
 }

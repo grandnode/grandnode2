@@ -6,10 +6,12 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.SubAccounts"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.SubAccounts })
 }
+
 <vc:widget widget-zone="customer-subaccounts" additional-data="@Model"></vc:widget>
 <div class="page account-page subaccounts-list-page pl-lg-3 pt-lg-0 pt-3">
     @Html.AntiForgeryToken()
@@ -27,7 +29,9 @@
                     <div class="col-md-6 col-12 mb-3">
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="mb-0"><strong>@account.FirstName @account.LastName</strong></h5>
+                                <h5 class="mb-0">
+                                    <strong>@account.FirstName @account.LastName</strong>
+                                </h5>
                             </div>
                             <div class="card-body">
                                 <div class="account-item">

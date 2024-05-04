@@ -1,6 +1,7 @@
-﻿@model ProductModel
+﻿@using Grand.Domain.Media
+@model ProductModel
 @{
-    ViewData["DownloadType"] = Grand.Domain.Media.DownloadType.Product;
+    ViewData["DownloadType"] = DownloadType.Product;
     ViewData["ReferenceId"] = Model.Id;
 }
 <vc:admin-widget widget-zone="product_details_additional_top" additional-data="Model"/>

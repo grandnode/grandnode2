@@ -1,38 +1,34 @@
 ﻿using MediatR;
 
-namespace Grand.Business.Core.Events.Marketing
+namespace Grand.Business.Core.Events.Marketing;
+
+public class EmailUnsubscribedEvent : INotification
 {
-    public class EmailUnsubscribedEvent : INotification
+    public EmailUnsubscribedEvent(string email)
     {
-        private readonly string _email;
-
-        public EmailUnsubscribedEvent(string email)
-        {
-            _email = email;
-        }
-
-        public string Email => _email;
-
-        public bool Equals(EmailUnsubscribedEvent other)
-        {
-            if (ReferenceEquals(null, other))
-                return false;
-            return ReferenceEquals(this, other) || Equals(other._email, _email);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-                return false;
-            if (ReferenceEquals(this, obj))
-                return true;
-            return obj.GetType() == typeof(EmailUnsubscribedEvent) && Equals((EmailUnsubscribedEvent)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return _email != null ? _email.GetHashCode() : 0;
-        }
+        Email = email;
     }
 
+    public string Email { get; }
+
+    public bool Equals(EmailUnsubscribedEvent other)
+    {
+        if (ReferenceEquals(null, other))
+            return false;
+        return ReferenceEquals(this, other) || Equals(other.Email, Email);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj))
+            return false;
+        if (ReferenceEquals(this, obj))
+            return true;
+        return obj.GetType() == typeof(EmailUnsubscribedEvent) && Equals((EmailUnsubscribedEvent)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return Email != null ? Email.GetHashCode() : 0;
+    }
 }

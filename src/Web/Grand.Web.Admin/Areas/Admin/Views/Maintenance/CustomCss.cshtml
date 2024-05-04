@@ -1,16 +1,17 @@
-﻿@model Editor
+﻿@using Constants = Grand.SharedUIResources.Constants
+@model Editor
 @{
     //page title
     ViewBag.Title = Loc["Admin.System.CustomCss"];
 }
 
-<link rel="stylesheet" type="text/css" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/codemirror/codemirror.css" />
-<link rel="stylesheet" type="text/css" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/codemirror/hint/show-hint.css" />
-<script asp-location="Head" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/codemirror/codemirror.js"></script>
-<script asp-location="Head" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/codemirror/mode/css/css.js"></script>
-<script asp-location="Head" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/codemirror/hint/show-hint.js"></script>
-<script asp-location="Head" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/codemirror/hint/css-hint.js"></script>
-<script asp-location="Head" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/codemirror/edit/matchbrackets.js"></script>
+<link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/codemirror/codemirror.css"/>
+<link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/codemirror/hint/show-hint.css"/>
+<script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/codemirror/codemirror.js"></script>
+<script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/codemirror/mode/css/css.js"></script>
+<script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/codemirror/hint/show-hint.js"></script>
+<script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/codemirror/hint/css-hint.js"></script>
+<script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/codemirror/edit/matchbrackets.js"></script>
 
 
 <style>
@@ -20,7 +21,7 @@
         height: 600px;
     }
 </style>
-<antiforgery-token />
+<antiforgery-token/>
 <div class="row">
     <div class="col-md-12">
         <div class="x_panel light form-fit">
@@ -57,7 +58,7 @@
                         $('#btnSave').click(function () {
 				            $.ajax({
 					            cache: false,
-					            url: "@Url.Action("SaveEditor", "Maintenance", new { area = Constants.AreaAdmin })",
+					            url: "@Url.Action("SaveEditor", "Maintenance", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin })",
                                 data: additionalData(),
 					            type: 'POST',
 					            success: function (response) {
@@ -81,4 +82,3 @@
         </div>
     </div>
 </div>
-

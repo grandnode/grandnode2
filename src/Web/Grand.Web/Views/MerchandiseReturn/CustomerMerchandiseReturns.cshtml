@@ -7,10 +7,12 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Account"]);
 }
+
 @section left
-    {
+{
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.MerchandiseReturns })
 }
+
 <div class="page account-page return-request-list-page pl-lg-3 pt-3 pt-lg-0">
     <h1 class="h2 generalTitle">@Loc["Account.CustomerMerchandiseReturns"]</h1>
     @if (Model.Items.Any())
@@ -18,46 +20,46 @@
         <div class="table-responsive">
             <table class="table hover-table">
                 <thead>
-                    <tr>
-                        <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Number"]</th>
-                        <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Status"]</th>
-                        <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Date"]</th>
-                        <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Count"]</th>
-                        <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Total"]</th>
-                        <th scope="col"></th>
-                    </tr>
+                <tr>
+                    <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Number"]</th>
+                    <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Status"]</th>
+                    <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Date"]</th>
+                    <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Count"]</th>
+                    <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Total"]</th>
+                    <th scope="col"></th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.Items)
-                    { 
-                        <tr>
-                            <td>
-                                <span>@item.ReturnNumber</span>
-                            </td>
-                            <td>
-                                <span class="@item.MerchandiseReturnStatus.ToLower() badge status">@item.MerchandiseReturnStatus</span>
-                            </td>
-                            <td>
-                                <div class="d-inline-flex align-items-center flex-nowrap">
-                                    <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
-                                    <small class="date text-muted">
-                                        <span>@item.CreatedOn.ToString(CultureInfo.InvariantCulture)</span>
-                                    </small>
-                                </div>
-                            </td>
-                            <td>
-                                <span>@item.ProductsCount</span>
-                            </td>
-                            <td>
-                                <span>@item.ReturnTotal</span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-info" onclick="location = ('@Url.RouteUrl("MerchandiseReturnDetails", new { merchandiseReturnId = item.Id })')">
-                                    @Loc["Account.CustomerMerchandiseReturns.Details"]
-                                </button>
-                            </td>
-                        </tr>
-                    }
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>
+                            <span>@item.ReturnNumber</span>
+                        </td>
+                        <td>
+                            <span class="@item.MerchandiseReturnStatus.ToLower() badge status">@item.MerchandiseReturnStatus</span>
+                        </td>
+                        <td>
+                            <div class="d-inline-flex align-items-center flex-nowrap">
+                                <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                                <small class="date text-muted">
+                                    <span>@item.CreatedOn.ToString(CultureInfo.InvariantCulture)</span>
+                                </small>
+                            </div>
+                        </td>
+                        <td>
+                            <span>@item.ProductsCount</span>
+                        </td>
+                        <td>
+                            <span>@item.ReturnTotal</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-info" onclick="location = ('@Url.RouteUrl("MerchandiseReturnDetails", new { merchandiseReturnId = item.Id })')">
+                                @Loc["Account.CustomerMerchandiseReturns.Details"]
+                            </button>
+                        </td>
+                    </tr>
+                }
                 </tbody>
             </table>
         </div>

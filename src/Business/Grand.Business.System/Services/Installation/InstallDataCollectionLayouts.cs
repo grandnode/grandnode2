@@ -1,22 +1,19 @@
 ﻿using Grand.Domain.Catalog;
 
-namespace Grand.Business.System.Services.Installation
+namespace Grand.Business.System.Services.Installation;
+
+public partial class InstallationService
 {
-    public partial class InstallationService
+    protected virtual Task InstallCollectionLayouts()
     {
-        protected virtual Task InstallCollectionLayouts()
-        {
-            var collectionLayouts = new List<CollectionLayout>
-                               {
-                                   new CollectionLayout
-                                       {
-                                           Name = "Grid or Lines",
-                                           ViewPath = "CollectionLayout.GridOrLines",
-                                           DisplayOrder = 1
-                                       }
-                               };
-            collectionLayouts.ForEach(x=>_collectionLayoutRepository.Insert(x));
-            return Task.CompletedTask;
-        }
+        var collectionLayouts = new List<CollectionLayout> {
+            new() {
+                Name = "Grid or Lines",
+                ViewPath = "CollectionLayout.GridOrLines",
+                DisplayOrder = 1
+            }
+        };
+        collectionLayouts.ForEach(x => _collectionLayoutRepository.Insert(x));
+        return Task.CompletedTask;
     }
 }

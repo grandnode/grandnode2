@@ -27,6 +27,7 @@
                 <span>@Model.ReservationPrice</span>
             </div>
         }
+
         if (Model.IsAuction)
         {
             <div class="actual-price">
@@ -42,6 +43,7 @@
                 }
             </div>
         }
+
         if (!string.IsNullOrWhiteSpace(Model.CatalogPrice))
         {
             <div class="catalog-product-price col-12 px-0 mb-2">
@@ -49,10 +51,11 @@
                 <span class="h6 mb-0">@Model.CatalogPrice</span>
             </div>
         }
+
         if (!(Model.IsAuction && Model.DisableBuyButton))
         {
-            <div class="@if (string.IsNullOrWhiteSpace(Model.PriceWithDiscount)) {<text>product-price col-12 px-0 d-inline-flex align-items-center</text>} else {<text>non-discounted-price col-12 px-0 d-flex align-items-center</text>}">
-                <span class="price-value-@(Model.ProductId) @if (string.IsNullOrEmpty(Model.PriceWithDiscount)) {<text>actual-price</text>}">
+            <div class="@if (string.IsNullOrWhiteSpace(Model.PriceWithDiscount)) { <text>product-price col-12 px-0 d-inline-flex align-items-center</text> }else { <text>non-discounted-price col-12 px-0 d-flex align-items-center</text> }">
+                <span class="price-value-@(Model.ProductId) @if (string.IsNullOrEmpty(Model.PriceWithDiscount)) { <text>actual-price</text> }">
                     <strong>@Html.Raw(Model.Price)</strong>
                     @if (!string.IsNullOrWhiteSpace(Model.PriceWithDiscount))
                     {
@@ -81,16 +84,19 @@
                 </div>
             }
         }
+
         if (!string.IsNullOrEmpty(Model.BasePricePAngV))
         {
             <div class="base-price-pangv ml-2">
                 @Model.BasePricePAngV
             </div>
         }
+
         if (!string.IsNullOrEmpty(Model.CurrencyCode))
         {
             <meta itemprop="priceCurrency" content="@Model.CurrencyCode"/>
         }
+
         @if (string.IsNullOrWhiteSpace(Model.PriceWithDiscount))
         {
             <meta itemprop="price" content="@Model.PriceValue.ToString("0.00", CultureInfo.InvariantCulture)"/>

@@ -6,10 +6,12 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Account"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.DeleteAccount })
 }
+
 <validation-observer v-slot="{ handleSubmit }">
     <form asp-route="CustomerDeleteAccount" method="post" autocomplete="off" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
         <section class="page account-page change-password-page pl-lg-3 pt-3 pt-lg-0">
@@ -23,7 +25,7 @@
                     <fieldset class="form-group">
                         <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors, classes }">
                             <label asp-for="Password" class="col-form-label">@Loc["Account.DeleteAccount.Fields.Password"]:</label>
-                            <input asp-for="Password" v-model="deleteaccount.Password" v-bind:class="[classes , 'form-control']" autofocus="autofocus" autocomplete="off" data-val-required=@Loc["Account.DeleteAccount.Fields.Password.Required"] />
+                            <input asp-for="Password" v-model="deleteaccount.Password" v-bind:class="[classes , 'form-control']" autofocus="autofocus" autocomplete="off" data-val-required=@Loc["Account.DeleteAccount.Fields.Password.Required"]/>
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Password"></span>
                         </validation-provider>
@@ -31,7 +33,7 @@
                 </div>
             </fieldset>
             <div class="text-xs-center">
-                <input type="submit" class="btn btn-danger change-password-button" value="@Loc["Account.DeleteAccount.Button"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " />
+                <input type="submit" class="btn btn-danger change-password-button" value="@Loc["Account.DeleteAccount.Button"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); "/>
             </div>
         </section>
     </form>

@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Grand.Business.Customers.Events.Handlers;
 
-public class CustomerLoggedInEventHandler: INotificationHandler<CustomerLoggedInEvent>
+public class CustomerLoggedInEventHandler : INotificationHandler<CustomerLoggedInEvent>
 {
     private readonly ICustomerService _customerService;
 

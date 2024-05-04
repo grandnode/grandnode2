@@ -1,19 +1,18 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Admin.Models.Layouts
+namespace Grand.Web.Admin.Models.Layouts;
+
+public class PageLayoutModel : BaseEntityModel
 {
-    public class PageLayoutModel : BaseEntityModel
-    {
-        [GrandResourceDisplayName("Admin.Configuration.Layouts.Page.Name")]
+    [GrandResourceDisplayName("Admin.Configuration.Layouts.Page.Name")]
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Layouts.Page.ViewPath")]
+    [GrandResourceDisplayName("Admin.Configuration.Layouts.Page.ViewPath")]
 
-        public string ViewPath { get; set; }
+    public string ViewPath { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Layouts.Page.DisplayOrder")]
-        public int DisplayOrder { get; set; }
-    }
+    [GrandResourceDisplayName("Admin.Configuration.Layouts.Page.DisplayOrder")]
+    public int DisplayOrder { get; set; }
 }

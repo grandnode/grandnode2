@@ -1,135 +1,135 @@
 using Grand.Domain;
 using Grand.Domain.Vendors;
 
-namespace Grand.Business.Core.Interfaces.Customers
+namespace Grand.Business.Core.Interfaces.Customers;
+
+/// <summary>
+///     Vendor service interface
+/// </summary>
+public interface IVendorService
 {
     /// <summary>
-    /// Vendor service interface
+    ///     Gets a vendor by vendor identifier
     /// </summary>
-    public interface IVendorService
-    {
-        /// <summary>
-        /// Gets a vendor by vendor identifier
-        /// </summary>
-        /// <param name="vendorId">Vendor identifier</param>
-        /// <returns>Vendor</returns>
-        Task<Vendor> GetVendorById(string vendorId);
+    /// <param name="vendorId">Vendor identifier</param>
+    /// <returns>Vendor</returns>
+    Task<Vendor> GetVendorById(string vendorId);
 
-        /// <summary>
-        /// Gets all vendors
-        /// </summary>
-        /// <param name="name">Vendor name</param>
-        /// <param name="pageIndex">Page index</param>
-        /// <param name="pageSize">Page size</param>
-        /// <param name="showHidden">A value indicating whether to show hidden records</param>
-        /// <returns>Vendors</returns>
-        Task<IPagedList<Vendor>> GetAllVendors(string name = "", 
-            int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false);
+    /// <summary>
+    ///     Gets all vendors
+    /// </summary>
+    /// <param name="name">Vendor name</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="showHidden">A value indicating whether to show hidden records</param>
+    /// <returns>Vendors</returns>
+    Task<IPagedList<Vendor>> GetAllVendors(string name = "",
+        int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false);
 
-        /// <summary>
-        /// Inserts a vendor
-        /// </summary>
-        /// <param name="vendor">Vendor</param>
-        Task InsertVendor(Vendor vendor);
+    /// <summary>
+    ///     Inserts a vendor
+    /// </summary>
+    /// <param name="vendor">Vendor</param>
+    Task InsertVendor(Vendor vendor);
 
-        /// <summary>
-        /// Updates the vendor
-        /// </summary>
-        /// <param name="vendor">Vendor</param>
-        Task UpdateVendor(Vendor vendor);
+    /// <summary>
+    ///     Updates the vendor
+    /// </summary>
+    /// <param name="vendor">Vendor</param>
+    Task UpdateVendor(Vendor vendor);
 
 
-        /// <summary>
-        /// Delete a vendor
-        /// </summary>
-        /// <param name="vendor">Vendor</param>
-        Task DeleteVendor(Vendor vendor);
+    /// <summary>
+    ///     Delete a vendor
+    /// </summary>
+    /// <param name="vendor">Vendor</param>
+    Task DeleteVendor(Vendor vendor);
 
-        /// <summary>
-        /// Gets a vendor note note
-        /// </summary>
-        /// <param name="vendorId">The vendor identifier</param>
-        /// <param name="vendorNoteId">The vendor note identifier</param>
-        /// <returns>Vendor note</returns>
-        Task<VendorNote> GetVendorNoteById(string vendorId,string vendorNoteId);
+    /// <summary>
+    ///     Gets a vendor note note
+    /// </summary>
+    /// <param name="vendorId">The vendor identifier</param>
+    /// <param name="vendorNoteId">The vendor note identifier</param>
+    /// <returns>Vendor note</returns>
+    Task<VendorNote> GetVendorNoteById(string vendorId, string vendorNoteId);
 
-        /// <summary>
-        /// Insert a vendor note
-        /// </summary>
-        /// <param name="vendorNote">The vendor note</param>
-        /// <param name="vendorId">Vendor ident</param>
-        Task InsertVendorNote(VendorNote vendorNote, string vendorId);
-        /// <summary>
-        /// Deletes a vendor note
-        /// </summary>
-        /// <param name="vendorNote">The vendor note</param>
-        /// <param name="vendorId">Vendor ident</param>
-        Task DeleteVendorNote(VendorNote vendorNote, string vendorId);
+    /// <summary>
+    ///     Insert a vendor note
+    /// </summary>
+    /// <param name="vendorNote">The vendor note</param>
+    /// <param name="vendorId">Vendor ident</param>
+    Task InsertVendorNote(VendorNote vendorNote, string vendorId);
 
-        /// <summary>
-        /// Gets a vendor mapping 
-        /// </summary>
-        /// <param name="discountId">Discount id mapping identifier</param>
-        /// <returns>vendor mapping</returns>
-        Task<IList<Vendor>> GetAllVendorsByDiscount(string discountId);
+    /// <summary>
+    ///     Deletes a vendor note
+    /// </summary>
+    /// <param name="vendorNote">The vendor note</param>
+    /// <param name="vendorId">Vendor ident</param>
+    Task DeleteVendorNote(VendorNote vendorNote, string vendorId);
 
-        #region Vendor reviews
+    /// <summary>
+    ///     Gets a vendor mapping
+    /// </summary>
+    /// <param name="discountId">Discount id mapping identifier</param>
+    /// <returns>vendor mapping</returns>
+    Task<IList<Vendor>> GetAllVendorsByDiscount(string discountId);
 
-        /// <summary>
-        /// Update Vendor review totals
-        /// </summary>
-        /// <param name="vendor">Vendor</param>
-        Task UpdateVendorReviewTotals(Vendor vendor);
+    #region Vendor reviews
 
-        /// <summary>
-        /// Update Vendor review 
-        /// </summary>
-        /// <param name="vendorReview">vendor review</param>
-        Task UpdateVendorReview(VendorReview vendorReview);
+    /// <summary>
+    ///     Update Vendor review totals
+    /// </summary>
+    /// <param name="vendor">Vendor</param>
+    Task UpdateVendorReviewTotals(Vendor vendor);
 
-        /// <summary>
-        /// Insert Vendor review 
-        /// </summary>
-        /// <param name="vendorReview">vendor review</param>
-        Task InsertVendorReview(VendorReview vendorReview);
+    /// <summary>
+    ///     Update Vendor review
+    /// </summary>
+    /// <param name="vendorReview">vendor review</param>
+    Task UpdateVendorReview(VendorReview vendorReview);
 
-        /// <summary>
-        /// Gets all vendor reviews
-        /// </summary>
-        /// <param name="customerId">Customer identifier; "" to load all records</param>
-        /// <param name="approved">A value indicating whether to content is approved; null to load all records</param> 
-        /// <param name="fromUtc">Item creation from; null to load all records</param>
-        /// <param name="toUtc">Item item creation to; null to load all records</param>
-        /// <param name="message">Search title or review text; null to load all records</param>
-        /// <param name="vendorId">Vendor identifier; "" to load all records</param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <returns>Reviews</returns>
-        Task<IPagedList<VendorReview>> GetAllVendorReviews(string customerId, bool? approved,
-            DateTime? fromUtc = null, DateTime? toUtc = null,
-            string message = null, string vendorId = "", int pageIndex = 0, int pageSize = int.MaxValue);
+    /// <summary>
+    ///     Insert Vendor review
+    /// </summary>
+    /// <param name="vendorReview">vendor review</param>
+    Task InsertVendorReview(VendorReview vendorReview);
 
-        /// <summary>
-        /// Gets vendor review
-        /// </summary>
-        /// <param name="vendorReviewId">Vendor review identifier</param>
-        /// <returns>Vendor review</returns>
-        Task<VendorReview> GetVendorReviewById(string vendorReviewId);
+    /// <summary>
+    ///     Gets all vendor reviews
+    /// </summary>
+    /// <param name="customerId">Customer identifier; "" to load all records</param>
+    /// <param name="approved">A value indicating whether to content is approved; null to load all records</param>
+    /// <param name="fromUtc">Item creation from; null to load all records</param>
+    /// <param name="toUtc">Item item creation to; null to load all records</param>
+    /// <param name="message">Search title or review text; null to load all records</param>
+    /// <param name="vendorId">Vendor identifier; "" to load all records</param>
+    /// <param name="pageIndex"></param>
+    /// <param name="pageSize"></param>
+    /// <returns>Reviews</returns>
+    Task<IPagedList<VendorReview>> GetAllVendorReviews(string customerId, bool? approved,
+        DateTime? fromUtc = null, DateTime? toUtc = null,
+        string message = null, string vendorId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
-        /// <summary>
-        /// Deletes a vendor review
-        /// </summary>
-        /// <param name="vendorReview">Vendor review</param>
-        Task DeleteVendorReview(VendorReview vendorReview);
+    /// <summary>
+    ///     Gets vendor review
+    /// </summary>
+    /// <param name="vendorReviewId">Vendor review identifier</param>
+    /// <returns>Vendor review</returns>
+    Task<VendorReview> GetVendorReviewById(string vendorReviewId);
 
-        /// <summary>
-        /// Search vendors
-        /// </summary>
-        /// <param name="vendorId">Vendor identifier; "" to load all records</param>
-        /// <param name="keywords">Keywords</param>
-        /// <returns>Vendors</returns>
-        Task<IList<Vendor>> SearchVendors(string vendorId = "", string keywords = null);
+    /// <summary>
+    ///     Deletes a vendor review
+    /// </summary>
+    /// <param name="vendorReview">Vendor review</param>
+    Task DeleteVendorReview(VendorReview vendorReview);
 
-        #endregion
-    }
+    /// <summary>
+    ///     Search vendors
+    /// </summary>
+    /// <param name="vendorId">Vendor identifier; "" to load all records</param>
+    /// <param name="keywords">Keywords</param>
+    /// <returns>Vendors</returns>
+    Task<IList<Vendor>> SearchVendors(string vendorId = "", string keywords = null);
+
+    #endregion
 }

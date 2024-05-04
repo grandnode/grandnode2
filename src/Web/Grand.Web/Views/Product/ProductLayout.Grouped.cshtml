@@ -156,7 +156,7 @@
                             <di class="card overflow-hidden associatedItem mb-3">
                                 <div class="row no-gutters">
                                     <div class="col-lg-3 col-md-4">
-                                        <img class="img-fluid rounded-0" id="main-product-img-@variant.Id" alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl" />
+                                        <img class="img-fluid rounded-0" id="main-product-img-@variant.Id" alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl"/>
                                     </div>
                                     <div class="col-lg-9 col-md-8">
                                         <div class="card-body overview" title="@variant.Name">
@@ -169,7 +169,7 @@
                                             <partial name="Partials/Codes" model="variant"/>
                                             <!--delivery-->
                                             @if ((variant.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !string.IsNullOrWhiteSpace(variant.DeliveryDate)
-                                                 || variant.NotReturnable || variant.AdditionalShippingCharge > 0)
+                                                                                                                   || variant.NotReturnable || variant.AdditionalShippingCharge > 0)
                                             {
                                                 <partial name="Partials/DeliveryInfo" model="variant"/>
                                             }
@@ -181,12 +181,12 @@
                                             <!--attributes-->
                                             @if (variant.ProductAttributes.Any())
                                             {
-                                                <partial name="Partials/ProductAttributes" model="variant" />
+                                                <partial name="Partials/ProductAttributes" model="variant"/>
                                             }
                                             <!--gift voucher-->
                                             @if (variant.GiftVoucher.IsGiftVoucher)
                                             {
-                                                <partial name="Partials/GiftVoucherInfo" model="variant.GiftVoucher" />
+                                                <partial name="Partials/GiftVoucherInfo" model="variant.GiftVoucher"/>
                                             }
                                             <!--price breaks-->
                                             @if (variant.TierPrices.Any())

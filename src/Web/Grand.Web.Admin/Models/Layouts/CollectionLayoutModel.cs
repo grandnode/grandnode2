@@ -1,19 +1,18 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Admin.Models.Layouts
+namespace Grand.Web.Admin.Models.Layouts;
+
+public class CollectionLayoutModel : BaseEntityModel
 {
-    public class CollectionLayoutModel : BaseEntityModel
-    {
-        [GrandResourceDisplayName("Admin.Configuration.Layouts.Collection.Name")]
+    [GrandResourceDisplayName("Admin.Configuration.Layouts.Collection.Name")]
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Layouts.Collection.ViewPath")]
+    [GrandResourceDisplayName("Admin.Configuration.Layouts.Collection.ViewPath")]
 
-        public string ViewPath { get; set; }
+    public string ViewPath { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Layouts.Collection.DisplayOrder")]
-        public int DisplayOrder { get; set; }
-    }
+    [GrandResourceDisplayName("Admin.Configuration.Layouts.Collection.DisplayOrder")]
+    public int DisplayOrder { get; set; }
 }

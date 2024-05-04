@@ -1,7 +1,7 @@
+@using Grand.Business.Core.Interfaces.Catalog.Products
 @using Grand.Business.Core.Interfaces.Checkout.Orders
 @using Grand.Business.Core.Interfaces.Common.Directory
 @using Grand.Business.Core.Interfaces.Common.Localization
-@using Grand.Business.Core.Interfaces.Catalog.Products
 @model IList<Grand.Domain.Shipping.Shipment>
 @inject IOrderService _orderService
 @inject IProductService _productService
@@ -78,7 +78,7 @@
         </style>
 </head>
 <body>
-    <main style="padding:10pt; font-size:12px">
+<main style="padding:10pt; font-size:12px">
     @for (var i = 0; i < Model.Count; i++)
     {
         var order = await _orderService.GetOrderById(Model[i].OrderId);
@@ -91,18 +91,21 @@
         {
             <div>
                 <h6>@(_translationService.GetResource("PDFInvoice.ShippingInformation", order.CustomerLanguageId))</h6>
-                    @if (!string.IsNullOrEmpty(order.ShippingAddress.Company))
-                    {
-                        @(string.Format(_translationService.GetResource("PDFPackagingSlip.Company", order.CustomerLanguageId), order.ShippingAddress.Company))<br/>
-                    }
-                    @(string.Format(_translationService.GetResource("PDFPackagingSlip.Name", order.CustomerLanguageId), order.ShippingAddress.FirstName + " " + order.ShippingAddress.LastName))<br/>
-                    @(string.Format(_translationService.GetResource("PDFPackagingSlip.Phone", order.CustomerLanguageId), order.ShippingAddress.PhoneNumber))<br/>
-                    @(string.Format(_translationService.GetResource("PDFPackagingSlip.Address", order.CustomerLanguageId), order.ShippingAddress.Address1))<br/>
-                    @(order.ShippingAddress.City + ", " + order.ShippingAddress.ZipPostalCode)<br/>
-                    @((await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name)<br/>
+                @if (!string.IsNullOrEmpty(order.ShippingAddress.Company))
+                {
+                    @(string.Format(_translationService.GetResource("PDFPackagingSlip.Company", order.CustomerLanguageId), order.ShippingAddress.Company))<br/>
+                }
+                @(string.Format(_translationService.GetResource("PDFPackagingSlip.Name", order.CustomerLanguageId), order.ShippingAddress.FirstName + " " + order.ShippingAddress.LastName))<br/>
+                @(string.Format(_translationService.GetResource("PDFPackagingSlip.Phone", order.CustomerLanguageId), order.ShippingAddress.PhoneNumber))<br/>
+                @(string.Format(_translationService.GetResource("PDFPackagingSlip.Address", order.CustomerLanguageId), order.ShippingAddress.Address1))<br/>
+                @(order.ShippingAddress.City + ", " + order.ShippingAddress.ZipPostalCode)<br/>
+                @((await _countryService.GetCountryById(order.ShippingAddress.CountryId))?.Name)<br/>
             </div>
         }
-        <div><strong>@(string.Format(_translationService.GetResource("PDFPackagingSlip.ShippingMethod", order.CustomerLanguageId), order.ShippingMethod))</strong></div>
+
+        <div>
+            <strong>@(string.Format(_translationService.GetResource("PDFPackagingSlip.ShippingMethod", order.CustomerLanguageId), order.ShippingMethod))</strong>
+        </div>
         <div class="summary">
             @(_translationService.GetResource("PDFInvoice.Product(s)", order.CustomerLanguageId))
         </div>
@@ -122,7 +125,7 @@
                             @((await _productService.GetProductByIdIncludeArch(item.ProductId)).Name)
                             @if (!string.IsNullOrEmpty(orderItem.AttributeDescription))
                             {
-                                <br />
+                                <br/>
                                 <small>@(Html.Raw(orderItem.AttributeDescription))</small>
                             }
                         </td>
@@ -134,6 +137,6 @@
             }
         </table>
     }
-    </main>
+</main>
 </body>
 </html>

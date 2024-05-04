@@ -66,7 +66,7 @@
                     <span :class="'your-price price-value-' + variant.ProductPrice.ProductId">
                         <strong class="actual-price" v-html="variant.ProductPrice.PriceWithDiscount"></strong>
                     </span>
-                    <meta itemprop="price" content="variant.ProductPrice.PriceValue" :class="'your-price price-value-' + variant.ProductId" />
+                    <meta itemprop="price" content="variant.ProductPrice.PriceValue" :class="'your-price price-value-' + variant.ProductId"/>
                 </div>
             </template>
             <template v-if="variant.ProductPrice.BasePricePAngV !== null">
@@ -75,10 +75,10 @@
                 </div>
             </template>
             <template v-if="variant.ProductPrice.CurrencyCode !== null">
-                <meta itemprop="priceCurrency" :content="variant.ProductPrice.CurrencyCode" />
+                <meta itemprop="priceCurrency" :content="variant.ProductPrice.CurrencyCode"/>
             </template>
             <template v-if="variant.ProductPrice.PriceWithDiscount">
-                <meta itemprop="price" :content="variant.ProductPrice.PriceValue" />
+                <meta itemprop="price" :content="variant.ProductPrice.PriceValue"/>
             </template>
         </template>
     </div>

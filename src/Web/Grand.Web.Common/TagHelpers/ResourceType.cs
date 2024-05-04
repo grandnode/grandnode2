@@ -1,13 +1,11 @@
-﻿
-namespace Grand.Web.Common.TagHelpers
+﻿namespace Grand.Web.Common.TagHelpers;
+
+public enum ResourceType
 {
-    public enum ResourceType
-    {
-       HeadLink,
-       HeadScript,
-       ScriptHeader,
-       ScriptFooter,
-       TemplateHeader,
-       TemplateFooter
-    }
+    HeadLink,
+    HeadScript,
+    ScriptHeader,
+    ScriptFooter,
+    TemplateHeader,
+    TemplateFooter
 }

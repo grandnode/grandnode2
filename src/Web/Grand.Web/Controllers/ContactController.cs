@@ -20,14 +20,6 @@ namespace Grand.Web.Controllers;
 
 public class ContactController : BasePublicController
 {
-    #region Fields
-
-    private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
-    private readonly IMediator _mediator;
-
-    #endregion
-
     #region Constructors
 
     public ContactController(
@@ -88,7 +80,7 @@ public class ContactController : BasePublicController
                 Model = model,
                 IpAddress = HttpContext?.Connection?.RemoteIpAddress?.ToString()
             });
-            
+
             //notification
             await _mediator.Publish(new ContactUsEvent(_workContext.CurrentCustomer, result));
 
@@ -128,28 +120,24 @@ public class ContactController : BasePublicController
     {
         var attribute = await contactAttributeService.GetContactAttributeById(attributeId);
         if (attribute is not { AttributeControlType: AttributeControlType.FileUpload })
-        {
             return Json(new {
                 success = false,
                 downloadGuid = Guid.Empty
             });
-        }
 
         var form = await HttpContext.Request.ReadFormAsync();
         var httpPostedFile = form.Files.FirstOrDefault();
         if (httpPostedFile == null)
-        {
             return Json(new {
                 success = false,
                 message = "No file uploaded",
                 downloadGuid = Guid.Empty
             });
-        }
 
         var fileBinary = httpPostedFile.GetDownloadBits();
 
         var fileName = httpPostedFile.FileName;
-        
+
         fileName = Path.GetFileName(fileName);
 
         var contentType = httpPostedFile.ContentType;
@@ -164,13 +152,11 @@ public class ContactController : BasePublicController
                 .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .ToList();
             if (!allowedFileExtensions.Contains(fileExtension.ToLowerInvariant()))
-            {
                 return Json(new {
                     success = false,
                     message = _translationService.GetResource("ContactUs.ValidationFileAllowed"),
                     downloadGuid = Guid.Empty
                 });
-            }
         }
 
         if (attribute.ValidationFileMaximumSize.HasValue)
@@ -178,7 +164,6 @@ public class ContactController : BasePublicController
             //compare in bytes
             var maxFileSizeBytes = attribute.ValidationFileMaximumSize.Value * 1024;
             if (fileBinary.Length > maxFileSizeBytes)
-            {
                 //when returning JSON the mime-type must be set to text/plain
                 //otherwise some browsers will pop-up a "Save As" dialog.
                 return Json(new {
@@ -187,7 +172,6 @@ public class ContactController : BasePublicController
                         attribute.ValidationFileMaximumSize.Value),
                     downloadGuid = Guid.Empty
                 });
-            }
         }
 
         var download = new Download {
@@ -214,4 +198,12 @@ public class ContactController : BasePublicController
             downloadGuid = download.DownloadGuid
         });
     }
+
+    #region Fields
+
+    private readonly ITranslationService _translationService;
+    private readonly IWorkContext _workContext;
+    private readonly IMediator _mediator;
+
+    #endregion
 }

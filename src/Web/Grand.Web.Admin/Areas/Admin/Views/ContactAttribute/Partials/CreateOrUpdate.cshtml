@@ -1,21 +1,21 @@
 ﻿@model ContactAttributeModel
 
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden" />
+<input asp-for="Id" type="hidden"/>
 
 <admin-tabstrip name="contactattribute-edit">
     <items>
         <tabstrip-item text="@Loc["Admin.Catalog.Attributes.ContactAttributes.Info"]" tab-index="0">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model" />
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
         <tabstrip-item text="@Loc["Admin.Catalog.Attributes.ContactAttributes.Values"]" tab-index="1" id="tab-contactAttributesValues">
             <content>
                 <div>
-                    <partial name="Partials/CreateOrUpdate.TabValues" model="Model" />
+                    <partial name="Partials/CreateOrUpdate.TabValues" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>
@@ -24,11 +24,11 @@
             <tabstrip-item text="@Loc["Admin.Catalog.Attributes.ContactAttributes.Condition"]" tab-index="2">
                 <content>
                     <div>
-                        <partial name="Partials/CreateOrUpdate.TabCondition" model="Model" />
+                        <partial name="Partials/CreateOrUpdate.TabCondition" model="Model"/>
                     </div>
                 </content>
             </tabstrip-item>
         }
-        <vc:admin-widget widget-zone="contact_attribute_details_tabs" additional-data="Model" />
+        <vc:admin-widget widget-zone="contact_attribute_details_tabs" additional-data="Model"/>
     </items>
 </admin-tabstrip>

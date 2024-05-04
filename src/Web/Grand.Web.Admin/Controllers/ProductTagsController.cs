@@ -1,153 +1,154 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Catalog;
+using Grand.Domain.Seo;
+using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Domain.Seo;
-using Grand.Web.Admin.Models.Catalog;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Admin.Controllers
+namespace Grand.Web.Admin.Controllers;
+
+[PermissionAuthorize(PermissionSystemName.ProductTags)]
+public class ProductTagsController : BaseAdminController
 {
-    [PermissionAuthorize(PermissionSystemName.ProductTags)]
-    public class ProductTagsController : BaseAdminController
+    private readonly ILanguageService _languageService;
+    private readonly IProductService _productService;
+    private readonly IProductTagService _productTagService;
+
+    private readonly SeoSettings _seoSettings;
+    private readonly ITranslationService _translationService;
+
+    public ProductTagsController(
+        IProductTagService productTagService,
+        IProductService productService,
+        ILanguageService languageService,
+        ITranslationService translationService,
+        SeoSettings seoSettings)
     {
-        private readonly IProductTagService _productTagService;
-        private readonly IProductService _productService;
-        private readonly ILanguageService _languageService;
-        private readonly ITranslationService _translationService;
+        _productTagService = productTagService;
+        _productService = productService;
+        _languageService = languageService;
+        _translationService = translationService;
+        _seoSettings = seoSettings;
+    }
 
-        private readonly SeoSettings _seoSettings;
-        public ProductTagsController(
-            IProductTagService productTagService, 
-            IProductService productService, 
-            ILanguageService languageService,
-            ITranslationService translationService,
-            SeoSettings seoSettings)
+    public IActionResult Index()
+    {
+        return RedirectToAction("List");
+    }
+
+    public IActionResult List()
+    {
+        return View();
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    [HttpPost]
+    public async Task<IActionResult> List(DataSourceRequest command)
+    {
+        var tags = await _productTagService.GetAllProductTags();
+        var productTags = new List<ProductTagModel>();
+        foreach (var item in tags)
         {
-            _productTagService = productTagService;
-            _productService = productService;
-            _languageService = languageService;
-            _translationService = translationService;
-            _seoSettings = seoSettings;
+            var ptag = new ProductTagModel {
+                Id = item.Id,
+                Name = item.Name,
+                ProductCount = await _productTagService.GetProductCount(item.Id)
+            };
+            productTags.Add(ptag);
         }
 
-        public IActionResult Index()
-        {
+        var gridModel = new DataSourceResult {
+            Data = productTags.OrderByDescending(x => x.ProductCount).PagedForCommand(command),
+            Total = tags.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> Products(string tagId, DataSourceRequest command)
+    {
+        var tag = await _productTagService.GetProductTagById(tagId);
+
+        var products = (await _productService.SearchProducts(pageIndex: command.Page - 1, pageSize: command.PageSize,
+            productTag: tag.Name, orderBy: ProductSortingEnum.NameAsc)).products;
+        var gridModel = new DataSourceResult {
+            Data = products.Select(x => new {
+                x.Id, x.Name
+            }),
+            Total = products.TotalCount
+        };
+
+        return Json(gridModel);
+    }
+
+    //edit
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var productTag = await _productTagService.GetProductTagById(id);
+        if (productTag == null)
+            //No product tag found with the specified id
             return RedirectToAction("List");
-        }
 
-        public IActionResult List()
+        var model = new ProductTagModel {
+            Id = productTag.Id,
+            Name = productTag.Name,
+            ProductCount = await _productTagService.GetProductCount(productTag.Id)
+        };
+        //locales
+        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
-            return View();
-        }
+            locale.Name = productTag.GetTranslation(x => x.Name, languageId, false);
+        });
 
-        [PermissionAuthorizeAction(PermissionActionName.List)]
-        [HttpPost]
-        public async Task<IActionResult> List(DataSourceRequest command)
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> Edit(ProductTagModel model)
+    {
+        var productTag = await _productTagService.GetProductTagById(model.Id);
+        if (productTag == null)
+            //No product tag found with the specified id
+            return RedirectToAction("List");
+
+        if (ModelState.IsValid)
         {
-            var tags = await _productTagService.GetAllProductTags();
-            var productTags = new List<ProductTagModel>();
-            foreach (var item in tags)
-            {
-                var ptag = new ProductTagModel {
-                    Id = item.Id,
-                    Name = item.Name,
-                    ProductCount = await _productTagService.GetProductCount(item.Id)
-                };
-                productTags.Add(ptag);
-            }
+            productTag.Name = model.Name;
+            productTag.Locales = model.Locales.ToTranslationProperty();
+            productTag.SeName = SeoExtensions.GetSeName(productTag.Name, _seoSettings.ConvertNonWesternChars,
+                _seoSettings.AllowUnicodeCharsInUrls, _seoSettings.SeoCharConversion);
+            await _productTagService.UpdateProductTag(productTag);
+            Success(_translationService.GetResource("Admin.Catalog.ProductTags.Updated"));
 
-            var gridModel = new DataSourceResult
-            {
-                Data = productTags.OrderByDescending(x => x.ProductCount).PagedForCommand(command),
-                Total = tags.Count
-            };
-
-            return Json(gridModel);
+            return RedirectToAction("Edit", new { id = model.Id });
         }
 
-        [PermissionAuthorizeAction(PermissionActionName.Preview)]
-        [HttpPost]
-        public async Task<IActionResult> Products(string tagId, DataSourceRequest command)
+        //If we got this far, something failed, redisplay form
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var tag = await _productTagService.GetProductTagById(id);
+        if (tag == null)
+            throw new ArgumentException("No product tag found with the specified id");
+        if (ModelState.IsValid)
         {
-            var tag = await _productTagService.GetProductTagById(tagId);
-
-            var products = (await _productService.SearchProducts(pageIndex: command.Page - 1, pageSize: command.PageSize, productTag: tag.Name, orderBy: Domain.Catalog.ProductSortingEnum.NameAsc)).products;
-            var gridModel = new DataSourceResult
-            {
-                Data = products.Select(x => new
-                {
-                    x.Id, x.Name
-                }),
-                Total = products.TotalCount
-            };
-
-            return Json(gridModel);
+            await _productTagService.DeleteProductTag(tag);
+            return new JsonResult("");
         }
 
-        //edit
-        [PermissionAuthorizeAction(PermissionActionName.Preview)]
-        public async Task<IActionResult> Edit(string id)
-        {
-            var productTag = await _productTagService.GetProductTagById(id);
-            if (productTag == null)
-                //No product tag found with the specified id
-                return RedirectToAction("List");
-
-            var model = new ProductTagModel
-            {
-                Id = productTag.Id,
-                Name = productTag.Name,
-                ProductCount = await _productTagService.GetProductCount(productTag.Id)
-            };
-            //locales
-            await AddLocales(_languageService, model.Locales, (locale, languageId) =>
-            {
-                locale.Name = productTag.GetTranslation(x => x.Name, languageId, false);
-            });
-
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        [HttpPost]
-        public async Task<IActionResult> Edit(ProductTagModel model)
-        {
-            var productTag = await _productTagService.GetProductTagById(model.Id);
-            if (productTag == null)
-                //No product tag found with the specified id
-                return RedirectToAction("List");
-
-            if (ModelState.IsValid)
-            {
-                productTag.Name = model.Name;
-                productTag.Locales = model.Locales.ToTranslationProperty();
-                productTag.SeName = SeoExtensions.GetSeName(productTag.Name, _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls, _seoSettings.SeoCharConversion);
-                await _productTagService.UpdateProductTag(productTag);
-                Success(_translationService.GetResource("Admin.Catalog.ProductTags.Updated"));
-                
-                return RedirectToAction("Edit", new { id = model.Id });
-            }
-            //If we got this far, something failed, redisplay form
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Delete)]
-        [HttpPost]
-        public async Task<IActionResult> Delete(string id)
-        {
-            var tag = await _productTagService.GetProductTagById(id);
-            if (tag == null)
-                throw new ArgumentException("No product tag found with the specified id");
-            if (ModelState.IsValid)
-            {
-                await _productTagService.DeleteProductTag(tag);
-                return new JsonResult("");
-            }
-            return ErrorForKendoGridJson(ModelState);
-        }
+        return ErrorForKendoGridJson(ModelState);
     }
 }

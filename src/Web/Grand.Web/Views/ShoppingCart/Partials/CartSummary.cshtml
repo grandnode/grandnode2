@@ -1,245 +1,249 @@
 ﻿@model ShoppingCartModel
 
 <div class="order-summary-content mt-3" id="ordersummarypagecart" v-if="vmorder.cart">
-    @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_before" })
-    <div v-if="typeof vmorder.cart.Items !== 'undefined' && vmorder.cart.Items.length > 0">
-        <ul v-if="typeof vmorder.cart.Warnings !== 'undefined' && vmorder.cart.Warnings.length > 0" class="px-0 mb-3">
-            <li v-for="item in vmorder.cart.Warnings">
-                <div class="alert alert-danger mb-1">{{item}}</div>
-            </li>
-        </ul>
-        <form asp-route="ShoppingCart" method="post" enctype="multipart/form-data" id="shopping-cart-form">
-            <div class="col-12">
-                <div class="form-row">
-                    <div class="col-lg-8 col-12 cart-out-container">
-                        <div class="shopping-cart-container">
-                            <div class="shopping-cart-container">
-                                <table class="shopping-cart table">
-                                    <colgroup>
-                                        <col span="1">
-                                        <col span="1">
-                                        <col span="1">
-                                        <col>
-                                        <col span="1">
-                                        <col span="1">
-                                        <col span="1">
-                                    </colgroup>
-                                    <thead>
-                                        <tr>
-                                            <th v-if="vmorder.cart.IsAllowOnHold && vmorder.cart.IsEditable" class="cart text-center"></th>
-                                            <th v-if="vmorder.cart.ShowProductImages" class="product-picture text-center">
-                                                @Loc["ShoppingCart.Image"]
-                                            </th>
-                                            <th class="product text-center">
-                                                @Loc["ShoppingCart.Product(s)"]
-                                            </th>
-                                            <th class="unit-price text-center">
-                                                @Loc["ShoppingCart.UnitPrice"]
-                                            </th>
-                                            <th class="quantity text-center">
-                                                @Loc["ShoppingCart.Quantity"]
-                                            </th>
-                                            <th class="subtotal text-center">
-                                                @Loc["ShoppingCart.ItemTotal"]
-                                            </th>
-                                            <th v-if="vmorder.cart.IsEditable" class="remove-from-cart text-center">
-                                                @Loc["Remove"]
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="item in vmorder.cart.Items">
-                                            <td v-if="vmorder.cart.IsAllowOnHold && vmorder.cart.IsEditable" class="onhold-cart">
-                                                <label class="custom-control custom-switch mb-0 pl-0">
-                                                    <input :id="'checkbox_' + item.Id" type="checkbox" :checked="item.IsCart" class="custom-control-input changeshoppingcartitem" v-on:change="vmorder.updateCartType(item.Id, !item.IsCart)" />
-                                                    <span class="custom-control-label ml-5"></span>
-                                                </label>
-                                            </td>
-                                            <td v-if="vmorder.cart.ShowProductImages" class="product-picture text-center">
-                                                <a :href="'/' + item.ProductSeName">
-                                                    <img alt="item.Picture.AlternateText" :src="item.Picture.ImageUrl" title="item.Picture.Title" />
-                                                </a>
-                                            </td>
-                                            <td class="product">
-                                                <div class="d-inline-flex align-items-center">
-                                                    <a :href="item.ProductUrl" class="product-name">
-                                                        {{item.ProductName}}
-                                                    </a>
-                                                    <div v-if="vmorder.cart.IsEditable && item.AllowItemEditing" class="edit-item">
-                                                        <a class="btn btn-link" @@click="vmorder.updateOnCart(item.Id)"><b-icon icon="pencil"></b-icon></a>
-                                                    </div>
-                                                </div>
-                                                <span v-if="vmorder.cart.ShowSku" class="sku-number">
-                                                    {{item.Sku}}
-                                                </span>
-                                                <div v-if="item.AttributeInfo !== ''" v-html="item.AttributeInfo" class="attributes small"></div>
-                                                <div v-if="item.WarehouseName !== null" v-html="item.WarehouseName" class="attributes small"></div>
-                                                <div v-if="item.VendorName !== null" v-html="item.VendorName" class="attributes small"></div>
-                                                <div v-if="item.AuctionInfo !== null" v-html="item.AuctionInfo" class="attributes small"></div>
-                                                <div v-if="item.RecurringInfo !== null" v-html="item.RecurringInfo" class="recurring-info"></div>
-                                                <div v-if="item.ReservationInfo !== null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
-                                                <div v-if="typeof item.Warnings !== 'undefined' && item.Warnings.length > 0" class="message-error small alert alert-danger mt-2 mb-0">
-                                                    <ul v-for="warning in item.Warnings" class="mb-0 p-0">
-                                                        <li>{{warning}}</li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                            <td class="unit-price">
-                                                <span class="product-unit-price price">{{item.UnitPrice}}</span>
-                                                <div v-if="item.UnitPriceWithoutDiscountValue != item.UnitPriceValue && item.UnitPriceWithoutDiscountValue > 0" class="text-center">
-                                                    <del class="small text-danger">{{item.UnitPriceWithoutDiscount}}</del>
-                                                </div>
-                                            </td>
-                                            <td class="quantity">
-                                                <div v-if="vmorder.cart.IsEditable">
-                                                    <div v-if="item.AllowedQuantities[0]">
-                                                        <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)">
-                                                            <option v-for="qty in item.AllowedQuantities" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
-                                                        </select>
-                                                    </div>
-                                                    <div v-else>
-                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" v-model="item.Quantity" min="1" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
-                                                    </div>
-                                                </div>
-                                                <div v-else>
-                                                    <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" class="qty-input form-control text-center" readonly />
-                                                </div>
-                                            </td>
-                                            <td class="subtotal">
-                                                <div v-if="item.Discount" class="d-flex flex-column">
-                                                    <p class="mb-0 prod-total">{{item.SubTotal}}</p>
-                                                    <div class="discount text-success text-center">
-                                                        <span>@Loc["ShoppingCart.ItemYouSave"]: </span>
-                                                        <span>{{item.Discount}}</span>
-                                                        <span v-if="item.DiscountedQty > 0" class="font-weight-light font-italic">@Loc["ShoppingCart.DiscountedQty"]: </span>
-                                                        <span v-if="item.DiscountedQty > 0" class="font-weight-light font-italic">{{item.DiscountedQty}}</span>
-                                                    </div>
-                                                </div>
-                                                <div v-else>
-                                                    <p class="mb-0 prod-total">{{item.SubTotal}}</p>
-                                                </div>
-                                            </td>
-                                            <td v-if="vmorder.cart.IsEditable" class="remove-from-cart text-center">
-                                                <b-button variant="link" class="deleteshoppingcartitem" @@click="vmorder.deleteitem('@Url.RouteUrl("DeleteCartItem")/'+ item.Id +'?shoppingcartpage=True')">
-                                                    <b-icon icon="trash" variant="danger"></b-icon>
-                                                </b-button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+@await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_before" })
+<div v-if="typeof vmorder.cart.Items !== 'undefined' && vmorder.cart.Items.length > 0">
+<ul v-if="typeof vmorder.cart.Warnings !== 'undefined' && vmorder.cart.Warnings.length > 0" class="px-0 mb-3">
+    <li v-for="item in vmorder.cart.Warnings">
+        <div class="alert alert-danger mb-1">{{item}}</div>
+    </li>
+</ul>
+<form asp-route="ShoppingCart" method="post" enctype="multipart/form-data" id="shopping-cart-form">
+<div class="col-12">
+<div class="form-row">
+<div class="col-lg-8 col-12 cart-out-container">
+    <div class="shopping-cart-container">
+        <div class="shopping-cart-container">
+            <table class="shopping-cart table">
+                <colgroup>
+                    <col span="1">
+                    <col span="1">
+                    <col span="1">
+                    <col>
+                    <col span="1">
+                    <col span="1">
+                    <col span="1">
+                </colgroup>
+                <thead>
+                <tr>
+                    <th v-if="vmorder.cart.IsAllowOnHold && vmorder.cart.IsEditable" class="cart text-center"></th>
+                    <th v-if="vmorder.cart.ShowProductImages" class="product-picture text-center">
+                        @Loc["ShoppingCart.Image"]
+                    </th>
+                    <th class="product text-center">
+                        @Loc["ShoppingCart.Product(s)"]
+                    </th>
+                    <th class="unit-price text-center">
+                        @Loc["ShoppingCart.UnitPrice"]
+                    </th>
+                    <th class="quantity text-center">
+                        @Loc["ShoppingCart.Quantity"]
+                    </th>
+                    <th class="subtotal text-center">
+                        @Loc["ShoppingCart.ItemTotal"]
+                    </th>
+                    <th v-if="vmorder.cart.IsEditable" class="remove-from-cart text-center">
+                        @Loc["Remove"]
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in vmorder.cart.Items">
+                    <td v-if="vmorder.cart.IsAllowOnHold && vmorder.cart.IsEditable" class="onhold-cart">
+                        <label class="custom-control custom-switch mb-0 pl-0">
+                            <input :id="'checkbox_' + item.Id" type="checkbox" :checked="item.IsCart" class="custom-control-input changeshoppingcartitem" v-on:change="vmorder.updateCartType(item.Id, !item.IsCart)"/>
+                            <span class="custom-control-label ml-5"></span>
+                        </label>
+                    </td>
+                    <td v-if="vmorder.cart.ShowProductImages" class="product-picture text-center">
+                        <a :href="'/' + item.ProductSeName">
+                            <img alt="item.Picture.AlternateText" :src="item.Picture.ImageUrl" title="item.Picture.Title"/>
+                        </a>
+                    </td>
+                    <td class="product">
+                        <div class="d-inline-flex align-items-center">
+                            <a :href="item.ProductUrl" class="product-name">
+                                {{item.ProductName}}
+                            </a>
+                            <div v-if="vmorder.cart.IsEditable && item.AllowItemEditing" class="edit-item">
+                                <a class="btn btn-link" @@click="vmorder.updateOnCart(item.Id)">
+                                    <b-icon icon="pencil"></b-icon>
+                                </a>
                             </div>
                         </div>
-                        @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_cart_footer" })
+                        <span v-if="vmorder.cart.ShowSku" class="sku-number">
+                            {{item.Sku}}
+                        </span>
+                        <div v-if="item.AttributeInfo !== ''" v-html="item.AttributeInfo" class="attributes small"></div>
+                        <div v-if="item.WarehouseName !== null" v-html="item.WarehouseName" class="attributes small"></div>
+                        <div v-if="item.VendorName !== null" v-html="item.VendorName" class="attributes small"></div>
+                        <div v-if="item.AuctionInfo !== null" v-html="item.AuctionInfo" class="attributes small"></div>
+                        <div v-if="item.RecurringInfo !== null" v-html="item.RecurringInfo" class="recurring-info"></div>
+                        <div v-if="item.ReservationInfo !== null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
+                        <div v-if="typeof item.Warnings !== 'undefined' && item.Warnings.length > 0" class="message-error small alert alert-danger mt-2 mb-0">
+                            <ul v-for="warning in item.Warnings" class="mb-0 p-0">
+                                <li>{{warning}}</li>
+                            </ul>
+                        </div>
+                    </td>
+                    <td class="unit-price">
+                        <span class="product-unit-price price">{{item.UnitPrice}}</span>
+                        <div v-if="item.UnitPriceWithoutDiscountValue != item.UnitPriceValue && item.UnitPriceWithoutDiscountValue > 0" class="text-center">
+                            <del class="small text-danger">{{item.UnitPriceWithoutDiscount}}</del>
+                        </div>
+                    </td>
+                    <td class="quantity">
+                        <div v-if="vmorder.cart.IsEditable">
+                            <div v-if="item.AllowedQuantities[0]">
+                                <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)">
+                                    <option v-for="qty in item.AllowedQuantities" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
+                                </select>
+                            </div>
+                            <div v-else>
+                                <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" v-model="item.Quantity" min="1" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center"/>
+                            </div>
+                        </div>
+                        <div v-else>
+                            <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" class="qty-input form-control text-center" readonly/>
+                        </div>
+                    </td>
+                    <td class="subtotal">
+                        <div v-if="item.Discount" class="d-flex flex-column">
+                            <p class="mb-0 prod-total">{{item.SubTotal}}</p>
+                            <div class="discount text-success text-center">
+                                <span>@Loc["ShoppingCart.ItemYouSave"]: </span>
+                                <span>{{item.Discount}}</span>
+                                <span v-if="item.DiscountedQty > 0" class="font-weight-light font-italic">@Loc["ShoppingCart.DiscountedQty"]: </span>
+                                <span v-if="item.DiscountedQty > 0" class="font-weight-light font-italic">{{item.DiscountedQty}}</span>
+                            </div>
+                        </div>
+                        <div v-else>
+                            <p class="mb-0 prod-total">{{item.SubTotal}}</p>
+                        </div>
+                    </td>
+                    <td v-if="vmorder.cart.IsEditable" class="remove-from-cart text-center">
+                        <b-button variant="link" class="deleteshoppingcartitem" @@click="vmorder.deleteitem('@Url.RouteUrl("DeleteCartItem")/'+ item.Id +'?shoppingcartpage=True')">
+                            <b-icon icon="trash" variant="danger"></b-icon>
+                        </b-button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_cart_footer" })
 
-                        <div class="common-buttons btn-group btn-group-sm mb-3">
-                            <a onclick="location.href='@(Url.RouteUrl("ClearCart"))'" class="btn btn-danger removeAll-cart-button"><span>@Loc["shoppingcart.clearcart"]</span></a>
-                            <a onclick="location.href=('@(Url.RouteUrl("ContinueShopping"))')" class="btn btn-outline-secondary continue-shopping-button">@Loc["shoppingcart.continueshopping"]</a>
-                        </div>
+    <div class="common-buttons btn-group btn-group-sm mb-3">
+        <a onclick="location.href='@(Url.RouteUrl("ClearCart"))'" class="btn btn-danger removeAll-cart-button">
+            <span>@Loc["shoppingcart.clearcart"]</span>
+        </a>
+        <a onclick="location.href=('@(Url.RouteUrl("ContinueShopping"))')" class="btn btn-outline-secondary continue-shopping-button">@Loc["shoppingcart.continueshopping"]</a>
+    </div>
 
-                        <div class="cart-options">
-                            <div class="row">
-                                <div v-if="vmorder.cart.IsEditable" class="col-12 col-md-6 checkoutAttributes">
-                                    <partial name="Partials/CheckoutAttributes" />
-                                </div>
-                                <div class="selected-checkout-attributes col-sm-3 col-md-6 col-12 ml-auto justify-content-end text-right mt-3">
-                                    <div v-html="vmorder.cart.CheckoutAttributeInfo"></div>
-                                </div>
-                            </div>
-                            @await Component.InvokeAsync("EstimateShipping")
-                        </div>
-                        <div>
-                            @await Component.InvokeAsync("CrossSellProducts")
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-12 totals">
-                        <div class="totals-inner">
-                            <partial name="Partials/OrderTotals" />
-                            <div class="cart-collaterals">
-                                <div class="deals">
-                                    @if (Model.GiftVoucherBox.Display)
-                                    {
-                                        <partial name="Partials/GiftVoucherBox" />
-                                    }
-                                    @if (Model.DiscountBox.Display)
-                                    {
-                                        <partial name="Partials/DiscountBox" />
-                                    }
-                                    @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_deals" })
-                                </div>
-                            </div>
-                            <div v-if="vmorder.cart.IsEditable && vmorder.cart.MinOrderSubtotalWarning != null" class="alert alert-danger">
-                                {{vmorder.cart.MinOrderSubtotalWarning}}
-                            </div>
-                            <template v-if="vmorder.cart.IsEditable && vmorder.cart.MinOrderSubtotalWarning == null">
-                                <template v-if-else="vmorder.cart.MinOrderSubtotalWarning !== null">
-                                    <template v-if="vmorder.cart.TermsOfServiceOnShoppingCartPage">
-                                        <div class="w-100">
-                                            <b-form-checkbox id="TermsOfService"
-                                                             v-model="vmorder.terms"
-                                                             name="TermsOfService">
-                                                @Loc["Checkout.TermsOfService.IAccept"]
-                                                @if (!Model.TermsOfServicePopup)
-                                                {
-                                                    <a href="@Url.RouteUrl("Page", new { SeName = "conditionsofuse" })" target="_blank">
-                                                        @Loc["Checkout.TermsOfService.Read"]
-                                                    </a>
-                                                }
-                                                else
-                                                {
-                                                    <span class="read"
-                                                          onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "conditionsofuse" })', 450, 500, true)">
-                                                        @Loc["Checkout.TermsOfService.Read"]
-                                                    </span>
-                                                }
-                                            </b-form-checkbox>
-                                            <div class="alert alert-info my-2" v-show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
-                                        </div>
-                                        <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
-                                            <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="vmorder.termsCheck(true)" variant="secondary" class="checkout-as-guest-button mx-sm-1 mx-0">
-                                                @Loc["Account.Login.CheckoutAsGuest"]
-                                            </b-button>
-                                            <b-button id="checkout" name="checkout" @@click="vmorder.termsCheck(false)" variant="info" class="checkout-button mt-sm-0 mt-1">
-                                                <span v-if="vmorder.cart.IsGuest">
-                                                    @Loc["Checkout.Button.Login"]
-                                                </span>
-                                                <span v-else>
-                                                    @Loc["Checkout.Button"]
-                                                </span>
-                                            </b-button>
-                                        </div>
-                                    </template>
-                                    <template v-else>
-                                        <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
-                                            <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="location.href='@Url.RouteUrl("Checkout")'" variant="secondary" class="checkout-as-guest-button mx-sm-1 mx-0">
-                                                @Loc["Account.Login.CheckoutAsGuest"]
-                                            </b-button>
-                                            <b-button id="checkout" name="checkout" @@click="vmorder.checkout(false)" variant="info" class="checkout-button mt-sm-0 mt-1">
-                                                <span v-if="vmorder.cart.IsGuest">
-                                                    @Loc["Checkout.Button.Login"]
-                                                </span>
-                                                <span v-else>
-                                                    @Loc["Checkout.Button"]
-                                                </span>
-                                            </b-button>
-                                        </div>
-                                    </template>
-                                </template>
-                            </template>
-                            <div class="addon-buttons">
-                                <div v-for="pm in vmorder.cart.ButtonPaymentMethodViewComponentNames">
-                                    <div v-html="pm"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="cart-options">
+        <div class="row">
+            <div v-if="vmorder.cart.IsEditable" class="col-12 col-md-6 checkoutAttributes">
+                <partial name="Partials/CheckoutAttributes"/>
             </div>
-        </form>
+            <div class="selected-checkout-attributes col-sm-3 col-md-6 col-12 ml-auto justify-content-end text-right mt-3">
+                <div v-html="vmorder.cart.CheckoutAttributeInfo"></div>
+            </div>
+        </div>
+        @await Component.InvokeAsync("EstimateShipping")
     </div>
-    <div v-else class="no-data alert alert-info text-center">
-        @Loc["ShoppingCart.CartIsEmpty"]
+    <div>
+        @await Component.InvokeAsync("CrossSellProducts")
     </div>
-    @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_after" })
+</div>
+<div class="col-lg-4 col-12 totals">
+    <div class="totals-inner">
+        <partial name="Partials/OrderTotals"/>
+        <div class="cart-collaterals">
+            <div class="deals">
+                @if (Model.GiftVoucherBox.Display)
+                {
+                    <partial name="Partials/GiftVoucherBox"/>
+                }
+                @if (Model.DiscountBox.Display)
+                {
+                    <partial name="Partials/DiscountBox"/>
+                }
+                @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_deals" })
+            </div>
+        </div>
+        <div v-if="vmorder.cart.IsEditable && vmorder.cart.MinOrderSubtotalWarning != null" class="alert alert-danger">
+            {{vmorder.cart.MinOrderSubtotalWarning}}
+        </div>
+        <template v-if="vmorder.cart.IsEditable && vmorder.cart.MinOrderSubtotalWarning == null">
+            <template v-if-else="vmorder.cart.MinOrderSubtotalWarning !== null">
+                <template v-if="vmorder.cart.TermsOfServiceOnShoppingCartPage">
+                    <div class="w-100">
+                        <b-form-checkbox id="TermsOfService"
+                                         v-model="vmorder.terms"
+                                         name="TermsOfService">
+                            @Loc["Checkout.TermsOfService.IAccept"]
+                            @if (!Model.TermsOfServicePopup)
+                            {
+                                <a href="@Url.RouteUrl("Page", new { SeName = "conditionsofuse" })" target="_blank">
+                                    @Loc["Checkout.TermsOfService.Read"]
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="read"
+                                      onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "conditionsofuse" })', 450, 500, true)">
+                                    @Loc["Checkout.TermsOfService.Read"]
+                                </span>
+                            }
+                        </b-form-checkbox>
+                        <div class="alert alert-info my-2" v-show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
+                    </div>
+                    <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
+                        <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="vmorder.termsCheck(true)" variant="secondary" class="checkout-as-guest-button mx-sm-1 mx-0">
+                            @Loc["Account.Login.CheckoutAsGuest"]
+                        </b-button>
+                        <b-button id="checkout" name="checkout" @@click="vmorder.termsCheck(false)" variant="info" class="checkout-button mt-sm-0 mt-1">
+                            <span v-if="vmorder.cart.IsGuest">
+                                @Loc["Checkout.Button.Login"]
+                            </span>
+                            <span v-else>
+                                @Loc["Checkout.Button"]
+                            </span>
+                        </b-button>
+                    </div>
+                </template>
+                <template v-else>
+                    <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
+                        <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="location.href='@Url.RouteUrl("Checkout")'" variant="secondary" class="checkout-as-guest-button mx-sm-1 mx-0">
+                            @Loc["Account.Login.CheckoutAsGuest"]
+                        </b-button>
+                        <b-button id="checkout" name="checkout" @@click="vmorder.checkout(false)" variant="info" class="checkout-button mt-sm-0 mt-1">
+                            <span v-if="vmorder.cart.IsGuest">
+                                @Loc["Checkout.Button.Login"]
+                            </span>
+                            <span v-else>
+                                @Loc["Checkout.Button"]
+                            </span>
+                        </b-button>
+                    </div>
+                </template>
+            </template>
+        </template>
+        <div class="addon-buttons">
+            <div v-for="pm in vmorder.cart.ButtonPaymentMethodViewComponentNames">
+                <div v-html="pm"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</form>
+</div>
+<div v-else class="no-data alert alert-info text-center">
+    @Loc["ShoppingCart.CartIsEmpty"]
+</div>
+@await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_after" })
 </div>
 
-<partial name="Partials/ModelScript" model="Model" />
+<partial name="Partials/ModelScript" model="Model"/>

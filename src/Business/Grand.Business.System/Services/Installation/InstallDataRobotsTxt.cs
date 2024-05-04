@@ -1,19 +1,19 @@
 ﻿using Grand.Domain.Common;
 using Grand.Domain.Stores;
 
-namespace Grand.Business.System.Services.Installation
-{
-    public partial class InstallationService
-    {
-        protected virtual async Task InstallDataRobotsTxt(
-            Store store)
-        {
-            var url = store.SslEnabled ? store.SecureUrl : store.Url;
+namespace Grand.Business.System.Services.Installation;
 
-            var robotsTxt = new RobotsTxt {
-                Name = "RobotsTXT",
-                StoreId = store.Id,
-                Text = @$"User-agent: *
+public partial class InstallationService
+{
+    protected virtual async Task InstallDataRobotsTxt(
+        Store store)
+    {
+        var url = store.SslEnabled ? store.SecureUrl : store.Url;
+
+        var robotsTxt = new RobotsTxt {
+            Name = "RobotsTXT",
+            StoreId = store.Id,
+            Text = @$"User-agent: *
 Sitemap: {url}sitemap.xml
 Host: {url}
 Disallow: /admin
@@ -51,9 +51,8 @@ Disallow: /uploadfileproductattribute
 Disallow: /uploadfilecheckoutattribute
 Disallow: /wishlist
 Disallow: /quickview/*"
-            };
+        };
 
-            await _robotsTxtRepository.InsertAsync(robotsTxt);
-        }
+        await _robotsTxtRepository.InsertAsync(robotsTxt);
     }
 }

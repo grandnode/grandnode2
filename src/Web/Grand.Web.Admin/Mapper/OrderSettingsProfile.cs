@@ -3,20 +3,19 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Settings;
 
-namespace Grand.Web.Admin.Mapper
+namespace Grand.Web.Admin.Mapper;
+
+public class OrderSettingsProfile : Profile, IAutoMapperProfile
 {
-    public class OrderSettingsProfile : Profile, IAutoMapperProfile
+    public OrderSettingsProfile()
     {
-        public OrderSettingsProfile()
-        {
-            CreateMap<OrderSettings, SalesSettingsModel.OrderSettingsModel>()
-                .ForMember(dest => dest.GiftVouchers_Activated_OrderStatuses, mo => mo.Ignore())
-                .ForMember(dest => dest.PrimaryStoreCurrencyCode, mo => mo.Ignore())
-                .ForMember(dest => dest.UserFields, mo => mo.Ignore());
+        CreateMap<OrderSettings, SalesSettingsModel.OrderSettingsModel>()
+            .ForMember(dest => dest.GiftVouchers_Activated_OrderStatuses, mo => mo.Ignore())
+            .ForMember(dest => dest.PrimaryStoreCurrencyCode, mo => mo.Ignore())
+            .ForMember(dest => dest.UserFields, mo => mo.Ignore());
 
-            CreateMap<SalesSettingsModel.OrderSettingsModel, OrderSettings>();
-        }
-
-        public int Order => 0;
+        CreateMap<SalesSettingsModel.OrderSettingsModel, OrderSettings>();
     }
+
+    public int Order => 0;
 }

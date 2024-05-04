@@ -25,7 +25,9 @@
     {
         <div class="product-brand generalMarginSupporter">
             <span class="label">@Loc["Products.Brand"]:</span>
-            <span class="value"><a href="@Url.RouteUrl("Brand", new { Model.BrandModel.SeName })">@Model.BrandModel.Name</a></span>
+            <span class="value">
+                <a href="@Url.RouteUrl("Brand", new { Model.BrandModel.SeName })">@Model.BrandModel.Name</a>
+            </span>
         </div>
     }
 
@@ -33,7 +35,9 @@
     {
         <div class="product-vendor generalMarginSupporter">
             <span class="label">@Loc["Products.Vendor"]:</span>
-            <span class="value"><a href="@Url.RouteUrl("Vendor", new { Model.VendorModel.SeName })">@Model.VendorModel.Name</a></span>
+            <span class="value">
+                <a href="@Url.RouteUrl("Vendor", new { Model.VendorModel.SeName })">@Model.VendorModel.Name</a>
+            </span>
         </div>
     }
 </div>

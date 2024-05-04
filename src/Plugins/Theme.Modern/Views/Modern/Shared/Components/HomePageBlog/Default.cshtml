@@ -3,7 +3,9 @@
     <div id="HomePageBlog" class="home-page-section">
         <div class="section">
             <div class="col-12">
-                <h2 class="generalTitle text-center"><span>@Loc["Blog.Latest"]</span></h2>
+                <h2 class="generalTitle text-center">
+                    <span>@Loc["Blog.Latest"]</span>
+                </h2>
                 <div class="col-12 px-0">
                     <div class="row">
                         <template :key="Item.Id" v-for="Item in homePBlog.Model.Items">

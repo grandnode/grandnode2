@@ -1,7 +1,6 @@
-﻿namespace Grand.Infrastructure.Caching.Message
+﻿namespace Grand.Infrastructure.Caching.Message;
+
+public interface IMessageBus : IMessagePublisher, IMessageSubscriber
 {
-    public interface IMessageBus : IMessagePublisher, IMessageSubscriber
-    {
-        void OnSubscriptionChanged(IMessageEvent message);
-    }
+    void OnSubscriptionChanged(IMessageEvent message);
 }

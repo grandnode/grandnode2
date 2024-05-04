@@ -1,20 +1,19 @@
 ﻿using AutoMapper;
-using Grand.Infrastructure.Mapper;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Customers;
 
-namespace Grand.Web.Admin.Mapper
+namespace Grand.Web.Admin.Mapper;
+
+public class SalesEmployeeProfile : Profile, IAutoMapperProfile
 {
-    public class SalesEmployeeProfile : Profile, IAutoMapperProfile
+    public SalesEmployeeProfile()
     {
-        public SalesEmployeeProfile()
-        {
-            CreateMap<SalesEmployee, SalesEmployeeModel>();
+        CreateMap<SalesEmployee, SalesEmployeeModel>();
 
-            CreateMap<SalesEmployeeModel, SalesEmployee>()
-                .ForMember(dest => dest.Id, mo => mo.Ignore());
-        }
-
-        public int Order => 0;
+        CreateMap<SalesEmployeeModel, SalesEmployee>()
+            .ForMember(dest => dest.Id, mo => mo.Ignore());
     }
+
+    public int Order => 0;
 }

@@ -1,25 +1,23 @@
-﻿using Grand.Infrastructure.Events;
-using Grand.Domain;
+﻿using Grand.Domain;
+using Grand.Infrastructure.Events;
 using MediatR;
 
-namespace Grand.Infrastructure.Extensions
+namespace Grand.Infrastructure.Extensions;
+
+public static class EventPublisherExtensions
 {
-    public static class EventPublisherExtensions
+    public static async Task EntityInserted<T>(this IMediator eventPublisher, T entity) where T : ParentEntity
     {
-        public static async Task EntityInserted<T>(this IMediator eventPublisher, T entity) where T : ParentEntity
-        {
-            await eventPublisher.Publish(new EntityInserted<T>(entity));
-        }
+        await eventPublisher.Publish(new EntityInserted<T>(entity));
+    }
 
-        public static async Task EntityUpdated<T>(this IMediator eventPublisher, T entity) where T : ParentEntity
-        {
-            await eventPublisher.Publish(new EntityUpdated<T>(entity));
-        }
+    public static async Task EntityUpdated<T>(this IMediator eventPublisher, T entity) where T : ParentEntity
+    {
+        await eventPublisher.Publish(new EntityUpdated<T>(entity));
+    }
 
-        public static async Task EntityDeleted<T>(this IMediator eventPublisher, T entity) where T : ParentEntity
-        {
-            await eventPublisher.Publish(new EntityDeleted<T>(entity));
-        }
-
+    public static async Task EntityDeleted<T>(this IMediator eventPublisher, T entity) where T : ParentEntity
+    {
+        await eventPublisher.Publish(new EntityDeleted<T>(entity));
     }
 }

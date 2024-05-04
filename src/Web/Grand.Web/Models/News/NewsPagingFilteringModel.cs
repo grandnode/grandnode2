@@ -1,8 +1,7 @@
 ﻿using Grand.Web.Common.Page.Paging;
 
-namespace Grand.Web.Models.News
+namespace Grand.Web.Models.News;
+
+public class NewsPagingFilteringModel : BasePageableModel
 {
-    public class NewsPagingFilteringModel : BasePageableModel
-    {
-    }
 }

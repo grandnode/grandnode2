@@ -1,9 +1,8 @@
 ﻿using MediatR;
 
-namespace Grand.Api.Queries.Models.Common
+namespace Grand.Api.Queries.Models.Common;
+
+public class GetQuery<T> : IRequest<IQueryable<T>> where T : class
 {
-    public class GetQuery<T> : IRequest<IQueryable<T>> where T : class
-    {
-        public string Id { get; set; }
-    }
+    public string Id { get; set; }
 }

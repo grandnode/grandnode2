@@ -1,20 +1,20 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Admin.Models.Settings
+namespace Grand.Web.Admin.Models.Settings;
+
+public class SettingModel : BaseEntityModel
 {
-    public class SettingModel : BaseEntityModel
-    {
-        [GrandResourceDisplayName("Admin.Settings.AllSettings.Fields.Name")]
+    [GrandResourceDisplayName("Admin.Settings.AllSettings.Fields.Name")]
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Settings.AllSettings.Fields.Value")]
+    [GrandResourceDisplayName("Admin.Settings.AllSettings.Fields.Value")]
 
-        public string Value { get; set; }
+    public string Value { get; set; }
 
-        [GrandResourceDisplayName("Admin.Settings.AllSettings.Fields.StoreName")]
-        public string Store { get; set; }
-        public string StoreId { get; set; }
-    }
+    [GrandResourceDisplayName("Admin.Settings.AllSettings.Fields.StoreName")]
+    public string Store { get; set; }
+
+    public string StoreId { get; set; }
 }

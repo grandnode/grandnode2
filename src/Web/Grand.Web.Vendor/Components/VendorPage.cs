@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Components;
 
-public class VendorPageViewComponent: BaseVendorViewComponent
+public class VendorPageViewComponent : BaseVendorViewComponent
 {
     #region Fields
 
@@ -33,5 +33,4 @@ public class VendorPageViewComponent: BaseVendorViewComponent
     }
 
     #endregion
-
 }

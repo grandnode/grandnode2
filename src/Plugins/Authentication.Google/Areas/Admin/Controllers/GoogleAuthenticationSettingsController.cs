@@ -8,78 +8,75 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
-namespace Authentication.Google.Areas.Admin.Controllers
+namespace Authentication.Google.Areas.Admin.Controllers;
+
+[PermissionAuthorize(PermissionSystemName.ExternalAuthenticationMethods)]
+public class GoogleAuthenticationSettingsController : BaseAdminPluginController
 {
-    [PermissionAuthorize(PermissionSystemName.ExternalAuthenticationMethods)]
-    public class GoogleAuthenticationSettingsController : BaseAdminPluginController
+    #region Ctor
+
+    public GoogleAuthenticationSettingsController(
+        GoogleExternalAuthSettings googleExternalAuthSettings,
+        ITranslationService translationService,
+        IPermissionService permissionService,
+        ISettingService settingService,
+        IConfiguration configuration)
     {
-        #region Fields
+        _googleExternalAuthSettings = googleExternalAuthSettings;
+        _translationService = translationService;
+        _permissionService = permissionService;
+        _settingService = settingService;
+        _configuration = configuration;
+    }
 
-        private readonly GoogleExternalAuthSettings _googleExternalAuthSettings;
-        private readonly ITranslationService _translationService;
-        private readonly IPermissionService _permissionService;
-        private readonly ISettingService _settingService;
-        private readonly IConfiguration _configuration;
+    #endregion
 
-        #endregion
+    #region Fields
 
-        #region Ctor
+    private readonly GoogleExternalAuthSettings _googleExternalAuthSettings;
+    private readonly ITranslationService _translationService;
+    private readonly IPermissionService _permissionService;
+    private readonly ISettingService _settingService;
+    private readonly IConfiguration _configuration;
 
-        public GoogleAuthenticationSettingsController(
-            GoogleExternalAuthSettings googleExternalAuthSettings,
-            ITranslationService translationService,
-            IPermissionService permissionService,
-            ISettingService settingService,
-            IConfiguration configuration)
-        {
-            _googleExternalAuthSettings = googleExternalAuthSettings;
-            _translationService = translationService;
-            _permissionService = permissionService;
-            _settingService = settingService;
-            _configuration = configuration;
-        }
+    #endregion
 
-        #endregion
+    #region Methods
 
-        #region Methods
+    public async Task<IActionResult> Configure()
+    {
+        if (!await _permissionService.Authorize(StandardPermission.ManageExternalAuthenticationMethods))
+            return AccessDeniedView();
 
+        var model = new ConfigurationModel {
+            ClientKeyIdentifier = _configuration["GoogleSettings:ClientId"],
+            ClientSecret = _configuration["GoogleSettings:ClientSecret"],
+            DisplayOrder = _googleExternalAuthSettings.DisplayOrder
+        };
 
-        public async Task<IActionResult> Configure()
-        {
-            if (!await _permissionService.Authorize(StandardPermission.ManageExternalAuthenticationMethods))
-                return AccessDeniedView();
+        return View(model);
+    }
 
-            var model = new ConfigurationModel {
-                ClientKeyIdentifier = _configuration["GoogleSettings:ClientId"],
-                ClientSecret = _configuration["GoogleSettings:ClientSecret"],
-                DisplayOrder = _googleExternalAuthSettings.DisplayOrder
-            };
+    [HttpPost]
+    public async Task<IActionResult> Configure(ConfigurationModel model)
+    {
+        if (!await _permissionService.Authorize(StandardPermission.ManageExternalAuthenticationMethods))
+            return AccessDeniedView();
 
-            return View(model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Configure(ConfigurationModel model)
-        {
-            if (!await _permissionService.Authorize(StandardPermission.ManageExternalAuthenticationMethods))
-                return AccessDeniedView();
-
-            if (!ModelState.IsValid)
-                return await Configure();
-
-            _googleExternalAuthSettings.DisplayOrder = model.DisplayOrder;
-
-            await _settingService.SaveSetting(_googleExternalAuthSettings);
-
-            //now clear settings cache
-            await _settingService.ClearCache();
-
-            Success(_translationService.GetResource("Admin.Plugins.Saved"));
-
+        if (!ModelState.IsValid)
             return await Configure();
 
-        }
+        _googleExternalAuthSettings.DisplayOrder = model.DisplayOrder;
 
-        #endregion
+        await _settingService.SaveSetting(_googleExternalAuthSettings);
+
+        //now clear settings cache
+        await _settingService.ClearCache();
+
+        Success(_translationService.GetResource("Admin.Plugins.Saved"));
+
+        return await Configure();
     }
+
+    #endregion
 }

@@ -2,147 +2,143 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace Grand.Data.Mongo
+namespace Grand.Data.Mongo;
+
+public class MongoDBContext : IDatabaseContext
 {
-    public class MongoDBContext : IDatabaseContext
+    private string _connectionString;
+    protected IMongoDatabase _database;
+
+    public MongoDBContext()
     {
-        private string _connectionString;
-        protected IMongoDatabase _database;
+        var connection = DataSettingsManager.LoadSettings();
+        if (!string.IsNullOrEmpty(connection.ConnectionString))
+            PrepareMongoDatabase(connection.ConnectionString);
+    }
 
-        public MongoDBContext()
+
+    public MongoDBContext(IMongoDatabase mongodatabase)
+    {
+        _database = mongodatabase;
+    }
+
+    public void SetConnection(string connectionString)
+    {
+        if (string.IsNullOrEmpty(connectionString))
+            throw new ArgumentNullException(nameof(connectionString));
+
+        PrepareMongoDatabase(connectionString);
+    }
+
+    public bool InstallProcessCreateTable => true;
+    public bool InstallProcessCreateIndex => true;
+
+    public IQueryable<T> Table<T>(string collectionName)
+    {
+        if (string.IsNullOrEmpty(collectionName))
+            throw new ArgumentNullException(nameof(collectionName));
+
+        return _database.GetCollection<T>(collectionName).AsQueryable();
+    }
+
+    public async Task<bool> DatabaseExist()
+    {
+        if (string.IsNullOrEmpty(_connectionString))
+            throw new ArgumentNullException(nameof(_connectionString));
+
+        var client = new MongoClient(_connectionString);
+        var databaseName = new MongoUrl(_connectionString).DatabaseName;
+        var database = client.GetDatabase(databaseName);
+        await database.RunCommandAsync((Command<BsonDocument>)"{ping:1}");
+
+        var filter = new BsonDocument("name", "GrandNodeVersion");
+        var found = database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter }).Result;
+        return await found.AnyAsync();
+    }
+
+    public async Task CreateTable(string name, string collation)
+    {
+        if (string.IsNullOrEmpty(name))
+            throw new ArgumentNullException(nameof(name));
+
+        if (!string.IsNullOrEmpty(collation))
         {
-            var connection = DataSettingsManager.LoadSettings();
-            if (!string.IsNullOrEmpty(connection.ConnectionString))
-                PrepareMongoDatabase(connection.ConnectionString);
+            var options = new CreateCollectionOptions {
+                Collation = new Collation(collation)
+            };
+            await _database.CreateCollectionAsync(name, options);
         }
-       
-        private void PrepareMongoDatabase(string connectionString)
+        else
         {
-            _connectionString = connectionString;
-            var mongourl = new MongoUrl(connectionString);
-            var databaseName = mongourl.DatabaseName;
-            _database = new MongoClient(connectionString).GetDatabase(databaseName);
+            await _database.CreateCollectionAsync(name);
         }
+    }
 
-        
-        public MongoDBContext(IMongoDatabase mongodatabase)
-        {
-            _database = mongodatabase;
-        }
+    public async Task DeleteTable(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            throw new ArgumentNullException(nameof(name));
 
-        public IMongoDatabase Database()
-        {
-            return _database;
-        }
+        await _database.DropCollectionAsync(name);
+    }
 
-        public void SetConnection(string connectionString)
-        {
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException(nameof(connectionString));
+    public async Task CreateIndex<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName,
+        bool unique = false) where T : BaseEntity
+    {
+        if (string.IsNullOrEmpty(indexName))
+            throw new ArgumentNullException(nameof(indexName));
 
-            PrepareMongoDatabase(connectionString);
-        }
-
-        public bool InstallProcessCreateTable => true;
-        public bool InstallProcessCreateIndex => true;
-
-        public IQueryable<T> Table<T>(string collectionName)
-        {
-            if (string.IsNullOrEmpty(collectionName))
-                throw new ArgumentNullException(nameof(collectionName));
-
-            return _database.GetCollection<T>(collectionName).AsQueryable();
-        }
-
-        protected IMongoDatabase TryReadMongoDatabase()
-        {
-            _connectionString = DataSettingsManager.LoadSettings().ConnectionString;
-
-            var mongourl = new MongoUrl(_connectionString);
-            var databaseName = mongourl.DatabaseName;
-            var mongodb = new MongoClient(_connectionString).GetDatabase(databaseName);
-            return mongodb;
-        }
-
-        public async Task<bool> DatabaseExist()
-        {
-            if (string.IsNullOrEmpty(_connectionString))
-                throw new ArgumentNullException(nameof(_connectionString));
-
-            var client = new MongoClient(_connectionString);
-            var databaseName = new MongoUrl(_connectionString).DatabaseName;
-            var database = client.GetDatabase(databaseName);
-            await database.RunCommandAsync((Command<BsonDocument>)"{ping:1}");
-
-            var filter = new BsonDocument("name", "GrandNodeVersion");
-            var found = database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter }).Result;
-            return await found.AnyAsync();
-        }
-
-        public async Task CreateTable(string name, string collation)
-        {
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException(nameof(name));
-
-            if (!string.IsNullOrEmpty(collation))
-            {
-                var options = new CreateCollectionOptions {
-                    Collation = new Collation(collation)
-                };
-                await _database.CreateCollectionAsync(name, options);
-            }
+        IList<IndexKeysDefinition<T>> keys = new List<IndexKeysDefinition<T>>();
+        foreach (var item in orderBuilder.Fields)
+            if (item.selector != null)
+                keys.Add(item.value
+                    ? Builders<T>.IndexKeys.Ascending(item.selector)
+                    : Builders<T>.IndexKeys.Descending(item.selector));
             else
-                await _database.CreateCollectionAsync(name);
+                keys.Add(item.value
+                    ? Builders<T>.IndexKeys.Ascending(item.fieldName)
+                    : Builders<T>.IndexKeys.Descending(item.fieldName));
 
-        }
-
-        public async Task DeleteTable(string name)
+        try
         {
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException(nameof(name));
-
-            await _database.DropCollectionAsync(name);
+            await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(
+                Builders<T>.IndexKeys.Combine(keys),
+                new CreateIndexOptions { Name = indexName, Unique = unique }));
         }
+        catch { }
+    }
 
-        public async Task CreateIndex<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName, bool unique = false) where T : BaseEntity
+    public async Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity
+    {
+        if (string.IsNullOrEmpty(indexName))
+            throw new ArgumentNullException(nameof(indexName));
+        try
         {
-            if (string.IsNullOrEmpty(indexName))
-                throw new ArgumentNullException(nameof(indexName));
-
-            IList<IndexKeysDefinition<T>> keys = new List<IndexKeysDefinition<T>>();
-            foreach (var item in orderBuilder.Fields)
-            {
-                if (item.selector != null)
-                {
-                    keys.Add(item.value
-                        ? Builders<T>.IndexKeys.Ascending(item.selector)
-                        : Builders<T>.IndexKeys.Descending(item.selector));
-                }
-                else
-                {
-                    keys.Add(item.value
-                        ? Builders<T>.IndexKeys.Ascending(item.fieldName)
-                        : Builders<T>.IndexKeys.Descending(item.fieldName));
-                }
-            }
-
-            try
-            {
-                await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(Builders<T>.IndexKeys.Combine(keys),
-                    new CreateIndexOptions { Name = indexName, Unique = unique }));
-            }
-            catch { }
+            await ((MongoRepository<T>)repository).Collection.Indexes.DropOneAsync(indexName);
         }
+        catch { }
+    }
 
-        public async Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity
-        {
-            if (string.IsNullOrEmpty(indexName))
-                throw new ArgumentNullException(nameof(indexName));
-            try
-            {
-                await ((MongoRepository<T>)repository).Collection.Indexes.DropOneAsync(indexName);
-            }
-            catch { }
-        }
+    private void PrepareMongoDatabase(string connectionString)
+    {
+        _connectionString = connectionString;
+        var mongourl = new MongoUrl(connectionString);
+        var databaseName = mongourl.DatabaseName;
+        _database = new MongoClient(connectionString).GetDatabase(databaseName);
+    }
+
+    public IMongoDatabase Database()
+    {
+        return _database;
+    }
+
+    protected IMongoDatabase TryReadMongoDatabase()
+    {
+        _connectionString = DataSettingsManager.LoadSettings().ConnectionString;
+
+        var mongourl = new MongoUrl(_connectionString);
+        var databaseName = mongourl.DatabaseName;
+        var mongodb = new MongoClient(_connectionString).GetDatabase(databaseName);
+        return mongodb;
     }
 }

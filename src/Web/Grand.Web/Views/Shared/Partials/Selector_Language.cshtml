@@ -3,14 +3,14 @@
 @inject IWorkContext workContext
 @{
     var availableLanguages = (await languageService.GetAllLanguages(storeId: workContext.CurrentStore.Id))
-                     .Select(x => new LanguageModel
-                     {
-                         Id = x.Id,
-                         Name = x.Name,
-                         Rtl = x.Rtl,
-                         LanguageCulture = x.LanguageCulture,
-                         UniqueSeoCode = x.UniqueSeoCode
-                     }).ToList();
+        .Select(x => new LanguageModel
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Rtl = x.Rtl,
+            LanguageCulture = x.LanguageCulture,
+            UniqueSeoCode = x.UniqueSeoCode
+        }).ToList();
 
     var returnurl = Context?.Request?.GetEncodedPathAndQuery();
     if (availableLanguages.Count > 1)

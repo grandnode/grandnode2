@@ -11,5 +11,4 @@ public interface IMenuViewModelService
     Task<AdminSiteMap> InsertMenuModel(MenuModel model, string parentId);
     Task<AdminSiteMap> UpdateMenuModel(MenuModel model);
     Task DeleteMenu(string id);
-
 }

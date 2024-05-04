@@ -4,21 +4,20 @@ using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Shipping;
 using Grand.Web.Common.Extensions;
 
-namespace Grand.Web.Admin.Mapper
+namespace Grand.Web.Admin.Mapper;
+
+public class ShippingMethodProfile : Profile, IAutoMapperProfile
 {
-    public class ShippingMethodProfile : Profile, IAutoMapperProfile
+    public ShippingMethodProfile()
     {
-        public ShippingMethodProfile()
-        {
-            CreateMap<ShippingMethod, ShippingMethodModel>()
-                .ForMember(dest => dest.Locales, mo => mo.Ignore());
+        CreateMap<ShippingMethod, ShippingMethodModel>()
+            .ForMember(dest => dest.Locales, mo => mo.Ignore());
 
-            CreateMap<ShippingMethodModel, ShippingMethod>()
-                .ForMember(dest => dest.Id, mo => mo.Ignore())
-                .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()))
-                .ForMember(dest => dest.RestrictedCountries, mo => mo.Ignore());
-        }
-
-        public int Order => 0;
+        CreateMap<ShippingMethodModel, ShippingMethod>()
+            .ForMember(dest => dest.Id, mo => mo.Ignore())
+            .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()))
+            .ForMember(dest => dest.RestrictedCountries, mo => mo.Ignore());
     }
+
+    public int Order => 0;
 }

@@ -2,18 +2,17 @@
 @{
     if (!string.IsNullOrEmpty(Model.Id))
     {
-
-<div class="panel panel-default">
-    <vc:admin-widget widget-zone="discount_details_applied_to_collections_top" additional-data="Model" />
-    <div class="panel-body">
-        <div id="collections-grid"></div>
-    </div>
-    <div class="panel-footer">
-        <a id="btnAddNewCollection" href="@(Url.Action("CollectionAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCollections", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]</a>
-        <input type="submit" id="btnRefreshCollections" style="display: none" />
-    </div>
-    <vc:admin-widget widget-zone="discount_details_applied_to_collections_bottom" additional-data="Model" />
-</div>
+        <div class="panel panel-default">
+            <vc:admin-widget widget-zone="discount_details_applied_to_collections_top" additional-data="Model"/>
+            <div class="panel-body">
+                <div id="collections-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <a id="btnAddNewCollection" href="@(Url.Action("CollectionAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCollections", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]</a>
+                <input type="submit" id="btnRefreshCollections" style="display: none"/>
+            </div>
+            <vc:admin-widget widget-zone="discount_details_applied_to_collections_bottom" additional-data="Model"/>
+        </div>
         <script>
             $(document).ready(function () {
                 $('#btnAddNewCollection').magnificPopup({

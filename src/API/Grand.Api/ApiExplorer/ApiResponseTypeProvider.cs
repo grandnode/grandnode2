@@ -14,8 +14,8 @@ namespace Grand.Api.ApiExplorer;
 
 public class ApiResponseTypeProvider
 {
-    private readonly IModelMetadataProvider _modelMetadataProvider;
     private readonly IActionResultTypeMapper _mapper;
+    private readonly IModelMetadataProvider _modelMetadataProvider;
     private readonly MvcOptions _mvcOptions;
 
     public ApiResponseTypeProvider(
@@ -47,9 +47,7 @@ public class ApiResponseTypeProvider
 
         var defaultErrorType = typeof(void);
         if (action.Properties.TryGetValue(typeof(ProducesErrorResponseTypeAttribute), out result))
-        {
             defaultErrorType = ((ProducesErrorResponseTypeAttribute)result!).Type;
-        }
 
         var apiResponseTypes = GetApiResponseTypes(responseMetadataAttributes, runtimeReturnType, defaultErrorType);
         return apiResponseTypes;
@@ -85,28 +83,22 @@ public class ApiResponseTypeProvider
 
         // Set the default status only when no status has already been set explicitly
         if (responseTypes.Count == 0 && type != null)
-        {
             responseTypes.Add(new ApiResponseType {
                 StatusCode = StatusCodes.Status200OK,
                 Type = type
             });
-        }
 
         if (contentTypes.Count == 0)
-        {
             // None of the IApiResponseMetadataProvider specified a content type. This is common for actions that
             // specify one or more ProducesResponseType but no ProducesAttribute. In this case, formatters will participate in conneg
             // and respond to the incoming request.
             // Querying IApiResponseTypeMetadataProvider.GetSupportedContentTypes with "null" should retrieve all supported
             // content types that each formatter may respond in.
             contentTypes.Add((string)null!);
-        }
 
         foreach (var apiResponse in responseTypes)
-        {
             CalculateResponseFormatForType(apiResponse, contentTypes, responseTypeMetadataProviders,
                 _modelMetadataProvider);
-        }
 
         return responseTypes;
     }
@@ -135,10 +127,7 @@ public class ApiResponseTypeProvider
             // Produces exists on both a controller and an action within the controller,
             // we favor the definition in the action. This is a semantic that does not
             // apply to ProducesResponseType, which allows multiple instances on an target.
-            if (metadataAttribute is not ProducesResponseTypeAttribute)
-            {
-                metadataAttribute.SetContentTypes(contentTypes);
-            }
+            if (metadataAttribute is not ProducesResponseTypeAttribute) metadataAttribute.SetContentTypes(contentTypes);
 
             var statusCode = metadataAttribute.StatusCode;
 
@@ -151,13 +140,11 @@ public class ApiResponseTypeProvider
             if (apiResponseType.Type == typeof(void))
             {
                 if (type != null && statusCode is StatusCodes.Status200OK or StatusCodes.Status201Created)
-                {
                     // ProducesResponseTypeAttribute's constructor defaults to setting "Type" to void when no value is specified.
                     // In this event, use the action's return type for 200 or 201 status codes. This lets you decorate an action with a
                     // [ProducesResponseType(201)] instead of [ProducesResponseType(typeof(Person), 201] when typeof(Person) can be inferred
                     // from the return type.
                     apiResponseType.Type = type;
-                }
                 /*else if (IsClientError(statusCode))
                 {
                     // Determine whether or not the type was provided by the user. If so, favor it over the default
@@ -167,10 +154,7 @@ public class ApiResponseTypeProvider
                     };
                     apiResponseType.Type = setByDefault ? defaultErrorType : apiResponseType.Type;
                 }*/
-                else if (apiResponseType.IsDefaultResponse)
-                {
-                    apiResponseType.Type = defaultErrorType;
-                }
+                else if (apiResponseType.IsDefaultResponse) apiResponseType.Type = defaultErrorType;
             }
 
             // We special case the handling of ProcuesResponseTypeAttributes since
@@ -186,12 +170,9 @@ public class ApiResponseTypeProvider
                     responseTypeMetadataProviders, modelMetadataProvider);
             }
 
-            if (apiResponseType.Type != null)
-            {
-                results[apiResponseType.StatusCode] = apiResponseType;
-            }
+            if (apiResponseType.Type != null) results[apiResponseType.StatusCode] = apiResponseType;
         }
-        
+
         return results.Values.ToList();
     }
 
@@ -204,10 +185,7 @@ public class ApiResponseTypeProvider
         // If response formats have already been calculate for this type,
         // then exit early. This avoids populating the ApiResponseFormat for
         // types that have already been handled, specifically ProducesResponseTypes.
-        if (apiResponse.ApiResponseFormats.Count > 0)
-        {
-            return;
-        }
+        if (apiResponse.ApiResponseFormats.Count > 0) return;
 
         // Given the content-types that were declared for this action, determine the formatters that support the content-type for the given
         // response type.
@@ -218,10 +196,7 @@ public class ApiResponseTypeProvider
         // dictates the content-type.
         // e.g. [Produces("application/pdf")] Action() => FileStream("somefile.pdf", "application/pdf");
         var responseType = apiResponse.Type;
-        if (responseType == null || responseType == typeof(void))
-        {
-            return;
-        }
+        if (responseType == null || responseType == typeof(void)) return;
 
         apiResponse.ModelMetadata = modelMetadataProvider?.GetMetadataForType(responseType);
 
@@ -230,38 +205,29 @@ public class ApiResponseTypeProvider
             var isSupportedContentType = false;
 
             if (responseTypeMetadataProviders != null)
-            {
                 foreach (var responseTypeMetadataProvider in responseTypeMetadataProviders)
                 {
                     var formatterSupportedContentTypes = responseTypeMetadataProvider.GetSupportedContentTypes(
                         contentType,
                         responseType);
 
-                    if (formatterSupportedContentTypes == null)
-                    {
-                        continue;
-                    }
+                    if (formatterSupportedContentTypes == null) continue;
 
                     isSupportedContentType = true;
 
                     foreach (var formatterSupportedContentType in formatterSupportedContentTypes)
-                    {
                         apiResponse.ApiResponseFormats.Add(new ApiResponseFormat {
                             Formatter = (IOutputFormatter)responseTypeMetadataProvider,
                             MediaType = formatterSupportedContentType
                         });
-                    }
                 }
-            }
 
 
             if (!isSupportedContentType)
-            {
                 // No output formatter was found that supports this content type. Add the user specified content type as-is to the result.
                 apiResponse.ApiResponseFormats.Add(new ApiResponseFormat {
                     MediaType = contentType
                 });
-            }
         }
     }
 
@@ -271,25 +237,18 @@ public class ApiResponseTypeProvider
         if (declaredReturnType == typeof(void) ||
             declaredReturnType == typeof(Task) ||
             declaredReturnType == typeof(ValueTask))
-        {
             return typeof(void);
-        }
 
         // Unwrap the type if it's a Task<T>. The Task (non-generic) case was already handled.
         var unwrappedType = declaredReturnType;
         if (declaredReturnType.IsGenericType &&
             (declaredReturnType.GetGenericTypeDefinition() == typeof(Task<>) ||
              declaredReturnType.GetGenericTypeDefinition() == typeof(ValueTask<>)))
-        {
             unwrappedType = declaredReturnType.GetGenericArguments()[0];
-        }
 
         // If the method is declared to return IActionResult or a derived class, that information
         // isn't valuable to the formatter.
-        if (typeof(IActionResult).IsAssignableFrom(unwrappedType))
-        {
-            return null;
-        }
+        if (typeof(IActionResult).IsAssignableFrom(unwrappedType)) return null;
 
         // If we get here, the type should be a user-defined data type or an envelope type
         // like ActionResult<T>. The mapper service will unwrap envelopes.
@@ -315,10 +274,8 @@ public class ApiResponseTypeProvider
             var provider = providers[i];
 
             if (provider is ProducesAttribute { Type: null })
-            {
                 // ProducesAttribute that does not specify type is considered not significant.
                 continue;
-            }
 
             // Any other IApiResponseMetadataProvider is considered significant
             return true;

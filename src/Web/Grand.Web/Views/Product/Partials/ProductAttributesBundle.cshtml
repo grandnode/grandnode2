@@ -13,28 +13,28 @@
         switch (attribute.AttributeControlType)
         {
             case AttributeControlType.DropdownList:
-                {
-                    attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}').addEventListener('change', function (){{{attributeChangeHandlerFuncName}();}});\n");
-                }
+            {
+                attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}').addEventListener('change', function (){{{attributeChangeHandlerFuncName}();}});\n");
+            }
                 break;
             case AttributeControlType.RadioList:
             case AttributeControlType.ColorSquares:
             case AttributeControlType.ImageSquares:
+            {
+                foreach (var attributeValue in attribute.Values)
                 {
-                    foreach (var attributeValue in attribute.Values)
-                    {
-                        attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(e){{{attributeChangeHandlerFuncName}();}},false);\n");
-                    }
+                    attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(e){{{attributeChangeHandlerFuncName}();}},false);\n");
                 }
+            }
                 break;
             case AttributeControlType.Checkboxes:
             case AttributeControlType.ReadonlyCheckboxes:
+            {
+                foreach (var attributeValue in attribute.Values)
                 {
-                    foreach (var attributeValue in attribute.Values)
-                    {
-                        attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(e){{{attributeChangeHandlerFuncName}();}},false);\n");
-                    }
+                    attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(e){{{attributeChangeHandlerFuncName}();}},false);\n");
                 }
+            }
                 break;
         }
     }
@@ -68,8 +68,6 @@
         });
 
     </script>
-    
-
 }
 <div id="product-attributes">
     <product-attributes-bundle-@(productId)></product-attributes-bundle-@(productId)>

@@ -4,12 +4,11 @@ using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using MediatR;
 
-namespace Grand.Business.Core.Commands.Messages.Tokens
+namespace Grand.Business.Core.Commands.Messages.Tokens;
+
+public class GetShoppingCartTokensCommand : IRequest<LiquidShoppingCart>
 {
-    public class GetShoppingCartTokensCommand : IRequest<LiquidShoppingCart>
-    {
-        public Customer Customer { get; set; }
-        public Store Store { get; set; }
-        public Language Language { get; set; }
-    }
+    public Customer Customer { get; set; }
+    public Store Store { get; set; }
+    public Language Language { get; set; }
 }

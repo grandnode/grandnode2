@@ -1,9 +1,8 @@
 ﻿using Grand.Domain.Catalog;
 
-namespace Grand.Business.Core.Utilities.System
+namespace Grand.Business.Core.Utilities.System;
+
+public class ProductsAttributeCombination : ProductAttributeCombination
 {
-    public class ProductsAttributeCombination : ProductAttributeCombination
-    {
-        public string ProductId { get; set; }
-    }
+    public string ProductId { get; set; }
 }

@@ -3,11 +3,12 @@
     Layout = Constants.LayoutVendorLogin;
     //title
     pagebuilder.AddTitleParts(Loc["Vendor.Login.TwoFactor"]);
-
 }
 <form asp-action="TwoFactorAuthorization" asp-controller="Login" asp-area="@Constants.AreaVendor" method="post">
     <div class="card col-xl-6 col-lg-8 col-md-10 col-12">
-        <h5 class="card-header"><strong>@Loc["Vendor.Login.TwoFactor.EnterCode"]</strong></h5>
+        <h5 class="card-header">
+            <strong>@Loc["Vendor.Login.TwoFactor.EnterCode"]</strong>
+        </h5>
         <div class="card-body">
             <div class="row">
                 <div asp-validation-summary="All" class="col-12 justify-content-around text-danger"></div>
@@ -17,7 +18,7 @@
                             <label name="token" class="h5 m-0">@Loc["Vendor.Login.TwoFactor.DigitCode"]</label>
                         </div>
                         <div class="col-lg-9 col-12">
-                            <input name="token" type="text" class="form-control" autofocus />
+                            <input name="token" type="text" class="form-control" autofocus/>
                         </div>
                     </div>
                 </div>
@@ -25,7 +26,7 @@
         </div>
         <div class="card-footer">
             <div class="buttons">
-                <input class="btn btn-info login-button px-5" type="submit" value="@Loc["Vendor.Login.TwoFactor.SendCode"]" />
+                <input class="btn btn-info login-button px-5" type="submit" value="@Loc["Vendor.Login.TwoFactor.SendCode"]"/>
             </div>
         </div>
     </div>

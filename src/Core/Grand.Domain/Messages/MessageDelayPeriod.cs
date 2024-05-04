@@ -1,39 +1,39 @@
-﻿namespace Grand.Domain.Messages
+﻿namespace Grand.Domain.Messages;
+
+public enum MessageDelayPeriod
 {
-    public enum MessageDelayPeriod
-    {
-        /// <summary>
-        /// Hours
-        /// </summary>
-        Hours = 0,
-        /// <summary>
-        /// Days
-        /// </summary>
-        Days = 1
-    }
+    /// <summary>
+    ///     Hours
+    /// </summary>
+    Hours = 0,
 
     /// <summary>
-    /// MessageDelayPeriod Extensions
+    ///     Days
     /// </summary>
-    public static class MessageDelayPeriodExtensions
+    Days = 1
+}
+
+/// <summary>
+///     MessageDelayPeriod Extensions
+/// </summary>
+public static class MessageDelayPeriodExtensions
+{
+    /// <summary>
+    ///     Returns message delay in hours
+    /// </summary>
+    /// <param name="period">Message delay period</param>
+    /// <param name="value">Value of delay send</param>
+    /// <returns>Value of message delay in hours</returns>
+    public static int ToHours(this MessageDelayPeriod period, int value)
     {
-        /// <summary>
-        /// Returns message delay in hours
-        /// </summary>
-        /// <param name="period">Message delay period</param>
-        /// <param name="value">Value of delay send</param>
-        /// <returns>Value of message delay in hours</returns>
-        public static int ToHours(this MessageDelayPeriod period, int value)
+        switch (period)
         {
-            switch (period)
-            {
-                case MessageDelayPeriod.Hours:
-                    return value;
-                case MessageDelayPeriod.Days:
-                    return value * 24;
-                default:
-                    throw new ArgumentOutOfRangeException("MessageDelayPeriod");
-            }
+            case MessageDelayPeriod.Hours:
+                return value;
+            case MessageDelayPeriod.Days:
+                return value * 24;
+            default:
+                throw new ArgumentOutOfRangeException("MessageDelayPeriod");
         }
     }
 }

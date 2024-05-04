@@ -24,8 +24,8 @@
                         <validation-provider tag="div" rules="required|email" name="FriendEmail" v-slot="{ errors, classes }">
                             <label asp-for="FriendEmail" class="col-form-label">@Loc["Wishlist.EmailAFriend.FriendEmail"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="FriendEmail" v-model="emailwishlist.FriendEmail" placeholder="@Loc["Wishlist.EmailAFriend.FriendEmail.Hint"]" v-bind:class="[classes , 'form-control']" 
-                                   data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Wishlist.EmailAFriend.FriendEmail.Required"] />
+                            <input asp-for="FriendEmail" v-model="emailwishlist.FriendEmail" placeholder="@Loc["Wishlist.EmailAFriend.FriendEmail.Hint"]" v-bind:class="[classes , 'form-control']"
+                                   data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Wishlist.EmailAFriend.FriendEmail.Required"]/>
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="FriendEmail"></span>
                         </validation-provider>
@@ -34,8 +34,8 @@
                         <validation-provider tag="div" rules="required|email" name="YourEmailAddress" v-slot="{ errors, classes }">
                             <label asp-for="YourEmailAddress" class="col-form-label">@Loc["Wishlist.EmailAFriend.YourEmailAddress"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="YourEmailAddress" v-model="emailwishlist.YourEmailAddress" placeholder="@Loc["Wishlist.EmailAFriend.YourEmailAddress.Hint"]" v-bind:class="[classes , 'form-control']" 
-                                   data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Wishlist.EmailAFriend.YourEmailAddress.Required"] />
+                            <input asp-for="YourEmailAddress" v-model="emailwishlist.YourEmailAddress" placeholder="@Loc["Wishlist.EmailAFriend.YourEmailAddress.Hint"]" v-bind:class="[classes , 'form-control']"
+                                   data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Wishlist.EmailAFriend.YourEmailAddress.Required"]/>
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="YourEmailAddress"></span>
                         </validation-provider>
@@ -52,7 +52,7 @@
                     @if (Model.DisplayCaptcha)
                     {
                         <div class="captcha-box pb-1">
-                            <captcha />
+                            <captcha/>
                         </div>
                     }
                 </div>

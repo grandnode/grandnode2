@@ -1,6 +1,5 @@
-﻿namespace Grand.Domain.Common
+﻿namespace Grand.Domain.Common;
+
+public class UserFieldBaseEntity : BaseEntity
 {
-    public class UserFieldBaseEntity : BaseEntity
-    {
-    }
 }

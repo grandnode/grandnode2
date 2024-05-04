@@ -6,6 +6,7 @@
             @Loc["Admin.Customers.CustomerTags.Products.SaveBeforeEdit"]
         </div>
     }
+
     if (!string.IsNullOrEmpty(Model.Id))
     {
         <div class="note note-info">
@@ -18,7 +19,7 @@
             </div>
             <div class="panel-footer">
                 <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "CustomerTag", new { customerTagId = Model.Id, btnId = "btnRefreshProducts", formId = "customertag-form", area = Constants.AreaAdmin }))    " class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.CustomerTags.Products.Fields.AddNew"]</a>
-                <input type="submit" id="btnRefreshProducts" style="display: none" />
+                <input type="submit" id="btnRefreshProducts" style="display: none"/>
             </div>
         </div>
         <script>
@@ -40,7 +41,7 @@
                         dataSource: {
                             transport: {
                                 read: {
-                                    url: "@Html.Raw(Url.Action("Products", "CustomerTag", new {customerTagId = Model.Id, area = Constants.AreaAdmin }))",
+                                    url: "@Html.Raw(Url.Action("Products", "CustomerTag", new { customerTagId = Model.Id, area = Constants.AreaAdmin }))",
                                     type: "POST",
                                     dataType: "json",
                                     data: addAntiForgeryToken

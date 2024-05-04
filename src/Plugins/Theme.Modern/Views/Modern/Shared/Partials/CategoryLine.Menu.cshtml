@@ -2,11 +2,10 @@
 
 @if (Model.Category.IncludeInMenu)
 {
-    
     var galleryCheck = Model.Category.UserFields.FirstOrDefault(x => x.Key == "gallery")?.Value;
-    
 
-    <li class="@if (galleryCheck == "true") { <text>hasGallery</text> } @(Model.Category.SubCategories.Count == 0 ? "category": "category -hasSubmenu")">
+
+    <li class="@if (galleryCheck == "true") { <text>hasGallery</text> } @(Model.Category.SubCategories.Count == 0 ? "category" : "category -hasSubmenu")">
 
         <a href="@Url.RouteUrl("Category", new { Model.Category.SeName })">
             @if (!string.IsNullOrEmpty(Model.Category.Icon))
@@ -20,7 +19,7 @@
                 if (imageCheck == "true")
                 {
                     <picture>
-                        <source media="(max-width: 991px)" sizes="1px" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 1w" />
+                        <source media="(max-width: 991px)" sizes="1px" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 1w"/>
                         <b-img-lazy class="img-fluid" src="@Model.Category.ImageUrl"></b-img-lazy>
                     </picture>
                 }
@@ -50,24 +49,55 @@
                     var opacityCheck = Model.Category.UserFields.FirstOrDefault(x => x.Key == "opacity")?.Value;
                     var menuBg = Model.Category.UserFields.FirstOrDefault(x => x.Key == "menuBg")?.Value;
 
-                    <ul class="@if (galleryCheck == "true") { <text> @gallery </text> @if (sizeCheck != "") { <text> size-@sizeCheck </text> } @if (colsCheck != "") { <text> columns-@colsCheck </text> }} @if (opacityCheck == "true") { <text>opacity</text> } ">
-                        @if (!string.IsNullOrEmpty(Model.Category.FlagStyle))
+                    <ul class="@if (galleryCheck == "true") { <text> @gallery </text> @if (sizeCheck != "")
+                    {
+                        <text> size-@sizeCheck </text>
+                    } @if (colsCheck != "")
+                    {
+                        <text> columns-@colsCheck </text>
+                    }
+                    }
+
+                    
+
+                    
+
+                    
+
+                     
+                    
+                    
+                    
+                    @if (opacityCheck == "true")
+                    {
+                        <text>opacity</text>
+                    }
+                    
+                    
+                    
+                     ">
+                    @if (!string.IsNullOrEmpty(Model.Category.FlagStyle))
+                    {
+                        <li class="menuBg" style="background-image:url('@menuBg')"></li>
+                    }
+
+                    
+
+
+                    @foreach (var subCategory in subCategories)
+                    {
+                        var categoryLineModel = new MenuModel.CategoryLineModel
                         {
-                            <li class="menuBg" style="background-image:url('@menuBg')"></li>
-                        }
-                        @foreach (var subCategory in subCategories)
-                        {
-                            var categoryLineModel = new MenuModel.CategoryLineModel
-                            {
-                                Category = subCategory,
-                                Level = Model.Level + 1,
-                                ResponsiveMobileMenu = Model.ResponsiveMobileMenu
-                            };
-                            <partial name="Partials/CategoryLine.Menu" model="categoryLineModel" />
-                        }
+                            Category = subCategory,
+                            Level = Model.Level + 1,
+                            ResponsiveMobileMenu = Model.ResponsiveMobileMenu
+                        };
+                        <partial name="Partials/CategoryLine.Menu" model="categoryLineModel"/>
+                    }
                     </ul>
                 }
             }
+
             if (Model.Level >= 1 && subCategories.Any())
             {
                 levelClass = "next-level";
@@ -80,16 +110,18 @@
                             Level = Model.Level + 1,
                             ResponsiveMobileMenu = Model.ResponsiveMobileMenu
                         };
-                        <partial name="Partials/CategoryLine.Menu" model="categoryLineModel" />
+                        <partial name="Partials/CategoryLine.Menu" model="categoryLineModel"/>
                     }
                 </ul>
             }
+
             @if (Model.Category.SubCategories.Any())
             {
                 <span class="go-back"></span>
                 <span class="go-forward"></span>
             }
+        
+        
         }
     </li>
 }
-

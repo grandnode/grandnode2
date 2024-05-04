@@ -16,11 +16,11 @@
 }
 
 @* Rendering category breadcrumbs*@
+
 @section Breadcrumb
-    {
+{
     @if (Model.DisplayCategoryBreadcrumb)
     {
-
         var count = 0;
 
         <ol class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
@@ -31,7 +31,7 @@
                     <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
                           id="@Url.RouteUrl("HomePage")">
                     </span>
-                    <meta itemprop="position" content="@count" />
+                    <meta itemprop="position" content="@count"/>
                 </a>
             </li>
             @foreach (var cat in Model.CategoryBreadcrumb)
@@ -44,9 +44,9 @@
                         <a>
                             <strong class="current-item" itemprop="name">@cat.Name</strong>
                             <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
-                                  id="@Url.RouteUrl("Category", new { cat.SeName})">
+                                  id="@Url.RouteUrl("Category", new { cat.SeName })">
                             </span>
-                            <meta itemprop="position" content="@count" />
+                            <meta itemprop="position" content="@count"/>
                         </a>
                     </li>
                 }
@@ -58,17 +58,16 @@
                             <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
                                   id="@Url.RouteUrl("Category", new { cat.SeName })">
                             </span>
-                            <meta itemprop="position" content="@count" />
+                            <meta itemprop="position" content="@count"/>
                         </a>
                     </li>
                 }
-
             }
         </ol>
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_breadcrumb", additionalData = Model.Id })
-
     }
 }
+
 <div class="page category-page">
     <h1 class="generalTitle h2">@Model.Name</h1>
     @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_top", additionalData = Model.Id })
@@ -117,7 +116,7 @@
             <div class="form-row">
                 <template v-for="Model in catalog.Model.FeaturedProducts">
                     <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                        <partial name="Partials/CatalogProductGridView" />
+                        <partial name="Partials/CatalogProductGridView"/>
                     </div>
                 </template>
             </div>
@@ -127,14 +126,14 @@
     <div id="catalog-products">
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
         <template v-if="catalog.Model !== undefined">
-            <partial name="Partials/Selectors" />
+            <partial name="Partials/Selectors"/>
             <template v-if="catalog.Model.Products.length > 0">
                 <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
                     <div class="col-12 product-grid px-0">
                         <div class="form-row">
                             <template v-for="Model in catalog.Model.Products">
                                 <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                                    <partial name="Partials/CatalogProductGridView" />
+                                    <partial name="Partials/CatalogProductGridView"/>
                                 </div>
                             </template>
                         </div>
@@ -145,13 +144,13 @@
                         <div class="col-12">
                             <div class="row">
                                 <template v-for="Model in catalog.Model.Products">
-                                    <partial name="Partials/CatalogProductListView" />
+                                    <partial name="Partials/CatalogProductListView"/>
                                 </template>
                             </div>
                         </div>
                     </div>
                 </template>
-                <partial name="Partials/Pagination" />
+                <partial name="Partials/Pagination"/>
             </template>
             <template v-else>
                 <div class="alert alert-info my-3">
@@ -172,7 +171,7 @@
     @*Rendering recently viewed products section*@
 
     @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 235 })
-    
+
 </div>
 
 @section filters
@@ -180,7 +179,8 @@
     @*Rendering filtering section*@
     @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
     {
-        <partial name="Partials/Filtering" />
+        <partial name="Partials/Filtering"/>
     }
 }
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />
+
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>

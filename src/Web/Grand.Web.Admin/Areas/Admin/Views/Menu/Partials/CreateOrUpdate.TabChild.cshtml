@@ -3,14 +3,14 @@
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
-        <vc:admin-widget widget-zone="menu_details_documents_top" additional-data="Model" />
+        <vc:admin-widget widget-zone="menu_details_documents_top" additional-data="Model"/>
         <div class="panel-body">
             <div id="menu-grid"></div>
         </div>
         <div class="panel-footer">
             <button type="button" class="k-button" onclick="location.href='@Url.Action("Create", "Menu", new { parentId = Model.Id, area = Constants.AreaAdmin })'"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Common.AddNew"]</button>
         </div>
-        <vc:admin-widget widget-zone="menu_details_documents_bottom" additional-data="Model" />
+        <vc:admin-widget widget-zone="menu_details_documents_bottom" additional-data="Model"/>
     </div>
     <script>
         $(document).ready(function () {
@@ -58,7 +58,6 @@
                 });
             });
          </script>
-
 }
 else
 {

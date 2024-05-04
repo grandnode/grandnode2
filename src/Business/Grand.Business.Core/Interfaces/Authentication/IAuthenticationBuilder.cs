@@ -1,23 +1,22 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 
-namespace Grand.Business.Core.Interfaces.Authentication
+namespace Grand.Business.Core.Interfaces.Authentication;
+
+/// <summary>
+///     Interface to add authentication
+/// </summary>
+public interface IAuthenticationBuilder
 {
     /// <summary>
-    /// Interface to add authentication 
+    ///     Gets priority
     /// </summary>
-    public interface IAuthenticationBuilder
-    {
-        /// <summary>
-        /// Add Authentication
-        /// </summary>
-        /// <param name="builder">Add Authentication builder</param>
-        /// <param name="configuration">Configuration</param>
-        void AddAuthentication(AuthenticationBuilder builder, IConfiguration configuration);
+    int Priority { get; }
 
-        /// <summary>
-        /// Gets priority
-        /// </summary>
-        int Priority { get; }
-    }
+    /// <summary>
+    ///     Add Authentication
+    /// </summary>
+    /// <param name="builder">Add Authentication builder</param>
+    /// <param name="configuration">Configuration</param>
+    void AddAuthentication(AuthenticationBuilder builder, IConfiguration configuration);
 }

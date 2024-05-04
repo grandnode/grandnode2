@@ -1,4 +1,4 @@
-﻿@{    
+﻿@{
     //page title
     ViewBag.Title = Loc["Admin.Configuration.Shipping.DeliveryDates"];
 }
@@ -12,8 +12,10 @@
                     @Loc["Admin.Configuration.Shipping.DeliveryDates"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("CreateDeliveryDate", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
-                    <vc:admin-widget widget-zone="delivery_date_buttons" additional-data="null" />
+                    <a href="@Url.Action("CreateDeliveryDate", new { area = Constants.AreaAdmin })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                    <vc:admin-widget widget-zone="delivery_date_buttons" additional-data="null"/>
                 </div>
 
             </div>
@@ -30,7 +32,7 @@
     </div>
 </div>
 
-<script  type="text/javascript">
+<script type="text/javascript">
     $(document).ready(function () {
         $("#deliverydate-grid").kendoGrid({
             dataSource: {

@@ -16,7 +16,7 @@
 
             </div>
             <div class="x_content form">
-                <vc:admin-widget widget-zone="bestsellers_report" additional-data="Model" />
+                <vc:admin-widget widget-zone="bestsellers_report" additional-data="Model"/>
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
@@ -26,14 +26,14 @@
                                         <div class="row align-items-end">
                                             <div class="col-md-4 col-ms-12 col-12">
                                                 <div class="form-group mb-0">
-                                                    <admin-label asp-for="StoreId" class="control-label" />
-                                                    <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
+                                                    <admin-label asp-for="StoreId" class="control-label"/>
+                                                    <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-ms-12 col-12">
                                                 <div class="form-group mb-0">
-                                                    <admin-label asp-for="OrderStatusId" class="control-label" />
-                                                    <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses" />
+                                                    <admin-label asp-for="OrderStatusId" class="control-label"/>
+                                                    <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses"/>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-sm-12 col-12">
@@ -53,39 +53,39 @@
                                     <div class="collapse" id="filterCollapse">
                                         <div class="drop-filters-container w-100">
                                             <div class="form-group">
-                                                <admin-label asp-for="StartDate" class="col-sm-3 control-label" />
+                                                <admin-label asp-for="StartDate" class="col-sm-3 control-label"/>
                                                 <div class="col-md-9 col-sm-9">
-                                                    <admin-input asp-for="StartDate" />
+                                                    <admin-input asp-for="StartDate"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <admin-label asp-for="EndDate"  class="col-sm-3 control-label" />
+                                                <admin-label asp-for="EndDate" class="col-sm-3 control-label"/>
                                                 <div class="col-md-9 col-sm-9">
-                                                    <admin-input asp-for="EndDate" />
+                                                    <admin-input asp-for="EndDate"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <admin-label asp-for="PaymentStatusId" class="col-sm-3 control-label" />
+                                                <admin-label asp-for="PaymentStatusId" class="col-sm-3 control-label"/>
                                                 <div class="col-md-9 col-sm-9">
-                                                    <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses" />
+                                                    <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <admin-label asp-for="BillingCountryId" class="col-sm-3 control-label" />
+                                                <admin-label asp-for="BillingCountryId" class="col-sm-3 control-label"/>
                                                 <div class="col-md-9 col-sm-9">
-                                                    <admin-select asp-for="BillingCountryId" asp-items="Model.AvailableCountries" />
+                                                    <admin-select asp-for="BillingCountryId" asp-items="Model.AvailableCountries"/>
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <admin-label asp-for="VendorId"  class="col-sm-3 control-label" />
+                                                <admin-label asp-for="VendorId" class="col-sm-3 control-label"/>
                                                 <div class="col-md-9 col-sm-9">
-                                                    <admin-select asp-for="VendorId" asp-items="Model.AvailableVendors" />
+                                                    <admin-select asp-for="VendorId" asp-items="Model.AvailableVendors"/>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="x_content">
                                     <div id="salesreport-grid"></div>
                                 </div>

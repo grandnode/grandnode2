@@ -5,7 +5,7 @@
 <form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="AddProductToOrderDetails" asp-route-orderId="@Model.OrderId"
       asp-route-productId="@Model.ProductId" enctype="multipart/form-data" method="post" id="product-details-form">
     <div asp-validation-summary="All"></div>
-    <vc:admin-widget widget-zone="order_add_products_details_top" additional-data="Model" />
+    <vc:admin-widget widget-zone="order_add_products_details_top" additional-data="Model"/>
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -24,7 +24,7 @@
                                 @foreach (var warning in Model.Warnings)
                                 {
                                     @warning
-                                    <br />
+                                    <br/>
                                 }
                             </div>
                         }
@@ -34,35 +34,34 @@
                         <div class="form-horizontal">
                             <div class="form-body">
                                 <div class="form-group">
-                                    <admin-label asp-for="UnitPriceInclTax" />
+                                    <admin-label asp-for="UnitPriceInclTax"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="UnitPriceInclTax" />
+                                        <admin-input asp-for="UnitPriceInclTax"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="UnitPriceExclTax" />
+                                    <admin-label asp-for="UnitPriceExclTax"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="UnitPriceExclTax" />
+                                        <admin-input asp-for="UnitPriceExclTax"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="Quantity" />
+                                    <admin-label asp-for="Quantity"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="Quantity" />
+                                        <admin-input asp-for="Quantity"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <admin-label asp-for="TaxRate" />
+                                    <admin-label asp-for="TaxRate"/>
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-input asp-for="TaxRate" />
+                                        <admin-input asp-for="TaxRate"/>
                                     </div>
                                 </div>
                                 @{
-                                    var dataDict = new ViewDataDictionary(ViewData) { new KeyValuePair<string, object>("productId", Model.ProductId) };
-                                    <partial name="Partials/ProductAddAttributes" model="Model.ProductAttributes" view-data="dataDict" />
+                                    var dataDict = new ViewDataDictionary(ViewData) { new("productId", Model.ProductId) };
+                                    <partial name="Partials/ProductAddAttributes" model="Model.ProductAttributes" view-data="dataDict"/>
                                 }
                                 @{
-
                                     var dataDictGiftVoucher = new ViewDataDictionary(ViewData)
                                     {
                                         TemplateInfo =
@@ -70,12 +69,12 @@
                                             HtmlFieldPrefix = "giftvoucher"
                                         }
                                     };
-                                    <partial name="Partials/ProductAddGiftVoucherInfo" model="Model.GiftVoucher" view-data="dataDictGiftVoucher" />
+                                    <partial name="Partials/ProductAddGiftVoucherInfo" model="Model.GiftVoucher" view-data="dataDictGiftVoucher"/>
                                 }
                                 <div class="form-actions">
                                     <div class="row">
                                         <div class="offset-md-3 col-md-9 col-sm-9">
-                                            <input type="submit" class="k-button" value="@Loc["Admin.Orders.Products.AddNew"]" />
+                                            <input type="submit" class="k-button" value="@Loc["Admin.Orders.Products.AddNew"]"/>
                                         </div>
                                     </div>
                                 </div>
@@ -108,5 +107,5 @@
             </div>
         </div>
     </div>
-    <vc:admin-widget widget-zone="order_add_products_details_bottom" additional-data="Model" />
+    <vc:admin-widget widget-zone="order_add_products_details_bottom" additional-data="Model"/>
 </form>

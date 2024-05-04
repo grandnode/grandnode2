@@ -3,11 +3,10 @@ using Grand.Domain.Localization;
 using Grand.Web.Models.Customer;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Customers
+namespace Grand.Web.Features.Models.Customers;
+
+public class GetAuctions : IRequest<CustomerAuctionsModel>
 {
-    public class GetAuctions : IRequest<CustomerAuctionsModel>
-    {
-        public Customer Customer { get; set; }
-        public Language Language { get; set; }
-    }
+    public Customer Customer { get; set; }
+    public Language Language { get; set; }
 }

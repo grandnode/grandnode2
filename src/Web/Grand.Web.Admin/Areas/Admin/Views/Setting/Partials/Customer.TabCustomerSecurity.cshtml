@@ -1,5 +1,5 @@
-﻿@model CustomerSettingsModel
-@using Grand.Domain.Customers;
+﻿@using Grand.Domain.Customers
+@model CustomerSettingsModel
 
 <script>
     $(document).ready(function () {
@@ -21,11 +21,11 @@
     <div class="form-body">
         <div class="form-group">
             <div class="col-8 col-md-4 col-sm-4 text-right">
-                <admin-label asp-for="CustomerSettings.TwoFactorAuthenticationEnabled" class="control-label" />
+                <admin-label asp-for="CustomerSettings.TwoFactorAuthenticationEnabled" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="CustomerSettings.TwoFactorAuthenticationEnabled" />
+                    <admin-input asp-for="CustomerSettings.TwoFactorAuthenticationEnabled"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="CustomerSettings.TwoFactorAuthenticationEnabled"></span>
@@ -33,37 +33,37 @@
         </div>
         <div class="form-group" id="twofactortype">
             <div class="col-8 col-md-4 col-sm-4 text-right">
-                <admin-label asp-for="CustomerSettings.TwoFactorAuthenticationType" class="control-label" />
+                <admin-label asp-for="CustomerSettings.TwoFactorAuthenticationType" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-select asp-for="CustomerSettings.TwoFactorAuthenticationType" asp-items="((TwoFactorAuthenticationType)Model.CustomerSettings.TwoFactorAuthenticationType).ToSelectList(Context)" />
+                <admin-select asp-for="CustomerSettings.TwoFactorAuthenticationType" asp-items="((TwoFactorAuthenticationType)Model.CustomerSettings.TwoFactorAuthenticationType).ToSelectList(Context)"/>
                 <span asp-validation-for="CustomerSettings.TwoFactorAuthenticationType"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-8 col-md-4 col-sm-4 text-right">
-                <admin-label asp-for="CustomerSettings.DefaultPasswordFormat" class="control-label" />
+                <admin-label asp-for="CustomerSettings.DefaultPasswordFormat" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-select asp-for="CustomerSettings.DefaultPasswordFormat" asp-items="((PasswordFormat)Model.CustomerSettings.DefaultPasswordFormat).ToSelectList(Context)" />
+                <admin-select asp-for="CustomerSettings.DefaultPasswordFormat" asp-items="((PasswordFormat)Model.CustomerSettings.DefaultPasswordFormat).ToSelectList(Context)"/>
                 <span asp-validation-for="CustomerSettings.DefaultPasswordFormat"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-8 col-md-4 col-sm-4 text-right">
-                <admin-label asp-for="CustomerSettings.HashedPasswordFormat" class="control-label" />
+                <admin-label asp-for="CustomerSettings.HashedPasswordFormat" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-select asp-for="CustomerSettings.HashedPasswordFormat" asp-items="Model.CustomerSettings.HashedPasswordFormat.ToSelectList(Context)" />
+                <admin-select asp-for="CustomerSettings.HashedPasswordFormat" asp-items="Model.CustomerSettings.HashedPasswordFormat.ToSelectList(Context)"/>
                 <span asp-validation-for="CustomerSettings.HashedPasswordFormat"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-8 col-md-4 col-sm-4 text-right">
-                <admin-label asp-for="CustomerSettings.PasswordRegularExpression" class="control-label" />
+                <admin-label asp-for="CustomerSettings.PasswordRegularExpression" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.PasswordRegularExpression" />
+                <admin-input asp-for="CustomerSettings.PasswordRegularExpression"/>
                 <span asp-validation-for="CustomerSettings.PasswordRegularExpression"></span>
             </div>
         </div>
@@ -82,38 +82,38 @@
 
         <div class="form-group">
             <div class="col-8 col-md-4 col-sm-4 text-right">
-                <admin-label asp-for="CustomerSettings.PasswordLifetime" class="control-label" />
+                <admin-label asp-for="CustomerSettings.PasswordLifetime" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.PasswordLifetime" />
+                <admin-input asp-for="CustomerSettings.PasswordLifetime"/>
                 <span asp-validation-for="CustomerSettings.PasswordLifetime"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-8 col-md-4 col-sm-4 text-right">
-                <admin-label asp-for="CustomerSettings.UnduplicatedPasswordsNumber" class="control-label" />
+                <admin-label asp-for="CustomerSettings.UnduplicatedPasswordsNumber" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.UnduplicatedPasswordsNumber" />
+                <admin-input asp-for="CustomerSettings.UnduplicatedPasswordsNumber"/>
                 <span asp-validation-for="CustomerSettings.UnduplicatedPasswordsNumber"></span>
             </div>
         </div>
         <div class="form-group">
             <div class="col-8 col-md-4 col-sm-4 text-right">
-                <admin-label asp-for="CustomerSettings.PasswordRecoveryLinkDaysValid" class="control-label" />
+                <admin-label asp-for="CustomerSettings.PasswordRecoveryLinkDaysValid" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.PasswordRecoveryLinkDaysValid" />
+                <admin-input asp-for="CustomerSettings.PasswordRecoveryLinkDaysValid"/>
                 <span asp-validation-for="CustomerSettings.PasswordRecoveryLinkDaysValid"></span>
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-8 col-md-4 col-sm-4 text-right">
-                <admin-label asp-for="CustomerSettings.FailedPasswordAllowedAttempts" class="control-label" />
+                <admin-label asp-for="CustomerSettings.FailedPasswordAllowedAttempts" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.FailedPasswordAllowedAttempts" />
+                <admin-input asp-for="CustomerSettings.FailedPasswordAllowedAttempts"/>
                 <span asp-validation-for="CustomerSettings.FailedPasswordAllowedAttempts"></span>
                 <script>
 	                $(document).ready(function () {
@@ -134,10 +134,10 @@
         </div>
         <div class="form-group" id="pnlFailedPasswordLockoutMinutes">
             <div class="col-8 col-md-4 col-sm-4 text-right">
-                <admin-label asp-for="CustomerSettings.FailedPasswordLockoutMinutes" class="control-label" />
+                <admin-label asp-for="CustomerSettings.FailedPasswordLockoutMinutes" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-input asp-for="CustomerSettings.FailedPasswordLockoutMinutes" />
+                <admin-input asp-for="CustomerSettings.FailedPasswordLockoutMinutes"/>
                 <span asp-validation-for="CustomerSettings.FailedPasswordLockoutMinutes"></span>
             </div>
         </div>

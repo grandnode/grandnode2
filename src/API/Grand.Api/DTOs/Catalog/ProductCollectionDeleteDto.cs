@@ -1,7 +1,6 @@
-﻿namespace Grand.Api.DTOs.Catalog
+﻿namespace Grand.Api.DTOs.Catalog;
+
+public class ProductCollectionDeleteDto
 {
-    public class ProductCollectionDeleteDto
-    {
-        public string CollectionId { get; set; }
-    }
+    public string CollectionId { get; set; }
 }

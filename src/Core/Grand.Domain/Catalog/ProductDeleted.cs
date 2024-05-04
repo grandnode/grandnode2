@@ -1,7 +1,6 @@
-﻿namespace Grand.Domain.Catalog
+﻿namespace Grand.Domain.Catalog;
+
+public class ProductDeleted : Product
 {
-    public class ProductDeleted: Product
-    {
-        public DateTime DeletedOnUtc { get; set; }
-    }
+    public DateTime DeletedOnUtc { get; set; }
 }

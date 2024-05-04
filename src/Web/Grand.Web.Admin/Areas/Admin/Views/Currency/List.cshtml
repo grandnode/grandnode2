@@ -1,4 +1,5 @@
-﻿@{
+﻿@using System.Text.Encodings.Web
+@{
     List<ExchangeRate> rates = ViewBag.Rates;
     bool autoUpdateEnabled = ViewBag.AutoUpdateEnabled ?? false;
     //page title
@@ -15,10 +16,14 @@
                         @Loc["Admin.Configuration.Currencies"]
                     </div>
                     <div class="actions btn-group btn-group-devided">
-                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                        <a href="@Url.Action("List", "Currency", new {liveRates = true, area = Constants.AreaAdmin})" class="btn blue">@Loc["Admin.Configuration.Currencies.GetLiveRates"]</a>
-                        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
-                        <vc:admin-widget widget-zone="currency_list_buttons" additional-data="null" />
+                        <button class="btn btn-success" type="submit" name="save">
+                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                        </button>
+                        <a href="@Url.Action("List", "Currency", new { liveRates = true, area = Constants.AreaAdmin })" class="btn blue">@Loc["Admin.Configuration.Currencies.GetLiveRates"]</a>
+                        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
+                            <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        </a>
+                        <vc:admin-widget widget-zone="currency_list_buttons" additional-data="null"/>
                     </div>
                 </div>
                 <div class="x_content form">
@@ -38,7 +43,7 @@
                                 </label>
                                 <div class="col-md-9 col-sm-9">
                                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                                        <admin-input asp-for="@autoUpdateEnabled" />
+                                        <admin-input asp-for="@autoUpdateEnabled"/>
                                         <div class="control__indicator"></div>
                                     </label>
                                 </div>
@@ -190,8 +195,8 @@
                                 var rate = rates[i];
                                 <text>
                                 {
-                                    CurrencyCode: "@(Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(string.IsNullOrEmpty(rate.CurrencyCode) ? "" : rate.CurrencyCode)))",
-                                    Rate: "@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(rate.Rate.ToString(CultureInfo.InvariantCulture)))"
+                                    CurrencyCode: "@(Html.Raw(JavaScriptEncoder.Default.Encode(string.IsNullOrEmpty(rate.CurrencyCode) ? "" : rate.CurrencyCode)))",
+                                    Rate: "@Html.Raw(JavaScriptEncoder.Default.Encode(rate.Rate.ToString(CultureInfo.InvariantCulture)))"
                                 }
                                 </text>
                                 if (i != rates.Count - 1)

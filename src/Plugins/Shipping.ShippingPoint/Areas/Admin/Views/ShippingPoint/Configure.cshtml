@@ -1,8 +1,7 @@
 ﻿@{
     Layout = "_ConfigurePlugin";
-
 }
-<input id="active-menu-item" type="hidden" value="/Admin/Shipping/Providers" />
+<input id="active-menu-item" type="hidden" value="/Admin/Shipping/Providers"/>
 <form asp-controller="ShippingPoint" asp-action="Configure" method="post" id="shipping-instore-form">
     <div class="panel-group">
         <div class="panel panel-default">
@@ -121,7 +120,7 @@
                 <a id="btnAddNewOption" class="btn btn-primary" href="@(Url.Action("Create", "ShippingPoint") + "?btnId=btnRefresh&formId=shipping-instore-form")">
                     @Loc["Admin.Common.AddNew"]
                 </a>
-                <input type="submit" id="btnRefresh" class="btn btn-default" style="display: none" />
+                <input type="submit" id="btnRefresh" class="btn btn-default" style="display: none"/>
             </div>
 
             <script>

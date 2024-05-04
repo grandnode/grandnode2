@@ -9,108 +9,105 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Infrastructure.Tests.Validators
+namespace Grand.Infrastructure.Tests.Validators;
+
+[TestClass]
+public class ValidationFilterTests
 {
-    [TestClass()]
-    public class ValidationFilterTests
+    [TestMethod]
+    public async Task OnActionExecutionAsyncTest_ValidModel()
     {
-        [TestMethod()]
-        public async Task OnActionExecutionAsyncTest_ValidModel()
-        {
+        //arrange
+        var services = new ServiceCollection();
+        services.AddScoped<IValidator<SourceTest>, SourceTestValidator>();
+        var serviceProvider = services.BuildServiceProvider();
 
-            //arrange
-            var services = new ServiceCollection();
-            services.AddScoped<IValidator<SourceTest>, SourceTestValidator>();
-            var serviceProvider = services.BuildServiceProvider();
+        var actionFilter = new ValidationFilter(serviceProvider);
 
-            var actionFilter = new ValidationFilter(serviceProvider);
+        var httpContext = new DefaultHttpContext {
+            Request = {
+                Method = "POST"
+            }
+        };
 
-            var httpContext = new DefaultHttpContext {
-                Request = {
-                    Method = "POST"
-                }
-            };
+        var actionContext = new ActionContext(httpContext,
+            new RouteData(),
+            new ActionDescriptor(),
+            new ModelStateDictionary());
 
-            var actionContext = new ActionContext(httpContext,
-                new RouteData(),
-                new ActionDescriptor(),
-                new ModelStateDictionary());
+        var actionExecutedContext = new ActionExecutedContext(actionContext,
+            new List<IFilterMetadata>(),
+            null);
 
-            var actionExecutedContext = new ActionExecutedContext(actionContext,
-                new List<IFilterMetadata>(),
-                controller: null);
+        var actionExecutingContext = new ActionExecutingContext(actionContext,
+            new List<IFilterMetadata>(),
+            new Dictionary<string, object>(),
+            null);
 
-            var actionExecutingContext = new ActionExecutingContext(actionContext,
-               new List<IFilterMetadata>(),
-               new Dictionary<string, object>(),
-               controller: null);
+        var source = new SourceTest {
+            FirstName = "ABCD",
+            LastName = "ABCD"
+        };
+        actionExecutingContext.ActionArguments["model"] = source;
 
-            var source = new SourceTest {
-                FirstName = "ABCD",
-                LastName = "ABCD"
+        //act
+        var next = new ActionExecutionDelegate(() =>
+            Task.FromResult(CreateActionExecutedContext(actionExecutingContext)));
+        await actionFilter.OnActionExecutionAsync(actionExecutingContext, next);
 
-            };
-            actionExecutingContext.ActionArguments["model"] = source;
+        //assert
+        Assert.IsTrue(actionExecutingContext.ModelState.IsValid);
+    }
 
-            //act
-            var next = new ActionExecutionDelegate(() => Task.FromResult(CreateActionExecutedContext(actionExecutingContext)));
-            await actionFilter.OnActionExecutionAsync(actionExecutingContext, next);
+    [TestMethod]
+    public async Task OnActionExecutionAsyncTest_NotValidModel()
+    {
+        //arrange
+        var services = new ServiceCollection();
+        services.AddScoped<IValidator<SourceTest>, SourceTestValidator>();
+        var serviceProvider = services.BuildServiceProvider();
 
-            //assert
-            Assert.IsTrue(actionExecutingContext.ModelState.IsValid);
+        var actionFilter = new ValidationFilter(serviceProvider);
 
-        }
-        [TestMethod()]
-        public async Task OnActionExecutionAsyncTest_NotValidModel()
-        {
+        var httpContext = new DefaultHttpContext {
+            Request = {
+                Method = "POST"
+            }
+        };
 
-            //arrange
-            var services = new ServiceCollection();
-            services.AddScoped<IValidator<SourceTest>, SourceTestValidator>();
-            var serviceProvider = services.BuildServiceProvider();
+        var actionContext = new ActionContext(httpContext,
+            new RouteData(),
+            new ActionDescriptor(),
+            new ModelStateDictionary());
 
-            var actionFilter = new ValidationFilter(serviceProvider);
+        var actionExecutedContext = new ActionExecutedContext(actionContext,
+            new List<IFilterMetadata>(),
+            null);
 
-            var httpContext = new DefaultHttpContext {
-                Request = {
-                    Method = "POST"
-                }
-            };
+        var actionExecutingContext = new ActionExecutingContext(actionContext,
+            new List<IFilterMetadata>(),
+            new Dictionary<string, object>(),
+            null);
 
-            var actionContext = new ActionContext(httpContext,
-                new RouteData(),
-                new ActionDescriptor(),
-                new ModelStateDictionary());
+        var source = new SourceTest {
+            FirstName = "ABCD"
+        };
+        actionExecutingContext.ActionArguments["model"] = source;
 
-            var actionExecutedContext = new ActionExecutedContext(actionContext,
-                new List<IFilterMetadata>(),
-                controller: null);
+        //act
+        var next = new ActionExecutionDelegate(() =>
+            Task.FromResult(CreateActionExecutedContext(actionExecutingContext)));
+        await actionFilter.OnActionExecutionAsync(actionExecutingContext, next);
 
-            var actionExecutingContext = new ActionExecutingContext(actionContext,
-               new List<IFilterMetadata>(),
-               new Dictionary<string, object>(),
-               controller: null);
-
-            var source = new SourceTest {
-                FirstName = "ABCD"
-            };
-            actionExecutingContext.ActionArguments["model"] = source;
-
-            //act
-            var next = new ActionExecutionDelegate(() => Task.FromResult(CreateActionExecutedContext(actionExecutingContext)));
-            await actionFilter.OnActionExecutionAsync(actionExecutingContext, next);
-
-            //assert
-            Assert.IsFalse(actionExecutingContext.ModelState.IsValid);
-        }
+        //assert
+        Assert.IsFalse(actionExecutingContext.ModelState.IsValid);
+    }
 
 
-
-        private static ActionExecutedContext CreateActionExecutedContext(ActionExecutingContext context)
-        {
-            return new ActionExecutedContext(context, context.Filters, context.Controller) {
-                Result = context.Result
-            };
-        }
+    private static ActionExecutedContext CreateActionExecutedContext(ActionExecutingContext context)
+    {
+        return new ActionExecutedContext(context, context.Filters, context.Controller) {
+            Result = context.Result
+        };
     }
 }

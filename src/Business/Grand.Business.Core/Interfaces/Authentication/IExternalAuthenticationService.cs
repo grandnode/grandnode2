@@ -3,80 +3,78 @@ using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Business.Core.Interfaces.Authentication
+namespace Grand.Business.Core.Interfaces.Authentication;
+
+/// <summary>
+///     External authentication service
+/// </summary>
+public interface IExternalAuthenticationService
 {
+    #region Authentication
+
     /// <summary>
-    /// External authentication service
+    ///     Use passed parameters to authenticate customer
     /// </summary>
-    public interface IExternalAuthenticationService
-    {
-        #region External authentication methods
+    /// <param name="parameters">External authentication parameters</param>
+    /// <param name="returnUrl">Defines the URL of user return, when successfully authenticated</param>
+    /// <returns>Result of an authentication</returns>
+    Task<IActionResult> Authenticate(ExternalAuthParam parameters, string returnUrl = null);
 
-        /// <summary>
-        /// Load all active authentication providers
-        /// </summary>
-        /// <param name="customer">Customer</param>
-        /// <param name="store">Store</param>
-        /// <returns>External authentication providers</returns>
-        IList<IExternalAuthenticationProvider> LoadActiveAuthenticationProviders(Customer customer = null, Store store = null);
+    #endregion
 
-        /// <summary>
-        /// Load specified external authentication provider by system name
-        /// </summary>
-        /// <param name="systemName">System name</param>
-        /// <returns>Found external authentication method</returns>
-        IExternalAuthenticationProvider LoadAuthenticationProviderBySystemName(string systemName);
+    /// <summary>
+    ///     Associate the external account with customer
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <param name="parameters">External authentication parameters</param>
+    Task AssociateCustomer(Customer customer, ExternalAuthParam parameters);
 
-        /// <summary>
-        /// Load all external authentication providers independently from status
-        /// </summary>
-        /// <returns>External authentication providers</returns>
-        IList<IExternalAuthenticationProvider> LoadAllAuthenticationProviders();
-
-        /// <summary>
-        /// Check whether authentication by the passed external authentication provider is available 
-        /// </summary>
-        /// <param name="systemName">System name of the external authentication provider</param>
-        /// <returns>True if is available; otherwise false</returns>
-        bool AuthenticationProviderIsAvailable(string systemName);
+    /// <summary>
+    ///     Get the particular user with specified parameters
+    /// </summary>
+    /// <param name="parameters">External authentication parameters</param>
+    /// <returns>Customer</returns>
+    Task<Customer> GetCustomer(ExternalAuthParam parameters);
 
 
-        #endregion
+    Task<IList<ExternalAuthentication>> GetExternalIdentifiers(Customer customer);
 
-        #region Authentication
+    /// <summary>
+    ///     Delete the external authentication
+    /// </summary>
+    /// <param name="externalAuthentication">External authentication</param>
+    Task DeleteExternalAuthentication(ExternalAuthentication externalAuthentication);
 
-        /// <summary>
-        /// Use passed parameters to authenticate customer
-        /// </summary>
-        /// <param name="parameters">External authentication parameters</param>
-        /// <param name="returnUrl">Defines the URL of user return, when successfully authenticated</param>
-        /// <returns>Result of an authentication</returns>
-        Task<IActionResult> Authenticate(ExternalAuthParam parameters, string returnUrl = null);
+    #region External authentication methods
 
+    /// <summary>
+    ///     Load all active authentication providers
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
+    /// <returns>External authentication providers</returns>
+    IList<IExternalAuthenticationProvider> LoadActiveAuthenticationProviders(Customer customer = null,
+        Store store = null);
 
-        #endregion
+    /// <summary>
+    ///     Load specified external authentication provider by system name
+    /// </summary>
+    /// <param name="systemName">System name</param>
+    /// <returns>Found external authentication method</returns>
+    IExternalAuthenticationProvider LoadAuthenticationProviderBySystemName(string systemName);
 
-        /// <summary>
-        /// Associate the external account with customer
-        /// </summary>
-        /// <param name="customer">Customer</param>
-        /// <param name="parameters">External authentication parameters</param>
-        Task AssociateCustomer(Customer customer, ExternalAuthParam parameters);
+    /// <summary>
+    ///     Load all external authentication providers independently from status
+    /// </summary>
+    /// <returns>External authentication providers</returns>
+    IList<IExternalAuthenticationProvider> LoadAllAuthenticationProviders();
 
-        /// <summary>
-        /// Get the particular user with specified parameters
-        /// </summary>
-        /// <param name="parameters">External authentication parameters</param>
-        /// <returns>Customer</returns>
-        Task<Customer> GetCustomer(ExternalAuthParam parameters);
+    /// <summary>
+    ///     Check whether authentication by the passed external authentication provider is available
+    /// </summary>
+    /// <param name="systemName">System name of the external authentication provider</param>
+    /// <returns>True if is available; otherwise false</returns>
+    bool AuthenticationProviderIsAvailable(string systemName);
 
-
-        Task<IList<ExternalAuthentication>> GetExternalIdentifiers(Customer customer);
-
-        /// <summary>
-        /// Delete the external authentication
-        /// </summary>
-        /// <param name="externalAuthentication">External authentication</param>
-        Task DeleteExternalAuthentication(ExternalAuthentication externalAuthentication);
-    }
+    #endregion
 }

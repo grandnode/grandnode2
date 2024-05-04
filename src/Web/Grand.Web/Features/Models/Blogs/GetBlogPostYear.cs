@@ -1,9 +1,8 @@
 ﻿using Grand.Web.Models.Blogs;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Blogs
+namespace Grand.Web.Features.Models.Blogs;
+
+public class GetBlogPostYear : IRequest<IList<BlogPostYearModel>>
 {
-    public class GetBlogPostYear : IRequest<IList<BlogPostYearModel>>
-    {
-    }
 }

@@ -2,12 +2,13 @@
 
 namespace Theme.Modern;
 
-public class ModernThemeView: IThemeView
+public class ModernThemeView : IThemeView
 {
     public string AreaName => "";
     public string ThemeName => "Modern";
-    
-    public ThemeInfo ThemeInfo => new ("Modern theme (beta)", "~/Plugins/Theme.Modern/Content/theme.jpg", "Minimal theme (beta)", false);
+
+    public ThemeInfo ThemeInfo => new("Modern theme (beta)", "~/Plugins/Theme.Modern/Content/theme.jpg",
+        "Minimal theme (beta)", false);
 
     public IEnumerable<string> GetViewLocations()
     {

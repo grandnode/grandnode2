@@ -1,25 +1,27 @@
-namespace Grand.Domain.Customers
+namespace Grand.Domain.Customers;
+
+/// <summary>
+///     Represents the customer registration type fortatting enumeration
+/// </summary>
+public enum UserRegistrationType
 {
     /// <summary>
-    /// Represents the customer registration type fortatting enumeration
+    ///     Standard account creation
     /// </summary>
-    public enum UserRegistrationType
-    {
-        /// <summary>
-        /// Standard account creation
-        /// </summary>
-        Standard = 1,
-        /// <summary>
-        /// Email validation is required after registration
-        /// </summary>
-        EmailValidation = 2,
-        /// <summary>
-        /// A customer should be approved by administrator
-        /// </summary>
-        AdminApproval = 3,
-        /// <summary>
-        /// Registration is disabled
-        /// </summary>
-        Disabled = 4
-    }
+    Standard = 1,
+
+    /// <summary>
+    ///     Email validation is required after registration
+    /// </summary>
+    EmailValidation = 2,
+
+    /// <summary>
+    ///     A customer should be approved by administrator
+    /// </summary>
+    AdminApproval = 3,
+
+    /// <summary>
+    ///     Registration is disabled
+    /// </summary>
+    Disabled = 4
 }

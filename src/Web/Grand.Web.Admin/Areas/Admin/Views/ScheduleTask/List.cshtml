@@ -1,4 +1,5 @@
-﻿@{
+﻿@using System.Text.Encodings.Web
+@{
     //page title
     ViewBag.Title = Loc["Admin.System.ScheduleTasks"];
 }
@@ -11,7 +12,7 @@
                     <i class="fa fa-tasks"></i>
                     @Loc["Admin.System.ScheduleTasks"]
                 </div>
-                <vc:admin-widget widget-zone="schedule_task_list_buttons" additional-data="null" />
+                <vc:admin-widget widget-zone="schedule_task_list_buttons" additional-data="null"/>
             </div>
             <div class="note note-info">
                 <strong>@Loc["Admin.System.ScheduleTasks.RestartApplication"]</strong>
@@ -31,7 +32,7 @@
 <script>
     $(document).ready(function () {
         $("#schedule-tasks-grid").on("click", ".run-now", function (e) {
-            showThrobber('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["Admin.System.ScheduleTasks.RunNow.Progress"]))');
+            showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.System.ScheduleTasks.RunNow.Progress"]))');
         });
     });
 </script>

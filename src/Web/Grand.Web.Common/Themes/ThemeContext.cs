@@ -6,13 +6,13 @@ namespace Grand.Web.Common.Themes;
 
 public class ThemeContext : ThemeContextBase
 {
-    private readonly StoreInformationSettings _storeInformationSettings;
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly StoreInformationSettings _storeInformationSettings;
     private string _themeName;
 
     public ThemeContext(
-        IHttpContextAccessor contextAccessor, 
-        SecurityConfig securityConfig, 
+        IHttpContextAccessor contextAccessor,
+        SecurityConfig securityConfig,
         StoreInformationSettings storeInformationSettings) :
         base(contextAccessor, securityConfig)
     {
@@ -29,9 +29,7 @@ public class ThemeContext : ThemeContextBase
 
         var theme = "";
         if (_storeInformationSettings.AllowCustomerToSelectTheme)
-        {
-            theme = _contextAccessor.HttpContext?.Request.Cookies[this.CookiesName];
-        }
+            theme = _contextAccessor.HttpContext?.Request.Cookies[CookiesName];
 
         //default store theme
         if (string.IsNullOrEmpty(theme))

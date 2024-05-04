@@ -35,7 +35,7 @@
                         dataSource: {
                             transport: {
                                 read: {
-                                    url: "@Html.Raw(Url.Action("Acl", "CustomerGroup", new {customerGroupId = Model.Id, area = Constants.AreaAdmin }))",
+                                    url: "@Html.Raw(Url.Action("Acl", "CustomerGroup", new { customerGroupId = Model.Id, area = Constants.AreaAdmin }))",
                                     type: "POST",
                                     dataType: "json",
                                     data: addAntiForgeryToken

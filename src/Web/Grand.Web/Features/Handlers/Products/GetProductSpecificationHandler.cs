@@ -6,56 +6,69 @@ using Grand.Web.Models.Catalog;
 using MediatR;
 using System.Net;
 
-namespace Grand.Web.Features.Handlers.Products
+namespace Grand.Web.Features.Handlers.Products;
+
+public class GetProductSpecificationHandler : IRequestHandler<GetProductSpecification, IList<ProductSpecificationModel>>
 {
-    public class GetProductSpecificationHandler : IRequestHandler<GetProductSpecification, IList<ProductSpecificationModel>>
+    private readonly ISpecificationAttributeService _specificationAttributeService;
+
+    public GetProductSpecificationHandler(ISpecificationAttributeService specificationAttributeService)
     {
-        private readonly ISpecificationAttributeService _specificationAttributeService;
+        _specificationAttributeService = specificationAttributeService;
+    }
 
-        public GetProductSpecificationHandler(ISpecificationAttributeService specificationAttributeService)
+    public async Task<IList<ProductSpecificationModel>> Handle(GetProductSpecification request,
+        CancellationToken cancellationToken)
+    {
+        if (request.Product == null)
+            throw new ArgumentNullException(nameof(request.Product));
+
+        var spa = new List<ProductSpecificationModel>();
+        foreach (var item in request.Product.ProductSpecificationAttributes.Where(x => x.ShowOnProductPage)
+                     .OrderBy(x => x.DisplayOrder))
         {
-            _specificationAttributeService = specificationAttributeService;
-        }
+            var m = new ProductSpecificationModel {
+                SpecificationAttributeName = item.CustomName
+            };
 
-        public async Task<IList<ProductSpecificationModel>> Handle(GetProductSpecification request, CancellationToken cancellationToken)
-        {
-            if (request.Product == null)
-                throw new ArgumentNullException(nameof(request.Product));
-
-            var spa = new List<ProductSpecificationModel>();
-            foreach (var item in request.Product.ProductSpecificationAttributes.Where(x => x.ShowOnProductPage).OrderBy(x => x.DisplayOrder))
+            switch (item.AttributeTypeId)
             {
-                var m = new ProductSpecificationModel {
-                    SpecificationAttributeName = item.CustomName
-                };
+                case SpecificationAttributeType.Option:
+                    var specificationAttribute =
+                        await _specificationAttributeService.GetSpecificationAttributeById(
+                            item.SpecificationAttributeId);
+                    if (specificationAttribute != null)
+                    {
+                        m.SpecificationAttributeId = item.SpecificationAttributeId;
+                        m.SpecificationAttributeName =
+                            specificationAttribute.GetTranslation(x => x.Name, request.Language.Id);
+                        m.ColorSquaresRgb =
+                            specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x =>
+                                x.Id == item.SpecificationAttributeOptionId) != null
+                                ? specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x =>
+                                    x.Id == item.SpecificationAttributeOptionId)!.ColorSquaresRgb
+                                : "";
+                        m.UserFields = specificationAttribute.UserFields;
+                        m.ValueRaw = WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions
+                            .FirstOrDefault(x => x.Id == item.SpecificationAttributeOptionId)
+                            .GetTranslation(x => x.Name, request.Language.Id));
+                    }
 
-                switch (item.AttributeTypeId)
-                {
-                    case SpecificationAttributeType.Option:
-                        var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeById(item.SpecificationAttributeId);
-                        if (specificationAttribute != null)
-                        {
-                            m.SpecificationAttributeId = item.SpecificationAttributeId;
-                            m.SpecificationAttributeName = specificationAttribute.GetTranslation(x => x.Name, request.Language.Id);
-                            m.ColorSquaresRgb = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == item.SpecificationAttributeOptionId) != null ? specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == item.SpecificationAttributeOptionId)!.ColorSquaresRgb : "";
-                            m.UserFields = specificationAttribute.UserFields;
-                            m.ValueRaw = WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == item.SpecificationAttributeOptionId).GetTranslation(x => x.Name, request.Language.Id));
-                        }
-                        break;
-                    case SpecificationAttributeType.CustomText:
-                        m.ValueRaw = WebUtility.HtmlEncode(item.CustomValue);
-                        break;
-                    case SpecificationAttributeType.CustomHtmlText:
-                        m.ValueRaw = item.CustomValue;
-                        break;
-                    case SpecificationAttributeType.Hyperlink:
-                        m.ValueRaw = string.Format("<a href='{0}' target='_blank'>{0}</a>", item.CustomValue);
-                        break;
-                }
-                spa.Add(m);
-
+                    break;
+                case SpecificationAttributeType.CustomText:
+                    m.ValueRaw = WebUtility.HtmlEncode(item.CustomValue);
+                    break;
+                case SpecificationAttributeType.CustomHtmlText:
+                    m.ValueRaw = item.CustomValue;
+                    break;
+                case SpecificationAttributeType.Hyperlink:
+                    m.ValueRaw = string.Format("<a href='{0}' target='_blank'>{0}</a>", item.CustomValue);
+                    break;
             }
-            return spa;
+
+            spa.Add(m);
         }
+
+        return spa;
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace Grand.Infrastructure.Validators
+﻿namespace Grand.Infrastructure.Validators;
+
+public interface IValidatorConsumer<T> where T : class
 {
-    public interface IValidatorConsumer<T> where T : class
-    {
-        void AddRules(BaseGrandValidator<T> validator);
-    }
+    void AddRules(BaseGrandValidator<T> validator);
 }

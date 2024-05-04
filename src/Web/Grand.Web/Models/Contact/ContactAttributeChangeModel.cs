@@ -3,6 +3,7 @@ using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Models.Contact;
+
 public class ContactAttributeChangeModel
 {
     [ModelBinder(BinderType = typeof(CustomAttributesBinder))]

@@ -30,8 +30,12 @@
                             <div class="attributes p-2" v-if="item.AttributeInfo">
                                 <div v-html="item.AttributeInfo"></div>
                             </div>
-                            <div class="price"><span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{item.UnitPrice}}</strong></div>
-                            <div class="quantity"><span>@Loc["Wishlist.Mini.Quantity"]:</span> <strong>{{item.Quantity}}</strong></div>
+                            <div class="price">
+                                <span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{item.UnitPrice}}</strong>
+                            </div>
+                            <div class="quantity">
+                                <span>@Loc["Wishlist.Mini.Quantity"]:</span> <strong>{{item.Quantity}}</strong>
+                            </div>
                         </b-col>
                     </div>
                     <template v-slot:footer v-if="wishindicator > 0">

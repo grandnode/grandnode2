@@ -18,76 +18,71 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Grand.Business.System.Startup
+namespace Grand.Business.System.Startup;
+
+public class StartupApplication : IStartupApplication
 {
-    public class StartupApplication : IStartupApplication
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+        RegisterReports(services);
+        RegisterMachineNameProvider(services, configuration);
+        RegisterTask(services);
+        RegisterInstallService(services);
+        RegisterAdmin(services);
+    }
+
+    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    {
+    }
+
+    public int Priority => 100;
+    public bool BeforeConfigure => false;
+
+    private void RegisterTask(IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddScoped<IScheduleTaskService, ScheduleTaskService>();
+
+        serviceCollection.AddScoped<IScheduleTask, QueuedMessagesSendScheduleTask>();
+        serviceCollection.AddScoped<IScheduleTask, ClearCacheScheduleTask>();
+        serviceCollection.AddScoped<IScheduleTask, GenerateSitemapXmlTask>();
+        serviceCollection.AddScoped<IScheduleTask, DeleteGuestsScheduleTask>();
+        serviceCollection.AddScoped<IScheduleTask, UpdateExchangeRateScheduleTask>();
+        serviceCollection.AddScoped<IScheduleTask, EndAuctionsTask>();
+        serviceCollection.AddScoped<IScheduleTask, CancelOrderScheduledTask>();
+    }
+
+    private void RegisterReports(IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddScoped<ICustomerReportService, CustomerReportService>();
+        serviceCollection.AddScoped<IOrderReportService, OrderReportService>();
+        serviceCollection.AddScoped<IProductsReportService, ProductsReportService>();
+    }
+
+    private void RegisterMachineNameProvider(IServiceCollection serviceCollection, IConfiguration configuration)
+    {
+        var config = new AzureConfig();
+        configuration.GetSection("Azure").Bind(config);
+        if (config.RunOnAzureWebApps)
+            serviceCollection.AddSingleton<IMachineNameProvider, AzureWebAppsMachineNameProvider>();
+        else
+            serviceCollection.AddSingleton<IMachineNameProvider, DefaultMachineNameProvider>();
+    }
+
+    private void RegisterInstallService(IServiceCollection serviceCollection)
+    {
+        var databaseInstalled = DataSettingsManager.DatabaseIsInstalled();
+        if (!databaseInstalled)
         {
-            RegisterReports(services);
-            RegisterMachineNameProvider(services, configuration);
-            RegisterTask(services);
-            RegisterInstallService(services);
-            RegisterAdmin(services);
-        }
-        public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
-        {
-
-        }
-        public int Priority => 100;
-        public bool BeforeConfigure => false;
-
-        private void RegisterTask(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddScoped<IScheduleTaskService, ScheduleTaskService>();
-
-            serviceCollection.AddScoped<IScheduleTask, QueuedMessagesSendScheduleTask>();
-            serviceCollection.AddScoped<IScheduleTask, ClearCacheScheduleTask>();
-            serviceCollection.AddScoped<IScheduleTask, GenerateSitemapXmlTask>();
-            serviceCollection.AddScoped<IScheduleTask, DeleteGuestsScheduleTask>();
-            serviceCollection.AddScoped<IScheduleTask, UpdateExchangeRateScheduleTask>();
-            serviceCollection.AddScoped<IScheduleTask, EndAuctionsTask>();
-            serviceCollection.AddScoped<IScheduleTask, CancelOrderScheduledTask>();
-
-        }
-
-        private void RegisterReports(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddScoped<ICustomerReportService, CustomerReportService>();
-            serviceCollection.AddScoped<IOrderReportService, OrderReportService>();
-            serviceCollection.AddScoped<IProductsReportService, ProductsReportService>();
-        }
-
-        private void RegisterMachineNameProvider(IServiceCollection serviceCollection, IConfiguration configuration)
-        {
-            var config = new AzureConfig();
-            configuration.GetSection("Azure").Bind(config);
-            if (config.RunOnAzureWebApps)
-            {
-                serviceCollection.AddSingleton<IMachineNameProvider, AzureWebAppsMachineNameProvider>();
-            }
-            else
-            {
-                serviceCollection.AddSingleton<IMachineNameProvider, DefaultMachineNameProvider>();
-            }
-        }
-
-        private void RegisterInstallService(IServiceCollection serviceCollection)
-        {
-            var databaseInstalled = DataSettingsManager.DatabaseIsInstalled();
-            if (!databaseInstalled)
-            {
-                //installation service
-                serviceCollection.AddScoped<IInstallationLocalizedService, InstallationLocalizedService>();
-                serviceCollection.AddScoped<IInstallationService, InstallationService>();
-            }
-
-            serviceCollection.AddScoped<IMigrationProcess, MigrationProcess>();
+            //installation service
+            serviceCollection.AddScoped<IInstallationLocalizedService, InstallationLocalizedService>();
+            serviceCollection.AddScoped<IInstallationService, InstallationService>();
         }
 
-        private void RegisterAdmin(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddScoped<IAdminSiteMapService, AdminSiteMapService>();
-        }
+        serviceCollection.AddScoped<IMigrationProcess, MigrationProcess>();
+    }
+
+    private void RegisterAdmin(IServiceCollection serviceCollection)
+    {
+        serviceCollection.AddScoped<IAdminSiteMapService, AdminSiteMapService>();
     }
 }

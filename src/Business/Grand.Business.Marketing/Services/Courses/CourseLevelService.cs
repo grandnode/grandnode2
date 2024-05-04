@@ -1,68 +1,67 @@
 ﻿using Grand.Business.Core.Interfaces.Marketing.Courses;
-using Grand.Infrastructure.Extensions;
-using Grand.Domain.Courses;
 using Grand.Data;
+using Grand.Domain.Courses;
+using Grand.Infrastructure.Extensions;
 using MediatR;
 
-namespace Grand.Business.Marketing.Services.Courses
+namespace Grand.Business.Marketing.Services.Courses;
+
+public class CourseLevelService : ICourseLevelService
 {
-    public class CourseLevelService : ICourseLevelService
+    private readonly IRepository<CourseLevel> _courseLevelRepository;
+    private readonly IMediator _mediator;
+
+    public CourseLevelService(IRepository<CourseLevel> courseLevelRepository, IMediator mediator)
     {
-        private readonly IRepository<CourseLevel> _courseLevelRepository;
-        private readonly IMediator _mediator;
+        _courseLevelRepository = courseLevelRepository;
+        _mediator = mediator;
+    }
 
-        public CourseLevelService(IRepository<CourseLevel> courseLevelRepository, IMediator mediator)
-        {
-            _courseLevelRepository = courseLevelRepository;
-            _mediator = mediator;
-        }
+    public virtual async Task Delete(CourseLevel courseLevel)
+    {
+        ArgumentNullException.ThrowIfNull(courseLevel);
 
-        public virtual async Task Delete(CourseLevel courseLevel)
-        {
-            ArgumentNullException.ThrowIfNull(courseLevel);
+        await _courseLevelRepository.DeleteAsync(courseLevel);
 
-            await _courseLevelRepository.DeleteAsync(courseLevel);
+        //event notification
+        await _mediator.EntityDeleted(courseLevel);
+    }
 
-            //event notification
-            await _mediator.EntityDeleted(courseLevel);
-        }
+    public virtual async Task<IList<CourseLevel>> GetAll()
+    {
+        var query = from l in _courseLevelRepository.Table
+            orderby l.DisplayOrder
+            select l;
 
-        public virtual async Task<IList<CourseLevel>> GetAll()
-        {
-            var query = from l in _courseLevelRepository.Table
-                        orderby l.DisplayOrder
-                        select l;
+        return await Task.FromResult(query.ToList());
+    }
 
-            return await Task.FromResult(query.ToList());
-        }
+    public virtual Task<CourseLevel> GetById(string id)
+    {
+        return _courseLevelRepository.GetByIdAsync(id);
+    }
 
-        public virtual Task<CourseLevel> GetById(string id)
-        {
-            return _courseLevelRepository.GetByIdAsync(id);
-        }
+    public virtual async Task<CourseLevel> Insert(CourseLevel courseLevel)
+    {
+        ArgumentNullException.ThrowIfNull(courseLevel);
 
-        public virtual async Task<CourseLevel> Insert(CourseLevel courseLevel)
-        {
-            ArgumentNullException.ThrowIfNull(courseLevel);
+        await _courseLevelRepository.InsertAsync(courseLevel);
 
-            await _courseLevelRepository.InsertAsync(courseLevel);
+        //event notification
+        await _mediator.EntityInserted(courseLevel);
 
-            //event notification
-            await _mediator.EntityInserted(courseLevel);
+        return courseLevel;
+    }
 
-            return courseLevel;
-        }
+    public virtual async Task<CourseLevel> Update(CourseLevel courseLevel)
+    {
+        ArgumentNullException.ThrowIfNull(courseLevel);
 
-        public virtual async Task<CourseLevel> Update(CourseLevel courseLevel)
-        {
-            ArgumentNullException.ThrowIfNull(courseLevel);
+        await _courseLevelRepository.UpdateAsync(courseLevel);
 
-            await _courseLevelRepository.UpdateAsync(courseLevel);
+        //event notification
+        await _mediator.EntityUpdated(courseLevel);
 
-            //event notification
-            await _mediator.EntityUpdated(courseLevel);
-
-            return courseLevel;
-        }
+        return courseLevel;
     }
 }

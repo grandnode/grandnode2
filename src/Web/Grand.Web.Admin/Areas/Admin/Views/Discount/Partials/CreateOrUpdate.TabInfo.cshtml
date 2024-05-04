@@ -1,5 +1,5 @@
-﻿@model DiscountModel
-@using Grand.Domain.Discounts;
+﻿@using Grand.Domain.Discounts
+@model DiscountModel
 
 <script>
         $(document).ready(function () {
@@ -126,155 +126,155 @@
             }
         }
 </script>
-<vc:admin-widget widget-zone="discount_details_info_top" additional-data="Model" />
+<vc:admin-widget widget-zone="discount_details_info_top" additional-data="Model"/>
 <div class="form-horizontal">
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="Name" />
+            <admin-label asp-for="Name"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Name" />
+                <admin-input asp-for="Name"/>
                 <span asp-validation-for="Name"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="DiscountTypeId" />
+            <admin-label asp-for="DiscountTypeId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="DiscountTypeId" asp-items="((DiscountType)Model.DiscountTypeId).ToSelectList(Context)" />
+                <admin-select asp-for="DiscountTypeId" asp-items="((DiscountType)Model.DiscountTypeId).ToSelectList(Context)"/>
                 <span asp-validation-for="DiscountTypeId"></span>
             </div>
         </div>
         <div class="form-group" id="pnlUsePercentage">
-            <admin-label asp-for="UsePercentage" />
+            <admin-label asp-for="UsePercentage"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="UsePercentage" />
+                    <admin-input asp-for="UsePercentage"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="UsePercentage"></span>
             </div>
         </div>
         <div class="form-group" id="pnlDiscountAmount">
-            <admin-label asp-for="DiscountAmount" />
+            <admin-label asp-for="DiscountAmount"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DiscountAmount" />
+                <admin-input asp-for="DiscountAmount"/>
                 <span asp-validation-for="DiscountAmount"></span>
             </div>
         </div>
         <div class="form-group" id="pnlDiscountPercentage">
-            <admin-label asp-for="DiscountPercentage" />
+            <admin-label asp-for="DiscountPercentage"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DiscountPercentage" />
+                <admin-input asp-for="DiscountPercentage"/>
                 <span asp-validation-for="DiscountPercentage"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="CurrencyCode" />
+            <admin-label asp-for="CurrencyCode"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies" />
+                <admin-select asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies"/>
                 <span asp-validation-for="CurrencyCode"></span>
             </div>
         </div>
         <div class="form-group" id="pnlMaximumDiscountAmount">
-            <admin-label asp-for="MaximumDiscountAmount" />
+            <admin-label asp-for="MaximumDiscountAmount"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MaximumDiscountAmount" />
+                <admin-input asp-for="MaximumDiscountAmount"/>
                 <span asp-validation-for="MaximumDiscountAmount"></span>
             </div>
         </div>
         <div class="form-group" id="pnlCalculateByPlugin">
-            <admin-label asp-for="CalculateByPlugin" />
+            <admin-label asp-for="CalculateByPlugin"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="CalculateByPlugin" />
+                    <admin-input asp-for="CalculateByPlugin"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="CalculateByPlugin"></span>
             </div>
         </div>
         <div class="form-group" id="pnlDiscountPluginName">
-            <admin-label asp-for="DiscountPluginName" />
+            <admin-label asp-for="DiscountPluginName"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="DiscountPluginName" asp-items="Model.AvailableDiscountAmountProviders" />
+                <admin-select asp-for="DiscountPluginName" asp-items="Model.AvailableDiscountAmountProviders"/>
                 <span asp-validation-for="DiscountPluginName"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="Stores" />
+            <admin-label asp-for="Stores"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Stores" />
+                <admin-input asp-for="Stores"/>
                 <span asp-validation-for="Stores"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="StartDate" />
+            <admin-label asp-for="StartDate"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="StartDate" />
+                <admin-input asp-for="StartDate"/>
                 <span asp-validation-for="StartDate"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="EndDate" />
+            <admin-label asp-for="EndDate"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="EndDate" />
+                <admin-input asp-for="EndDate"/>
                 <span asp-validation-for="EndDate"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="RequiresCouponCode" />
+            <admin-label asp-for="RequiresCouponCode"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="RequiresCouponCode" />
+                    <admin-input asp-for="RequiresCouponCode"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="RequiresCouponCode"></span>
             </div>
         </div>
         <div class="form-group" id="pnlReused">
-            <admin-label asp-for="Reused" />
+            <admin-label asp-for="Reused"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="Reused" />
+                    <admin-input asp-for="Reused"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="Reused"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="IsCumulative" />
+            <admin-label asp-for="IsCumulative"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsCumulative" />
+                    <admin-input asp-for="IsCumulative"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="IsCumulative"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="DiscountLimitationId" />
+            <admin-label asp-for="DiscountLimitationId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="DiscountLimitationId" asp-items="((DiscountLimitationType)Model.DiscountLimitationId).ToSelectList(Context)" />
+                <admin-select asp-for="DiscountLimitationId" asp-items="((DiscountLimitationType)Model.DiscountLimitationId).ToSelectList(Context)"/>
                 <span asp-validation-for="DiscountLimitationId"></span>
             </div>
         </div>
         <div class="form-group" id="pnlLimitationTimes">
-            <admin-label asp-for="LimitationTimes" />
+            <admin-label asp-for="LimitationTimes"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="LimitationTimes" />
+                <admin-input asp-for="LimitationTimes"/>
                 <span asp-validation-for="LimitationTimes"></span> @Loc["admin.marketing.Discounts.Fields.LimitationTimes.Times"]
             </div>
         </div>
         <div class="form-group" id="pnlMaximumDiscountedQuantity">
-            <admin-label asp-for="MaximumDiscountedQuantity" />
+            <admin-label asp-for="MaximumDiscountedQuantity"/>
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="MaximumDiscountedQuantity" />
+                <admin-input asp-for="MaximumDiscountedQuantity"/>
                 <span asp-validation-for="MaximumDiscountedQuantity"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="IsEnabled" />
+            <admin-label asp-for="IsEnabled"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsEnabled" />
+                    <admin-input asp-for="IsEnabled"/>
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="IsEnabled"></span>
@@ -282,4 +282,4 @@
         </div>
     </div>
 </div>
-<vc:admin-widget widget-zone="discount_details_info_bottom" additional-data="Model" />
+<vc:admin-widget widget-zone="discount_details_info_bottom" additional-data="Model"/>

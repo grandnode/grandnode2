@@ -1,32 +1,32 @@
 ﻿@model PaymentTransactionModel
 
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden" />
+<input asp-for="Id" type="hidden"/>
 
 
 <div class="form-horizontal">
-    <vc:admin-widget widget-zone="payment_transaction_details_top" additional-data="Model" />
+    <vc:admin-widget widget-zone="payment_transaction_details_top" additional-data="Model"/>
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="PaymentMethodSystemName" />
+            <admin-label asp-for="PaymentMethodSystemName"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label">@Model.PaymentMethodSystemName</label>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="Status" />
+            <admin-label asp-for="Status"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label">@Model.Status</label>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="TransactionAmount" />
+            <admin-label asp-for="TransactionAmount"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label">@Model.TransactionAmount [@Model.CurrencyCode]</label>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="PaidAmount" />
+            <admin-label asp-for="PaidAmount"/>
             <div class="col-md-9 col-sm-9">
                 <label class="control-label">@Model.PaidAmount [@Model.CurrencyCode]</label>
             </div>
@@ -34,7 +34,7 @@
         @if (Model.RefundedAmount > 0)
         {
             <div class="form-group">
-                <admin-label asp-for="RefundedAmount" />
+                <admin-label asp-for="RefundedAmount"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">@Model.RefundedAmount [@Model.CurrencyCode]</label>
                 </div>

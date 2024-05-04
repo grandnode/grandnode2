@@ -6,18 +6,17 @@ using Grand.Domain.Stores;
 using Grand.Web.Models.Common;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Common
+namespace Grand.Web.Features.Models.Common;
+
+public class GetAddressModel : IRequest<AddressModel>
 {
-    public class GetAddressModel : IRequest<AddressModel>
-    {
-        public AddressModel Model { get; set; }
-        public Address Address { get; set; }
-        public bool ExcludeProperties { get; set; }
-        public Func<IList<Country>> LoadCountries { get; set; }
-        public bool PrePopulateWithCustomerFields { get; set; }
-        public Customer Customer { get; set; }
-        public Language Language { get; set; }
-        public Store Store { get; set; }
-        public IList<CustomAttribute> OverrideAttributes { get; set; }
-    }
+    public AddressModel Model { get; set; }
+    public Address Address { get; set; }
+    public bool ExcludeProperties { get; set; }
+    public Func<IList<Country>> LoadCountries { get; set; }
+    public bool PrePopulateWithCustomerFields { get; set; }
+    public Customer Customer { get; set; }
+    public Language Language { get; set; }
+    public Store Store { get; set; }
+    public IList<CustomAttribute> OverrideAttributes { get; set; }
 }

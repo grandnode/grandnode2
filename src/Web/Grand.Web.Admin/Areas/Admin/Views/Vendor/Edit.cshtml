@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["Admin.Vendors.EditVendorDetails"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Vendor" asp-action="Edit" method="post">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -12,15 +12,21 @@
                     <div class="caption">
                         <i class="fa fa-cube"></i>
                         @Loc["Admin.Vendors.EditVendorDetails"] - @Model.Name
-                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Vendors.BackToList"], "List")</small>
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Vendors.BackToList"], "List")
+                        </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
                             @if (Model.Active)
                             {
-                                <button type="submit" name="activatevendor" asp-action="Activate" value="deactive" class="btn purple" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"> 
+                                <button type="submit" name="activatevendor" asp-action="Activate" value="deactive" class="btn purple" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">
                                     @Loc["Admin.Common.Deactivate"]
                                 </button>
                             }
@@ -31,13 +37,15 @@
                                     @Loc["Admin.Common.Activate"]
                                 </button>
                             }
-                            <span id="vendor-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
-                            <vc:admin-widget widget-zone="vendor_details_buttons" additional-data="Model" />
+                            <span id="vendor-delete" class="btn red">
+                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                            </span>
+                            <vc:admin-widget widget-zone="vendor_details_buttons" additional-data="Model"/>
                         </div>
                     </div>
                 </div>
                 <div class="x_content form">
-                   <partial name="Partials/CreateOrUpdate" model="Model" />
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
                 </div>
             </div>
         </div>

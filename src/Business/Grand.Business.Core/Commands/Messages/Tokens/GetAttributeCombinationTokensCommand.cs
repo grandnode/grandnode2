@@ -2,11 +2,10 @@
 using Grand.Domain.Catalog;
 using MediatR;
 
-namespace Grand.Business.Core.Commands.Messages.Tokens
+namespace Grand.Business.Core.Commands.Messages.Tokens;
+
+public class GetAttributeCombinationTokensCommand : IRequest<LiquidAttributeCombination>
 {
-    public class GetAttributeCombinationTokensCommand : IRequest<LiquidAttributeCombination>
-    {
-        public Product Product { get; set; }
-        public ProductAttributeCombination Combination { get; set; }
-    }
+    public Product Product { get; set; }
+    public ProductAttributeCombination Combination { get; set; }
 }

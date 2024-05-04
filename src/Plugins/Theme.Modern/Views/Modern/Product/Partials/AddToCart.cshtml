@@ -1,10 +1,10 @@
 ﻿@model ProductDetailsModel.AddToCartModel
-@{ 
+@{
     var shoppingCartType = Model.UpdateShoppingCartItemType ?? ShoppingCartType.ShoppingCart;
 }
 @if (!string.IsNullOrEmpty(Model.UpdatedShoppingCartItemId))
 {
-    <input asp-for="UpdatedShoppingCartItemId" type="hidden" />
+    <input asp-for="UpdatedShoppingCartItemId" type="hidden"/>
 }
 @if (Model.EnteredPrice)
 {
@@ -25,6 +25,7 @@
         {
             <div class="min-qty-notification text-danger w-100 mb-2">@Model.MinimumQuantityNotification</div>
         }
+
         if (!Model.DisableBuyButton)
         {
             @if (Model.AllowedQuantities.Any())
@@ -39,7 +40,6 @@
             }
             else
             {
-
                 var addId = "addtocart_" + Model.ProductId + "_EnteredQuantity";
                 <label for="@addId" class="sr-only">@Loc["ShoppingCart.AddToCart"]</label>
                 <div class="qty-controls">
@@ -68,8 +68,8 @@
                         @Model.MeasureUnit
                     </span>
                 }
-
             }
+
             {
                 var addToCartText = "";
                 if (!string.IsNullOrEmpty(Model.UpdatedShoppingCartItemId) && Model.UpdateShoppingCartItemType is ShoppingCartType.ShoppingCart or ShoppingCartType.OnHoldCart)
@@ -83,15 +83,18 @@
                     {
                         addToCartText = Loc["ShoppingCart.Reservation"];
                     }
+
                     if (Model.AvailableForPreOrder)
                     {
                         addToCartText = Loc["ShoppingCart.PreOrder"];
                     }
+
                     if (Model.IsAuction)
                     {
                         addToCartText = Loc["ShoppingCart.BuyNow"];
                     }
                 }
+
                 <div class="input-group-append">
                     <button type="button" id="add-to-cart-button-@Model.ProductId" class="btn btn-info w-100 add-to-cart-button d-inline-flex" data-productid="@Model.ProductId" onclick="AxiosCart.addproducttocart_details('@Url.RouteUrl("AddProductDetails", new { productId = Model.ProductId, shoppingCartTypeId = (int)shoppingCartType })', @($"'#product-details-form-{Model.ProductId}'"));return false;">
                         <span>@addToCartText</span>

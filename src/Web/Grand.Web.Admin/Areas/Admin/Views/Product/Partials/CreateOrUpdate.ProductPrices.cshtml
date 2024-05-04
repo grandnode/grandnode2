@@ -1,6 +1,7 @@
-﻿@model ProductModel
-@inject Grand.Business.Core.Interfaces.Common.Directory.ICurrencyService currencyService
-@{ 
+﻿@using Grand.Business.Core.Interfaces.Common.Directory
+@model ProductModel
+@inject ICurrencyService currencyService
+@{
     var currencies = await currencyService.GetAllCurrencies();
     var defaultCurrency = await currencyService.GetPrimaryStoreCurrency();
     currencies = currencies.Where(x => x.Id != defaultCurrency.Id).ToList();
@@ -8,7 +9,7 @@
 @if (!string.IsNullOrEmpty(Model.Id) && currencies.Count > 0)
 {
     if (currencies.Count > 0)
-    { 
+    {
         <div class="panel panel-default">
             <div class="panel-body">
                 <div id="productprices-grid"></div>

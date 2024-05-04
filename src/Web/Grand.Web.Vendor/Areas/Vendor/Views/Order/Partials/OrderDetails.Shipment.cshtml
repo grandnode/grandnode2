@@ -1,16 +1,18 @@
-﻿@model OrderModel
-@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService;
-<vc:vendor-widget widget-zone="vendor_order_details_address_top" additional-data="Model" />
+﻿@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Business.Core.Utilities.Common.Security
+@model OrderModel
+@inject IPermissionService permissionService;
+<vc:vendor-widget widget-zone="vendor_order_details_address_top" additional-data="Model"/>
 @if (Model.IsShippable)
 {
-    @if (await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.PermissionSystemName.Shipments))
+    @if (await permissionService.Authorize(PermissionSystemName.Shipments))
     {
         <div class="card col-md-12">
             <div class="card-body">
                 <h4 class="card-title">@Loc["Vendor.Orders.Shipments"]</h4>
                 <div class="card-text">
                     <div class="panel panel-default">
-                        <vc:vendor-widget widget-zone="vendor_order_details_shipping_top" additional-data="Model" />
+                        <vc:vendor-widget widget-zone="vendor_order_details_shipping_top" additional-data="Model"/>
                         <div class="panel-body">
                             <div id="shipments-grid"></div>
                         </div>
@@ -20,7 +22,7 @@
                                 <button type="submit" id="btnAddNewShipment" name="btnAddNewShipment" onclick="javascript:setLocation('@(Url.Action("AddShipment", "Shipment", new { orderId = Model.Id, area = Constants.AreaVendor }))'); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Vendor.Orders.Shipments.AddNew"]</button>
                             }
                         </div>
-                        <vc:vendor-widget widget-zone="vendor_order_details_shipping_bottom" additional-data="Model" />
+                        <vc:vendor-widget widget-zone="vendor_order_details_shipping_bottom" additional-data="Model"/>
                     </div>
                 </div>
             </div>
@@ -160,7 +162,6 @@ else
     <div class="card col-md-6">
         <div class="note note-info">@Loc["Vendor.Orders.ShippingInfo.NotRequired"]</div>
     </div>
-
 }
 
-<vc:vendor-widget widget-zone="vendor_order_details_address_bottom" additional-data="Model" />
+<vc:vendor-widget widget-zone="vendor_order_details_address_bottom" additional-data="Model"/>

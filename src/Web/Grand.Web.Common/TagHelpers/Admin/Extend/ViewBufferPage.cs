@@ -4,28 +4,27 @@
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Buffers;
 using System.Runtime.CompilerServices;
 
-namespace Grand.Web.Common.TagHelpers.Admin.Extend
+namespace Grand.Web.Common.TagHelpers.Admin.Extend;
+
+internal class ViewBufferPage
 {
-    internal class ViewBufferPage
+    public ViewBufferPage(ViewBufferValue[] buffer)
     {
-        public ViewBufferPage(ViewBufferValue[] buffer)
-        {
-            Buffer = buffer;
-        }
+        Buffer = buffer;
+    }
 
-        public ViewBufferValue[] Buffer { get; }
+    public ViewBufferValue[] Buffer { get; }
 
-        public int Capacity => Buffer.Length;
+    public int Capacity => Buffer.Length;
 
-        public int Count { get; set; }
+    public int Count { get; set; }
 
-        public bool IsFull => Count == Capacity;
+    public bool IsFull => Count == Capacity;
 
-        // Very common trivial method; nudge it to inline https://github.com/aspnet/Mvc/pull/8339
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Append(ViewBufferValue value)
-        {
-            Buffer[Count++] = value;
-        }
+    // Very common trivial method; nudge it to inline https://github.com/aspnet/Mvc/pull/8339
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Append(ViewBufferValue value)
+    {
+        Buffer[Count++] = value;
     }
 }

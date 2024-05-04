@@ -3,20 +3,17 @@ using Grand.Api.DTOs.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Mapper;
 
-namespace Grand.Api.Infrastructure.Mapper.Profiles
+namespace Grand.Api.Infrastructure.Mapper.Profiles;
+
+public class CustomerGroupProfile : Profile, IAutoMapperProfile
 {
-    public class CustomerGroupProfile : Profile, IAutoMapperProfile
+    public CustomerGroupProfile()
     {
-        public CustomerGroupProfile()
-        {
+        CreateMap<CustomerGroupDto, CustomerGroup>()
+            .ForMember(dest => dest.UserFields, mo => mo.Ignore());
 
-            CreateMap<CustomerGroupDto, CustomerGroup>()
-                .ForMember(dest => dest.UserFields, mo => mo.Ignore());
-
-            CreateMap<CustomerGroup, CustomerGroupDto>();
-
-        }
-
-        public int Order => 1;
+        CreateMap<CustomerGroup, CustomerGroupDto>();
     }
+
+    public int Order => 1;
 }

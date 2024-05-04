@@ -2,23 +2,22 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Stores;
 
-namespace Grand.Web.Admin.Extensions.Mapping
+namespace Grand.Web.Admin.Extensions.Mapping;
+
+public static class StoreMappingExtensions
 {
-    public static class StoreMappingExtensions
+    public static StoreModel ToModel(this Store entity)
     {
-        public static StoreModel ToModel(this Store entity)
-        {
-            return entity.MapTo<Store, StoreModel>();
-        }
+        return entity.MapTo<Store, StoreModel>();
+    }
 
-        public static Store ToEntity(this StoreModel model)
-        {
-            return model.MapTo<StoreModel, Store>();
-        }
+    public static Store ToEntity(this StoreModel model)
+    {
+        return model.MapTo<StoreModel, Store>();
+    }
 
-        public static Store ToEntity(this StoreModel model, Store destination)
-        {
-            return model.MapTo(destination);
-        }
+    public static Store ToEntity(this StoreModel model, Store destination)
+    {
+        return model.MapTo(destination);
     }
 }

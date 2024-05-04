@@ -1,7 +1,6 @@
-﻿namespace Grand.Business.Core.Utilities.Authentication
+﻿namespace Grand.Business.Core.Utilities.Authentication;
+
+public class TwoFactorCodeSetup
 {
-    public class TwoFactorCodeSetup
-    {
-        public IDictionary<string, string> CustomValues { get; set; } = new Dictionary<string, string>();
-    }
+    public IDictionary<string, string> CustomValues { get; set; } = new Dictionary<string, string>();
 }

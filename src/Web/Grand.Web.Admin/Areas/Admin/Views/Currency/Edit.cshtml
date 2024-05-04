@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["Admin.Configuration.Currencies.EditCurrencyDetails"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Currency" asp-action="Edit">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -12,19 +12,27 @@
                     <div class="caption">
                         <i class="fa fa-globe"></i>
                         @Loc["Admin.Configuration.Currencies.EditCurrencyDetails"] - @Model.Name
-                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Configuration.Currencies.BackToList"], "List")</small>
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Configuration.Currencies.BackToList"], "List")
+                        </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
-                            <span id="currency-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
-                            <vc:admin-widget widget-zone="currency_details_buttons" additional-data="Model" />
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
+                            <span id="currency-delete" class="btn red">
+                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                            </span>
+                            <vc:admin-widget widget-zone="currency_details_buttons" additional-data="Model"/>
                         </div>
                     </div>
                 </div>
                 <div class="x_content form">
-                   <partial name="Partials/CreateOrUpdate" model="Model" />
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
                 </div>
             </div>
         </div>

@@ -2,12 +2,14 @@
 @if (Model.Any())
 {
     <div class="col-12 px-0 customGrid cross-sell-container">
-        <h5 class="generalTitle text-center"><strong>@Loc["ShoppingCart.CrossSells"]</strong></h5>
+        <h5 class="generalTitle text-center">
+            <strong>@Loc["ShoppingCart.CrossSells"]</strong>
+        </h5>
         <div class="form-row flex-grid mx-0">
             @foreach (var product in Model)
             {
                 <div class="col-lg-4 col-md-4 col-sm-6 col-12 product-container mb-2">
-                    <partial name="Partials/CatalogProductView" model="product" />
+                    <partial name="Partials/CatalogProductView" model="product"/>
                 </div>
             }
         </div>

@@ -1,10 +1,12 @@
 ﻿@model AddOrderNoteModel
 <b-modal id="ModalAddOrderNote" ref="ModalAddOrderNote" :dark-theme="darkMode" size="xl" centered hide-footer hide-header>
-    <a class="modal-close" @@click="$bvModal.hide('ModalAddOrderNote')"><b-icon icon="x"></b-icon></a>
+    <a class="modal-close" @@click="$bvModal.hide('ModalAddOrderNote')">
+        <b-icon icon="x"></b-icon>
+    </a>
     <h1 class="generalTitle h2 text-center">@Loc["Order.AddOrdernote"]</h1>
     <validation-observer v-slot="{ handleSubmit }">
-        <form asp-route="AddOrderNote"  asp-route-OrderId="@Model.OrderId" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
-            <input asp-for="OrderId" type="hidden" />
+        <form asp-route="AddOrderNote" asp-route-OrderId="@Model.OrderId" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
+            <input asp-for="OrderId" type="hidden"/>
             <div asp-validation-summary="All" class="message-error my-3"></div>
             <fieldset>
                 <div class="form-fields">
@@ -18,7 +20,7 @@
                 </div>
             </fieldset>
             <div class="buttons text-left my-3">
-                <input type="submit" class="btn btn-info write-product-review-button" value="@Loc[" OrderNote.SubmitButton"]" />
+                <input type="submit" class="btn btn-info write-product-review-button" value="@Loc[" OrderNote.SubmitButton"]"/>
             </div>
         </form>
     </validation-observer>

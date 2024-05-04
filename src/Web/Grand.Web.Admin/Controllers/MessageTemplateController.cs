@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Messages;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Messages;
@@ -13,282 +13,287 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Grand.Web.Admin.Controllers
+namespace Grand.Web.Admin.Controllers;
+
+[PermissionAuthorize(PermissionSystemName.MessageTemplates)]
+public class MessageTemplateController : BaseAdminController
 {
-    [PermissionAuthorize(PermissionSystemName.MessageTemplates)]
-    public class MessageTemplateController : BaseAdminController
+    #region Constructors
+
+    public MessageTemplateController(IMessageTemplateService messageTemplateService,
+        IEmailAccountService emailAccountService,
+        ILanguageService languageService,
+        ITranslationService translationService,
+        IMessageTokenProvider messageTokenProvider,
+        IStoreService storeService,
+        IDownloadService downloadService,
+        EmailAccountSettings emailAccountSettings)
     {
-        #region Fields
+        _messageTemplateService = messageTemplateService;
+        _emailAccountService = emailAccountService;
+        _languageService = languageService;
+        _translationService = translationService;
+        _messageTokenProvider = messageTokenProvider;
+        _storeService = storeService;
+        _downloadService = downloadService;
+        _emailAccountSettings = emailAccountSettings;
+    }
 
-        private readonly IMessageTemplateService _messageTemplateService;
-        private readonly IEmailAccountService _emailAccountService;
-        private readonly ILanguageService _languageService;
-        private readonly ITranslationService _translationService;
-        private readonly IMessageTokenProvider _messageTokenProvider;
-        private readonly IStoreService _storeService;
-        private readonly IDownloadService _downloadService;
-        private readonly EmailAccountSettings _emailAccountSettings;
+    #endregion
 
-        #endregion Fields
+    #region Fields
 
-        #region Constructors
+    private readonly IMessageTemplateService _messageTemplateService;
+    private readonly IEmailAccountService _emailAccountService;
+    private readonly ILanguageService _languageService;
+    private readonly ITranslationService _translationService;
+    private readonly IMessageTokenProvider _messageTokenProvider;
+    private readonly IStoreService _storeService;
+    private readonly IDownloadService _downloadService;
+    private readonly EmailAccountSettings _emailAccountSettings;
 
-        public MessageTemplateController(IMessageTemplateService messageTemplateService,
-            IEmailAccountService emailAccountService,
-            ILanguageService languageService,
-            ITranslationService translationService,
-            IMessageTokenProvider messageTokenProvider,
-            IStoreService storeService,
-            IDownloadService downloadService,
-            EmailAccountSettings emailAccountSettings)
+    #endregion Fields
+
+    #region Methods
+
+    public IActionResult Index()
+    {
+        return RedirectToAction("List");
+    }
+
+    public async Task<IActionResult> List()
+    {
+        var model = new MessageTemplateListModel();
+        //stores
+        model.AvailableStores.Add(new SelectListItem
+            { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
+        foreach (var s in await _storeService.GetAllStores())
+            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    [HttpPost]
+    public async Task<IActionResult> List(DataSourceRequest command, MessageTemplateListModel model)
+    {
+        var messageTemplates = await _messageTemplateService.GetAllMessageTemplates(model.SearchStoreId);
+
+        if (!string.IsNullOrEmpty(model.Name))
+            messageTemplates = messageTemplates.Where
+            (x => x.Name.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
+                  x.Subject.ToLowerInvariant().Contains(model.Name.ToLowerInvariant())).ToList();
+        var items = new List<MessageTemplateModel>();
+        foreach (var x in messageTemplates)
         {
-            _messageTemplateService = messageTemplateService;
-            _emailAccountService = emailAccountService;
-            _languageService = languageService;
-            _translationService = translationService;
-            _messageTokenProvider = messageTokenProvider;
-            _storeService = storeService;
-            _downloadService = downloadService;
-            _emailAccountSettings = emailAccountSettings;
+            var templateModel = x.ToModel();
+            var stores = (await _storeService
+                    .GetAllStores())
+                .Where(s => !x.LimitedToStores || templateModel.Stores.Contains(s.Id))
+                .ToList();
+            for (var i = 0; i < stores.Count; i++)
+            {
+                templateModel.ListOfStores += stores[i].Shortcut;
+                if (i != stores.Count - 1)
+                    templateModel.ListOfStores += ", ";
+            }
+
+            items.Add(templateModel);
         }
 
-        #endregion
+        var gridModel = new DataSourceResult {
+            Data = items,
+            Total = messageTemplates.Count
+        };
 
-        #region Methods
+        return Json(gridModel);
+    }
 
-        public IActionResult Index()
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public async Task<IActionResult> Create()
+    {
+        var model = new MessageTemplateModel {
+            //Stores
+            AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens()
+        };
+
+        //available email accounts
+        foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
+            model.AvailableEmailAccounts.Add(ea.ToModel());
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Create(MessageTemplateModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
         {
+            var messageTemplate = model.ToEntity();
+            //attached file
+            if (!model.HasAttachedDownload)
+                messageTemplate.AttachedDownloadId = "";
+            if (model.SendImmediately)
+                messageTemplate.DelayBeforeSend = null;
+
+            await _messageTemplateService.InsertMessageTemplate(messageTemplate);
+
+            Success(_translationService.GetResource("Admin.Content.MessageTemplates.AddNew"));
+
+            if (continueEditing)
+            {
+                //selected tab
+                await SaveSelectedTabIndex();
+
+                return RedirectToAction("Edit", new { id = messageTemplate.Id });
+            }
+
             return RedirectToAction("List");
         }
 
-        public async Task<IActionResult> List()
+
+        //If we got this far, something failed, redisplay form
+        model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
+        model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
+        //available email accounts
+        foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
+            model.AvailableEmailAccounts.Add(ea.ToModel());
+        //Store
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var messageTemplate = await _messageTemplateService.GetMessageTemplateById(id);
+        if (messageTemplate == null)
+            //No message template found with the specified id
+            return RedirectToAction("List");
+
+        var model = messageTemplate.ToModel();
+        model.SendImmediately = !model.DelayBeforeSend.HasValue;
+        model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
+        model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
+        //available email accounts
+        foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
+            model.AvailableEmailAccounts.Add(ea.ToModel());
+
+        //locales
+        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
-            var model = new MessageTemplateListModel();
-            //stores
-            model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-            foreach (var s in await _storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+            locale.BccEmailAddresses = messageTemplate.GetTranslation(x => x.BccEmailAddresses, languageId, false);
+            locale.Subject = messageTemplate.GetTranslation(x => x.Subject, languageId, false);
+            locale.Body = messageTemplate.GetTranslation(x => x.Body, languageId, false);
 
-            return View(model);
-        }
+            var emailAccountId = messageTemplate.GetTranslation(x => x.EmailAccountId, languageId, false);
+            locale.EmailAccountId = !string.IsNullOrEmpty(emailAccountId)
+                ? emailAccountId
+                : _emailAccountSettings.DefaultEmailAccountId;
+        });
 
-        [PermissionAuthorizeAction(PermissionActionName.List)]
-        [HttpPost]
-        public async Task<IActionResult> List(DataSourceRequest command, MessageTemplateListModel model)
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Edit(MessageTemplateModel model, bool continueEditing)
+    {
+        var messageTemplate = await _messageTemplateService.GetMessageTemplateById(model.Id);
+        if (messageTemplate == null)
+            //No message template found with the specified id
+            return RedirectToAction("List");
+
+        var prevAttachment = messageTemplate.AttachedDownloadId;
+
+        if (ModelState.IsValid)
         {
-            var messageTemplates = await _messageTemplateService.GetAllMessageTemplates(model.SearchStoreId);
-
-            if (!string.IsNullOrEmpty(model.Name))
-            {
-                messageTemplates = messageTemplates.Where
-                    (x => x.Name.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
-                    x.Subject.ToLowerInvariant().Contains(model.Name.ToLowerInvariant())).ToList();
-            }
-            var items = new List<MessageTemplateModel>();
-            foreach (var x in messageTemplates)
-            {
-                var templateModel = x.ToModel();
-                var stores = (await _storeService
-                        .GetAllStores())
-                        .Where(s => !x.LimitedToStores || templateModel.Stores.Contains(s.Id))
-                        .ToList();
-                for (var i = 0; i < stores.Count; i++)
-                {
-                    templateModel.ListOfStores += stores[i].Shortcut;
-                    if (i != stores.Count - 1)
-                        templateModel.ListOfStores += ", ";
-                }
-                items.Add(templateModel);
-            }
-            var gridModel = new DataSourceResult
-            {
-                Data = items,
-                Total = messageTemplates.Count
-            };
-
-            return Json(gridModel);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Create)]
-        public async Task<IActionResult> Create()
-        {
-            var model = new MessageTemplateModel {
-                //Stores
-                AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens()
-            };
-
-            //available email accounts
-            foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
-                model.AvailableEmailAccounts.Add(ea.ToModel());
-
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Create)]
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> Create(MessageTemplateModel model, bool continueEditing)
-        {
-            if (ModelState.IsValid)
-            {
-                var messageTemplate = model.ToEntity();
-                //attached file
-                if (!model.HasAttachedDownload)
-                    messageTemplate.AttachedDownloadId = "";
-                if (model.SendImmediately)
-                    messageTemplate.DelayBeforeSend = null;
-
-                await _messageTemplateService.InsertMessageTemplate(messageTemplate);
-
-                Success(_translationService.GetResource("Admin.Content.MessageTemplates.AddNew"));
-
-                if (continueEditing)
-                {
-                    //selected tab
-                    await SaveSelectedTabIndex();
-
-                    return RedirectToAction("Edit", new { id = messageTemplate.Id });
-                }
-                return RedirectToAction("List");
-            }
-
-
-            //If we got this far, something failed, redisplay form
-            model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
-            model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
-            //available email accounts
-            foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
-                model.AvailableEmailAccounts.Add(ea.ToModel());
-            //Store
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Preview)]
-        public async Task<IActionResult> Edit(string id)
-        {
-            var messageTemplate = await _messageTemplateService.GetMessageTemplateById(id);
-            if (messageTemplate == null)
-                //No message template found with the specified id
-                return RedirectToAction("List");
-
-            var model = messageTemplate.ToModel();
-            model.SendImmediately = !model.DelayBeforeSend.HasValue;
-            model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
-            model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
-            //available email accounts
-            foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
-                model.AvailableEmailAccounts.Add(ea.ToModel());
-
-            //locales
-            await AddLocales(_languageService, model.Locales, (locale, languageId) =>
-            {
-                locale.BccEmailAddresses = messageTemplate.GetTranslation(x => x.BccEmailAddresses, languageId, false);
-                locale.Subject = messageTemplate.GetTranslation(x => x.Subject, languageId, false);
-                locale.Body = messageTemplate.GetTranslation(x => x.Body, languageId, false);
-
-                var emailAccountId = messageTemplate.GetTranslation(x => x.EmailAccountId, languageId, false);
-                locale.EmailAccountId = !string.IsNullOrEmpty(emailAccountId) ? emailAccountId : _emailAccountSettings.DefaultEmailAccountId;
-            });
-
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> Edit(MessageTemplateModel model, bool continueEditing)
-        {
-            var messageTemplate = await _messageTemplateService.GetMessageTemplateById(model.Id);
-            if (messageTemplate == null)
-                //No message template found with the specified id
-                return RedirectToAction("List");
-
-            var prevAttachment = messageTemplate.AttachedDownloadId;
-
-            if (ModelState.IsValid)
-            {
-                messageTemplate = model.ToEntity(messageTemplate);
-                //attached file
-                if (!model.HasAttachedDownload)
-                    messageTemplate.AttachedDownloadId = "";
-                if (model.SendImmediately)
-                    messageTemplate.DelayBeforeSend = null;
-
-                //delete an old "attachment" file
-                if (!string.IsNullOrEmpty(prevAttachment) && prevAttachment!= messageTemplate.AttachedDownloadId)
-                {
-                    var attachment = await _downloadService.GetDownloadById(prevAttachment);
-                    if (attachment != null)
-                        await _downloadService.DeleteDownload(attachment);
-                }
-
-                await _messageTemplateService.UpdateMessageTemplate(messageTemplate);
-
-                Success(_translationService.GetResource("Admin.Content.MessageTemplates.Updated"));
-
-                if (continueEditing)
-                {
-                    //selected tab
-                    await SaveSelectedTabIndex();
-
-                    return RedirectToAction("Edit", new { id = messageTemplate.Id });
-                }
-                return RedirectToAction("List");
-            }
-
-            //If we got this far, something failed, redisplay form
-            model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
-            model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
-            //available email accounts
-            foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
-                model.AvailableEmailAccounts.Add(ea.ToModel());
-
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Delete)]
-        [HttpPost]
-        public async Task<IActionResult> Delete(string id)
-        {
-            var messageTemplate = await _messageTemplateService.GetMessageTemplateById(id);
-            if (messageTemplate == null)
-                //No message template found with the specified id
-                return RedirectToAction("List");
-
-            await _messageTemplateService.DeleteMessageTemplate(messageTemplate);
+            messageTemplate = model.ToEntity(messageTemplate);
+            //attached file
+            if (!model.HasAttachedDownload)
+                messageTemplate.AttachedDownloadId = "";
+            if (model.SendImmediately)
+                messageTemplate.DelayBeforeSend = null;
 
             //delete an old "attachment" file
-            if (!string.IsNullOrEmpty(messageTemplate.AttachedDownloadId))
+            if (!string.IsNullOrEmpty(prevAttachment) && prevAttachment != messageTemplate.AttachedDownloadId)
             {
-                var attachment = await _downloadService.GetDownloadById(messageTemplate.AttachedDownloadId);
+                var attachment = await _downloadService.GetDownloadById(prevAttachment);
                 if (attachment != null)
                     await _downloadService.DeleteDownload(attachment);
             }
 
-            Success(_translationService.GetResource("Admin.Content.MessageTemplates.Deleted"));
+            await _messageTemplateService.UpdateMessageTemplate(messageTemplate);
+
+            Success(_translationService.GetResource("Admin.Content.MessageTemplates.Updated"));
+
+            if (continueEditing)
+            {
+                //selected tab
+                await SaveSelectedTabIndex();
+
+                return RedirectToAction("Edit", new { id = messageTemplate.Id });
+            }
+
             return RedirectToAction("List");
         }
 
-        [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        [HttpPost]
-        public async Task<IActionResult> CopyTemplate(MessageTemplateModel model)
-        {
-            var messageTemplate = await _messageTemplateService.GetMessageTemplateById(model.Id);
-            if (messageTemplate == null)
-                //No message template found with the specified id
-                return RedirectToAction("List");
+        //If we got this far, something failed, redisplay form
+        model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
+        model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
+        //available email accounts
+        foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
+            model.AvailableEmailAccounts.Add(ea.ToModel());
 
-            try
-            {
-                var newMessageTemplate = await _messageTemplateService.CopyMessageTemplate(messageTemplate);
-                Success("The message template has been copied successfully");
-                return RedirectToAction("Edit", new { id = newMessageTemplate.Id });
-            }
-            catch (Exception exc)
-            {
-                Error(exc.Message);
-                return RedirectToAction("Edit", new { id = model.Id });
-            }
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var messageTemplate = await _messageTemplateService.GetMessageTemplateById(id);
+        if (messageTemplate == null)
+            //No message template found with the specified id
+            return RedirectToAction("List");
+
+        await _messageTemplateService.DeleteMessageTemplate(messageTemplate);
+
+        //delete an old "attachment" file
+        if (!string.IsNullOrEmpty(messageTemplate.AttachedDownloadId))
+        {
+            var attachment = await _downloadService.GetDownloadById(messageTemplate.AttachedDownloadId);
+            if (attachment != null)
+                await _downloadService.DeleteDownload(attachment);
         }
 
-        #endregion
+        Success(_translationService.GetResource("Admin.Content.MessageTemplates.Deleted"));
+        return RedirectToAction("List");
     }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> CopyTemplate(MessageTemplateModel model)
+    {
+        var messageTemplate = await _messageTemplateService.GetMessageTemplateById(model.Id);
+        if (messageTemplate == null)
+            //No message template found with the specified id
+            return RedirectToAction("List");
+
+        try
+        {
+            var newMessageTemplate = await _messageTemplateService.CopyMessageTemplate(messageTemplate);
+            Success("The message template has been copied successfully");
+            return RedirectToAction("Edit", new { id = newMessageTemplate.Id });
+        }
+        catch (Exception exc)
+        {
+            Error(exc.Message);
+            return RedirectToAction("Edit", new { id = model.Id });
+        }
+    }
+
+    #endregion
 }

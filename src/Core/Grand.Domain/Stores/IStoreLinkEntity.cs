@@ -1,14 +1,14 @@
-namespace Grand.Domain.Stores
+namespace Grand.Domain.Stores;
+
+/// <summary>
+///     Represents an entity which user store linking
+/// </summary>
+public interface IStoreLinkEntity
 {
     /// <summary>
-    /// Represents an entity which user store linking
+    ///     Gets or sets a value indicating whether the entity is limited to some stores
     /// </summary>
-    public interface IStoreLinkEntity
-    {
-        /// <summary>
-        /// Gets or sets a value indicating whether the entity is limited to some stores
-        /// </summary>
-        bool LimitedToStores { get; set; }
-        IList<string> Stores { get; set; }
-    }
+    bool LimitedToStores { get; set; }
+
+    IList<string> Stores { get; set; }
 }

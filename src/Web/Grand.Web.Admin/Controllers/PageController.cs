@@ -1,202 +1,199 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Infrastructure;
-using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Pages;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Admin.Controllers
+namespace Grand.Web.Admin.Controllers;
+
+[PermissionAuthorize(PermissionSystemName.Pages)]
+public class PageController : BaseAdminController
 {
-    [PermissionAuthorize(PermissionSystemName.Pages)]
-    public class PageController : BaseAdminController
+    #region Constructors
+
+    public PageController(
+        IPageViewModelService pageViewModelService,
+        IPageService pageService,
+        ILanguageService languageService,
+        ITranslationService translationService,
+        IWorkContext workContext,
+        IDateTimeService dateTimeService)
     {
-        #region Fields
+        _pageViewModelService = pageViewModelService;
+        _pageService = pageService;
+        _languageService = languageService;
+        _translationService = translationService;
+        _workContext = workContext;
+        _dateTimeService = dateTimeService;
+    }
 
-        private readonly IPageViewModelService _pageViewModelService;
-        private readonly IPageService _pageService;
-        private readonly ILanguageService _languageService;
-        private readonly ITranslationService _translationService;
-        private readonly IWorkContext _workContext;
-        private readonly IDateTimeService _dateTimeService;
+    #endregion
 
-        #endregion Fields
+    #region Fields
 
-        #region Constructors
+    private readonly IPageViewModelService _pageViewModelService;
+    private readonly IPageService _pageService;
+    private readonly ILanguageService _languageService;
+    private readonly ITranslationService _translationService;
+    private readonly IWorkContext _workContext;
+    private readonly IDateTimeService _dateTimeService;
 
-        public PageController(
-            IPageViewModelService pageViewModelService,
-            IPageService pageService,
-            ILanguageService languageService,
-            ITranslationService translationService,
-            IWorkContext workContext,
-            IDateTimeService dateTimeService)
+    #endregion Fields
+
+    #region List
+
+    public IActionResult Index()
+    {
+        return RedirectToAction("List");
+    }
+
+    public async Task<IActionResult> List()
+    {
+        var model = await _pageViewModelService.PreparePageListModel();
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    [HttpPost]
+    public async Task<IActionResult> List(DataSourceRequest command, PageListModel model)
+    {
+        var pageModels = (await _pageService.GetAllPages(model.SearchStoreId, true))
+            .Select(x => x.ToModel(_dateTimeService))
+            .ToList();
+
+        if (!string.IsNullOrEmpty(model.Name))
+            pageModels = pageModels.Where
+            (x => x.SystemName.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
+                  (x.Title != null && x.Title.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()))).ToList();
+        //"Error during serialization or deserialization using the JSON JavaScriptSerializer. The length of the string exceeds the value set on the maxJsonLength property. "
+        foreach (var page in pageModels) page.Body = "";
+        var gridModel = new DataSourceResult {
+            Data = pageModels,
+            Total = pageModels.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    #endregion
+
+    #region Create / Edit / Delete
+
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public async Task<IActionResult> Create()
+    {
+        var model = new PageModel();
+        //layouts
+        await _pageViewModelService.PrepareLayoutsModel(model);
+        //locales
+        await AddLocales(_languageService, model.Locales);
+        //default values
+        model.DisplayOrder = 1;
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Create(PageModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
         {
-            _pageViewModelService = pageViewModelService;
-            _pageService = pageService;
-            _languageService = languageService;
-            _translationService = translationService;
-            _workContext = workContext;
-            _dateTimeService = dateTimeService;
+            var page = await _pageViewModelService.InsertPageModel(model);
+            Success(_translationService.GetResource("Admin.Content.Pages.Added"));
+            return continueEditing ? RedirectToAction("Edit", new { id = page.Id }) : RedirectToAction("List");
         }
 
-        #endregion
+        //If we got this far, something failed, redisplay form
+        //layouts
+        await _pageViewModelService.PrepareLayoutsModel(model);
+        return View(model);
+    }
 
-        #region List
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var page = await _pageService.GetPageById(id);
+        if (page == null)
+            //No page found with the specified id
+            return RedirectToAction("List");
 
-        public IActionResult Index()
+        var model = page.ToModel(_dateTimeService);
+        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_workContext.WorkingLanguage.Id) }, "http");
+        //layouts
+        await _pageViewModelService.PrepareLayoutsModel(model);
+        //locales
+        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
+            locale.Title = page.GetTranslation(x => x.Title, languageId, false);
+            locale.Body = page.GetTranslation(x => x.Body, languageId, false);
+            locale.MetaKeywords = page.GetTranslation(x => x.MetaKeywords, languageId, false);
+            locale.MetaDescription = page.GetTranslation(x => x.MetaDescription, languageId, false);
+            locale.MetaTitle = page.GetTranslation(x => x.MetaTitle, languageId, false);
+            locale.SeName = page.GetSeName(languageId, false);
+        });
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Edit(PageModel model, bool continueEditing)
+    {
+        var page = await _pageService.GetPageById(model.Id);
+        if (page == null)
+            //No page found with the specified id
+            return RedirectToAction("List");
+
+        if (ModelState.IsValid)
+        {
+            page = await _pageViewModelService.UpdatePageModel(page, model);
+            Success(_translationService.GetResource("Admin.Content.Pages.Updated"));
+            if (continueEditing)
+            {
+                //selected tab
+                await SaveSelectedTabIndex();
+                return RedirectToAction("Edit", new { id = page.Id });
+            }
+
             return RedirectToAction("List");
         }
 
-        public async Task<IActionResult> List()
-        {
-            var model = await _pageViewModelService.PreparePageListModel();
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.List)]
-        [HttpPost]
-        public async Task<IActionResult> List(DataSourceRequest command, PageListModel model)
-        {
-            var pageModels = (await _pageService.GetAllPages(model.SearchStoreId, true))
-                .Select(x => x.ToModel(_dateTimeService))
-                .ToList();
-
-            if (!string.IsNullOrEmpty(model.Name))
-            {
-                pageModels = pageModels.Where
-                    (x => x.SystemName.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
-                    (x.Title != null && x.Title.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()))).ToList();
-            }
-            //"Error during serialization or deserialization using the JSON JavaScriptSerializer. The length of the string exceeds the value set on the maxJsonLength property. "
-            foreach (var page in pageModels)
-            {
-                page.Body = "";
-            }
-            var gridModel = new DataSourceResult
-            {
-                Data = pageModels,
-                Total = pageModels.Count
-            };
-
-            return Json(gridModel);
-        }
-
-        #endregion
-
-        #region Create / Edit / Delete
-
-        [PermissionAuthorizeAction(PermissionActionName.Create)]
-        public async Task<IActionResult> Create()
-        {
-            var model = new PageModel();
-            //layouts
-            await _pageViewModelService.PrepareLayoutsModel(model);
-            //locales
-            await AddLocales(_languageService, model.Locales);
-            //default values
-            model.DisplayOrder = 1;
-
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> Create(PageModel model, bool continueEditing)
-        {
-            if (ModelState.IsValid)
-            {
-                var page = await _pageViewModelService.InsertPageModel(model);
-                Success(_translationService.GetResource("Admin.Content.Pages.Added"));
-                return continueEditing ? RedirectToAction("Edit", new { id = page.Id }) : RedirectToAction("List");
-            }
-
-            //If we got this far, something failed, redisplay form
-            //layouts
-            await _pageViewModelService.PrepareLayoutsModel(model);
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Preview)]
-        public async Task<IActionResult> Edit(string id)
-        {
-            var page = await _pageService.GetPageById(id);
-            if (page == null)
-                //No page found with the specified id
-                return RedirectToAction("List");
-
-            var model = page.ToModel(_dateTimeService);
-            model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_workContext.WorkingLanguage.Id) }, "http");
-            //layouts
-            await _pageViewModelService.PrepareLayoutsModel(model);
-            //locales
-            await AddLocales(_languageService, model.Locales, (locale, languageId) =>
-            {
-                locale.Title = page.GetTranslation(x => x.Title, languageId, false);
-                locale.Body = page.GetTranslation(x => x.Body, languageId, false);
-                locale.MetaKeywords = page.GetTranslation(x => x.MetaKeywords, languageId, false);
-                locale.MetaDescription = page.GetTranslation(x => x.MetaDescription, languageId, false);
-                locale.MetaTitle = page.GetTranslation(x => x.MetaTitle, languageId, false);
-                locale.SeName = page.GetSeName(languageId, false);
-            });
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-        public async Task<IActionResult> Edit(PageModel model, bool continueEditing)
-        {
-            var page = await _pageService.GetPageById(model.Id);
-            if (page == null)
-                //No page found with the specified id
-                return RedirectToAction("List");
-
-            if (ModelState.IsValid)
-            {
-                page = await _pageViewModelService.UpdatePageModel(page, model);
-                Success(_translationService.GetResource("Admin.Content.Pages.Updated"));
-                if (continueEditing)
-                {
-                    //selected tab
-                    await SaveSelectedTabIndex();
-                    return RedirectToAction("Edit", new { id = page.Id });
-                }
-                return RedirectToAction("List");
-            }
-
-            //If we got this far, something failed, redisplay form
-            model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_workContext.WorkingLanguage.Id) }, "http");
-            //layouts
-            await _pageViewModelService.PrepareLayoutsModel(model);
-            return View(model);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Delete)]
-        [HttpPost]
-        public async Task<IActionResult> Delete(string id)
-        {
-            var page = await _pageService.GetPageById(id);
-            if (page == null)
-                //No page found with the specified id
-                return RedirectToAction("List");
-
-            if (ModelState.IsValid)
-            {
-                await _pageViewModelService.DeletePage(page);
-                Success(_translationService.GetResource("Admin.Content.Pages.Deleted"));
-                return RedirectToAction("List");
-            }
-            Error(ModelState);
-            return RedirectToAction("Edit", new { id });
-        }
-
-        #endregion
+        //If we got this far, something failed, redisplay form
+        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_workContext.WorkingLanguage.Id) }, "http");
+        //layouts
+        await _pageViewModelService.PrepareLayoutsModel(model);
+        return View(model);
     }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var page = await _pageService.GetPageById(id);
+        if (page == null)
+            //No page found with the specified id
+            return RedirectToAction("List");
+
+        if (ModelState.IsValid)
+        {
+            await _pageViewModelService.DeletePage(page);
+            Success(_translationService.GetResource("Admin.Content.Pages.Deleted"));
+            return RedirectToAction("List");
+        }
+
+        Error(ModelState);
+        return RedirectToAction("Edit", new { id });
+    }
+
+    #endregion
 }

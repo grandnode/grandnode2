@@ -1,12 +1,13 @@
 ﻿@{
     Layout = "_ConfigurePlugin";
 }
+@using System.Text.Encodings.Web
 @model Widgets.GoogleAnalytics.Models.ConfigurationModel
 
 @await Component.InvokeAsync("StoreScope")
 @{
     //default values
-    var googleAnalytics_trackingScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(@"<!-- Google tag (gtag.js) -->
+    var googleAnalytics_trackingScript = Html.Raw(JavaScriptEncoder.Default.Encode(@"<!-- Google tag (gtag.js) -->
                     <script async src='https://www.googletagmanager.com/gtag/js?id={GOOGLEID}'></script>
                     <script>
                         window.dataLayer = window.dataLayer || [];
@@ -16,9 +17,8 @@
                         {ECOMMERCE}
                     </script>
                 "));
-    var googleAnalytics_EcommerceScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode("gtag('event', 'purchase', {transaction_id: '{ORDERID}', value: {TOTAL}, tax: {TAX}, shipping: {SHIP}, currency: '{CURRENCY}', city: '{CITY}', state: '{STATEPROVINCE}', country: '{COUNTRY}', items: [{DETAILS}]});"));
-    var googleAnalytics_EcommerceDetailScript = Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode("{ item_id: '{PRODUCTID}', item_name: '{PRODUCTNAME}', item_category: '{CATEGORYNAME}', price: {UNITPRICE}, quantity: {QUANTITY} }, "));
-    
+    var googleAnalytics_EcommerceScript = Html.Raw(JavaScriptEncoder.Default.Encode("gtag('event', 'purchase', {transaction_id: '{ORDERID}', value: {TOTAL}, tax: {TAX}, shipping: {SHIP}, currency: '{CURRENCY}', city: '{CITY}', state: '{STATEPROVINCE}', country: '{COUNTRY}', items: [{DETAILS}]});"));
+    var googleAnalytics_EcommerceDetailScript = Html.Raw(JavaScriptEncoder.Default.Encode("{ item_id: '{PRODUCTID}', item_name: '{PRODUCTNAME}', item_category: '{CATEGORYNAME}', price: {UNITPRICE}, quantity: {QUANTITY} }, "));
 }
 <script>
     $(document).ready(function () {
@@ -33,7 +33,7 @@
 
 </script>
 <form asp-controller="WidgetsGoogleAnalytics" asp-action="Configure" method="post">
-    
+
     <div class="form-horizonal">
         <div class="form-body">
             <div class="form-group">
@@ -55,21 +55,21 @@
                         <li>Copy the Tracking ID into the 'ID' box below</li>
                         <li>Click the 'Save' button below and Google Analytics will be integrated into your store</li>
                     </ul>
-                    <input type="button" id="pre-configure-google-analytics" class="k-button" value="Pre-configure Google Analytics" />
+                    <input type="button" id="pre-configure-google-analytics" class="k-button" value="Pre-configure Google Analytics"/>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-sm-4 text-right">
-                    <admin-label asp-for="GoogleId" class="control-label" />
+                    <admin-label asp-for="GoogleId" class="control-label"/>
                 </div>
                 <div class="col-md-8 col-sm-8">
-                    <admin-input asp-for="GoogleId" />
+                    <admin-input asp-for="GoogleId"/>
                     <span asp-validation-for="GoogleId"></span>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-sm-4 text-right">
-                    <admin-label asp-for="TrackingScript" class="control-label" />
+                    <admin-label asp-for="TrackingScript" class="control-label"/>
                 </div>
                 <div class="col-md-8 col-sm-8">
                     <admin-textarea asp-for="TrackingScript"></admin-textarea>
@@ -78,7 +78,7 @@
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-sm-4 text-right">
-                    <admin-label asp-for="EcommerceScript" class="control-label" />
+                    <admin-label asp-for="EcommerceScript" class="control-label"/>
                 </div>
                 <div class="col-md-8 col-sm-8">
                     <admin-textarea asp-for="EcommerceScript"></admin-textarea>
@@ -87,7 +87,7 @@
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-sm-4 text-right">
-                    <admin-label asp-for="EcommerceDetailScript" class="control-label" />
+                    <admin-label asp-for="EcommerceDetailScript" class="control-label"/>
                 </div>
                 <div class="col-md-8 col-sm-8">
                     <admin-textarea asp-for="EcommerceDetailScript"></admin-textarea>
@@ -96,11 +96,11 @@
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-sm-4 text-right">
-                    <admin-label asp-for="IncludingTax" class="control-label" />
+                    <admin-label asp-for="IncludingTax" class="control-label"/>
                 </div>
                 <div class="col-md-8 col-sm-8">
                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                        <admin-input asp-for="IncludingTax" />
+                        <admin-input asp-for="IncludingTax"/>
                         <div class="control__indicator"></div>
                     </label>
                     <span asp-validation-for="IncludingTax"></span>
@@ -108,11 +108,11 @@
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-sm-4 text-right">
-                    <admin-label asp-for="AllowToDisableConsentCookie" class="control-label" />
+                    <admin-label asp-for="AllowToDisableConsentCookie" class="control-label"/>
                 </div>
                 <div class="col-md-8 col-sm-8">
                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                        <admin-input asp-for="AllowToDisableConsentCookie" />
+                        <admin-input asp-for="AllowToDisableConsentCookie"/>
                         <div class="control__indicator"></div>
                     </label>
                     <span asp-validation-for="AllowToDisableConsentCookie"></span>
@@ -120,11 +120,11 @@
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-sm-4 text-right">
-                    <admin-label asp-for="ConsentDefaultState" class="control-label" />
+                    <admin-label asp-for="ConsentDefaultState" class="control-label"/>
                 </div>
                 <div class="col-md-8 col-sm-8">
                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                        <admin-input asp-for="ConsentDefaultState" />
+                        <admin-input asp-for="ConsentDefaultState"/>
                         <div class="control__indicator"></div>
                     </label>
                     <span asp-validation-for="ConsentDefaultState"></span>
@@ -132,7 +132,7 @@
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-sm-4 text-right">
-                    <admin-label asp-for="ConsentName" class="control-label" />
+                    <admin-label asp-for="ConsentName" class="control-label"/>
                 </div>
                 <div class="col-md-8 col-sm-8">
                     <admin-textarea asp-for="ConsentName"></admin-textarea>
@@ -141,7 +141,7 @@
             </div>
             <div class="form-group">
                 <div class="col-md-4 col-sm-4 text-right">
-                    <admin-label asp-for="ConsentDescription" class="control-label" />
+                    <admin-label asp-for="ConsentDescription" class="control-label"/>
                 </div>
                 <div class="col-md-8 col-sm-8">
                     <admin-textarea asp-for="ConsentDescription"></admin-textarea>
@@ -158,7 +158,7 @@
         </div>
         <div class="form-actions">
             <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-                <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]" />
+                <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]"/>
             </div>
         </div>
     </div>

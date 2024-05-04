@@ -6,22 +6,21 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shipping.ByWeight.Services;
 
-namespace Shipping.ByWeight
+namespace Shipping.ByWeight;
+
+public class StartupApplication : IStartupApplication
 {
-    public class StartupApplication : IStartupApplication
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddScoped<IShippingByWeightService, ShippingByWeightService>();
-            services.AddScoped<IShippingRateCalculationProvider, ByWeightShippingCalcPlugin>();
-        }
-
-        public int Priority => 10;
-        public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
-        {
-
-        }
-        public bool BeforeConfigure => false;
-
+        services.AddScoped<IShippingByWeightService, ShippingByWeightService>();
+        services.AddScoped<IShippingRateCalculationProvider, ByWeightShippingCalcPlugin>();
     }
+
+    public int Priority => 10;
+
+    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    {
+    }
+
+    public bool BeforeConfigure => false;
 }

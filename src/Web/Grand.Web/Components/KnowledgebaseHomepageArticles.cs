@@ -6,42 +6,41 @@ using Grand.Web.Common.Components;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Components
+namespace Grand.Web.Components;
+
+public class KnowledgebaseHomepageArticles : BaseViewComponent
 {
-    public class KnowledgebaseHomepageArticles : BaseViewComponent
+    private readonly IKnowledgebaseService _knowledgebaseService;
+    private readonly KnowledgebaseSettings _knowledgebaseSettings;
+    private readonly IWorkContext _workContext;
+
+    public KnowledgebaseHomepageArticles(IKnowledgebaseService knowledgebaseService, IWorkContext workContext,
+        KnowledgebaseSettings knowledgebaseSettings)
     {
-        private readonly IKnowledgebaseService _knowledgebaseService;
-        private readonly IWorkContext _workContext;
-        private readonly KnowledgebaseSettings _knowledgebaseSettings;
+        _knowledgebaseService = knowledgebaseService;
+        _workContext = workContext;
+        _knowledgebaseSettings = knowledgebaseSettings;
+    }
 
-        public KnowledgebaseHomepageArticles(IKnowledgebaseService knowledgebaseService, IWorkContext workContext, KnowledgebaseSettings knowledgebaseSettings)
+    public async Task<IViewComponentResult> InvokeAsync(KnowledgebaseHomePageModel model)
+    {
+        if (!_knowledgebaseSettings.Enabled)
+            return Content("");
+
+        var articles = await _knowledgebaseService.GetHomepageKnowledgebaseArticles();
+
+        foreach (var article in articles)
         {
-            _knowledgebaseService = knowledgebaseService;
-            _workContext = workContext;
-            _knowledgebaseSettings = knowledgebaseSettings;
+            var a = new KnowledgebaseItemModel {
+                Id = article.Id,
+                Name = article.GetTranslation(y => y.Name, _workContext.WorkingLanguage.Id),
+                SeName = article.GetTranslation(y => y.SeName, _workContext.WorkingLanguage.Id),
+                IsArticle = true
+            };
+
+            model.Items.Add(a);
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(KnowledgebaseHomePageModel model)
-        {
-            if (!_knowledgebaseSettings.Enabled)
-                return Content("");
-
-            var articles = await _knowledgebaseService.GetHomepageKnowledgebaseArticles();
-
-            foreach (var article in articles)
-            {
-                var a = new KnowledgebaseItemModel
-                {
-                    Id = article.Id,
-                    Name = article.GetTranslation(y => y.Name, _workContext.WorkingLanguage.Id),
-                    SeName = article.GetTranslation(y => y.SeName, _workContext.WorkingLanguage.Id),
-                    IsArticle = true
-                };
-
-                model.Items.Add(a);
-            }
-
-            return View(model);
-        }
+        return View(model);
     }
 }

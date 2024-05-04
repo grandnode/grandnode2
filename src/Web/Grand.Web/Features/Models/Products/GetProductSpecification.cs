@@ -3,12 +3,10 @@ using Grand.Domain.Localization;
 using Grand.Web.Models.Catalog;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Products
-{
-    public class GetProductSpecification : IRequest<IList<ProductSpecificationModel>>
-    {
-        public Product Product { get; set; }
-        public Language Language { get; set; }
+namespace Grand.Web.Features.Models.Products;
 
-    }
+public class GetProductSpecification : IRequest<IList<ProductSpecificationModel>>
+{
+    public Product Product { get; set; }
+    public Language Language { get; set; }
 }

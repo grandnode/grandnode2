@@ -1,10 +1,11 @@
 ﻿@model CustomerInfoModel.TwoFactorAuthorizationModel
 @inject IPageHeadBuilder pagebuilder
-@{ 
+@{
     Layout = "_TwoColumns";
     //title
     pagebuilder.AddTitleParts(Loc["Title.TwoFactorAuth"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Info })
@@ -12,9 +13,11 @@
 
 <div class="page login-page">
     <h2 class="generalTitle">@Loc["Account.TwoFactorAuth.Disable"]</h2>
-    <input type="hidden" asp-for="TwoFactorAuthenticationType" />
+    <input type="hidden" asp-for="TwoFactorAuthenticationType"/>
     <ul class="pl-0">
-        <li><b>@Loc[$"Account.TwoFactorAuth.Disable.{Model.TwoFactorAuthenticationType}.FirstLine"]</b></li>
+        <li>
+            <b>@Loc[$"Account.TwoFactorAuth.Disable.{Model.TwoFactorAuthenticationType}.FirstLine"]</b>
+        </li>
         <li>@Loc[$"Account.TwoFactorAuth.Disable.{Model.TwoFactorAuthenticationType}.SecondLine"]</li>
     </ul>
     <div asp-validation-summary="All" class="message-error"></div>
@@ -33,7 +36,7 @@
                                             <label asp-for="Code" class="col-form-label">@Loc["Account.TwoFactorAuth.DigitCode"]</label>
                                         </div>
                                         <div class="col-lg-9 col-12">
-                                            <input asp-for="Code" name="Code" type="text" class="form-control" />
+                                            <input asp-for="Code" name="Code" type="text" class="form-control"/>
                                             <span asp-validation-for="Code"></span>
                                         </div>
                                     </div>
@@ -42,7 +45,7 @@
                         </div>
                         <div class="card-footer">
                             <div class="buttons">
-                                <input class="btn btn-info login-button" type="submit" value="@Loc["Account.TwoFactorAuth.SendCode"]" />
+                                <input class="btn btn-info login-button" type="submit" value="@Loc["Account.TwoFactorAuth.SendCode"]"/>
                             </div>
                         </div>
                     </form>

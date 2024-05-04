@@ -1,6 +1,7 @@
 ﻿@{
     Layout = "";
 }
+@using System.Text.Encodings.Web
 @model DiscountRules.Standard.Models.RequirementShoppingCartModel
 <script>
         $(document).ready(function () {
@@ -16,13 +17,13 @@
                     success: function (data) {
                          $('#pnl-save-requirement-result@(Model.RequirementId)').fadeIn("slow").delay(1000).fadeOut("slow");
                          //notify parent if it's a new requirement
-                         @if (String.IsNullOrEmpty(Model.RequirementId))
+                         @if (string.IsNullOrEmpty(Model.RequirementId))
                          {
-                            <text>$("#discountRequirementContainer").trigger('grandnewdiscountruleadded', [data.NewRequirementId]);</text>
+                             <text>$("#discountRequirementContainer").trigger('grandnewdiscountruleadded', [data.NewRequirementId]);</text>
                          }
                     },
                     error:function (xhr, ajaxOptions, thrownError){
-                        alert('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["admin.marketing.Discounts.Requirements.FailedToSave"]))');
+                        alert('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["admin.marketing.Discounts.Requirements.FailedToSave"]))');
                     }
                 });
             });
@@ -31,11 +32,12 @@
 
 <div class="form-horizontal">
     <div class="form-group">
-        <admin-label asp-for="SpentAmount" />
+        <admin-label asp-for="SpentAmount"/>
         <div class="col-md-9 col-sm-9">
             <div>
-                @Html.EditorFor(model => model.SpentAmount) <input type="button" id="saveShoppingCartrequirement@(Model.RequirementId)" class="k-button"
-                                                                   value="@Loc["Admin.Common.Save"]" />
+                @Html.EditorFor(model => model.SpentAmount)
+                <input type="button" id="saveShoppingCartrequirement@(Model.RequirementId)" class="k-button"
+                       value="@Loc["Admin.Common.Save"]"/>
             </div>
             <div id="pnl-save-requirement-result@(Model.RequirementId)" style="display:none;">@Loc["admin.marketing.Discounts.Requirements.Saved"]</div>
         </div>

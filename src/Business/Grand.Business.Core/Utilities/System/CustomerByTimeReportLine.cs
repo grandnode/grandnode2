@@ -1,10 +1,8 @@
-﻿namespace Grand.Business.Core.Utilities.System
+﻿namespace Grand.Business.Core.Utilities.System;
+
+public class CustomerByTimeReportLine
 {
-    public class CustomerByTimeReportLine
-    {
-        public string Time { get; set; }
+    public string Time { get; set; }
 
-        public int Registered { get; set; }
-
-    }
+    public int Registered { get; set; }
 }

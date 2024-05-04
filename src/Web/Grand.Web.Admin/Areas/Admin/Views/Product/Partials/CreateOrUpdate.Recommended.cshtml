@@ -2,9 +2,8 @@
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-
     <div class="panel panel-default">
-        <vc:admin-widget widget-zone="product_details_recommended_top" additional-data="Model" />
+        <vc:admin-widget widget-zone="product_details_recommended_top" additional-data="Model"/>
         <div class="panel-heading">
             @Loc["Admin.Catalog.Products.Recommended"]
         </div>
@@ -13,9 +12,9 @@
         </div>
         <div class="panel-footer">
             <a id="btnAddNewRecommendedProduct" href="@(Url.Action("RecommendedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshRecommendedProducts", formId = "product-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.Recommended.AddNew"]</a>
-            <input type="submit" id="btnRefreshRecommendedProducts" style="display: none" />
+            <input type="submit" id="btnRefreshRecommendedProducts" style="display: none"/>
         </div>
-        <vc:admin-widget widget-zone="product_details_recommended_bottom" additional-data="Model" />
+        <vc:admin-widget widget-zone="product_details_recommended_bottom" additional-data="Model"/>
     </div>
 
     <script>
@@ -95,7 +94,7 @@
             });
         });
     </script>
-            
+
     <script>
         $(document).ready(function () {
             $('#btnRefreshRecommendedProducts').click(function () {
@@ -108,7 +107,6 @@
             });
         });
     </script>
-
 }
 else
 {

@@ -1,49 +1,46 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Localization;
 
-namespace Widgets.FacebookPixel
+namespace Widgets.FacebookPixel;
+
+public class FacebookPixelProvider : IWidgetProvider
 {
-    public class FacebookPixelProvider : IWidgetProvider
+    private readonly FacebookPixelSettings _facebookPixelSettings;
+    private readonly ITranslationService _translationService;
+
+    public FacebookPixelProvider(
+        FacebookPixelSettings facebookPixelSettings,
+        ITranslationService translationService)
     {
-        private readonly FacebookPixelSettings _facebookPixelSettings;
-        private readonly ITranslationService _translationService;
+        _facebookPixelSettings = facebookPixelSettings;
+        _translationService = translationService;
+    }
 
-        public FacebookPixelProvider(
-            FacebookPixelSettings facebookPixelSettings,
-            ITranslationService translationService)
-        {
-            _facebookPixelSettings = facebookPixelSettings;
-            _translationService = translationService;
-        }
+    public string ConfigurationUrl => FacebookPixelDefaults.ConfigurationUrl;
 
-        public string ConfigurationUrl => FacebookPixelDefaults.ConfigurationUrl;
+    public string SystemName => FacebookPixelDefaults.ProviderSystemName;
 
-        public string SystemName => FacebookPixelDefaults.ProviderSystemName;
+    public string FriendlyName => _translationService.GetResource(FacebookPixelDefaults.FriendlyName);
 
-        public string FriendlyName => _translationService.GetResource(FacebookPixelDefaults.FriendlyName);
+    public int Priority => _facebookPixelSettings.DisplayOrder;
 
-        public int Priority => _facebookPixelSettings.DisplayOrder;
+    public IList<string> LimitedToStores => new List<string>();
 
-        public IList<string> LimitedToStores => new List<string>();
+    public IList<string> LimitedToGroups => new List<string>();
 
-        public IList<string> LimitedToGroups => new List<string>();
+    /// <summary>
+    ///     Gets widget zones where this widget should be rendered
+    /// </summary>
+    /// <returns>Widget zones</returns>
+    public async Task<IList<string>> GetWidgetZones()
+    {
+        return await Task.FromResult(new List<string> {
+            FacebookPixelDefaults.Page, FacebookPixelDefaults.AddToCart, FacebookPixelDefaults.OrderDetails
+        });
+    }
 
-        /// <summary>
-        /// Gets widget zones where this widget should be rendered
-        /// </summary>
-        /// <returns>Widget zones</returns>
-        public async Task<IList<string>> GetWidgetZones()
-        {
-            return await Task.FromResult(new List<string>
-            {
-                FacebookPixelDefaults.Page, FacebookPixelDefaults.AddToCart, FacebookPixelDefaults.OrderDetails
-            });
-        }
-
-        public Task<string> GetPublicViewComponentName(string widgetZone)
-        {
-            return Task.FromResult("WidgetsFacebookPixel");
-        }
-
+    public Task<string> GetPublicViewComponentName(string widgetZone)
+    {
+        return Task.FromResult("WidgetsFacebookPixel");
     }
 }

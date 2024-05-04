@@ -1,5 +1,5 @@
-﻿@model CustomerMerchandiseReturnsModel
-@using System.Globalization
+﻿@using System.Globalization
+@model CustomerMerchandiseReturnsModel
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -7,12 +7,16 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Account"]);
 }
+
 @section left
-    {
+{
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.MerchandiseReturns })
 }
+
 <div class="page account-page return-request-list-page pl-lg-3 pt-3 pt-lg-0">
-    <h1 class="h2 generalTitle"><div>@Loc["Account.CustomerMerchandiseReturns"]</div></h1>
+    <h1 class="h2 generalTitle">
+        <div>@Loc["Account.CustomerMerchandiseReturns"]</div>
+    </h1>
     <a class="left-side-toggler mb-3" onclick="sideToggle()">
         <div class="inner">
             <span></span>

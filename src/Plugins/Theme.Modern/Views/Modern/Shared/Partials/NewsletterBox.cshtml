@@ -11,7 +11,7 @@
         </div>
         <div class="input-group" role="group">
             <input id="newsletter-email" class="input-group-text form-control newsletter-email"
-                   placeholder="@Loc["Newsletter.Email.Placeholder"]" aria-label="@Loc["Newsletter.Email.Placeholder"]" />
+                   placeholder="@Loc["Newsletter.Email.Placeholder"]" aria-label="@Loc["Newsletter.Email.Placeholder"]"/>
             <label for="newsletter-email" class="sr-only">newsletter</label>
             <div class="input-group-append">
                 <button class="btn btn-secondary newsletter-email-button" id="newsletter-subscribe-button" @@click="newsletterBox(@customerSettings.NewsletterBlockAllowToUnsubscribe.ToString().ToLower(), '@(Url.RouteUrl("SubscribeNewsletter"))')">
@@ -42,6 +42,6 @@
             <div class="alert alert-info">
             </div>
         </div>
-        <input type="hidden" id="newsletterbox" data-href="@(Url.RouteUrl("SubscribeNewsletter"))" data-allowtounsubscribe=@customerSettings.NewsletterBlockAllowToUnsubscribe />
+        <input type="hidden" id="newsletterbox" data-href="@(Url.RouteUrl("SubscribeNewsletter"))" data-allowtounsubscribe=@customerSettings.NewsletterBlockAllowToUnsubscribe/>
     </div>
 }

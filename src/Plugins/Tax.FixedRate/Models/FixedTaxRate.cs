@@ -1,7 +1,6 @@
-﻿namespace Tax.FixedRate.Models
+﻿namespace Tax.FixedRate.Models;
+
+public class FixedTaxRate
 {
-    public class FixedTaxRate
-    {
-        public double Rate { get; set; }
-    }
+    public double Rate { get; set; }
 }

@@ -6,25 +6,25 @@ namespace Grand.Web.Admin.Models.Permissions;
 public class PermissionUpdateModel : BaseEntityModel
 {
     /// <summary>
-    /// Gets or sets the permission name
+    ///     Gets or sets the permission name
     /// </summary>
-    [GrandResourceDisplayName("Admin.Configuration.Permissions.Fields.Name")]    
+    [GrandResourceDisplayName("Admin.Configuration.Permissions.Fields.Name")]
     public string Name { get; set; }
 
     /// <summary>
-    /// Gets or sets the permission system name
+    ///     Gets or sets the permission system name
     /// </summary>
     [GrandResourceDisplayName("Admin.Configuration.Permissions.Fields.SystemName")]
     public string SystemName { get; set; }
 
     /// <summary>
-    /// Gets or sets the area name
+    ///     Gets or sets the area name
     /// </summary>
     [GrandResourceDisplayName("Admin.Configuration.Permissions.Fields.Area")]
     public string Area { get; set; }
 
     /// <summary>
-    /// Gets or sets the permission category
+    ///     Gets or sets the permission category
     /// </summary>
     [GrandResourceDisplayName("Admin.Configuration.Permissions.Fields.Category")]
     public string Category { get; set; }

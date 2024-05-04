@@ -11,29 +11,18 @@ public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
 {
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly GoogleReCaptchaValidator _googleReCaptchaValidator;
-    
-    #region Constants
 
-    private const string ChallengeFieldKey = "recaptcha_challenge_field";
-    private const string ResponseFieldKey = "recaptcha_response_field";
-    private const string GResponseFieldKeyV3 = "g-recaptcha-response-value";
-    private const string GResponseFieldKeyV2 = "g-recaptcha-response";
-
-    #endregion
     public CaptchaValidator(IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validators,
         IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator
     ) : base(validators)
     {
         _contextAccessor = contextAccessor;
         _googleReCaptchaValidator = googleReCaptchaValidator;
-        
+
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             var result = await ValidateCaptcha(x);
-            if (!result.isValid)
-            {
-                context.AddFailure(result.error);
-            }
+            if (!result.isValid) context.AddFailure(result.error);
         });
     }
 
@@ -58,10 +47,8 @@ public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
             captchaResponseValue = form[ResponseFieldKey];
             gCaptchaResponseValue = string.Empty;
             foreach (var item in form.Keys)
-            {
                 if (item.Contains(GResponseFieldKeyV3))
                     gCaptchaResponseValue = form[item];
-            }
 
             if (string.IsNullOrEmpty(gCaptchaResponseValue))
                 gCaptchaResponseValue = form[GResponseFieldKeyV2];
@@ -76,7 +63,16 @@ public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
                 ? captchaResponseValue
                 : gCaptchaResponseValue);
         isValid = recaptchaResponse.Success;
-        
+
         return isValid ? (true, string.Empty) : (false, string.Join(',', recaptchaResponse.ErrorCodes));
     }
+
+    #region Constants
+
+    private const string ChallengeFieldKey = "recaptcha_challenge_field";
+    private const string ResponseFieldKey = "recaptcha_response_field";
+    private const string GResponseFieldKeyV3 = "g-recaptcha-response-value";
+    private const string GResponseFieldKeyV2 = "g-recaptcha-response";
+
+    #endregion
 }

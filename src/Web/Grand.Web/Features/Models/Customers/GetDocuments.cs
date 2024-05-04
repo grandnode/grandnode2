@@ -3,12 +3,11 @@ using Grand.Domain.Localization;
 using Grand.Web.Models.Customer;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Customers
+namespace Grand.Web.Features.Models.Customers;
+
+public class GetDocuments : IRequest<DocumentsModel>
 {
-    public class GetDocuments : IRequest<DocumentsModel>
-    {
-        public Customer Customer { get; set; }
-        public Language Language { get; set; }
-        public DocumentPagingModel Command { get; set; } = new();
-    }
+    public Customer Customer { get; set; }
+    public Language Language { get; set; }
+    public DocumentPagingModel Command { get; set; } = new();
 }

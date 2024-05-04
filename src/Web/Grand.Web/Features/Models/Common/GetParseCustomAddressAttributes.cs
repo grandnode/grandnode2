@@ -2,10 +2,9 @@
 using Grand.Web.Common.Models;
 using MediatR;
 
-namespace Grand.Web.Features.Models.Common
+namespace Grand.Web.Features.Models.Common;
+
+public class GetParseCustomAddressAttributes : IRequest<IList<CustomAttribute>>
 {
-    public class GetParseCustomAddressAttributes : IRequest<IList<CustomAttribute>>
-    {
-        public IList<CustomAttributeModel> SelectedAttributes { get; set; }
-    }
+    public IList<CustomAttributeModel> SelectedAttributes { get; set; }
 }

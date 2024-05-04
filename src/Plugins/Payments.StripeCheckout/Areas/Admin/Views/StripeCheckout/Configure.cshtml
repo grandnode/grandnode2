@@ -6,12 +6,11 @@
     var urlHelper = UrlHelperFactory.GetUrlHelper(ActionContextAccessor.ActionContext!);
     var webhookUrl = WorkContext.CurrentHost.Url.TrimEnd('/') + urlHelper.RouteUrl(StripeCheckoutDefaults.WebHook);
 }
-@model ConfigurationModel
-@using Microsoft.AspNetCore.Mvc.Routing
-@using Microsoft.AspNetCore.Mvc.Infrastructure
-@using Payments.StripeCheckout
-@using Payments.StripeCheckout.Models
 @using Grand.Infrastructure
+@using Microsoft.AspNetCore.Mvc.Infrastructure
+@using Microsoft.AspNetCore.Mvc.Routing
+@using Payments.StripeCheckout
+@model Payments.StripeCheckout.Models.ConfigurationModel
 @await Component.InvokeAsync("StoreScope")
 
 <form asp-area="Admin" asp-controller="StripeCheckout" asp-action="Configure" method="post">

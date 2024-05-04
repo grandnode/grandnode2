@@ -2,23 +2,22 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Shipping;
 
-namespace Grand.Web.Admin.Extensions.Mapping
+namespace Grand.Web.Admin.Extensions.Mapping;
+
+public static class PickupPointMappingExtensions
 {
-    public static class PickupPointMappingExtensions
+    public static PickupPointModel ToModel(this PickupPoint entity)
     {
-        public static PickupPointModel ToModel(this PickupPoint entity)
-        {
-            return entity.MapTo<PickupPoint, PickupPointModel>();
-        }
+        return entity.MapTo<PickupPoint, PickupPointModel>();
+    }
 
-        public static PickupPoint ToEntity(this PickupPointModel model)
-        {
-            return model.MapTo<PickupPointModel, PickupPoint>();
-        }
+    public static PickupPoint ToEntity(this PickupPointModel model)
+    {
+        return model.MapTo<PickupPointModel, PickupPoint>();
+    }
 
-        public static PickupPoint ToEntity(this PickupPointModel model, PickupPoint destination)
-        {
-            return model.MapTo(destination);
-        }
+    public static PickupPoint ToEntity(this PickupPointModel model, PickupPoint destination)
+    {
+        return model.MapTo(destination);
     }
 }

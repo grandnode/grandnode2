@@ -5,13 +5,16 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Documents"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Documents })
 }
 
 <div class="page account-page auction-list-page pl-lg-3 pt-3 pt-lg-0">
-    <h1 class="h2 generalTitle"><div>@Loc["Account.Documents"]</div></h1>
+    <h1 class="h2 generalTitle">
+        <div>@Loc["Account.Documents"]</div>
+    </h1>
     <a class="left-side-toggler mb-3" onclick="sideToggle()">
         <div class="inner">
             <span></span>
@@ -59,13 +62,14 @@
                     <div class="d-inline-flex p-sm-3 p-2 border-top">
                         <span class="mb-2">
                             @Loc["Account.Documents.Attachment"]:
-                            <a href="@Url.RouteUrl("GetDocumentFile", new { documentId = item.Id})">@Loc["Account.Documents.Download"]</a>
+                            <a href="@Url.RouteUrl("GetDocumentFile", new { documentId = item.Id })">@Loc["Account.Documents.Download"]</a>
                         </span>
                     </div>
                 }
             </div>
         }
-        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingContext" />
+
+        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingContext"/>
     }
     else
     {

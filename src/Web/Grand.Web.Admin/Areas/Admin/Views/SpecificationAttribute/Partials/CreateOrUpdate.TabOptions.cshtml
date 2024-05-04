@@ -3,17 +3,16 @@
 @{
     if (!string.IsNullOrEmpty(Model.Id))
     {
-
         <div class="panel panel-default">
-            <vc:admin-widget widget-zone="specification_attribute_details_options_top" additional-data="null" />
+            <vc:admin-widget widget-zone="specification_attribute_details_options_top" additional-data="null"/>
             <div class="panel-body">
                 <div id="specificationattributeoptions-grid"></div>
             </div>
             <div class="panel-footer">
                 <a id="btnAddNewOption" href="@(Url.Action("OptionCreatePopup", "SpecificationAttribute", new { specificationAttributeId = Model.Id, area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"]</a>
-                <input type="submit" id="btnRefresh" style="display: none" />
+                <input type="submit" id="btnRefresh" style="display: none"/>
             </div>
-            <vc:admin-widget widget-zone="specification_attribute_details_options_bottom" additional-data="Model" />
+            <vc:admin-widget widget-zone="specification_attribute_details_options_bottom" additional-data="Model"/>
         </div>
 
         <script>
@@ -130,5 +129,4 @@
             @Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.SaveBeforeEdit"]
         </div>
     }
-
 }

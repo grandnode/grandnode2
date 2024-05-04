@@ -6,150 +6,149 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Orders;
 using MediatR;
 
-namespace Grand.Business.Checkout.Commands.Handlers.Orders
+namespace Grand.Business.Checkout.Commands.Handlers.Orders;
+
+public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, bool>
 {
-    public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, bool>
+    private readonly ICustomerService _customerService;
+    private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
+    private readonly IMediator _mediator;
+    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderService _orderService;
+    private readonly OrderSettings _orderSettings;
+    private readonly IPdfService _pdfService;
+    private readonly IVendorService _vendorService;
+
+    public OrderStatusCommandHandler(
+        IOrderService orderService,
+        ICustomerService customerService,
+        IPdfService pdfService,
+        IMessageProviderService messageProviderService,
+        IVendorService vendorService,
+        IMediator mediator,
+        OrderSettings orderSettings,
+        LoyaltyPointsSettings loyaltyPointsSettings)
     {
-        private readonly IOrderService _orderService;
-        private readonly ICustomerService _customerService;
-        private readonly IPdfService _pdfService;
-        private readonly IMessageProviderService _messageProviderService;
-        private readonly IVendorService _vendorService;
-        private readonly IMediator _mediator;
-        private readonly OrderSettings _orderSettings;
-        private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
+        _orderService = orderService;
+        _customerService = customerService;
+        _pdfService = pdfService;
+        _messageProviderService = messageProviderService;
+        _vendorService = vendorService;
+        _mediator = mediator;
+        _orderSettings = orderSettings;
+        _loyaltyPointsSettings = loyaltyPointsSettings;
+    }
 
-        public OrderStatusCommandHandler(
-            IOrderService orderService,
-            ICustomerService customerService,
-            IPdfService pdfService,
-            IMessageProviderService messageProviderService,
-            IVendorService vendorService,
-            IMediator mediator,
-            OrderSettings orderSettings,
-            LoyaltyPointsSettings loyaltyPointsSettings)
+    public async Task<bool> Handle(SetOrderStatusCommand request, CancellationToken cancellationToken)
+    {
+        if (request.Order == null)
+            throw new ArgumentNullException(nameof(request.Order));
+
+        var prevOrderStatus = request.Order.OrderStatusId;
+        if (prevOrderStatus == (int)request.Os)
+            return false;
+
+        //set and save new order status
+        request.Order.OrderStatusId = (int)request.Os;
+        await _orderService.UpdateOrder(request.Order);
+
+        //order notes, notifications
+        await _orderService.InsertOrderNote(new OrderNote {
+            Note = $"Order status has been changed to {request.Os.ToString()}",
+            DisplayToCustomer = false,
+            OrderId = request.Order.Id
+        });
+
+        var customer = await _customerService.GetCustomerById(request.Order.CustomerId);
+
+        if (prevOrderStatus != (int)OrderStatusSystem.Complete &&
+            request.Os == OrderStatusSystem.Complete
+            && request.NotifyCustomer)
         {
-            _orderService = orderService;
-            _customerService = customerService;
-            _pdfService = pdfService;
-            _messageProviderService = messageProviderService;
-            _vendorService = vendorService;
-            _mediator = mediator;
-            _orderSettings = orderSettings;
-            _loyaltyPointsSettings = loyaltyPointsSettings;
-        }
+            //notification
 
-        public async Task<bool> Handle(SetOrderStatusCommand request, CancellationToken cancellationToken)
-        {
-            if (request.Order == null)
-                throw new ArgumentNullException(nameof(request.Order));
+            var orderCompletedAttachmentFilePath = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail
+                ? await _pdfService.PrintOrderToPdf(request.Order, "")
+                : null;
+            var orderCompletedAttachmentFileName =
+                _orderSettings.AttachPdfInvoiceToOrderCompletedEmail ? "order.pdf" : null;
 
-            var prevOrderStatus = request.Order.OrderStatusId;
-            if (prevOrderStatus == (int)request.Os)
-                return false;
+            var orderCompletedAttachments = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail &&
+                                            _orderSettings.AttachPdfInvoiceToBinary
+                ? [
+                    await _pdfService.SaveOrderToBinary(request.Order, "")
+                ]
+                : new List<string>();
 
-            //set and save new order status
-            request.Order.OrderStatusId = (int)request.Os;
-            await _orderService.UpdateOrder(request.Order);
-
-            //order notes, notifications
-            await _orderService.InsertOrderNote(new OrderNote {
-                Note = $"Order status has been changed to {request.Os.ToString()}",
-                DisplayToCustomer = false,
-                OrderId = request.Order.Id
-            });
-
-            var customer = await _customerService.GetCustomerById(request.Order.CustomerId);
-
-            if (prevOrderStatus != (int)OrderStatusSystem.Complete &&
-                request.Os == OrderStatusSystem.Complete
-                && request.NotifyCustomer)
-            {
-                //notification
-
-                var orderCompletedAttachmentFilePath = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail ?
-                    await _pdfService.PrintOrderToPdf(request.Order, "") : null;
-                var orderCompletedAttachmentFileName = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail ?
-                    "order.pdf" : null;
-
-                var orderCompletedAttachments = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail && _orderSettings.AttachPdfInvoiceToBinary ? [
-                        await _pdfService.SaveOrderToBinary(request.Order, "")
-                    ]
-                    : new List<string>();
-
-                await _messageProviderService
-                    .SendOrderCompletedCustomerMessage(request.Order, customer, request.Order.CustomerLanguageId, orderCompletedAttachmentFilePath,
+            await _messageProviderService
+                .SendOrderCompletedCustomerMessage(request.Order, customer, request.Order.CustomerLanguageId,
+                    orderCompletedAttachmentFilePath,
                     orderCompletedAttachmentFileName, orderCompletedAttachments);
-            }
-
-            if (prevOrderStatus != (int)OrderStatusSystem.Cancelled &&
-                request.Os == OrderStatusSystem.Cancelled
-                && request.NotifyCustomer)
-            {
-                //notification customer
-                await _messageProviderService.SendOrderCancelledCustomerMessage(request.Order, customer, request.Order.CustomerLanguageId);
-
-                //notification for vendor
-                await VendorNotification(request.Order);
-            }
-
-            if (prevOrderStatus != (int)OrderStatusSystem.Cancelled &&
-                request.Os == OrderStatusSystem.Cancelled
-                && request.NotifyStoreOwner)
-            {
-                //notification store owner
-                var orderCancelledStoreOwnerNotificationQueuedEmailId = await _messageProviderService.SendOrderCancelledStoreOwnerMessage(request.Order, customer, request.Order.CustomerLanguageId);
-                if (orderCancelledStoreOwnerNotificationQueuedEmailId > 0)
-                {
-                    await _orderService.InsertOrderNote(new OrderNote {
-                        Note = "\"Order cancelled\" by customer.",
-                        DisplayToCustomer = true,
-                        OrderId = request.Order.Id
-                    });
-                }
-                //notification for vendor
-                await VendorNotification(request.Order);
-            }
-
-            //loyalty points
-            if (_loyaltyPointsSettings.PointsForPurchases_Awarded == request.Order.OrderStatusId)
-            {
-                await _mediator.Send(new AwardLoyaltyPointsCommand { Order = request.Order }, cancellationToken);
-            }
-            if (_loyaltyPointsSettings.ReduceLoyaltyPointsAfterCancelOrder && request.Order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
-            {
-                await _mediator.Send(new ReduceLoyaltyPointsCommand { Order = request.Order }, cancellationToken);
-            }
-
-            //gift vouchers activation
-            if (_orderSettings.GiftVouchers_Activated_OrderStatusId > 0 &&
-               _orderSettings.GiftVouchers_Activated_OrderStatusId == request.Order.OrderStatusId)
-            {
-                await _mediator.Send(new ActivatedValueForPurchasedGiftVouchersCommand { Order = request.Order, Activate = true }, cancellationToken);
-            }
-
-            //gift vouchers deactivation
-            if (_orderSettings.DeactivateGiftVouchersAfterCancelOrder &&
-                request.Order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
-            {
-                await _mediator.Send(new ActivatedValueForPurchasedGiftVouchersCommand { Order = request.Order, Activate = false }, cancellationToken);
-            }
-
-            return true;
         }
 
-        private async Task VendorNotification(Order order)
+        if (prevOrderStatus != (int)OrderStatusSystem.Cancelled &&
+            request.Os == OrderStatusSystem.Cancelled
+            && request.NotifyCustomer)
         {
+            //notification customer
+            await _messageProviderService.SendOrderCancelledCustomerMessage(request.Order, customer,
+                request.Order.CustomerLanguageId);
+
             //notification for vendor
-            foreach (var orderItem in order.OrderItems)
-            {
-                if (string.IsNullOrEmpty(orderItem.VendorId)) continue;
-                var vendor = await _vendorService.GetVendorById(orderItem.VendorId);
-                if (vendor is { Deleted: false, Active: true })
-                {
-                    await _messageProviderService.SendOrderCancelledVendorMessage(order, vendor, order.CustomerLanguageId);
-                }
-            }
+            await VendorNotification(request.Order);
+        }
+
+        if (prevOrderStatus != (int)OrderStatusSystem.Cancelled &&
+            request.Os == OrderStatusSystem.Cancelled
+            && request.NotifyStoreOwner)
+        {
+            //notification store owner
+            var orderCancelledStoreOwnerNotificationQueuedEmailId =
+                await _messageProviderService.SendOrderCancelledStoreOwnerMessage(request.Order, customer,
+                    request.Order.CustomerLanguageId);
+            if (orderCancelledStoreOwnerNotificationQueuedEmailId > 0)
+                await _orderService.InsertOrderNote(new OrderNote {
+                    Note = "\"Order cancelled\" by customer.",
+                    DisplayToCustomer = true,
+                    OrderId = request.Order.Id
+                });
+            //notification for vendor
+            await VendorNotification(request.Order);
+        }
+
+        //loyalty points
+        if (_loyaltyPointsSettings.PointsForPurchases_Awarded == request.Order.OrderStatusId)
+            await _mediator.Send(new AwardLoyaltyPointsCommand { Order = request.Order }, cancellationToken);
+        if (_loyaltyPointsSettings.ReduceLoyaltyPointsAfterCancelOrder &&
+            request.Order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
+            await _mediator.Send(new ReduceLoyaltyPointsCommand { Order = request.Order }, cancellationToken);
+
+        //gift vouchers activation
+        if (_orderSettings.GiftVouchers_Activated_OrderStatusId > 0 &&
+            _orderSettings.GiftVouchers_Activated_OrderStatusId == request.Order.OrderStatusId)
+            await _mediator.Send(
+                new ActivatedValueForPurchasedGiftVouchersCommand { Order = request.Order, Activate = true },
+                cancellationToken);
+
+        //gift vouchers deactivation
+        if (_orderSettings.DeactivateGiftVouchersAfterCancelOrder &&
+            request.Order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
+            await _mediator.Send(
+                new ActivatedValueForPurchasedGiftVouchersCommand { Order = request.Order, Activate = false },
+                cancellationToken);
+
+        return true;
+    }
+
+    private async Task VendorNotification(Order order)
+    {
+        //notification for vendor
+        foreach (var orderItem in order.OrderItems)
+        {
+            if (string.IsNullOrEmpty(orderItem.VendorId)) continue;
+            var vendor = await _vendorService.GetVendorById(orderItem.VendorId);
+            if (vendor is { Deleted: false, Active: true })
+                await _messageProviderService.SendOrderCancelledVendorMessage(order, vendor, order.CustomerLanguageId);
         }
     }
 }

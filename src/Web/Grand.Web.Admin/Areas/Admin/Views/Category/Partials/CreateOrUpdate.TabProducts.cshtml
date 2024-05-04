@@ -1,6 +1,6 @@
 ﻿@model CategoryModel
 @inject AdminAreaSettings adminAreaSettings
-<vc:admin-widget widget-zone="category_details_products_top" additional-data="Model" />
+<vc:admin-widget widget-zone="category_details_products_top" additional-data="Model"/>
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
@@ -9,7 +9,7 @@
         </div>
         <div class="panel-footer">
             <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Category", new { categoryId = Model.Id, btnId = "btnRefreshProducts", formId = "category-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Categories.Products.AddNew"]</a>
-            <input type="submit" id="btnRefreshProducts" style="display: none" />
+            <input type="submit" id="btnRefreshProducts" style="display: none"/>
         </div>
     </div>
     <script>
@@ -143,4 +143,4 @@ else
         @Loc["Admin.Catalog.Categories.Products.SaveBeforeEdit"]
     </div>
 }
-<vc:admin-widget widget-zone="category_details_products_bottom" additional-data="Model" />
+<vc:admin-widget widget-zone="category_details_products_bottom" additional-data="Model"/>

@@ -21,12 +21,10 @@ public class OrderAddressModelValidator : BaseGrandValidator<OrderAddressModel>
     {
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            var customAttributes = await x.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
+            var customAttributes =
+                await x.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
             var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
-            foreach (var error in customAttributeWarnings)
-            {
-                context.AddFailure(error);
-            }
+            foreach (var error in customAttributeWarnings) context.AddFailure(error);
             var order = await orderService.GetOrderById(x.OrderId);
             if (order != null)
             {
@@ -46,6 +44,7 @@ public class OrderAddressModelValidator : BaseGrandValidator<OrderAddressModel>
                         break;
                     }
                 }
+
                 if (address == null)
                     context.AddFailure("No address found with the specified id");
             }

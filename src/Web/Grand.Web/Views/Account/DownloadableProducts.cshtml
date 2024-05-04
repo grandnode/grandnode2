@@ -6,64 +6,80 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Account"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.DownloadableProducts })
 }
+
 <section class="page account-page downloadable-products-page pl-lg-3 pt-lg-0 pt-3">
     <h1 class="h2 generalTitle">@Loc["Account.DownloadableProducts"]</h1>
     @if (Model.Items.Any())
     {
-
         <div id="downloadable-products" class="table-responsive">
             <table class="table">
                 <thead role="rowgroup">
-                    <tr role="row">
-                        <th role="columnheader"><div>@Loc["DownloadableProducts.Fields.Order"]</div></th>
-                        <th role="columnheader"><div>@Loc["DownloadableProducts.Fields.Date"]</div></th>
-                        <th role="columnheader"><div>@Loc["DownloadableProducts.Fields.Product"]</div></th>
-                        <th role="columnheader"><div>@Loc["DownloadableProducts.Fields.Download"]</div></th>
-                    </tr>
+                <tr role="row">
+                    <th role="columnheader">
+                        <div>@Loc["DownloadableProducts.Fields.Order"]</div>
+                    </th>
+                    <th role="columnheader">
+                        <div>@Loc["DownloadableProducts.Fields.Date"]</div>
+                    </th>
+                    <th role="columnheader">
+                        <div>@Loc["DownloadableProducts.Fields.Product"]</div>
+                    </th>
+                    <th role="columnheader">
+                        <div>@Loc["DownloadableProducts.Fields.Download"]</div>
+                    </th>
+                </tr>
                 </thead>
                 <tbody role="rowgroup">
-                    @for (var i = 0; i < Model.Items.Count; i++)
-                    {
-                        var item = Model.Items[i];
-                        <tr role="row">
-                            <td>
-                                <div><a href="@Url.RouteUrl("OrderDetails", new { orderId = item.OrderId })">@item.OrderNumber</a></div>
-                            </td>
-                            <td>
-                                <div>
-                                    @item.CreatedOn.ToString("d")
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-                                    <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
-                                    @if (!string.IsNullOrEmpty(item.ProductAttributes))
-                                    {
-                                        <div class="attributes">@Html.Raw(item.ProductAttributes)</div>
-                                    }
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-                                    @if (!string.IsNullOrEmpty(item.DownloadId)) { 
-                                        <a href="@Url.RouteUrl("GetDownload", new { orderItemId = item.OrderItemGuid })">
-                                            @Loc["DownloadableProducts.Fields.Download"]</a>
-                                    }else {
-                                        @Loc["DownloadableProducts.Fields.Download.NA"]
-                                    }
-                                    @if (!string.IsNullOrEmpty(item.LicenseId)) {
-                                        <a href="@Url.RouteUrl("GetLicense", new { orderItemId = item.OrderItemGuid })">
-                                            @Loc["DownloadableProducts.Fields.DownloadLicense"]
-                                        </a> 
-                                    }
-                                </div>
-                            </td>
-                        </tr>
-                    }
+                @for (var i = 0; i < Model.Items.Count; i++)
+                {
+                    var item = Model.Items[i];
+                    <tr role="row">
+                        <td>
+                            <div>
+                                <a href="@Url.RouteUrl("OrderDetails", new { orderId = item.OrderId })">@item.OrderNumber</a>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                @item.CreatedOn.ToString("d")
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
+                                @if (!string.IsNullOrEmpty(item.ProductAttributes))
+                                {
+                                    <div class="attributes">@Html.Raw(item.ProductAttributes)</div>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                @if (!string.IsNullOrEmpty(item.DownloadId))
+                                {
+                                    <a href="@Url.RouteUrl("GetDownload", new { orderItemId = item.OrderItemGuid })">
+                                        @Loc["DownloadableProducts.Fields.Download"]
+                                    </a>
+                                }
+                                else
+                                {
+                                    @Loc["DownloadableProducts.Fields.Download.NA"]
+                                }
+                                @if (!string.IsNullOrEmpty(item.LicenseId))
+                                {
+                                    <a href="@Url.RouteUrl("GetLicense", new { orderItemId = item.OrderItemGuid })">
+                                        @Loc["DownloadableProducts.Fields.DownloadLicense"]
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
                 </tbody>
             </table>
         </div>

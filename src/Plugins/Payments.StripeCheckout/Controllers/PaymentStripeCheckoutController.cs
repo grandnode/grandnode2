@@ -12,14 +12,14 @@ namespace Payments.StripeCheckout.Controllers;
 
 public class PaymentStripeCheckoutController : BasePaymentController
 {
-    private readonly IWorkContext _workContext;
-    private readonly IOrderService _orderService;
-    private readonly IStripeCheckoutService _stripeCheckoutService;
     private readonly ILogger<PaymentStripeCheckoutController> _logger;
-    private readonly IPaymentTransactionService _paymentTransactionService;
-    private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
+    private readonly IOrderService _orderService;
 
     private readonly PaymentSettings _paymentSettings;
+    private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
+    private readonly IStripeCheckoutService _stripeCheckoutService;
+    private readonly IWorkContext _workContext;
 
     public PaymentStripeCheckoutController(
         IWorkContext workContext,
@@ -47,7 +47,7 @@ public class PaymentStripeCheckoutController : BasePaymentController
             await _stripeCheckoutService.WebHookProcessPayment(Request.Headers["Stripe-Signature"], json);
             return Ok();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             return BadRequest(e.Message);
         }

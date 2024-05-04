@@ -6,79 +6,75 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 
-namespace Grand.Web.Common.TagHelpers.Admin
+namespace Grand.Web.Common.TagHelpers.Admin;
+
+[HtmlTargetElement("admin-delete-confirmation")]
+public class AdminDeleteConfirmationTagHelper : TagHelper
 {
-    [HtmlTargetElement("admin-delete-confirmation")]
-    public class AdminDeleteConfirmationTagHelper : TagHelper
+    private readonly IHtmlHelper _htmlHelper;
+
+    private readonly ITranslationService _translationService;
+
+    public AdminDeleteConfirmationTagHelper(IHtmlHelper htmlHelper, ITranslationService translationService)
     {
-        [ViewContext]
-        public ViewContext ViewContext { get; set; }
+        _htmlHelper = htmlHelper;
+        _translationService = translationService;
+    }
 
-        [HtmlAttributeName("action-name")]
-        public string Action { get; set; }
+    [ViewContext] public ViewContext ViewContext { get; set; }
 
-        [HtmlAttributeName("button-id")]
-        public string ButtonId { get; set; }
+    [HtmlAttributeName("action-name")] public string Action { get; set; }
 
-        [HtmlAttributeName("id")]
-        public string ModelId { get; set; }
+    [HtmlAttributeName("button-id")] public string ButtonId { get; set; }
 
-        private readonly IHtmlHelper _htmlHelper;
+    [HtmlAttributeName("id")] public string ModelId { get; set; }
 
-        private readonly ITranslationService _translationService;
+    public override async Task ProcessAsync(TagHelperContext tagHelperContext, TagHelperOutput output)
+    {
+        if (string.IsNullOrEmpty(Action))
+            Action = "Delete";
 
-        public AdminDeleteConfirmationTagHelper(IHtmlHelper htmlHelper, ITranslationService translationService)
-        {
-            _htmlHelper = htmlHelper;
-            _translationService = translationService;
-        }
+        var windowId =
+            new HtmlString(ViewContext.ViewData.ModelMetadata.ModelType.Name.ToLower() + "-delete-confirmation")
+                .ToHtmlString();
 
-        public override async Task ProcessAsync(TagHelperContext tagHelperContext, TagHelperOutput output)
-        {
-            if (string.IsNullOrEmpty(Action))
-                Action = "Delete";
+        var modelId = string.IsNullOrEmpty(ModelId) ? ViewContext.RouteData.Values["Id"]?.ToString() : ModelId;
 
-            var windowId = new HtmlString(ViewContext.ViewData.ModelMetadata.ModelType.Name.ToLower() + "-delete-confirmation").ToHtmlString();
+        var deleteConfirmationModel = new DeleteConfirmationModel {
+            Id = modelId,
+            ControllerName = ViewContext.RouteData.Values["controller"]?.ToString(),
+            ActionName = Action,
+            WindowId = windowId
+        };
 
-            var modelId = string.IsNullOrEmpty(ModelId) ? ViewContext.RouteData.Values["Id"]?.ToString() : ModelId;
+        (_htmlHelper as IViewContextAware)?.Contextualize(ViewContext);
 
-            var deleteConfirmationModel = new DeleteConfirmationModel
-            {
-                Id = modelId,
-                ControllerName = ViewContext.RouteData.Values["controller"]?.ToString(),
-                ActionName = Action,
-                WindowId = windowId
-            };
+        output.TagName = "div";
+        output.TagMode = TagMode.StartTagAndEndTag;
+        output.Attributes.SetAttribute("id", windowId);
+        output.Attributes.SetAttribute("style", "display:none");
 
-            (_htmlHelper as IViewContextAware)?.Contextualize(ViewContext);
+        output.Content.SetHtmlContent((await _htmlHelper.PartialAsync("Partials/Delete", deleteConfirmationModel))
+            .ToHtmlString());
 
-            output.TagName = "div";
-            output.TagMode = TagMode.StartTagAndEndTag;
-            output.Attributes.SetAttribute("id", windowId);
-            output.Attributes.SetAttribute("style", "display:none");
-
-            output.Content.SetHtmlContent((await _htmlHelper.PartialAsync("Partials/Delete", deleteConfirmationModel)).ToHtmlString());
-
-            var window = new StringBuilder();
-            window.AppendLine("<script>");
-            window.AppendLine("$(document).ready(function() {");
-            window.AppendLine($"$('#{ButtonId}').click(function (e) ");
-            window.AppendLine("{");
-            window.AppendLine("e.preventDefault();");
-            window.AppendLine($"var window = $('#{windowId}');");
-            window.AppendLine("if (!window.data('kendoWindow')) {");
-            window.AppendLine("window.kendoWindow({");
-            window.AppendLine("modal: true,");
-            window.AppendLine($"title: '{_translationService.GetResource("Admin.Common.AreYouSure")}',");
-            window.AppendLine("actions: ['Close']");
-            window.AppendLine("});");
-            window.AppendLine("}");
-            window.AppendLine("window.data('kendoWindow').center().open();");
-            window.AppendLine("});");
-            window.AppendLine("});");
-            window.AppendLine("</script>");
-            output.PostContent.SetHtmlContent(window.ToString());
-
-        }
+        var window = new StringBuilder();
+        window.AppendLine("<script>");
+        window.AppendLine("$(document).ready(function() {");
+        window.AppendLine($"$('#{ButtonId}').click(function (e) ");
+        window.AppendLine("{");
+        window.AppendLine("e.preventDefault();");
+        window.AppendLine($"var window = $('#{windowId}');");
+        window.AppendLine("if (!window.data('kendoWindow')) {");
+        window.AppendLine("window.kendoWindow({");
+        window.AppendLine("modal: true,");
+        window.AppendLine($"title: '{_translationService.GetResource("Admin.Common.AreYouSure")}',");
+        window.AppendLine("actions: ['Close']");
+        window.AppendLine("});");
+        window.AppendLine("}");
+        window.AppendLine("window.data('kendoWindow').center().open();");
+        window.AppendLine("});");
+        window.AppendLine("});");
+        window.AppendLine("</script>");
+        output.PostContent.SetHtmlContent(window.ToString());
     }
 }

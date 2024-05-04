@@ -7,8 +7,8 @@
             <div id="relatedarticles-grid"></div>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewRelatedArticle" href="@(Url.Action("ArticlesPopup", "Knowledgebase", new { articleId = Model.Id, btnId = "btnRefreshRelatedArticles", formId = "article-form", area = Constants.AreaAdmin  }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Related.AddNew"]</a>
-            <input type="submit" id="btnRefreshRelatedArticles" style="display: none" />
+            <a id="btnAddNewRelatedArticle" href="@(Url.Action("ArticlesPopup", "Knowledgebase", new { articleId = Model.Id, btnId = "btnRefreshRelatedArticles", formId = "article-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Related.AddNew"]</a>
+            <input type="submit" id="btnRefreshRelatedArticles" style="display: none"/>
         </div>
     </div>
 
@@ -83,7 +83,7 @@
                 columns: [{
                     field: "Article2Name",
                     title: "@Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Name"]",
-                    template: '<a href="@Url.Action("EditArticle", "Knowledgebase", new { id = "", area = Constants.AreaAdmin } )/#=Article2Id#">#=kendo.htmlEncode(Article2Name)#</a>',
+                    template: '<a href="@Url.Action("EditArticle", "Knowledgebase", new { id = "", area = Constants.AreaAdmin })/#=Article2Id#">#=kendo.htmlEncode(Article2Name)#</a>',
                     width: 400
                 }, {
                     field: "DisplayOrder",

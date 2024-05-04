@@ -1,20 +1,19 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Admin.Models.Documents
+namespace Grand.Web.Admin.Models.Documents;
+
+public class DocumentTypeModel : BaseEntityModel
 {
-    public class DocumentTypeModel : BaseEntityModel
-    {
-        [GrandResourceDisplayName("Admin.Documents.Type.Fields.Name")]
+    [GrandResourceDisplayName("Admin.Documents.Type.Fields.Name")]
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Documents.Type.Fields.Description")]
+    [GrandResourceDisplayName("Admin.Documents.Type.Fields.Description")]
 
-        public string Description { get; set; }
+    public string Description { get; set; }
 
-        [GrandResourceDisplayName("Admin.Documents.Type.Fields.DisplayOrder")]
+    [GrandResourceDisplayName("Admin.Documents.Type.Fields.DisplayOrder")]
 
-        public int DisplayOrder { get; set; }
-    }
+    public int DisplayOrder { get; set; }
 }

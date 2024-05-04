@@ -7,46 +7,46 @@
     <meta-keywords>
     <meta name="generator" content="grandnode">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    @await RenderSectionAsync("meta", required: false)
+    @await RenderSectionAsync("meta", false)
     <head-custom>
-    <partial name="Partials/Head" />
+    <partial name="Partials/Head"/>
     <vc:widget widget-zone="head_html_tag" additional-data="null"></vc:widget>
     <canonical-urls>
     @*Favicon - upload favicon.ico file to the wwwroot directory*@
-    <partial name="Partials/Favicons" />
-    <resources asp-type="HeadLink" />
-    <resources asp-type="HeadScript" />
-    @await RenderSectionAsync("head", required: false)
+    <partial name="Partials/Favicons"/>
+    <resources asp-type="HeadLink"/>
+    <resources asp-type="HeadScript"/>
+    @await RenderSectionAsync("head", false)
 </head>
 <body>
 
-    <resources asp-type="TemplateHeader" />
-    <resources asp-type="ScriptHeader" />
+<resources asp-type="TemplateHeader"/>
+<resources asp-type="ScriptHeader"/>
 
-    @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
+@await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
 
-    <div id="app" :dark-theme="darkMode" v-cloak>
-        <div class="page-loader-container">
-            <div class="page-loader"></div>
-        </div>
-        <vc:get-coordinate></vc:get-coordinate>
-        <partial name="Partials/Header" />
-        <b-container class="main-container">
-            @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
-            @if (IsSectionDefined("Breadcrumb"))
-            {
-                @await RenderSectionAsync("Breadcrumb")
-            }
-            @RenderBody()
-            @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
-            <vc:voice-navigation></vc:voice-navigation>
-        </b-container>
-        @await Component.InvokeAsync("Footer")
-        <partial name="Partials/Cookie" />
-        <partial name="Partials/Notifications" />
+<div id="app" :dark-theme="darkMode" v-cloak>
+    <div class="page-loader-container">
+        <div class="page-loader"></div>
     </div>
-    @await Component.InvokeAsync("Widget", new { widgetZone = "body_end_html_tag_before" })
-    <resources asp-type="ScriptFooter" />
-    <resources asp-type="TemplateFooter" />
+    <vc:get-coordinate></vc:get-coordinate>
+    <partial name="Partials/Header"/>
+    <b-container class="main-container">
+        @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
+        @if (IsSectionDefined("Breadcrumb"))
+        {
+            @await RenderSectionAsync("Breadcrumb")
+        }
+        @RenderBody()
+        @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
+        <vc:voice-navigation></vc:voice-navigation>
+    </b-container>
+    @await Component.InvokeAsync("Footer")
+    <partial name="Partials/Cookie"/>
+    <partial name="Partials/Notifications"/>
+</div>
+@await Component.InvokeAsync("Widget", new { widgetZone = "body_end_html_tag_before" })
+<resources asp-type="ScriptFooter"/>
+<resources asp-type="TemplateFooter"/>
 </body>
 </html>

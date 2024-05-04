@@ -1,49 +1,44 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Utilities.Catalog;
 
-namespace Grand.Business.Catalog.Tests.Services.Discounts
+namespace Grand.Business.Catalog.Tests.Services.Discounts;
+
+public class DiscountProviderTest : IDiscountProvider
 {
-    public class DiscountProviderTest : IDiscountProvider
+    public string ConfigurationUrl => throw new NotImplementedException();
+
+    public string SystemName => "SampleDiscountProvider";
+
+    public string FriendlyName => throw new NotImplementedException();
+
+    public int Priority => throw new NotImplementedException();
+
+    public IList<string> LimitedToStores { get; } = new List<string>();
+
+    public IList<string> LimitedToGroups { get; } = new List<string>();
+
+    public IList<IDiscountRule> GetRequirementRules()
     {
-        private IList<string> limitedToStores = new List<string>();
-        private IList<string> limitedToGroups = new List<string>();
+        return new List<IDiscountRule> { new DiscountRuleValidTest() };
+    }
+}
 
-        public string ConfigurationUrl => throw new NotImplementedException();
+public class DiscountRuleValidTest : IDiscountRule
+{
+    public string SystemName => "RuleSystemName";
 
-        public string SystemName => "SampleDiscountProvider";
+    public string FriendlyName => throw new NotImplementedException();
 
-        public string FriendlyName => throw new NotImplementedException();
-
-        public int Priority => throw new NotImplementedException();
-
-        public IList<string> LimitedToStores => limitedToStores;
-
-        public IList<string> LimitedToGroups => limitedToGroups;
-
-        public IList<IDiscountRule> GetRequirementRules()
-        {
-            return new List<IDiscountRule> { new DiscountRuleValidTest() };
-        }
+    public async Task<DiscountRuleValidationResult> CheckRequirement(DiscountRuleValidationRequest request)
+    {
+        var result = new DiscountRuleValidationResult {
+            IsValid = true
+        };
+        return await Task.FromResult(result);
     }
 
-    public class DiscountRuleValidTest : IDiscountRule
+    public string GetConfigurationUrl(string discountId, string discountRequirementId)
     {
-        public string SystemName => "RuleSystemName";
-
-        public string FriendlyName => throw new NotImplementedException();
-
-        public async Task<DiscountRuleValidationResult> CheckRequirement(DiscountRuleValidationRequest request)
-        {
-            var result = new DiscountRuleValidationResult {
-                IsValid = true
-            };
-            return await Task.FromResult(result);
-        }
-
-        public string GetConfigurationUrl(string discountId, string discountRequirementId)
-        {
-            throw new NotImplementedException();
-        }
+        throw new NotImplementedException();
     }
-
 }

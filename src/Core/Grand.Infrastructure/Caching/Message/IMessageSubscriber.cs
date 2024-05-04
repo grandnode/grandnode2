@@ -1,7 +1,6 @@
-﻿namespace Grand.Infrastructure.Caching.Message
+﻿namespace Grand.Infrastructure.Caching.Message;
+
+public interface IMessageSubscriber
 {
-    public interface IMessageSubscriber
-    {
-        Task SubscribeAsync();
-    }
+    Task SubscribeAsync();
 }

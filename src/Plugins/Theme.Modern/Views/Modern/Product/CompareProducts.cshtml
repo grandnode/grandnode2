@@ -20,99 +20,105 @@
     }
 }
 <div class="page compare-products-page">
-    <h2 class="text-center generalTitle"><div>@Loc["Products.Compare.Title"]</div></h2>
+    <h2 class="text-center generalTitle">
+        <div>@Loc["Products.Compare.Title"]</div>
+    </h2>
     <template v-if="compareproducts !== null && compareproducts.Products.length > 0">
         <a class="btn btn-danger mb-3" @@click="removeFromCompareList(); getCompareList('@Url.RouteUrl("CompareProducts")')">@Loc["Products.Compare.Clear"]</a>
         <div class="table-responsive">
             <table class="table table-hover compare-products-table table-bordered">
                 <tbody>
-                    <tr class="remove-product">
-                        <td class="empty">&nbsp;</td>
-                        <template v-for="product in compareproducts.Products">
-                            <td class="same-width">
-                                <button type="button" title="@Loc["Common.Remove"]" class="btn btn-sm btn-link remove-button d-flex align-items-center justify-content-center" @@click="removeFromCompareList(product.Id); getCompareList('@Url.RouteUrl("CompareProducts")')">
-                                    <b-icon icon="trash" variant="danger" aria-hidden="true"></b-icon>
-                                </button>
-                            </td>
-                        </template>
-                    </tr>
-                    <tr class="product-picture">
-                        <td class="empty">&nbsp;</td>
-                        <template v-for="product in compareproducts.Products">
-                            <td class="same-width">
-                                <a class="picture" :href="product.Url"><img class="compare-img" :alt="product.DefaultPictureModel.AlternateText" :src="product.DefaultPictureModel.ImageUrl" :title="product.DefaultPictureModel.Title" /></a>
-                            </td>
-                        </template>
-                    </tr>
-                    <tr class="product-name">
-                        <td>
-                            <label>@Loc["Products.Compare.Name"]</label>
+                <tr class="remove-product">
+                    <td class="empty">&nbsp;</td>
+                    <template v-for="product in compareproducts.Products">
+                        <td class="same-width">
+                            <button type="button" title="@Loc["Common.Remove"]" class="btn btn-sm btn-link remove-button d-flex align-items-center justify-content-center" @@click="removeFromCompareList(product.Id); getCompareList('@Url.RouteUrl("CompareProducts")')">
+                                <b-icon icon="trash" variant="danger" aria-hidden="true"></b-icon>
+                            </button>
                         </td>
-                        <template v-for="product in compareproducts.Products">
-                            <td class="same-width">
-                                <a :href="product.Url">{{product.Name}}</a>
-                            </td>
-                        </template>
-                    </tr>
-                    <tr class="product-price">
-                        <td>
-                            <label><strong>@Loc["Products.Compare.Price"]</strong></label>
-                        </td>
-                        <template v-for="product in compareproducts.Products">
-                            <td class="same-width">
-                                <strong>{{product.ProductPrice.Price}}</strong>
-                            </td>
-                        </template>
-                    </tr>
-                    <template v-if="compareproducts.IncludeShortDescriptionInCompareProducts">
-                        <tr class="short-description">
-                            <td>
-                                <label>@Loc["Products.Compare.ShortDescription"]</label>
-                            </td>
-                            <template v-for="product in compareproducts.Products">
-                                <td class="same-width">
-                                    <div v-html="product.ShortDescription"></div>
-                                </td>
-                            </template>
-                        </tr>
                     </template>
-                    <template v-for="specificationAttribute in specificationAttributes.Model">
-                        <tr class="specification">
-                            <td>
-                                <label>{{specificationAttribute.SpecificationAttributeName}}</label>
+                </tr>
+                <tr class="product-picture">
+                    <td class="empty">&nbsp;</td>
+                    <template v-for="product in compareproducts.Products">
+                        <td class="same-width">
+                            <a class="picture" :href="product.Url">
+                                <img class="compare-img" :alt="product.DefaultPictureModel.AlternateText" :src="product.DefaultPictureModel.ImageUrl" :title="product.DefaultPictureModel.Title"/>
+                            </a>
+                        </td>
+                    </template>
+                </tr>
+                <tr class="product-name">
+                    <td>
+                        <label>@Loc["Products.Compare.Name"]</label>
+                    </td>
+                    <template v-for="product in compareproducts.Products">
+                        <td class="same-width">
+                            <a :href="product.Url">{{product.Name}}</a>
+                        </td>
+                    </template>
+                </tr>
+                <tr class="product-price">
+                    <td>
+                        <label>
+                            <strong>@Loc["Products.Compare.Price"]</strong>
+                        </label>
+                    </td>
+                    <template v-for="product in compareproducts.Products">
+                        <td class="same-width">
+                            <strong>{{product.ProductPrice.Price}}</strong>
+                        </td>
+                    </template>
+                </tr>
+                <template v-if="compareproducts.IncludeShortDescriptionInCompareProducts">
+                    <tr class="short-description">
+                        <td>
+                            <label>@Loc["Products.Compare.ShortDescription"]</label>
+                        </td>
+                        <template v-for="product in compareproducts.Products">
+                            <td class="same-width">
+                                <div v-html="product.ShortDescription"></div>
                             </td>
-                            <template v-for="product in compareproducts.Products">
-                                <td class="same-width">
-                                    <template v-for="spec in product.SpecificationAttributeModels">
-                                        <template v-if="spec.SpecificationAttributeId == specificationAttribute.SpecificationAttributeId">
-                                            <template v-if="spec.ColorSquaresRgb == null">
-                                                <div v-html="spec.ValueRaw" class="d-inline-flex mx-1"></div>
-                                            </template>
-                                            <template v-else>
-                                                <div class="color-squares d-inline-flex mx-1">
-                                                    <span class="color-container" :title="spec.ValueRaw">
-                                                        <span class="color" :style="'background-color:' + spec.ColorSquaresRgb">&nbsp;</span>
-                                                    </span>
-                                                </div>
-                                            </template>
+                        </template>
+                    </tr>
+                </template>
+                <template v-for="specificationAttribute in specificationAttributes.Model">
+                    <tr class="specification">
+                        <td>
+                            <label>{{specificationAttribute.SpecificationAttributeName}}</label>
+                        </td>
+                        <template v-for="product in compareproducts.Products">
+                            <td class="same-width">
+                                <template v-for="spec in product.SpecificationAttributeModels">
+                                    <template v-if="spec.SpecificationAttributeId == specificationAttribute.SpecificationAttributeId">
+                                        <template v-if="spec.ColorSquaresRgb == null">
+                                            <div v-html="spec.ValueRaw" class="d-inline-flex mx-1"></div>
+                                        </template>
+                                        <template v-else>
+                                            <div class="color-squares d-inline-flex mx-1">
+                                                <span class="color-container" :title="spec.ValueRaw">
+                                                    <span class="color" :style="'background-color:' + spec.ColorSquaresRgb">&nbsp;</span>
+                                                </span>
+                                            </div>
                                         </template>
                                     </template>
-                                </td>
-                            </template>
-                        </tr>
-                    </template>
-                    <template v-if="compareproducts.IncludeFullDescriptionInCompareProducts">
-                        <tr class="full-description">
-                            <td>
-                                <label>@Loc["Products.Compare.FullDescription"]</label>
+                                </template>
                             </td>
-                            <template v-for="product in compareproducts.Products">
-                                <td class="same-width">
-                                    <div v-html="product.FullDescription"></div>
-                                </td>
-                            </template>
-                        </tr>
-                    </template>
+                        </template>
+                    </tr>
+                </template>
+                <template v-if="compareproducts.IncludeFullDescriptionInCompareProducts">
+                    <tr class="full-description">
+                        <td>
+                            <label>@Loc["Products.Compare.FullDescription"]</label>
+                        </td>
+                        <template v-for="product in compareproducts.Products">
+                            <td class="same-width">
+                                <div v-html="product.FullDescription"></div>
+                            </td>
+                        </template>
+                    </tr>
+                </template>
                 </tbody>
             </table>
         </div>

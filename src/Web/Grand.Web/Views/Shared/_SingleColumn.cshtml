@@ -3,14 +3,17 @@
 }
 
 @section Breadcrumb {
-    @await RenderSectionAsync("Breadcrumb", required: false)
+    @await RenderSectionAsync("Breadcrumb", false)
 }
+
 @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_before" })
 @RenderBody()
 @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_after" })
+
 @section meta {
-    @await RenderSectionAsync("meta", required: false)
+    @await RenderSectionAsync("meta", false)
 }
+
 @section head {
-    @await RenderSectionAsync("head", required: false)
+    @await RenderSectionAsync("head", false)
 }

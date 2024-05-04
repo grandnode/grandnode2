@@ -1,10 +1,9 @@
-﻿namespace Grand.Data
+﻿namespace Grand.Data;
+
+public enum DbProvider
 {
-    public enum DbProvider
-    {
-         MongoDB,
-         CosmosDB,
-         DocumentDB,
-         LiteDB
-    }
+    MongoDB,
+    CosmosDB,
+    DocumentDB,
+    LiteDB
 }

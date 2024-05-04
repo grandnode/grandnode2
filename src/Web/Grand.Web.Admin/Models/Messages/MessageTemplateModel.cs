@@ -4,79 +4,82 @@ using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace Grand.Web.Admin.Models.Messages
+namespace Grand.Web.Admin.Models.Messages;
+
+public class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemplateLocalizedModel>, IStoreLinkModel
 {
-    public class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemplateLocalizedModel>, IStoreLinkModel
-    {
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.AllowedTokens")]
-        public string[] AllowedTokens { get; set; }
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.AllowedTokens")]
+    public string[] AllowedTokens { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Name")]
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Name")]
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.BccEmailAddresses")]
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.BccEmailAddresses")]
 
-        public string BccEmailAddresses { get; set; }
+    public string BccEmailAddresses { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Subject")]
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Subject")]
 
-        public string Subject { get; set; }
+    public string Subject { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Body")]
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Body")]
 
-        public string Body { get; set; }
+    public string Body { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.IsActive")]
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.IsActive")]
 
-        public bool IsActive { get; set; }
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.SendImmediately")]
-        public bool SendImmediately { get; set; }
+    public bool IsActive { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.DelayBeforeSend")]
-        [UIHint("Int32Nullable")]
-        public int? DelayBeforeSend { get; set; }
-        public int DelayPeriodId { get; set; }
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.SendImmediately")]
+    public bool SendImmediately { get; set; }
 
-        public bool HasAttachedDownload { get; set; }
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.AttachedDownload")]
-        [UIHint("Download")]
-        public string AttachedDownloadId { get; set; }
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.DelayBeforeSend")]
+    [UIHint("Int32Nullable")]
+    public int? DelayBeforeSend { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.EmailAccount")]
-        public string EmailAccountId { get; set; }
-        public IList<EmailAccountModel> AvailableEmailAccounts { get; set; } = new List<EmailAccountModel>();
+    public int DelayPeriodId { get; set; }
 
-        //Store acl
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.LimitedToStores")]
-        [UIHint("Stores")]
-        public string[] Stores { get; set; }
-        public List<StoreModel> AvailableStores { get; set; }
+    public bool HasAttachedDownload { get; set; }
 
-        //comma-separated list of stores used on the list page
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.LimitedToStores")]
-        public string ListOfStores { get; set; }
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.AttachedDownload")]
+    [UIHint("Download")]
+    public string AttachedDownloadId { get; set; }
 
-        public IList<MessageTemplateLocalizedModel> Locales { get; set; } = new List<MessageTemplateLocalizedModel>();
-    }
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.EmailAccount")]
+    public string EmailAccountId { get; set; }
 
-    public class MessageTemplateLocalizedModel : ILocalizedModelLocal
-    {
-        public string LanguageId { get; set; }
+    public IList<EmailAccountModel> AvailableEmailAccounts { get; set; } = new List<EmailAccountModel>();
+    public List<StoreModel> AvailableStores { get; set; }
 
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.BccEmailAddresses")]
+    //comma-separated list of stores used on the list page
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.LimitedToStores")]
+    public string ListOfStores { get; set; }
 
-        public string BccEmailAddresses { get; set; }
+    public IList<MessageTemplateLocalizedModel> Locales { get; set; } = new List<MessageTemplateLocalizedModel>();
 
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Subject")]
+    //Store acl
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.LimitedToStores")]
+    [UIHint("Stores")]
+    public string[] Stores { get; set; }
+}
 
-        public string Subject { get; set; }
+public class MessageTemplateLocalizedModel : ILocalizedModelLocal
+{
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.BccEmailAddresses")]
 
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Body")]
+    public string BccEmailAddresses { get; set; }
 
-        public string Body { get; set; }
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Subject")]
 
-        [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.EmailAccount")]
-        public string EmailAccountId { get; set; }
-    }
+    public string Subject { get; set; }
+
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Body")]
+
+    public string Body { get; set; }
+
+    [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.EmailAccount")]
+    public string EmailAccountId { get; set; }
+
+    public string LanguageId { get; set; }
 }

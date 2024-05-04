@@ -3,14 +3,16 @@
     <div class="home-page-section">
         <div id="HomePageNews" class="section mb-3">
             <div class="product-grid">
-                <h2 class="generalTitle text-center"><span>@Loc["News"]</span></h2>
+                <h2 class="generalTitle text-center">
+                    <span>@Loc["News"]</span>
+                </h2>
                 <div class="col-12 px-0">
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12 post-container mb-2" :key="Item.Id" v-for="Item in homePNews.Model.NewsItems">
                             <div class="card post-news">
                                 <div class="card-header">
                                     <a class="img-container" v-if="Item.PictureModel.ImageUrl !== null">
-                                        <b-img-lazy width="300" height="300" :src="Item.PictureModel.ImageUrl" :alt="Item.PictureModel.AlternateText" />
+                                        <b-img-lazy width="300" height="300" :src="Item.PictureModel.ImageUrl" :alt="Item.PictureModel.AlternateText"/>
                                     </a>
                                     <h3 class="h5 title">
                                         <a :href="'/' + Item.SeName">

@@ -1,9 +1,8 @@
 ﻿using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Models.Customer
+namespace Grand.Web.Models.Customer;
+
+public class ExternalAuthenticationMethodModel : BaseModel
 {
-    public class ExternalAuthenticationMethodModel : BaseModel
-    {
-        public string ViewComponentName { get; set; }
-    }
+    public string ViewComponentName { get; set; }
 }

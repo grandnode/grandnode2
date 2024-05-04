@@ -12,7 +12,7 @@
                     <i class="fa fa-cart-plus"></i>
                     @Loc["Admin.CurrentCartWishlists"]
                 </div>
-                <vc:admin-widget widget-zone="current_shopping_cart_list_buttons" additional-data="null" />
+                <vc:admin-widget widget-zone="current_shopping_cart_list_buttons" additional-data="null"/>
             </div>
             <div class="x_content form">
                 <admin-tabstrip name="shoppingcarts-list">
@@ -20,18 +20,18 @@
                         <tabstrip-item text="@Loc["Admin.CurrentCarts"]" tab-index="0">
                             <content>
                                 <div>
-                                    <partial name="Partials/CurrentCarts.TabCurrentCarts" model="Model" />
+                                    <partial name="Partials/CurrentCarts.TabCurrentCarts" model="Model"/>
                                 </div>
                             </content>
                         </tabstrip-item>
                         <tabstrip-item text="@Loc["Admin.CurrentWishlists"]" tab-index="1">
                             <content>
                                 <div>
-                                    <partial name="Partials/CurrentCarts.TabCurrentWishlists" model="Model" />
+                                    <partial name="Partials/CurrentCarts.TabCurrentWishlists" model="Model"/>
                                 </div>
                             </content>
                         </tabstrip-item>
-                        <vc:admin-widget widget-zone="current_shopping_details_tabs" additional-data="Model" />
+                        <vc:admin-widget widget-zone="current_shopping_details_tabs" additional-data="Model"/>
                     </items>
                 </admin-tabstrip>
             </div>

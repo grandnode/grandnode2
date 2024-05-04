@@ -1,10 +1,8 @@
-﻿
-namespace Grand.Web.Common.TagHelpers
+﻿namespace Grand.Web.Common.TagHelpers;
+
+public enum ScriptLocation
 {
-    public enum ScriptLocation
-    {
-        Head,
-        Header,
-        Footer
-    }
+    Head,
+    Header,
+    Footer
 }

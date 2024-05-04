@@ -1,5 +1,5 @@
 ﻿@model MenuModel
-@{    
+@{
     //page title
     ViewBag.Title = Loc["Admin.Configuration.Menu.AddNew"];
 }
@@ -11,18 +11,24 @@
                     <div class="caption">
                         <i class="fa fa-sitemap"></i>
                         @Loc["Admin.Configuration.Menu.AddNew"]
-                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Configuration.Menu.BackToList"], "Index")</small>
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Configuration.Menu.BackToList"], "Index")
+                        </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
                         </div>
                     </div>
                 </div>
-                <vc:admin-widget widget-zone="menu_details_buttons" additional-data="null" />
+                <vc:admin-widget widget-zone="menu_details_buttons" additional-data="null"/>
                 <div class="x_content form">
-                    <partial name="Partials/CreateOrUpdate" model="Model" />
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
                 </div>
             </div>
         </div>

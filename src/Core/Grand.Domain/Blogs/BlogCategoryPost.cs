@@ -1,7 +1,6 @@
-﻿namespace Grand.Domain.Blogs
+﻿namespace Grand.Domain.Blogs;
+
+public class BlogCategoryPost : SubBaseEntity
 {
-    public class BlogCategoryPost : SubBaseEntity
-    {
-        public string BlogPostId { get; set; }
-    }
+    public string BlogPostId { get; set; }
 }

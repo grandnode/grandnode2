@@ -1,17 +1,17 @@
-namespace Grand.Domain.Catalog
+namespace Grand.Domain.Catalog;
+
+/// <summary>
+///     Represents a gift voucher type
+/// </summary>
+public enum GiftVoucherType
 {
     /// <summary>
-    /// Represents a gift voucher type
+    ///     Virtual
     /// </summary>
-    public enum GiftVoucherType
-    {
-        /// <summary>
-        /// Virtual
-        /// </summary>
-        Virtual = 0,
-        /// <summary>
-        /// Physical
-        /// </summary>
-        Physical = 1
-    }
+    Virtual = 0,
+
+    /// <summary>
+    ///     Physical
+    /// </summary>
+    Physical = 1
 }

@@ -1,7 +1,7 @@
 ﻿@model ProductDetailsModel
 @if (Model.DisplayOutOfStockSubscription)
 {
-    <input type="button" id="out-of-stock-subscribe-@Model.Id" @@click="showModalOutOfStock" class="btn btn-secondary btn-sm subscribe-button" style="display:none;" value="@Loc["OutOfStockSubscriptions.NotifyMeWhenAvailable"]" />
+    <input type="button" id="out-of-stock-subscribe-@Model.Id" @@click="showModalOutOfStock" class="btn btn-secondary btn-sm subscribe-button" style="display:none;" value="@Loc["OutOfStockSubscriptions.NotifyMeWhenAvailable"]"/>
     <script asp-location="Footer" asp-order="300">
         document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("out-of-stock-subscribe-@Model.Id").addEventListener('click', function (event) {
@@ -26,10 +26,9 @@
         });
     </script>
 
-    <b-modal id="subscribe-modal-form" ref="out-of-stock" hide-footer centered  title="@Loc["OutOfStockSubscriptions.Title"]">
+    <b-modal id="subscribe-modal-form" ref="out-of-stock" hide-footer centered title="@Loc["OutOfStockSubscriptions.Title"]">
         <div id="modal-subscribe" class="alert-info alert mb-0">
             @Loc["OutOfStockSubscriptions.PleaseWait"]
         </div>
     </b-modal>
-
 }

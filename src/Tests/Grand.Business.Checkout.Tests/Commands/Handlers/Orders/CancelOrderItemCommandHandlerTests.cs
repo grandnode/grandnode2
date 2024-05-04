@@ -11,46 +11,50 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
+namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders;
+
+[TestClass]
+public class CancelOrderItemCommandHandlerTests
 {
-    [TestClass()]
-    public class CancelOrderItemCommandHandlerTests
+    private CancelOrderItemCommandHandler _handler;
+    private Mock<IInventoryManageService> _inventoryMock;
+
+
+    private Mock<IMediator> _mediatorMock;
+    private Mock<IOrderService> _orderServiceMock;
+    private Mock<IProductService> _productServiceMock;
+    private Mock<IShipmentService> _shipmentServiceMock;
+
+    [TestInitialize]
+    public void Init()
     {
+        _mediatorMock = new Mock<IMediator>();
+        _orderServiceMock = new Mock<IOrderService>();
+        _shipmentServiceMock = new Mock<IShipmentService>();
+        _productServiceMock = new Mock<IProductService>();
+        _inventoryMock = new Mock<IInventoryManageService>();
+        _handler = new CancelOrderItemCommandHandler(_mediatorMock.Object, _orderServiceMock.Object,
+            _shipmentServiceMock.Object,
+            _productServiceMock.Object, _inventoryMock.Object);
+    }
 
+    [TestMethod]
+    public async Task HandleTest()
+    {
+        var command = new CancelOrderItemCommand {
+            Order = new Order {
+                Id = "id"
+            },
+            OrderItem = new OrderItem { OpenQty = 1, Status = OrderItemStatus.Open }
+        };
 
-        private Mock<IMediator> _mediatorMock;
-        private Mock<IOrderService> _orderServiceMock;
-        private Mock<IShipmentService> _shipmentServiceMock;
-        private Mock<IProductService> _productServiceMock;
-        private Mock<IInventoryManageService> _inventoryMock;
-        private CancelOrderItemCommandHandler _handler;
+        _shipmentServiceMock.Setup(c => c.GetShipmentsByOrder(It.IsAny<string>())).ReturnsAsync(new List<Shipment>());
+        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
+            Task.FromResult(new Product { Id = "2", Published = true, Price = 10 }));
+        await _handler.Handle(command, default);
 
-        [TestInitialize]
-        public void Init()
-        {
-            _mediatorMock = new Mock<IMediator>();
-            _orderServiceMock = new Mock<IOrderService>();
-            _shipmentServiceMock = new Mock<IShipmentService>();
-            _productServiceMock = new Mock<IProductService>();
-            _inventoryMock = new Mock<IInventoryManageService>();
-            _handler = new CancelOrderItemCommandHandler(_mediatorMock.Object, _orderServiceMock.Object, _shipmentServiceMock.Object,
-                _productServiceMock.Object, _inventoryMock.Object);
-        }
-        [TestMethod()]
-        public async Task HandleTest()
-        {
-            var command = new CancelOrderItemCommand {
-                Order = new Order {
-                    Id = "id"
-                },
-                OrderItem = new OrderItem { OpenQty = 1, Status = OrderItemStatus.Open }
-            };
-
-            _shipmentServiceMock.Setup(c => c.GetShipmentsByOrder(It.IsAny<string>())).ReturnsAsync(new List<Shipment>());
-            _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() => Task.FromResult(new Product { Id = "2", Published = true, Price = 10 }));
-            await _handler.Handle(command, default);
-
-            _inventoryMock.Verify(c => c.AdjustReserved(It.IsAny<Product>(), It.IsAny<int>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<string>()), Times.Once);
-        }
+        _inventoryMock.Verify(
+            c => c.AdjustReserved(It.IsAny<Product>(), It.IsAny<int>(), It.IsAny<IList<CustomAttribute>>(),
+                It.IsAny<string>()), Times.Once);
     }
 }

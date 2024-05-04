@@ -7,56 +7,54 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Models.Cms;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Components
+namespace Grand.Web.Components;
+
+public class WidgetViewComponent : BaseViewComponent
 {
-    public class WidgetViewComponent : BaseViewComponent
+    private readonly ICacheBase _cacheBase;
+    private readonly IWidgetService _widgetService;
+    private readonly IWorkContext _workContext;
+
+    public WidgetViewComponent(IWorkContext workContext, ICacheBase cacheBase, IWidgetService widgetService)
     {
-        private readonly IWorkContext _workContext;
-        private readonly ICacheBase _cacheBase;
-        private readonly IWidgetService _widgetService;
+        _workContext = workContext;
+        _cacheBase = cacheBase;
+        _widgetService = widgetService;
+    }
 
-        public WidgetViewComponent(IWorkContext workContext, ICacheBase cacheBase, IWidgetService widgetService)
+    public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
+    {
+        var cacheKey = string.Format(CacheKeyConst.WIDGET_MODEL_KEY, _workContext.CurrentStore.Id,
+            string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
+            widgetZone);
+
+        var cachedModel = await _cacheBase.GetAsync(cacheKey, async () =>
         {
-            _workContext = workContext;
-            _cacheBase = cacheBase;
-            _widgetService = widgetService;
-        }
-
-        public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
-        {
-            var cacheKey = string.Format(CacheKeyConst.WIDGET_MODEL_KEY, _workContext.CurrentStore.Id,
-                string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
-                widgetZone);
-
-            var cachedModel = await _cacheBase.GetAsync(cacheKey, async () =>
+            //model
+            var model = new List<WidgetModel>();
+            var widgets = await _widgetService.LoadActiveWidgetsByWidgetZone(widgetZone, _workContext.CurrentStore.Id,
+                _workContext.CurrentCustomer);
+            foreach (var widget in widgets)
             {
-                //model
-                var model = new List<WidgetModel>();
-                var widgets = await _widgetService.LoadActiveWidgetsByWidgetZone(widgetZone, _workContext.CurrentStore.Id, _workContext.CurrentCustomer);
-                foreach (var widget in widgets)
-                {
-                    var viewComponentName = await widget.GetPublicViewComponentName(widgetZone);
-                    var widgetModel = new WidgetModel {
-                        ViewComponentName = viewComponentName,
-                        WidgetZone = widgetZone
-                    };
+                var viewComponentName = await widget.GetPublicViewComponentName(widgetZone);
+                var widgetModel = new WidgetModel {
+                    ViewComponentName = viewComponentName,
+                    WidgetZone = widgetZone
+                };
 
-                    model.Add(widgetModel);
-                }
-                return model;
-            });
-
-            if (!cachedModel.Any())
-                return Content("");
-
-            if (additionalData == null) return View(cachedModel);
-            
-            foreach (var item in cachedModel)
-            {
-                item.AdditionalData = additionalData;
+                model.Add(widgetModel);
             }
 
-            return View(cachedModel);
-        }
+            return model;
+        });
+
+        if (!cachedModel.Any())
+            return Content("");
+
+        if (additionalData == null) return View(cachedModel);
+
+        foreach (var item in cachedModel) item.AdditionalData = additionalData;
+
+        return View(cachedModel);
     }
 }

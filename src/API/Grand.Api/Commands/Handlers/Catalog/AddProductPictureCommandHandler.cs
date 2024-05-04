@@ -4,37 +4,36 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using MediatR;
 
-namespace Grand.Api.Commands.Handlers.Catalog
+namespace Grand.Api.Commands.Handlers.Catalog;
+
+public class AddProductPictureCommandHandler : IRequestHandler<AddProductPictureCommand, bool>
 {
-    public class AddProductPictureCommandHandler : IRequestHandler<AddProductPictureCommand, bool>
+    private readonly IPictureService _pictureService;
+    private readonly IProductService _productService;
+
+    public AddProductPictureCommandHandler(
+        IProductService productService,
+        IPictureService pictureService)
     {
-        private readonly IProductService _productService;
-        private readonly IPictureService _pictureService;
+        _productService = productService;
+        _pictureService = pictureService;
+    }
 
-        public AddProductPictureCommandHandler(
-            IProductService productService,
-            IPictureService pictureService)
-        {
-            _productService = productService;
-            _pictureService = pictureService;
-        }
+    public async Task<bool> Handle(AddProductPictureCommand request, CancellationToken cancellationToken)
+    {
+        var product = await _productService.GetProductById(request.Product.Id);
+        if (product == null)
+            return false;
 
-        public async Task<bool> Handle(AddProductPictureCommand request, CancellationToken cancellationToken)
-        {
-            var product = await _productService.GetProductById(request.Product.Id);
-            if (product == null)
-                return false;
+        var picture = await _pictureService.GetPictureById(request.Model.PictureId);
+        if (picture == null)
+            return false;
 
-            var picture = await _pictureService.GetPictureById(request.Model.PictureId);
-            if (picture == null)
-                return false;
+        await _productService.InsertProductPicture(new ProductPicture {
+            PictureId = picture.Id,
+            DisplayOrder = request.Model.DisplayOrder
+        }, product.Id);
 
-            await _productService.InsertProductPicture(new ProductPicture {
-                PictureId = picture.Id,
-                DisplayOrder = request.Model.DisplayOrder
-            }, product.Id);
-
-            return true;
-        }
+        return true;
     }
 }

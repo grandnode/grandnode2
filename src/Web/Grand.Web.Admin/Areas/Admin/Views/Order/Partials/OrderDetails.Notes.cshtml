@@ -1,14 +1,15 @@
-﻿@model OrderModel
+﻿@using Grand.Domain.Media
+@model OrderModel
 @{
-    ViewData["DownloadType"] = Grand.Domain.Media.DownloadType.Order;
+    ViewData["DownloadType"] = DownloadType.Order;
     ViewData["ReferenceId"] = Model.Id;
 }
 <div class="panel panel-default">
-    <vc:admin-widget widget-zone="order_details_notes_top" additional-data="Model" />
+    <vc:admin-widget widget-zone="order_details_notes_top" additional-data="Model"/>
     <div class="panel-body">
         <div id="ordernotes-grid"></div>
     </div>
-    <vc:admin-widget widget-zone="order_details_notes_bottom" additional-data="Model" />
+    <vc:admin-widget widget-zone="order_details_notes_bottom" additional-data="Model"/>
 </div>
 <script>
         $(document).ready(function () {
@@ -125,31 +126,31 @@
 <div class="form-horizontal">
     <div class="form-body">
         <div class="form-group">
-            <admin-label asp-for="AddOrderNoteMessage" />
+            <admin-label asp-for="AddOrderNoteMessage"/>
             <div class="col-md-9 col-sm-9">
                 <admin-textarea asp-for="AddOrderNoteMessage"></admin-textarea>
                 <span asp-validation-for="AddOrderNoteMessage"></span>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="AddOrderNoteDownloadId" />
+            <admin-label asp-for="AddOrderNoteDownloadId"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AddOrderNoteHasDownload" />
-                     <div class="control__indicator"></div>
+                    <admin-input asp-for="AddOrderNoteHasDownload"/>
+                    <div class="control__indicator"></div>
                 </label>
                 <div id="pnlAddOrderNoteDownloadId">
-                    <admin-input asp-for="AddOrderNoteDownloadId" />
+                    <admin-input asp-for="AddOrderNoteDownloadId"/>
                     <span asp-validation-for="AddOrderNoteDownloadId"></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="AddOrderNoteDisplayToCustomer" />
+            <admin-label asp-for="AddOrderNoteDisplayToCustomer"/>
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AddOrderNoteDisplayToCustomer" />
-                     <div class="control__indicator"></div>
+                    <admin-input asp-for="AddOrderNoteDisplayToCustomer"/>
+                    <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="AddOrderNoteDisplayToCustomer"></span>
             </div>

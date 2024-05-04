@@ -6,7 +6,7 @@
         <div class="bill-to-same-address">
             <p class="selector">
                 <label class="custom-control custom-checkbox">
-                    <input asp-for="BillToTheSameAddress" class="custom-control-input" :disabled="vmorder.PickUpInStore" />
+                    <input asp-for="BillToTheSameAddress" class="custom-control-input" :disabled="vmorder.PickUpInStore"/>
                     <span class="custom-control-label"></span>
                     <span class="custom-control-description">@Loc["Checkout.BillToTheSameAddress"]</span>
                 </label>
@@ -14,7 +14,7 @@
         </div>
     }
 
-    <partial name="Partials/ShippingAddressPickupInStore" model="Model" />
+    <partial name="Partials/ShippingAddressPickupInStore" model="Model"/>
     <div v-show="vmorder.shippingContainer">
         @if (Model.ExistingAddresses.Any())
         {
@@ -24,7 +24,7 @@
                 </div>
                 <div class="col-12 px-0">
                     <select name="ShippingAddressId" ref="shippingSelect" id="shipping-address-select" class="custom-select address-select"
-                             onchange="vmorder.vShipping.newAddress(!this.value)">
+                            onchange="vmorder.vShipping.newAddress(!this.value)">
                         @foreach (var address in Model.ExistingAddresses)
                         {
                             var addressLine = "";
@@ -34,22 +34,27 @@
                             {
                                 addressLine += ", " + address.Address1;
                             }
+
                             if (address.CityEnabled && !string.IsNullOrEmpty(address.City))
                             {
                                 addressLine += ", " + address.City;
                             }
+
                             if (address.StateProvinceEnabled && !string.IsNullOrEmpty(address.StateProvinceName))
                             {
                                 addressLine += ", " + address.StateProvinceName;
                             }
+
                             if (address.ZipPostalCodeEnabled && !string.IsNullOrEmpty(address.ZipPostalCode))
                             {
                                 addressLine += " " + address.ZipPostalCode;
                             }
+
                             if (address.CountryEnabled && !string.IsNullOrWhiteSpace(address.CountryName))
                             {
                                 addressLine += ", " + address.CountryName;
                             }
+
                             <option value="@(address.Id)">@(addressLine)</option>
                         }
                         <option value="" selected="@Model.NewAddressPreselected">@Loc["Checkout.NewAddress"]</option>
@@ -68,7 +73,7 @@
                             HtmlFieldPrefix = "ShippingNewAddress"
                         }
                     };
-                    <partial name="Partials/CreateOrUpdateAddress" model="Model.ShippingNewAddress" view-data="dataDictAddress" />
+                    <partial name="Partials/CreateOrUpdateAddress" model="Model.ShippingNewAddress" view-data="dataDictAddress"/>
                 }
                 <div asp-validation-summary="All" class="message-error"></div>
                 <template v-if="vmorder.shippingAddressErrors !== null">

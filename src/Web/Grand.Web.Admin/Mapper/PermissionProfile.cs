@@ -15,7 +15,7 @@ public class PermissionProfile : Profile, IAutoMapperProfile
             .ForMember(dest => dest.SystemName, mo => mo.Ignore())
             .ForMember(dest => dest.Actions, mo => mo.Ignore())
             .ForMember(dest => dest.CustomerGroups, mo => mo.Ignore());
-        
+
         CreateMap<Permission, PermissionUpdateModel>();
     }
 

@@ -1,16 +1,14 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Admin.Models.Directory
+namespace Grand.Web.Admin.Models.Directory;
+
+public class MeasureUnitModel : BaseEntityModel
 {
-    public class MeasureUnitModel : BaseEntityModel
-    {
-        [GrandResourceDisplayName("Admin.Configuration.Measures.Units.Fields.Name")]
+    [GrandResourceDisplayName("Admin.Configuration.Measures.Units.Fields.Name")]
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Measures.Units.Fields.DisplayOrder")]
-        public int DisplayOrder { get; set; }
-
-    }
+    [GrandResourceDisplayName("Admin.Configuration.Measures.Units.Fields.DisplayOrder")]
+    public int DisplayOrder { get; set; }
 }

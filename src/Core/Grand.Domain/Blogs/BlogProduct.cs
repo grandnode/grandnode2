@@ -1,9 +1,8 @@
-﻿namespace Grand.Domain.Blogs
+﻿namespace Grand.Domain.Blogs;
+
+public class BlogProduct : BaseEntity
 {
-    public class BlogProduct : BaseEntity
-    {
-        public string BlogPostId { get; set; }
-        public string ProductId { get; set; }
-        public int DisplayOrder { get; set; }
-    }
+    public string BlogPostId { get; set; }
+    public string ProductId { get; set; }
+    public int DisplayOrder { get; set; }
 }

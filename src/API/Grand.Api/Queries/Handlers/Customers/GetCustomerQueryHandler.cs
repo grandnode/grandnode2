@@ -4,20 +4,19 @@ using Grand.Api.Queries.Models.Customers;
 using Grand.Business.Core.Interfaces.Customers;
 using MediatR;
 
-namespace Grand.Api.Queries.Handlers.Customers
+namespace Grand.Api.Queries.Handlers.Customers;
+
+public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, CustomerDto>
 {
-    public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, CustomerDto>
+    private readonly ICustomerService _customerService;
+
+    public GetCustomerQueryHandler(ICustomerService customerService)
     {
-        private readonly ICustomerService _customerService;
+        _customerService = customerService;
+    }
 
-        public GetCustomerQueryHandler(ICustomerService customerService)
-        {
-            _customerService = customerService;
-        }
-
-        public async Task<CustomerDto> Handle(GetCustomerQuery request, CancellationToken cancellationToken)
-        {
-            return (await _customerService.GetCustomerByEmail(request.Email)).ToModel();
-        }
+    public async Task<CustomerDto> Handle(GetCustomerQuery request, CancellationToken cancellationToken)
+    {
+        return (await _customerService.GetCustomerByEmail(request.Email)).ToModel();
     }
 }

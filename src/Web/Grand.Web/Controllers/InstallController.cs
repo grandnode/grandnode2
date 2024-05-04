@@ -15,307 +15,314 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 
-namespace Grand.Web.Controllers
+namespace Grand.Web.Controllers;
+
+public class InstallController : Controller
 {
-    public class InstallController : Controller
+    #region Ctor
+
+    public InstallController(
+        ICacheBase cacheBase,
+        IHostApplicationLifetime applicationLifetime,
+        IServiceProvider serviceProvider,
+        IMediator mediator,
+        DatabaseConfig litedbConfig,
+        ILogger<InstallController> logger)
     {
-        #region Fields
+        _cacheBase = cacheBase;
+        _applicationLifetime = applicationLifetime;
+        _serviceProvider = serviceProvider;
+        _mediator = mediator;
+        _dbConfig = litedbConfig;
+        _logger = logger;
+    }
 
-        private readonly ICacheBase _cacheBase;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IHostApplicationLifetime _applicationLifetime;
-        private readonly IMediator _mediator;
-        private readonly DatabaseConfig _dbConfig;
-        private readonly ILogger<InstallController> _logger;
-        /// <summary>
-        /// Cookie name to language for the installation page
-        /// </summary>
-        private const string LANGUAGE_COOKIE_NAME = ".Grand.installation.lang";
+    #endregion
 
-        #endregion
+    #region Fields
 
-        #region Ctor
+    private readonly ICacheBase _cacheBase;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IHostApplicationLifetime _applicationLifetime;
+    private readonly IMediator _mediator;
+    private readonly DatabaseConfig _dbConfig;
+    private readonly ILogger<InstallController> _logger;
 
-        public InstallController(
-            ICacheBase cacheBase,
-            IHostApplicationLifetime applicationLifetime,
-            IServiceProvider serviceProvider,
-            IMediator mediator,
-            DatabaseConfig litedbConfig,
-            ILogger<InstallController> logger)
+    /// <summary>
+    ///     Cookie name to language for the installation page
+    /// </summary>
+    private const string LANGUAGE_COOKIE_NAME = ".Grand.installation.lang";
+
+    #endregion
+
+    #region Methods
+
+    protected virtual string GetLanguage()
+    {
+        HttpContext.Request.Cookies.TryGetValue(LANGUAGE_COOKIE_NAME, out var language);
+
+        if (!string.IsNullOrEmpty(language)) return language;
+        //find by current browser culture
+        if (!HttpContext.Request.Headers.TryGetValue("Accept-Language", out var userLanguages)) return language;
+        var userLanguage = userLanguages.FirstOrDefault()?.Split(',')[0];
+        return !string.IsNullOrEmpty(userLanguage) ? userLanguage : language;
+    }
+
+    private InstallModel PrepareModel(InstallModel model)
+    {
+        var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
+
+        model ??= new InstallModel {
+            AdminEmail = "admin@yourstore.com",
+            InstallSampleData = false,
+            DatabaseConnectionString = ""
+        };
+
+        model.AvailableProviders = Enum.GetValues(typeof(DbProvider)).Cast<DbProvider>().Select(v => new SelectListItem {
+            Text = v.ToString(),
+            Value = ((int)v).ToString()
+        }).ToList();
+
+        model.SelectedLanguage = GetLanguage();
+
+        foreach (var lang in locService.GetAvailableLanguages())
         {
-            _cacheBase = cacheBase;
-            _applicationLifetime = applicationLifetime;
-            _serviceProvider = serviceProvider;
-            _mediator = mediator;
-            _dbConfig = litedbConfig;
-            _logger = logger;
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected virtual string GetLanguage()
-        {
-            HttpContext.Request.Cookies.TryGetValue(LANGUAGE_COOKIE_NAME, out var language);
-
-            if (!string.IsNullOrEmpty(language)) return language;
-            //find by current browser culture
-            if (!HttpContext.Request.Headers.TryGetValue("Accept-Language", out var userLanguages)) return language;
-            var userLanguage = userLanguages.FirstOrDefault()?.Split(',')[0];
-            return !string.IsNullOrEmpty(userLanguage) ? userLanguage : language;
-        }
-
-        private InstallModel PrepareModel(InstallModel model)
-        {
-            var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
-
-            model ??= new InstallModel {
-                AdminEmail = "admin@yourstore.com",
-                InstallSampleData = false,
-                DatabaseConnectionString = ""
-            };
-
-            model.AvailableProviders = Enum.GetValues(typeof(DbProvider)).Cast<DbProvider>().Select(v => new SelectListItem {
-                Text = v.ToString(),
-                Value = ((int)v).ToString()
-            }).ToList();
-
-            model.SelectedLanguage = GetLanguage();
-
-            foreach (var lang in locService.GetAvailableLanguages())
+            var selected = false;
+            if (locService.GetCurrentLanguage(model.SelectedLanguage).Code == lang.Code)
             {
-                var selected = false;
-                if (locService.GetCurrentLanguage(model.SelectedLanguage).Code == lang.Code)
-                {
-                    selected = true;
-                    model.SelectedLanguage = lang.Code;
-                }
-
-                model.AvailableLanguages.Add(new SelectListItem {
-                    Value = Url.RouteUrl("InstallChangeLanguage", new { language = lang.Code }),
-                    Text = lang.Name,
-                    Selected = selected
-                });
-            }
-            //prepare collation list
-            foreach (var col in locService.GetAvailableCollations())
-            {
-                model.AvailableCollation.Add(new SelectListItem {
-                    Value = col.Value,
-                    Text = col.Name,
-                    Selected = locService.GetCurrentLanguage().Code == col.Value
-                });
+                selected = true;
+                model.SelectedLanguage = lang.Code;
             }
 
-            return model;
+            model.AvailableLanguages.Add(new SelectListItem {
+                Value = Url.RouteUrl("InstallChangeLanguage", new { language = lang.Code }),
+                Text = lang.Name,
+                Selected = selected
+            });
         }
 
-        public virtual async Task<IActionResult> Index()
-        {
-            if (DataSettingsManager.DatabaseIsInstalled())
-                return RedirectToRoute("HomePage");
+        //prepare collation list
+        foreach (var col in locService.GetAvailableCollations())
+            model.AvailableCollation.Add(new SelectListItem {
+                Value = col.Value,
+                Text = col.Name,
+                Selected = locService.GetCurrentLanguage().Code == col.Value
+            });
 
-            var installed = await _cacheBase.GetAsync("Installed", async () => await Task.FromResult(false));
-            return View(installed ? new InstallModel { Installed = true } : PrepareModel(null));
+        return model;
+    }
+
+    public virtual async Task<IActionResult> Index()
+    {
+        if (DataSettingsManager.DatabaseIsInstalled())
+            return RedirectToRoute("HomePage");
+
+        var installed = await _cacheBase.GetAsync("Installed", async () => await Task.FromResult(false));
+        return View(installed ? new InstallModel { Installed = true } : PrepareModel(null));
+    }
+
+    private string BuildConnectionString(IInstallationLocalizedService locService, InstallModel model)
+    {
+        var connectionString = "";
+
+        if (model.ConnectionInfo && model.DataProvider != DbProvider.LiteDB)
+        {
+            if (string.IsNullOrEmpty(model.DatabaseConnectionString))
+                ModelState.AddModelError("",
+                    locService.GetResource(model.SelectedLanguage, "ConnectionStringRequired"));
+            else
+                connectionString = model.DatabaseConnectionString;
         }
-
-        private string BuildConnectionString(IInstallationLocalizedService locService, InstallModel model)
+        else
         {
-            var connectionString = "";
-
-            if (model.ConnectionInfo && model.DataProvider != DbProvider.LiteDB)
+            if (model.DataProvider != DbProvider.LiteDB)
             {
-                if (string.IsNullOrEmpty(model.DatabaseConnectionString))
-                    ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "ConnectionStringRequired"));
-                else
-                    connectionString = model.DatabaseConnectionString;
+                if (string.IsNullOrEmpty(model.MongoDBDatabaseName))
+                    ModelState.AddModelError("",
+                        locService.GetResource(model.SelectedLanguage, "DatabaseNameRequired"));
+                if (string.IsNullOrEmpty(model.MongoDBServerName))
+                    ModelState.AddModelError("",
+                        locService.GetResource(model.SelectedLanguage, "MongoDBServerNameRequired"));
+
+                var builder = new MongoUrlBuilder {
+                    Server = new MongoServerAddress(model.MongoDBServerName),
+                    Username = model.MongoDBUsername,
+                    Password = model.MongoDBPassword,
+                    DatabaseName = model.MongoDBDatabaseName
+                };
+                connectionString = builder.ToString();
             }
             else
             {
-                if (model.DataProvider != DbProvider.LiteDB)
-                {
-                    if (string.IsNullOrEmpty(model.MongoDBDatabaseName))
-                        ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "DatabaseNameRequired"));
-                    if (string.IsNullOrEmpty(model.MongoDBServerName))
-                        ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "MongoDBServerNameRequired"));
+                if (!_dbConfig.UseLiteDb)
+                    ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "InfoLiteDb"));
 
-                    var builder = new MongoDB.Driver.MongoUrlBuilder {
-                        Server = new MongoDB.Driver.MongoServerAddress(model.MongoDBServerName),
-                        Username = model.MongoDBUsername,
-                        Password = model.MongoDBPassword,
-                        DatabaseName = model.MongoDBDatabaseName
-                    };
-                    connectionString = builder.ToString();
-                }
-                else
-                {
-                    if (!_dbConfig.UseLiteDb)
-                        ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "InfoLiteDb"));
+                if (string.IsNullOrEmpty(_dbConfig.LiteDbConnectionString))
+                    ModelState.AddModelError("",
+                        locService.GetResource(model.SelectedLanguage, "InfoLiteDbConnectionString"));
 
-                    if (string.IsNullOrEmpty(_dbConfig.LiteDbConnectionString))
-                        ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "InfoLiteDbConnectionString"));
-
-                    connectionString = _dbConfig.LiteDbConnectionString;
-                }
+                connectionString = _dbConfig.LiteDbConnectionString;
             }
-            return connectionString;
         }
 
-        protected async Task CheckConnectionString(IInstallationLocalizedService locService, string connectionString, InstallModel model)
-        {
-            switch (_dbConfig.UseLiteDb)
-            {
-                case false when model.DataProvider == DbProvider.LiteDB:
-                    ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbEnable"));
-                    break;
-                case true when model.DataProvider != DbProvider.LiteDB:
-                    ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbDisable"));
-                    break;
-            }
+        return connectionString;
+    }
 
-            if (ModelState.IsValid && !string.IsNullOrEmpty(connectionString))
+    protected async Task CheckConnectionString(IInstallationLocalizedService locService, string connectionString,
+        InstallModel model)
+    {
+        switch (_dbConfig.UseLiteDb)
+        {
+            case false when model.DataProvider == DbProvider.LiteDB:
+                ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbEnable"));
+                break;
+            case true when model.DataProvider != DbProvider.LiteDB:
+                ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbDisable"));
+                break;
+        }
+
+        if (ModelState.IsValid && !string.IsNullOrEmpty(connectionString))
+            try
             {
+                if (model.DataProvider != DbProvider.LiteDB)
+                {
+                    var mdb = _serviceProvider.GetRequiredService<IDatabaseContext>();
+                    mdb.SetConnection(connectionString);
+                    if (await mdb.DatabaseExist())
+                        ModelState.AddModelError("",
+                            locService.GetResource(model.SelectedLanguage, "AlreadyInstalled"));
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
+            }
+        else if (string.IsNullOrEmpty(connectionString))
+            ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "ConnectionStringRequired"));
+    }
+
+    [HttpPost]
+    public virtual async Task<IActionResult> Index(InstallModel model)
+    {
+        if (DataSettingsManager.DatabaseIsInstalled())
+            return RedirectToRoute("HomePage");
+
+        var installed = await _cacheBase.GetAsync("Installed", async () => await Task.FromResult(false));
+        if (installed)
+            return View(new InstallModel { Installed = true });
+
+        var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
+
+        if (model.DatabaseConnectionString != null)
+            model.DatabaseConnectionString = model.DatabaseConnectionString.Trim();
+
+        var connectionString = BuildConnectionString(locService, model);
+
+        await CheckConnectionString(locService, connectionString, model);
+
+        if (!ModelState.IsValid) return View(PrepareModel(model));
+        try
+        {
+            //save settings
+            var settings = new DataSettings {
+                ConnectionString = connectionString,
+                DbProvider = model.DataProvider
+            };
+
+            await DataSettingsManager.SaveSettings(settings);
+            DataSettingsManager.LoadSettings(true);
+
+            var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
+            await installationService.InstallData(
+                HttpContext.Request.Scheme, HttpContext.Request.Host,
+                model.AdminEmail, model.AdminPassword, model.Collation,
+                model.InstallSampleData, model.CompanyName, model.CompanyAddress, model.CompanyPhoneNumber,
+                model.CompanyEmail);
+
+            _logger.LogInformation("Database has been installed");
+
+            //reset cache
+            DataSettingsManager.ResetCache();
+
+            PluginManager.ClearPlugins();
+
+            var pluginsInfo = PluginManager.ReferencedPlugins.ToList();
+
+            foreach (var pluginInfo in pluginsInfo)
                 try
                 {
-                    if (model.DataProvider != DbProvider.LiteDB)
-                    {
-                        var mdb = _serviceProvider.GetRequiredService<IDatabaseContext>();
-                        mdb.SetConnection(connectionString);
-                        if (await mdb.DatabaseExist())
-                            ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "AlreadyInstalled"));
-                    }
+                    var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
+                    await plugin.Install();
+                    _logger.LogInformation($"Plugin {plugin.PluginInfo.FriendlyName} has been installed");
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
-                }
-            }
-            else if (string.IsNullOrEmpty(connectionString)) ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "ConnectionStringRequired"));
-
-        }
-
-        [HttpPost]
-        public virtual async Task<IActionResult> Index(InstallModel model)
-        {
-            if (DataSettingsManager.DatabaseIsInstalled())
-                return RedirectToRoute("HomePage");
-
-            var installed = await _cacheBase.GetAsync("Installed", async () => await Task.FromResult(false));
-            if (installed)
-                return View(new InstallModel { Installed = true });
-
-            var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
-
-            if (model.DatabaseConnectionString != null)
-                model.DatabaseConnectionString = model.DatabaseConnectionString.Trim();
-
-            var connectionString = BuildConnectionString(locService, model);
-
-            await CheckConnectionString(locService, connectionString, model);
-
-            if (!ModelState.IsValid) return View(PrepareModel(model));
-            try
-            {
-                //save settings
-                var settings = new DataSettings {
-                    ConnectionString = connectionString,
-                    DbProvider = model.DataProvider
-                };
-
-                await DataSettingsManager.SaveSettings(settings);
-                DataSettingsManager.LoadSettings(reloadSettings: true);
-
-                var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
-                await installationService.InstallData(
-                    HttpContext.Request.Scheme, HttpContext.Request.Host,
-                    model.AdminEmail, model.AdminPassword, model.Collation,
-                    model.InstallSampleData, model.CompanyName, model.CompanyAddress, model.CompanyPhoneNumber, model.CompanyEmail);
-
-                _logger.LogInformation("Database has been installed");
-
-                //reset cache
-                DataSettingsManager.ResetCache();
-
-                PluginManager.ClearPlugins();
-
-                var pluginsInfo = PluginManager.ReferencedPlugins.ToList();
-
-                foreach (var pluginInfo in pluginsInfo)
-                {
-                    try
-                    {
-                        var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
-                        await plugin.Install();
-                        _logger.LogInformation($"Plugin {plugin.PluginInfo.FriendlyName} has been installed");
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error during installing plugin " + pluginInfo.SystemName,
-                            ex.Message + " " + ex.InnerException?.Message);
-                    }
+                    _logger.LogError(ex, "Error during installing plugin " + pluginInfo.SystemName,
+                        ex.Message + " " + ex.InnerException?.Message);
                 }
 
-                //register default permissions
-                var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
-                await _mediator.Send(new InstallPermissionsCommand { PermissionProvider = permissionProvider });
-                _logger.LogInformation("Permission has been installed");
+            //register default permissions
+            var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
+            await _mediator.Send(new InstallPermissionsCommand { PermissionProvider = permissionProvider });
+            _logger.LogInformation("Permission has been installed");
 
-                //install migration process - install only header
-                var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
-                migrationProcess.InstallApplication();
+            //install migration process - install only header
+            var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
+            migrationProcess.InstallApplication();
 
-                _logger.LogInformation("Migration process has been executed");
+            _logger.LogInformation("Migration process has been executed");
 
-                //restart application
-                await _cacheBase.SetAsync("Installed", async () => await Task.FromResult(true));
-                return View(new InstallModel { Installed = true });
-            }
-            catch (Exception exception)
-            {
-                //reset cache
-                DataSettingsManager.ResetCache();
-                await _cacheBase.Clear();
-
-                System.IO.File.Delete(CommonPath.SettingsPath);
-
-                ModelState.AddModelError("", string.Format(locService.GetResource(model.SelectedLanguage, "SetupFailed"), exception.Message + " " + exception.InnerException?.Message));
-                _logger.LogError(exception, exception.InnerException?.Message);
-            }
-            return View(PrepareModel(model));
+            //restart application
+            await _cacheBase.SetAsync("Installed", async () => await Task.FromResult(true));
+            return View(new InstallModel { Installed = true });
         }
-
-        public virtual IActionResult ChangeLanguage(string language)
+        catch (Exception exception)
         {
-            if (DataSettingsManager.DatabaseIsInstalled())
-                return RedirectToRoute("HomePage");
+            //reset cache
+            DataSettingsManager.ResetCache();
+            await _cacheBase.Clear();
 
-            var cookieOptions = new CookieOptions {
-                Expires = DateTime.Now.AddHours(24),
-                HttpOnly = true
-            };
+            System.IO.File.Delete(CommonPath.SettingsPath);
 
-            HttpContext.Response.Cookies.Delete(LANGUAGE_COOKIE_NAME);
-            HttpContext.Response.Cookies.Append(LANGUAGE_COOKIE_NAME, language, cookieOptions);
-
-            //Reload the page
-            return RedirectToAction("Index", "Install");
+            ModelState.AddModelError("",
+                string.Format(locService.GetResource(model.SelectedLanguage, "SetupFailed"),
+                    exception.Message + " " + exception.InnerException?.Message));
+            _logger.LogError(exception, exception.InnerException?.Message);
         }
 
-        public virtual IActionResult RestartInstall()
-        {
-            if (DataSettingsManager.DatabaseIsInstalled())
-                return RedirectToRoute("HomePage");
-
-            //stop application
-            _applicationLifetime.StopApplication();
-
-            //Redirect to home page
-            return RedirectToRoute("HomePage");
-        }
-
-        #endregion
+        return View(PrepareModel(model));
     }
+
+    public virtual IActionResult ChangeLanguage(string language)
+    {
+        if (DataSettingsManager.DatabaseIsInstalled())
+            return RedirectToRoute("HomePage");
+
+        var cookieOptions = new CookieOptions {
+            Expires = DateTime.Now.AddHours(24),
+            HttpOnly = true
+        };
+
+        HttpContext.Response.Cookies.Delete(LANGUAGE_COOKIE_NAME);
+        HttpContext.Response.Cookies.Append(LANGUAGE_COOKIE_NAME, language, cookieOptions);
+
+        //Reload the page
+        return RedirectToAction("Index", "Install");
+    }
+
+    public virtual IActionResult RestartInstall()
+    {
+        if (DataSettingsManager.DatabaseIsInstalled())
+            return RedirectToRoute("HomePage");
+
+        //stop application
+        _applicationLifetime.StopApplication();
+
+        //Redirect to home page
+        return RedirectToRoute("HomePage");
+    }
+
+    #endregion
 }

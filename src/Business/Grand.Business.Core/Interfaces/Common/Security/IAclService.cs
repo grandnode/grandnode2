@@ -3,29 +3,28 @@ using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
 
-namespace Grand.Business.Core.Interfaces.Common.Security
+namespace Grand.Business.Core.Interfaces.Common.Security;
+
+/// <summary>
+///     ACL service interface
+/// </summary>
+public interface IAclService
 {
     /// <summary>
-    /// ACL service interface
+    ///     Authorize ACL permission
     /// </summary>
-    public interface IAclService
-    {
-        /// <summary>
-        /// Authorize ACL permission
-        /// </summary>
-        /// <typeparam name="T">Type</typeparam>
-        /// <param name="entity">Entity</param>
-        /// <param name="customer">Customer</param>
-        /// <returns>true = authorized; otherwise = false</returns>
-        bool Authorize<T>(T entity, Customer customer) where T : BaseEntity, IGroupLinkEntity;
+    /// <typeparam name="T">Type</typeparam>
+    /// <param name="entity">Entity</param>
+    /// <param name="customer">Customer</param>
+    /// <returns>true = authorized; otherwise = false</returns>
+    bool Authorize<T>(T entity, Customer customer) where T : BaseEntity, IGroupLinkEntity;
 
-        /// <summary>
-        /// Authorize whether entity could be accessed in a store
-        /// </summary>
-        /// <typeparam name="T">Type</typeparam>
-        /// <param name="entity">Entity</param>
-        /// <param name="storeId">Store identifier</param>
-        /// <returns>true - authorized; otherwise, false</returns>
-        bool Authorize<T>(T entity, string storeId) where T : BaseEntity, IStoreLinkEntity;
-    }
+    /// <summary>
+    ///     Authorize whether entity could be accessed in a store
+    /// </summary>
+    /// <typeparam name="T">Type</typeparam>
+    /// <param name="entity">Entity</param>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>true - authorized; otherwise, false</returns>
+    bool Authorize<T>(T entity, string storeId) where T : BaseEntity, IStoreLinkEntity;
 }

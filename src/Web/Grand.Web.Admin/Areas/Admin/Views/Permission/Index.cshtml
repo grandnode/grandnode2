@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["Admin.Configuration.Permissions"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Permission" asp-action="Index" method="post">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -14,10 +14,14 @@
                         @Loc["Admin.Configuration.Permissions"]
                     </div>
                     <div class="actions">
-                        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green" id="btnAddNewPermission"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
-                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green" id="btnAddNewPermission">
+                            <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                        </a>
+                        <button class="btn btn-success" type="submit" name="save">
+                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                        </button>
                     </div>
-                    <vc:admin-widget widget-zone="permission_list_buttons" additional-data="null" />
+                    <vc:admin-widget widget-zone="permission_list_buttons" additional-data="null"/>
                 </div>
                 <div class="x_content form">
                     <div class="form-horizontal">
@@ -68,7 +72,10 @@
                                                             <th scope="col">
                                                                 <div class="d-flex flex-column align-items-center justify-content-center">
                                                                     <strong>@cr.Name</strong>
-                                                                    <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'><input type="checkbox" id="selectall-@(cr.Id)" /> <div class="control__indicator"></div></label>
+                                                                    <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'>
+                                                                        <input type="checkbox" id="selectall-@(cr.Id)"/>
+                                                                        <div class="control__indicator"></div>
+                                                                    </label>
                                                                 </div>
                                                             </th>
                                                         }
@@ -89,7 +96,9 @@
                                                                 @{
                                                                     var groupList = pr.ToList();
                                                                 }
-                                                                <button type="button" class="btn btn-info title" data-toggle="collapse" data-target=".multi-collapse-@groupList[0].Category.GetHashCode()" aria-expanded="true" aria-controls="@groupList[0].Category.GetHashCode()-collapseMain">@groupList[0].Category <i class="fa fa-chevron-down" aria-hidden="true"></i></button>
+                                                                <button type="button" class="btn btn-info title" data-toggle="collapse" data-target=".multi-collapse-@groupList[0].Category.GetHashCode()" aria-expanded="true" aria-controls="@groupList[0].Category.GetHashCode()-collapseMain">
+                                                                    @groupList[0].Category <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                                                                </button>
                                                                 <ul id="@groupList[0].Category.GetHashCode()-collapseMain" class="collapse show multi-collapse-@groupList[0].Category.GetHashCode()">
                                                                     @foreach (var item in groupList)
                                                                     {
@@ -104,18 +113,26 @@
                                                                 <td class="checkbox-container">
                                                                     <div class="title">
                                                                         <span>@cr.Name</span>
-                                                                        <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'><input type="checkbox" onclick="checkCategory(this)" /> <div class="control__indicator"></div></label>
+                                                                        <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'>
+                                                                            <input type="checkbox" onclick="checkCategory(this)"/>
+                                                                            <div class="control__indicator"></div>
+                                                                        </label>
                                                                     </div>
                                                                     <ul class="collapse show multi-collapse-@groupList[0].Category.GetHashCode()">
                                                                         @foreach (var item in groupList)
                                                                         {
                                                                             var allowed = Model.Allowed.ContainsKey(item.SystemName) && Model.Allowed[item.SystemName][cr.Id];
                                                                             <li>
-                                                                                <label class='mt-checkbox mt-checkbox-outline control control-checkbox @if (!item.Actions) { <text>no-action</text> }'><input class="allow_@(cr.Id)" type="checkbox" value="@(item.SystemName)" name="allow_@(cr.Id)" @(allowed ? " checked=checked" : null) /> <div class="control__indicator"></div></label>
+                                                                                <label class='mt-checkbox mt-checkbox-outline control control-checkbox @if (!item.Actions) { <text>no-action</text> }'>
+                                                                                    <input class="allow_@(cr.Id)" type="checkbox" value="@(item.SystemName)" name="allow_@(cr.Id)" @(allowed ? " checked=checked" : null)/>
+                                                                                    <div class="control__indicator"></div>
+                                                                                </label>
                                                                                 @if (item.Actions)
                                                                                 {
                                                                                     <a class='k-link permissionlink'
-                                                                                       href="@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname=@(item.SystemName)&customeGroupId=@cr.Id"><i class="icon-settings"></i></a>
+                                                                                       href="@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname=@(item.SystemName)&customeGroupId=@cr.Id">
+                                                                                        <i class="icon-settings"></i>
+                                                                                    </a>
                                                                                     <script>
                                                                                             $(document).ready(function () {
                                                                                                 $('.permissionlink').magnificPopup({

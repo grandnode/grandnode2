@@ -23,7 +23,9 @@
                                     </a>
                                     <div class="col">
                                         <a :href="product.Url">{{product.Name}}</a>
-                                        <div class="price"><span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{product.ProductPrice.Price}}</strong></div>
+                                        <div class="price">
+                                            <span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{product.ProductPrice.Price}}</strong>
+                                        </div>
                                     </div>
                                     <div>
                                         <a class="deleteitem" @@click="removeFromCompareList(product.Id); getCompareList('@Url.RouteUrl("CompareProducts")'); ">

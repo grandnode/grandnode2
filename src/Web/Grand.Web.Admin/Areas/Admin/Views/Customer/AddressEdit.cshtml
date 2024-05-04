@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["Admin.Customers.Customers.Addresses.EditAddress"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Customer" asp-action="AddressEdit" method="post">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -15,12 +15,14 @@
                         <small>@Html.ActionLink("(" + Loc["Admin.Customers.Customers.Addresses.BackToCustomer"] + ")", "Edit", new { id = Model.CustomerId })</small>
                     </div>
                     <div class="actions">
-                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                        <vc:admin-widget widget-zone="customer_address_details_buttons" additional-data="Model" />
+                        <button class="btn btn-success" type="submit" name="save">
+                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                        </button>
+                        <vc:admin-widget widget-zone="customer_address_details_buttons" additional-data="Model"/>
                     </div>
                 </div>
                 <div class="x_content form">
-                   <partial name="Partials/CreateOrUpdateAddress" model="Model" />
+                    <partial name="Partials/CreateOrUpdateAddress" model="Model"/>
                 </div>
             </div>
         </div>

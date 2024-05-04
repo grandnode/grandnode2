@@ -1,8 +1,9 @@
-﻿<div>
+﻿@using Constants = Grand.SharedUIResources.Constants
+<div>
     <canvas id="canvasReportCustomerTimeChart"></canvas>
 </div>
 
-<script src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/chart.min.js" type="text/javascript"></script>
+<script src="@(Constants.WwwRoot)/administration/chart.min.js" type="text/javascript"></script>
 <script>
     $(document).ready(function () {
         initReportCustomerTimeChart(true);
@@ -27,7 +28,7 @@
 
         $.ajax({
             type: "POST",
-            url: "@Html.Raw(Url.Action("ReportCustomerTimeChart", "Reports", new { area = Constants.AreaAdmin }))",
+            url: "@Html.Raw(Url.Action("ReportCustomerTimeChart", "Reports", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin }))",
             dataType: "json",
             data: add,
             success: function (data) {

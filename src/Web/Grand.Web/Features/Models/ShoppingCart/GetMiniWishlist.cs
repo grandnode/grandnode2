@@ -6,14 +6,13 @@ using Grand.Domain.Stores;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
 
-namespace Grand.Web.Features.Models.ShoppingCart
+namespace Grand.Web.Features.Models.ShoppingCart;
+
+public class GetMiniWishlist : IRequest<MiniWishlistModel>
 {
-    public class GetMiniWishlist : IRequest<MiniWishlistModel>
-    {
-        public Customer Customer { get; set; }
-        public Language Language { get; set; }
-        public Currency Currency { get; set; }
-        public Store Store { get; set; }
-        public IList<ShoppingCartItem> Cart { get; set; }
-    }
+    public Customer Customer { get; set; }
+    public Language Language { get; set; }
+    public Currency Currency { get; set; }
+    public Store Store { get; set; }
+    public IList<ShoppingCartItem> Cart { get; set; }
 }

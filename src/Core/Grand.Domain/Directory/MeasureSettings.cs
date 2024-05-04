@@ -1,10 +1,9 @@
 ﻿using Grand.Domain.Configuration;
 
-namespace Grand.Domain.Directory
+namespace Grand.Domain.Directory;
+
+public class MeasureSettings : ISettings
 {
-    public class MeasureSettings : ISettings
-    {
-        public string BaseDimensionId { get; set; }
-        public string BaseWeightId { get; set; }
-    }
+    public string BaseDimensionId { get; set; }
+    public string BaseWeightId { get; set; }
 }

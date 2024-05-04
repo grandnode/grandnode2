@@ -2,12 +2,11 @@
 using Grand.Domain.Stores;
 using MediatR;
 
-namespace Grand.Web.Commands.Models.Customers
+namespace Grand.Web.Commands.Models.Customers;
+
+public class DeleteAccountCommand : IRequest<bool>
 {
-    public class DeleteAccountCommand : IRequest<bool>
-    {
-        public Customer Customer { get; set; }
-        public Store Store { get; set; }
-        public string IpAddress { get; set; }
-    }
+    public Customer Customer { get; set; }
+    public Store Store { get; set; }
+    public string IpAddress { get; set; }
 }

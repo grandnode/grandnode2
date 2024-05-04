@@ -2,13 +2,12 @@
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Messages;
 
-namespace Grand.Web.Admin.Extensions.Mapping
+namespace Grand.Web.Admin.Extensions.Mapping;
+
+public static class ContactUsMappingExtensions
 {
-    public static class ContactUsMappingExtensions
+    public static ContactFormModel ToModel(this ContactUs entity)
     {
-        public static ContactFormModel ToModel(this ContactUs entity)
-        {
-            return entity.MapTo<ContactUs, ContactFormModel>();
-        }
+        return entity.MapTo<ContactUs, ContactFormModel>();
     }
 }

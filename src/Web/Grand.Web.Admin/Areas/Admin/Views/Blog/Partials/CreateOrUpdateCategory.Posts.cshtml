@@ -9,7 +9,7 @@
         </div>
         <div class="panel-footer">
             <a id="btnAddNewPost" href="@(Url.Action("BlogPostAddPopup", "Blog", new { categoryId = Model.Id, btnId = "btnRefreshPosts", formId = "category-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Content.Blog.BlogCategory.AddNewPost"]</a>
-            <input type="submit" id="btnRefreshPosts" style="display: none" />
+            <input type="submit" id="btnRefreshPosts" style="display: none"/>
         </div>
     </div>
     <script>

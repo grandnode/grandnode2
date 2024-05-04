@@ -1,9 +1,8 @@
-﻿namespace Grand.Web.Common.DataSource
-{
-    public class DataSourceRequest
-    {
-        public int Page { get; set; } = 1;
+﻿namespace Grand.Web.Common.DataSource;
 
-        public int PageSize { get; set; } = 10;
-    }
+public class DataSourceRequest
+{
+    public int Page { get; set; } = 1;
+
+    public int PageSize { get; set; } = 10;
 }

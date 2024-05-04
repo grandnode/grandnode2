@@ -1,17 +1,17 @@
-namespace Grand.Domain.Tax
+namespace Grand.Domain.Tax;
+
+/// <summary>
+///     Represents the tax display type enumeration
+/// </summary>
+public enum TaxDisplayType
 {
     /// <summary>
-    /// Represents the tax display type enumeration
+    ///     Including tax
     /// </summary>
-    public enum TaxDisplayType
-    {
-        /// <summary>
-        /// Including tax
-        /// </summary>
-        IncludingTax = 0,
-        /// <summary>
-        /// Excluding tax
-        /// </summary>
-        ExcludingTax = 10
-    }
+    IncludingTax = 0,
+
+    /// <summary>
+    ///     Excluding tax
+    /// </summary>
+    ExcludingTax = 10
 }

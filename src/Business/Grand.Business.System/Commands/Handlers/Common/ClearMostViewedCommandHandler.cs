@@ -1,25 +1,24 @@
 ﻿using Grand.Business.Core.Commands.System.Common;
-using Grand.Domain.Catalog;
 using Grand.Data;
+using Grand.Domain.Catalog;
 using MediatR;
 
-namespace Grand.Business.System.Commands.Handlers.Common
+namespace Grand.Business.System.Commands.Handlers.Common;
+
+public class ClearMostViewedCommandHandler : IRequestHandler<ClearMostViewedCommand, bool>
 {
-    public class ClearMostViewedCommandHandler : IRequestHandler<ClearMostViewedCommand, bool>
+    private readonly IRepository<Product> _repositoryProduct;
+
+    public ClearMostViewedCommandHandler(IRepository<Product> repositoryProduct)
     {
-        private readonly IRepository<Product> _repositoryProduct;
+        _repositoryProduct = repositoryProduct;
+    }
 
-        public ClearMostViewedCommandHandler(IRepository<Product> repositoryProduct)
-        {
-            _repositoryProduct = repositoryProduct;
-        }
+    public async Task<bool> Handle(ClearMostViewedCommand request, CancellationToken cancellationToken)
+    {
+        await _repositoryProduct.UpdateManyAsync(x => x.Viewed != 0,
+            UpdateBuilder<Product>.Create().Set(x => x.Viewed, 0));
 
-        public async Task<bool> Handle(ClearMostViewedCommand request, CancellationToken cancellationToken)
-        {
-            await _repositoryProduct.UpdateManyAsync(x => x.Viewed != 0,
-                        UpdateBuilder<Product>.Create().Set(x => x.Viewed, 0));
-
-            return true;
-        }
+        return true;
     }
 }

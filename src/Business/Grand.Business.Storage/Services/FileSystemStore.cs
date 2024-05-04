@@ -3,71 +3,72 @@
 using Grand.Business.Core.Interfaces.Storage;
 using Microsoft.Extensions.FileProviders.Physical;
 
-namespace Grand.Business.Storage.Services
+namespace Grand.Business.Storage.Services;
+
+public class FileSystemStore : IFileStore
 {
-    public class FileSystemStore : IFileStore
+    private readonly string _fileSystemPath;
+
+    public FileSystemStore(string fileSystemPath)
     {
-        private readonly string _fileSystemPath;
+        _fileSystemPath = Path.GetFullPath(fileSystemPath);
+    }
 
-        public FileSystemStore(string fileSystemPath)
-        {
-            _fileSystemPath = Path.GetFullPath(fileSystemPath);
-        }
+    public Task<IFileStoreEntry> GetFileInfo(string path)
+    {
+        var physicalPath = GetPhysicalPath(path);
 
-        public Task<IFileStoreEntry> GetFileInfo(string path)
-        {
-            var physicalPath = GetPhysicalPath(path);
+        var fileInfo = new PhysicalFileInfo(new FileInfo(physicalPath));
 
-            var fileInfo = new PhysicalFileInfo(new FileInfo(physicalPath));
+        return Task.FromResult<IFileStoreEntry>(fileInfo.Exists ? new FileSystemStoreEntry(path, fileInfo) : null);
+    }
 
-            return Task.FromResult<IFileStoreEntry>(fileInfo.Exists ? new FileSystemStoreEntry(path, fileInfo) : null);
-        }
+    public IFileStoreEntry GetDirectoryInfo(string path)
+    {
+        var physicalPath = GetPhysicalPath(path);
 
-        public IFileStoreEntry GetDirectoryInfo(string path)
-        {
-            var physicalPath = GetPhysicalPath(path);
+        var directoryInfo = new PhysicalDirectoryInfo(new DirectoryInfo(physicalPath));
 
-            var directoryInfo = new PhysicalDirectoryInfo(new DirectoryInfo(physicalPath));
+        return directoryInfo.Exists ? new FileSystemStoreEntry(path, directoryInfo) : null;
+    }
 
-            return directoryInfo.Exists ? new FileSystemStoreEntry(path, directoryInfo) : null;
-        }
+    public Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directoryPath)
+    {
+        var physicalPath = GetPhysicalPath(directoryPath);
 
-        public Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directoryPath)
-        {
-            var physicalPath = GetPhysicalPath(directoryPath);
+        var directoryInfo = new PhysicalDirectoryInfo(new DirectoryInfo(physicalPath));
 
-            var directoryInfo = new PhysicalDirectoryInfo(new DirectoryInfo(physicalPath));
+        return directoryInfo.Exists ? Task.FromResult(directoryInfo) : Task.FromResult<PhysicalDirectoryInfo>(null);
+    }
 
-            return directoryInfo.Exists ? Task.FromResult(directoryInfo) : Task.FromResult<PhysicalDirectoryInfo>(null);
-        }
-        public IList<IFileStoreEntry> GetDirectoryContent(string path = null, bool includeSubDirectories = false, bool listDirectories = true, bool listFiles = true)
-        {
-            var physicalPath = GetPhysicalPath(path);
-            var results = new List<IFileStoreEntry>();
+    public IList<IFileStoreEntry> GetDirectoryContent(string path = null, bool includeSubDirectories = false,
+        bool listDirectories = true, bool listFiles = true)
+    {
+        var physicalPath = GetPhysicalPath(path);
+        var results = new List<IFileStoreEntry>();
 
-            if (!Directory.Exists(physicalPath))
-            {
-                return results.ToList();
-            }
+        if (!Directory.Exists(physicalPath)) return results.ToList();
 
-            // Add directories.
-            if (listDirectories)
-                results.AddRange(
-                    Directory
-                        .GetDirectories(physicalPath, "*", includeSubDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
-                        .Select(f =>
-                        {
-                            var fileSystemInfo = new PhysicalDirectoryInfo(new DirectoryInfo(f));
-                            var fileRelativePath = f[_fileSystemPath.Length..];
-                            var filePath = this.NormalizePath(fileRelativePath);
-                            return new FileSystemStoreEntry(filePath, fileSystemInfo);
-                        }));
-
-            // Add files.
-            if (listFiles)
-                results.AddRange(
+        // Add directories.
+        if (listDirectories)
+            results.AddRange(
                 Directory
-                    .GetFiles(physicalPath, "*", includeSubDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
+                    .GetDirectories(physicalPath, "*",
+                        includeSubDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
+                    .Select(f =>
+                    {
+                        var fileSystemInfo = new PhysicalDirectoryInfo(new DirectoryInfo(f));
+                        var fileRelativePath = f[_fileSystemPath.Length..];
+                        var filePath = this.NormalizePath(fileRelativePath);
+                        return new FileSystemStoreEntry(filePath, fileSystemInfo);
+                    }));
+
+        // Add files.
+        if (listFiles)
+            results.AddRange(
+                Directory
+                    .GetFiles(physicalPath, "*",
+                        includeSubDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly)
                     .Select(f =>
                     {
                         var fileSystemInfo = new PhysicalFileInfo(new FileInfo(f));
@@ -76,232 +77,188 @@ namespace Grand.Business.Storage.Services
                         return new FileSystemStoreEntry(filePath, fileSystemInfo);
                     }));
 
-            return results.ToList();
-        }
+        return results.ToList();
+    }
 
-        public bool TryCreateDirectory(string path)
-        {
-            var physicalPath = GetPhysicalPath(path);
-            
-            if (File.Exists(physicalPath))
-                throw new Exception($"Cannot create directory because the path '{path}' already exists and is a file.");
+    public bool TryCreateDirectory(string path)
+    {
+        var physicalPath = GetPhysicalPath(path);
 
-            if (Directory.Exists(physicalPath))
-            {
-                return false;
-            }
+        if (File.Exists(physicalPath))
+            throw new Exception($"Cannot create directory because the path '{path}' already exists and is a file.");
 
-            Directory.CreateDirectory(physicalPath);
+        if (Directory.Exists(physicalPath)) return false;
 
-            return true;
-        }
-        public Task<bool> TryRenameDirectory(string path, string newName)
-        {
-            var physicalPath = GetPhysicalPath(path);
+        Directory.CreateDirectory(physicalPath);
 
-            if (File.Exists(physicalPath))
-            {
-                throw new Exception($"Cannot create directory because the path '{path}' already exists and is a file.");
-            }
+        return true;
+    }
 
-            if (!Directory.Exists(physicalPath))
-            {
-                return Task.FromResult(false);
-            }
-            var directoryInfo = new DirectoryInfo(physicalPath);
+    public Task<bool> TryRenameDirectory(string path, string newName)
+    {
+        var physicalPath = GetPhysicalPath(path);
 
-            var newphysicalPath = GetPhysicalPath(Path.Combine(directoryInfo.Parent.FullName, newName));
+        if (File.Exists(physicalPath))
+            throw new Exception($"Cannot create directory because the path '{path}' already exists and is a file.");
 
-            if (Directory.Exists(newphysicalPath))
-            {
-                return Task.FromResult(false);
-            }
-            directoryInfo.MoveTo(newphysicalPath);
+        if (!Directory.Exists(physicalPath)) return Task.FromResult(false);
+        var directoryInfo = new DirectoryInfo(physicalPath);
 
-            return Task.FromResult(true);
-        }
+        var newphysicalPath = GetPhysicalPath(Path.Combine(directoryInfo.Parent.FullName, newName));
 
-        public Task<bool> TryDeleteFile(string path)
-        {
-            var physicalPath = GetPhysicalPath(path);
+        if (Directory.Exists(newphysicalPath)) return Task.FromResult(false);
+        directoryInfo.MoveTo(newphysicalPath);
 
-            if (!File.Exists(physicalPath))
-            {
-                return Task.FromResult(false);
-            }
+        return Task.FromResult(true);
+    }
 
-            File.Delete(physicalPath);
+    public Task<bool> TryDeleteFile(string path)
+    {
+        var physicalPath = GetPhysicalPath(path);
 
-            return Task.FromResult(true);
-        }
+        if (!File.Exists(physicalPath)) return Task.FromResult(false);
 
-        public Task<bool> TryDeleteDirectory(string path)
-        {
-            var physicalPath = GetPhysicalPath(path);
+        File.Delete(physicalPath);
 
-            if (!Directory.Exists(physicalPath))
-            {
-                return Task.FromResult(false);
-            }
+        return Task.FromResult(true);
+    }
 
-            Directory.Delete(physicalPath, recursive: true);
+    public Task<bool> TryDeleteDirectory(string path)
+    {
+        var physicalPath = GetPhysicalPath(path);
 
-            return Task.FromResult(true);
-        }
+        if (!Directory.Exists(physicalPath)) return Task.FromResult(false);
 
-        public Task MoveFile(string oldPath, string newPath)
-        {
-            var physicalOldPath = GetPhysicalPath(oldPath);
+        Directory.Delete(physicalPath, true);
 
-            if (!File.Exists(physicalOldPath))
-            {
-                throw new Exception($"Cannot move file '{oldPath}' because it does not exist.");
-            }
+        return Task.FromResult(true);
+    }
 
-            var physicalNewPath = GetPhysicalPath(newPath);
+    public Task MoveFile(string oldPath, string newPath)
+    {
+        var physicalOldPath = GetPhysicalPath(oldPath);
 
-            if (File.Exists(physicalNewPath) || Directory.Exists(physicalNewPath))
-            {
-                throw new Exception($"Cannot move file because the new path '{newPath}' already exists.");
-            }
+        if (!File.Exists(physicalOldPath))
+            throw new Exception($"Cannot move file '{oldPath}' because it does not exist.");
 
-            File.Move(physicalOldPath, physicalNewPath);
+        var physicalNewPath = GetPhysicalPath(newPath);
 
-            return Task.CompletedTask;
-        }
+        if (File.Exists(physicalNewPath) || Directory.Exists(physicalNewPath))
+            throw new Exception($"Cannot move file because the new path '{newPath}' already exists.");
 
-        public async Task CopyFile(string srcPath, string dstPath)
-        {
-            var physicalSrcPath = GetPhysicalPath(srcPath);
+        File.Move(physicalOldPath, physicalNewPath);
 
-            if (!File.Exists(physicalSrcPath))
-            {
-                throw new Exception($"The file '{srcPath}' does not exist.");
-            }
-            var file = await GetFileInfo(srcPath);
-            var physicalDstPath = GetPhysicalPath(Path.Combine(dstPath));
+        return Task.CompletedTask;
+    }
 
-            if (File.Exists(physicalDstPath) || Directory.Exists(physicalDstPath))
-            {
-                throw new Exception($"Cannot copy file because the destination path '{dstPath}' already exists.");
-            }
+    public async Task CopyFile(string srcPath, string dstPath)
+    {
+        var physicalSrcPath = GetPhysicalPath(srcPath);
 
-            File.Copy(physicalSrcPath, physicalDstPath);
-        }
-        public async Task RenameFile(string file, string newName)
-        {
-            var physicalSrcFile = GetPhysicalPath(file);
+        if (!File.Exists(physicalSrcPath)) throw new Exception($"The file '{srcPath}' does not exist.");
+        var file = await GetFileInfo(srcPath);
+        var physicalDstPath = GetPhysicalPath(Path.Combine(dstPath));
 
-            if (!File.Exists(physicalSrcFile))
-            {
-                throw new Exception($"The file '{file}' does not exist.");
-            }
+        if (File.Exists(physicalDstPath) || Directory.Exists(physicalDstPath))
+            throw new Exception($"Cannot copy file because the destination path '{dstPath}' already exists.");
 
-            var physicalFile = await GetFileInfo(file);
+        File.Copy(physicalSrcPath, physicalDstPath);
+    }
 
-            var newphysicalFile = GetPhysicalPath(Path.Combine(physicalFile.DirectoryPath, newName));
-            if (File.Exists(newphysicalFile))
-            {
-                throw new Exception($"The file '{newName}' does exist.");
-            }
-            File.Move(physicalSrcFile, newphysicalFile);
+    public async Task RenameFile(string file, string newName)
+    {
+        var physicalSrcFile = GetPhysicalPath(file);
 
-        }
-        public Task<Stream> GetFileStream(string path)
-        {
-            var physicalPath = GetPhysicalPath(path);
+        if (!File.Exists(physicalSrcFile)) throw new Exception($"The file '{file}' does not exist.");
 
-            if (!File.Exists(physicalPath))
-            {
-                throw new Exception($"Cannot get file stream because the file '{path}' does not exist.");
-            }
+        var physicalFile = await GetFileInfo(file);
 
-            var stream = File.OpenRead(physicalPath);
+        var newphysicalFile = GetPhysicalPath(Path.Combine(physicalFile.DirectoryPath, newName));
+        if (File.Exists(newphysicalFile)) throw new Exception($"The file '{newName}' does exist.");
+        File.Move(physicalSrcFile, newphysicalFile);
+    }
 
-            return Task.FromResult<Stream>(stream);
-        }
+    public Task<Stream> GetFileStream(string path)
+    {
+        var physicalPath = GetPhysicalPath(path);
 
-        public Task<Stream> GetFileStream(IFileStoreEntry fileStoreEntry)
-        {
-            var physicalPath = GetPhysicalPath(fileStoreEntry.Path);
-            if (!File.Exists(physicalPath))
-            {
-                throw new Exception($"Cannot get file stream because the file '{fileStoreEntry.Path}' does not exist.");
-            }
+        if (!File.Exists(physicalPath))
+            throw new Exception($"Cannot get file stream because the file '{path}' does not exist.");
 
-            var stream = File.OpenRead(physicalPath);
+        var stream = File.OpenRead(physicalPath);
 
-            return Task.FromResult<Stream>(stream);
-        }
+        return Task.FromResult<Stream>(stream);
+    }
 
-        public async Task<string> CreateFileFromStream(string path, Stream inputStream, bool overwrite = false)
-        {
-            var physicalPath = GetPhysicalPath(path);
+    public Task<Stream> GetFileStream(IFileStoreEntry fileStoreEntry)
+    {
+        var physicalPath = GetPhysicalPath(fileStoreEntry.Path);
+        if (!File.Exists(physicalPath))
+            throw new Exception($"Cannot get file stream because the file '{fileStoreEntry.Path}' does not exist.");
 
-            if (!overwrite && File.Exists(physicalPath))
-            {
-                throw new Exception($"Cannot create file '{path}' because it already exists.");
-            }
+        var stream = File.OpenRead(physicalPath);
 
-            if (Directory.Exists(physicalPath))
-            {
-                throw new Exception($"Cannot create file '{path}' because it already exists as a directory.");
-            }
+        return Task.FromResult<Stream>(stream);
+    }
 
-            // Create directory path if it doesn't exist.
-            var physicalDirectoryPath = Path.GetDirectoryName(physicalPath);
-            Directory.CreateDirectory(physicalDirectoryPath);
+    public async Task<string> CreateFileFromStream(string path, Stream inputStream, bool overwrite = false)
+    {
+        var physicalPath = GetPhysicalPath(path);
 
-            var fileInfo = new FileInfo(physicalPath);
-            await using var outputStream = fileInfo.Create();
-            await inputStream.CopyToAsync(outputStream);
+        if (!overwrite && File.Exists(physicalPath))
+            throw new Exception($"Cannot create file '{path}' because it already exists.");
 
-            return path;
-        }
+        if (Directory.Exists(physicalPath))
+            throw new Exception($"Cannot create file '{path}' because it already exists as a directory.");
 
-        public Task<string> ReadAllText(string path)
-        {
-            var physicalPath = GetPhysicalPath(path);
+        // Create directory path if it doesn't exist.
+        var physicalDirectoryPath = Path.GetDirectoryName(physicalPath);
+        Directory.CreateDirectory(physicalDirectoryPath);
 
-            if (!File.Exists(physicalPath))
-            {
-                throw new Exception("File not exists.");
-            }
-            return File.ReadAllTextAsync(physicalPath);
-        }
+        var fileInfo = new FileInfo(physicalPath);
+        await using var outputStream = fileInfo.Create();
+        await inputStream.CopyToAsync(outputStream);
 
-        public Task WriteAllText(string path, string text)
-        {
-            var physicalPath = GetPhysicalPath(path);
+        return path;
+    }
 
-            if (!File.Exists(physicalPath))
-                File.Create(physicalPath).Close();
+    public Task<string> ReadAllText(string path)
+    {
+        var physicalPath = GetPhysicalPath(path);
 
-            return File.WriteAllTextAsync(physicalPath, text, Encoding.UTF8);
-        }
+        if (!File.Exists(physicalPath)) throw new Exception("File not exists.");
+        return File.ReadAllTextAsync(physicalPath);
+    }
+
+    public Task WriteAllText(string path, string text)
+    {
+        var physicalPath = GetPhysicalPath(path);
+
+        if (!File.Exists(physicalPath))
+            File.Create(physicalPath).Close();
+
+        return File.WriteAllTextAsync(physicalPath, text, Encoding.UTF8);
+    }
 
 
-        /// <summary>
-        /// Translates a relative path in the virtual file store to a physical path in the underlying file system.
-        /// </summary>
-        /// <param name="path">The relative path within the file store.</param>
-        /// <returns></returns>
-        /// <remarks>The resulting physical path is verified to be inside designated root file system path.</remarks>
-        private string GetPhysicalPath(string path)
-        {
-            path = this.NormalizePath(path);
+    /// <summary>
+    ///     Translates a relative path in the virtual file store to a physical path in the underlying file system.
+    /// </summary>
+    /// <param name="path">The relative path within the file store.</param>
+    /// <returns></returns>
+    /// <remarks>The resulting physical path is verified to be inside designated root file system path.</remarks>
+    private string GetPhysicalPath(string path)
+    {
+        path = this.NormalizePath(path);
 
-            var physicalPath = string.IsNullOrEmpty(path) ? _fileSystemPath : Path.Combine(_fileSystemPath, path);
+        var physicalPath = string.IsNullOrEmpty(path) ? _fileSystemPath : Path.Combine(_fileSystemPath, path);
 
-            // Verify that the resulting path is inside the root file system path.
-            var pathIsAllowed = Path.GetFullPath(physicalPath).StartsWith(_fileSystemPath, StringComparison.OrdinalIgnoreCase);
-            if (!pathIsAllowed)
-            {
-                throw new Exception($"The path '{path}' resolves to a physical path outside the file system store root.");
-            }
+        // Verify that the resulting path is inside the root file system path.
+        var pathIsAllowed = Path.GetFullPath(physicalPath)
+            .StartsWith(_fileSystemPath, StringComparison.OrdinalIgnoreCase);
+        if (!pathIsAllowed)
+            throw new Exception($"The path '{path}' resolves to a physical path outside the file system store root.");
 
-            return physicalPath;
-        }
-
+        return physicalPath;
     }
 }

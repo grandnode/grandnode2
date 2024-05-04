@@ -9,7 +9,7 @@
     </p>
 </div>
 <div class="panel panel-default">
-    <vc:admin-widget widget-zone="product_details_product_attributes_combinations_top" additional-data="Model" />
+    <vc:admin-widget widget-zone="product_details_product_attributes_combinations_top" additional-data="Model"/>
     <div class="panel-body">
         <div id="attributecombinations-grid"></div>
     </div>
@@ -17,9 +17,9 @@
         <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
         <button type="submit" id="btnGenerateAllCombinations" class="k-button"><span class="k-icon k-i-style-builder"></span>&nbsp;@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
         <button type="submit" id="btnClearAllCombinations" class="k-button"><span class="k-icon k-i-cut"></span>&nbsp;@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
-        <input type="submit" id="btnRefreshCombinations" style="display: none" />
+        <input type="submit" id="btnRefreshCombinations" style="display: none"/>
     </div>
-    <vc:admin-widget widget-zone="product_details_product_attributes_combinations_bottom" additional-data="Model" />
+    <vc:admin-widget widget-zone="product_details_product_attributes_combinations_bottom" additional-data="Model"/>
 </div>
 
 <script>

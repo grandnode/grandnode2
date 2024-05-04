@@ -1,15 +1,14 @@
-﻿namespace Grand.SharedKernel
-{
-    public interface IStartupBase
-    {
-        /// <summary>
-        /// Execute 
-        /// </summary>
-        void Execute();
+﻿namespace Grand.SharedKernel;
 
-        /// <summary>
-        /// Priority
-        /// </summary>
-        int Priority { get; }
-    }
+public interface IStartupBase
+{
+    /// <summary>
+    ///     Priority
+    /// </summary>
+    int Priority { get; }
+
+    /// <summary>
+    ///     Execute
+    /// </summary>
+    void Execute();
 }

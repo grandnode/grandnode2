@@ -6,97 +6,99 @@ using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
-namespace Grand.Web.Admin.Models.Messages
+namespace Grand.Web.Admin.Models.Messages;
+
+public class ContactAttributeModel : BaseEntityModel, ILocalizedModel<ContactAttributeLocalizedModel>, IGroupLinkModel,
+    IStoreLinkModel
 {
-    public class ContactAttributeModel : BaseEntityModel, ILocalizedModel<ContactAttributeLocalizedModel>, IGroupLinkModel, IStoreLinkModel
-    {
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.Name")]
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.Name")]
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.TextPrompt")]
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.TextPrompt")]
 
-        public string TextPrompt { get; set; }
+    public string TextPrompt { get; set; }
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.IsRequired")]
-        public bool IsRequired { get; set; }
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.IsRequired")]
+    public bool IsRequired { get; set; }
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.AttributeControlType")]
-        public int AttributeControlTypeId { get; set; }
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.AttributeControlType")]
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.AttributeControlType")]
+    public int AttributeControlTypeId { get; set; }
 
-        public string AttributeControlTypeName { get; set; }
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.AttributeControlType")]
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.DisplayOrder")]
-        public int DisplayOrder { get; set; }
+    public string AttributeControlTypeName { get; set; }
+
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.DisplayOrder")]
+    public int DisplayOrder { get; set; }
 
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.MinLength")]
-        [UIHint("Int32Nullable")]
-        public int? ValidationMinLength { get; set; }
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.MinLength")]
+    [UIHint("Int32Nullable")]
+    public int? ValidationMinLength { get; set; }
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.MaxLength")]
-        [UIHint("Int32Nullable")]
-        public int? ValidationMaxLength { get; set; }
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.MaxLength")]
+    [UIHint("Int32Nullable")]
+    public int? ValidationMaxLength { get; set; }
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.FileAllowedExtensions")]
-        public string ValidationFileAllowedExtensions { get; set; }
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.FileAllowedExtensions")]
+    public string ValidationFileAllowedExtensions { get; set; }
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.FileMaximumSize")]
-        [UIHint("Int32Nullable")]
-        public int? ValidationFileMaximumSize { get; set; }
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.FileMaximumSize")]
+    [UIHint("Int32Nullable")]
+    public int? ValidationFileMaximumSize { get; set; }
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.DefaultValue")]
-        public string DefaultValue { get; set; }
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.DefaultValue")]
+    public string DefaultValue { get; set; }
 
-        public IList<ContactAttributeLocalizedModel> Locales { get; set; } = new List<ContactAttributeLocalizedModel>();
+    //condition
+    public bool ConditionAllowed { get; set; }
+    public ConditionModel ConditionModel { get; set; }
 
-        //condition
-        public bool ConditionAllowed { get; set; }
-        public ConditionModel ConditionModel { get; set; }
+    //ACL
+    [UIHint("CustomerGroups")]
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.LimitedToGroups")]
+    public string[] CustomerGroups { get; set; }
 
-        //Store acl
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.LimitedToStores")]
-        [UIHint("Stores")]
-        public string[] Stores { get; set; }
+    public IList<ContactAttributeLocalizedModel> Locales { get; set; } = new List<ContactAttributeLocalizedModel>();
 
-        //ACL
-        [UIHint("CustomerGroups")]
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.LimitedToGroups")]
-        public string[] CustomerGroups { get; set; }
-    }
+    //Store acl
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.LimitedToStores")]
+    [UIHint("Stores")]
+    public string[] Stores { get; set; }
+}
 
-    public class ConditionModel : BaseEntityModel
-    {
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Condition.EnableCondition")]
-        public bool EnableCondition { get; set; }
+public class ConditionModel : BaseEntityModel
+{
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Condition.EnableCondition")]
+    public bool EnableCondition { get; set; }
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Condition.Attributes")]
-        public string SelectedAttributeId { get; set; }
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Condition.Attributes")]
+    public string SelectedAttributeId { get; set; }
 
-        public IList<AttributeConditionModel> ConditionAttributes { get; set; }
-    }
-    public class AttributeConditionModel : BaseEntityModel
-    {
-        public string Name { get; set; }
+    public IList<AttributeConditionModel> ConditionAttributes { get; set; }
+}
 
-        public AttributeControlType AttributeControlType { get; set; }
+public class AttributeConditionModel : BaseEntityModel
+{
+    public string Name { get; set; }
 
-        public IList<SelectListItem> Values { get; set; }
+    public AttributeControlType AttributeControlType { get; set; }
 
-        public string SelectedValueId { get; set; }
-    }
-    public class ContactAttributeLocalizedModel : ILocalizedModelLocal
-    {
-        public string LanguageId { get; set; }
+    public IList<SelectListItem> Values { get; set; }
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.Name")]
+    public string SelectedValueId { get; set; }
+}
 
-        public string Name { get; set; }
+public class ContactAttributeLocalizedModel : ILocalizedModelLocal
+{
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.Name")]
 
-        [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.TextPrompt")]
+    public string Name { get; set; }
 
-        public string TextPrompt { get; set; }
+    [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.TextPrompt")]
 
-    }
+    public string TextPrompt { get; set; }
+
+    public string LanguageId { get; set; }
 }

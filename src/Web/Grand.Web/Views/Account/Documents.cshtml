@@ -5,6 +5,7 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Documents"]);
 }
+
 @section left
 {
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Documents })
@@ -49,13 +50,14 @@
                     <div class="d-inline-flex p-sm-3 p-2 border-top">
                         <span class="mb-2">
                             @Loc["Account.Documents.Attachment"]:
-                            <a href="@Url.RouteUrl("GetDocumentFile", new { documentId = item.Id})">@Loc["Account.Documents.Download"]</a>
+                            <a href="@Url.RouteUrl("GetDocumentFile", new { documentId = item.Id })">@Loc["Account.Documents.Download"]</a>
                         </span>
                     </div>
                 }
             </div>
         }
-        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingContext" />
+
+        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingContext"/>
     }
     else
     {
