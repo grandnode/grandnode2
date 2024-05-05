@@ -21,7 +21,7 @@ RUN dotnet build /app/Web/Grand.Web/Grand.Web.csproj --no-restore -c Release -p:
 RUN dotnet publish /app/Web/Grand.Web/Grand.Web.csproj -c Release -o ./build/release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
 EXPOSE 8080
 WORKDIR /app
 COPY --from=build-env /app/build/release .
