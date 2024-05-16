@@ -957,7 +957,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             FirstName = details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName),
             LastName = details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName),
             CustomerEmail = details.Customer.Email,
-            UrlReferrer = details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastUrlReferrer),
             ShippingOptionAttributeDescription =
                 details.Customer.GetUserFieldFromEntity<string>(
                     SystemCustomerFieldNames.ShippingOptionAttributeDescription, paymentTransaction.StoreId),

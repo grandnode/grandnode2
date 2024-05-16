@@ -173,15 +173,8 @@ public class CustomerModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.IPAddress")]
     public string LastIpAddress { get; set; }
 
-    //Url referrer
-    [GrandResourceDisplayName("Admin.Customers.Customers.Fields.URLReferrer")]
-    public string UrlReferrer { get; set; }
-
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.LastVisitedPage")]
     public string LastVisitedPage { get; set; }
-
-    [GrandResourceDisplayName("Admin.Customers.Customers.Fields.LastUrlReferrer")]
-    public string LastUrlReferrer { get; set; }
 
     //newsletter subscriptions (per store)
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Newsletter")]

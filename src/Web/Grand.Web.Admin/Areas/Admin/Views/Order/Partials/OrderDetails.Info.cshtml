@@ -217,15 +217,6 @@
         <label class="control-label">@Model.CustomerIp</label>
     </div>
 </div>
-@if (!string.IsNullOrEmpty(Model.UrlReferrer))
-{
-    <div class="form-group">
-        <admin-label asp-for="UrlReferrer" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
-        <div class="col-9 col-md-9 col-sm-9">
-            <label class="control-label">@Model.UrlReferrer</label>
-        </div>
-    </div>
-}
 @if (!string.IsNullOrEmpty(Model.VatNumber))
 {
     <div class="form-group">

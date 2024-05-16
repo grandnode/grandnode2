@@ -100,17 +100,6 @@ public class CustomerActivityAttribute : TypeFilterAttribute
             if (!pageUrl.Equals(previousPageUrl, StringComparison.OrdinalIgnoreCase))
                 await _userFieldService.SaveField(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.LastVisitedPage, pageUrl);
-
-            if (context.HttpContext.Request?.GetTypedHeaders().Referer?.ToString() is { } referer &&
-                !referer.Contains(context.HttpContext.Request.Host.ToString()))
-            {
-                var previousUrlReferrer =
-                    await _workContext.CurrentCustomer.GetUserField<string>(_userFieldService,
-                        SystemCustomerFieldNames.LastUrlReferrer);
-                if (previousUrlReferrer != referer)
-                    await _userFieldService.SaveField(_workContext.CurrentCustomer,
-                        SystemCustomerFieldNames.LastUrlReferrer, referer);
-            }
         }
 
         #endregion

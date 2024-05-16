@@ -284,11 +284,6 @@ public class Order : BaseEntity
     public int RecurringUseCycles { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the url referrer exists
-    /// </summary>
-    public string UrlReferrer { get; set; }
-
-    /// <summary>
     ///     Gets or sets the Shipping Option description (customer friendly string)
     /// </summary>
     public string ShippingOptionAttributeDescription { get; set; }

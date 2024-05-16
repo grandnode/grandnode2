@@ -440,15 +440,6 @@ else
         </div>
     </div>
 }
-@if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.UrlReferrer))
-{
-    <div class="form-group">
-        <admin-label asp-for="UrlReferrer"/>
-        <div class="col-md-9 col-sm-9">
-            <label class="control-label">@Model.UrlReferrer</label>
-        </div>
-    </div>
-}
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="form-group">
@@ -473,15 +464,6 @@ else
         <admin-label asp-for="LastVisitedPage"/>
         <div class="col-md-9 col-sm-9">
             <label class="control-label">@Model.LastVisitedPage</label>
-        </div>
-    </div>
-}
-@if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.LastUrlReferrer))
-{
-    <div class="form-group">
-        <admin-label asp-for="LastUrlReferrer"/>
-        <div class="col-md-9 col-sm-9">
-            <label class="control-label">@Model.LastUrlReferrer</label>
         </div>
     </div>
 }

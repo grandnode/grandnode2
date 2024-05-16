@@ -251,9 +251,6 @@ public class WorkContext : IWorkContext, IWorkContextSetter
     {
         var userFields = new List<UserField>();
 
-        if (_httpContextAccessor?.HttpContext?.Request.GetTypedHeaders().Referer?.ToString() is { } referer)
-            userFields.Add(new UserField { Key = SystemCustomerFieldNames.UrlReferrer, Value = referer, StoreId = "" });
-
         if (!string.IsNullOrEmpty(CurrentStore.DefaultCurrencyId))
             userFields.Add(new UserField {
                 Key = SystemCustomerFieldNames.CurrencyId, Value = CurrentStore.DefaultCurrencyId,

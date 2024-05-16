@@ -6324,9 +6324,6 @@
 	<Resource Name="Admin.Customers.Customers.Fields.LastPurchaseDate" Area="Admin">
 		<Value>Last purchase date</Value>
 	</Resource>
-	<Resource Name="Admin.Customers.Customers.Fields.LastUrlReferrer" Area="Admin">
-		<Value>Last url referrer</Value>
-	</Resource>
 	<Resource Name="Admin.Customers.Customers.Fields.LastVisitedPage" Area="Admin">
 		<Value>Last visited page</Value>
 	</Resource>
@@ -6386,9 +6383,6 @@
 	</Resource>
 	<Resource Name="Admin.Customers.Customers.Fields.TwoFactorEnabled" Area="Admin">
 		<Value>Two-factor authentication is enabled</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customers.Fields.URLReferrer" Area="Admin">
-		<Value>Created from Url</Value>
 	</Resource>
 	<Resource Name="Admin.Customers.Customers.Fields.Username" Area="Admin">
 		<Value>Username</Value>
@@ -8117,9 +8111,6 @@
 	</Resource>
 	<Resource Name="Admin.Orders.Fields.Tax" Area="Admin">
 		<Value>Order tax</Value>
-	</Resource>
-	<Resource Name="Admin.Orders.Fields.UrlReferrer" Area="Admin">
-		<Value>Url referrer</Value>
 	</Resource>
 	<Resource Name="Admin.Orders.Fields.UsedDiscounts" Area="Admin">
 		<Value>Used discounts</Value>

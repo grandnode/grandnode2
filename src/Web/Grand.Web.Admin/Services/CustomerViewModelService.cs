@@ -225,11 +225,7 @@ public class CustomerViewModelService : ICustomerViewModelService
                     model.LastPurchaseDate =
                         _dateTimeService.ConvertToUserTime(customer.LastPurchaseDateUtc.Value, DateTimeKind.Utc);
                 model.LastIpAddress = customer.LastIpAddress;
-                model.UrlReferrer = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.UrlReferrer);
-                model.LastVisitedPage =
-                    customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastVisitedPage);
-                model.LastUrlReferrer =
-                    customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastUrlReferrer);
+                model.LastVisitedPage = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastVisitedPage);
 
                 model.CustomerGroups = customer.Groups.ToArray();
                 //newsletter subscriptions

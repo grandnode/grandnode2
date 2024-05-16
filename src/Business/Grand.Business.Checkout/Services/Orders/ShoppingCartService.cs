@@ -435,11 +435,6 @@ public class ShoppingCartService : IShoppingCartService
             await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, resultGift);
         }
 
-        //copy url referer
-        var lastUrlReferrer =
-            await fromCustomer.GetUserField<string>(_userFieldService, SystemCustomerFieldNames.LastUrlReferrer);
-        await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.LastUrlReferrer, lastUrlReferrer);
-
         //move selected checkout attributes
         var checkoutAttributes = await fromCustomer.GetUserField<List<CustomAttribute>>(_userFieldService,
             SystemCustomerFieldNames.CheckoutAttributes, _workContext.CurrentStore.Id);

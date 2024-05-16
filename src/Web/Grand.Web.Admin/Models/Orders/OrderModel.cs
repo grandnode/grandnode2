@@ -43,9 +43,6 @@ public class OrderModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Orders.Fields.CustomerIP")]
     public string CustomerIp { get; set; }
 
-    [GrandResourceDisplayName("Admin.Orders.Fields.UrlReferrer")]
-    public string UrlReferrer { get; set; }
-
     [GrandResourceDisplayName("Admin.Orders.Fields.CustomValues")]
     public Dictionary<string, object> CustomValues { get; set; } = new();
 

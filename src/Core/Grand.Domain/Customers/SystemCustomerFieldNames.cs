@@ -23,12 +23,10 @@ public static class SystemCustomerFieldNames
     //Other attributes
     public static string DiscountCoupons => "DiscountCoupons";
     public static string GiftVoucherCoupons => "GiftVoucherCoupons";
-    public static string UrlReferrer => "UrlReferrer";
     public static string PasswordRecoveryToken => "PasswordRecoveryToken";
     public static string PasswordRecoveryTokenDateGenerated => "PasswordRecoveryTokenDateGenerated";
     public static string AccountActivationToken => "AccountActivationToken";
     public static string LastVisitedPage => "LastVisitedPage";
-    public static string LastUrlReferrer => "LastUrlReferrer";
     public static string ImpersonatedCustomerId => "ImpersonatedCustomerId";
     public static string AdminAreaStoreScopeConfiguration => "AdminAreaStoreScopeConfiguration";
     public static string TwoFactorEnabled => "TwoFactorEnabled";

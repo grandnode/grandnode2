@@ -325,7 +325,6 @@ public class OrderViewModelService : IOrderViewModelService
                 : _translationService.GetResource("Admin.Customers.Guest");
 
         model.CustomerIp = order.CustomerIp;
-        model.UrlReferrer = order.UrlReferrer;
         model.VatNumber = order.VatNumber;
         model.CreatedOn = _dateTimeService.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
         model.TaxDisplayType = _taxSettings.TaxDisplayType;
