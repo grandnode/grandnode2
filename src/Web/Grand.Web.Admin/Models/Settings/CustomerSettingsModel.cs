@@ -185,10 +185,7 @@ public class CustomerSettingsModel : BaseModel
 
         [GrandResourceDisplayName("Admin.Settings.Customer.HideDocumentsTab")]
         public bool HideDocumentsTab { get; set; }
-
-        [GrandResourceDisplayName("Admin.Settings.Customer.SaveVisitedPage")]
-        public bool SaveVisitedPage { get; set; }
-
+        
         [GrandResourceDisplayName("Admin.Settings.Customer.OnlineCustomerMinutes")]
         public int OnlineCustomerMinutes { get; set; }
 

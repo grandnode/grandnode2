@@ -10059,9 +10059,6 @@
 	<Resource Name="Admin.Settings.Customer.RegistrationFreeShipping" Area="Admin">
 		<Value>New customer has a free shipping for the first order</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.Customer.SaveVisitedPage" Area="Admin">
-		<Value>Save visited page</Value>
-	</Resource>
 	<Resource Name="Admin.Settings.Customer.StateProvinceEnabled" Area="Admin">
 		<Value>'State/province' enabled</Value>
 	</Resource>
