@@ -9,7 +9,7 @@ public class PluginInfoAttribute : Attribute
     {
         var assembly = Assembly.GetExecutingAssembly();
         var fullVersion = assembly.GetName().Version;
-        SupportedVersion = $"{fullVersion?.Minor}.{fullVersion?.Major}";
+        SupportedVersion = $"{fullVersion?.Major}.{fullVersion?.Minor}";
     }
 
     public string Group { get; set; } = string.Empty;
