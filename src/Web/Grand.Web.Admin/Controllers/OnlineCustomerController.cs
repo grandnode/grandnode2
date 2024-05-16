@@ -65,16 +65,11 @@ public class OnlineCustomerController : BaseAdminController
         {
             var item = new OnlineCustomerModel {
                 Id = x.Id,
-                CustomerInfo = !string.IsNullOrEmpty(x.Email)
-                    ? x.Email
-                    : _translationService.GetResource("Admin.Customers.Guest"),
+                CustomerInfo = !string.IsNullOrEmpty(x.Email) ? x.Email : _translationService.GetResource("Admin.Customers.Guest"),
                 LastIpAddress = x.LastIpAddress,
                 Location = _geoLookupService.CountryName(x.LastIpAddress),
                 LastActivityDate = _dateTimeService.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
-                LastVisitedPage = _customerSettings.StoreLastVisitedPage
-                    ? x.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastVisitedPage)
-                    : _translationService.GetResource(
-                        "Admin.Dashboards.OnlineCustomers.Fields.LastVisitedPage.Disabled")
+                LastVisitedPage = _customerSettings.StoreLastVisitedPage ? x.LastVisitedPage : _translationService.GetResource("Admin.Dashboards.OnlineCustomers.Fields.LastVisitedPage.Disabled")
             };
             items.Add(item);
         }

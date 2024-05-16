@@ -225,7 +225,7 @@ public class CustomerViewModelService : ICustomerViewModelService
                     model.LastPurchaseDate =
                         _dateTimeService.ConvertToUserTime(customer.LastPurchaseDateUtc.Value, DateTimeKind.Utc);
                 model.LastIpAddress = customer.LastIpAddress;
-                model.LastVisitedPage = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastVisitedPage);
+                model.LastVisitedPage = customer.LastVisitedPage;
 
                 model.CustomerGroups = customer.Groups.ToArray();
                 //newsletter subscriptions
