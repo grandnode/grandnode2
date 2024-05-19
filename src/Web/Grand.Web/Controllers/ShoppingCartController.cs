@@ -476,12 +476,6 @@ public class ShoppingCartController : BasePublicController
     [HttpGet]
     public virtual IActionResult ContinueShopping()
     {
-        var returnUrl =
-            _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(
-                SystemCustomerFieldNames.LastContinueShoppingPage, _workContext.CurrentStore.Id);
-        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            return Redirect(returnUrl);
-
         return RedirectToRoute("HomePage");
     }
 

@@ -47,7 +47,6 @@ public static class SystemCustomerFieldNames
     public static string OfferedShippingOptions => "OfferedShippingOptions";
     public static string ShippingOptionAttributeDescription => "ShippingOptionAttributeDescription";
     public static string ShippingOptionAttribute => "ShippingOptionAttribute";
-    public static string LastContinueShoppingPage => "LastContinueShoppingPage";
     public static string TaxDisplayTypeId => "TaxDisplayTypeId";
     public static string UseLoyaltyPointsDuringCheckout => "UseLoyaltyPointsDuringCheckout";
     public static string CookieAccepted => "Cookie.Accepted";
