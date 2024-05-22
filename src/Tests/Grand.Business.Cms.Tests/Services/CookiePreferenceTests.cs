@@ -2,10 +2,14 @@
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
+using Grand.Infrastructure.TypeConverters.Converter;
+using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.ComponentModel;
 
 namespace Grand.Business.Cms.Tests.Services;
 
@@ -13,7 +17,6 @@ namespace Grand.Business.Cms.Tests.Services;
 public class CookiePreferenceTests
 {
     private CookiePreference _cookiePreferences;
-    private Mock<IUserFieldService> _userFieldServiceMock;
 
     [TestInitialize]
     public void Init()
@@ -25,9 +28,7 @@ public class CookiePreferenceTests
         cookie2.Setup(c => c.DisplayOrder).Returns(2);
         cookie2.Setup(c => c.SystemName).Returns("cookie2");
 
-        _userFieldServiceMock = new Mock<IUserFieldService>();
-        _cookiePreferences = new CookiePreference(_userFieldServiceMock.Object,
-            new List<IConsentCookie> { cookie1.Object, cookie2.Object });
+        _cookiePreferences = new CookiePreference(new List<IConsentCookie> { cookie1.Object, cookie2.Object });
     }
 
     [TestMethod]
@@ -44,13 +45,16 @@ public class CookiePreferenceTests
         var dic = new Dictionary<string, bool>();
         dic.Add("cookie1", true);
         dic.Add("cookie2", false);
-        _userFieldServiceMock.Setup(c =>
-                c.GetFieldsForEntity<Dictionary<string, bool>>(It.IsAny<BaseEntity>(), It.IsAny<string>(),
-                    It.IsAny<string>()))
-            .Returns(Task.FromResult(dic));
 
-        var result1 = await _cookiePreferences.IsEnable(new Customer(), new Store(), "cookie1");
-        var result2 = await _cookiePreferences.IsEnable(new Customer(), new Store(), "cookie2");
+        TypeDescriptor.AddAttributes(typeof(Dictionary<string, bool>),
+           new TypeConverterAttribute(typeof(GenericDictionaryTypeConverter<string, bool>)));
+
+        var store = new Store();
+        var valueStr = CommonHelper.To<string>(dic);
+        var customer = new Customer();
+        customer.UserFields.Add(new UserField(){ StoreId = store.Id, Key = SystemCustomerFieldNames.ConsentCookies, Value = valueStr});
+        var result1 = await _cookiePreferences.IsEnable(customer, store, "cookie1");
+        var result2 = await _cookiePreferences.IsEnable(customer, store, "cookie2");
         Assert.IsTrue(result1.Value);
         Assert.IsFalse(result2.Value);
     }

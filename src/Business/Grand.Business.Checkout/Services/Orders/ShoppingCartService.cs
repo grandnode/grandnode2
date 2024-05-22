@@ -1,9 +1,7 @@
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Events.Checkout.ShoppingCart;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
@@ -28,7 +26,6 @@ public class ShoppingCartService : IShoppingCartService
         IProductService productService,
         ICustomerService customerService,
         IMediator mediator,
-        IUserFieldService userFieldService,
         IShoppingCartValidator shoppingCartValidator,
         ShoppingCartSettings shoppingCartSettings)
     {
@@ -36,7 +33,6 @@ public class ShoppingCartService : IShoppingCartService
         _productService = productService;
         _customerService = customerService;
         _mediator = mediator;
-        _userFieldService = userFieldService;
         _shoppingCartValidator = shoppingCartValidator;
         _shoppingCartSettings = shoppingCartSettings;
     }
@@ -49,7 +45,6 @@ public class ShoppingCartService : IShoppingCartService
     private readonly IProductService _productService;
     private readonly ICustomerService _customerService;
     private readonly IMediator _mediator;
-    private readonly IUserFieldService _userFieldService;
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly ShoppingCartSettings _shoppingCartSettings;
 
@@ -427,18 +422,17 @@ public class ShoppingCartService : IShoppingCartService
             //discount
             var coupons = fromCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.DiscountCoupons);
             var resultCoupons = toCustomer.ApplyCouponCode(SystemCustomerFieldNames.DiscountCoupons, coupons);
-            await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.DiscountCoupons, resultCoupons);
+            await _customerService.UpdateUserField(toCustomer, SystemCustomerFieldNames.DiscountCoupons, resultCoupons);
 
             //gift voucher
             var giftVoucher = fromCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.GiftVoucherCoupons);
             var resultGift = toCustomer.ApplyCouponCode(SystemCustomerFieldNames.GiftVoucherCoupons, giftVoucher);
-            await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, resultGift);
+            await _customerService.UpdateUserField(toCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, resultGift);
         }
 
         //move selected checkout attributes
-        var checkoutAttributes = await fromCustomer.GetUserField<List<CustomAttribute>>(_userFieldService,
-            SystemCustomerFieldNames.CheckoutAttributes, _workContext.CurrentStore.Id);
-        await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.CheckoutAttributes, checkoutAttributes,
+        var checkoutAttributes = fromCustomer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, _workContext.CurrentStore.Id);
+        await _customerService.UpdateUserField(toCustomer, SystemCustomerFieldNames.CheckoutAttributes, checkoutAttributes,
             _workContext.CurrentStore.Id);
     }
 

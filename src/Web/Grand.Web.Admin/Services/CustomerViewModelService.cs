@@ -67,7 +67,6 @@ public class CustomerViewModelService : ICustomerViewModelService
 
     private readonly TaxSettings _taxSettings;
     private readonly ITranslationService _translationService;
-    private readonly IUserFieldService _userFieldService;
     private readonly IVendorService _vendorService;
     private readonly IWorkContext _workContext;
 
@@ -76,7 +75,6 @@ public class CustomerViewModelService : ICustomerViewModelService
         IGroupService groupService,
         ICustomerProductService customerProductService,
         INewsLetterSubscriptionService newsLetterSubscriptionService,
-        IUserFieldService userFieldService,
         IDateTimeService dateTimeService,
         ITranslationService translationService,
         ILoyaltyPointsService loyaltyPointsService,
@@ -105,7 +103,6 @@ public class CustomerViewModelService : ICustomerViewModelService
         _groupService = groupService;
         _customerProductService = customerProductService;
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
-        _userFieldService = userFieldService;
         _dateTimeService = dateTimeService;
         _translationService = translationService;
         _loyaltyPointsService = loyaltyPointsService;
@@ -492,7 +489,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         customer.Attributes = model.Attributes;
 
         if (!model.TwoFactorEnabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.TwoFactorEnabled,
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.TwoFactorEnabled,
                 model.TwoFactorEnabled);
 
         customer.Email = model.Email;
@@ -516,10 +513,9 @@ public class CustomerViewModelService : ICustomerViewModelService
         //VAT number
         if (_taxSettings.EuVatEnabled)
         {
-            var prevVatNumber =
-                await customer.GetUserField<string>(_userFieldService, SystemCustomerFieldNames.VatNumber);
+            var prevVatNumber = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.VatNumber);
 
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.VatNumber, model.VatNumber);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumber, model.VatNumber);
             //set VAT number status
             if (!string.IsNullOrEmpty(model.VatNumber))
             {
@@ -527,14 +523,14 @@ public class CustomerViewModelService : ICustomerViewModelService
                 {
                     var checkVatService =
                         _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IVatService>();
-                    await _userFieldService.SaveField(customer,
+                    await _customerService.UpdateUserField(customer,
                         SystemCustomerFieldNames.VatNumberStatusId,
                         (int)(await checkVatService.GetVatNumberStatus(model.VatNumber)).status);
                 }
             }
             else
             {
-                await _userFieldService.SaveField(customer,
+                await _customerService.UpdateUserField(customer,
                     SystemCustomerFieldNames.VatNumberStatusId,
                     (int)VatNumberStatus.Empty);
             }
@@ -551,30 +547,30 @@ public class CustomerViewModelService : ICustomerViewModelService
 
         //user fields
         if (_customerSettings.GenderEnabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.Gender, model.Gender);
-        await _userFieldService.SaveField(customer, SystemCustomerFieldNames.FirstName, model.FirstName);
-        await _userFieldService.SaveField(customer, SystemCustomerFieldNames.LastName, model.LastName);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.Gender, model.Gender);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.FirstName, model.FirstName);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.LastName, model.LastName);
         if (_customerSettings.DateOfBirthEnabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.DateOfBirth, model.DateOfBirth);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.DateOfBirth, model.DateOfBirth);
         if (_customerSettings.CompanyEnabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.Company, model.Company);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.Company, model.Company);
         if (_customerSettings.StreetAddressEnabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.StreetAddress, model.StreetAddress);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.StreetAddress, model.StreetAddress);
         if (_customerSettings.StreetAddress2Enabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.StreetAddress2, model.StreetAddress2);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.StreetAddress2, model.StreetAddress2);
         if (_customerSettings.ZipPostalCodeEnabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.ZipPostalCode, model.ZipPostalCode);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.ZipPostalCode, model.ZipPostalCode);
         if (_customerSettings.CityEnabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.City, model.City);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.City, model.City);
         if (_customerSettings.CountryEnabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.CountryId, model.CountryId);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.CountryId, model.CountryId);
         if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.StateProvinceId,
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.StateProvinceId,
                 model.StateProvinceId);
         if (_customerSettings.PhoneEnabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.Phone, model.Phone);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.Phone, model.Phone);
         if (_customerSettings.FaxEnabled)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.Fax, model.Fax);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.Fax, model.Fax);
 
         //newsletter subscriptions
         if (!string.IsNullOrEmpty(customer.Email))

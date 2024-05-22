@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -16,18 +17,18 @@ public class
     private readonly ICheckoutAttributeParser _checkoutAttributeParser;
     private readonly ICheckoutAttributeService _checkoutAttributeService;
     private readonly IDownloadService _downloadService;
-    private readonly IUserFieldService _userFieldService;
+    private readonly ICustomerService _customerService;
 
     public SaveCheckoutAttributesCommandHandler(
         ICheckoutAttributeService checkoutAttributeService,
         ICheckoutAttributeParser checkoutAttributeParser,
         IDownloadService downloadService,
-        IUserFieldService userFieldService)
+        ICustomerService customerService)
     {
         _checkoutAttributeService = checkoutAttributeService;
         _checkoutAttributeParser = checkoutAttributeParser;
         _downloadService = downloadService;
-        _userFieldService = userFieldService;
+        _customerService = customerService;
     }
 
     public async Task<IList<CustomAttribute>> Handle(SaveCheckoutAttributesCommand request,
@@ -114,7 +115,7 @@ public class
                     .ToList();
         }
 
-        await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.CheckoutAttributes,
+        await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.CheckoutAttributes,
             customAttributes, request.Store.Id);
 
         return customAttributes;

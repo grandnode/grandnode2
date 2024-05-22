@@ -39,7 +39,6 @@ public class CustomerController : BaseAdminController
         IProductReviewViewModelService productReviewViewModelService,
         IProductViewModelService productViewModelService,
         ICustomerViewModelService customerViewModelService,
-        IUserFieldService userFieldService,
         ICustomerManagerService customerManagerService,
         ITranslationService translationService,
         IWorkContext workContext,
@@ -58,7 +57,6 @@ public class CustomerController : BaseAdminController
         _productReviewViewModelService = productReviewViewModelService;
         _productViewModelService = productViewModelService;
         _customerViewModelService = customerViewModelService;
-        _userFieldService = userFieldService;
         _customerManagerService = customerManagerService;
         _translationService = translationService;
         _workContext = workContext;
@@ -192,7 +190,6 @@ public class CustomerController : BaseAdminController
     private readonly IProductReviewViewModelService _productReviewViewModelService;
     private readonly IProductViewModelService _productViewModelService;
     private readonly ICustomerViewModelService _customerViewModelService;
-    private readonly IUserFieldService _userFieldService;
     private readonly ICustomerManagerService _customerManagerService;
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
@@ -344,7 +341,7 @@ public class CustomerController : BaseAdminController
             //No customer found with the specified id
             return RedirectToAction("List");
 
-        await _userFieldService.SaveField(customer,
+        await _customerService.UpdateUserField(customer,
             SystemCustomerFieldNames.VatNumberStatusId,
             (int)VatNumberStatus.Valid);
 
@@ -360,7 +357,7 @@ public class CustomerController : BaseAdminController
             //No customer found with the specified id
             return RedirectToAction("List");
 
-        await _userFieldService.SaveField(customer,
+        await _customerService.UpdateUserField(customer,
             SystemCustomerFieldNames.VatNumberStatusId,
             (int)VatNumberStatus.Invalid);
 
@@ -444,7 +441,7 @@ public class CustomerController : BaseAdminController
             return RedirectToAction("Edit", customer.Id);
         }
 
-        await _userFieldService.SaveField(_workContext.CurrentCustomer,
+        await _customerService.UpdateUserField(_workContext.CurrentCustomer,
             SystemCustomerFieldNames.ImpersonatedCustomerId, customer.Id);
 
         return RedirectToAction("Index", "Home", new { area = "" });
@@ -477,7 +474,7 @@ public class CustomerController : BaseAdminController
             return RedirectToAction("List");
 
         //email validation message
-        await _userFieldService.SaveField(customer, SystemCustomerFieldNames.AccountActivationToken,
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.AccountActivationToken,
             Guid.NewGuid().ToString());
         await _messageProviderService.SendCustomerEmailValidationMessage(customer, _workContext.CurrentStore,
             _workContext.WorkingLanguage.Id);

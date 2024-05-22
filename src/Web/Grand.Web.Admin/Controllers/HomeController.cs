@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Queries.Customers;
@@ -23,7 +24,7 @@ public class HomeController : BaseAdminController
     public HomeController(
         ITranslationService translationService,
         IStoreService storeService,
-        IUserFieldService userFieldService,
+        ICustomerService customerService,
         IWorkContext workContext,
         IGroupService groupService,
         IOrderReportService orderReportService,
@@ -34,7 +35,7 @@ public class HomeController : BaseAdminController
     {
         _translationService = translationService;
         _storeService = storeService;
-        _userFieldService = userFieldService;
+        _customerService = customerService;
         _workContext = workContext;
         _groupService = groupService;
         _orderReportService = orderReportService;
@@ -84,7 +85,7 @@ public class HomeController : BaseAdminController
 
     private readonly ITranslationService _translationService;
     private readonly IStoreService _storeService;
-    private readonly IUserFieldService _userFieldService;
+    private readonly ICustomerService _customerService;
     private readonly IWorkContext _workContext;
     private readonly IGroupService _groupService;
     private readonly IOrderReportService _orderReportService;
@@ -115,11 +116,12 @@ public class HomeController : BaseAdminController
 
     public async Task<IActionResult> SetLanguage(string langid,
         [FromServices] ILanguageService languageService,
+        [FromServices] ICustomerService _customerService,
         string returnUrl = "")
     {
         var language = await languageService.GetLanguageById(langid);
         if (language != null)
-            await _userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.LanguageId,
+            await _customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.LanguageId,
                 language.Id, _workContext.CurrentStore.Id);
 
         //home page
@@ -141,10 +143,10 @@ public class HomeController : BaseAdminController
 
         var store = await _storeService.GetStoreById(storeid);
         if (store != null || storeid == "")
-            await _userFieldService.SaveField(_workContext.CurrentCustomer,
+            await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                 SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration, storeid);
         else
-            await _userFieldService.SaveField(_workContext.CurrentCustomer,
+            await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                 SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration, "");
 
         //home page

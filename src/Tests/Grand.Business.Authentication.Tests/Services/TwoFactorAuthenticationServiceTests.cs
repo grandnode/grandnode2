@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Authentication.Services;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
@@ -15,17 +16,17 @@ public class TwoFactorAuthenticationServiceTests
 {
     private Mock<IEnumerable<ISMSVerificationService>> _sMsVerificationService;
     private TwoFactorAuthenticationService _twoFactorAuthenticationService;
-    private Mock<IUserFieldService> _userFieldServiceMock;
+    private Mock<ICustomerService> _customerServiceMock;
     private Mock<IWorkContext> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
         _workContextMock = new Mock<IWorkContext>();
-        _userFieldServiceMock = new Mock<IUserFieldService>();
+        _customerServiceMock = new Mock<ICustomerService>();
         _sMsVerificationService = new Mock<IEnumerable<ISMSVerificationService>>();
         _twoFactorAuthenticationService = new TwoFactorAuthenticationService(_workContextMock.Object,
-            _userFieldServiceMock.Object, _sMsVerificationService.Object);
+            _customerServiceMock.Object, _sMsVerificationService.Object);
     }
 
     [TestMethod]

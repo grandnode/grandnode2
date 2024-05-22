@@ -1,9 +1,8 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
 using Grand.Domain.Tax;
@@ -16,27 +15,20 @@ public class UpdateCustomerInfoCommandHandler : IRequestHandler<UpdateCustomerIn
 {
     private readonly IGrandAuthenticationService _authenticationService;
     private readonly IVatService _checkVatService;
-    private readonly ICustomerManagerService _customerManagerService;
     private readonly ICustomerService _customerService;
-
-    private readonly CustomerSettings _customerSettings;
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
+    private readonly CustomerSettings _customerSettings;
     private readonly TaxSettings _taxSettings;
-    private readonly IUserFieldService _userFieldService;
 
     public UpdateCustomerInfoCommandHandler(
-        ICustomerManagerService customerManagerService,
         IGrandAuthenticationService authenticationService,
-        IUserFieldService userFieldService,
         IVatService checkVatService,
         INewsLetterSubscriptionService newsLetterSubscriptionService,
         ICustomerService customerService,
         CustomerSettings customerSettings,
         TaxSettings taxSettings)
     {
-        _customerManagerService = customerManagerService;
         _authenticationService = authenticationService;
-        _userFieldService = userFieldService;
         _checkVatService = checkVatService;
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _customerService = customerService;
@@ -89,16 +81,15 @@ public class UpdateCustomerInfoCommandHandler : IRequestHandler<UpdateCustomerIn
 
     private async Task UpdateTax(UpdateCustomerInfoCommand request)
     {
-        var prevVatNumber =
-            await request.Customer.GetUserField<string>(_userFieldService, SystemCustomerFieldNames.VatNumber);
+        var prevVatNumber = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.VatNumber);
 
-        await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.VatNumber,
+        await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.VatNumber,
             request.Model.VatNumber);
 
         if (prevVatNumber != request.Model.VatNumber)
         {
             var vat = await _checkVatService.GetVatNumberStatus(request.Model.VatNumber);
-            await _userFieldService.SaveField(request.Customer,
+            await _customerService.UpdateUserField(request.Customer,
                 SystemCustomerFieldNames.VatNumberStatusId,
                 (int)vat.status);
         }
@@ -107,41 +98,41 @@ public class UpdateCustomerInfoCommandHandler : IRequestHandler<UpdateCustomerIn
     private async Task UpdateUserFieldFields(UpdateCustomerInfoCommand request)
     {
         if (_customerSettings.GenderEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Gender, request.Model.Gender);
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.Gender, request.Model.Gender);
 
-        await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.FirstName,
+        await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.FirstName,
             request.Model.FirstName);
-        await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.LastName, request.Model.LastName);
+        await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.LastName, request.Model.LastName);
         if (_customerSettings.DateOfBirthEnabled)
         {
             var dateOfBirth = request.Model.ParseDateOfBirth();
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.DateOfBirth, dateOfBirth);
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.DateOfBirth, dateOfBirth);
         }
 
         if (_customerSettings.CompanyEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Company,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.Company,
                 request.Model.Company);
         if (_customerSettings.StreetAddressEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StreetAddress,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.StreetAddress,
                 request.Model.StreetAddress);
         if (_customerSettings.StreetAddress2Enabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StreetAddress2,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.StreetAddress2,
                 request.Model.StreetAddress2);
         if (_customerSettings.ZipPostalCodeEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.ZipPostalCode,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.ZipPostalCode,
                 request.Model.ZipPostalCode);
         if (_customerSettings.CityEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.City, request.Model.City);
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.City, request.Model.City);
         if (_customerSettings.CountryEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.CountryId,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.CountryId,
                 request.Model.CountryId);
         if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StateProvinceId,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.StateProvinceId,
                 request.Model.StateProvinceId);
         if (_customerSettings.PhoneEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Phone, request.Model.Phone);
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.Phone, request.Model.Phone);
         if (_customerSettings.FaxEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Fax, request.Model.Fax);
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.Fax, request.Model.Fax);
     }
 
     private async Task UpdateNewsletter(UpdateCustomerInfoCommand request)

@@ -1,6 +1,6 @@
 ﻿using Google.Authenticator;
 using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -13,16 +13,16 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
 {
     private readonly IEnumerable<ISMSVerificationService> _smsVerificationService;
     private readonly TwoFactorAuthenticator _twoFactorAuthentication;
-    private readonly IUserFieldService _userFieldService;
+    private readonly ICustomerService _customerService;
     private readonly IWorkContext _workContext;
 
     public TwoFactorAuthenticationService(
         IWorkContext workContext,
-        IUserFieldService userFieldService,
+        ICustomerService customerService,
         IEnumerable<ISMSVerificationService> smsVerificationService)
     {
         _workContext = workContext;
-        _userFieldService = userFieldService;
+        _customerService = customerService;
         _smsVerificationService = smsVerificationService;
         _twoFactorAuthentication = new TwoFactorAuthenticator();
     }
@@ -70,8 +70,8 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
 
             case TwoFactorAuthenticationType.EmailVerification:
                 var token = PrepareRandomCode();
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.TwoFactorValidCode, token);
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.TwoFactorCodeValidUntil,
+                await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.TwoFactorValidCode, token);
+                await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.TwoFactorCodeValidUntil,
                     DateTime.UtcNow.AddMinutes(30));
                 model.CustomValues.Add("Token", token);
                 break;

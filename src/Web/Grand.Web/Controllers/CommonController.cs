@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
@@ -141,7 +142,7 @@ public class CommonController : BasePublicController
     [DenySystemAccount]
     public virtual async Task<IActionResult> SetLanguage(
         [FromServices] AppConfig config,
-        [FromServices] IUserFieldService userFieldService,
+        [FromServices] ICustomerService customerService,
         string langCode, string returnUrl = default)
     {
         var language = await _languageService.GetLanguageByCode(langCode);
@@ -164,9 +165,7 @@ public class CommonController : BasePublicController
 
             returnUrl = AddLanguageSeo(returnUrl, language);
         }
-
-        await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.LanguageId, language.Id,
-            _workContext.CurrentStore.Id);
+        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.LanguageId, language.Id, _workContext.CurrentStore.Id);
 
         //notification
         await _mediator.Publish(new ChangeLanguageEvent(_workContext.CurrentCustomer, language));
@@ -211,19 +210,19 @@ public class CommonController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> SetCurrency(
         [FromServices] ICurrencyService currencyService,
-        [FromServices] IUserFieldService userFieldService,
+        [FromServices] ICustomerService customerService,
         string currencyCode, string returnUrl = "")
     {
         var currency = await currencyService.GetCurrencyByCode(currencyCode);
         if (currency != null)
-            await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.CurrencyId,
+            await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.CurrencyId,
                 currency.Id, _workContext.CurrentStore.Id);
 
         //clear coupon code
-        await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.DiscountCoupons, "");
+        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.DiscountCoupons, "");
 
         //clear gift card
-        await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, "");
+        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, "");
 
         //notification
         await _mediator.Publish(new ChangeCurrencyEvent(_workContext.CurrentCustomer, currency));
@@ -284,7 +283,7 @@ public class CommonController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> SetTaxType(
         [FromServices] TaxSettings taxSettings,
-        [FromServices] IUserFieldService userFieldService,
+        [FromServices] ICustomerService customerService,
         int customerTaxType, string returnUrl = default)
     {
         var taxDisplayType = (TaxDisplayType)Enum.ToObject(typeof(TaxDisplayType), customerTaxType);
@@ -302,7 +301,7 @@ public class CommonController : BasePublicController
             return Redirect(returnUrl);
 
         //save passed value
-        await userFieldService.SaveField(_workContext.CurrentCustomer,
+        await customerService.UpdateUserField(_workContext.CurrentCustomer,
             SystemCustomerFieldNames.TaxDisplayTypeId, (int)taxDisplayType, _workContext.CurrentStore.Id);
 
         //notification
@@ -357,7 +356,7 @@ public class CommonController : BasePublicController
     [DenySystemAccount]
     public virtual async Task<IActionResult> CookieAccept(bool accept,
         [FromServices] StoreInformationSettings storeInformationSettings,
-        [FromServices] IUserFieldService userFieldService,
+        [FromServices] ICustomerService customerService,
         [FromServices] ICookiePreference cookiePreference)
     {
         if (!storeInformationSettings.DisplayCookieInformation)
@@ -365,18 +364,18 @@ public class CommonController : BasePublicController
             return Json(new { stored = false });
 
         //save consent cookies
-        await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "",
+        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "",
             _workContext.CurrentStore.Id);
         var dictionary = new Dictionary<string, bool>();
         var consentCookies = cookiePreference.GetConsentCookies();
         foreach (var item in consentCookies.Where(x => x.AllowToDisable)) dictionary.Add(item.SystemName, accept);
 
         if (dictionary.Any())
-            await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies,
+            await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies,
                 dictionary, _workContext.CurrentStore.Id);
 
         //save setting - CookieAccepted
-        await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.CookieAccepted,
+        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.CookieAccepted,
             true, _workContext.CurrentStore.Id);
 
         return Json(new { stored = true });
@@ -409,14 +408,14 @@ public class CommonController : BasePublicController
     [DenySystemAccount]
     public virtual async Task<IActionResult> PrivacyPreference(IDictionary<string, string> model,
         [FromServices] StoreInformationSettings storeInformationSettings,
-        [FromServices] IUserFieldService userFieldService,
+        [FromServices] ICustomerService customerService,
         [FromServices] ICookiePreference cookiePreference)
     {
         if (!storeInformationSettings.DisplayPrivacyPreference)
             return Json(new { success = false });
 
         const string consent = "ConsentCookies";
-        await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "",
+        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "",
             _workContext.CurrentStore.Id);
         var selectedConsentCookies = new List<string>();
         foreach (var item in model)
@@ -429,8 +428,7 @@ public class CommonController : BasePublicController
             if (item.AllowToDisable)
                 dictionary.Add(item.SystemName, selectedConsentCookies.Contains(item.SystemName));
 
-        await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies,
-            dictionary, _workContext.CurrentStore.Id);
+        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, dictionary, _workContext.CurrentStore.Id);
 
         return Json(new { success = true });
     }

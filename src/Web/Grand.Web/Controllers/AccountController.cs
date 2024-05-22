@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Events.Customers;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -39,7 +38,6 @@ public class AccountController : BasePublicController
         IWorkContext workContext,
         ICustomerService customerService,
         IGroupService groupService,
-        IUserFieldService userFieldService,
         ICustomerManagerService customerManagerService,
         ICountryService countryService,
         IMediator mediator,
@@ -52,7 +50,6 @@ public class AccountController : BasePublicController
         _workContext = workContext;
         _customerService = customerService;
         _groupService = groupService;
-        _userFieldService = userFieldService;
         _customerManagerService = customerManagerService;
         _customerSettings = customerSettings;
         _countryService = countryService;
@@ -157,7 +154,6 @@ public class AccountController : BasePublicController
     private readonly IWorkContext _workContext;
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
-    private readonly IUserFieldService _userFieldService;
     private readonly ICustomerManagerService _customerManagerService;
     private readonly ICountryService _countryService;
     private readonly IMediator _mediator;
@@ -323,7 +319,7 @@ public class AccountController : BasePublicController
         if (_workContext.OriginalCustomerIfImpersonated != null)
         {
             //logout impersonated customer
-            await _userFieldService.SaveField<int?>(_workContext.OriginalCustomerIfImpersonated,
+            await _customerService.UpdateUserField<int?>(_workContext.OriginalCustomerIfImpersonated,
                 SystemCustomerFieldNames.ImpersonatedCustomerId, null);
 
             //redirect back to customer details page (admin area)
@@ -404,7 +400,7 @@ public class AccountController : BasePublicController
         await _customerManagerService.ChangePassword(new ChangePasswordRequest(model.Email,
             _customerSettings.DefaultPasswordFormat, model.NewPassword));
 
-        await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
 
         model.DisablePasswordChanging = true;
         model.Result = _translationService.GetResource("Account.PasswordRecovery.PasswordHasBeenChanged");
@@ -483,7 +479,7 @@ public class AccountController : BasePublicController
                 case UserRegistrationType.EmailValidation:
                 {
                     //email validation message
-                    await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                         SystemCustomerFieldNames.AccountActivationToken, Guid.NewGuid().ToString());
                     await _messageProviderService.SendCustomerEmailValidationMessage(
                         _workContext.CurrentCustomer, _workContext.CurrentStore,
@@ -598,8 +594,7 @@ public class AccountController : BasePublicController
         if (customer == null)
             return RedirectToRoute("HomePage");
 
-        var activationToken =
-            await customer.GetUserField<string>(_userFieldService, SystemCustomerFieldNames.AccountActivationToken);
+        var activationToken = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AccountActivationToken);
         if (string.IsNullOrEmpty(activationToken))
             return RedirectToRoute("HomePage");
 
@@ -610,7 +605,7 @@ public class AccountController : BasePublicController
         customer.Active = true;
         customer.StoreId = _workContext.CurrentStore.Id;
         await _customerService.UpdateActive(customer);
-        await _userFieldService.SaveField(customer, SystemCustomerFieldNames.AccountActivationToken, "");
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.AccountActivationToken, "");
 
         //send welcome message
         await _messageProviderService.SendCustomerWelcomeMessage(customer, _workContext.CurrentStore,
@@ -1028,9 +1023,9 @@ public class AccountController : BasePublicController
             if (await twoFactorAuthenticationService.AuthenticateTwoFactor(model.SecretKey, model.Code,
                     _workContext.CurrentCustomer, _customerSettings.TwoFactorAuthenticationType))
             {
-                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.TwoFactorEnabled, true);
-                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.TwoFactorSecretKey, model.SecretKey);
 
                 Success(_translationService.GetResource("Account.TwoFactorAuth.Enabled"));
@@ -1094,9 +1089,9 @@ public class AccountController : BasePublicController
             if (await twoFactorAuthenticationService.AuthenticateTwoFactor(secretKey, model.Code,
                     _workContext.CurrentCustomer, _customerSettings.TwoFactorAuthenticationType))
             {
-                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.TwoFactorEnabled, false);
-                await _userFieldService.SaveField<string>(_workContext.CurrentCustomer,
+                await _customerService.UpdateUserField<string>(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.TwoFactorSecretKey, null);
 
                 Success(_translationService.GetResource("Account.TwoFactorAuth.Disabled"));

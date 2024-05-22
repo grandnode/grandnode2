@@ -40,7 +40,6 @@ public class ShoppingCartController : BasePublicController
         IGroupService groupService,
         ICheckoutAttributeService checkoutAttributeService,
         IPermissionService permissionService,
-        IUserFieldService userFieldService,
         IMediator mediator,
         IShoppingCartValidator shoppingCartValidator,
         ShoppingCartSettings shoppingCartSettings,
@@ -54,7 +53,6 @@ public class ShoppingCartController : BasePublicController
         _groupService = groupService;
         _checkoutAttributeService = checkoutAttributeService;
         _permissionService = permissionService;
-        _userFieldService = userFieldService;
         _mediator = mediator;
         _shoppingCartValidator = shoppingCartValidator;
         _shoppingCartSettings = shoppingCartSettings;
@@ -89,7 +87,6 @@ public class ShoppingCartController : BasePublicController
     private readonly IGroupService _groupService;
     private readonly ICheckoutAttributeService _checkoutAttributeService;
     private readonly IPermissionService _permissionService;
-    private readonly IUserFieldService _userFieldService;
     private readonly IMediator _mediator;
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -528,7 +525,7 @@ public class ShoppingCartController : BasePublicController
                 _workContext.CurrentCustomer.ApplyCouponCode(SystemCustomerFieldNames.DiscountCoupons,
                     model.DiscountCouponCode);
             //apply new value
-            await _userFieldService.SaveField(_workContext.CurrentCustomer,
+            await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                 SystemCustomerFieldNames.DiscountCoupons, applyCouponCode);
             message = _translationService.GetResource("ShoppingCart.DiscountCouponCode.Applied");
             isApplied = true;
@@ -572,7 +569,7 @@ public class ShoppingCartController : BasePublicController
             var result = _workContext.CurrentCustomer.ApplyCouponCode(SystemCustomerFieldNames.GiftVoucherCoupons,
                 model.GiftVoucherCouponCode.ToLower());
             //apply new value
-            await _userFieldService.SaveField(_workContext.CurrentCustomer,
+            await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                 SystemCustomerFieldNames.GiftVoucherCoupons, result);
 
             message = _translationService.GetResource("ShoppingCart.Code.Applied");
@@ -637,7 +634,7 @@ public class ShoppingCartController : BasePublicController
                 //remove coupon
                 var result =
                     _workContext.CurrentCustomer.RemoveCouponCode(SystemCustomerFieldNames.DiscountCoupons, item);
-                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.DiscountCoupons, result);
             }
         }
@@ -672,7 +669,7 @@ public class ShoppingCartController : BasePublicController
                 var result =
                     _workContext.CurrentCustomer.RemoveCouponCode(SystemCustomerFieldNames.GiftVoucherCoupons,
                         giftvoucher.Code);
-                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.GiftVoucherCoupons, result);
             }
         }

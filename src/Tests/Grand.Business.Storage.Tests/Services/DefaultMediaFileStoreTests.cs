@@ -62,9 +62,12 @@ public class DefaultMediaFileStoreTests
     [TestMethod]
     public void TryCreateDirectoryTest()
     {
+        var directory = "Test";
         //Act
-        var result = _defaultMediaFileStore.TryCreateDirectory("Test");
+        var result = _defaultMediaFileStore.TryCreateDirectory(directory);
+        _ = _defaultMediaFileStore.TryDeleteDirectory(directory);
         //Assert
+
         Assert.IsTrue(result);
     }
 

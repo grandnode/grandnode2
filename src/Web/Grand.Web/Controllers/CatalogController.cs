@@ -36,7 +36,6 @@ public class CatalogController : BasePublicController
         IWorkContext workContext,
         IGroupService groupService,
         ITranslationService translationService,
-        IUserFieldService userFieldService,
         IAclService aclService,
         IPermissionService permissionService,
         IMediator mediator,
@@ -49,7 +48,6 @@ public class CatalogController : BasePublicController
         _workContext = workContext;
         _groupService = groupService;
         _translationService = translationService;
-        _userFieldService = userFieldService;
         _aclService = aclService;
         _permissionService = permissionService;
         _mediator = mediator;
@@ -67,7 +65,6 @@ public class CatalogController : BasePublicController
     private readonly IWorkContext _workContext;
     private readonly IGroupService _groupService;
     private readonly ITranslationService _translationService;
-    private readonly IUserFieldService _userFieldService;
     private readonly IAclService _aclService;
     private readonly IPermissionService _permissionService;
     private readonly IMediator _mediator;

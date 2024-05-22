@@ -23,7 +23,6 @@ public class CookieAuthenticationServiceTests
     private Mock<IGroupService> _groupServiceMock;
     private Mock<IHttpContextAccessor> _httpAccessorMock;
     private DefaultHttpContext _httpContext;
-    private Mock<IUserFieldService> _userFieldServiceMock;
     private Mock<IServiceProvider> serviceProviderMock;
 
     [TestInitialize]
@@ -34,13 +33,12 @@ public class CookieAuthenticationServiceTests
         _httpAccessorMock = new Mock<IHttpContextAccessor>();
         _customerSettings = new CustomerSettings();
         _groupServiceMock = new Mock<IGroupService>();
-        _userFieldServiceMock = new Mock<IUserFieldService>();
         _config = new SecurityConfig {
             CookieClaimsIssuer = "grandnode",
             CookiePrefix = ".Grand."
         };
         _cookieAuthService = new CookieAuthenticationService(_customerSettings, _customerServiceMock.Object,
-            _groupServiceMock.Object, _userFieldServiceMock.Object, _httpAccessorMock.Object, _config);
+            _groupServiceMock.Object, _httpAccessorMock.Object, _config);
         //For mock HttpContext extension methods like SignOutAsync ,SignInAsync etc..
         _authServiceMock = new Mock<IAuthenticationService>();
         serviceProviderMock = new Mock<IServiceProvider>();

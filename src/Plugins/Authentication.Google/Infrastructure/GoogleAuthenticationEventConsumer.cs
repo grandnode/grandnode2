@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Commands.Customers;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -16,13 +17,13 @@ public class GoogleAuthenticationEventConsumer : INotificationHandler<Registered
     #region Ctor
 
     public GoogleAuthenticationEventConsumer(
-        IUserFieldService userFieldService,
+        ICustomerService customerService,
         IMessageProviderService messageProviderService,
         IWorkContext workContext,
         CustomerSettings customerSettings
     )
     {
-        _userFieldService = userFieldService;
+        _customerService = customerService;
         _messageProviderService = messageProviderService;
         _workContext = workContext;
         _customerSettings = customerSettings;
@@ -46,12 +47,12 @@ public class GoogleAuthenticationEventConsumer : INotificationHandler<Registered
         var firstName = eventMessage.AuthenticationParameters.Claims
             ?.FirstOrDefault(claim => claim.Type == ClaimTypes.GivenName)?.Value;
         if (!string.IsNullOrEmpty(firstName))
-            await _userFieldService.SaveField(eventMessage.Customer, SystemCustomerFieldNames.FirstName, firstName);
+            await _customerService.UpdateUserField(eventMessage.Customer, SystemCustomerFieldNames.FirstName, firstName);
 
         var lastName = eventMessage.AuthenticationParameters.Claims
             ?.FirstOrDefault(claim => claim.Type == ClaimTypes.Surname)?.Value;
         if (!string.IsNullOrEmpty(lastName))
-            await _userFieldService.SaveField(eventMessage.Customer, SystemCustomerFieldNames.LastName, lastName);
+            await _customerService.UpdateUserField(eventMessage.Customer, SystemCustomerFieldNames.LastName, lastName);
 
         //notifications for admin
         if (_customerSettings.NotifyNewCustomerRegistration)
@@ -67,7 +68,7 @@ public class GoogleAuthenticationEventConsumer : INotificationHandler<Registered
 
     #region Fields
 
-    private readonly IUserFieldService _userFieldService;
+    private readonly ICustomerService _customerService;
     private readonly IMessageProviderService _messageProviderService;
     private readonly IWorkContext _workContext;
     private readonly CustomerSettings _customerSettings;

@@ -25,7 +25,6 @@ public class CustomerManagerService : ICustomerManagerService
     /// <param name="groupService">Group service</param>
     /// <param name="encryptionService">Encryption service</param>
     /// <param name="mediator">Mediator</param>
-    /// <param name="userFieldService">UserFields service</param>
     /// <param name="customerHistoryPasswordService">History password</param>
     /// <param name="customerSettings">Customer settings</param>
     public CustomerManagerService(
@@ -33,7 +32,6 @@ public class CustomerManagerService : ICustomerManagerService
         IGroupService groupService,
         IEncryptionService encryptionService,
         IMediator mediator,
-        IUserFieldService userFieldService,
         ICustomerHistoryPasswordService customerHistoryPasswordService,
         CustomerSettings customerSettings)
     {
@@ -41,7 +39,6 @@ public class CustomerManagerService : ICustomerManagerService
         _groupService = groupService;
         _encryptionService = encryptionService;
         _mediator = mediator;
-        _userFieldService = userFieldService;
         _customerHistoryPasswordService = customerHistoryPasswordService;
         _customerSettings = customerSettings;
     }
@@ -54,7 +51,6 @@ public class CustomerManagerService : ICustomerManagerService
     private readonly IGroupService _groupService;
     private readonly IEncryptionService _encryptionService;
     private readonly IMediator _mediator;
-    private readonly IUserFieldService _userFieldService;
     private readonly ICustomerHistoryPasswordService _customerHistoryPasswordService;
     private readonly CustomerSettings _customerSettings;
 
@@ -210,7 +206,7 @@ public class CustomerManagerService : ICustomerManagerService
         await _customerHistoryPasswordService.InsertCustomerPassword(customer);
 
         //create new login token
-        await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordToken, Guid.NewGuid().ToString());
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordToken, Guid.NewGuid().ToString());
     }
 
     #endregion

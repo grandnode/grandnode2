@@ -2,10 +2,8 @@
 using Grand.Api.DTOs.Customers;
 using Grand.Api.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
-using Grand.Infrastructure;
 using MediatR;
 
 namespace Grand.Api.Commands.Handlers.Customers;
@@ -14,22 +12,13 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
 {
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
-    private readonly ITranslationService _translationService;
-    private readonly IUserFieldService _userFieldsService;
-    private readonly IWorkContext _workContext;
 
     public UpdateCustomerCommandHandler(
         ICustomerService customerService,
-        IGroupService groupService,
-        ITranslationService translationService,
-        IUserFieldService userFieldsService,
-        IWorkContext workContext)
+        IGroupService groupService)
     {
         _customerService = customerService;
         _groupService = groupService;
-        _translationService = translationService;
-        _userFieldsService = userFieldsService;
-        _workContext = workContext;
     }
 
     public async Task<CustomerDto> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
@@ -42,24 +31,23 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
         return customer.ToModel();
     }
 
-    protected async Task SaveCustomerAttributes(CustomerDto model, Customer customer)
+    private async Task SaveCustomerAttributes(CustomerDto model, Customer customer)
     {
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.VatNumber, model.VatNumber);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.VatNumberStatusId,
-            model.VatNumberStatusId);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.Gender, model.Gender);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.FirstName, model.FirstName);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.LastName, model.LastName);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.DateOfBirth, model.DateOfBirth);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.Company, model.Company);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.StreetAddress, model.StreetAddress);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.StreetAddress2, model.StreetAddress2);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.ZipPostalCode, model.ZipPostalCode);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.City, model.City);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.CountryId, model.CountryId);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.StateProvinceId, model.StateProvinceId);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.Phone, model.Phone);
-        await _userFieldsService.SaveField(customer, SystemCustomerFieldNames.Fax, model.Fax);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumber, model.VatNumber);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumberStatusId, model.VatNumberStatusId);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.Gender, model.Gender);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.FirstName, model.FirstName);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.LastName, model.LastName);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.DateOfBirth, model.DateOfBirth);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.Company, model.Company);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.StreetAddress, model.StreetAddress);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.StreetAddress2, model.StreetAddress2);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.ZipPostalCode, model.ZipPostalCode);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.City, model.City);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.CountryId, model.CountryId);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.StateProvinceId, model.StateProvinceId);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.Phone, model.Phone);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.Fax, model.Fax);
     }
 
     protected async Task SaveCustomerGroups(CustomerDto model, Customer customer)

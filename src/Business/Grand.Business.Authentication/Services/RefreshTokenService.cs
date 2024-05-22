@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Security;
 using Grand.Infrastructure.Configuration;
@@ -13,11 +14,11 @@ namespace Grand.Business.Authentication.Services;
 public class RefreshTokenService : IRefreshTokenService
 {
     private readonly FrontendAPIConfig _apiConfig;
-    private readonly IUserFieldService _userFieldService;
+    private readonly ICustomerService _customerService;
 
-    public RefreshTokenService(IUserFieldService userFieldService, FrontendAPIConfig apiConfig)
+    public RefreshTokenService(ICustomerService customerService, FrontendAPIConfig apiConfig)
     {
-        _userFieldService = userFieldService;
+        _customerService = customerService;
         _apiConfig = apiConfig;
     }
 
@@ -37,14 +38,13 @@ public class RefreshTokenService : IRefreshTokenService
             IsActive = true,
             ValidTo = DateTime.UtcNow.AddMinutes(_apiConfig.RefreshTokenExpiryInMinutes)
         };
-        await _userFieldService.SaveField(customer, SystemCustomerFieldNames.RefreshToken, token);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.RefreshToken, token);
         return token;
     }
 
-    public async Task<RefreshToken> GetCustomerRefreshToken(Customer customer)
+    public Task<RefreshToken> GetCustomerRefreshToken(Customer customer)
     {
-        return await _userFieldService.GetFieldsForEntity<RefreshToken>(customer,
-            SystemCustomerFieldNames.RefreshToken);
+        return Task.FromResult(customer.GetUserFieldFromEntity<RefreshToken>(SystemCustomerFieldNames.RefreshToken));
     }
 
     public ClaimsPrincipal GetPrincipalFromToken(string token)

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Web.Commands.Models.Customers;
@@ -9,13 +9,13 @@ namespace Grand.Web.Commands.Handler.Customers;
 public class PasswordRecoverySendCommandHandler : IRequestHandler<PasswordRecoverySendCommand, bool>
 {
     private readonly IMessageProviderService _messageProviderService;
-    private readonly IUserFieldService _userFieldService;
+    private readonly ICustomerService _customerService;
 
     public PasswordRecoverySendCommandHandler(
-        IUserFieldService userFieldService,
+        ICustomerService customerService,
         IMessageProviderService messageProviderService)
     {
-        _userFieldService = userFieldService;
+        _customerService = customerService;
         _messageProviderService = messageProviderService;
     }
 
@@ -23,10 +23,10 @@ public class PasswordRecoverySendCommandHandler : IRequestHandler<PasswordRecove
     {
         //save token and current date
         var passwordRecoveryToken = Guid.NewGuid();
-        await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.PasswordRecoveryToken,
+        await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.PasswordRecoveryToken,
             passwordRecoveryToken.ToString());
         DateTime? generatedDateTime = DateTime.UtcNow;
-        await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.PasswordRecoveryTokenDateGenerated,
+        await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.PasswordRecoveryTokenDateGenerated,
             generatedDateTime);
 
         //send email

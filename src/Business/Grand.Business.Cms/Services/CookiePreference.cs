@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 
@@ -8,12 +8,10 @@ namespace Grand.Business.Cms.Services;
 public class CookiePreference : ICookiePreference
 {
     private readonly IEnumerable<IConsentCookie> _consentCookies;
-    private readonly IUserFieldService _userFieldService;
 
-    public CookiePreference(IUserFieldService userFieldService,
+    public CookiePreference(
         IEnumerable<IConsentCookie> consentCookies)
     {
-        _userFieldService = userFieldService;
         _consentCookies = consentCookies;
     }
 
@@ -23,16 +21,14 @@ public class CookiePreference : ICookiePreference
     }
 
 
-    public virtual async Task<bool?> IsEnable(Customer customer, Store store, string cookieSystemName)
+    public virtual Task<bool?> IsEnable(Customer customer, Store store, string cookieSystemName)
     {
         var result = default(bool?);
-        var savedCookiesConsent =
-            await _userFieldService.GetFieldsForEntity<Dictionary<string, bool>>(customer,
-                SystemCustomerFieldNames.ConsentCookies, store.Id);
+        var savedCookiesConsent = customer.GetUserFieldFromEntity<Dictionary<string, bool>>(SystemCustomerFieldNames.ConsentCookies, store.Id);
         if (savedCookiesConsent == null) return null;
-        if (savedCookiesConsent.ContainsKey(cookieSystemName))
-            result = savedCookiesConsent[cookieSystemName];
+        if (savedCookiesConsent.TryGetValue(cookieSystemName, out var value))
+            result = value;
 
-        return result;
+        return Task.FromResult(result);
     }
 }

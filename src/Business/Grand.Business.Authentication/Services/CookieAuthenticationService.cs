@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
@@ -25,21 +24,18 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// <param name="customerSettings">Customer settings</param>
     /// <param name="customerService">Customer service</param>
     /// <param name="groupService">Group service</param>
-    /// <param name="userFieldService">Generic attribute service</param>
     /// <param name="httpContextAccessor">HTTP context accessor</param>
     /// <param name="securityConfig">SecurityConfig</param>
     public CookieAuthenticationService(
         CustomerSettings customerSettings,
         ICustomerService customerService,
         IGroupService groupService,
-        IUserFieldService userFieldService,
         IHttpContextAccessor httpContextAccessor,
         SecurityConfig securityConfig)
     {
         _customerSettings = customerSettings;
         _customerService = customerService;
         _groupService = groupService;
-        _userFieldService = userFieldService;
         _httpContextAccessor = httpContextAccessor;
         _securityConfig = securityConfig;
     }
@@ -57,7 +53,6 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     private readonly CustomerSettings _customerSettings;
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
-    private readonly IUserFieldService _userFieldService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly SecurityConfig _securityConfig;
     private Customer _cachedCustomer;
@@ -87,12 +82,11 @@ public class CookieAuthenticationService : IGrandAuthenticationService
                 _securityConfig.CookieClaimsIssuer));
 
         //add token
-        var passwordToken =
-            await customer.GetUserField<string>(_userFieldService, SystemCustomerFieldNames.PasswordToken);
+        var passwordToken = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken);
         if (string.IsNullOrEmpty(passwordToken))
         {
             var passwordGuid = Guid.NewGuid().ToString();
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordToken, passwordGuid);
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordToken, passwordGuid);
             claims.Add(new Claim(ClaimTypes.UserData, passwordGuid, ClaimValueTypes.String,
                 _securityConfig.CookieClaimsIssuer));
         }

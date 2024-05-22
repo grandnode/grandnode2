@@ -27,7 +27,6 @@ public class ShoppingCartServiceTests
     private ShoppingCartService _shoppingCartService;
     private ShoppingCartSettings _shoppingCartSettings;
     private Mock<IShoppingCartValidator> _shoppingCartValidatorMock;
-    private Mock<IUserFieldService> _userFieldServiceMock;
     private Mock<IWorkContext> _workContextMock;
 
     [TestInitialize]
@@ -38,7 +37,6 @@ public class ShoppingCartServiceTests
         _shoppingCartSettings = new ShoppingCartSettings();
         _customerServiceMock = new Mock<ICustomerService>();
         _mediatorMock = new Mock<IMediator>();
-        _userFieldServiceMock = new Mock<IUserFieldService>();
         _shoppingCartValidatorMock = new Mock<IShoppingCartValidator>();
 
         _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
@@ -49,8 +47,7 @@ public class ShoppingCartServiceTests
         _workContextMock.Setup(c => c.TaxDisplayType).Returns(() => TaxDisplayType.ExcludingTax);
 
         _shoppingCartService = new ShoppingCartService(_workContextMock.Object, _productServiceMock.Object,
-            _customerServiceMock.Object, _mediatorMock.Object, _userFieldServiceMock.Object,
-            _shoppingCartValidatorMock.Object, _shoppingCartSettings);
+            _customerServiceMock.Object, _mediatorMock.Object, _shoppingCartValidatorMock.Object, _shoppingCartSettings);
     }
 
     [TestMethod]

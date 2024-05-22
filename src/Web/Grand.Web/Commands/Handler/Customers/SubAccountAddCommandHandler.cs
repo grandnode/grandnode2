@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
 using Grand.Web.Commands.Models.Customers;
@@ -12,17 +11,14 @@ public class SubAccountAddCommandHandler : IRequestHandler<SubAccountAddCommand>
     private readonly ICustomerManagerService _customerManagerService;
     private readonly ICustomerService _customerService;
     private readonly CustomerSettings _customerSettings;
-    private readonly IUserFieldService _userFieldService;
 
     public SubAccountAddCommandHandler(
         ICustomerService customerService,
         ICustomerManagerService customerManagerService,
-        IUserFieldService userFieldService,
         CustomerSettings customerSettings)
     {
         _customerService = customerService;
         _customerManagerService = customerManagerService;
-        _userFieldService = userFieldService;
         _customerSettings = customerSettings;
     }
 
@@ -36,8 +32,8 @@ public class SubAccountAddCommandHandler : IRequestHandler<SubAccountAddCommand>
 
         await _customerManagerService.RegisterCustomer(registrationRequest);
 
-        await _userFieldService.SaveField(customer, SystemCustomerFieldNames.FirstName, request.Model.FirstName);
-        await _userFieldService.SaveField(customer, SystemCustomerFieldNames.LastName, request.Model.LastName);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.FirstName, request.Model.FirstName);
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.LastName, request.Model.LastName);
     }
 
     protected async Task<Customer> PrepareCustomer(SubAccountAddCommand request)

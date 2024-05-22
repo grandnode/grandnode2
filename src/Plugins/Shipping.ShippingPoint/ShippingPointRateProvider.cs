@@ -3,7 +3,9 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
@@ -22,7 +24,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
         IShippingPointService shippingPointService,
         ITranslationService translationService,
         IWorkContext workContext,
-        IUserFieldService userFieldService,
+        ICustomerService customerService,
         ICountryService countryService,
         ICurrencyService currencyService,
         ShippingPointRateSettings shippingPointRateSettings
@@ -31,7 +33,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
         _shippingPointService = shippingPointService;
         _translationService = translationService;
         _workContext = workContext;
-        _userFieldService = userFieldService;
+        _customerService = customerService;
         _countryService = countryService;
         _currencyService = currencyService;
         _shippingPointRateSettings = shippingPointRateSettings;
@@ -44,7 +46,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
     private readonly IShippingPointService _shippingPointService;
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
-    private readonly IUserFieldService _userFieldService;
+    private readonly ICustomerService _customerService;
     private readonly ICountryService _countryService;
     private readonly ICurrencyService _currencyService;
 
@@ -108,13 +110,12 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
             return new List<string> { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
 
         //override price 
-        var offeredShippingOptions = await _workContext.CurrentCustomer.GetUserField<List<ShippingOption>>(
-            _userFieldService, SystemCustomerFieldNames.OfferedShippingOptions, _workContext.CurrentStore.Id);
+        var offeredShippingOptions = _workContext.CurrentCustomer.GetUserFieldFromEntity<List<ShippingOption>>(SystemCustomerFieldNames.OfferedShippingOptions, _workContext.CurrentStore.Id);
         offeredShippingOptions.Find(x => x.Name == shippingMethodName).Rate =
             await _currencyService.ConvertFromPrimaryStoreCurrency(chosenShippingOption.PickupFee,
                 _workContext.WorkingCurrency);
 
-        await _userFieldService.SaveField(
+        await _customerService.UpdateUserField(
             _workContext.CurrentCustomer,
             SystemCustomerFieldNames.OfferedShippingOptions,
             offeredShippingOptions,
@@ -123,7 +124,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
         var forCustomer =
             $"<strong>{_translationService.GetResource("Shipping.ShippingPoint.Fields.ShippingPointName")}:</strong> {chosenShippingOption.ShippingPointName}<br><strong>{_translationService.GetResource("Shipping.ShippingPoint.Fields.Description")}:</strong> {chosenShippingOption.Description}<br>";
 
-        await _userFieldService.SaveField(
+        await _customerService.UpdateUserField(
             _workContext.CurrentCustomer,
             SystemCustomerFieldNames.ShippingOptionAttributeDescription,
             forCustomer,
@@ -151,7 +152,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
             serializedAttribute = stringBuilder.ToString();
         }
 
-        await _userFieldService.SaveField(_workContext.CurrentCustomer,
+        await _customerService.UpdateUserField(_workContext.CurrentCustomer,
             SystemCustomerFieldNames.ShippingOptionAttribute,
             serializedAttribute,
             _workContext.CurrentStore.Id);

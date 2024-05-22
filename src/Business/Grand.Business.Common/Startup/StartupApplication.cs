@@ -50,7 +50,6 @@ public class StartupApplication : IStartupApplication
     {
         serviceCollection.AddScoped<IAddressAttributeParser, AddressAttributeParser>();
         serviceCollection.AddScoped<IAddressAttributeService, AddressAttributeService>();
-        serviceCollection.AddScoped<IUserFieldService, UserFieldService>();
         serviceCollection.AddScoped<IHistoryService, HistoryService>();
         serviceCollection.AddScoped<IPdfService, HtmlToPdfService>();
     }

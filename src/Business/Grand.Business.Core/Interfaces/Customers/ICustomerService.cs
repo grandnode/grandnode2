@@ -143,6 +143,17 @@ public interface ICustomerService
     Task UpdateCustomer(Customer customer);
 
     /// <summary>
+    ///    Updates the customer user field
+    /// </summary>
+    /// <param name="customer"></param>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <param name="storeId"></param>
+    /// <typeparam name="TPropType"></typeparam>
+    /// <returns></returns>
+    Task UpdateUserField<TPropType>(Customer customer, string key, TPropType value, string storeId = "");
+    
+    /// <summary>
     ///     Delete a customer
     /// </summary>
     /// <param name="customer">Customer</param>

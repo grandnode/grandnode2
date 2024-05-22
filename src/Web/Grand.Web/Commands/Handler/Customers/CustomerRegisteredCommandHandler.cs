@@ -27,10 +27,8 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
 
     private readonly TaxSettings _taxSettings;
-    private readonly IUserFieldService _userFieldService;
 
     public CustomerRegisteredCommandHandler(
-        IUserFieldService userFieldService,
         IVatService checkVatService,
         IMessageProviderService messageProviderService,
         INewsLetterSubscriptionService newsLetterSubscriptionService,
@@ -42,7 +40,6 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
         AddressSettings addressSettings,
         LanguageSettings languageSettings)
     {
-        _userFieldService = userFieldService;
         _checkVatService = checkVatService;
         _messageProviderService = messageProviderService;
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
@@ -60,55 +57,55 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
         //VAT number
         if (_taxSettings.EuVatEnabled)
         {
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.VatNumber,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.VatNumber,
                 request.Model.VatNumber);
 
             var vat = await _checkVatService.GetVatNumberStatus(request.Model.VatNumber);
 
-            await _userFieldService.SaveField(request.Customer,
+            await _customerService.UpdateUserField(request.Customer,
                 SystemCustomerFieldNames.VatNumberStatusId,
                 (int)vat.status);
         }
 
         //form fields
         if (_customerSettings.GenderEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Gender,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.Gender,
                 request.Model.Gender);
-        await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.FirstName,
+        await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.FirstName,
             request.Model.FirstName);
-        await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.LastName,
+        await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.LastName,
             request.Model.LastName);
         if (_customerSettings.DateOfBirthEnabled)
         {
             var dateOfBirth = request.Model.ParseDateOfBirth();
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.DateOfBirth, dateOfBirth);
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.DateOfBirth, dateOfBirth);
         }
 
         if (_customerSettings.CompanyEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Company,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.Company,
                 request.Model.Company);
         if (_customerSettings.StreetAddressEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StreetAddress,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.StreetAddress,
                 request.Model.StreetAddress);
         if (_customerSettings.StreetAddress2Enabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StreetAddress2,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.StreetAddress2,
                 request.Model.StreetAddress2);
         if (_customerSettings.ZipPostalCodeEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.ZipPostalCode,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.ZipPostalCode,
                 request.Model.ZipPostalCode);
         if (_customerSettings.CityEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.City, request.Model.City);
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.City, request.Model.City);
         if (_customerSettings.CountryEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.CountryId,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.CountryId,
                 request.Model.CountryId);
         if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.StateProvinceId,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.StateProvinceId,
                 request.Model.StateProvinceId);
         if (_customerSettings.PhoneEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Phone,
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.Phone,
                 request.Model.Phone);
         if (_customerSettings.FaxEnabled)
-            await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.Fax, request.Model.Fax);
+            await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.Fax, request.Model.Fax);
 
         //newsletter
         if (_customerSettings.NewsletterEnabled)

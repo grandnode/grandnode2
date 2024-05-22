@@ -2,8 +2,8 @@
 using Grand.Api.DTOs;
 using Grand.Api.Models.Common;
 using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
@@ -28,14 +28,12 @@ public class TokenWebController : ControllerBase
     private readonly IMediator _mediator;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IStoreHelper _storeHelper;
-    private readonly IUserFieldService _userFieldService;
 
     public TokenWebController(
         ICustomerService customerService,
         IMediator mediator,
         IStoreHelper storeHelper,
         IRefreshTokenService refreshTokenService,
-        IUserFieldService userFieldService,
         IAntiforgery antiforgery,
         FrontendAPIConfig apiConfig)
     {
@@ -43,7 +41,6 @@ public class TokenWebController : ControllerBase
         _mediator = mediator;
         _storeHelper = storeHelper;
         _refreshTokenService = refreshTokenService;
-        _userFieldService = userFieldService;
         _antiforgery = antiforgery;
         _apiConfig = apiConfig;
     }
@@ -85,10 +82,8 @@ public class TokenWebController : ControllerBase
         {
             var customer = await _customerService.GetCustomerByEmail(model.Email);
             var claims = new Dictionary<string, string> {
-                { "Email", model.Email }, {
-                    "Token",
-                    await _userFieldService.GetFieldsForEntity<string>(customer, SystemCustomerFieldNames.PasswordToken)
-                }
+                { "Email", model.Email }, 
+                { "Token", customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken) }
             };
             var tokenDto = await GetToken(claims, customer);
             return Ok(tokenDto);
@@ -125,8 +120,7 @@ public class TokenWebController : ControllerBase
         {
             customer = await _customerService.GetCustomerByEmail(email);
             claims.Add("Email", email);
-            claims.Add("Token",
-                await _userFieldService.GetFieldsForEntity<string>(customer, SystemCustomerFieldNames.PasswordToken));
+            claims.Add("Token", customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken));
         }
         else
         {

@@ -23,18 +23,16 @@ public class CustomerServiceTests
     private CustomerService _customerService;
     private Mock<IMediator> _mediatorMock;
     private IRepository<Customer> _repository;
-    private IUserFieldService _userFieldService;
 
     [TestInitialize]
     public void TestInitialize()
     {
         _repository = new MongoDBRepositoryTest<Customer>();
         _mediatorMock = new Mock<IMediator>();
-        _userFieldService = new UserFieldService(new MongoDBRepositoryTest<UserFieldBaseEntity>());
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
-        _customerService = new CustomerService(_repository, _userFieldService, _mediatorMock.Object, _cacheBase);
+        _customerService = new CustomerService(_repository, _mediatorMock.Object, _cacheBase);
     }
 
 
@@ -206,7 +204,47 @@ public class CustomerServiceTests
         //Assert
         Assert.AreEqual("sample@sample.com", _repository.Table.FirstOrDefault(x => x.Id == customer.Id).Email);
     }
+    [TestMethod]
+    public async Task SaveFieldTest_Insert()
+    {
+        //Arrange
+        var customer = new Customer();
+        _repository.Insert(customer);
+        //Act
+        await _customerService.UpdateUserField(customer, "Field", "Value");
+        //Assert
+        var userFields = _repository.Table.FirstOrDefault(x => x.Id == customer.Id).UserFields;
+        Assert.IsNotNull(userFields.FirstOrDefault(x => x.Key == "Field"));
+    }
 
+    [TestMethod]
+    public async Task SaveFieldTest_Update()
+    {
+        //Arrange
+        var customer = new Customer();
+        customer.UserFields.Add(new UserField { Key = "Field", Value = "empty", StoreId = "" });
+        _repository.Insert(customer);
+        //Act
+        await _customerService.UpdateUserField(customer, "Field", "Value");
+        //Assert
+        var userFields = _repository.Table.FirstOrDefault(x => x.Id == customer.Id).UserFields;
+        Assert.IsNotNull(userFields.FirstOrDefault(x => x.Key == "Field"));
+        Assert.AreEqual("Value", userFields.FirstOrDefault(x => x.Key == "Field").Value);
+    }
+
+    [TestMethod]
+    public async Task SaveFieldTest_Delete()
+    {
+        //Arrange
+        var customer = new Customer();
+        customer.UserFields.Add(new UserField { Key = "Field", Value = "Value", StoreId = "" });
+        _repository.Insert(customer);
+        //Act
+        await _customerService.UpdateUserField(customer, "Field", string.Empty);
+        //Assert
+        var userFields = _repository.Table.FirstOrDefault(x => x.Id == customer.Id).UserFields;
+        Assert.IsNull(userFields.FirstOrDefault(x => x.Key == "Field"));
+    }
     [TestMethod]
     public async Task DeleteCustomerTest()
     {

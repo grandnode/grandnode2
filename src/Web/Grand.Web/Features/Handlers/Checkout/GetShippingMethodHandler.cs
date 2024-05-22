@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Shipping;
@@ -18,16 +18,16 @@ public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, Check
     private readonly IPriceFormatter _priceFormatter;
     private readonly IShippingService _shippingService;
     private readonly ITaxService _taxService;
-    private readonly IUserFieldService _userFieldService;
+    private readonly ICustomerService _customerService;
 
     public GetShippingMethodHandler(IShippingService shippingService,
-        IUserFieldService userFieldService,
+        ICustomerService customerService,
         IOrderCalculationService orderTotalCalculationService,
         ITaxService taxService,
         IPriceFormatter priceFormatter)
     {
         _shippingService = shippingService;
-        _userFieldService = userFieldService;
+        _customerService = customerService;
         _orderTotalCalculationService = orderTotalCalculationService;
         _taxService = taxService;
         _priceFormatter = priceFormatter;
@@ -46,7 +46,7 @@ public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, Check
         {
             //performance optimization. cache returned shipping options.
             //we'll use them later (after a customer has selected an option).
-            await _userFieldService.SaveField(request.Customer,
+            await _customerService.UpdateUserField(request.Customer,
                 SystemCustomerFieldNames.OfferedShippingOptions,
                 getShippingOptionResponse.ShippingOptions,
                 request.Store.Id);

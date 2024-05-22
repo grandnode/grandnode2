@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Queries.Customers;
 using Grand.Data;
@@ -11,6 +10,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
+using Grand.SharedKernel.Extensions;
 using MediatR;
 using System.Linq.Expressions;
 
@@ -25,12 +25,10 @@ public class CustomerService : ICustomerService
 
     public CustomerService(
         IRepository<Customer> customerRepository,
-        IUserFieldService userFieldService,
         IMediator mediator,
         ICacheBase cacheBase)
     {
         _customerRepository = customerRepository;
-        _userFieldService = userFieldService;
         _mediator = mediator;
         _cacheBase = cacheBase;
     }
@@ -40,7 +38,6 @@ public class CustomerService : ICustomerService
     #region Fields
 
     private readonly IRepository<Customer> _customerRepository;
-    private readonly IUserFieldService _userFieldService;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
 
@@ -361,6 +358,64 @@ public class CustomerService : ICustomerService
         await _mediator.EntityUpdated(customer);
     }
 
+    /// <summary>
+    ///     Save attribute value
+    /// </summary>
+    /// <typeparam name="TPropType">Property type</typeparam>
+    /// <param name="customer"></param>
+    /// <param name="key">Key</param>
+    /// <param name="value">Value</param>
+    /// <param name="storeId">Store identifier; pass "" if this attribute will be available for all stores</param>
+    public virtual async Task UpdateUserField<TPropType>(Customer customer, string key, TPropType value, string storeId = "")
+    {
+        ArgumentNullException.ThrowIfNull(customer);
+        ArgumentNullException.ThrowIfNull(key);
+
+        var props = customer.UserFields.Where(x => string.IsNullOrEmpty(storeId) || x.StoreId == storeId);
+
+        var prop = props.FirstOrDefault(ga =>
+            ga.Key.Equals(key, StringComparison.OrdinalIgnoreCase)); //should be culture invariant
+
+        var valueStr = CommonHelper.To<string>(value);
+
+        if (prop != null)
+        {
+            if (string.IsNullOrWhiteSpace(valueStr))
+            {
+                //delete
+                await _customerRepository.PullFilter(customer.Id, x => x.UserFields,
+                    y => y.Key == prop.Key && y.StoreId == storeId);
+
+                var entityProp = customer.UserFields.FirstOrDefault(x => x.Key == prop.Key && x.StoreId == storeId);
+                if (entityProp != null)
+                    customer.UserFields.Remove(entityProp);
+            }
+            else
+            {
+                //update
+                prop.Value = valueStr;
+                await _customerRepository.UpdateToSet(customer.Id, x => x.UserFields,
+                    y => y.Key == prop.Key && y.StoreId == storeId, prop);
+
+                var entityProp = customer.UserFields.FirstOrDefault(x => x.Key == prop.Key && x.StoreId == storeId);
+                if (entityProp != null)
+                    entityProp.Value = valueStr;
+            }
+        }
+        else
+        {
+            if (!string.IsNullOrWhiteSpace(valueStr))
+            {
+                prop = new UserField {
+                    Key = key,
+                    Value = valueStr,
+                    StoreId = storeId
+                };
+                await _customerRepository.AddToSet(customer.Id, x => x.UserFields, prop);
+                customer.UserFields.Add(prop);
+            }
+        }
+    }
 
     /// <summary>
     ///     Delete a customer
@@ -492,41 +547,34 @@ public class CustomerService : ICustomerService
         //clear entered coupon codes
         if (clearCouponCodes)
         {
-            await _userFieldService.SaveField<string>(customer, SystemCustomerFieldNames.DiscountCoupons, null);
-            await _userFieldService.SaveField<string>(customer, SystemCustomerFieldNames.GiftVoucherCoupons, null);
+            await UpdateUserField<string>(customer, SystemCustomerFieldNames.DiscountCoupons, null);
+            await UpdateUserField<string>(customer, SystemCustomerFieldNames.GiftVoucherCoupons, null);
         }
 
         //clear checkout attributes
         if (clearCheckoutAttributes)
-            await _userFieldService.SaveField<string>(customer, SystemCustomerFieldNames.CheckoutAttributes, null,
-                storeId);
+            await UpdateUserField<string>(customer, SystemCustomerFieldNames.CheckoutAttributes, null, storeId);
 
         //clear loyalty points flag
         if (clearLoyaltyPoints)
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.UseLoyaltyPointsDuringCheckout, false,
-                storeId);
+            await UpdateUserField(customer, SystemCustomerFieldNames.UseLoyaltyPointsDuringCheckout, false, storeId);
 
         //clear selected shipping method
         if (clearShipping)
         {
-            await _userFieldService.SaveField<ShippingOption>(customer, SystemCustomerFieldNames.SelectedShippingOption,
-                null, storeId);
-            await _userFieldService.SaveField<ShippingOption>(customer, SystemCustomerFieldNames.OfferedShippingOptions,
-                null, storeId);
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.SelectedPickupPoint, "", storeId);
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.ShippingOptionAttributeDescription, "",
-                storeId);
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.ShippingOptionAttribute, "", storeId);
+            await UpdateUserField<ShippingOption>(customer, SystemCustomerFieldNames.SelectedShippingOption, null, storeId);
+            await UpdateUserField<ShippingOption>(customer, SystemCustomerFieldNames.OfferedShippingOptions, null, storeId);
+            await UpdateUserField(customer, SystemCustomerFieldNames.SelectedPickupPoint, "", storeId);
+            await UpdateUserField(customer, SystemCustomerFieldNames.ShippingOptionAttributeDescription, "", storeId);
+            await UpdateUserField(customer, SystemCustomerFieldNames.ShippingOptionAttribute, "", storeId);
         }
 
         //clear selected payment method
         if (clearPayment)
         {
-            await _userFieldService.SaveField<string>(customer, SystemCustomerFieldNames.SelectedPaymentMethod, null,
-                storeId);
-            await _userFieldService.SaveField<string>(customer, SystemCustomerFieldNames.PaymentTransaction, null,
-                storeId);
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PaymentOptionAttribute, "", storeId);
+            await UpdateUserField<string>(customer, SystemCustomerFieldNames.SelectedPaymentMethod, null, storeId);
+            await UpdateUserField<string>(customer, SystemCustomerFieldNames.PaymentTransaction, null, storeId);
+            await UpdateUserField(customer, SystemCustomerFieldNames.PaymentOptionAttribute, "", storeId);
         }
     }
 

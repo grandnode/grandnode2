@@ -22,8 +22,6 @@ public class CustomerManagerServiceTests
     private Mock<IEncryptionService> _encryptionServiceMock;
     private Mock<IGroupService> _groupServiceMock;
     private Mock<IMediator> _mediatorMock;
-    private Mock<ITranslationService> _translationServiceMock;
-    private Mock<IUserFieldService> _userFieldServiceMock;
 
     [TestInitialize]
     public void Init()
@@ -31,17 +29,14 @@ public class CustomerManagerServiceTests
         _customerServiceMock = new Mock<ICustomerService>();
         _groupServiceMock = new Mock<IGroupService>();
         _encryptionServiceMock = new Mock<IEncryptionService>();
-        _translationServiceMock = new Mock<ITranslationService>();
         _mediatorMock = new Mock<IMediator>();
-        _userFieldServiceMock = new Mock<IUserFieldService>();
         _customerHistoryPasswordServiceMock = new Mock<ICustomerHistoryPasswordService>();
         _customerSettings = new CustomerSettings {
             AllowUsersToChangeUsernames = true
         };
 
         _customerManagerService = new CustomerManagerService(_customerServiceMock.Object, _groupServiceMock.Object,
-            _encryptionServiceMock.Object, _mediatorMock.Object, _userFieldServiceMock.Object,
-            _customerHistoryPasswordServiceMock.Object, _customerSettings);
+            _encryptionServiceMock.Object, _mediatorMock.Object, _customerHistoryPasswordServiceMock.Object, _customerSettings);
     }
 
     [TestMethod]

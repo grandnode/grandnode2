@@ -40,7 +40,6 @@ public class CheckoutController : BasePublicController
         ICustomerService customerService,
         IGroupService groupService,
         IShoppingCartService shoppingCartService,
-        IUserFieldService userFieldService,
         IShippingService shippingService,
         IPickupPointService pickupPointService,
         IPaymentService paymentService,
@@ -61,7 +60,6 @@ public class CheckoutController : BasePublicController
         _customerService = customerService;
         _groupService = groupService;
         _shoppingCartService = shoppingCartService;
-        _userFieldService = userFieldService;
         _shippingService = shippingService;
         _pickupPointService = pickupPointService;
         _paymentService = paymentService;
@@ -98,9 +96,7 @@ public class CheckoutController : BasePublicController
         await _customerService.ResetCheckoutData(customer, _workContext.CurrentStore.Id);
 
         //validation (cart)
-        var checkoutAttributes = await customer.GetUserField<List<CustomAttribute>>(_userFieldService,
-            SystemCustomerFieldNames.CheckoutAttributes,
-            _workContext.CurrentStore.Id);
+        var checkoutAttributes = customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, _workContext.CurrentStore.Id);
         var scWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes, true, true);
         if (scWarnings.Any())
             return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
@@ -253,7 +249,7 @@ public class CheckoutController : BasePublicController
             await _customerService.UpdateCustomerField(_workContext.CurrentCustomer, x => x.ShippingAddress,
                 null);
 
-            await _userFieldService.SaveField<ShippingOption>(_workContext.CurrentCustomer,
+            await _customerService.UpdateUserField<ShippingOption>(_workContext.CurrentCustomer,
                 SystemCustomerFieldNames.SelectedShippingOption, null, _workContext.CurrentStore.Id);
             //load next step
             return await LoadStepAfterShippingMethod(cart);
@@ -293,9 +289,9 @@ public class CheckoutController : BasePublicController
                         null);
 
                     //clear shipping option XML/Description
-                    await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                         SystemCustomerFieldNames.ShippingOptionAttribute, "", _workContext.CurrentStore.Id);
-                    await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                         SystemCustomerFieldNames.ShippingOptionAttributeDescription, "",
                         _workContext.CurrentStore.Id);
 
@@ -314,12 +310,12 @@ public class CheckoutController : BasePublicController
                         ShippingRateProviderSystemName = $"PickupPoint_{selectedPoint.Id}"
                     };
 
-                    await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                         SystemCustomerFieldNames.SelectedShippingOption,
                         pickUpInStoreShippingOption,
                         _workContext.CurrentStore.Id);
 
-                    await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                         SystemCustomerFieldNames.SelectedPickupPoint,
                         selectedPoint.Id,
                         _workContext.CurrentStore.Id);
@@ -327,7 +323,7 @@ public class CheckoutController : BasePublicController
                 else
                     //set value indicating that "pick up in store" option has not been chosen
                 {
-                    await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                         SystemCustomerFieldNames.SelectedPickupPoint, "", _workContext.CurrentStore.Id);
                 }
             }
@@ -409,7 +405,7 @@ public class CheckoutController : BasePublicController
                 _workContext.CurrentCustomer.BillingAddress = _workContext.CurrentCustomer.ShippingAddress;
                 await _customerService.UpdateBillingAddress(_workContext.CurrentCustomer.BillingAddress,
                     _workContext.CurrentCustomer.Id);
-                await _userFieldService.SaveField<ShippingOption>(_workContext.CurrentCustomer,
+                await _customerService.UpdateUserField<ShippingOption>(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.SelectedShippingOption, null, _workContext.CurrentStore.Id);
                 return await LoadStepAfterBillingAddress(cart);
             }
@@ -469,9 +465,9 @@ public class CheckoutController : BasePublicController
             var shippingRateProviderSystemName = splitOption[1];
 
             //clear shipping option XML/Description
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.ShippingOptionAttribute, "",
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.ShippingOptionAttribute, "",
                 store.Id);
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.ShippingOptionAttributeDescription,
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.ShippingOptionAttributeDescription,
                 "", store.Id);
 
             //validate customer's input
@@ -479,8 +475,7 @@ public class CheckoutController : BasePublicController
 
             //find it
             //performance optimization. try cache first
-            var shippingOptions = await customer.GetUserField<List<ShippingOption>>(_userFieldService,
-                SystemCustomerFieldNames.OfferedShippingOptions, store.Id);
+            var shippingOptions = customer.GetUserFieldFromEntity<List<ShippingOption>>(SystemCustomerFieldNames.OfferedShippingOptions, store.Id);
             if (shippingOptions == null || shippingOptions.Count == 0)
                 //not found? load them using shipping service
                 shippingOptions = (await _shippingService
@@ -502,7 +497,7 @@ public class CheckoutController : BasePublicController
                 throw new Exception("Selected shipping method can't be loaded");
 
             //save
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.SelectedShippingOption,
+            await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.SelectedShippingOption,
                 shippingOption, store.Id);
 
             if (!warnings.Any())
@@ -545,7 +540,7 @@ public class CheckoutController : BasePublicController
 
             //loyalty points
             if (_loyaltyPointsSettings.Enabled)
-                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.UseLoyaltyPointsDuringCheckout, model.UseLoyaltyPoints,
                     _workContext.CurrentStore.Id);
 
@@ -555,7 +550,7 @@ public class CheckoutController : BasePublicController
             if (!isPaymentWorkflowRequired)
             {
                 //payment is not required
-                await _userFieldService.SaveField<string>(_workContext.CurrentCustomer,
+                await _customerService.UpdateUserField<string>(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.SelectedPaymentMethod, null, _workContext.CurrentStore.Id);
 
                 var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
@@ -578,16 +573,16 @@ public class CheckoutController : BasePublicController
                 throw new Exception("Selected payment method can't be parsed");
 
             //save
-            await _userFieldService.SaveField(_workContext.CurrentCustomer,
+            await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                 SystemCustomerFieldNames.SelectedPaymentMethod, model.PaymentMethod, _workContext.CurrentStore.Id);
 
             var paymentTransaction = await paymentMethodInst.InitPaymentTransaction();
             if (paymentTransaction != null)
-                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.PaymentTransaction, paymentTransaction.Id,
                     _workContext.CurrentStore.Id);
             else
-                await _userFieldService.SaveField<string>(_workContext.CurrentCustomer,
+                await _customerService.UpdateUserField<string>(_workContext.CurrentCustomer,
                     SystemCustomerFieldNames.PaymentTransaction, null, _workContext.CurrentStore.Id);
 
             return await LoadStepAfterPaymentMethod(paymentMethodInst, cart);
@@ -609,9 +604,7 @@ public class CheckoutController : BasePublicController
                 ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
             await CartValidate(cart);
 
-            var paymentMethodSystemName = await _workContext.CurrentCustomer.GetUserField<string>(
-                _userFieldService, SystemCustomerFieldNames.SelectedPaymentMethod,
-                _workContext.CurrentStore.Id);
+            var paymentMethodSystemName = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPaymentMethod, _workContext.CurrentStore.Id);
             var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(paymentMethodSystemName);
             if (paymentMethod == null)
                 throw new Exception("Payment method is not selected");
@@ -623,7 +616,7 @@ public class CheckoutController : BasePublicController
                 var paymentTransaction = await paymentMethod.SavePaymentInfo(model);
                 if (paymentTransaction != null)
                     //save
-                    await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                         SystemCustomerFieldNames.PaymentTransaction, paymentTransaction.Id,
                         _workContext.CurrentStore.Id);
 
@@ -808,7 +801,6 @@ public class CheckoutController : BasePublicController
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
     private readonly IShoppingCartService _shoppingCartService;
-    private readonly IUserFieldService _userFieldService;
     private readonly IShippingService _shippingService;
     private readonly IPickupPointService _pickupPointService;
     private readonly IPaymentService _paymentService;
@@ -911,7 +903,7 @@ public class CheckoutController : BasePublicController
                 goto_section = "shipping_method"
             });
         if (!(_shippingSettings.AllowPickUpInStore && !string.IsNullOrEmpty(selectedPickupPoint)))
-            await _userFieldService.SaveField(_workContext.CurrentCustomer,
+            await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                 SystemCustomerFieldNames.SelectedShippingOption,
                 shippingMethodModel.ShippingMethods.First().ShippingOption,
                 _workContext.CurrentStore.Id);
@@ -959,7 +951,7 @@ public class CheckoutController : BasePublicController
             //so customer doesn't have to choose a payment method
 
             var selectedPaymentMethodSystemName = paymentMethodModel.PaymentMethods[0].PaymentMethodSystemName;
-            await _userFieldService.SaveField(_workContext.CurrentCustomer,
+            await _customerService.UpdateUserField(_workContext.CurrentCustomer,
                 SystemCustomerFieldNames.SelectedPaymentMethod,
                 selectedPaymentMethodSystemName, _workContext.CurrentStore.Id);
 
@@ -976,7 +968,7 @@ public class CheckoutController : BasePublicController
         }
 
         //payment is not required
-        await _userFieldService.SaveField<string>(_workContext.CurrentCustomer,
+        await _customerService.UpdateUserField<string>(_workContext.CurrentCustomer,
             SystemCustomerFieldNames.SelectedPaymentMethod, null, _workContext.CurrentStore.Id);
 
         var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
