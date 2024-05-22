@@ -12,12 +12,7 @@ public interface IRepository<T> where T : BaseEntity
     ///     Gets a table
     /// </summary>
     IQueryable<T> Table { get; }
-
-    /// <summary>
-    ///     Sets a collection
-    /// </summary>
-    bool SetCollection(string collectionName);
-
+   
 
     /// <summary>
     ///     Get entity by identifier

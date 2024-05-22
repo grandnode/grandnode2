@@ -22,15 +22,6 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public IMongoCollection<T> Collection => _collection;
 
     /// <summary>
-    ///     Sets a collection
-    /// </summary>
-    public bool SetCollection(string collectionName)
-    {
-        _collection = _collection.Database.GetCollection<T>(collectionName);
-        return true;
-    }
-
-    /// <summary>
     ///     Mongo Database
     /// </summary>
     protected IMongoDatabase _database;

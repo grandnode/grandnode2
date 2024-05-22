@@ -21,16 +21,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     protected ILiteCollection<T> _collection;
 
     public ILiteCollection<T> Collection => _collection;
-
-    /// <summary>
-    ///     Sets a collection
-    /// </summary>
-    public bool SetCollection(string collectionName)
-    {
-        _collection = _database.GetCollection<T>(collectionName);
-        return true;
-    }
-
+    
     /// <summary>
     ///     Mongo Database
     /// </summary>
