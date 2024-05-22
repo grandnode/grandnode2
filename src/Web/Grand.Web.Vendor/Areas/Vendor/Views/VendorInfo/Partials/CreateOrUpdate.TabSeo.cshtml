@@ -1,8 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Razor
 @model VendorModel
 
-<vc:admin-widget widget-zone="vendor_details_seo_top" additional-data="Model"/>
-
+<vc:vendor-widget widget-zone="vendor_vendor_details_seo_top" additional-data="Model" />
 @{
     Func<int, HelperResult>
         template = @<div class="form-body">
@@ -71,4 +70,4 @@
         </div>
     </localized-editor>
 </div>
-<vc:admin-widget widget-zone="vendor_details_seo_bottom" additional-data="Model"/>
+<vc:vendor-widget widget-zone="vendor_vendor_details_seo_bottom" additional-data="Model" />
