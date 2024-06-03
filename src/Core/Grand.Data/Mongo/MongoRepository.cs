@@ -26,8 +26,6 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// </summary>
     protected IMongoDatabase _database;
 
-    public IMongoDatabase Database => _database;
-
     #endregion
 
     #region Ctor
