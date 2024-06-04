@@ -189,14 +189,14 @@ public interface IRepository<T> where T : BaseEntity
     ///     Async Delete entities
     /// </summary>
     /// <param name="entities">Entities</param>
-    Task<IEnumerable<T>> DeleteAsync(IEnumerable<T> entities);
+    Task DeleteAsync(IEnumerable<T> entities);
 
     /// <summary>
     ///     Delete a many entities
     /// </summary>
-    /// <param name="filterexpression"></param>
+    /// <param name="filterExpression"></param>
     /// <returns></returns>
-    Task DeleteManyAsync(Expression<Func<T, bool>> filterexpression);
+    Task DeleteManyAsync(Expression<Func<T, bool>> filterExpression);
 
     /// <summary>
     ///     Clear entities

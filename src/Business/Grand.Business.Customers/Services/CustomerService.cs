@@ -609,9 +609,9 @@ public class CustomerService : ICustomerService
 
         query = query.Where(x => !x.IsSystemAccount);
 
-        var customers = await _customerRepository.DeleteAsync(query);
-
-        return customers.Count();
+        var count = query.Count();
+        await _customerRepository.DeleteAsync(query);
+        return count;
     }
 
     #endregion

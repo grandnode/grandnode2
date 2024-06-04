@@ -532,20 +532,19 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     ///     Async Delete entities
     /// </summary>
     /// <param name="entities">Entities</param>
-    public virtual async Task<IEnumerable<T>> DeleteAsync(IEnumerable<T> entities)
+    public virtual async Task DeleteAsync(IEnumerable<T> entities)
     {
         foreach (var entity in entities) await DeleteAsync(entity);
-        return entities;
     }
 
     /// <summary>
     ///     Delete a many entities
     /// </summary>
-    /// <param name="filterexpression"></param>
+    /// <param name="filterExpression"></param>
     /// <returns></returns>
-    public virtual Task DeleteManyAsync(Expression<Func<T, bool>> filterexpression)
+    public virtual Task DeleteManyAsync(Expression<Func<T, bool>> filterExpression)
     {
-        _collection.DeleteMany(filterexpression);
+        _collection.DeleteMany(filterExpression);
         return Task.CompletedTask;
     }
 
