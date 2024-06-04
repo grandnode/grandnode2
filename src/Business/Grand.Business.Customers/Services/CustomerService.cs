@@ -373,8 +373,7 @@ public class CustomerService : ICustomerService
 
         var props = customer.UserFields.Where(x => string.IsNullOrEmpty(storeId) || x.StoreId == storeId);
 
-        var prop = props.FirstOrDefault(ga =>
-            ga.Key.Equals(key, StringComparison.OrdinalIgnoreCase)); //should be culture invariant
+        var prop = props.FirstOrDefault(ga => ga.Key.Equals(key, StringComparison.OrdinalIgnoreCase)); //should be culture invariant
 
         var valueStr = CommonHelper.To<string>(value);
 
@@ -383,23 +382,14 @@ public class CustomerService : ICustomerService
             if (string.IsNullOrWhiteSpace(valueStr))
             {
                 //delete
-                await _customerRepository.PullFilter(customer.Id, x => x.UserFields,
-                    y => y.Key == prop.Key && y.StoreId == storeId);
-
-                var entityProp = customer.UserFields.FirstOrDefault(x => x.Key == prop.Key && x.StoreId == storeId);
-                if (entityProp != null)
-                    customer.UserFields.Remove(entityProp);
+                await _customerRepository.PullFilter(customer.Id, x => x.UserFields,y => y.Key == prop.Key && y.StoreId == storeId);
+                customer.UserFields.Remove(prop);
             }
             else
             {
                 //update
                 prop.Value = valueStr;
-                await _customerRepository.UpdateToSet(customer.Id, x => x.UserFields,
-                    y => y.Key == prop.Key && y.StoreId == storeId, prop);
-
-                var entityProp = customer.UserFields.FirstOrDefault(x => x.Key == prop.Key && x.StoreId == storeId);
-                if (entityProp != null)
-                    entityProp.Value = valueStr;
+                await _customerRepository.UpdateToSet(customer.Id, x => x.UserFields,y => y.Key == prop.Key && y.StoreId == storeId, prop);
             }
         }
         else
