@@ -186,31 +186,31 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Updates a single entity.
     /// </summary>
-    /// <param name="filterexpression"></param>
+    /// <param name="filterExpression"></param>
     /// <param name="updateBuilder"></param>
     /// <returns></returns>
-    public virtual async Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression,
+    public virtual async Task UpdateOneAsync(Expression<Func<T, bool>> filterExpression,
         UpdateBuilder<T> updateBuilder)
     {
         updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-        await _collection.UpdateOneAsync(filterexpression, update);
+        await _collection.UpdateOneAsync(filterExpression, update);
     }
 
     /// <summary>
     ///     Updates a many entities
     /// </summary>
-    /// <param name="filterexpression"></param>
+    /// <param name="filterExpression"></param>
     /// <param name="updateBuilder"></param>
     /// <returns></returns>
-    public virtual async Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression,
+    public virtual async Task UpdateManyAsync(Expression<Func<T, bool>> filterExpression,
         UpdateBuilder<T> updateBuilder)
     {
         updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-        await _collection.UpdateManyAsync(filterexpression, update);
+        await _collection.UpdateManyAsync(filterExpression, update);
     }
 
     /// <summary>
