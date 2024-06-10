@@ -80,7 +80,7 @@ public class StartupApplication : IStartupApplication
     {
         serviceCollection.AddScoped<IDiscountService, DiscountService>();
         serviceCollection.AddScoped<IDiscountValidationService, DiscountValidationService>();
-        serviceCollection.AddSingleton<IDiscountProviderLoader, DiscountProviderLoader>();
+        serviceCollection.AddScoped<IDiscountProviderLoader, DiscountProviderLoader>();
     }
 
     private void RegisterTaxService(IServiceCollection serviceCollection)
