@@ -81,9 +81,6 @@ public class TaxSettingsModel : BaseModel
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.EuVatAssumeValid")]
     public bool EuVatAssumeValid { get; set; }
 
-    [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.GetCountryByIPAddress")]
-    public bool GetCountryByIPAddress { get; set; }
-
     [GrandResourceDisplayName("Admin.Configuration.Tax.Settings.CalculateRoundPrice")]
     public int CalculateRoundPrice { get; set; } = 2;
 

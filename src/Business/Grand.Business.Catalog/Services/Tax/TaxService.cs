@@ -24,7 +24,6 @@ public class TaxService : ITaxService
     public TaxService(
         IWorkContext workContext,
         IGroupService groupService,
-        IGeoLookupService geoLookupService,
         ICountryService countryService,
         IEnumerable<ITaxProvider> taxProviders,
         ILogger<TaxService> logger,
@@ -38,7 +37,6 @@ public class TaxService : ITaxService
         _taxSettings = taxSettings;
         _taxProviderSettings = taxProviderSettings;
         _taxProviders = taxProviders;
-        _geoLookupService = geoLookupService;
         _logger = logger;
         _countryService = countryService;
         _customerSettings = customerSettings;
@@ -51,7 +49,6 @@ public class TaxService : ITaxService
 
     private readonly IWorkContext _workContext;
     private readonly IGroupService _groupService;
-    private readonly IGeoLookupService _geoLookupService;
     private readonly ICountryService _countryService;
     private readonly IEnumerable<ITaxProvider> _taxProviders;
     private readonly ILogger<TaxService> _logger;
@@ -83,14 +80,6 @@ public class TaxService : ITaxService
         {
             var countryId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CountryId);
             country = await _countryService.GetCountryById(countryId);
-        }
-
-        //get country by IP address
-        if (country == null && _taxSettings.GetCountryByIPAddress)
-        {
-            var ipAddress = customer.LastIpAddress;
-            var countryIsoCode = _geoLookupService.CountryIsoCode(ipAddress);
-            country = await _countryService.GetCountryByTwoLetterIsoCode(countryIsoCode);
         }
 
         //we cannot detect country

@@ -20,7 +20,6 @@ public class TaxServiceTests
     private AddressSettings _addressSettings;
     private ICountryService _countryService;
     private CustomerSettings _customerSettings;
-    private IGeoLookupService _geoLookupService;
     private Mock<IGroupService> _groupServiceMock;
     private Mock<ILogger<TaxService>> _loggerMock;
 
@@ -48,7 +47,6 @@ public class TaxServiceTests
 
         _taxSettings = new TaxSettings();
         _workContext = null;
-        _geoLookupService = new Mock<IGeoLookupService>().Object;
         _countryService = new Mock<ICountryService>().Object;
         _customerSettings = new CustomerSettings();
         _addressSettings = new AddressSettings();
@@ -57,7 +55,7 @@ public class TaxServiceTests
         var providers = new List<ITaxProvider>();
         providers.Add(new FixedRateTestTaxProvider());
         _taxService = new TaxService(_workContext, _groupServiceMock.Object,
-            _geoLookupService, _countryService, providers, _loggerMock.Object,
+            _countryService, providers, _loggerMock.Object,
             _taxSettings, _taxProviderSettings, _customerSettings, _addressSettings);
 
         _vatService = new VatService(_taxSettings);

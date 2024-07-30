@@ -72,7 +72,6 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IStockQuantityService, StockQuantityService>();
         serviceCollection.AddScoped<IPricingService, PricingService>();
         serviceCollection.AddScoped<ISearchTermService, SearchTermService>();
-        serviceCollection.AddScoped<IGeoLookupService, GeoLookupService>();
         serviceCollection.AddScoped<IMeasureService, MeasureService>();
     }
 

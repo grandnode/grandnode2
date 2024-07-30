@@ -1,9 +1,7 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Models.Customers;
@@ -19,13 +17,12 @@ public class OnlineCustomerController : BaseAdminController
     #region Constructors
 
     public OnlineCustomerController(ICustomerService customerService,
-        IGeoLookupService geoLookupService, IDateTimeService dateTimeService,
+        IDateTimeService dateTimeService,
         CustomerSettings customerSettings,
         ITranslationService translationService,
         IWorkContext workContext)
     {
         _customerService = customerService;
-        _geoLookupService = geoLookupService;
         _dateTimeService = dateTimeService;
         _customerSettings = customerSettings;
         _translationService = translationService;
@@ -37,7 +34,6 @@ public class OnlineCustomerController : BaseAdminController
     #region Fields
 
     private readonly ICustomerService _customerService;
-    private readonly IGeoLookupService _geoLookupService;
     private readonly IDateTimeService _dateTimeService;
     private readonly CustomerSettings _customerSettings;
     private readonly ITranslationService _translationService;
@@ -67,7 +63,6 @@ public class OnlineCustomerController : BaseAdminController
                 Id = x.Id,
                 CustomerInfo = !string.IsNullOrEmpty(x.Email) ? x.Email : _translationService.GetResource("Admin.Customers.Guest"),
                 LastIpAddress = x.LastIpAddress,
-                Location = _geoLookupService.CountryName(x.LastIpAddress),
                 LastActivityDate = _dateTimeService.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
                 LastVisitedPage = _customerSettings.StoreLastVisitedPage ? x.LastVisitedPage : _translationService.GetResource("Admin.Dashboards.OnlineCustomers.Fields.LastVisitedPage.Disabled")
             };

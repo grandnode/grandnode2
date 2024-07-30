@@ -11,9 +11,6 @@ public class OnlineCustomerModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Dashboards.OnlineCustomers.Fields.IPAddress")]
     public string LastIpAddress { get; set; }
 
-    [GrandResourceDisplayName("Admin.Dashboards.OnlineCustomers.Fields.Location")]
-    public string Location { get; set; }
-
     [GrandResourceDisplayName("Admin.Dashboards.OnlineCustomers.Fields.LastActivityDate")]
     public DateTime LastActivityDate { get; set; }
 

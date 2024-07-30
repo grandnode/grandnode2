@@ -113,11 +113,6 @@ public class TaxSettings : ISettings
     public bool EuVatAssumeValid { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether we should read country by address IP
-    /// </summary>
-    public bool GetCountryByIPAddress { get; set; }
-
-    /// <summary>
     ///     Gets or sets a value indicating for rounding calulate price
     /// </summary>
     public int CalculateRoundPrice { get; set; } = 2;

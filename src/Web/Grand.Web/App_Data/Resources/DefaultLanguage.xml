@@ -4962,9 +4962,6 @@
 	<Resource Name="Admin.Configuration.Tax.Settings.ForceTaxExclusionFromOrderSubtotal" Area="Admin">
 		<Value>Force tax exclusion from order subtotal</Value>
 	</Resource>
-	<Resource Name="Admin.Configuration.Tax.Settings.GetCountryByIPAddress" Area="Admin">
-		<Value>Get country by customer IP address</Value>
-	</Resource>
 	<Resource Name="Admin.Configuration.Tax.Settings.HideTaxInOrderSummary" Area="Admin">
 		<Value>Hide tax in order summary</Value>
 	</Resource>
@@ -6836,9 +6833,6 @@
 	</Resource>
 	<Resource Name="Admin.Dashboards.OnlineCustomers.Fields.LastVisitedPage.Disabled" Area="Admin">
 		<Value>"Store last visited page" setting is disabled</Value>
-	</Resource>
-	<Resource Name="Admin.Dashboards.OnlineCustomers.Fields.Location" Area="Admin">
-		<Value>Location</Value>
 	</Resource>
 	<Resource Name="admin.documents.document.account" Area="Admin">
 		<Value>Accounting Information</Value>
