@@ -268,12 +268,8 @@ public static class ServiceCollectionExtensions
 
     public static void AddGrandHealthChecks(this IServiceCollection services)
     {
-        var connection = DataSettingsManager.LoadSettings();
         var hcBuilder = services.AddHealthChecks();
         hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
-        hcBuilder.AddMongoDb(connection.ConnectionString,
-            name: "mongodb-check",
-            tags: new[] { "mongodb" });
     }
 
     public static void AddGrandApplicationInsights(this IServiceCollection services, IConfiguration configuration)

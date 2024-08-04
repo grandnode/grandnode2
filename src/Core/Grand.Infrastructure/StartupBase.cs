@@ -142,10 +142,14 @@ public static class StartupBase
     private static void AddMediator(this IServiceCollection services, ITypeSearcher typeSearcher)
     {
         var assemblies = typeSearcher.GetAssemblies().ToArray();
-        services.AddMediatR(options =>
+
+        foreach (var assembly in assemblies)
         {
-            options.RegisterServicesFromAssemblies(assemblies);
-        });
+            services.AddMediatR(options =>
+            {
+                options.RegisterServicesFromAssembly(assembly);
+            });
+        }
     }
 
     /// <summary>
