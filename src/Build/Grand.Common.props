@@ -25,14 +25,14 @@
         <Using Include="System.Threading.Tasks" />
     </ItemGroup>
     <Target Name="SetSourceRevisionId" BeforeTargets="InitializeSourceControlInformation"
-            Condition="'$(SourceRevisionId)'==''">
+            Condition="'$(SourceRevisionId)'=='' And Exists('$(MSBuildProjectDirectory)\.git')">
         <Exec Command="git describe --long --always --exclude=* --abbrev=8" ConsoleToMSBuild="True"
               IgnoreExitCode="True">
             <Output PropertyName="SourceRevisionId" TaskParameter="ConsoleOutput" />
         </Exec>
     </Target>
     <Target Name="SetRepositoryBranch" BeforeTargets="InitializeSourceControlInformation"
-            Condition="'$(GitBranch)'==''">
+            Condition="'$(GitBranch)'=='' And Exists('$(MSBuildProjectDirectory)\.git')">
         <Exec Command="git rev-parse --abbrev-ref HEAD" ConsoleToMSBuild="True" IgnoreExitCode="True">
             <Output PropertyName="branch" TaskParameter="ConsoleOutput" />
         </Exec>
