@@ -563,7 +563,7 @@ public class SettingController(
         //merge settings
         var model = new CustomerSettingsModel {
             CustomerSettings = customerSettings.ToModel(),
-            AddressSettings = addressSettings.ToModel()
+            AddressSettings = mapper.Map<CustomerSettingsModel.AddressSettingsModel>(addressSettings)
         };
 
         return View(model);
@@ -579,7 +579,7 @@ public class SettingController(
         customerSettings = model.CustomerSettings.ToEntity(customerSettings);
         await settingService.SaveSetting(customerSettings, storeScope);
 
-        addressSettings = model.AddressSettings.ToEntity(addressSettings);
+        addressSettings = mapper.Map(model.AddressSettings, addressSettings);
         await settingService.SaveSetting(addressSettings, storeScope);
 
         //now clear cache
