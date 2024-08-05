@@ -46,7 +46,7 @@ public static class StartupBase
     ///     Register and init AutoMapper
     /// </summary>
     /// <param name="typeSearcher">Type finder</param>
-    private static void InitAutoMapper(ITypeSearcher typeSearcher)
+    private static void InitAutoMapper(IServiceCollection services, ITypeSearcher typeSearcher)
     {
         //find mapper configurations provided by other assemblies
         var mapperConfigurations = typeSearcher.ClassesOfType<IAutoMapperProfile>();
@@ -60,11 +60,15 @@ public static class StartupBase
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
         {
-            foreach (var instance in instances) cfg.AddProfile(instance.GetType());
+            foreach (var instance in instances)
+            {
+                cfg.AddProfile(instance.GetType());
+                services.AddAutoMapper(instance.GetType());
+            }
         });
-
         //register automapper
         AutoMapperConfig.Init(config);
+        
     }
 
     /// <summary>
@@ -293,7 +297,7 @@ public static class StartupBase
             instance.ConfigureServices(services, configuration);
 
         //register mapper configurations
-        InitAutoMapper(typeSearcher);
+        InitAutoMapper(services, typeSearcher);
 
         //Register custom type converters
         RegisterTypeConverter(typeSearcher);
