@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using AutoMapper;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Configuration;
@@ -54,19 +55,10 @@ public class SettingController(
     IMerchandiseReturnService merchandiseReturnService,
     ILanguageService languageService,
     IOrderStatusService orderStatusService,
-    ICacheBase cacheBase)
+    ICacheBase cacheBase,
+    IMapper mapper)
     : BaseAdminController
 {
-    #region Fields
-
-    #endregion
-
-    #region Constructors
-
-    #endregion
-
-    #region Utilities
-
     protected async Task ClearCache()
     {
         await cacheBase.Clear();
@@ -321,7 +313,7 @@ public class SettingController(
     {
         var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons();
         var gridModel = new DataSourceResult {
-            Data = reasons.Select(x => x.ToModel()),
+            Data = reasons.Select(x => mapper.Map<MerchandiseReturnReasonModel>(x)),
             Total = reasons.Count
         };
         return Json(gridModel);
@@ -343,7 +335,7 @@ public class SettingController(
     {
         if (ModelState.IsValid)
         {
-            var rrr = model.ToEntity();
+            var rrr = mapper.Map<MerchandiseReturnReason>(model);
             await merchandiseReturnService.InsertMerchandiseReturnReason(rrr);
 
             Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Added"));
@@ -364,7 +356,7 @@ public class SettingController(
             //No reason found with the specified id
             return RedirectToAction("MerchandiseReturnReasonList");
 
-        var model = rrr.ToModel();
+        var model = mapper.Map<MerchandiseReturnReasonModel>(rrr);
         //locales
         await AddLocales(languageService, model.Locales, (locale, languageId) =>
         {
@@ -385,7 +377,7 @@ public class SettingController(
 
         if (ModelState.IsValid)
         {
-            rrr = model.ToEntity(rrr);
+            rrr = mapper.Map(model, rrr);
             await merchandiseReturnService.UpdateMerchandiseReturnReason(rrr);
 
             Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Updated"));
@@ -951,8 +943,5 @@ public class SettingController(
             }
         }
     }
-
-    #endregion
-
     #endregion
 }
