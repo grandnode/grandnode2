@@ -424,7 +424,7 @@ public class SettingController(
     {
         var actions = await merchandiseReturnService.GetAllMerchandiseReturnActions();
         var gridModel = new DataSourceResult {
-            Data = actions.Select(x => x.ToModel()),
+            Data = actions.Select(x => mapper.Map<MerchandiseReturnActionModel>(x)),
             Total = actions.Count
         };
         return Json(gridModel);
@@ -446,7 +446,7 @@ public class SettingController(
     {
         if (ModelState.IsValid)
         {
-            var rra = model.ToEntity();
+            var rra = mapper.Map<MerchandiseReturnAction>(model);
             await merchandiseReturnService.InsertMerchandiseReturnAction(rra);
 
             //now clear cache
@@ -470,7 +470,7 @@ public class SettingController(
             //No action found with the specified id
             return RedirectToAction("MerchandiseReturnActionList");
 
-        var model = rra.ToModel();
+        var model = mapper.Map<MerchandiseReturnActionModel>(rra);
         //locales
         await AddLocales(languageService, model.Locales, (locale, languageId) =>
         {
@@ -491,7 +491,7 @@ public class SettingController(
 
         if (ModelState.IsValid)
         {
-            rra = model.ToEntity(rra);
+            rra = mapper.Map(model, rra);
             await merchandiseReturnService.UpdateMerchandiseReturnAction(rra);
 
             Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Updated"));
