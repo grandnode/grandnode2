@@ -27,8 +27,6 @@ using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Extensions.Mapping.Settings;
 using Grand.Web.Admin.Models.Settings;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
@@ -72,9 +70,9 @@ public class SettingController(
         var newsSettings = settingService.LoadSetting<NewsSettings>(storeScope);
         var knowledgebaseSettings = settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
         var model = new ContentSettingsModel {
-            BlogSettings = blogSettings.ToModel(),
-            NewsSettings = newsSettings.ToModel(),
-            KnowledgebaseSettings = knowledgebaseSettings.ToModel(),
+            BlogSettings = mapper.Map<ContentSettingsModel.BlogSettingsModel>(blogSettings),
+            NewsSettings = mapper.Map<ContentSettingsModel.NewsSettingsModel>(newsSettings),
+            KnowledgebaseSettings = mapper.Map<ContentSettingsModel.KnowledgebaseSettingsModel>(knowledgebaseSettings),
             ActiveStore = storeScope
         };
 
@@ -87,17 +85,17 @@ public class SettingController(
         var storeScope = await GetActiveStore();
         //blog
         var blogSettings = settingService.LoadSetting<BlogSettings>(storeScope);
-        blogSettings = model.BlogSettings.ToEntity(blogSettings);
+        blogSettings = mapper.Map(model.BlogSettings, blogSettings);
         await settingService.SaveSetting(blogSettings, storeScope);
 
         //news
         var newsSettings = settingService.LoadSetting<NewsSettings>(storeScope);
-        newsSettings = model.NewsSettings.ToEntity(newsSettings);
+        newsSettings = mapper.Map(model.NewsSettings, newsSettings);
         await settingService.SaveSetting(newsSettings, storeScope);
 
         //knowledgebase
         var knowledgeBaseSettings = settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
-        knowledgeBaseSettings = model.KnowledgebaseSettings.ToEntity(knowledgeBaseSettings);
+        knowledgeBaseSettings = mapper.Map(model.KnowledgebaseSettings, knowledgeBaseSettings);
         await settingService.SaveSetting(knowledgeBaseSettings, storeScope);
 
         //selected tab
@@ -115,7 +113,7 @@ public class SettingController(
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
         var vendorSettings = settingService.LoadSetting<VendorSettings>(storeScope);
-        var model = vendorSettings.ToModel();
+        var model = mapper.Map<VendorSettingsModel>(vendorSettings);
 
         model.ActiveStore = storeScope;
 
@@ -128,7 +126,7 @@ public class SettingController(
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
         var vendorSettings = settingService.LoadSetting<VendorSettings>(storeScope);
-        vendorSettings = model.ToEntity(vendorSettings);
+        vendorSettings = mapper.Map(model, vendorSettings);
 
         await settingService.SaveSetting(vendorSettings, storeScope);
 
@@ -144,7 +142,7 @@ public class SettingController(
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
         var catalogSettings = settingService.LoadSetting<CatalogSettings>(storeScope);
-        var model = catalogSettings.ToModel();
+        var model = mapper.Map<CatalogSettingsModel>(catalogSettings);
         model.ActiveStore = storeScope;
         return View(model);
     }
@@ -155,7 +153,7 @@ public class SettingController(
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
         var catalogSettings = settingService.LoadSetting<CatalogSettings>(storeScope);
-        catalogSettings = model.ToEntity(catalogSettings);
+        catalogSettings = mapper.Map(model, catalogSettings);
 
         await settingService.SaveSetting(catalogSettings, storeScope);
 
@@ -229,9 +227,9 @@ public class SettingController(
         var shoppingCartSettings = settingService.LoadSetting<ShoppingCartSettings>(storeScope);
 
         var model = new SalesSettingsModel {
-            LoyaltyPointsSettings = loyaltyPointsSettings.ToModel(),
-            OrderSettings = orderSettings.ToModel(),
-            ShoppingCartSettings = shoppingCartSettings.ToModel(),
+            LoyaltyPointsSettings = mapper.Map<SalesSettingsModel.LoyaltyPointsSettingsModel>(loyaltyPointsSettings),
+            OrderSettings = mapper.Map<SalesSettingsModel.OrderSettingsModel>(orderSettings),
+            ShoppingCartSettings = mapper.Map<SalesSettingsModel.ShoppingCartSettingsModel>(shoppingCartSettings),
             ActiveStore = storeScope
         };
 
@@ -265,15 +263,15 @@ public class SettingController(
         if (ModelState.IsValid)
         {
             var loyaltyPointsSettings = settingService.LoadSetting<LoyaltyPointsSettings>(storeScope);
-            loyaltyPointsSettings = model.LoyaltyPointsSettings.ToEntity(loyaltyPointsSettings);
+            loyaltyPointsSettings = mapper.Map(model.LoyaltyPointsSettings, loyaltyPointsSettings);
             await settingService.SaveSetting(loyaltyPointsSettings, storeScope);
 
             var shoppingCartSettings = settingService.LoadSetting<ShoppingCartSettings>(storeScope);
-            shoppingCartSettings = model.ShoppingCartSettings.ToEntity(shoppingCartSettings);
+            shoppingCartSettings = mapper.Map(model.ShoppingCartSettings, shoppingCartSettings);
             await settingService.SaveSetting(shoppingCartSettings, storeScope);
 
             var orderSettings = settingService.LoadSetting<OrderSettings>(storeScope);
-            orderSettings = model.OrderSettings.ToEntity(orderSettings);
+            orderSettings = mapper.Map(model.OrderSettings, orderSettings);
 
             await settingService.SaveSetting(orderSettings, storeScope);
 
@@ -528,7 +526,7 @@ public class SettingController(
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
         var mediaSettings = settingService.LoadSetting<MediaSettings>(storeScope);
-        var model = mediaSettings.ToModel();
+        var model = mapper.Map<MediaSettingsModel>(mediaSettings);
         model.ActiveStore = storeScope;
 
         return View(model);
@@ -541,7 +539,7 @@ public class SettingController(
         var storeScope = await GetActiveStore();
 
         var mediaSettings = settingService.LoadSetting<MediaSettings>(storeScope);
-        mediaSettings = model.ToEntity(mediaSettings);
+        mediaSettings = mapper.Map(model, mediaSettings);
 
         await settingService.SaveSetting(mediaSettings, storeScope);
 
@@ -562,7 +560,7 @@ public class SettingController(
 
         //merge settings
         var model = new CustomerSettingsModel {
-            CustomerSettings = customerSettings.ToModel(),
+            CustomerSettings = mapper.Map<CustomerSettingsModel.CustomersSettingsModel>(customerSettings),
             AddressSettings = mapper.Map<CustomerSettingsModel.AddressSettingsModel>(addressSettings)
         };
 
@@ -576,7 +574,7 @@ public class SettingController(
         var customerSettings = settingService.LoadSetting<CustomerSettings>(storeScope);
         var addressSettings = settingService.LoadSetting<AddressSettings>(storeScope);
 
-        customerSettings = model.CustomerSettings.ToEntity(customerSettings);
+        customerSettings = mapper.Map(model.CustomerSettings, customerSettings);
         await settingService.SaveSetting(customerSettings, storeScope);
 
         addressSettings = mapper.Map(model.AddressSettings, addressSettings);
@@ -615,7 +613,7 @@ public class SettingController(
 
         //store information
         var storeInformationSettings = settingService.LoadSetting<StoreInformationSettings>(storeScope);
-        model.StoreInformationSettings = storeInformationSettings.ToModel();
+        model.StoreInformationSettings = mapper.Map<GeneralCommonSettingsModel.StoreInformationSettingsModel>(storeInformationSettings);
 
         model.StoreInformationSettings.AvailableStoreThemes =
             themes.Where(x => x.AreaName == "").Select(x =>
@@ -630,17 +628,17 @@ public class SettingController(
 
         //common
         var commonSettings = settingService.LoadSetting<CommonSettings>(storeScope);
-        model.CommonSettings = commonSettings.ToModel();
+        model.CommonSettings = mapper.Map<GeneralCommonSettingsModel.CommonSettingsModel>(commonSettings);
 
         //seo settings
         var seoSettings = settingService.LoadSetting<SeoSettings>(storeScope);
-        model.SeoSettings = seoSettings.ToModel();
+        model.SeoSettings = mapper.Map<GeneralCommonSettingsModel.SeoSettingsModel>(seoSettings);
 
         //security settings
         var securitySettings = settingService.LoadSetting<SecuritySettings>(storeScope);
         //captcha settings
         var captchaSettings = settingService.LoadSetting<CaptchaSettings>(storeScope);
-        model.SecuritySettings = captchaSettings.ToModel();
+        model.SecuritySettings = mapper.Map<GeneralCommonSettingsModel.SecuritySettingsModel>(captchaSettings);
 
         if (securitySettings.AdminAreaAllowedIpAddresses != null)
             for (var i = 0; i < securitySettings.AdminAreaAllowedIpAddresses.Count; i++)
@@ -655,11 +653,11 @@ public class SettingController(
 
         //PDF settings
         var pdfSettings = settingService.LoadSetting<PdfSettings>(storeScope);
-        model.PdfSettings = pdfSettings.ToModel();
+        model.PdfSettings = mapper.Map<GeneralCommonSettingsModel.PdfSettingsModel>(pdfSettings);
 
         //display menu settings
         var displayMenuItemSettings = settingService.LoadSetting<MenuItemSettings>(storeScope);
-        model.DisplayMenuSettings = displayMenuItemSettings.ToModel();
+        model.DisplayMenuSettings = mapper.Map<GeneralCommonSettingsModel.DisplayMenuSettingsModel>(displayMenuItemSettings);
 
         return View(model);
     }
@@ -672,7 +670,7 @@ public class SettingController(
 
         //store information settings
         var storeInformationSettings = settingService.LoadSetting<StoreInformationSettings>(storeScope);
-        storeInformationSettings = model.StoreInformationSettings.ToEntity(storeInformationSettings);
+        storeInformationSettings = mapper.Map(model.StoreInformationSettings, storeInformationSettings);
         await settingService.SaveSetting(storeInformationSettings, storeScope);
 
         //datetime settings
@@ -682,12 +680,12 @@ public class SettingController(
 
         //common settings
         var commonSettings = settingService.LoadSetting<CommonSettings>(storeScope);
-        commonSettings = model.CommonSettings.ToEntity(commonSettings);
+        commonSettings = mapper.Map(model.CommonSettings, commonSettings);
         await settingService.SaveSetting(commonSettings, storeScope);
 
         //seo settings
         var seoSettings = settingService.LoadSetting<SeoSettings>(storeScope);
-        seoSettings = model.SeoSettings.ToEntity(seoSettings);
+        seoSettings = mapper.Map(model.SeoSettings, seoSettings);
         await settingService.SaveSetting(seoSettings, storeScope);
 
         //security settings
@@ -705,7 +703,7 @@ public class SettingController(
 
         //captcha settings
         var captchaSettings = settingService.LoadSetting<CaptchaSettings>(storeScope);
-        captchaSettings = model.SecuritySettings.ToEntity(captchaSettings);
+        captchaSettings = mapper.Map(model.SecuritySettings, captchaSettings);
         await settingService.SaveSetting(captchaSettings);
         if (captchaSettings.Enabled &&
             (string.IsNullOrWhiteSpace(captchaSettings.ReCaptchaPublicKey) ||
@@ -715,12 +713,12 @@ public class SettingController(
 
         //PDF settings
         var pdfSettings = settingService.LoadSetting<PdfSettings>(storeScope);
-        pdfSettings = model.PdfSettings.ToEntity(pdfSettings);
+        pdfSettings = mapper.Map(model.PdfSettings, pdfSettings);
         await settingService.SaveSetting(pdfSettings, storeScope);
 
         //menu item settings
         var displayMenuItemSettings = settingService.LoadSetting<MenuItemSettings>(storeScope);
-        displayMenuItemSettings = model.DisplayMenuSettings.ToEntity(displayMenuItemSettings);
+        displayMenuItemSettings = mapper.Map(model.DisplayMenuSettings, displayMenuItemSettings);
         await settingService.SaveSetting(displayMenuItemSettings, storeScope);
 
         //now clear cache
@@ -738,7 +736,7 @@ public class SettingController(
     {
         var storeScope = await GetActiveStore();
         var settings = settingService.LoadSetting<PushNotificationsSettings>(storeScope);
-        var model = settings.ToModel();
+        var model = mapper.Map<PushNotificationsSettingsModel>(settings);
 
         return View(model);
     }
@@ -748,7 +746,7 @@ public class SettingController(
     {
         var storeScope = await GetActiveStore();
         var settings = settingService.LoadSetting<PushNotificationsSettings>(storeScope);
-        settings = model.ToEntity(settings);
+        settings = mapper.Map(model, settings);
 
         await settingService.SaveSetting(settings);
 
@@ -795,7 +793,7 @@ public class SettingController(
     public IActionResult AdminSearch()
     {
         var settings = settingService.LoadSetting<AdminSearchSettings>();
-        var model = settings.ToModel();
+        var model = mapper.Map<AdminSearchSettingsModel>(settings);
         return View(model);
     }
 
@@ -803,7 +801,7 @@ public class SettingController(
     public async Task<IActionResult> AdminSearch(AdminSearchSettingsModel model)
     {
         var settings = settingService.LoadSetting<AdminSearchSettings>();
-        settings = model.ToEntity(settings);
+        settings = mapper.Map(model, settings);
         await settingService.SaveSetting(settings);
 
         //now clear cache

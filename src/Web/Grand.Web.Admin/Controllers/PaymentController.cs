@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
@@ -10,7 +11,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Extensions.Mapping.Settings;
 using Grand.Web.Admin.Models.Payments;
 using Grand.Web.Admin.Models.Shipping;
 using Grand.Web.Common.DataSource;
@@ -30,7 +30,8 @@ public class PaymentController : BaseAdminController
         IShippingMethodService shippingMethodService,
         ITranslationService translationService,
         IServiceProvider serviceProvider,
-        IWorkContext workContext)
+        IWorkContext workContext,
+        IMapper mapper)
     {
         _paymentService = paymentService;
         _settingService = settingService;
@@ -39,6 +40,7 @@ public class PaymentController : BaseAdminController
         _translationService = translationService;
         _serviceProvider = serviceProvider;
         _workContext = workContext;
+        _mapper = mapper;
     }
 
     #endregion
@@ -52,7 +54,7 @@ public class PaymentController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly IServiceProvider _serviceProvider;
     private readonly IWorkContext _workContext;
-
+    private readonly IMapper _mapper;
     #endregion
 
     #region Methods
@@ -231,7 +233,7 @@ public class PaymentController : BaseAdminController
         var storeScope = await GetActiveStore();
 
         var paymentSettings = _settingService.LoadSetting<PaymentSettings>(storeScope);
-        var model = paymentSettings.ToModel();
+        var model = _mapper.Map<PaymentSettingsModel>(paymentSettings);
 
         return View(model);
     }
@@ -242,7 +244,7 @@ public class PaymentController : BaseAdminController
         var storeScope = await GetActiveStore();
 
         var paymentSettings = _settingService.LoadSetting<PaymentSettings>(storeScope);
-        paymentSettings = model.ToEntity(paymentSettings);
+        paymentSettings = _mapper.Map(model, paymentSettings);
 
         await _settingService.SaveSetting(paymentSettings, storeScope);
 

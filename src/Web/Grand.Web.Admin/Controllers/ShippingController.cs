@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -10,7 +11,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Shipping;
 using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Extensions.Mapping.Settings;
 using Grand.Web.Admin.Models.Common;
 using Grand.Web.Admin.Models.Directory;
 using Grand.Web.Admin.Models.Shipping;
@@ -39,7 +39,8 @@ public class ShippingController : BaseAdminController
         ITranslationService translationService,
         ILanguageService languageService,
         IStoreService storeService,
-        IGroupService groupService)
+        IGroupService groupService,
+        IMapper mapper)
     {
         _shippingService = shippingService;
         _shippingMethodService = shippingMethodService;
@@ -52,6 +53,7 @@ public class ShippingController : BaseAdminController
         _languageService = languageService;
         _storeService = storeService;
         _groupService = groupService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -69,6 +71,7 @@ public class ShippingController : BaseAdminController
     private readonly ILanguageService _languageService;
     private readonly IStoreService _storeService;
     private readonly IGroupService _groupService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -316,7 +319,7 @@ public class ShippingController : BaseAdminController
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
         var shippingSettings = _settingService.LoadSetting<ShippingSettings>(storeScope);
-        var model = shippingSettings.ToModel();
+        var model = _mapper.Map<ShippingSettingsModel>(shippingSettings);
         model.ActiveStore = storeScope;
 
         //shipping origin
@@ -357,7 +360,7 @@ public class ShippingController : BaseAdminController
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
         var shippingSettings = _settingService.LoadSetting<ShippingSettings>(storeScope);
-        shippingSettings = model.ToEntity(shippingSettings);
+        shippingSettings = _mapper.Map(model, shippingSettings);
 
         await _settingService.SaveSetting(shippingSettings, storeScope);
 

@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -8,7 +9,6 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Extensions.Mapping.Settings;
 using Grand.Web.Admin.Models.Common;
 using Grand.Web.Admin.Models.Tax;
 using Grand.Web.Common.DataSource;
@@ -30,7 +30,8 @@ public class TaxController : BaseAdminController
         IServiceProvider serviceProvider,
         ICacheBase cacheBase,
         ITranslationService translationService,
-        ICountryService countryService)
+        ICountryService countryService,
+        IMapper mapper)
     {
         _taxService = taxService;
         _taxCategoryService = taxCategoryService;
@@ -39,6 +40,7 @@ public class TaxController : BaseAdminController
         _cacheBase = cacheBase;
         _translationService = translationService;
         _countryService = countryService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -52,6 +54,7 @@ public class TaxController : BaseAdminController
     private readonly ICacheBase _cacheBase;
     private readonly ITranslationService _translationService;
     private readonly ICountryService _countryService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -127,7 +130,7 @@ public class TaxController : BaseAdminController
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
         var taxSettings = _settingService.LoadSetting<TaxSettings>(storeScope);
-        var model = taxSettings.ToModel();
+        var model = _mapper.Map<TaxSettingsModel>(taxSettings);
 
         model.ActiveStore = storeScope;
         model.TaxBasedOnValues = taxSettings.TaxBasedOn.ToSelectList(HttpContext);
@@ -183,7 +186,7 @@ public class TaxController : BaseAdminController
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
         var taxSettings = _settingService.LoadSetting<TaxSettings>(storeScope);
-        taxSettings = model.ToEntity(taxSettings);
+        taxSettings = _mapper.Map(model, taxSettings);
 
         await _settingService.SaveSetting(taxSettings, storeScope);
 
