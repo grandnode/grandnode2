@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
@@ -37,7 +38,8 @@ public class MerchandiseReturnViewModelService(
     IAddressAttributeService addressAttributeService,
     IAddressAttributeParser addressAttributeParser,
     IDownloadService downloadService,
-    OrderSettings orderSettings)
+    OrderSettings orderSettings,
+    IMapper mapper)
     : IMerchandiseReturnViewModelService
 {
     public virtual async Task<MerchandiseReturnModel> PrepareMerchandiseReturnModel(MerchandiseReturnModel model,
@@ -241,7 +243,7 @@ public class MerchandiseReturnViewModelService(
             merchandiseReturn.PickupDate = model.PickupDate;
         if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
         {
-            merchandiseReturn.PickupAddress = model.PickupAddress.ToEntity();
+            merchandiseReturn.PickupAddress = mapper.Map<Address>(model.PickupAddress);
             if (merchandiseReturn.PickupAddress != null)
                 merchandiseReturn.PickupAddress.Attributes = customAddressAttributes;
         }

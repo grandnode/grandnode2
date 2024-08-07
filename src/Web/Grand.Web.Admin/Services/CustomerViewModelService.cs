@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -69,6 +70,7 @@ public class CustomerViewModelService : ICustomerViewModelService
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IWorkContext _workContext;
+    private readonly IMapper _mapper;
 
     public CustomerViewModelService(
         ICustomerService customerService,
@@ -97,7 +99,8 @@ public class CustomerViewModelService : ICustomerViewModelService
         TaxSettings taxSettings,
         LoyaltyPointsSettings loyaltyPointsSettings,
         AddressSettings addressSettings,
-        CommonSettings commonSettings)
+        CommonSettings commonSettings,
+        IMapper mapper)
     {
         _customerService = customerService;
         _groupService = groupService;
@@ -126,6 +129,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         _customerNoteService = customerNoteService;
         _downloadService = downloadService;
         _httpContextAccessor = httpContextAccessor;
+        _mapper = mapper;
     }
 
     public virtual async Task<CustomerListModel> PrepareCustomerListModel()
@@ -750,7 +754,7 @@ public class CustomerViewModelService : ICustomerViewModelService
     public virtual async Task<Address> InsertAddressModel(Customer customer, CustomerAddressModel model,
         List<CustomAttribute> customAttributes)
     {
-        var address = model.Address.ToEntity();
+        var address = _mapper.Map<Address>(model.Address);
         address.Attributes = customAttributes;
         customer.Addresses.Add(address);
         await _customerService.UpdateCustomerInAdminPanel(customer);
@@ -819,7 +823,7 @@ public class CustomerViewModelService : ICustomerViewModelService
     public virtual async Task<Address> UpdateAddressModel(Customer customer, Address address,
         CustomerAddressModel model, List<CustomAttribute> customAttributes)
     {
-        address = model.Address.ToEntity(address);
+        address = _mapper.Map(model.Address, address);
         address.Attributes = customAttributes;
         await _customerService.UpdateCustomerInAdminPanel(customer);
         return address;

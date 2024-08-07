@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Shipping;
@@ -520,7 +521,7 @@ public class ShippingController : BaseAdminController
         if (ModelState.IsValid)
         {
             var warehouse = model.ToEntity();
-            var address = model.Address.ToEntity();
+            var address = _mapper.Map<Address>(model.Address);
             warehouse.Address = address;
             await _warehouseService.InsertWarehouse(warehouse);
 

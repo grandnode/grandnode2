@@ -1,10 +1,12 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Affiliates;
+using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Payments;
 using Grand.Domain.Seo;
@@ -30,13 +32,21 @@ public class AffiliateViewModelService : IAffiliateViewModelService
     private readonly SeoSettings _seoSettings;
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
+    private readonly IMapper _mapper;
 
-    public AffiliateViewModelService(IWorkContext workContext, ICountryService countryService,
-        IPriceFormatter priceFormatter, IAffiliateService affiliateService,
-        ICustomerService customerService, IOrderService orderService, ITranslationService translationService,
+    public AffiliateViewModelService(
+        IWorkContext workContext, 
+        ICountryService countryService,
+        IPriceFormatter priceFormatter, 
+        IAffiliateService affiliateService,
+        ICustomerService customerService, 
+        IOrderService orderService, 
+        ITranslationService translationService,
         IDateTimeService dateTimeService,
         IOrderStatusService orderStatusService,
-        SeoSettings seoSettings, ICurrencyService currencyService)
+        SeoSettings seoSettings, 
+        ICurrencyService currencyService,
+        IMapper mapper)
     {
         _workContext = workContext;
         _countryService = countryService;
@@ -49,6 +59,7 @@ public class AffiliateViewModelService : IAffiliateViewModelService
         _orderStatusService = orderStatusService;
         _seoSettings = seoSettings;
         _currencyService = currencyService;
+        _mapper = mapper;
     }
 
     public virtual async Task PrepareAffiliateModel(AffiliateModel model, Affiliate affiliate, bool excludeProperties,
@@ -148,7 +159,7 @@ public class AffiliateViewModelService : IAffiliateViewModelService
         var friendlyUrlName =
             await affiliate.ValidateFriendlyUrlName(_affiliateService, _seoSettings, model.FriendlyUrlName, model.Name);
         affiliate.FriendlyUrlName = friendlyUrlName.ToLowerInvariant();
-        affiliate.Address = model.Address.ToEntity();
+        affiliate.Address = _mapper.Map<Address>(model.Address);
         //some validation
         await _affiliateService.InsertAffiliate(affiliate);
         return affiliate;
@@ -163,7 +174,7 @@ public class AffiliateViewModelService : IAffiliateViewModelService
         var friendlyUrlName =
             await affiliate.ValidateFriendlyUrlName(_affiliateService, _seoSettings, model.FriendlyUrlName, model.Name);
         affiliate.FriendlyUrlName = friendlyUrlName.ToLowerInvariant();
-        affiliate.Address = model.Address.ToEntity(affiliate.Address);
+        affiliate.Address = _mapper.Map(model.Address, affiliate.Address);
         await _affiliateService.UpdateAffiliate(affiliate);
         return affiliate;
     }

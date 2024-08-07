@@ -21,16 +21,6 @@ public static class AddressMappingExtensions
         return address;
     }
 
-    public static Address ToEntity(this AddressModel model)
-    {
-        return model.MapTo<AddressModel, Address>();
-    }
-
-    public static Address ToEntity(this AddressModel model, Address destination)
-    {
-        return model.MapTo(destination);
-    }
-
     public static async Task PrepareCustomAddressAttributes(this AddressModel model,
         Address address,
         IAddressAttributeService addressAttributeService,

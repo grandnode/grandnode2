@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Events.Customers;
+﻿using AutoMapper;
+using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -7,6 +8,7 @@ using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Domain.Seo;
@@ -36,7 +38,8 @@ public class VendorViewModelService(
     IMediator mediator,
     VendorSettings vendorSettings,
     ILanguageService languageService,
-    SeoSettings seoSettings)
+    SeoSettings seoSettings,
+    IMapper mapper)
     : IVendorViewModelService
 {
     public virtual async Task PrepareDiscountModel(VendorModel model, Vendor vendor, bool excludeProperties)
@@ -175,7 +178,7 @@ public class VendorViewModelService(
     public virtual async Task<Vendor> InsertVendorModel(VendorModel model)
     {
         var vendor = model.ToEntity();
-        vendor.Address = model.Address.ToEntity();
+        vendor.Address = mapper.Map<Address>(model.Address);
         await vendorService.InsertVendor(vendor);
 
         //discounts
@@ -207,7 +210,7 @@ public class VendorViewModelService(
             await model.Locales.ToTranslationProperty(vendor, x => x.Name, seoSettings, slugService, languageService);
         model.SeName =
             await vendor.ValidateSeName(model.SeName, vendor.Name, true, seoSettings, slugService, languageService);
-        vendor.Address = model.Address.ToEntity(vendor.Address);
+        vendor.Address = mapper.Map(model.Address, vendor.Address);
 
         //discounts
         var allDiscounts = await discountService.GetDiscountsQuery(DiscountType.AssignedToVendors);

@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using AutoMapper;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
@@ -74,7 +75,8 @@ public class OrderViewModelService : IOrderViewModelService
         IOrderTagService orderTagService,
         IOrderStatusService orderStatusService,
         IMediator mediator,
-        IProductAttributeFormatter productAttributeFormatter)
+        IProductAttributeFormatter productAttributeFormatter,
+        IMapper mapper)
     {
         _orderService = orderService;
         _pricingService = priceCalculationService;
@@ -111,6 +113,7 @@ public class OrderViewModelService : IOrderViewModelService
         _orderStatusService = orderStatusService;
         _mediator = mediator;
         _productAttributeFormatter = productAttributeFormatter;
+        _mapper = mapper;
     }
 
     #endregion
@@ -967,7 +970,7 @@ public class OrderViewModelService : IOrderViewModelService
     public virtual async Task<Address> UpdateOrderAddress(Order order, Address address, OrderAddressModel model,
         List<CustomAttribute> customAttributes)
     {
-        address = model.Address.ToEntity(address);
+        address = _mapper.Map(model.Address, address);
         address.Attributes = customAttributes;
         await _orderService.UpdateOrder(order);
 
@@ -1272,6 +1275,6 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IOrderTagService _orderTagService;
     private readonly IOrderStatusService _orderStatusService;
     private readonly IMediator _mediator;
-
+    private readonly IMapper _mapper;
     #endregion
 }
