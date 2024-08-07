@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -6,7 +7,6 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Pages;
-using Grand.Web.Admin.Extensions.Mapping.Layouts;
 using Grand.Web.Admin.Models.Layouts;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
@@ -24,13 +24,15 @@ public class LayoutController : BaseAdminController
         IBrandLayoutService brandLayoutService,
         ICollectionLayoutService collectionLayoutService,
         IProductLayoutService productLayoutService,
-        IPageLayoutService pageLayoutService)
+        IPageLayoutService pageLayoutService,
+        IMapper mapper)
     {
         _categoryLayoutService = categoryLayoutService;
         _brandLayoutService = brandLayoutService;
         _collectionLayoutService = collectionLayoutService;
         _productLayoutService = productLayoutService;
         _pageLayoutService = pageLayoutService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -42,7 +44,7 @@ public class LayoutController : BaseAdminController
     private readonly ICollectionLayoutService _collectionLayoutService;
     private readonly IProductLayoutService _productLayoutService;
     private readonly IPageLayoutService _pageLayoutService;
-
+    private readonly IMapper _mapper;
     #endregion
 
     #region Category layouts
@@ -56,7 +58,7 @@ public class LayoutController : BaseAdminController
     public async Task<IActionResult> CategoryLayouts(DataSourceRequest command)
     {
         var layoutsModel = (await _categoryLayoutService.GetAllCategoryLayouts())
-            .Select(x => x.ToModel())
+            .Select(x => _mapper.Map<CategoryLayoutModel>(x))
             .ToList();
         var gridModel = new DataSourceResult {
             Data = layoutsModel,
@@ -76,7 +78,7 @@ public class LayoutController : BaseAdminController
             throw new ArgumentException("No layout found with the specified id");
         if (ModelState.IsValid)
         {
-            layout = model.ToEntity(layout);
+            layout = _mapper.Map(model, layout);
             await _categoryLayoutService.UpdateCategoryLayout(layout);
 
             return new JsonResult("");
@@ -95,7 +97,7 @@ public class LayoutController : BaseAdminController
             case true:
             {
                 var layout = new CategoryLayout();
-                layout = model.ToEntity(layout);
+                layout = _mapper.Map(model, layout);
                 await _categoryLayoutService.InsertCategoryLayout(layout);
 
                 return new JsonResult("");
@@ -132,7 +134,7 @@ public class LayoutController : BaseAdminController
     public async Task<IActionResult> BrandLayouts(DataSourceRequest command)
     {
         var layoutsModel = (await _brandLayoutService.GetAllBrandLayouts())
-            .Select(x => x.ToModel())
+            .Select(x => _mapper.Map<BrandLayoutModel>(x))
             .ToList();
         var gridModel = new DataSourceResult {
             Data = layoutsModel,
@@ -151,7 +153,7 @@ public class LayoutController : BaseAdminController
             throw new ArgumentException("No layout found with the specified id");
         if (ModelState.IsValid)
         {
-            layout = model.ToEntity(layout);
+            layout = _mapper.Map(model, layout);
             await _brandLayoutService.UpdateBrandLayout(layout);
             return new JsonResult("");
         }
@@ -169,7 +171,7 @@ public class LayoutController : BaseAdminController
             case true:
             {
                 var layout = new BrandLayout();
-                layout = model.ToEntity(layout);
+                layout = _mapper.Map(model, layout);
                 await _brandLayoutService.InsertBrandLayout(layout);
                 return new JsonResult("");
             }
@@ -204,7 +206,7 @@ public class LayoutController : BaseAdminController
     public async Task<IActionResult> CollectionLayouts(DataSourceRequest command)
     {
         var layoutsModel = (await _collectionLayoutService.GetAllCollectionLayouts())
-            .Select(x => x.ToModel())
+            .Select(x => _mapper.Map<CollectionLayoutModel>(x))
             .ToList();
         var gridModel = new DataSourceResult {
             Data = layoutsModel,
@@ -223,7 +225,7 @@ public class LayoutController : BaseAdminController
             throw new ArgumentException("No layout found with the specified id");
         if (ModelState.IsValid)
         {
-            layout = model.ToEntity(layout);
+            layout = _mapper.Map(model, layout);
             await _collectionLayoutService.UpdateCollectionLayout(layout);
             return new JsonResult("");
         }
@@ -241,7 +243,7 @@ public class LayoutController : BaseAdminController
             case true:
             {
                 var layout = new CollectionLayout();
-                layout = model.ToEntity(layout);
+                layout = _mapper.Map(model, layout);
                 await _collectionLayoutService.InsertCollectionLayout(layout);
                 return new JsonResult("");
             }
@@ -276,7 +278,7 @@ public class LayoutController : BaseAdminController
     public async Task<IActionResult> ProductLayouts(DataSourceRequest command)
     {
         var layoutsModel = (await _productLayoutService.GetAllProductLayouts())
-            .Select(x => x.ToModel())
+            .Select(x => _mapper.Map<ProductLayoutModel>(x))
             .ToList();
         var gridModel = new DataSourceResult {
             Data = layoutsModel,
@@ -294,7 +296,7 @@ public class LayoutController : BaseAdminController
             throw new ArgumentException("No template found with the specified id");
         if (ModelState.IsValid)
         {
-            layout = model.ToEntity(layout);
+            layout = _mapper.Map(model, layout);
             await _productLayoutService.UpdateProductLayout(layout);
             return new JsonResult("");
         }
@@ -312,7 +314,7 @@ public class LayoutController : BaseAdminController
             case true:
             {
                 var layout = new ProductLayout();
-                layout = model.ToEntity(layout);
+                layout = _mapper.Map(model, layout);
                 await _productLayoutService.InsertProductLayout(layout);
                 return new JsonResult("");
             }
@@ -343,7 +345,7 @@ public class LayoutController : BaseAdminController
     public async Task<IActionResult> PageLayouts(DataSourceRequest command)
     {
         var layoutsModel = (await _pageLayoutService.GetAllPageLayouts())
-            .Select(x => x.ToModel())
+            .Select(x => _mapper.Map<PageLayoutModel>(x))
             .ToList();
         var gridModel = new DataSourceResult {
             Data = layoutsModel,
@@ -361,7 +363,7 @@ public class LayoutController : BaseAdminController
         if (layout == null)
             throw new ArgumentException("No template found with the specified id");
         if (!ModelState.IsValid) return ErrorForKendoGridJson(ModelState);
-        layout = model.ToEntity(layout);
+        layout = _mapper.Map(model, layout);
         await _pageLayoutService.UpdatePageLayout(layout);
         return new JsonResult("");
     }
@@ -376,7 +378,7 @@ public class LayoutController : BaseAdminController
             case true:
             {
                 var layout = new PageLayout();
-                layout = model.ToEntity(layout);
+                layout = _mapper.Map(model, layout);
                 await _pageLayoutService.InsertPageLayout(layout);
                 return new JsonResult("");
             }
