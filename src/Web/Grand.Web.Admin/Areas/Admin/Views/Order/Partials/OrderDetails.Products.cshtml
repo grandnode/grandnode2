@@ -171,7 +171,9 @@
                                                 if (item.DownloadActivationType == DownloadActivationType.Manually)
                                                 {
                                                     <div>
-                                                        <input type="submit" name="btnPvActivateDownload@(item.Id)" @(item.IsDownloadActivated ? " value=" + Loc["Admin.Orders.Products.Download.Deactivate"] : " value=" + Loc["Admin.Orders.Products.Download.Activate"]) id="btnPvActivateDownload@(item.Id)" class="k-button" asp-action="ActivateDownloadItem" asp-route-orderItemId="@(item.Id)"/>
+                                                        <input type="submit" name="btnPvActivateDownload@(item.Id)" 
+                                                            value="@(item.IsDownloadActivated ? Loc["Admin.Orders.Products.Download.Deactivate"] : Loc["Admin.Orders.Products.Download.Activate"])"
+                                                            id="btnPvActivateDownload@(item.Id)" class="k-button" asp-action="ActivateDownloadItem" asp-route-orderItemId="@(item.Id)"/>
                                                         <hr/>
                                                     </div>
                                                 }
