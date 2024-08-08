@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -26,7 +27,8 @@ public class CustomerGroupController : BaseAdminController
         ITranslationService translationService,
         IPermissionService permissionService,
         IWorkContext workContext,
-        ICustomerGroupProductService customerGroupProductService)
+        ICustomerGroupProductService customerGroupProductService,
+        IMapper mapper)
     {
         _customerGroupViewModelService = customerGroupViewModelService;
         _groupService = groupService;
@@ -34,6 +36,7 @@ public class CustomerGroupController : BaseAdminController
         _permissionService = permissionService;
         _workContext = workContext;
         _customerGroupProductService = customerGroupProductService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -46,7 +49,7 @@ public class CustomerGroupController : BaseAdminController
     private readonly IPermissionService _permissionService;
     private readonly IWorkContext _workContext;
     private readonly ICustomerGroupProductService _customerGroupProductService;
-
+    private readonly IMapper _mapper;
     #endregion
 
     #region Customer groups
@@ -68,11 +71,7 @@ public class CustomerGroupController : BaseAdminController
         var customerGroups = await _groupService.GetAllCustomerGroups(pageIndex: command.Page - 1,
             pageSize: command.PageSize, showHidden: true);
         var gridModel = new DataSourceResult {
-            Data = customerGroups.Select(x =>
-            {
-                var rolesModel = x.ToModel();
-                return rolesModel;
-            }),
+            Data = customerGroups.Select(_mapper.Map<CustomerGroupModel>),
             Total = customerGroups.TotalCount
         };
         return Json(gridModel);

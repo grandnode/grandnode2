@@ -1,7 +1,9 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Documents;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Documents;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Documents;
@@ -9,6 +11,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ZstdSharp.Unsafe;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -20,18 +23,21 @@ public class DocumentController : BaseAdminController
     private readonly IDocumentTypeService _documentTypeService;
     private readonly IDocumentViewModelService _documentViewModelService;
     private readonly ITranslationService _translationService;
+    private readonly IMapper _mapper;
 
     public DocumentController(IDocumentViewModelService documentViewModelService,
         IDocumentService documentService,
         IDocumentTypeService documentTypeService,
         ITranslationService translationService,
-        ICustomerService customerService)
+        ICustomerService customerService,
+        IMapper mapper)
     {
         _documentViewModelService = documentViewModelService;
         _documentService = documentService;
         _documentTypeService = documentTypeService;
         _translationService = translationService;
         _customerService = customerService;
+        _mapper = mapper;
     }
 
     public IActionResult Index()
@@ -177,7 +183,7 @@ public class DocumentController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var documenttype = model.ToEntity();
+            var documenttype = _mapper.Map<DocumentType>(model);
             await _documentTypeService.Insert(documenttype);
 
             Success(_translationService.GetResource("Admin.Documents.Type.Added"));
@@ -196,7 +202,7 @@ public class DocumentController : BaseAdminController
         if (documentType == null)
             return RedirectToAction("Types");
 
-        var model = documentType.ToModel();
+        var model = _mapper.Map<DocumentTypeModel>(documentType);
         return View(model);
     }
 
@@ -211,7 +217,7 @@ public class DocumentController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            documentType = model.ToEntity(documentType);
+            documentType = _mapper.Map(model, documentType);
             await _documentTypeService.Update(documentType);
 
             Success(_translationService.GetResource("Admin.Documents.Type.Updated"));

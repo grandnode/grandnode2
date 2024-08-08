@@ -382,7 +382,7 @@ public class ShippingController : BaseAdminController
     public async Task<IActionResult> DeliveryDates(DataSourceRequest command)
     {
         var deliveryDatesModel = (await _deliveryDateService.GetAllDeliveryDates())
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<DeliveryDateModel>)
             .ToList();
         var gridModel = new DataSourceResult {
             Data = deliveryDatesModel,
@@ -408,7 +408,7 @@ public class ShippingController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var deliveryDate = model.ToEntity();
+            var deliveryDate = _mapper.Map<DeliveryDate>(model);
             await _deliveryDateService.InsertDeliveryDate(deliveryDate);
             Success(_translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Added"));
             return continueEditing
@@ -427,7 +427,7 @@ public class ShippingController : BaseAdminController
             //No delivery date found with the specified id
             return RedirectToAction("DeliveryDates");
 
-        var model = deliveryDate.ToModel();
+        var model = _mapper.Map<DeliveryDateModel>(deliveryDate);
 
         if (string.IsNullOrEmpty(model.ColorSquaresRgb)) model.ColorSquaresRgb = "#000000";
 
@@ -451,7 +451,7 @@ public class ShippingController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            deliveryDate = model.ToEntity(deliveryDate);
+            deliveryDate = _mapper.Map(model, deliveryDate);
             await _deliveryDateService.UpdateDeliveryDate(deliveryDate);
             //locales
             Success(_translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Updated"));
@@ -497,7 +497,7 @@ public class ShippingController : BaseAdminController
     public async Task<IActionResult> Warehouses(DataSourceRequest command)
     {
         var warehousesModel = (await _warehouseService.GetAllWarehouses())
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<WarehouseModel>)
             .ToList();
         var gridModel = new DataSourceResult {
             Data = warehousesModel,
@@ -520,7 +520,7 @@ public class ShippingController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var warehouse = model.ToEntity();
+            var warehouse = _mapper.Map<Warehouse>(model);
             var address = _mapper.Map<Address>(model.Address);
             warehouse.Address = address;
             await _warehouseService.InsertWarehouse(warehouse);
@@ -543,7 +543,7 @@ public class ShippingController : BaseAdminController
             //No warehouse found with the specified id
             return RedirectToAction("Warehouses");
 
-        var model = warehouse.ToModel();
+        var model = _mapper.Map<WarehouseModel>(warehouse);
         await PrepareAddressWarehouseModel(model);
         return View(model);
     }
@@ -559,7 +559,7 @@ public class ShippingController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            warehouse = model.ToEntity(warehouse);
+            warehouse = _mapper.Map(model, warehouse);
             await _warehouseService.UpdateWarehouse(warehouse);
             Success(_translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Updated"));
             return continueEditing

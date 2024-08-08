@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Dto;
+﻿using AutoMapper;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -35,7 +36,8 @@ public class BrandController : BaseAdminController
         ILanguageService languageService,
         ITranslationService translationService,
         IGroupService groupService,
-        IPictureViewModelService pictureViewModelService)
+        IPictureViewModelService pictureViewModelService,
+        IMapper mapper)
     {
         _brandViewModelService = brandViewModelService;
         _brandService = brandService;
@@ -45,6 +47,7 @@ public class BrandController : BaseAdminController
         _translationService = translationService;
         _groupService = groupService;
         _pictureViewModelService = pictureViewModelService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -73,6 +76,7 @@ public class BrandController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly IGroupService _groupService;
     private readonly IPictureViewModelService _pictureViewModelService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -105,7 +109,7 @@ public class BrandController : BaseAdminController
         var brands = await _brandService.GetAllBrands(model.SearchBrandName,
             model.SearchStoreId, command.Page - 1, command.PageSize, true);
         var gridModel = new DataSourceResult {
-            Data = brands.Select(x => x.ToModel()),
+            Data = brands.Select(_mapper.Map<BrandModel>),
             Total = brands.TotalCount
         };
 
@@ -186,7 +190,7 @@ public class BrandController : BaseAdminController
             }
         }
 
-        var model = brand.ToModel();
+        var model = _mapper.Map<BrandModel>(brand);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {

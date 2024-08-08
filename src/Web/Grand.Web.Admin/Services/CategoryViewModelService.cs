@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -16,6 +17,7 @@ using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Drawing.Printing;
 
 namespace Grand.Web.Admin.Services;
 
@@ -34,6 +36,7 @@ public class CategoryViewModelService : ICategoryViewModelService
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
+    private readonly IMapper _mapper;
 
     public CategoryViewModelService(
         ICategoryService categoryService,
@@ -48,7 +51,8 @@ public class CategoryViewModelService : ICategoryViewModelService
         IVendorService vendorService,
         ILanguageService languageService,
         CatalogSettings catalogSettings,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings,
+        IMapper mapper)
     {
         _categoryService = categoryService;
         _productCategoryService = productCategoryService;
@@ -63,6 +67,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         _languageService = languageService;
         _catalogSettings = catalogSettings;
         _seoSettings = seoSettings;
+        _mapper = mapper;
     }
 
     public virtual async Task<CategoryListModel> PrepareCategoryListModel(string storeId)
@@ -89,7 +94,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         var categoryListModel = new List<CategoryModel>();
         foreach (var x in categories)
         {
-            var categoryModel = x.ToModel();
+            var categoryModel = _mapper.Map<CategoryModel>(x);
             categoryModel.Breadcrumb = await _categoryService.GetFormattedBreadCrumb(x);
             categoryListModel.Add(categoryModel);
         }
@@ -130,7 +135,7 @@ public class CategoryViewModelService : ICategoryViewModelService
 
     public async Task<Category> InsertCategoryModel(CategoryModel model)
     {
-        var category = model.ToEntity();
+        var category = _mapper.Map<Category>(model);
         var allDiscounts = await _discountService.GetDiscountsQuery(DiscountType.AssignedToCategories);
         foreach (var discount in allDiscounts)
             if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
@@ -157,7 +162,7 @@ public class CategoryViewModelService : ICategoryViewModelService
     public virtual async Task<Category> UpdateCategoryModel(Category category, CategoryModel model)
     {
         var prevPictureId = category.PictureId;
-        category = model.ToEntity(category);
+        category = _mapper.Map(model, category);
         model.SeName = await category.ValidateSeName(model.SeName, category.Name, true, _seoSettings, _slugService,
             _languageService);
         category.SeName = model.SeName;

@@ -1,9 +1,11 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Blogs;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
@@ -34,7 +36,8 @@ public class BlogController : BaseAdminController
         IGroupService groupService,
         IDateTimeService dateTimeService,
         IPictureViewModelService pictureViewModelService,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings,
+        IMapper mapper)
     {
         _blogService = blogService;
         _blogViewModelService = blogViewModelService;
@@ -46,6 +49,7 @@ public class BlogController : BaseAdminController
         _dateTimeService = dateTimeService;
         _pictureViewModelService = pictureViewModelService;
         _seoSettings = seoSettings;
+        _mapper = mapper;
     }
 
     #endregion
@@ -62,6 +66,7 @@ public class BlogController : BaseAdminController
     private readonly IDateTimeService _dateTimeService;
     private readonly IPictureViewModelService _pictureViewModelService;
     private readonly SeoSettings _seoSettings;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -323,7 +328,7 @@ public class BlogController : BaseAdminController
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
 
-            var blogCategory = model.ToEntity();
+            var blogCategory = _mapper.Map<BlogCategory>(model);
             blogCategory.SeName = SeoExtensions.GetSeName(
                 string.IsNullOrEmpty(blogCategory.SeName) ? blogCategory.Name : blogCategory.SeName,
                 _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
@@ -368,7 +373,7 @@ public class BlogController : BaseAdminController
         }
 
         ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
-        var model = blogCategory.ToModel();
+        var model = _mapper.Map<BlogCategoryModel>(blogCategory);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
@@ -396,7 +401,7 @@ public class BlogController : BaseAdminController
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
 
-            blogCategory = model.ToEntity(blogCategory);
+            blogCategory = _mapper.Map(model, blogCategory);
             blogCategory.SeName = SeoExtensions.GetSeName(
                 string.IsNullOrEmpty(blogCategory.SeName) ? blogCategory.Name : blogCategory.SeName,
                 _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
@@ -459,10 +464,10 @@ public class BlogController : BaseAdminController
         if (blogCategory == null)
             return ErrorForKendoGridJson("blogCategory no exists");
 
-        var blogposts = new List<BlogCategoryPost>();
+        var blogposts = new List<Models.Blogs.BlogCategoryPost>();
         foreach (var item in blogCategory.BlogPosts)
         {
-            var post = new BlogCategoryPost {
+            var post = new Models.Blogs.BlogCategoryPost {
                 Id = item.Id,
                 BlogPostId = item.BlogPostId
             };

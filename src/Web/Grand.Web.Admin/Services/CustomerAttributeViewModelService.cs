@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
@@ -14,19 +15,21 @@ public class CustomerAttributeViewModelService : ICustomerAttributeViewModelServ
     private readonly ICustomerAttributeService _customerAttributeService;
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
-
+    private readonly IMapper _mapper;
     public CustomerAttributeViewModelService(ICustomerAttributeService customerAttributeService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContext workContext,
+        IMapper mapper)
     {
         _customerAttributeService = customerAttributeService;
         _translationService = translationService;
         _workContext = workContext;
+        _mapper = mapper;
     }
 
     public virtual async Task<CustomerAttribute> InsertCustomerAttributeModel(CustomerAttributeModel model)
     {
-        var customerAttribute = model.ToEntity();
+        var customerAttribute = _mapper.Map<CustomerAttribute>(model);
 
         if (customerAttribute.IsReadOnly && customerAttribute.IsRequired)
             customerAttribute.IsRequired = false;
@@ -38,7 +41,7 @@ public class CustomerAttributeViewModelService : ICustomerAttributeViewModelServ
     public virtual async Task<CustomerAttributeValue> InsertCustomerAttributeValueModel(
         CustomerAttributeValueModel model)
     {
-        var cav = model.ToEntity();
+        var cav = _mapper.Map<CustomerAttributeValue>(model);
         await _customerAttributeService.InsertCustomerAttributeValue(cav);
         return cav;
     }
@@ -51,7 +54,7 @@ public class CustomerAttributeViewModelService : ICustomerAttributeViewModelServ
 
     public virtual CustomerAttributeModel PrepareCustomerAttributeModel(CustomerAttribute customerAttribute)
     {
-        var model = customerAttribute.ToModel();
+        var model = _mapper.Map<CustomerAttributeModel>(customerAttribute);
         return model;
     }
 
@@ -60,7 +63,7 @@ public class CustomerAttributeViewModelService : ICustomerAttributeViewModelServ
         var customerAttributes = await _customerAttributeService.GetAllCustomerAttributes();
         return customerAttributes.Select((Func<CustomerAttribute, CustomerAttributeModel>)(x =>
         {
-            var attributeModel = x.ToModel();
+            var attributeModel = _mapper.Map<CustomerAttributeModel>(x);
             attributeModel.AttributeControlTypeName =
                 x.AttributeControlTypeId.GetTranslationEnum(_translationService, _workContext);
             return attributeModel;
@@ -78,7 +81,7 @@ public class CustomerAttributeViewModelService : ICustomerAttributeViewModelServ
     public virtual CustomerAttributeValueModel PrepareCustomerAttributeValueModel(
         CustomerAttributeValue customerAttributeValue)
     {
-        var model = customerAttributeValue.ToModel();
+        var model = _mapper.Map<CustomerAttributeValueModel>(customerAttributeValue);
         return model;
     }
 
@@ -99,7 +102,7 @@ public class CustomerAttributeViewModelService : ICustomerAttributeViewModelServ
     public virtual async Task<CustomerAttribute> UpdateCustomerAttributeModel(CustomerAttributeModel model,
         CustomerAttribute customerAttribute)
     {
-        customerAttribute = model.ToEntity(customerAttribute);
+        customerAttribute = _mapper.Map(model, customerAttribute);
         if (customerAttribute.IsReadOnly && customerAttribute.IsRequired)
             customerAttribute.IsRequired = false;
 
@@ -110,7 +113,7 @@ public class CustomerAttributeViewModelService : ICustomerAttributeViewModelServ
     public virtual async Task<CustomerAttributeValue> UpdateCustomerAttributeValueModel(
         CustomerAttributeValueModel model, CustomerAttributeValue customerAttributeValue)
     {
-        customerAttributeValue = model.ToEntity(customerAttributeValue);
+        customerAttributeValue = _mapper.Map(model, customerAttributeValue);
         await _customerAttributeService.UpdateCustomerAttributeValue(customerAttributeValue);
         return customerAttributeValue;
     }

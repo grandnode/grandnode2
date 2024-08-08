@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
@@ -20,13 +21,15 @@ public class ContactFormViewModelService : IContactFormViewModelService
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
+    private readonly IMapper _mapper;
 
     public ContactFormViewModelService(IContactUsService contactUsService,
         IDateTimeService dateTimeService,
         ITranslationService translationService,
         IWorkContext workContext,
         IStoreService storeService,
-        IEmailAccountService emailAccountService)
+        IEmailAccountService emailAccountService,
+        IMapper mapper)
     {
         _contactUsService = contactUsService;
         _dateTimeService = dateTimeService;
@@ -34,6 +37,7 @@ public class ContactFormViewModelService : IContactFormViewModelService
         _workContext = workContext;
         _storeService = storeService;
         _emailAccountService = emailAccountService;
+        _mapper = mapper;
     }
 
     public virtual async Task<ContactFormListModel> PrepareContactFormListModel()
@@ -70,7 +74,7 @@ public class ContactFormViewModelService : IContactFormViewModelService
         foreach (var item in contactform)
         {
             var store = await _storeService.GetStoreById(item.StoreId);
-            var m = item.ToModel();
+            var m = _mapper.Map<ContactFormModel>(item);
             m.CreatedOn = _dateTimeService.ConvertToUserTime(item.CreatedOnUtc, DateTimeKind.Utc);
             m.Enquiry = "";
             m.Email = m.FullName + " - " + m.Email;
@@ -83,7 +87,7 @@ public class ContactFormViewModelService : IContactFormViewModelService
 
     public virtual async Task<ContactFormModel> PrepareContactFormModel(ContactUs contactUs)
     {
-        var model = contactUs.ToModel();
+        var model = _mapper.Map<ContactFormModel>(contactUs);
         model.CreatedOn = _dateTimeService.ConvertToUserTime(contactUs.CreatedOnUtc, DateTimeKind.Utc);
         var store = await _storeService.GetStoreById(contactUs.StoreId);
         model.Store = store != null ? store.Shortcut : "-empty-";

@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
@@ -16,6 +17,7 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Discounts;
+using Grand.Web.Admin.Models.Vendors;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
@@ -37,7 +39,8 @@ public class DiscountController : BaseAdminController
         IDateTimeService dateTimeService,
         IGroupService groupService,
         IDiscountProviderLoader discountProviderLoader,
-        IMediator mediator)
+        IMediator mediator,
+        IMapper mapper)
     {
         _discountViewModelService = discountViewModelService;
         _discountService = discountService;
@@ -47,6 +50,7 @@ public class DiscountController : BaseAdminController
         _groupService = groupService;
         _discountProviderLoader = discountProviderLoader;
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     #endregion
@@ -61,6 +65,7 @@ public class DiscountController : BaseAdminController
     private readonly IGroupService _groupService;
     private readonly IDiscountProviderLoader _discountProviderLoader;
     private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -519,7 +524,7 @@ public class DiscountController : BaseAdminController
         var items = new List<CategoryModel>();
         foreach (var item in categories)
         {
-            var categoryModel = item.ToModel();
+            var categoryModel = _mapper.Map<CategoryModel>(item);
             categoryModel.Breadcrumb = await categoryService.GetFormattedBreadCrumb(item);
             items.Add(categoryModel);
         }
@@ -606,7 +611,7 @@ public class DiscountController : BaseAdminController
             _workContext.CurrentCustomer.StaffStoreId, command.Page - 1, command.PageSize, true);
 
         var gridModel = new DataSourceResult {
-            Data = brands.Select(x => x.ToModel()),
+            Data = brands.Select(_mapper.Map<BrandModel>),
             Total = brands.TotalCount
         };
 
@@ -687,7 +692,7 @@ public class DiscountController : BaseAdminController
         var collections = await collectionService.GetAllCollections(model.SearchCollectionName, "",
             command.Page - 1, command.PageSize, true);
         var gridModel = new DataSourceResult {
-            Data = collections.Select(x => x.ToModel()),
+            Data = collections.Select(_mapper.Map<CollectionModel>),
             Total = collections.TotalCount
         };
 
@@ -776,7 +781,7 @@ public class DiscountController : BaseAdminController
         }
 
         var gridModel = new DataSourceResult {
-            Data = vendors.Select(x => x.ToModel()),
+            Data = vendors.Select(_mapper.Map<VendorModel>),
             Total = vendors.TotalCount
         };
 

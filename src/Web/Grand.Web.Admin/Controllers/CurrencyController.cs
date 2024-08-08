@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -32,7 +33,8 @@ public class CurrencyController : BaseAdminController
         IDateTimeService dateTimeService,
         ITranslationService translationService,
         ILanguageService languageService,
-        ICacheBase cacheBase)
+        ICacheBase cacheBase,
+        IMapper mapper)
     {
         _currencyService = currencyService;
         _exchangeRateService = exchangeRateService;
@@ -43,6 +45,7 @@ public class CurrencyController : BaseAdminController
         _translationService = translationService;
         _languageService = languageService;
         _cacheBase = cacheBase;
+        _mapper = mapper;
     }
 
     #endregion
@@ -58,6 +61,7 @@ public class CurrencyController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly ILanguageService _languageService;
     private readonly ICacheBase _cacheBase;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -118,7 +122,7 @@ public class CurrencyController : BaseAdminController
     [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> ListGrid(DataSourceRequest command)
     {
-        var currenciesModel = (await _currencyService.GetAllCurrencies(true)).Select(x => x.ToModel()).ToList();
+        var currenciesModel = (await _currencyService.GetAllCurrencies(true)).Select(_mapper.Map<CurrencyModel>).ToList();
         foreach (var currency in currenciesModel)
             currency.IsPrimaryExchangeRateCurrency = currency.Id == _currencySettings.PrimaryExchangeRateCurrencyId;
         foreach (var currency in currenciesModel)
@@ -210,7 +214,7 @@ public class CurrencyController : BaseAdminController
             //No currency found with the specified id
             return RedirectToAction("List");
 
-        var model = currency.ToModel();
+        var model = _mapper.Map<CurrencyModel>(currency);
         model.CreatedOn = _dateTimeService.ConvertToUserTime(currency.CreatedOnUtc, DateTimeKind.Utc);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>

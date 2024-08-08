@@ -1052,7 +1052,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         foreach (var x in contactform)
         {
             var store = await _storeService.GetStoreById(x.StoreId);
-            var m = x.ToModel();
+            var m = _mapper.Map<ContactFormModel>(x);
             m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
             m.Enquiry = "";
             m.Email = m.FullName + " - " + m.Email;

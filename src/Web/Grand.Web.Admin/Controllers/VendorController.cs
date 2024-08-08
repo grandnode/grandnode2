@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Commands.Customers;
+﻿using AutoMapper;
+using Grand.Business.Core.Commands.Customers;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
@@ -11,6 +12,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing.Printing;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -24,13 +26,15 @@ public class VendorController : BaseAdminController
         ITranslationService translationService,
         IVendorService vendorService,
         ILanguageService languageService,
-        IMediator mediator)
+        IMediator mediator,
+        IMapper mapper)
     {
         _vendorViewModelService = vendorViewModelService;
         _translationService = translationService;
         _vendorService = vendorService;
         _languageService = languageService;
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     #endregion
@@ -72,6 +76,7 @@ public class VendorController : BaseAdminController
     private readonly IVendorService _vendorService;
     private readonly ILanguageService _languageService;
     private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -97,7 +102,7 @@ public class VendorController : BaseAdminController
         var gridModel = new DataSourceResult {
             Data = vendors.Select(x =>
             {
-                var vendorModel = x.ToModel();
+                var vendorModel = _mapper.Map<VendorModel>(x);
                 return vendorModel;
             }),
             Total = vendors.TotalCount
@@ -148,7 +153,7 @@ public class VendorController : BaseAdminController
             //No vendor found with the specified id
             return RedirectToAction("List");
 
-        var model = vendor.ToModel();
+        var model = _mapper.Map<VendorModel>(vendor);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {

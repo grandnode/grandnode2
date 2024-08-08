@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Messages;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
@@ -10,11 +11,13 @@ public class EmailAccountViewModelService : IEmailAccountViewModelService
 {
     private readonly IEmailAccountService _emailAccountService;
     private readonly IEmailSender _emailSender;
+    private readonly IMapper _mapper;
 
-    public EmailAccountViewModelService(IEmailAccountService emailAccountService, IEmailSender emailSender)
+    public EmailAccountViewModelService(IEmailAccountService emailAccountService, IEmailSender emailSender, IMapper mapper)
     {
         _emailAccountService = emailAccountService;
         _emailSender = emailSender;
+        _mapper = mapper;
     }
 
     public virtual EmailAccountModel PrepareEmailAccountModel()
@@ -28,7 +31,7 @@ public class EmailAccountViewModelService : IEmailAccountViewModelService
 
     public virtual async Task<EmailAccount> InsertEmailAccountModel(EmailAccountModel model)
     {
-        var emailAccount = model.ToEntity();
+        var emailAccount = _mapper.Map<EmailAccount>(model);
         //set password manually
         emailAccount.Password = model.Password;
         await _emailAccountService.InsertEmailAccount(emailAccount);
@@ -37,7 +40,7 @@ public class EmailAccountViewModelService : IEmailAccountViewModelService
 
     public virtual async Task<EmailAccount> UpdateEmailAccountModel(EmailAccount emailAccount, EmailAccountModel model)
     {
-        emailAccount = model.ToEntity(emailAccount);
+        emailAccount = _mapper.Map(model, emailAccount);
         if (!string.IsNullOrEmpty(model.Password))
             emailAccount.Password = model.Password;
 

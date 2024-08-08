@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
@@ -33,7 +34,8 @@ public class CourseViewModelService(
     IProductService productService,
     IStoreService storeService,
     IVendorService vendorService,
-    SeoSettings seoSettings)
+    SeoSettings seoSettings,
+    IMapper mapper)
     : ICourseViewModelService
 {
     public virtual async Task<CourseModel> PrepareCourseModel(CourseModel model = null)
@@ -54,7 +56,7 @@ public class CourseViewModelService(
 
     public virtual async Task<Course> InsertCourseModel(CourseModel model)
     {
-        var course = model.ToEntity();
+        var course = mapper.Map<Course>(model);
         await courseService.Insert(course);
 
         //locales
@@ -80,7 +82,7 @@ public class CourseViewModelService(
         var prevPictureId = course.PictureId;
         var prevProductId = course.ProductId;
 
-        course = model.ToEntity(course);
+        course = mapper.Map(model, course);
         model.SeName =
             await course.ValidateSeName(model.SeName, course.Name, true, seoSettings, slugService, languageService);
         course.SeName = model.SeName;
@@ -136,7 +138,7 @@ public class CourseViewModelService(
 
     public virtual async Task<CourseLesson> InsertCourseLessonModel(CourseLessonModel model)
     {
-        var lesson = model.ToEntity();
+        var lesson = mapper.Map<CourseLesson>(model);
         await courseLessonService.Insert(lesson);
 
         return lesson;
@@ -148,7 +150,7 @@ public class CourseViewModelService(
         var prevVideoFile = lesson.VideoFile;
 
         var prevPictureId = lesson.PictureId;
-        lesson = model.ToEntity(lesson);
+        lesson = mapper.Map(model, lesson);
         await courseLessonService.Update(lesson);
 
         //delete an old picture (if deleted or updated)

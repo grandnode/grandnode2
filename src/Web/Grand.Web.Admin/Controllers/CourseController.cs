@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -28,9 +29,9 @@ public class CourseController : BaseAdminController
     private readonly ICourseViewModelService _courseViewModelService;
     private readonly IGroupService _groupService;
     private readonly ILanguageService _languageService;
-
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
+    private readonly IMapper _mapper;
 
     public CourseController(
         ITranslationService translationService,
@@ -41,7 +42,8 @@ public class CourseController : BaseAdminController
         ICourseViewModelService courseViewModelService,
         IWorkContext workContext,
         ILanguageService languageService,
-        IGroupService groupService)
+        IGroupService groupService,
+        IMapper mapper)
     {
         _translationService = translationService;
         _courseLevelService = courseLevelService;
@@ -52,6 +54,7 @@ public class CourseController : BaseAdminController
         _workContext = workContext;
         _languageService = languageService;
         _groupService = groupService;
+        _mapper = mapper;
     }
 
 
@@ -67,7 +70,7 @@ public class CourseController : BaseAdminController
     public async Task<IActionResult> Levels(DataSourceRequest command)
     {
         var levelModel = (await _courseLevelService.GetAll())
-            .Select(x => x.ToModel());
+            .Select(_mapper.Map<CourseLevelModel>);
 
         var gridModel = new DataSourceResult {
             Data = levelModel,
@@ -83,7 +86,7 @@ public class CourseController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var level = await _courseLevelService.GetById(model.Id);
-        level = model.ToEntity(level);
+        level = _mapper.Map(model, level);
         await _courseLevelService.Update(level);
 
         return new JsonResult("");
@@ -96,7 +99,7 @@ public class CourseController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var level = new CourseLevel();
-        level = model.ToEntity(level);
+        level = _mapper.Map(model, level);
         await _courseLevelService.Insert(level);
 
         return new JsonResult("");
@@ -191,7 +194,7 @@ public class CourseController : BaseAdminController
             }
         }
 
-        var model = course.ToModel();
+        var model = _mapper.Map<CourseModel>(course);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
@@ -319,7 +322,7 @@ public class CourseController : BaseAdminController
     public async Task<IActionResult> Subjects(DataSourceRequest command, string courseId)
     {
         var subjectModel = (await _courseSubjectService.GetByCourseId(courseId))
-            .Select(x => x.ToModel());
+            .Select(_mapper.Map<CourseSubjectModel>);
 
         var gridModel = new DataSourceResult {
             Data = subjectModel,
@@ -335,7 +338,7 @@ public class CourseController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var subject = await _courseSubjectService.GetById(model.Id);
-        subject = model.ToEntity(subject);
+        subject = _mapper.Map(model, subject);
         await _courseSubjectService.Update(subject);
 
         return new JsonResult("");
@@ -348,7 +351,7 @@ public class CourseController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var subject = new CourseSubject();
-        subject = model.ToEntity(subject);
+        subject = _mapper.Map(model, subject);
         await _courseSubjectService.Insert(subject);
 
         return new JsonResult("");
@@ -376,7 +379,7 @@ public class CourseController : BaseAdminController
     public async Task<IActionResult> Lessons(string courseId)
     {
         var lessonModel = (await _courseLessonService.GetByCourseId(courseId))
-            .Select(x => x.ToModel());
+            .Select(_mapper.Map<CourseLessonModel>);
 
         var gridModel = new DataSourceResult {
             Data = lessonModel,
@@ -482,7 +485,7 @@ public class CourseController : BaseAdminController
             }
         }
 
-        var model = lesson.ToModel();
+        var model = _mapper.Map<CourseLessonModel>(lesson);
         model = await _courseViewModelService.PrepareCourseLessonModel(lesson.CourseId, model);
         return View(model);
     }

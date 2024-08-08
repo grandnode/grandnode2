@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Utilities.Common.Security;
@@ -20,11 +21,13 @@ public class CustomerTagController : BaseAdminController
     public CustomerTagController(
         ICustomerTagViewModelService customerTagViewModelService,
         ITranslationService translationService,
-        ICustomerTagService customerTagService)
+        ICustomerTagService customerTagService,
+        IMapper mapper)
     {
         _customerTagViewModelService = customerTagViewModelService;
         _translationService = translationService;
         _customerTagService = customerTagService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -34,6 +37,7 @@ public class CustomerTagController : BaseAdminController
     private readonly ICustomerTagViewModelService _customerTagViewModelService;
     private readonly ITranslationService _translationService;
     private readonly ICustomerTagService _customerTagService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -115,7 +119,7 @@ public class CustomerTagController : BaseAdminController
             //No customer group found with the specified id
             return RedirectToAction("List");
 
-        var model = customerTag.ToModel();
+        var model = _mapper.Map<CustomerTagModel>(customerTag);
         return View(model);
     }
 

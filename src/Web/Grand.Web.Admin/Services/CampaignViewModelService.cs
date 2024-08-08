@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Campaigns;
@@ -24,6 +25,7 @@ public class CampaignViewModelService : ICampaignViewModelService
     private readonly IMessageTokenProvider _messageTokenProvider;
     private readonly INewsletterCategoryService _newsletterCategoryService;
     private readonly IStoreService _storeService;
+    private readonly IMapper _mapper;
 
     public CampaignViewModelService(ICampaignService campaignService,
         IGroupService groupService,
@@ -33,7 +35,8 @@ public class CampaignViewModelService : ICampaignViewModelService
         IStoreService storeService,
         ILanguageService languageService,
         ICustomerTagService customerTagService,
-        INewsletterCategoryService newsletterCategoryService)
+        INewsletterCategoryService newsletterCategoryService,
+        IMapper mapper)
     {
         _campaignService = campaignService;
         _groupService = groupService;
@@ -44,6 +47,7 @@ public class CampaignViewModelService : ICampaignViewModelService
         _languageService = languageService;
         _customerTagService = customerTagService;
         _newsletterCategoryService = newsletterCategoryService;
+        _mapper = mapper;
     }
 
     public virtual async Task<CampaignModel> PrepareCampaignModel()
@@ -87,7 +91,7 @@ public class CampaignViewModelService : ICampaignViewModelService
 
     public virtual async Task<CampaignModel> PrepareCampaignModel(Campaign campaign)
     {
-        var model = campaign.ToModel();
+        var model = _mapper.Map<CampaignModel>(campaign);
         model.AllowedTokens = _messageTokenProvider.GetListOfCampaignAllowedTokens();
         //stores
         await PrepareStoresModel(model);
@@ -107,14 +111,14 @@ public class CampaignViewModelService : ICampaignViewModelService
 
     public virtual async Task<Campaign> InsertCampaignModel(CampaignModel model)
     {
-        var campaign = model.ToEntity();
+        var campaign = _mapper.Map<Campaign>(model);
         await _campaignService.InsertCampaign(campaign);
         return campaign;
     }
 
     public virtual async Task<Campaign> UpdateCampaignModel(Campaign campaign, CampaignModel model)
     {
-        campaign = model.ToEntity(campaign);
+        campaign = _mapper.Map(model, campaign);
         campaign.CustomerGroups.Clear();
         foreach (var item in model.CustomerGroups) campaign.CustomerGroups.Add(item);
         campaign.CustomerTags.Clear();
@@ -130,7 +134,7 @@ public class CampaignViewModelService : ICampaignViewModelService
         var campaigns = await _campaignService.GetAllCampaigns();
         return (campaigns.Select(x =>
         {
-            var model = x.ToModel();
+            var model = _mapper.Map<CampaignModel>(x);
             model.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
             return model;
         }), campaigns.Count);
@@ -190,6 +194,6 @@ public class CampaignViewModelService : ICampaignViewModelService
     {
         //available email accounts
         foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
-            model.AvailableEmailAccounts.Add(ea.ToModel());
+            model.AvailableEmailAccounts.Add(_mapper.Map<EmailAccountModel>(ea));
     }
 }

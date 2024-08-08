@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -22,6 +23,7 @@ public class CustomerGroupViewModelService : ICustomerGroupViewModelService
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
+    private readonly IMapper _mapper;
 
     #region Constructors
 
@@ -31,7 +33,8 @@ public class CustomerGroupViewModelService : ICustomerGroupViewModelService
         ITranslationService translationService,
         IProductService productService,
         IStoreService storeService,
-        IVendorService vendorService)
+        IVendorService vendorService,
+        IMapper mapper)
     {
         _groupService = groupService;
         _customerGroupProductService = customerGroupProductService;
@@ -39,13 +42,14 @@ public class CustomerGroupViewModelService : ICustomerGroupViewModelService
         _productService = productService;
         _storeService = storeService;
         _vendorService = vendorService;
+        _mapper = mapper;
     }
 
     #endregion
 
     public virtual CustomerGroupModel PrepareCustomerGroupModel(CustomerGroup customerGroup)
     {
-        var model = customerGroup.ToModel();
+        var model = _mapper.Map<CustomerGroupModel>(customerGroup);
         return model;
     }
 
@@ -60,7 +64,7 @@ public class CustomerGroupViewModelService : ICustomerGroupViewModelService
 
     public virtual async Task<CustomerGroup> InsertCustomerGroupModel(CustomerGroupModel model)
     {
-        var customerGroup = model.ToEntity();
+        var customerGroup = _mapper.Map<CustomerGroup>(model);
         await _groupService.InsertCustomerGroup(customerGroup);
         return customerGroup;
     }
@@ -68,7 +72,7 @@ public class CustomerGroupViewModelService : ICustomerGroupViewModelService
     public virtual async Task<CustomerGroup> UpdateCustomerGroupModel(CustomerGroup customerGroup,
         CustomerGroupModel model)
     {
-        customerGroup = model.ToEntity(customerGroup);
+        customerGroup = _mapper.Map(model, customerGroup);
         await _groupService.UpdateCustomerGroup(customerGroup);
         return customerGroup;
     }

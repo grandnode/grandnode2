@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -22,6 +23,25 @@ namespace Grand.Web.Admin.Services;
 
 public class CollectionViewModelService : ICollectionViewModelService
 {
+    #region Fields
+
+    private readonly ICollectionService _collectionService;
+    private readonly IProductCollectionService _productCollectionService;
+    private readonly ICollectionLayoutService _collectionLayoutService;
+    private readonly IProductService _productService;
+    private readonly IStoreService _storeService;
+    private readonly ISlugService _slugService;
+    private readonly IPictureService _pictureService;
+    private readonly ITranslationService _translationService;
+    private readonly IDiscountService _discountService;
+    private readonly IVendorService _vendorService;
+    private readonly ILanguageService _languageService;
+    private readonly IWorkContext _workContext;
+    private readonly SeoSettings _seoSettings;
+    private readonly IMapper _mapper;
+
+    #endregion
+
     #region Constructors
 
     public CollectionViewModelService(
@@ -37,7 +57,8 @@ public class CollectionViewModelService : ICollectionViewModelService
         IVendorService vendorService,
         ILanguageService languageService,
         IWorkContext workContext,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings,
+        IMapper mapper)
     {
         _collectionLayoutService = collectionLayoutService;
         _collectionService = collectionService;
@@ -52,6 +73,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         _languageService = languageService;
         _workContext = workContext;
         _seoSettings = seoSettings;
+        _mapper = mapper;
     }
 
     #endregion
@@ -91,7 +113,7 @@ public class CollectionViewModelService : ICollectionViewModelService
 
     public virtual async Task<Collection> InsertCollectionModel(CollectionModel model)
     {
-        var collection = model.ToEntity();
+        var collection = _mapper.Map<Collection>(model);
         //discounts
         var allDiscounts = await _discountService.GetDiscountsQuery(DiscountType.AssignedToCollections);
         foreach (var discount in allDiscounts)
@@ -119,7 +141,7 @@ public class CollectionViewModelService : ICollectionViewModelService
     public virtual async Task<Collection> UpdateCollectionModel(Collection collection, CollectionModel model)
     {
         var prevPictureId = collection.PictureId;
-        collection = model.ToEntity(collection);
+        collection = _mapper.Map(model, collection);
         collection.Locales =
             await model.Locales.ToTranslationProperty(collection, x => x.Name, _seoSettings, _slugService,
                 _languageService);
@@ -273,21 +295,4 @@ public class CollectionViewModelService : ICollectionViewModelService
         }
     }
 
-    #region Fields
-
-    private readonly ICollectionService _collectionService;
-    private readonly IProductCollectionService _productCollectionService;
-    private readonly ICollectionLayoutService _collectionLayoutService;
-    private readonly IProductService _productService;
-    private readonly IStoreService _storeService;
-    private readonly ISlugService _slugService;
-    private readonly IPictureService _pictureService;
-    private readonly ITranslationService _translationService;
-    private readonly IDiscountService _discountService;
-    private readonly IVendorService _vendorService;
-    private readonly ILanguageService _languageService;
-    private readonly IWorkContext _workContext;
-    private readonly SeoSettings _seoSettings;
-
-    #endregion
 }

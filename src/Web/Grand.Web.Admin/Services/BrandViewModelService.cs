@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -20,6 +21,21 @@ namespace Grand.Web.Admin.Services;
 
 public class BrandViewModelService : IBrandViewModelService
 {
+    #region Fields
+
+    private readonly IBrandService _brandService;
+    private readonly IBrandLayoutService _brandLayoutService;
+    private readonly ISlugService _slugService;
+    private readonly IPictureService _pictureService;
+    private readonly IDiscountService _discountService;
+    private readonly IDateTimeService _dateTimeService;
+    private readonly ILanguageService _languageService;
+    private readonly IWorkContext _workContext;
+    private readonly SeoSettings _seoSettings;
+    private readonly IMapper _mapper;
+
+    #endregion
+
     #region Constructors
 
     public BrandViewModelService(
@@ -31,7 +47,8 @@ public class BrandViewModelService : IBrandViewModelService
         IDateTimeService dateTimeService,
         ILanguageService languageService,
         IWorkContext workContext,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings,
+        IMapper mapper)
     {
         _brandLayoutService = brandLayoutService;
         _brandService = brandService;
@@ -42,6 +59,7 @@ public class BrandViewModelService : IBrandViewModelService
         _languageService = languageService;
         _workContext = workContext;
         _seoSettings = seoSettings;
+        _mapper = mapper;
     }
 
     #endregion
@@ -81,7 +99,7 @@ public class BrandViewModelService : IBrandViewModelService
 
     public virtual async Task<Brand> InsertBrandModel(BrandModel model)
     {
-        var brand = model.ToEntity();
+        var brand = _mapper.Map<Brand>(model);
         //discounts
         var allDiscounts = await _discountService.GetDiscountsQuery(DiscountType.AssignedToBrands);
         foreach (var discount in allDiscounts)
@@ -108,7 +126,7 @@ public class BrandViewModelService : IBrandViewModelService
     public virtual async Task<Brand> UpdateBrandModel(Brand brand, BrandModel model)
     {
         var prevPictureId = brand.PictureId;
-        brand = model.ToEntity(brand);
+        brand = _mapper.Map(model, brand);
         brand.Locales =
             await model.Locales.ToTranslationProperty(brand, x => x.Name, _seoSettings, _slugService, _languageService);
         //discounts
@@ -153,18 +171,4 @@ public class BrandViewModelService : IBrandViewModelService
     {
         await _brandService.DeleteBrand(brand);
     }
-
-    #region Fields
-
-    private readonly IBrandService _brandService;
-    private readonly IBrandLayoutService _brandLayoutService;
-    private readonly ISlugService _slugService;
-    private readonly IPictureService _pictureService;
-    private readonly IDiscountService _discountService;
-    private readonly IDateTimeService _dateTimeService;
-    private readonly ILanguageService _languageService;
-    private readonly IWorkContext _workContext;
-    private readonly SeoSettings _seoSettings;
-
-    #endregion
 }

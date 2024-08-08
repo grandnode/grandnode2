@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Dto;
+﻿using AutoMapper;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -35,7 +36,8 @@ public class CollectionController : BaseAdminController
         ILanguageService languageService,
         ITranslationService translationService,
         IGroupService groupService,
-        IPictureViewModelService pictureViewModelService)
+        IPictureViewModelService pictureViewModelService,
+        IMapper mapper)
     {
         _collectionViewModelService = collectionViewModelService;
         _collectionService = collectionService;
@@ -45,6 +47,7 @@ public class CollectionController : BaseAdminController
         _translationService = translationService;
         _groupService = groupService;
         _pictureViewModelService = pictureViewModelService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -74,6 +77,7 @@ public class CollectionController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly IGroupService _groupService;
     private readonly IPictureViewModelService _pictureViewModelService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -106,7 +110,7 @@ public class CollectionController : BaseAdminController
         var collections = await _collectionService.GetAllCollections(model.SearchCollectionName,
             model.SearchStoreId, command.Page - 1, command.PageSize, true);
         var gridModel = new DataSourceResult {
-            Data = collections.Select(x => x.ToModel()),
+            Data = collections.Select(_mapper.Map<CollectionModel>),
             Total = collections.TotalCount
         };
 
@@ -187,7 +191,7 @@ public class CollectionController : BaseAdminController
             }
         }
 
-        var model = collection.ToModel();
+        var model = _mapper.Map<CollectionModel>(collection);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {

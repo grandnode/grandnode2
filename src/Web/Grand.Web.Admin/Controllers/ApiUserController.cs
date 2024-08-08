@@ -1,6 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Customers;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Customers;
@@ -15,11 +17,13 @@ public class ApiUserController : BaseAdminController
 {
     private readonly IEncryptionService _encryptionService;
     private readonly IUserApiService _userApiService;
-
-    public ApiUserController(IUserApiService userApiService, IEncryptionService encryptionService)
+    private readonly IMapper _mapper;
+    public ApiUserController(IUserApiService userApiService, IEncryptionService encryptionService,
+        IMapper mapper)
     {
         _userApiService = userApiService;
         _encryptionService = encryptionService;
+        _mapper = mapper;
     }
 
     protected (string hashpassword, string privatekey) HashPassword(string password)
@@ -37,7 +41,7 @@ public class ApiUserController : BaseAdminController
     public async Task<IActionResult> List(string email, DataSourceRequest command)
     {
         var model = (await _userApiService.GetUsers(email, command.Page - 1, command.PageSize))
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<UserApiModel>)
             .ToList();
         var gridModel = new DataSourceResult {
             Data = model,
@@ -54,7 +58,7 @@ public class ApiUserController : BaseAdminController
             throw new ArgumentException("No user api found with the specified id");
         if (ModelState.IsValid)
         {
-            userapi = model.ToEntity(userapi);
+            userapi = _mapper.Map(model, userapi);
             if (!string.IsNullOrEmpty(model.Password))
             {
                 var keys = HashPassword(model.Password);
@@ -75,7 +79,7 @@ public class ApiUserController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var userapi = model.ToEntity();
+            var userapi = _mapper.Map<UserApi>(model);
             var keys = HashPassword(model.Password);
             userapi.Password = keys.hashpassword;
             userapi.PrivateKey = keys.privatekey;

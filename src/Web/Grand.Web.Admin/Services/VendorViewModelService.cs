@@ -177,7 +177,7 @@ public class VendorViewModelService(
 
     public virtual async Task<Vendor> InsertVendorModel(VendorModel model)
     {
-        var vendor = model.ToEntity();
+        var vendor = mapper.Map<Vendor>(model);
         vendor.Address = mapper.Map<Address>(model.Address);
         await vendorService.InsertVendor(vendor);
 
@@ -205,7 +205,7 @@ public class VendorViewModelService(
     public virtual async Task<Vendor> UpdateVendorModel(Vendor vendor, VendorModel model)
     {
         var prevPictureId = vendor.PictureId;
-        vendor = model.ToEntity(vendor);
+        vendor = mapper.Map(model, vendor);
         vendor.Locales =
             await model.Locales.ToTranslationProperty(vendor, x => x.Name, seoSettings, slugService, languageService);
         model.SeName =

@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
@@ -27,7 +28,8 @@ public class MessageTemplateController : BaseAdminController
         IMessageTokenProvider messageTokenProvider,
         IStoreService storeService,
         IDownloadService downloadService,
-        EmailAccountSettings emailAccountSettings)
+        EmailAccountSettings emailAccountSettings,
+        IMapper mapper)
     {
         _messageTemplateService = messageTemplateService;
         _emailAccountService = emailAccountService;
@@ -37,6 +39,7 @@ public class MessageTemplateController : BaseAdminController
         _storeService = storeService;
         _downloadService = downloadService;
         _emailAccountSettings = emailAccountSettings;
+        _mapper = mapper;
     }
 
     #endregion
@@ -51,6 +54,7 @@ public class MessageTemplateController : BaseAdminController
     private readonly IStoreService _storeService;
     private readonly IDownloadService _downloadService;
     private readonly EmailAccountSettings _emailAccountSettings;
+    private readonly IMapper _mapper;
 
     #endregion Fields
 
@@ -119,7 +123,7 @@ public class MessageTemplateController : BaseAdminController
 
         //available email accounts
         foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
-            model.AvailableEmailAccounts.Add(ea.ToModel());
+            model.AvailableEmailAccounts.Add(_mapper.Map<EmailAccountModel>(ea));
 
         return View(model);
     }
@@ -159,7 +163,7 @@ public class MessageTemplateController : BaseAdminController
         model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
         //available email accounts
         foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
-            model.AvailableEmailAccounts.Add(ea.ToModel());
+            model.AvailableEmailAccounts.Add(_mapper.Map<EmailAccountModel>(ea));
         //Store
         return View(model);
     }
@@ -178,7 +182,7 @@ public class MessageTemplateController : BaseAdminController
         model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
         //available email accounts
         foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
-            model.AvailableEmailAccounts.Add(ea.ToModel());
+            model.AvailableEmailAccounts.Add(_mapper.Map<EmailAccountModel>(ea));
 
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
@@ -245,7 +249,7 @@ public class MessageTemplateController : BaseAdminController
         model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
         //available email accounts
         foreach (var ea in await _emailAccountService.GetAllEmailAccounts())
-            model.AvailableEmailAccounts.Add(ea.ToModel());
+            model.AvailableEmailAccounts.Add(_mapper.Map<EmailAccountModel>(ea));
 
         return View(model);
     }

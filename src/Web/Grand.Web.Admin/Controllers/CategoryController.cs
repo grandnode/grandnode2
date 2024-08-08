@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Dto;
+﻿using AutoMapper;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -32,7 +33,8 @@ public class CategoryController : BaseAdminController
         ITranslationService translationService,
         IWorkContext workContext,
         IGroupService groupService,
-        IPictureViewModelService pictureViewModelService)
+        IPictureViewModelService pictureViewModelService,
+        IMapper mapper)
     {
         _categoryService = categoryService;
         _categoryViewModelService = categoryViewModelService;
@@ -41,6 +43,7 @@ public class CategoryController : BaseAdminController
         _workContext = workContext;
         _groupService = groupService;
         _pictureViewModelService = pictureViewModelService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -68,6 +71,7 @@ public class CategoryController : BaseAdminController
     private readonly IWorkContext _workContext;
     private readonly IGroupService _groupService;
     private readonly IPictureViewModelService _pictureViewModelService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -159,7 +163,7 @@ public class CategoryController : BaseAdminController
             }
         }
 
-        var model = category.ToModel();
+        var model = _mapper.Map<CategoryModel>(category);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {

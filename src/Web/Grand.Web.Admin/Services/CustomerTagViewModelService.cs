@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -21,19 +22,22 @@ public class CustomerTagViewModelService : ICustomerTagViewModelService
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
+    private readonly IMapper _mapper;
 
     public CustomerTagViewModelService(
         ITranslationService translationService,
         IProductService productService,
         IStoreService storeService,
         IVendorService vendorService,
-        ICustomerTagService customerTagService)
+        ICustomerTagService customerTagService,
+        IMapper mapper)
     {
         _translationService = translationService;
         _productService = productService;
         _storeService = storeService;
         _vendorService = vendorService;
         _customerTagService = customerTagService;
+        _mapper = mapper;
     }
 
     public virtual CustomerModel PrepareCustomerModelForList(Customer customer)
@@ -54,7 +58,7 @@ public class CustomerTagViewModelService : ICustomerTagViewModelService
 
     public virtual async Task<CustomerTag> InsertCustomerTagModel(CustomerTagModel model)
     {
-        var customertag = model.ToEntity();
+        var customertag = _mapper.Map<CustomerTag>(model);
         customertag.Name = customertag.Name.ToLower();
         await _customerTagService.InsertCustomerTag(customertag);
         return customertag;
@@ -62,7 +66,7 @@ public class CustomerTagViewModelService : ICustomerTagViewModelService
 
     public virtual async Task<CustomerTag> UpdateCustomerTagModel(CustomerTag customerTag, CustomerTagModel model)
     {
-        customerTag = model.ToEntity(customerTag);
+        customerTag = _mapper.Map(model, customerTag);
         customerTag.Name = customerTag.Name.ToLower();
 
         await _customerTagService.UpdateCustomerTag(customerTag);

@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Configuration;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Common.Security;
@@ -24,11 +25,11 @@ public class EmailAccountController : BaseAdminController
     private readonly IEmailAccountViewModelService _emailAccountViewModelService;
     private readonly ISettingService _settingService;
     private readonly ITranslationService _translationService;
-
+    private readonly IMapper _mapper;
     public EmailAccountController(IEmailAccountViewModelService emailAccountViewModelService,
         IEmailAccountService emailAccountService,
         ITranslationService translationService, ISettingService settingService,
-        EmailAccountSettings emailAccountSettings, ICacheBase cacheBase)
+        EmailAccountSettings emailAccountSettings, ICacheBase cacheBase, IMapper mapper)
     {
         _emailAccountViewModelService = emailAccountViewModelService;
         _emailAccountService = emailAccountService;
@@ -36,6 +37,7 @@ public class EmailAccountController : BaseAdminController
         _emailAccountSettings = emailAccountSettings;
         _settingService = settingService;
         _cacheBase = cacheBase;
+        _mapper = mapper;
     }
 
     public IActionResult List()
@@ -48,7 +50,7 @@ public class EmailAccountController : BaseAdminController
     public async Task<IActionResult> List(DataSourceRequest command)
     {
         var emailAccountModels = (await _emailAccountService.GetAllEmailAccounts())
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<EmailAccountModel>)
             .ToList();
         foreach (var eam in emailAccountModels)
             eam.IsDefaultEmailAccount = eam.Id == _emailAccountSettings.DefaultEmailAccountId;
@@ -108,7 +110,7 @@ public class EmailAccountController : BaseAdminController
             //No email account found with the specified id
             return RedirectToAction("List");
 
-        return View(emailAccount.ToModel());
+        return View(_mapper.Map<EmailAccountModel>(emailAccount));
     }
 
     [HttpPost]

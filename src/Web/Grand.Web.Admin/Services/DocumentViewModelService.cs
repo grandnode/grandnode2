@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -32,6 +33,7 @@ public class DocumentViewModelService : IDocumentViewModelService
     private readonly IShipmentService _shipmentService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
+    private readonly IMapper _mapper;
 
     public DocumentViewModelService(
         IDocumentService documentService,
@@ -46,7 +48,8 @@ public class DocumentViewModelService : IDocumentViewModelService
         ICollectionService collectionService,
         IVendorService vendorService,
         ISalesEmployeeService salesEmployeeService,
-        IDownloadService downloadService)
+        IDownloadService downloadService,
+        IMapper mapper)
     {
         _documentService = documentService;
         _documentTypeService = documentTypeService;
@@ -61,6 +64,7 @@ public class DocumentViewModelService : IDocumentViewModelService
         _vendorService = vendorService;
         _salesEmployeeService = salesEmployeeService;
         _downloadService = downloadService;
+        _mapper = mapper;
     }
 
     public virtual async Task<(IEnumerable<DocumentModel> documetListModel, int totalCount)> PrepareDocumentListModel(
@@ -73,7 +77,7 @@ public class DocumentViewModelService : IDocumentViewModelService
         var documentListModel = new List<DocumentModel>();
         foreach (var x in documents)
         {
-            var docModel = x.ToModel();
+            var docModel = _mapper.Map<DocumentModel>(x);
             documentListModel.Add(docModel);
         }
 
@@ -86,7 +90,7 @@ public class DocumentViewModelService : IDocumentViewModelService
         var model = documentModel ?? new DocumentModel { Published = true };
         if (document != null)
         {
-            model = document.ToModel();
+            model = _mapper.Map<DocumentModel>(document);
         }
         else
         {
@@ -224,7 +228,7 @@ public class DocumentViewModelService : IDocumentViewModelService
             ? (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id
             : string.Empty;
 
-        var document = model.ToEntity();
+        var document = _mapper.Map<Document>(model);
         await _documentService.Insert(document);
         return document;
     }
@@ -243,7 +247,7 @@ public class DocumentViewModelService : IDocumentViewModelService
             model.CustomerId = string.Empty;
         }
 
-        document = model.ToEntity(document);
+        document = _mapper.Map(model, document);
         await _documentService.Update(document);
 
         //delete an old "attachment" file (if deleted or updated)

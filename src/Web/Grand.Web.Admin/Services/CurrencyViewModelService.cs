@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Directory;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
@@ -11,14 +12,17 @@ public class CurrencyViewModelService : ICurrencyViewModelService
     #region Fields
 
     private readonly ICurrencyService _currencyService;
+    private readonly IMapper _mapper;
 
     #endregion
 
     #region Constructors
 
-    public CurrencyViewModelService(ICurrencyService currencyService)
+    public CurrencyViewModelService(ICurrencyService currencyService,
+        IMapper mapper)
     {
         _currencyService = currencyService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -35,7 +39,7 @@ public class CurrencyViewModelService : ICurrencyViewModelService
 
     public virtual async Task<Currency> InsertCurrencyModel(CurrencyModel model)
     {
-        var currency = model.ToEntity();
+        var currency = _mapper.Map<Currency>(model);
         await _currencyService.InsertCurrency(currency);
 
         return currency;
@@ -43,7 +47,7 @@ public class CurrencyViewModelService : ICurrencyViewModelService
 
     public virtual async Task<Currency> UpdateCurrencyModel(Currency currency, CurrencyModel model)
     {
-        currency = model.ToEntity(currency);
+        currency = _mapper.Map(model, currency);
         await _currencyService.UpdateCurrency(currency);
         return currency;
     }
