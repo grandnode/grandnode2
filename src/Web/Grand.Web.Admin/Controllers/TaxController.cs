@@ -210,7 +210,7 @@ public class TaxController : BaseAdminController
     public async Task<IActionResult> Categories(DataSourceRequest command)
     {
         var categoriesModel = (await _taxCategoryService.GetAllTaxCategories())
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<TaxCategoryModel>)
             .ToList();
         var gridModel = new DataSourceResult {
             Data = categoriesModel,
@@ -226,7 +226,7 @@ public class TaxController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var taxCategory = await _taxCategoryService.GetTaxCategoryById(model.Id);
-        taxCategory = model.ToEntity(taxCategory);
+        taxCategory = _mapper.Map(model, taxCategory);
         await _taxCategoryService.UpdateTaxCategory(taxCategory);
 
         return new JsonResult("");
@@ -238,7 +238,7 @@ public class TaxController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var taxCategory = new TaxCategory();
-        taxCategory = model.ToEntity(taxCategory);
+        taxCategory = _mapper.Map(model, taxCategory);
         await _taxCategoryService.InsertTaxCategory(taxCategory);
 
         return new JsonResult("");

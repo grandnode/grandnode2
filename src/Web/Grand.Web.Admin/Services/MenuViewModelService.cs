@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.System.Admin;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Domain.Admin;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
@@ -9,10 +10,12 @@ namespace Grand.Web.Admin.Services;
 public class MenuViewModelService : IMenuViewModelService
 {
     private readonly IAdminSiteMapService _adminSiteMapService;
+    private readonly IMapper _mapper;
 
-    public MenuViewModelService(IAdminSiteMapService adminSiteMapService)
+    public MenuViewModelService(IAdminSiteMapService adminSiteMapService, IMapper mapper)
     {
         _adminSiteMapService = adminSiteMapService;
+        _mapper = mapper;
     }
 
     public virtual async Task<IList<MenuListModel>> MenuItems()
@@ -48,7 +51,7 @@ public class MenuViewModelService : IMenuViewModelService
 
         if (!string.IsNullOrEmpty(parentId)) return await AddChildNodeSiteMap();
 
-        var entity = model.ToEntity();
+        var entity = _mapper.Map<AdminSiteMap>(model);
         await _adminSiteMapService.InsertSiteMap(entity);
         return entity;
 
@@ -57,7 +60,7 @@ public class MenuViewModelService : IMenuViewModelService
             var sitemap = await _adminSiteMapService.GetSiteMap();
             var parentEntity = FindTopLevelNodeById(sitemap, parentId);
             var adminSiteMap = FindAdminSiteMapById(parentEntity, parentId);
-            var siteMap = model.ToEntity();
+            var siteMap = _mapper.Map<AdminSiteMap>(model);
             adminSiteMap.ChildNodes.Add(siteMap);
             await _adminSiteMapService.UpdateSiteMap(parentEntity);
             return siteMap;
@@ -72,7 +75,7 @@ public class MenuViewModelService : IMenuViewModelService
         var parentEntity = FindTopLevelNodeById(sitemap, model.Id);
         var adminSiteMap = FindAdminSiteMapById(parentEntity, model.Id);
 
-        adminSiteMap = model.ToEntity(adminSiteMap);
+        adminSiteMap = _mapper.Map(model, adminSiteMap);
         await _adminSiteMapService.UpdateSiteMap(parentEntity);
 
         return adminSiteMap;

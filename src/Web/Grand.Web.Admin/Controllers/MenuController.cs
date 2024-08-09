@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
@@ -17,10 +18,12 @@ public class MenuController : BaseAdminController
 
     public MenuController(
         IMenuViewModelService menuViewModelService,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IMapper mapper)
     {
         _menuViewModelService = menuViewModelService;
         _translationService = translationService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -29,6 +32,7 @@ public class MenuController : BaseAdminController
 
     private readonly IMenuViewModelService _menuViewModelService;
     private readonly ITranslationService _translationService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -97,7 +101,7 @@ public class MenuController : BaseAdminController
             //No menu found with the specified id
             return RedirectToAction("Index");
 
-        var model = menu.ToModel();
+        var model = _mapper.Map<MenuModel>(menu);
 
         return View(model);
     }

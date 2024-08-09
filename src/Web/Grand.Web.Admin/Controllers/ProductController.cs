@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Dto;
+﻿using AutoMapper;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -43,7 +44,8 @@ public class ProductController : BaseAdminController
         IProductReservationService productReservationService,
         IAuctionService auctionService,
         IDateTimeService dateTimeService,
-        IPermissionService permissionService)
+        IPermissionService permissionService,
+        IMapper mapper)
     {
         _productViewModelService = productViewModelService;
         _productService = productService;
@@ -56,6 +58,7 @@ public class ProductController : BaseAdminController
         _auctionService = auctionService;
         _dateTimeService = dateTimeService;
         _permissionService = permissionService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -73,6 +76,7 @@ public class ProductController : BaseAdminController
     private readonly IAuctionService _auctionService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IPermissionService _permissionService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -1321,7 +1325,7 @@ public class ProductController : BaseAdminController
         if (!string.IsNullOrEmpty(id))
         {
             var specification = product.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == id);
-            if (specification != null) model = specification.ToModel();
+            if (specification != null) model = _mapper.Map<ProductModel.AddProductSpecificationAttributeModel>(specification);
         }
 
         model.AvailableAttributes = await PrepareAvailableAttributes(specificationAttributeService);

@@ -1,9 +1,12 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using AutoMapper;
+using Grand.Business.Common.Services.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Tasks;
+using Grand.Infrastructure.Models;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Tasks;
 using Grand.Web.Common.DataSource;
@@ -12,6 +15,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -24,12 +28,14 @@ public class ScheduleTaskController : BaseAdminController
         IScheduleTaskService scheduleTaskService,
         ITranslationService translationService,
         IDateTimeService dateTimeService,
-        IStoreService storeService)
+        IStoreService storeService,
+        IMapper mapper)
     {
         _scheduleTaskService = scheduleTaskService;
         _translationService = translationService;
         _dateTimeService = dateTimeService;
         _storeService = storeService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -40,6 +46,7 @@ public class ScheduleTaskController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IStoreService _storeService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -48,7 +55,11 @@ public class ScheduleTaskController : BaseAdminController
     [NonAction]
     protected virtual ScheduleTaskModel PrepareScheduleTaskModel(ScheduleTask task)
     {
-        var model = task.ToModel(_dateTimeService);
+        var model = _mapper.Map<ScheduleTaskModel>(task);
+        model.LastStartUtc = task.LastStartUtc.ConvertToUserTime(_dateTimeService);
+        model.LastSuccessUtc = task.LastSuccessUtc.ConvertToUserTime(_dateTimeService);
+        model.LastEndUtc = task.LastNonSuccessEndUtc.ConvertToUserTime(_dateTimeService);
+
         return model;
     }
 
@@ -96,7 +107,12 @@ public class ScheduleTaskController : BaseAdminController
     public async Task<IActionResult> EditScheduler(string id)
     {
         var task = await _scheduleTaskService.GetTaskById(id);
-        var model = task.ToModel(_dateTimeService);
+
+        var model = _mapper.Map<ScheduleTaskModel>(task);
+        model.LastStartUtc = task.LastStartUtc.ConvertToUserTime(_dateTimeService);
+        model.LastSuccessUtc = task.LastSuccessUtc.ConvertToUserTime(_dateTimeService);
+        model.LastEndUtc = task.LastNonSuccessEndUtc.ConvertToUserTime(_dateTimeService);
+
         model = await PrepareStores(model);
         return View(model);
     }
@@ -110,7 +126,7 @@ public class ScheduleTaskController : BaseAdminController
         var scheduleTask = await _scheduleTaskService.GetTaskById(model.Id);
         if (ModelState.IsValid)
         {
-            scheduleTask = model.ToEntity(scheduleTask);
+            scheduleTask = _mapper.Map(model, scheduleTask);
             await _scheduleTaskService.UpdateTask(scheduleTask);
             Success(_translationService.GetResource("Admin.System.ScheduleTasks.Updated"));
             if (continueEditing) return await EditScheduler(model.Id);

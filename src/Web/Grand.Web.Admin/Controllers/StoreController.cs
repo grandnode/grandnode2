@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
@@ -9,6 +10,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Bcpg.Sig;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -19,17 +21,20 @@ public class StoreController : BaseAdminController
     private readonly IStoreService _storeService;
     private readonly IStoreViewModelService _storeViewModelService;
     private readonly ITranslationService _translationService;
+    private readonly IMapper _mapper;
 
     public StoreController(
         IStoreViewModelService storeViewModelService,
         IStoreService storeService,
         ILanguageService languageService,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IMapper mapper)
     {
         _storeViewModelService = storeViewModelService;
         _storeService = storeService;
         _languageService = languageService;
         _translationService = translationService;
+        _mapper = mapper;
     }
 
     public IActionResult List()
@@ -42,7 +47,7 @@ public class StoreController : BaseAdminController
     public async Task<IActionResult> List(DataSourceRequest command)
     {
         var storeModels = (await _storeService.GetAllStores())
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<StoreModel>)
             .ToList();
 
         var gridModel = new DataSourceResult {
@@ -107,7 +112,7 @@ public class StoreController : BaseAdminController
             //No store found with the specified id
             return RedirectToAction("List");
 
-        var model = store.ToModel();
+        var model = _mapper.Map<StoreModel>(store);
         //languages
         await _storeViewModelService.PrepareLanguagesModel(model);
         //warehouses
@@ -190,7 +195,7 @@ public class StoreController : BaseAdminController
             //No store found with the specified id
             return ErrorForKendoGridJson("Store not found");
 
-        var model = store.ToModel();
+        var model = _mapper.Map<StoreModel>(store);
 
         var gridModel = new DataSourceResult {
             Data = model.Domains.ToList(),

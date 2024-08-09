@@ -1,7 +1,9 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Messages;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Messages;
 using Grand.Web.Common.DataSource;
@@ -19,11 +21,13 @@ public class NewsletterCategoryController : BaseAdminController
     public NewsletterCategoryController(
         INewsletterCategoryService newsletterCategoryService,
         ILanguageService languageService,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IMapper mapper)
     {
         _newsletterCategoryService = newsletterCategoryService;
         _languageService = languageService;
         _translationService = translationService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -33,6 +37,7 @@ public class NewsletterCategoryController : BaseAdminController
     private readonly INewsletterCategoryService _newsletterCategoryService;
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -81,7 +86,7 @@ public class NewsletterCategoryController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var newsletterCategory = model.ToEntity();
+            var newsletterCategory = _mapper.Map<NewsletterCategory>(model);
             await _newsletterCategoryService.InsertNewsletterCategory(newsletterCategory);
             Success(_translationService.GetResource("admin.marketing.NewsletterCategory.Added"));
             return continueEditing
@@ -99,7 +104,7 @@ public class NewsletterCategoryController : BaseAdminController
         if (newsletterCategory == null)
             return RedirectToAction("List");
 
-        var model = newsletterCategory.ToModel();
+        var model = _mapper.Map<NewsletterCategoryModel>(newsletterCategory);
 
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
@@ -122,7 +127,7 @@ public class NewsletterCategoryController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            newsletterCategory = model.ToEntity(newsletterCategory);
+            newsletterCategory = _mapper.Map(model, newsletterCategory);
             await _newsletterCategoryService.UpdateNewsletterCategory(newsletterCategory);
 
             Success(_translationService.GetResource("admin.marketing.NewsletterCategory.Updated"));

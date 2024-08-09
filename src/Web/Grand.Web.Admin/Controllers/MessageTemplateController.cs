@@ -90,7 +90,7 @@ public class MessageTemplateController : BaseAdminController
         var items = new List<MessageTemplateModel>();
         foreach (var x in messageTemplates)
         {
-            var templateModel = x.ToModel();
+            var templateModel = _mapper.Map<MessageTemplateModel>(x);
             var stores = (await _storeService
                     .GetAllStores())
                 .Where(s => !x.LimitedToStores || templateModel.Stores.Contains(s.Id))
@@ -135,7 +135,7 @@ public class MessageTemplateController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var messageTemplate = model.ToEntity();
+            var messageTemplate = _mapper.Map<MessageTemplate>(model);
             //attached file
             if (!model.HasAttachedDownload)
                 messageTemplate.AttachedDownloadId = "";
@@ -176,7 +176,7 @@ public class MessageTemplateController : BaseAdminController
             //No message template found with the specified id
             return RedirectToAction("List");
 
-        var model = messageTemplate.ToModel();
+        var model = _mapper.Map<MessageTemplateModel>(messageTemplate);
         model.SendImmediately = !model.DelayBeforeSend.HasValue;
         model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
         model.AllowedTokens = _messageTokenProvider.GetListOfAllowedTokens();
@@ -214,7 +214,7 @@ public class MessageTemplateController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            messageTemplate = model.ToEntity(messageTemplate);
+            messageTemplate = _mapper.Map(model, messageTemplate);
             //attached file
             if (!model.HasAttachedDownload)
                 messageTemplate.AttachedDownloadId = "";

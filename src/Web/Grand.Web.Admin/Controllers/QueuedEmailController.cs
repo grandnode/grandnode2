@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Messages;
@@ -24,18 +25,21 @@ public class QueuedEmailController : BaseAdminController
     private readonly IQueuedEmailService _queuedEmailService;
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
+    private readonly IMapper _mapper;
 
     public QueuedEmailController(IQueuedEmailService queuedEmailService,
         IEmailAccountService emailAccountService,
         IDateTimeService dateTimeService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContext workContext,
+        IMapper mapper)
     {
         _queuedEmailService = queuedEmailService;
         _emailAccountService = emailAccountService;
         _dateTimeService = dateTimeService;
         _translationService = translationService;
         _workContext = workContext;
+        _mapper = mapper;
     }
 
     private DataSourceResult PrepareDataSource(IPagedList<QueuedEmail> queuedEmails)
@@ -43,7 +47,7 @@ public class QueuedEmailController : BaseAdminController
         return new DataSourceResult {
             Data = queuedEmails.Select((Func<QueuedEmail, QueuedEmailModel>)(x =>
             {
-                var m = x.ToModel();
+                var m = _mapper.Map<QueuedEmailModel>(x);
                 m.PriorityName = x.PriorityId.GetTranslationEnum(_translationService, _workContext);
                 m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                 if (x.DontSendBeforeDateUtc.HasValue)
@@ -118,7 +122,7 @@ public class QueuedEmailController : BaseAdminController
             //No email found with the specified id
             return RedirectToAction("List");
 
-        var model = email.ToModel();
+        var model = _mapper.Map<QueuedEmailModel>(email);
         model.PriorityName = email.PriorityId.GetTranslationEnum(_translationService, _workContext);
         model.CreatedOn = _dateTimeService.ConvertToUserTime(email.CreatedOnUtc, DateTimeKind.Utc);
         model.EmailAccountName = (await _emailAccountService.GetEmailAccountById(email.EmailAccountId)).DisplayName;
@@ -145,7 +149,7 @@ public class QueuedEmailController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            email = model.ToEntity(email);
+            email = _mapper.Map(model, email);
             email.DontSendBeforeDateUtc = model.SendImmediately || !model.DontSendBeforeDate.HasValue
                 ? null
                 : model.DontSendBeforeDate.ConvertToUtcTime(_dateTimeService);

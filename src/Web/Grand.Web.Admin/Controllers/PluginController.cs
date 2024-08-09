@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
@@ -26,7 +27,8 @@ public class PluginController(
     IHostApplicationLifetime applicationLifetime,
     IWorkContext workContext,
     IServiceProvider serviceProvider,
-    ExtensionsConfig extConfig)
+    ExtensionsConfig extConfig,
+    IMapper mapper)
     : BaseAdminController
 {
     #region Fields
@@ -40,16 +42,16 @@ public class PluginController(
     #region Utilities
 
     [NonAction]
-    protected virtual PluginModel PreparePluginModel(PluginInfo PluginInfo)
+    protected virtual PluginModel PreparePluginModel(PluginInfo pluginInfo)
     {
-        var pluginModel = PluginInfo.ToModel();
+        var pluginModel = mapper.Map<PluginModel>(pluginInfo);
         //logo
-        pluginModel.LogoUrl = PluginInfo.GetLogoUrl(workContext);
+        pluginModel.LogoUrl = pluginInfo.GetLogoUrl(workContext);
 
         //configuration URLs
-        if (PluginInfo.Installed)
+        if (pluginInfo.Installed)
         {
-            var pluginInstance = PluginInfo.Instance(serviceProvider);
+            var pluginInstance = pluginInfo.Instance(serviceProvider);
             pluginModel.ConfigurationUrl = pluginInstance.ConfigurationUrl();
         }
 

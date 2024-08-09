@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Documents;
 using Grand.Business.Core.Utilities.Common.Security;
@@ -15,19 +16,31 @@ namespace Grand.Web.Admin.Controllers;
 [PermissionAuthorize(PermissionSystemName.SalesEmployees)]
 public class SalesEmployeeController : BaseAdminController
 {
+    #region Fields
+
+    private readonly ISalesEmployeeService _salesEmployeeService;
+    private readonly ICustomerService _customerService;
+    private readonly IOrderService _orderService;
+    private readonly IDocumentService _documentService;
+    private readonly IMapper _mapper;
+
+    #endregion
+
     #region Constructors
 
     public SalesEmployeeController(
         ISalesEmployeeService salesEmployeeService,
         ICustomerService customerService,
         IOrderService orderService,
-        IDocumentService documentService
+        IDocumentService documentService,
+        IMapper mapper
     )
     {
         _salesEmployeeService = salesEmployeeService;
         _customerService = customerService;
         _orderService = orderService;
         _documentService = documentService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -43,7 +56,7 @@ public class SalesEmployeeController : BaseAdminController
     public async Task<IActionResult> List(DataSourceRequest command)
     {
         var weightsModel = (await _salesEmployeeService.GetAll())
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<SalesEmployeeModel>)
             .ToList();
 
         var gridModel = new DataSourceResult {
@@ -61,7 +74,7 @@ public class SalesEmployeeController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var salesemployee = await _salesEmployeeService.GetSalesEmployeeById(model.Id);
-        salesemployee = model.ToEntity(salesemployee);
+        salesemployee = _mapper.Map(model, salesemployee);
         await _salesEmployeeService.UpdateSalesEmployee(salesemployee);
         return new JsonResult("");
     }
@@ -73,7 +86,7 @@ public class SalesEmployeeController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var salesEmployee = new SalesEmployee();
-        salesEmployee = model.ToEntity(salesEmployee);
+        salesEmployee = _mapper.Map(model, salesEmployee);
         await _salesEmployeeService.InsertSalesEmployee(salesEmployee);
 
         return new JsonResult("");
@@ -103,13 +116,4 @@ public class SalesEmployeeController : BaseAdminController
 
         return new JsonResult("");
     }
-
-    #region Fields
-
-    private readonly ISalesEmployeeService _salesEmployeeService;
-    private readonly ICustomerService _customerService;
-    private readonly IOrderService _orderService;
-    private readonly IDocumentService _documentService;
-
-    #endregion
 }

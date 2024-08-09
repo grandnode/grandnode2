@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
@@ -27,14 +28,15 @@ public class NewsLetterSubscriptionController : BaseAdminController
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
-
+    private readonly IMapper _mapper;
     public NewsLetterSubscriptionController(INewsLetterSubscriptionService newsLetterSubscriptionService,
         INewsletterCategoryService newsletterCategoryService,
         IDateTimeService dateTimeService,
         ITranslationService translationService,
         IStoreService storeService,
         IGroupService groupService,
-        IWorkContext workContext)
+        IWorkContext workContext,
+        IMapper mapper)
     {
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _newsletterCategoryService = newsletterCategoryService;
@@ -43,6 +45,7 @@ public class NewsLetterSubscriptionController : BaseAdminController
         _storeService = storeService;
         _groupService = groupService;
         _workContext = workContext;
+        _mapper = mapper;
     }
 
     [NonAction]
@@ -132,7 +135,7 @@ public class NewsLetterSubscriptionController : BaseAdminController
         var items = new List<NewsLetterSubscriptionModel>();
         foreach (var x in newsletterSubscriptions)
         {
-            var m = x.ToModel();
+            var m = _mapper.Map<NewsLetterSubscriptionModel>(x);
             var store = await _storeService.GetStoreById(x.StoreId);
             m.StoreName = store != null ? store.Shortcut : "Unknown store";
             m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)

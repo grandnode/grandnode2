@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
@@ -30,6 +31,7 @@ using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net;
+using ZstdSharp.Unsafe;
 using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
 
 namespace Grand.Web.Admin.Services;
@@ -70,7 +72,8 @@ public class ProductViewModelService(
     TaxSettings taxSettings,
     SeoSettings seoSettings,
     IAuctionService auctionService,
-    IPriceFormatter priceFormatter)
+    IPriceFormatter priceFormatter,
+    IMapper mapper)
     : IProductViewModelService
 {
     public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
@@ -1436,7 +1439,7 @@ public class ProductViewModelService(
     public virtual async Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(
         Product product, ProductAttributeMapping productAttributeMapping)
     {
-        var model = productAttributeMapping.ToModel();
+        var model = mapper.Map<ProductModel.ProductAttributeMappingModel>(productAttributeMapping);
         foreach (var attribute in await productAttributeService.GetAllProductAttributes())
             model.AvailableProductAttribute.Add(new SelectListItem {
                 Value = attribute.Id,
@@ -1542,7 +1545,7 @@ public class ProductViewModelService(
     public virtual async Task InsertProductAttributeMappingModel(ProductModel.ProductAttributeMappingModel model)
     {
         //insert mapping
-        var productAttributeMapping = model.ToEntity();
+        var productAttributeMapping = mapper.Map<ProductAttributeMapping>(model);
         //predefined values
         var predefinedValues = (await productAttributeService.GetProductAttributeById(model.ProductAttributeId))
             .PredefinedProductAttributeValues;
@@ -1575,7 +1578,7 @@ public class ProductViewModelService(
             var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.Id);
             if (productAttributeMapping != null)
             {
-                productAttributeMapping = model.ToEntity(productAttributeMapping);
+                productAttributeMapping = mapper.Map(model, productAttributeMapping);
                 await productAttributeService.UpdateProductAttributeMapping(productAttributeMapping, model.ProductId);
             }
         }
@@ -1987,7 +1990,7 @@ public class ProductViewModelService(
             var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == combinationId);
             if (combination != null)
             {
-                model = combination.ToModel();
+                model = mapper.Map<ProductAttributeCombinationModel>(combination);
                 model.UseMultipleWarehouses = product.UseMultipleWarehouses;
                 model.WarehouseInventoryModels = wim;
                 model.ProductId = product.Id;
@@ -2496,7 +2499,7 @@ public class ProductViewModelService(
             model.SpecificationAttributeOptionId = null;
         }
 
-        var psa = model.ToEntity();
+        var psa = mapper.Map<ProductSpecificationAttribute>(model);
 
         await specificationAttributeService.InsertProductSpecificationAttribute(psa, product.Id);
         product.ProductSpecificationAttributes.Add(psa);
@@ -2505,7 +2508,13 @@ public class ProductViewModelService(
     public virtual async Task UpdateProductSpecificationAttributeModel(Product product,
         ProductSpecificationAttribute psa, ProductModel.AddProductSpecificationAttributeModel model)
     {
-        psa = model.ToEntity(psa);
+        if (model.AttributeTypeId != SpecificationAttributeType.Option)
+        {
+            model.SpecificationAttributeId = "";
+            model.SpecificationAttributeOptionId = "";
+            model.AllowFiltering = false;
+        }
+        psa = mapper.Map(model, psa);
         await specificationAttributeService.UpdateProductSpecificationAttribute(psa, model.ProductId);
     }
 

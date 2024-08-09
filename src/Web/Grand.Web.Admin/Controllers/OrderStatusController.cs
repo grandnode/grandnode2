@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Orders;
 using Grand.Web.Admin.Extensions.Mapping;
@@ -16,10 +17,11 @@ public class OrderStatusController : BaseAdminController
     #region Constructors
 
     public OrderStatusController(IOrderStatusService orderStatusService,
-        IOrderService orderService)
+        IOrderService orderService, IMapper mapper)
     {
         _orderStatusService = orderStatusService;
         _orderService = orderService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -28,6 +30,7 @@ public class OrderStatusController : BaseAdminController
 
     private readonly IOrderStatusService _orderStatusService;
     private readonly IOrderService _orderService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -56,7 +59,7 @@ public class OrderStatusController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var status = await _orderStatusService.GetById(model.Id);
-        status = model.ToEntity(status);
+        status = _mapper.Map(model, status);
         await _orderStatusService.Update(status);
 
         return new JsonResult("");
@@ -68,7 +71,7 @@ public class OrderStatusController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var status = new OrderStatus();
-        status = model.ToEntity(status);
+        status = _mapper.Map(model, status);
         status.StatusId = (await _orderStatusService.GetAll()).Max(x => x.StatusId) + 10;
         await _orderStatusService.Insert(status);
 

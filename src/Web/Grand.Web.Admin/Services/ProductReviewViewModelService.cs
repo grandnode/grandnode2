@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Commands.Catalog;
+﻿using AutoMapper;
+using Grand.Business.Core.Commands.Catalog;
 using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -25,6 +26,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
     private readonly IProductService _productService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
+    private readonly IMapper _mapper;
 
     public ProductReviewViewModelService(
         IProductService productService,
@@ -33,7 +35,8 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
         IStoreService storeService,
         IDateTimeService dateTimeService,
         ITranslationService translationService,
-        IMediator mediator)
+        IMediator mediator,
+        IMapper mapper)
     {
         _productService = productService;
         _productReviewService = productReviewService;
@@ -42,6 +45,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
         _dateTimeService = dateTimeService;
         _translationService = translationService;
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     public virtual async Task PrepareProductReviewModel(ProductReviewModel model,
@@ -125,7 +129,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
 
     public virtual async Task<ProductReview> UpdateProductReview(ProductReview productReview, ProductReviewModel model)
     {
-        productReview = model.ToEntity(productReview);
+        productReview = _mapper.Map(model, productReview);
         await _productReviewService.UpdateProductReview(productReview);
 
         //update product totals

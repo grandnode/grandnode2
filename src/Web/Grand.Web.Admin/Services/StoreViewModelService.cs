@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Shipping;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -8,6 +9,7 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Stores;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ZstdSharp.Unsafe;
 
 namespace Grand.Web.Admin.Services;
 
@@ -19,10 +21,12 @@ public class StoreViewModelService : IStoreViewModelService
     private readonly ISettingService _settingService;
     private readonly IStoreService _storeService;
     private readonly IWarehouseService _warehouseService;
+    private readonly IMapper _mapper;
 
     public StoreViewModelService(ILanguageService languageService, IWarehouseService warehouseService,
         IStoreService storeService, ISettingService settingService,
-        ICountryService countryService, ICurrencyService currencyService)
+        ICountryService countryService, ICurrencyService currencyService,
+        IMapper mapper)
     {
         _languageService = languageService;
         _warehouseService = warehouseService;
@@ -30,6 +34,7 @@ public class StoreViewModelService : IStoreViewModelService
         _settingService = settingService;
         _countryService = countryService;
         _currencyService = currencyService;
+        _mapper = mapper;
     }
 
     public virtual async Task PrepareLanguagesModel(StoreModel model)
@@ -109,7 +114,7 @@ public class StoreViewModelService : IStoreViewModelService
 
     public virtual async Task<Store> InsertStoreModel(StoreModel model)
     {
-        var store = model.ToEntity();
+        var store = _mapper.Map<Store>(model);
         //ensure we have "/" at the end
         if (!store.Url.Trim().EndsWith("/"))
             store.Url = store.Url.Trim() + "/";
@@ -131,7 +136,7 @@ public class StoreViewModelService : IStoreViewModelService
 
     public virtual async Task<Store> UpdateStoreModel(Store store, StoreModel model)
     {
-        store = model.ToEntity(store);
+        store = _mapper.Map(model, store);
 
         //ensure we have "/" at the end
         if (!store.Url.Trim().EndsWith("/"))

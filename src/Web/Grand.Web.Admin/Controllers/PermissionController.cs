@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -21,12 +22,14 @@ public class PermissionController : BaseAdminController
     public PermissionController(IWorkContext workContext,
         IPermissionService permissionService,
         IGroupService groupService,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IMapper mapper)
     {
         _workContext = workContext;
         _permissionService = permissionService;
         _groupService = groupService;
         _translationService = translationService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -37,6 +40,7 @@ public class PermissionController : BaseAdminController
     private readonly IPermissionService _permissionService;
     private readonly IGroupService _groupService;
     private readonly ITranslationService _translationService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -82,7 +86,7 @@ public class PermissionController : BaseAdminController
     {
         if (!ModelState.IsValid) return View(model);
 
-        var permission = model.ToEntity();
+        var permission = _mapper.Map<Permission>(model);
         await _permissionService.InsertPermission(permission);
         return Content("");
     }
@@ -93,7 +97,7 @@ public class PermissionController : BaseAdminController
 
         var permission = await _permissionService.GetPermissionBySystemName(systemName);
         if (permission == null) return Content("Permission not found");
-        var model = permission.ToModel();
+        var model = _mapper.Map<PermissionUpdateModel>(permission);
         return View(model);
     }
 
@@ -103,7 +107,7 @@ public class PermissionController : BaseAdminController
         if (!ModelState.IsValid) return View(model);
 
         var permission = await _permissionService.GetPermissionById(model.Id);
-        permission = model.ToEntity(permission);
+        permission = _mapper.Map(model, permission);
         await _permissionService.UpdatePermission(permission);
         return Content("");
     }

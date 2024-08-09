@@ -1,8 +1,10 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
@@ -26,7 +28,8 @@ public class SpecificationAttributeController : BaseAdminController
         IWorkContext workContext,
         IGroupService groupService,
         IProductService productService,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings,
+        IMapper mapper)
     {
         _specificationAttributeService = specificationAttributeService;
         _languageService = languageService;
@@ -35,6 +38,7 @@ public class SpecificationAttributeController : BaseAdminController
         _groupService = groupService;
         _productService = productService;
         _seoSettings = seoSettings;
+        _mapper = mapper;
     }
 
     #endregion
@@ -106,6 +110,7 @@ public class SpecificationAttributeController : BaseAdminController
     private readonly IWorkContext _workContext;
     private readonly IGroupService _groupService;
     private readonly SeoSettings _seoSettings;
+    private readonly IMapper _mapper;
 
     #endregion Fields
 
@@ -129,7 +134,7 @@ public class SpecificationAttributeController : BaseAdminController
         var specificationAttributes = await _specificationAttributeService
             .GetSpecificationAttributes(command.Page - 1, command.PageSize);
         var gridModel = new DataSourceResult {
-            Data = specificationAttributes.Select(x => x.ToModel()),
+            Data = specificationAttributes.Select(_mapper.Map<SpecificationAttributeModel>),
             Total = specificationAttributes.TotalCount
         };
 
@@ -154,7 +159,7 @@ public class SpecificationAttributeController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var specificationAttribute = model.ToEntity();
+            var specificationAttribute = _mapper.Map<SpecificationAttribute>(model);
             specificationAttribute.SeName = SeoExtensions.GetSeName(
                 string.IsNullOrEmpty(specificationAttribute.SeName)
                     ? specificationAttribute.Name
@@ -183,7 +188,7 @@ public class SpecificationAttributeController : BaseAdminController
             //No specification attribute found with the specified id
             return RedirectToAction("List");
 
-        var model = specificationAttribute.ToModel();
+        var model = _mapper.Map<SpecificationAttributeModel>(specificationAttribute);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
@@ -205,7 +210,7 @@ public class SpecificationAttributeController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            specificationAttribute = model.ToEntity(specificationAttribute);
+            specificationAttribute = _mapper.Map(model, specificationAttribute);
             specificationAttribute.SeName = SeoExtensions.GetSeName(
                 string.IsNullOrEmpty(specificationAttribute.SeName)
                     ? specificationAttribute.Name
@@ -273,7 +278,7 @@ public class SpecificationAttributeController : BaseAdminController
         var gridModel = new DataSourceResult {
             Data = options.Select(x =>
             {
-                var model = x.ToModel();
+                var model = _mapper.Map<SpecificationAttributeOptionModel>(x);
                 //in order to save performance to do not check whether a product is deleted, etc
                 model.NumberOfAssociatedProducts = _specificationAttributeService
                     .GetProductSpecificationAttributeCount("", x.Id);
@@ -309,7 +314,7 @@ public class SpecificationAttributeController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            var sao = model.ToEntity();
+            var sao = _mapper.Map<SpecificationAttributeOption>(model);
             sao.SeName = SeoExtensions.GetSeName(string.IsNullOrEmpty(sao.SeName) ? sao.Name : sao.SeName,
                 _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
                 _seoSettings.SeoCharConversion);
@@ -336,7 +341,7 @@ public class SpecificationAttributeController : BaseAdminController
             //No specification attribute option found with the specified id
             return RedirectToAction("List");
 
-        var model = sao.ToModel();
+        var model = _mapper.Map<SpecificationAttributeOptionModel>(sao);
         model.EnableColorSquaresRgb = !string.IsNullOrEmpty(sao.ColorSquaresRgb);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
@@ -359,7 +364,7 @@ public class SpecificationAttributeController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            sao = model.ToEntity(sao);
+            sao = _mapper.Map(model, sao);
             sao.SeName = SeoExtensions.GetSeName(string.IsNullOrEmpty(sao.SeName) ? sao.Name : sao.SeName,
                 _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
                 _seoSettings.SeoCharConversion);

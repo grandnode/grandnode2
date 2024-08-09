@@ -1,8 +1,10 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
@@ -26,7 +28,8 @@ public class ProductAttributeController : BaseAdminController
         ITranslationService translationService,
         IWorkContext workContext,
         IGroupService groupService,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings,
+        IMapper mapper)
     {
         _productService = productService;
         _productAttributeService = productAttributeService;
@@ -35,6 +38,7 @@ public class ProductAttributeController : BaseAdminController
         _workContext = workContext;
         _groupService = groupService;
         _seoSettings = seoSettings;
+        _mapper = mapper;
     }
 
     #endregion
@@ -48,6 +52,7 @@ public class ProductAttributeController : BaseAdminController
     private readonly IWorkContext _workContext;
     private readonly IGroupService _groupService;
     private readonly SeoSettings _seoSettings;
+    private readonly IMapper _mapper;
 
     #endregion Fields
 
@@ -73,7 +78,7 @@ public class ProductAttributeController : BaseAdminController
         var productAttributes = await _productAttributeService
             .GetAllProductAttributes(command.Page - 1, command.PageSize);
         var gridModel = new DataSourceResult {
-            Data = productAttributes.Select(x => x.ToModel()),
+            Data = productAttributes.Select(_mapper.Map<ProductAttributeModel>),
             Total = productAttributes.TotalCount
         };
 
@@ -97,7 +102,7 @@ public class ProductAttributeController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var productAttribute = model.ToEntity();
+            var productAttribute = _mapper.Map<ProductAttribute>(model);
             productAttribute.SeName = SeoExtensions.GetSeName(
                 string.IsNullOrEmpty(productAttribute.SeName) ? productAttribute.Name : productAttribute.SeName,
                 _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
@@ -126,7 +131,7 @@ public class ProductAttributeController : BaseAdminController
             //No product attribute found with the specified id
             return RedirectToAction("List");
 
-        var model = productAttribute.ToModel();
+        var model = _mapper.Map<ProductAttributeModel>(productAttribute);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
@@ -149,7 +154,7 @@ public class ProductAttributeController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            productAttribute = model.ToEntity(productAttribute);
+            productAttribute = _mapper.Map(model, productAttribute);
             productAttribute.SeName = SeoExtensions.GetSeName(
                 string.IsNullOrEmpty(productAttribute.SeName) ? productAttribute.Name : productAttribute.SeName,
                 _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
@@ -237,7 +242,7 @@ public class ProductAttributeController : BaseAdminController
         var values = (await _productAttributeService.GetProductAttributeById(productAttributeId))
             .PredefinedProductAttributeValues;
         var gridModel = new DataSourceResult {
-            Data = values.Select(x => x.ToModel()),
+            Data = values.Select(_mapper.Map<PredefinedProductAttributeValueModel>),
             Total = values.Count
         };
 
@@ -273,7 +278,7 @@ public class ProductAttributeController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            var ppav = model.ToEntity();
+            var ppav = _mapper.Map<PredefinedProductAttributeValue>(model);
             productAttribute.PredefinedProductAttributeValues.Add(ppav);
             await _productAttributeService.UpdateProductAttribute(productAttribute);
             return Content("");
@@ -292,7 +297,7 @@ public class ProductAttributeController : BaseAdminController
         if (ppav == null)
             throw new ArgumentException("No product attribute value found with the specified id");
 
-        var model = ppav.ToModel();
+        var model = _mapper.Map<PredefinedProductAttributeValueModel>(ppav);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
@@ -313,7 +318,7 @@ public class ProductAttributeController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            ppav = model.ToEntity(ppav);
+            ppav = _mapper.Map(model, ppav);
             await _productAttributeService.UpdateProductAttribute(productAttribute);
             return Content("");
         }

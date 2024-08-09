@@ -221,7 +221,7 @@ public class ShippingController : BaseAdminController
     public async Task<IActionResult> Methods(DataSourceRequest command)
     {
         var shippingMethodsModel = (await _shippingMethodService.GetAllShippingMethods())
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<ShippingMethodModel>)
             .ToList();
         var gridModel = new DataSourceResult {
             Data = shippingMethodsModel,
@@ -246,7 +246,7 @@ public class ShippingController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var sm = model.ToEntity();
+            var sm = _mapper.Map<ShippingMethod>(model);
             await _shippingMethodService.InsertShippingMethod(sm);
 
             Success(_translationService.GetResource("Admin.Configuration.Shipping.Methods.Added"));
@@ -264,7 +264,7 @@ public class ShippingController : BaseAdminController
             //No shipping method found with the specified id
             return RedirectToAction("Methods");
 
-        var model = sm.ToModel();
+        var model = _mapper.Map<ShippingMethodModel>(sm);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
@@ -286,7 +286,7 @@ public class ShippingController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            sm = model.ToEntity(sm);
+            sm = _mapper.Map(model, sm);
             await _shippingMethodService.UpdateShippingMethod(sm);
 
             Success(_translationService.GetResource("Admin.Configuration.Shipping.Methods.Updated"));
@@ -599,7 +599,7 @@ public class ShippingController : BaseAdminController
     public async Task<IActionResult> PickupPoints(DataSourceRequest command)
     {
         var pickupPointsModel = (await _pickupPointService.GetAllPickupPoints())
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<PickupPointModel>)
             .ToList();
 
         var gridModel = new DataSourceResult {
@@ -624,7 +624,7 @@ public class ShippingController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var pickuppoint = model.ToEntity();
+            var pickuppoint = _mapper.Map<PickupPoint>(model);
             await _pickupPointService.InsertPickupPoint(pickuppoint);
 
             Success(_translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Added"));
@@ -645,7 +645,7 @@ public class ShippingController : BaseAdminController
             //No pickup pint found with the specified id
             return RedirectToAction("PickupPoints");
 
-        var model = pickuppoint.ToModel();
+        var model = _mapper.Map<PickupPointModel>(pickuppoint);
         await PreparePickupPointModel(model);
 
         return View(model);
@@ -662,7 +662,7 @@ public class ShippingController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            pickupPoint = model.ToEntity(pickupPoint);
+            pickupPoint = _mapper.Map(model, pickupPoint);
             await _pickupPointService.UpdatePickupPoint(pickupPoint);
 
             Success(_translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Updated"));
