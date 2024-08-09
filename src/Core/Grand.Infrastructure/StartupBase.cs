@@ -57,18 +57,8 @@ public static class StartupBase
             .Select(mapperConfiguration => (IAutoMapperProfile)Activator.CreateInstance(mapperConfiguration))
             .OrderBy(mapperConfiguration => mapperConfiguration!.Order);
 
-        //create AutoMapper configuration
-        var config = new MapperConfiguration(cfg =>
-        {
-            foreach (var instance in instances)
-            {
-                cfg.AddProfile(instance.GetType());
-                services.AddAutoMapper(instance.GetType());
-            }
-        });
-        //register automapper
-        AutoMapperConfig.Init(config);
-        
+        var assemblies = instances.Select(instance => instance.GetType().Assembly).Distinct().ToList();
+        services.AddAutoMapper(assemblies);
     }
 
     /// <summary>
