@@ -1,10 +1,10 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Plugins;
-using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.ExternalAuthentication;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
@@ -20,12 +20,14 @@ public class ExternalAuthenticationController : BaseAdminController
     public ExternalAuthenticationController(IExternalAuthenticationService openAuthenticationService,
         ExternalAuthenticationSettings externalAuthenticationSettings,
         ISettingService settingService,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        IMapper mapper)
     {
         _openAuthenticationService = openAuthenticationService;
         _externalAuthenticationSettings = externalAuthenticationSettings;
         _settingService = settingService;
         _serviceProvider = serviceProvider;
+        _mapper = mapper;
     }
 
     #endregion
@@ -36,6 +38,7 @@ public class ExternalAuthenticationController : BaseAdminController
     private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
     private readonly ISettingService _settingService;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -53,7 +56,7 @@ public class ExternalAuthenticationController : BaseAdminController
         var methods = _openAuthenticationService.LoadAllAuthenticationProviders();
         foreach (var method in methods)
         {
-            var tmp = method.ToModel();
+            var tmp = _mapper.Map<AuthenticationMethodModel>(method);
             tmp.IsActive = method.IsMethodActive(_externalAuthenticationSettings);
             var url = method.ConfigurationUrl;
 

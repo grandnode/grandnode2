@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
@@ -13,6 +14,7 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ZstdSharp.Unsafe;
 
 namespace Grand.Web.Admin.Services;
 
@@ -25,7 +27,8 @@ public class CheckoutAttributeViewModelService(
     ICurrencyService currencyService,
     CurrencySettings currencySettings,
     IMeasureService measureService,
-    MeasureSettings measureSettings)
+    MeasureSettings measureSettings,
+    IMapper mapper)
     : ICheckoutAttributeViewModelService
 {
     public virtual async Task<IEnumerable<CheckoutAttributeModel>> PrepareCheckoutAttributeListModel()
@@ -33,7 +36,7 @@ public class CheckoutAttributeViewModelService(
         var checkoutAttributes = await checkoutAttributeService.GetAllCheckoutAttributes(ignoreAcl: true);
         return checkoutAttributes.Select((Func<CheckoutAttribute, CheckoutAttributeModel>)(x =>
         {
-            var attributeModel = x.ToModel();
+            var attributeModel = mapper.Map<CheckoutAttributeModel>(x);
             attributeModel.AttributeControlTypeName =
                 x.AttributeControlTypeId.GetTranslationEnum(translationService, workContext);
             return attributeModel;
@@ -89,7 +92,7 @@ public class CheckoutAttributeViewModelService(
     public virtual async Task<CheckoutAttributeValueModel> PrepareCheckoutAttributeValueModel(
         CheckoutAttribute checkoutAttribute, CheckoutAttributeValue checkoutAttributeValue)
     {
-        var model = checkoutAttributeValue.ToModel();
+        var model = mapper.Map<CheckoutAttributeValueModel>(checkoutAttributeValue);
         model.DisplayColorSquaresRgb = checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares;
         model.PrimaryStoreCurrencyCode =
             (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
@@ -100,7 +103,7 @@ public class CheckoutAttributeViewModelService(
 
     public virtual async Task<CheckoutAttribute> InsertCheckoutAttributeModel(CheckoutAttributeModel model)
     {
-        var checkoutAttribute = model.ToEntity();
+        var checkoutAttribute = mapper.Map<CheckoutAttribute>(model);
         await checkoutAttributeService.InsertCheckoutAttribute(checkoutAttribute);
 
         return checkoutAttribute;
@@ -109,7 +112,7 @@ public class CheckoutAttributeViewModelService(
     public virtual async Task<CheckoutAttribute> UpdateCheckoutAttributeModel(CheckoutAttribute checkoutAttribute,
         CheckoutAttributeModel model)
     {
-        checkoutAttribute = model.ToEntity(checkoutAttribute);
+        checkoutAttribute = mapper.Map(model, checkoutAttribute);
         await SaveConditionAttributes(checkoutAttribute, model);
         await checkoutAttributeService.UpdateCheckoutAttribute(checkoutAttribute);
         return checkoutAttribute;
@@ -118,7 +121,7 @@ public class CheckoutAttributeViewModelService(
     public virtual async Task<CheckoutAttributeValue> InsertCheckoutAttributeValueModel(
         CheckoutAttribute checkoutAttribute, CheckoutAttributeValueModel model)
     {
-        var cav = model.ToEntity();
+        var cav = mapper.Map<CheckoutAttributeValue>(model);
         checkoutAttribute.CheckoutAttributeValues.Add(cav);
         await checkoutAttributeService.UpdateCheckoutAttribute(checkoutAttribute);
         return cav;
@@ -128,7 +131,7 @@ public class CheckoutAttributeViewModelService(
         CheckoutAttribute checkoutAttribute, CheckoutAttributeValue checkoutAttributeValue,
         CheckoutAttributeValueModel model)
     {
-        checkoutAttributeValue = model.ToEntity(checkoutAttributeValue);
+        checkoutAttributeValue = mapper.Map(model, checkoutAttributeValue);
         await checkoutAttributeService.UpdateCheckoutAttribute(checkoutAttribute);
         return checkoutAttributeValue;
     }

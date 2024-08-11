@@ -82,7 +82,7 @@ public class TaxController : BaseAdminController
         var taxProvidersModel = new List<TaxProviderModel>();
         foreach (var tax in taxProviders)
         {
-            var tmp = tax.ToModel();
+            var tmp = _mapper.Map<TaxProviderModel>(tax);
             var url = tax.ConfigurationUrl;
             if (string.IsNullOrEmpty(url))
                 url = PluginManager.ReferencedPlugins.FirstOrDefault(x =>

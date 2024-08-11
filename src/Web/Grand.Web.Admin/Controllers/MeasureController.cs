@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
@@ -22,13 +23,15 @@ public class MeasureController : BaseAdminController
         ISettingService settingService,
         ITranslationService translationService,
         MeasureSettings measureSettings,
-        ICacheBase cacheBase)
+        ICacheBase cacheBase,
+        IMapper mapper)
     {
         _measureService = measureService;
         _settingService = settingService;
         _translationService = translationService;
         _measureSettings = measureSettings;
         _cacheBase = cacheBase;
+        _mapper = mapper;
     }
 
     #endregion
@@ -40,6 +43,7 @@ public class MeasureController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly MeasureSettings _measureSettings;
     private readonly ICacheBase _cacheBase;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -62,7 +66,7 @@ public class MeasureController : BaseAdminController
     public async Task<IActionResult> Weights(DataSourceRequest command)
     {
         var weightsModel = (await _measureService.GetAllMeasureWeights())
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<MeasureWeightModel>)
             .ToList();
         foreach (var wm in weightsModel)
             wm.IsPrimaryWeight = wm.Id == _measureSettings.BaseWeightId;
@@ -81,7 +85,7 @@ public class MeasureController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var weight = await _measureService.GetMeasureWeightById(model.Id);
-        weight = model.ToEntity(weight);
+        weight = _mapper.Map(model, weight);
         await _measureService.UpdateMeasureWeight(weight);
 
         return new JsonResult("");
@@ -94,7 +98,7 @@ public class MeasureController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var weight = new MeasureWeight();
-        weight = model.ToEntity(weight);
+        weight = _mapper.Map(model, weight);
         await _measureService.InsertMeasureWeight(weight);
 
         return new JsonResult("");
@@ -143,7 +147,7 @@ public class MeasureController : BaseAdminController
     public async Task<IActionResult> Dimensions(DataSourceRequest command)
     {
         var dimensionsModel = (await _measureService.GetAllMeasureDimensions())
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<MeasureDimensionModel>)
             .ToList();
         foreach (var wm in dimensionsModel)
             wm.IsPrimaryDimension = wm.Id == _measureSettings.BaseDimensionId;
@@ -162,7 +166,7 @@ public class MeasureController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var dimension = await _measureService.GetMeasureDimensionById(model.Id);
-        dimension = model.ToEntity(dimension);
+        dimension = _mapper.Map(model, dimension);
         await _measureService.UpdateMeasureDimension(dimension);
 
         return new JsonResult("");
@@ -175,7 +179,7 @@ public class MeasureController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var dimension = new MeasureDimension();
-        dimension = model.ToEntity(dimension);
+        dimension = _mapper.Map(model, dimension);
         await _measureService.InsertMeasureDimension(dimension);
 
         return new JsonResult("");
@@ -226,7 +230,7 @@ public class MeasureController : BaseAdminController
     public async Task<IActionResult> Units(DataSourceRequest command)
     {
         var unitsModel = (await _measureService.GetAllMeasureUnits())
-            .Select(x => x.ToModel())
+            .Select(_mapper.Map<MeasureUnitModel>)
             .ToList();
 
         var gridModel = new DataSourceResult {
@@ -244,7 +248,7 @@ public class MeasureController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var unit = await _measureService.GetMeasureUnitById(model.Id);
-        unit = model.ToEntity(unit);
+        unit = _mapper.Map(model, unit);
         await _measureService.UpdateMeasureUnit(unit);
 
         return new JsonResult("");
@@ -257,7 +261,7 @@ public class MeasureController : BaseAdminController
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
         var unit = new MeasureUnit();
-        unit = model.ToEntity(unit);
+        unit = _mapper.Map(model, unit);
         await _measureService.InsertMeasureUnit(unit);
 
         return new JsonResult("");

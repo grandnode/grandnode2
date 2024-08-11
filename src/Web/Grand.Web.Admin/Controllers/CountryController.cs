@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Dto;
+﻿using AutoMapper;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -26,7 +27,8 @@ public class CountryController : BaseAdminController
         ITranslationService translationService,
         ILanguageService languageService,
         IExportManager<CountryStatesDto> exportManager,
-        IImportManager<CountryStatesDto> importManager)
+        IImportManager<CountryStatesDto> importManager,
+        IMapper mapper)
     {
         _countryService = countryService;
         _countryViewModelService = countryViewModelService;
@@ -34,6 +36,7 @@ public class CountryController : BaseAdminController
         _languageService = languageService;
         _exportManager = exportManager;
         _importManager = importManager;
+        _mapper = mapper;
     }
 
     #endregion
@@ -46,6 +49,7 @@ public class CountryController : BaseAdminController
     private readonly ILanguageService _languageService;
     private readonly IExportManager<CountryStatesDto> _exportManager;
     private readonly IImportManager<CountryStatesDto> _importManager;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -75,7 +79,7 @@ public class CountryController : BaseAdminController
             ).ToList();
 
         var gridModel = new DataSourceResult {
-            Data = countries.Select(x => x.ToModel()),
+            Data = countries.Select(_mapper.Map<CountryModel>),
             Total = countries.Count
         };
 
@@ -116,7 +120,7 @@ public class CountryController : BaseAdminController
             //No country found with the specified id
             return RedirectToAction("List");
 
-        var model = country.ToModel();
+        var model = _mapper.Map<CountryModel>(country);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
@@ -288,7 +292,7 @@ public class CountryController : BaseAdminController
             //No state found with the specified id
             return RedirectToAction("List");
 
-        var model = sp.ToModel();
+        var model = _mapper.Map<StateProvinceModel>(sp);
         model.CountryId = country.Id;
 
         //locales

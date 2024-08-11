@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Domain.Catalog;
@@ -9,6 +10,7 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Messages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ZstdSharp.Unsafe;
 
 namespace Grand.Web.Admin.Services;
 
@@ -16,7 +18,8 @@ public class ContactAttributeViewModelService(
     IContactAttributeService contactAttributeService,
     IContactAttributeParser contactAttributeParser,
     ITranslationService translationService,
-    IWorkContext workContext)
+    IWorkContext workContext,
+    IMapper mapper)
     : IContactAttributeViewModelService
 {
     public virtual async Task<IEnumerable<ContactAttributeModel>> PrepareContactAttributeListModel()
@@ -25,7 +28,7 @@ public class ContactAttributeViewModelService(
             await contactAttributeService.GetAllContactAttributes(workContext.CurrentCustomer.StaffStoreId, true);
         return contactAttributes.Select(x =>
         {
-            var attributeModel = x.ToModel();
+            var attributeModel = mapper.Map<ContactAttributeModel>(x);
             attributeModel.AttributeControlTypeName =
                 x.AttributeControlType.GetTranslationEnum(translationService, workContext);
             return attributeModel;
@@ -72,7 +75,7 @@ public class ContactAttributeViewModelService(
 
     public virtual async Task<ContactAttribute> InsertContactAttributeModel(ContactAttributeModel model)
     {
-        var contactAttribute = model.ToEntity();
+        var contactAttribute = mapper.Map<ContactAttribute>(model);
         await contactAttributeService.InsertContactAttribute(contactAttribute);
         return contactAttribute;
     }
@@ -80,7 +83,7 @@ public class ContactAttributeViewModelService(
     public virtual async Task<ContactAttribute> UpdateContactAttributeModel(ContactAttribute contactAttribute,
         ContactAttributeModel model)
     {
-        contactAttribute = model.ToEntity(contactAttribute);
+        contactAttribute = mapper.Map(model, contactAttribute);
         await SaveConditionAttributes(contactAttribute, model);
         await contactAttributeService.UpdateContactAttribute(contactAttribute);
         return contactAttribute;
@@ -101,7 +104,7 @@ public class ContactAttributeViewModelService(
     public virtual ContactAttributeValueModel PrepareContactAttributeValueModel(ContactAttribute contactAttribute,
         ContactAttributeValue contactAttributeValue)
     {
-        var model = contactAttributeValue.ToModel();
+        var model = mapper.Map<ContactAttributeValueModel>(contactAttributeValue);
         model.DisplayColorSquaresRgb = contactAttribute.AttributeControlType == AttributeControlType.ColorSquares;
         return model;
     }
@@ -109,7 +112,7 @@ public class ContactAttributeViewModelService(
     public virtual async Task<ContactAttributeValue> InsertContactAttributeValueModel(ContactAttribute contactAttribute,
         ContactAttributeValueModel model)
     {
-        var cav = model.ToEntity();
+        var cav = mapper.Map<ContactAttributeValue>(model);
         contactAttribute.ContactAttributeValues.Add(cav);
         await contactAttributeService.UpdateContactAttribute(contactAttribute);
         return cav;
@@ -118,7 +121,7 @@ public class ContactAttributeViewModelService(
     public virtual async Task<ContactAttributeValue> UpdateContactAttributeValueModel(ContactAttribute contactAttribute,
         ContactAttributeValue contactAttributeValue, ContactAttributeValueModel model)
     {
-        contactAttributeValue = model.ToEntity(contactAttributeValue);
+        contactAttributeValue = mapper.Map(model, contactAttributeValue);
         await contactAttributeService.UpdateContactAttribute(contactAttribute);
         return contactAttributeValue;
     }

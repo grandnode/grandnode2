@@ -164,7 +164,7 @@ public class ShippingController : BaseAdminController
         var shippingProviders = _shippingService.LoadAllShippingRateCalculationProviders();
         foreach (var shippingProvider in shippingProviders)
         {
-            var tmp1 = shippingProvider.ToModel();
+            var tmp1 = _mapper.Map<ShippingRateComputationMethodModel>(shippingProvider);
             tmp1.IsActive = shippingProvider.IsShippingRateMethodActive(_shippingProviderSettings);
             shippingProvidersModel.Add(tmp1);
         }

@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Cms;
@@ -22,13 +23,15 @@ public class WidgetController : BaseAdminController
         ISettingService settingService,
         ICacheBase cacheBase,
         IServiceProvider serviceProvider,
-        WidgetSettings widgetSettings)
+        WidgetSettings widgetSettings,
+        IMapper mapper)
     {
         _widgetService = widgetService;
         _widgetSettings = widgetSettings;
         _cacheBase = cacheBase;
         _serviceProvider = serviceProvider;
         _settingService = settingService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -40,6 +43,7 @@ public class WidgetController : BaseAdminController
     private readonly ICacheBase _cacheBase;
     private readonly IServiceProvider _serviceProvider;
     private readonly WidgetSettings _widgetSettings;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -63,7 +67,7 @@ public class WidgetController : BaseAdminController
         var widgets = _widgetService.LoadAllWidgets();
         foreach (var widget in widgets)
         {
-            var tmp = widget.ToModel();
+            var tmp = _mapper.Map<WidgetModel>(widget);
             tmp.IsActive = widget.IsWidgetActive(_widgetSettings);
 
             var url = widget.ConfigurationUrl;

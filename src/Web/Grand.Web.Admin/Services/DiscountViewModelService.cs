@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
@@ -27,6 +28,26 @@ namespace Grand.Web.Admin.Services;
 
 public class DiscountViewModelService : IDiscountViewModelService
 {
+    #region Fields
+
+    private readonly IDiscountService _discountService;
+    private readonly ITranslationService _translationService;
+    private readonly ICurrencyService _currencyService;
+    private readonly ICategoryService _categoryService;
+    private readonly IProductService _productService;
+    private readonly IWorkContext _workContext;
+    private readonly IBrandService _brandService;
+    private readonly ICollectionService _collectionService;
+    private readonly IStoreService _storeService;
+    private readonly IVendorService _vendorService;
+    private readonly IOrderService _orderService;
+    private readonly IPriceFormatter _priceFormatter;
+    private readonly IDateTimeService _dateTimeService;
+    private readonly IDiscountProviderLoader _discountProviderLoader;
+    private readonly IMediator _mediator;
+    private readonly IMapper _mapper;
+    #endregion
+
     #region Constructors
 
     public DiscountViewModelService(IDiscountService discountService,
@@ -43,7 +64,8 @@ public class DiscountViewModelService : IDiscountViewModelService
         IPriceFormatter priceFormatter,
         IDateTimeService dateTimeService,
         IDiscountProviderLoader discountProviderLoader,
-        IMediator mediator)
+        IMediator mediator,
+        IMapper mapper)
     {
         _discountService = discountService;
         _translationService = translationService;
@@ -60,6 +82,7 @@ public class DiscountViewModelService : IDiscountViewModelService
         _dateTimeService = dateTimeService;
         _discountProviderLoader = discountProviderLoader;
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     #endregion
@@ -269,7 +292,7 @@ public class DiscountViewModelService : IDiscountViewModelService
         var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
             model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);
-        return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
+        return (products.Select(_mapper.Map<ProductModel>).ToList(), products.TotalCount);
     }
 
     public virtual async Task InsertProductToDiscountModel(DiscountModel.AddProductToDiscountModel model)
@@ -419,24 +442,4 @@ public class DiscountViewModelService : IDiscountViewModelService
 
         return (items, duh.TotalCount);
     }
-
-    #region Fields
-
-    private readonly IDiscountService _discountService;
-    private readonly ITranslationService _translationService;
-    private readonly ICurrencyService _currencyService;
-    private readonly ICategoryService _categoryService;
-    private readonly IProductService _productService;
-    private readonly IWorkContext _workContext;
-    private readonly IBrandService _brandService;
-    private readonly ICollectionService _collectionService;
-    private readonly IStoreService _storeService;
-    private readonly IVendorService _vendorService;
-    private readonly IOrderService _orderService;
-    private readonly IPriceFormatter _priceFormatter;
-    private readonly IDateTimeService _dateTimeService;
-    private readonly IDiscountProviderLoader _discountProviderLoader;
-    private readonly IMediator _mediator;
-
-    #endregion
 }

@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
@@ -20,11 +21,13 @@ public class LanguageController : BaseAdminController
     public LanguageController(
         ILanguageViewModelService languageViewModelService,
         ILanguageService languageService,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IMapper mapper)
     {
         _languageViewModelService = languageViewModelService;
         _translationService = translationService;
         _languageService = languageService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -34,6 +37,7 @@ public class LanguageController : BaseAdminController
     private readonly ILanguageViewModelService _languageViewModelService;
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -56,7 +60,7 @@ public class LanguageController : BaseAdminController
     {
         var languages = await _languageService.GetAllLanguages(true);
         var gridModel = new DataSourceResult {
-            Data = languages.Select(x => x.ToModel()),
+            Data = languages.Select(_mapper.Map<LanguageModel>),
             Total = languages.Count
         };
         return Json(gridModel);
@@ -105,7 +109,7 @@ public class LanguageController : BaseAdminController
             //No language found with the specified id
             return RedirectToAction("List");
 
-        var model = language.ToModel();
+        var model = _mapper.Map<LanguageModel>(language);
         //currencies
         await _languageViewModelService.PrepareCurrenciesModel(model);
         //flags

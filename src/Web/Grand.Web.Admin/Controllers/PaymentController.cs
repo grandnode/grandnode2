@@ -11,6 +11,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
+using Grand.Web.Admin.Models.Directory;
 using Grand.Web.Admin.Models.Payments;
 using Grand.Web.Admin.Models.Shipping;
 using Grand.Web.Common.DataSource;
@@ -154,7 +155,7 @@ public class PaymentController : BaseAdminController
         var shippings = await _shippingMethodService.GetAllShippingMethods();
 
         foreach (var pm in paymentMethods) model.AvailablePaymentMethods.Add(await pm.ToModel());
-        foreach (var c in countries) model.AvailableCountries.Add(c.ToModel());
+        foreach (var c in countries) model.AvailableCountries.Add(_mapper.Map<CountryModel>(c));
         foreach (var s in shippings)
             model.AvailableShippingMethods.Add(new ShippingMethodModel {
                 Id = s.Id,

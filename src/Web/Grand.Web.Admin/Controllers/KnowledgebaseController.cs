@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
@@ -10,6 +11,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ZstdSharp.Unsafe;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -20,17 +22,20 @@ public class KnowledgebaseController : BaseAdminController
     private readonly IKnowledgebaseViewModelService _knowledgebaseViewModelService;
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
+    private readonly IMapper _mapper;
 
     public KnowledgebaseController(
         IKnowledgebaseViewModelService knowledgebaseViewModelService,
         ITranslationService translationService,
         IKnowledgebaseService knowledgebaseService,
-        ILanguageService languageService)
+        ILanguageService languageService,
+        IMapper mapper)
     {
         _knowledgebaseViewModelService = knowledgebaseViewModelService;
         _translationService = translationService;
         _knowledgebaseService = knowledgebaseService;
         _languageService = languageService;
+        _mapper = mapper;
     }
 
     public IActionResult Index()
@@ -96,7 +101,7 @@ public class KnowledgebaseController : BaseAdminController
         if (knowledgebaseCategory == null)
             return RedirectToAction("List");
 
-        var model = knowledgebaseCategory.ToModel();
+        var model = _mapper.Map<KnowledgebaseCategoryModel>(knowledgebaseCategory);
         await _knowledgebaseViewModelService.PrepareCategory(model);
 
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
@@ -201,7 +206,7 @@ public class KnowledgebaseController : BaseAdminController
         if (knowledgebaseArticle == null)
             return RedirectToAction("List");
 
-        var model = knowledgebaseArticle.ToModel();
+        var model = _mapper.Map<KnowledgebaseArticleModel>(knowledgebaseArticle);
         await _knowledgebaseViewModelService.PrepareCategory(model);
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
@@ -286,7 +291,7 @@ public class KnowledgebaseController : BaseAdminController
             await _knowledgebaseService.GetKnowledgebaseArticlesByName(model.SearchArticleName, command.Page - 1,
                 command.PageSize);
         var gridModel = new DataSourceResult {
-            Data = articles.Select(x => x.ToModel()),
+            Data = articles.Select(_mapper.Map<KnowledgebaseArticleModel>),
             Total = articles.TotalCount
         };
 

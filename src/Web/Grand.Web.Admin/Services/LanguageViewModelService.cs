@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Localization;
 using Grand.SharedKernel.Extensions;
@@ -11,15 +12,26 @@ namespace Grand.Web.Admin.Services;
 
 public class LanguageViewModelService : ILanguageViewModelService
 {
+    #region Fields
+
+    private readonly ILanguageService _languageService;
+    private readonly ITranslationService _translationService;
+    private readonly ICurrencyService _currencyService;
+    private readonly IMapper _mapper;
+
+    #endregion
+
     #region Constructors
 
     public LanguageViewModelService(ILanguageService languageService,
         ITranslationService translationService,
-        ICurrencyService currencyService)
+        ICurrencyService currencyService,
+        IMapper mapper)
     {
         _translationService = translationService;
         _languageService = languageService;
         _currencyService = currencyService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -52,7 +64,7 @@ public class LanguageViewModelService : ILanguageViewModelService
 
     public virtual async Task<Language> InsertLanguageModel(LanguageModel model)
     {
-        var language = model.ToEntity();
+        var language = _mapper.Map<Language>(model);
         await _languageService.InsertLanguage(language);
         return language;
     }
@@ -60,7 +72,7 @@ public class LanguageViewModelService : ILanguageViewModelService
     public virtual async Task<Language> UpdateLanguageModel(Language language, LanguageModel model)
     {
         //update
-        language = model.ToEntity(language);
+        language = _mapper.Map(model, language);
         await _languageService.UpdateLanguage(language);
         return language;
     }
@@ -150,11 +162,4 @@ public class LanguageViewModelService : ILanguageViewModelService
         return (resources.Skip((pageIndex - 1) * pageSize).Take(pageSize), resources.Count());
     }
 
-    #region Fields
-
-    private readonly ILanguageService _languageService;
-    private readonly ITranslationService _translationService;
-    private readonly ICurrencyService _currencyService;
-
-    #endregion
 }

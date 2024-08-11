@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -27,7 +28,8 @@ public class CheckoutAttributeController : BaseAdminController
         CurrencySettings currencySettings,
         IMeasureService measureService,
         MeasureSettings measureSettings,
-        ICheckoutAttributeViewModelService checkoutAttributeViewModelService)
+        ICheckoutAttributeViewModelService checkoutAttributeViewModelService,
+        IMapper mapper)
     {
         _checkoutAttributeService = checkoutAttributeService;
         _languageService = languageService;
@@ -37,6 +39,7 @@ public class CheckoutAttributeController : BaseAdminController
         _measureService = measureService;
         _measureSettings = measureSettings;
         _checkoutAttributeViewModelService = checkoutAttributeViewModelService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -51,6 +54,7 @@ public class CheckoutAttributeController : BaseAdminController
     private readonly IMeasureService _measureService;
     private readonly MeasureSettings _measureSettings;
     private readonly ICheckoutAttributeViewModelService _checkoutAttributeViewModelService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -120,7 +124,7 @@ public class CheckoutAttributeController : BaseAdminController
             //No checkout attribute found with the specified id
             return RedirectToAction("List");
 
-        var model = checkoutAttribute.ToModel();
+        var model = _mapper.Map<CheckoutAttributeModel>(checkoutAttribute);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {

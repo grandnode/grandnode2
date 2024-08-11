@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
@@ -17,20 +18,22 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
 {
     private readonly IKnowledgebaseService _knowledgebaseService;
     private readonly ILanguageService _languageService;
-
     private readonly SeoSettings _seoSettings;
     private readonly ISlugService _slugService;
+    private readonly IMapper _mapper;
 
     public KnowledgebaseViewModelService(
         IKnowledgebaseService knowledgebaseService,
         ISlugService slugService,
         ILanguageService languageService,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings,
+        IMapper mapper)
     {
         _knowledgebaseService = knowledgebaseService;
         _slugService = slugService;
         _languageService = languageService;
         _seoSettings = seoSettings;
+        _mapper = mapper;
     }
 
     public virtual async Task PrepareCategory(KnowledgebaseCategoryModel model)
@@ -109,7 +112,7 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
 
     public virtual async Task<KnowledgebaseCategory> InsertKnowledgebaseCategoryModel(KnowledgebaseCategoryModel model)
     {
-        var knowledgebaseCategory = model.ToEntity();
+        var knowledgebaseCategory = _mapper.Map<KnowledgebaseCategory>(model);
         knowledgebaseCategory.Locales = await model.Locales.ToTranslationProperty(knowledgebaseCategory, x => x.Name,
             _seoSettings, _slugService, _languageService);
         model.SeName = await knowledgebaseCategory.ValidateSeName(model.SeName, knowledgebaseCategory.Name, true,
@@ -124,7 +127,7 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
     public virtual async Task<KnowledgebaseCategory> UpdateKnowledgebaseCategoryModel(
         KnowledgebaseCategory knowledgebaseCategory, KnowledgebaseCategoryModel model)
     {
-        knowledgebaseCategory = model.ToEntity(knowledgebaseCategory);
+        knowledgebaseCategory = _mapper.Map(model, knowledgebaseCategory);
         knowledgebaseCategory.Locales = await model.Locales.ToTranslationProperty(knowledgebaseCategory, x => x.Name,
             _seoSettings, _slugService, _languageService);
         model.SeName = await knowledgebaseCategory.ValidateSeName(model.SeName, knowledgebaseCategory.Name, true,
@@ -153,7 +156,7 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
 
     public virtual async Task<KnowledgebaseArticle> InsertKnowledgebaseArticleModel(KnowledgebaseArticleModel model)
     {
-        var knowledgebaseArticle = model.ToEntity();
+        var knowledgebaseArticle = _mapper.Map<KnowledgebaseArticle>(model);
         knowledgebaseArticle.Locales = await model.Locales.ToTranslationProperty(knowledgebaseArticle, x => x.Name,
             _seoSettings, _slugService, _languageService);
         model.SeName = await knowledgebaseArticle.ValidateSeName(model.SeName, knowledgebaseArticle.Name, true,
@@ -169,7 +172,7 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
     public virtual async Task<KnowledgebaseArticle> UpdateKnowledgebaseArticleModel(
         KnowledgebaseArticle knowledgebaseArticle, KnowledgebaseArticleModel model)
     {
-        knowledgebaseArticle = model.ToEntity(knowledgebaseArticle);
+        knowledgebaseArticle = _mapper.Map(model, knowledgebaseArticle);
         knowledgebaseArticle.Locales = await model.Locales.ToTranslationProperty(knowledgebaseArticle, x => x.Name,
             _seoSettings, _slugService, _languageService);
         model.SeName = await knowledgebaseArticle.ValidateSeName(model.SeName, knowledgebaseArticle.Name, true,

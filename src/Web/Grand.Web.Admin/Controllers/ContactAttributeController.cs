@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Utilities.Common.Security;
@@ -22,12 +23,14 @@ public class ContactAttributeController : BaseAdminController
         IContactAttributeViewModelService contactAttributeViewModelService,
         IContactAttributeService contactAttributeService,
         ILanguageService languageService,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IMapper mapper)
     {
         _contactAttributeViewModelService = contactAttributeViewModelService;
         _contactAttributeService = contactAttributeService;
         _languageService = languageService;
         _translationService = translationService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -38,6 +41,7 @@ public class ContactAttributeController : BaseAdminController
     private readonly IContactAttributeService _contactAttributeService;
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
+    private readonly IMapper _mapper;
 
     #endregion
 
@@ -106,7 +110,7 @@ public class ContactAttributeController : BaseAdminController
             //No contact attribute found with the specified id
             return RedirectToAction("List");
 
-        var model = contactAttribute.ToModel();
+        var model = _mapper.Map<ContactAttributeModel>(contactAttribute);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
