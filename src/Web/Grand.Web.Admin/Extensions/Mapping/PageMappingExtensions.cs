@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Pages;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Pages;
@@ -8,25 +9,25 @@ namespace Grand.Web.Admin.Extensions.Mapping;
 
 public static class PageMappingExtensions
 {
-    public static PageModel ToModel(this Page entity, IDateTimeService dateTimeService)
+    public static PageModel ToModel(this IMapper mapper, Page entity, IDateTimeService dateTimeService)
     {
-        var page = entity.MapTo<Page, PageModel>();
+        var page = mapper.Map<PageModel>(entity);
         page.StartDateUtc = entity.StartDateUtc.ConvertToUserTime(dateTimeService);
         page.EndDateUtc = entity.EndDateUtc.ConvertToUserTime(dateTimeService);
         return page;
     }
 
-    public static Page ToEntity(this PageModel model, IDateTimeService dateTimeService)
+    public static Page ToEntity(this IMapper mapper, PageModel model, IDateTimeService dateTimeService)
     {
-        var page = model.MapTo<PageModel, Page>();
+        var page = mapper.Map<Page>(model);
         page.StartDateUtc = model.StartDateUtc.ConvertToUtcTime(dateTimeService);
         page.EndDateUtc = model.EndDateUtc.ConvertToUtcTime(dateTimeService);
         return page;
     }
 
-    public static Page ToEntity(this PageModel model, Page destination, IDateTimeService dateTimeService)
+    public static Page ToEntity(this IMapper mapper, PageModel model, Page destination, IDateTimeService dateTimeService)
     {
-        var page = model.MapTo(destination);
+        var page = mapper.Map(model, destination);
         page.StartDateUtc = model.StartDateUtc.ConvertToUtcTime(dateTimeService);
         page.EndDateUtc = model.EndDateUtc.ConvertToUtcTime(dateTimeService);
         return page;

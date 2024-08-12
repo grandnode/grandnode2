@@ -1,9 +1,11 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Pages;
@@ -25,7 +27,8 @@ public class PageController : BaseAdminController
         ILanguageService languageService,
         ITranslationService translationService,
         IWorkContext workContext,
-        IDateTimeService dateTimeService)
+        IDateTimeService dateTimeService,
+        IMapper mapper)
     {
         _pageViewModelService = pageViewModelService;
         _pageService = pageService;
@@ -33,6 +36,7 @@ public class PageController : BaseAdminController
         _translationService = translationService;
         _workContext = workContext;
         _dateTimeService = dateTimeService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -45,7 +49,8 @@ public class PageController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
     private readonly IDateTimeService _dateTimeService;
-
+    private readonly IMapper _mapper;
+    
     #endregion Fields
 
     #region List
@@ -66,13 +71,13 @@ public class PageController : BaseAdminController
     public async Task<IActionResult> List(DataSourceRequest command, PageListModel model)
     {
         var pageModels = (await _pageService.GetAllPages(model.SearchStoreId, true))
-            .Select(x => x.ToModel(_dateTimeService))
+            .Select(x => _mapper.ToModel(x, _dateTimeService))
             .ToList();
 
         if (!string.IsNullOrEmpty(model.Name))
             pageModels = pageModels.Where
-            (x => x.SystemName.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
-                  (x.Title != null && x.Title.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()))).ToList();
+            (x => x.SystemName.Contains(model.Name, StringComparison.InvariantCultureIgnoreCase) ||
+                  (x.Title != null && x.Title.Contains(model.Name, StringComparison.InvariantCultureIgnoreCase))).ToList();
         //"Error during serialization or deserialization using the JSON JavaScriptSerializer. The length of the string exceeds the value set on the maxJsonLength property. "
         foreach (var page in pageModels) page.Body = "";
         var gridModel = new DataSourceResult {
@@ -127,7 +132,7 @@ public class PageController : BaseAdminController
             //No page found with the specified id
             return RedirectToAction("List");
 
-        var model = page.ToModel(_dateTimeService);
+        var model = _mapper.ToModel(page, _dateTimeService);
         model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_workContext.WorkingLanguage.Id) }, "http");
         //layouts
         await _pageViewModelService.PrepareLayoutsModel(model);

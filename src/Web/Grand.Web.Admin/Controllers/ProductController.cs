@@ -1734,7 +1734,7 @@ public class ProductController : BaseAdminController
             if (product == null)
                 throw new ArgumentException("No product found with the specified id");
 
-            var tierPrice = model.ToEntity(_dateTimeService);
+            var tierPrice = _mapper.ToEntity(model, _dateTimeService);
             await _productService.InsertTierPrice(tierPrice, product.Id);
 
             return Content("");
@@ -1757,7 +1757,7 @@ public class ProductController : BaseAdminController
         if (tierPrice == null)
             return Content("Empty tier price");
 
-        var model = tierPrice.ToModel(_dateTimeService);
+        var model = _mapper.ToModel(tierPrice, _dateTimeService);
         model.ProductId = productId;
         await _productViewModelService.PrepareTierPriceModel(model);
         return View(model);
@@ -1777,7 +1777,7 @@ public class ProductController : BaseAdminController
             if (tierPrice == null)
                 return Content("Empty tier price");
 
-            tierPrice = model.ToEntity(tierPrice, _dateTimeService);
+            tierPrice = _mapper.ToEntity(model, tierPrice, _dateTimeService);
             await _productService.UpdateTierPrice(tierPrice, product.Id);
 
             return Content("");

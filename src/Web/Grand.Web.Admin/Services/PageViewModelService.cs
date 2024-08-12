@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -24,7 +25,8 @@ public class PageViewModelService : IPageViewModelService
     private readonly ISlugService _slugService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-
+    private readonly IMapper _mapper;
+    
     public PageViewModelService(
         IPageLayoutService pageLayoutService,
         IPageService pageService,
@@ -33,7 +35,8 @@ public class PageViewModelService : IPageViewModelService
         IStoreService storeService,
         ILanguageService languageService,
         IDateTimeService dateTimeService,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings,
+        IMapper mapper)
     {
         _pageLayoutService = pageLayoutService;
         _pageService = pageService;
@@ -43,6 +46,7 @@ public class PageViewModelService : IPageViewModelService
         _languageService = languageService;
         _dateTimeService = dateTimeService;
         _seoSettings = seoSettings;
+        _mapper = mapper;
     }
 
     public virtual async Task<PageListModel> PreparePageListModel()
@@ -72,7 +76,7 @@ public class PageViewModelService : IPageViewModelService
     {
         if (!model.IsPasswordProtected) model.Password = null;
 
-        var page = model.ToEntity(_dateTimeService);
+        var page = _mapper.ToEntity(model, _dateTimeService);
         await _pageService.InsertPage(page);
         //search engine name
         model.SeName = await page.ValidateSeName(model.SeName, page.Title ?? page.SystemName, true, _seoSettings,
@@ -88,7 +92,7 @@ public class PageViewModelService : IPageViewModelService
     public virtual async Task<Page> UpdatePageModel(Page page, PageModel model)
     {
         if (!model.IsPasswordProtected) model.Password = null;
-        page = model.ToEntity(page, _dateTimeService);
+        page = _mapper.ToEntity(model, page, _dateTimeService);
         page.Locales =
             await model.Locales.ToTranslationProperty(page, x => x.Title, _seoSettings, _slugService, _languageService);
         model.SeName = await page.ValidateSeName(model.SeName, page.Title ?? page.SystemName, true, _seoSettings,

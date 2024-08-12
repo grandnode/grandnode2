@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -27,7 +28,8 @@ public class NewsController : BaseAdminController
         ILanguageService languageService,
         ITranslationService translationService,
         IStoreService storeService,
-        IDateTimeService dateTimeService)
+        IDateTimeService dateTimeService,
+        IMapper mapper)
     {
         _newsViewModelService = newsViewModelService;
         _newsService = newsService;
@@ -35,6 +37,7 @@ public class NewsController : BaseAdminController
         _translationService = translationService;
         _storeService = storeService;
         _dateTimeService = dateTimeService;
+        _mapper = mapper;
     }
 
     #endregion
@@ -47,7 +50,8 @@ public class NewsController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly IStoreService _storeService;
     private readonly IDateTimeService _dateTimeService;
-
+    private readonly IMapper _mapper;
+    
     #endregion
 
     #region News items
@@ -122,7 +126,7 @@ public class NewsController : BaseAdminController
             return RedirectToAction("List");
 
         ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
-        var model = newsItem.ToModel(_dateTimeService);
+        var model = _mapper.ToModel(newsItem, _dateTimeService);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {

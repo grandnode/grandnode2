@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -18,6 +19,21 @@ namespace Grand.Web.Admin.Services;
 
 public class NewsViewModelService : INewsViewModelService
 {
+
+    #region Fields
+
+    private readonly INewsService _newsService;
+    private readonly IDateTimeService _dateTimeService;
+    private readonly ITranslationService _translationService;
+    private readonly ISlugService _slugService;
+    private readonly IPictureService _pictureService;
+    private readonly ILanguageService _languageService;
+    private readonly ICustomerService _customerService;
+    private readonly SeoSettings _seoSettings;
+    private readonly IMapper _mapper;
+    
+    #endregion
+
     #region Constructors
 
     public NewsViewModelService(INewsService newsService,
@@ -27,7 +43,8 @@ public class NewsViewModelService : INewsViewModelService
         IPictureService pictureService,
         ILanguageService languageService,
         ICustomerService customerService,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings,
+        IMapper mapper)
     {
         _newsService = newsService;
         _dateTimeService = dateTimeService;
@@ -37,6 +54,7 @@ public class NewsViewModelService : INewsViewModelService
         _languageService = languageService;
         _customerService = customerService;
         _seoSettings = seoSettings;
+        _mapper = mapper;
     }
 
     #endregion
@@ -47,7 +65,7 @@ public class NewsViewModelService : INewsViewModelService
         var news = await _newsService.GetAllNews(model.SearchStoreId, pageIndex - 1, pageSize, true, true);
         return (news.Select(x =>
         {
-            var m = x.ToModel(_dateTimeService);
+            var m = _mapper.ToModel(x, _dateTimeService);
             m.Full = "";
             m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
             m.Comments = x.CommentCount;
@@ -57,7 +75,7 @@ public class NewsViewModelService : INewsViewModelService
 
     public virtual async Task<NewsItem> InsertNewsItemModel(NewsItemModel model)
     {
-        var newsItem = model.ToEntity(_dateTimeService);
+        var newsItem = _mapper.ToEntity(model, _dateTimeService);
         await _newsService.InsertNews(newsItem);
 
         var seName = await newsItem.ValidateSeName(model.SeName, model.Title, true, _seoSettings, _slugService,
@@ -78,7 +96,7 @@ public class NewsViewModelService : INewsViewModelService
     public virtual async Task<NewsItem> UpdateNewsItemModel(NewsItem newsItem, NewsItemModel model)
     {
         var prevPictureId = newsItem.PictureId;
-        newsItem = model.ToEntity(newsItem, _dateTimeService);
+        newsItem = _mapper.ToEntity(model, newsItem, _dateTimeService);
         var seName = await newsItem.ValidateSeName(model.SeName, model.Title, true, _seoSettings, _slugService,
             _languageService);
         newsItem.SeName = seName;
@@ -153,17 +171,4 @@ public class NewsViewModelService : INewsViewModelService
         newsItem.CommentCount = newsItem.NewsComments.Count;
         await _newsService.UpdateNews(newsItem);
     }
-
-    #region Fields
-
-    private readonly INewsService _newsService;
-    private readonly IDateTimeService _dateTimeService;
-    private readonly ITranslationService _translationService;
-    private readonly ISlugService _slugService;
-    private readonly IPictureService _pictureService;
-    private readonly ILanguageService _languageService;
-    private readonly ICustomerService _customerService;
-    private readonly SeoSettings _seoSettings;
-
-    #endregion
 }

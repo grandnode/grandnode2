@@ -76,7 +76,7 @@ public class PaymentController : BaseAdminController
         var paymentMethods = _paymentService.LoadAllPaymentMethods();
         foreach (var paymentMethod in paymentMethods)
         {
-            var tmp = await paymentMethod.ToModel();
+            var tmp = await _mapper.ToModel(paymentMethod);
             tmp.IsActive = paymentMethod.IsPaymentMethodActive(_paymentSettings);
             var pluginInfo =
                 PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == paymentMethod.SystemName);
@@ -138,7 +138,7 @@ public class PaymentController : BaseAdminController
             //No payment method found with the specified id
             return RedirectToAction("Methods");
 
-        var model = await pm.ToModel();
+        var model = await _mapper.ToModel(pm);
         //TODO
         /*
         model.LogoUrl = "";
@@ -154,7 +154,7 @@ public class PaymentController : BaseAdminController
         var countries = await _countryService.GetAllCountries(showHidden: true);
         var shippings = await _shippingMethodService.GetAllShippingMethods();
 
-        foreach (var pm in paymentMethods) model.AvailablePaymentMethods.Add(await pm.ToModel());
+        foreach (var pm in paymentMethods) model.AvailablePaymentMethods.Add(await _mapper.ToModel(pm));
         foreach (var c in countries) model.AvailableCountries.Add(_mapper.Map<CountryModel>(c));
         foreach (var s in shippings)
             model.AvailableShippingMethods.Add(new ShippingMethodModel {
