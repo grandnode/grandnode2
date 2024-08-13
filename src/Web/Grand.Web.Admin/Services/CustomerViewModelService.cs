@@ -976,7 +976,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
             model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);
-        return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
+        return (products.Select(x =>  _mapper.Map<ProductModel>(x)).ToList(), products.TotalCount);
     }
 
     public virtual async Task InsertCustomerAddProductModel(string customerId, bool personalized,

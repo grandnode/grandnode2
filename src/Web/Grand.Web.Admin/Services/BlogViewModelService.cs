@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using AutoMapper;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -19,6 +20,7 @@ using Grand.Web.Admin.Models.Blogs;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ZstdSharp.Unsafe;
 
 namespace Grand.Web.Admin.Services;
 
@@ -36,13 +38,13 @@ public class BlogViewModelService : IBlogViewModelService
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IWorkContext _workContext;
-
+    private readonly IMapper _mapper;
     public BlogViewModelService(IBlogService blogService, IDateTimeService dateTimeService, IStoreService storeService,
         ISlugService slugService,
         IPictureService pictureService, ICustomerService customerService, ITranslationService translationService,
         IProductService productService,
         IVendorService vendorService, ILanguageService languageService, IWorkContext workContext,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings, IMapper mapper)
     {
         _blogService = blogService;
         _dateTimeService = dateTimeService;
@@ -56,6 +58,7 @@ public class BlogViewModelService : IBlogViewModelService
         _languageService = languageService;
         _workContext = workContext;
         _seoSettings = seoSettings;
+        _mapper = mapper;
     }
 
     public virtual async Task<(IEnumerable<BlogPostModel> blogPosts, int totalCount)> PrepareBlogPostsModel(
@@ -218,7 +221,7 @@ public class BlogViewModelService : IBlogViewModelService
         var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
             model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);
-        return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
+        return (products.Select(x => _mapper.Map<ProductModel>(x)).ToList(), products.TotalCount);
     }
 
     public virtual async Task InsertProductModel(string blogPostId, BlogProductModel.AddProductModel model)

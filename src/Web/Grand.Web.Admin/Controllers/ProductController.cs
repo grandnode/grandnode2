@@ -196,7 +196,8 @@ public class ProductController : BaseAdminController
             }
         }
 
-        var model = product.ToModel(_dateTimeService);
+        var model = _mapper.ToModel(product, _dateTimeService);
+        
         //model.Ticks = product.UpdatedOnUtc.Ticks;
 
         await _productViewModelService.PrepareProductModel(model, product, false, false);

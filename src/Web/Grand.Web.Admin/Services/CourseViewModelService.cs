@@ -227,6 +227,6 @@ public class CourseViewModelService(
         var products = await productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
             model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);
-        return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
+        return (products.Select(x => mapper.Map<ProductModel>(x)).ToList(), products.TotalCount);
     }
 }

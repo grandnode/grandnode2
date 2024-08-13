@@ -627,7 +627,7 @@ public class ProductViewModelService(
         var items = new List<ProductModel>();
         foreach (var x in products)
         {
-            var productModel = x.ToModel(dateTimeService);
+            var productModel = mapper.ToModel(x, dateTimeService);
             //"Error during serialization or deserialization using the JSON JavaScriptSerializer. The length of the string exceeds the value set on the maxJsonLength property. "
             //also it improves performance
             productModel.FullDescription = "";
@@ -698,7 +698,7 @@ public class ProductViewModelService(
             model.Stores = [workContext.CurrentCustomer.StaffStoreId];
 
         //product
-        var product = model.ToEntity(dateTimeService);
+        var product = mapper.ToEntity(model, dateTimeService);
         await productService.InsertProduct(product);
 
         model.SeName =
@@ -744,7 +744,7 @@ public class ProductViewModelService(
         var prevSampleDownloadId = product.SampleDownloadId;
 
         //product
-        product = model.ToEntity(product, dateTimeService);
+        product = mapper.ToEntity(model, product, dateTimeService);
         product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
         model.SeName =
             await product.ValidateSeName(model.SeName, product.Name, true, seoSettings, slugService, languageService);
@@ -858,7 +858,7 @@ public class ProductViewModelService(
         var products = await productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
             model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);
-        return (products.Select(x => x.ToModel(dateTimeService)).ToList(), products.TotalCount);
+        return (products.Select(x => mapper.ToModel(x, dateTimeService)).ToList(), products.TotalCount);
     }
 
     public virtual async Task<IList<ProductModel.ProductCategoryModel>> PrepareProductCategoryModel(Product product)
@@ -1551,7 +1551,7 @@ public class ProductViewModelService(
             .PredefinedProductAttributeValues;
         foreach (var predefinedValue in predefinedValues)
         {
-            var pav = predefinedValue.ToEntity();
+            var pav = mapper.Map<ProductAttributeValue>(predefinedValue);
             //locales
             pav.Locales.Clear();
             var languages = await languageService.GetAllLanguages(true);
