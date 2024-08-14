@@ -92,7 +92,5 @@ public class TranslateExtensionsTests
             record.GetTranslationPermissionName(translationServiceMock.Object, "PL"));
     }
 
-    private struct FakeStruct
-    {
-    }
+    private struct FakeStruct;
 }

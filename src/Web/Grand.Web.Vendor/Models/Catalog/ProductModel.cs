@@ -373,9 +373,7 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     }
 
 
-    public class AddRequiredProductModel : AddProductModel
-    {
-    }
+    public class AddRequiredProductModel : AddProductModel;
 
     public class AddProductSpecificationAttributeModel : BaseModel, IProductValidVendor
     {

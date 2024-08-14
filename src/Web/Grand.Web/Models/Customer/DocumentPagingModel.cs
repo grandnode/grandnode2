@@ -2,6 +2,4 @@
 
 namespace Grand.Web.Models.Customer;
 
-public class DocumentPagingModel : BasePageableModel
-{
-}
+public class DocumentPagingModel : BasePageableModel;

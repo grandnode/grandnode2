@@ -442,9 +442,7 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
         public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
     }
 
-    public class AddRequiredProductModel : AddProductModel
-    {
-    }
+    public class AddRequiredProductModel : AddProductModel;
 
     public class AddProductSpecificationAttributeModel : BaseModel
     {

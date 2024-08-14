@@ -3,6 +3,4 @@
 /// <summary>
 ///     Base controller for payment plugins
 /// </summary>
-public abstract class BasePaymentController : BasePluginController
-{
-}
+public abstract class BasePaymentController : BasePluginController;

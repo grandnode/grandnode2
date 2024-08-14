@@ -2,9 +2,7 @@
 
 namespace Grand.Web.Admin.Models.Home;
 
-public class DashboardModel : BaseModel
-{
-}
+public class DashboardModel : BaseModel;
 
 public class DashboardActivityModel : BaseModel
 {

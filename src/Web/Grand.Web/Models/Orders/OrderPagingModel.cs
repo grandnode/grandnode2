@@ -2,6 +2,4 @@
 
 namespace Grand.Web.Models.Orders;
 
-public class OrderPagingModel : BasePageableModel
-{
-}
+public class OrderPagingModel : BasePageableModel;

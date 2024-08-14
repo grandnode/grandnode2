@@ -3,6 +3,4 @@ using MediatR;
 
 namespace Grand.Business.Core.Commands.Checkout.Orders;
 
-public class PlaceOrderCommand : IRequest<PlaceOrderResult>
-{
-}
+public class PlaceOrderCommand : IRequest<PlaceOrderResult>;
