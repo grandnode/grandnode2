@@ -136,20 +136,13 @@ public static class SeoExtensions
 
         return seName;
     }
-
-
-    /// <summary>
-    ///     Get SE name
-    /// </summary>
-    /// <param name="name">Name</param>
-    /// <param name="seoSettings">SeoSettings</param>
-    /// <returns>Result</returns>
-    public static string GetSeName(string name, SeoSettings seoSettings)
+    
+    private static string GetSeName(string name, SeoSettings seoSettings)
     {
-        return GenerateSlug(name, seoSettings.ConvertNonWesternChars, seoSettings.AllowUnicodeCharsInUrls,
+        return SeoExtensions.GenerateSlug(name, seoSettings.ConvertNonWesternChars, seoSettings.AllowUnicodeCharsInUrls,
             seoSettings.AllowSlashChar, seoSettings.SeoCharConversion);
     }
-
+    
     /// <summary>
     ///     Get SE name
     /// </summary>

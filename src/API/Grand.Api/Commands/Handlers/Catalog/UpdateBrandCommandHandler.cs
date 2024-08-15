@@ -1,13 +1,9 @@
 ﻿using Grand.Api.Commands.Models.Catalog;
 using Grand.Api.DTOs.Catalog;
 using Grand.Api.Extensions;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.Seo;
-using Grand.Infrastructure;
 using MediatR;
 
 namespace Grand.Api.Commands.Handlers.Catalog;
@@ -15,30 +11,19 @@ namespace Grand.Api.Commands.Handlers.Catalog;
 public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, BrandDto>
 {
     private readonly IBrandService _brandService;
-    private readonly ILanguageService _languageService;
     private readonly IPictureService _pictureService;
-
-    private readonly SeoSettings _seoSettings;
     private readonly ISlugService _slugService;
-    private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
-
+    private readonly ISlugNameValidator _slugNameValidator;
     public UpdateBrandCommandHandler(
         IBrandService brandService,
         ISlugService slugService,
-        ILanguageService languageService,
-        ITranslationService translationService,
         IPictureService pictureService,
-        IWorkContext workContext,
-        SeoSettings seoSettings)
+        ISlugNameValidator slugNameValidator)
     {
         _brandService = brandService;
         _slugService = slugService;
-        _languageService = languageService;
-        _translationService = translationService;
         _pictureService = pictureService;
-        _workContext = workContext;
-        _seoSettings = seoSettings;
+        _slugNameValidator = slugNameValidator;
     }
 
     public async Task<BrandDto> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
@@ -46,8 +31,7 @@ public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, Bra
         var brand = await _brandService.GetBrandById(request.Model.Id);
         var prevPictureId = brand.PictureId;
         brand = request.Model.ToEntity(brand);
-        request.Model.SeName = await brand.ValidateSeName(request.Model.SeName, brand.Name, true, _seoSettings,
-            _slugService, _languageService);
+        request.Model.SeName = await _slugNameValidator.ValidateSeName(brand, request.Model.SeName, brand.Name, true);
         brand.SeName = request.Model.SeName;
         await _brandService.UpdateBrand(brand);
         //search engine name

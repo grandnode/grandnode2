@@ -5,6 +5,7 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
+using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using MediatR;
@@ -13,28 +14,17 @@ namespace Grand.Api.Commands.Handlers.Catalog;
 
 public class AddProductCommandHandler : IRequestHandler<AddProductCommand, ProductDto>
 {
-    private readonly ILanguageService _languageService;
     private readonly IProductService _productService;
-
-    private readonly SeoSettings _seoSettings;
     private readonly ISlugService _slugService;
-    private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
-
+    private readonly ISlugNameValidator _slugNameValidator;
     public AddProductCommandHandler(
         IProductService productService,
         ISlugService slugService,
-        ITranslationService translationService,
-        ILanguageService languageService,
-        IWorkContext workContext,
-        SeoSettings seoSettings)
+        ISlugNameValidator slugNameValidator)
     {
         _productService = productService;
         _slugService = slugService;
-        _translationService = translationService;
-        _languageService = languageService;
-        _workContext = workContext;
-        _seoSettings = seoSettings;
+        _slugNameValidator = slugNameValidator;
     }
 
     public async Task<ProductDto> Handle(AddProductCommand request, CancellationToken cancellationToken)
@@ -42,8 +32,7 @@ public class AddProductCommandHandler : IRequestHandler<AddProductCommand, Produ
         var product = request.Model.ToEntity();
         await _productService.InsertProduct(product);
 
-        request.Model.SeName = await product.ValidateSeName(request.Model.SeName, product.Name, true, _seoSettings,
-            _slugService, _languageService);
+        request.Model.SeName = await _slugNameValidator.ValidateSeName(product, request.Model.SeName, product.Name, true);
         product.SeName = request.Model.SeName;
         //search engine name
         await _slugService.SaveSlug(product, request.Model.SeName, "");

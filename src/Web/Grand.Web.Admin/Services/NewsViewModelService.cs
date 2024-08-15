@@ -18,6 +18,20 @@ namespace Grand.Web.Admin.Services;
 
 public class NewsViewModelService : INewsViewModelService
 {
+    #region Fields
+
+    private readonly INewsService _newsService;
+    private readonly IDateTimeService _dateTimeService;
+    private readonly ITranslationService _translationService;
+    private readonly ISlugService _slugService;
+    private readonly IPictureService _pictureService;
+    private readonly ILanguageService _languageService;
+    private readonly ICustomerService _customerService;
+    private readonly SeoSettings _seoSettings;
+    private readonly ISlugNameValidator _slugNameValidator;
+
+    #endregion
+    
     #region Constructors
 
     public NewsViewModelService(INewsService newsService,
@@ -27,7 +41,8 @@ public class NewsViewModelService : INewsViewModelService
         IPictureService pictureService,
         ILanguageService languageService,
         ICustomerService customerService,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings, 
+        ISlugNameValidator slugNameValidator)
     {
         _newsService = newsService;
         _dateTimeService = dateTimeService;
@@ -37,6 +52,7 @@ public class NewsViewModelService : INewsViewModelService
         _languageService = languageService;
         _customerService = customerService;
         _seoSettings = seoSettings;
+        _slugNameValidator = slugNameValidator;
     }
 
     #endregion
@@ -60,8 +76,7 @@ public class NewsViewModelService : INewsViewModelService
         var newsItem = model.ToEntity(_dateTimeService);
         await _newsService.InsertNews(newsItem);
 
-        var seName = await newsItem.ValidateSeName(model.SeName, model.Title, true, _seoSettings, _slugService,
-            _languageService);
+        var seName = await _slugNameValidator.ValidateSeName(newsItem, model.SeName, model.Title, true);
         newsItem.SeName = seName;
         newsItem.Locales =
             await model.Locales.ToTranslationProperty(newsItem, x => x.Title, _seoSettings, _slugService,
@@ -79,8 +94,7 @@ public class NewsViewModelService : INewsViewModelService
     {
         var prevPictureId = newsItem.PictureId;
         newsItem = model.ToEntity(newsItem, _dateTimeService);
-        var seName = await newsItem.ValidateSeName(model.SeName, model.Title, true, _seoSettings, _slugService,
-            _languageService);
+        var seName = await _slugNameValidator.ValidateSeName(newsItem, model.SeName, model.Title, true);
         newsItem.SeName = seName;
         newsItem.Locales =
             await model.Locales.ToTranslationProperty(newsItem, x => x.Title, _seoSettings, _slugService,
@@ -152,18 +166,5 @@ public class NewsViewModelService : INewsViewModelService
         //update totals
         newsItem.CommentCount = newsItem.NewsComments.Count;
         await _newsService.UpdateNews(newsItem);
-    }
-
-    #region Fields
-
-    private readonly INewsService _newsService;
-    private readonly IDateTimeService _dateTimeService;
-    private readonly ITranslationService _translationService;
-    private readonly ISlugService _slugService;
-    private readonly IPictureService _pictureService;
-    private readonly ILanguageService _languageService;
-    private readonly ICustomerService _customerService;
-    private readonly SeoSettings _seoSettings;
-
-    #endregion
+    } 
 }

@@ -2,6 +2,7 @@
 using Grand.Business.Catalog.Services.Collections;
 using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Common.Services.Security;
+using Grand.Business.Common.Services.Seo;
 using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -41,7 +42,7 @@ public class CollectionImportDataObjectTests
     private IRepository<Collection> _repository;
     private Mock<ISlugService> _slugServiceMock;
     private Mock<IWorkContext> _workContextMock;
-
+    private ISlugNameValidator _slugNameValidator;
     [TestInitialize]
     public void Init()
     {
@@ -62,10 +63,9 @@ public class CollectionImportDataObjectTests
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _collectionService = new CollectionService(_cacheBase, _repository, _workContextMock.Object,
             _mediatorMock.Object, new AclService(new AccessControlConfig()), new AccessControlConfig());
-
+        _slugNameValidator = new SlugNameValidator(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _collectionImportDataObject = new CollectionImportDataObject(_collectionService, _pictureServiceMock.Object,
-            _collectionLayoutServiceMock.Object, _slugServiceMock.Object, _languageServiceMock.Object,
-            new SeoSettings());
+            _collectionLayoutServiceMock.Object, _slugServiceMock.Object, _slugNameValidator);
     }
 
     [TestMethod]

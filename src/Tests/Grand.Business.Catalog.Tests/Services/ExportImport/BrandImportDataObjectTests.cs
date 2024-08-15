@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Grand.Business.Catalog.Services.Brands;
 using Grand.Business.Catalog.Services.ExportImport;
+using Grand.Business.Common.Services.Seo;
 using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -40,7 +41,7 @@ public class BrandImportDataObjectTests
     private IRepository<Brand> _repository;
     private Mock<ISlugService> _slugServiceMock;
     private Mock<IWorkContext> _workContextMock;
-
+    private ISlugNameValidator _slugNameValidator;
     [TestInitialize]
     public void Init()
     {
@@ -61,9 +62,9 @@ public class BrandImportDataObjectTests
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _brandService = new BrandService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object,
             new AccessControlConfig());
-
+        _slugNameValidator = new SlugNameValidator(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _brandImportDataObject = new BrandImportDataObject(_brandService, _pictureServiceMock.Object,
-            _brandLayoutServiceMock.Object, _slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
+            _brandLayoutServiceMock.Object, _slugServiceMock.Object, _slugNameValidator);
     }
 
     [TestMethod]

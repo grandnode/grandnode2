@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Common.Services.Seo;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
@@ -18,7 +19,8 @@ public class CopyProductServiceTests
     private Mock<IProductService> _productServiceMock;
     private SeoSettings _settings;
     private Mock<ISlugService> _slugServiceMock;
-
+    private ISlugNameValidator _slugNameValidator;
+    
     [TestInitialize]
     public void Init()
     {
@@ -26,8 +28,8 @@ public class CopyProductServiceTests
         _langServiceMock = new Mock<ILanguageService>();
         _slugServiceMock = new Mock<ISlugService>();
         _settings = new SeoSettings();
-        _copyProductService = new CopyProductService(_productServiceMock.Object, _langServiceMock.Object,
-            _slugServiceMock.Object, _settings);
+        _slugNameValidator = new SlugNameValidator(_slugServiceMock.Object, _langServiceMock.Object, new SeoSettings());
+        _copyProductService = new CopyProductService(_productServiceMock.Object, _slugServiceMock.Object, _slugNameValidator);
     }
 
 

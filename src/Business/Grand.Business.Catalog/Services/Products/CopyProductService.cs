@@ -1,9 +1,6 @@
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Domain.Catalog;
-using Grand.Domain.Seo;
 
 namespace Grand.Business.Catalog.Services.Products;
 
@@ -12,17 +9,23 @@ namespace Grand.Business.Catalog.Services.Products;
 /// </summary>
 public class CopyProductService : ICopyProductService
 {
+    
+    #region Fields
+
+    private readonly IProductService _productService;
+    private readonly ISlugService _slugService;
+    private readonly ISlugNameValidator _slugNameValidator;
+    
+    #endregion
     #region Ctor
 
     public CopyProductService(IProductService productService,
-        ILanguageService languageService,
         ISlugService slugService,
-        SeoSettings seoSettings)
+        ISlugNameValidator slugNameValidator)
     {
         _productService = productService;
-        _languageService = languageService;
         _slugService = slugService;
-        _seoSettings = seoSettings;
+        _slugNameValidator = slugNameValidator;
     }
 
     #endregion
@@ -184,23 +187,13 @@ public class CopyProductService : ICopyProductService
         await _productService.InsertProduct(productCopy);
 
         //search engine name
-        var seName =
-            await productCopy.ValidateSeName("", productCopy.Name, true, _seoSettings, _slugService, _languageService);
+        var seName = await _slugNameValidator.ValidateSeName(productCopy, "", productCopy.Name, true);
         productCopy.SeName = seName;
         await _productService.UpdateProduct(productCopy);
         await _slugService.SaveSlug(productCopy, seName, "");
 
         return productCopy;
     }
-
-    #endregion
-
-    #region Fields
-
-    private readonly IProductService _productService;
-    private readonly ILanguageService _languageService;
-    private readonly ISlugService _slugService;
-    private readonly SeoSettings _seoSettings;
 
     #endregion
 }

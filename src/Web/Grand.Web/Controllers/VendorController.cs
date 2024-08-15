@@ -132,7 +132,7 @@ public class VendorController : BasePublicController
     [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> ApplyVendorSubmit(ApplyVendorModel model)
+    public virtual async Task<IActionResult> ApplyVendorSubmit(ApplyVendorModel model, [FromServices] ISlugNameValidator slugNameValidator)
     {
         if (!_vendorSettings.AllowCustomersToApplyForVendorAccount)
             return RedirectToRoute("HomePage");
@@ -155,10 +155,7 @@ public class VendorController : BasePublicController
             await _vendorService.InsertVendor(vendor);
 
             //search engine name (the same as vendor name)                
-            var seName = await vendor.ValidateSeName(vendor.Name, vendor.Name, true,
-                HttpContext.RequestServices.GetRequiredService<SeoSettings>(),
-                HttpContext.RequestServices.GetRequiredService<ISlugService>(),
-                HttpContext.RequestServices.GetRequiredService<ILanguageService>());
+            var seName = await slugNameValidator.ValidateSeName(vendor, vendor.Name, vendor.Name, true);
             await _slugService.SaveSlug(vendor, seName, "");
 
             vendor.SeName = seName;

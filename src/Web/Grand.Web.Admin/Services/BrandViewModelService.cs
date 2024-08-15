@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -20,6 +19,22 @@ namespace Grand.Web.Admin.Services;
 
 public class BrandViewModelService : IBrandViewModelService
 {
+    
+    #region Fields
+
+    private readonly IBrandService _brandService;
+    private readonly IBrandLayoutService _brandLayoutService;
+    private readonly ISlugService _slugService;
+    private readonly IPictureService _pictureService;
+    private readonly IDiscountService _discountService;
+    private readonly IDateTimeService _dateTimeService;
+    private readonly ILanguageService _languageService;
+    private readonly IWorkContext _workContext;
+    private readonly SeoSettings _seoSettings;
+    private readonly ISlugNameValidator _slugNameValidator;
+    
+    #endregion
+
     #region Constructors
 
     public BrandViewModelService(
@@ -31,7 +46,8 @@ public class BrandViewModelService : IBrandViewModelService
         IDateTimeService dateTimeService,
         ILanguageService languageService,
         IWorkContext workContext,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings, 
+        ISlugNameValidator slugNameValidator)
     {
         _brandLayoutService = brandLayoutService;
         _brandService = brandService;
@@ -42,6 +58,7 @@ public class BrandViewModelService : IBrandViewModelService
         _languageService = languageService;
         _workContext = workContext;
         _seoSettings = seoSettings;
+        _slugNameValidator = slugNameValidator;
     }
 
     #endregion
@@ -92,8 +109,7 @@ public class BrandViewModelService : IBrandViewModelService
         //search engine name
         brand.Locales =
             await model.Locales.ToTranslationProperty(brand, x => x.Name, _seoSettings, _slugService, _languageService);
-        model.SeName = await brand.ValidateSeName(model.SeName, brand.Name, true, _seoSettings, _slugService,
-            _languageService);
+        model.SeName = await _slugNameValidator.ValidateSeName(brand, model.SeName, brand.Name, true);
         brand.SeName = model.SeName;
         await _brandService.UpdateBrand(brand);
 
@@ -127,8 +143,7 @@ public class BrandViewModelService : IBrandViewModelService
                     brand.AppliedDiscounts.Remove(discount.Id);
             }
 
-        model.SeName = await brand.ValidateSeName(model.SeName, brand.Name, true, _seoSettings, _slugService,
-            _languageService);
+        model.SeName = await _slugNameValidator.ValidateSeName(brand, model.SeName, brand.Name, true);
         brand.SeName = model.SeName;
 
         await _brandService.UpdateBrand(brand);
@@ -153,18 +168,4 @@ public class BrandViewModelService : IBrandViewModelService
     {
         await _brandService.DeleteBrand(brand);
     }
-
-    #region Fields
-
-    private readonly IBrandService _brandService;
-    private readonly IBrandLayoutService _brandLayoutService;
-    private readonly ISlugService _slugService;
-    private readonly IPictureService _pictureService;
-    private readonly IDiscountService _discountService;
-    private readonly IDateTimeService _dateTimeService;
-    private readonly ILanguageService _languageService;
-    private readonly IWorkContext _workContext;
-    private readonly SeoSettings _seoSettings;
-
-    #endregion
 }

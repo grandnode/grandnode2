@@ -1,12 +1,9 @@
 ﻿using Grand.Api.Commands.Models.Catalog;
 using Grand.Api.DTOs.Catalog;
 using Grand.Api.Extensions;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
-using Grand.Domain.Seo;
-using Grand.Infrastructure;
+using Grand.Domain.Catalog;
 using MediatR;
 
 namespace Grand.Api.Commands.Handlers.Catalog;
@@ -14,34 +11,23 @@ namespace Grand.Api.Commands.Handlers.Catalog;
 public class AddCollectionCommandHandler : IRequestHandler<AddCollectionCommand, CollectionDto>
 {
     private readonly ICollectionService _collectionService;
-    private readonly ILanguageService _languageService;
-    private readonly SeoSettings _seoSettings;
     private readonly ISlugService _slugService;
-    private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
-
+    private readonly ISlugNameValidator _slugNameValidator;
     public AddCollectionCommandHandler(
         ICollectionService collectionService,
         ISlugService slugService,
-        ILanguageService languageService,
-        ITranslationService translationService,
-        IWorkContext workContext,
-        SeoSettings seoSettings)
+        ISlugNameValidator slugNameValidator)
     {
         _collectionService = collectionService;
         _slugService = slugService;
-        _languageService = languageService;
-        _translationService = translationService;
-        _workContext = workContext;
-        _seoSettings = seoSettings;
+        _slugNameValidator = slugNameValidator;
     }
 
     public async Task<CollectionDto> Handle(AddCollectionCommand request, CancellationToken cancellationToken)
     {
         var collection = request.Model.ToEntity();
         await _collectionService.InsertCollection(collection);
-        request.Model.SeName = await collection.ValidateSeName(request.Model.SeName, collection.Name, true,
-            _seoSettings, _slugService, _languageService);
+        request.Model.SeName = await _slugNameValidator.ValidateSeName(collection, request.Model.SeName, collection.Name, true);
         collection.SeName = request.Model.SeName;
         await _collectionService.UpdateCollection(collection);
         await _slugService.SaveSlug(collection, request.Model.SeName, "");

@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Collections;
+﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -22,6 +21,26 @@ namespace Grand.Web.Admin.Services;
 
 public class CollectionViewModelService : ICollectionViewModelService
 {
+
+    #region Fields
+
+    private readonly ICollectionService _collectionService;
+    private readonly IProductCollectionService _productCollectionService;
+    private readonly ICollectionLayoutService _collectionLayoutService;
+    private readonly IProductService _productService;
+    private readonly IStoreService _storeService;
+    private readonly ISlugService _slugService;
+    private readonly IPictureService _pictureService;
+    private readonly ITranslationService _translationService;
+    private readonly IDiscountService _discountService;
+    private readonly IVendorService _vendorService;
+    private readonly ILanguageService _languageService;
+    private readonly IWorkContext _workContext;
+    private readonly SeoSettings _seoSettings;
+    private readonly ISlugNameValidator _slugNameValidator;
+    
+    #endregion
+
     #region Constructors
 
     public CollectionViewModelService(
@@ -37,7 +56,8 @@ public class CollectionViewModelService : ICollectionViewModelService
         IVendorService vendorService,
         ILanguageService languageService,
         IWorkContext workContext,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings, 
+        ISlugNameValidator slugNameValidator)
     {
         _collectionLayoutService = collectionLayoutService;
         _collectionService = collectionService;
@@ -52,6 +72,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         _languageService = languageService;
         _workContext = workContext;
         _seoSettings = seoSettings;
+        _slugNameValidator = slugNameValidator;
     }
 
     #endregion
@@ -103,8 +124,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         collection.Locales =
             await model.Locales.ToTranslationProperty(collection, x => x.Name, _seoSettings, _slugService,
                 _languageService);
-        model.SeName = await collection.ValidateSeName(model.SeName, collection.Name, true, _seoSettings, _slugService,
-            _languageService);
+        model.SeName = await _slugNameValidator.ValidateSeName(collection, model.SeName, collection.Name, true);
         collection.SeName = model.SeName;
         await _collectionService.UpdateCollection(collection);
 
@@ -139,8 +159,7 @@ public class CollectionViewModelService : ICollectionViewModelService
                     collection.AppliedDiscounts.Remove(discount.Id);
             }
 
-        model.SeName = await collection.ValidateSeName(model.SeName, collection.Name, true, _seoSettings, _slugService,
-            _languageService);
+        model.SeName = await _slugNameValidator.ValidateSeName(collection, model.SeName, collection.Name, true);
         collection.SeName = model.SeName;
 
         await _collectionService.UpdateCollection(collection);
@@ -272,22 +291,4 @@ public class CollectionViewModelService : ICollectionViewModelService
                         }, product.Id);
         }
     }
-
-    #region Fields
-
-    private readonly ICollectionService _collectionService;
-    private readonly IProductCollectionService _productCollectionService;
-    private readonly ICollectionLayoutService _collectionLayoutService;
-    private readonly IProductService _productService;
-    private readonly IStoreService _storeService;
-    private readonly ISlugService _slugService;
-    private readonly IPictureService _pictureService;
-    private readonly ITranslationService _translationService;
-    private readonly IDiscountService _discountService;
-    private readonly IVendorService _vendorService;
-    private readonly ILanguageService _languageService;
-    private readonly IWorkContext _workContext;
-    private readonly SeoSettings _seoSettings;
-
-    #endregion
 }

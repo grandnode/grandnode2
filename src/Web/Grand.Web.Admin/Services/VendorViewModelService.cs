@@ -36,7 +36,8 @@ public class VendorViewModelService(
     IMediator mediator,
     VendorSettings vendorSettings,
     ILanguageService languageService,
-    SeoSettings seoSettings)
+    SeoSettings seoSettings,
+    ISlugNameValidator slugNameValidator)
     : IVendorViewModelService
 {
     public virtual async Task PrepareDiscountModel(VendorModel model, Vendor vendor, bool excludeProperties)
@@ -185,8 +186,7 @@ public class VendorViewModelService(
                 vendor.AppliedDiscounts.Add(discount.Id);
 
         //search engine name
-        model.SeName =
-            await vendor.ValidateSeName(model.SeName, vendor.Name, true, seoSettings, slugService, languageService);
+        model.SeName = await slugNameValidator.ValidateSeName(vendor, model.SeName, vendor.Name, true);
         vendor.Locales =
             await model.Locales.ToTranslationProperty(vendor, x => x.Name, seoSettings, slugService, languageService);
         vendor.SeName = model.SeName;
@@ -205,8 +205,7 @@ public class VendorViewModelService(
         vendor = model.ToEntity(vendor);
         vendor.Locales =
             await model.Locales.ToTranslationProperty(vendor, x => x.Name, seoSettings, slugService, languageService);
-        model.SeName =
-            await vendor.ValidateSeName(model.SeName, vendor.Name, true, seoSettings, slugService, languageService);
+        model.SeName = await slugNameValidator.ValidateSeName(vendor, model.SeName, vendor.Name, true);
         vendor.Address = model.Address.ToEntity(vendor.Address);
 
         //discounts

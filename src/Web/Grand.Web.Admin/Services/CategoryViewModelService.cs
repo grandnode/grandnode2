@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -34,7 +33,8 @@ public class CategoryViewModelService : ICategoryViewModelService
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
-
+    private readonly ISlugNameValidator _slugNameValidator;
+    
     public CategoryViewModelService(
         ICategoryService categoryService,
         IProductCategoryService productCategoryService,
@@ -48,7 +48,8 @@ public class CategoryViewModelService : ICategoryViewModelService
         IVendorService vendorService,
         ILanguageService languageService,
         CatalogSettings catalogSettings,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings, 
+        ISlugNameValidator slugNameValidator)
     {
         _categoryService = categoryService;
         _productCategoryService = productCategoryService;
@@ -63,6 +64,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         _languageService = languageService;
         _catalogSettings = catalogSettings;
         _seoSettings = seoSettings;
+        _slugNameValidator = slugNameValidator;
     }
 
     public virtual async Task<CategoryListModel> PrepareCategoryListModel(string storeId)
@@ -141,8 +143,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         category.Locales =
             await model.Locales.ToTranslationProperty(category, x => x.Name, _seoSettings, _slugService,
                 _languageService);
-        model.SeName = await category.ValidateSeName(model.SeName, category.Name, true, _seoSettings, _slugService,
-            _languageService);
+        model.SeName = await _slugNameValidator.ValidateSeName(category, model.SeName, category.Name, true);
         category.SeName = model.SeName;
         await _categoryService.UpdateCategory(category);
 
@@ -158,8 +159,7 @@ public class CategoryViewModelService : ICategoryViewModelService
     {
         var prevPictureId = category.PictureId;
         category = model.ToEntity(category);
-        model.SeName = await category.ValidateSeName(model.SeName, category.Name, true, _seoSettings, _slugService,
-            _languageService);
+        model.SeName = await _slugNameValidator.ValidateSeName(category, model.SeName, category.Name, true);
         category.SeName = model.SeName;
         //locales
         category.Locales =

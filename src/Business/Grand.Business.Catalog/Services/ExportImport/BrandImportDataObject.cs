@@ -1,14 +1,11 @@
 ﻿using Grand.Business.Catalog.Extensions;
 using Grand.Business.Core.Dto;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
-using Grand.Domain.Seo;
 using Grand.Infrastructure.Mapper;
 
 namespace Grand.Business.Catalog.Services.ExportImport;
@@ -17,27 +14,22 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>
 {
     private readonly IBrandLayoutService _brandLayoutService;
     private readonly IBrandService _brandService;
-    private readonly ILanguageService _languageService;
     private readonly IPictureService _pictureService;
-
-    private readonly SeoSettings _seoSetting;
     private readonly ISlugService _slugService;
-
+    private readonly ISlugNameValidator _slugNameValidator;
+    
     public BrandImportDataObject(
         IBrandService brandService,
         IPictureService pictureService,
         IBrandLayoutService brandLayoutService,
         ISlugService slugService,
-        ILanguageService languageService,
-        SeoSettings seoSetting)
+        ISlugNameValidator slugNameValidator)
     {
         _brandService = brandService;
         _pictureService = pictureService;
         _brandLayoutService = brandLayoutService;
         _slugService = slugService;
-        _languageService = languageService;
-
-        _seoSetting = seoSetting;
+        _slugNameValidator = slugNameValidator;
     }
 
     public async Task Execute(IEnumerable<BrandDto> data)
@@ -81,12 +73,12 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>
                 brand.PictureId = picture.Id;
         }
 
-        var sename = brand.SeName ?? brand.Name;
-        sename = await brand.ValidateSeName(sename, brand.Name, true, _seoSetting, _slugService, _languageService);
-        brand.SeName = sename;
+        var seName = brand.SeName ?? brand.Name;
+        seName = await _slugNameValidator.ValidateSeName(brand, seName, brand.Name, true);
+        brand.SeName = seName;
 
         await _brandService.UpdateBrand(brand);
-        await _slugService.SaveSlug(brand, sename, "");
+        await _slugService.SaveSlug(brand, seName, "");
     }
 
     private bool ValidBrand(Brand brand)

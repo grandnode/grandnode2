@@ -86,6 +86,7 @@ public class StartupApplication : IStartupApplication
     private void RegisterSeoService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ISlugService, SlugService>();
+        serviceCollection.AddScoped<ISlugNameValidator, SlugNameValidator>();
     }
 
 

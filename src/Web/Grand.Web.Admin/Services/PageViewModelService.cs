@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Cms;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
@@ -24,7 +23,8 @@ public class PageViewModelService : IPageViewModelService
     private readonly ISlugService _slugService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-
+    private readonly ISlugNameValidator _slugNameValidator;
+    
     public PageViewModelService(
         IPageLayoutService pageLayoutService,
         IPageService pageService,
@@ -33,7 +33,8 @@ public class PageViewModelService : IPageViewModelService
         IStoreService storeService,
         ILanguageService languageService,
         IDateTimeService dateTimeService,
-        SeoSettings seoSettings)
+        SeoSettings seoSettings, 
+        ISlugNameValidator slugNameValidator)
     {
         _pageLayoutService = pageLayoutService;
         _pageService = pageService;
@@ -43,6 +44,7 @@ public class PageViewModelService : IPageViewModelService
         _languageService = languageService;
         _dateTimeService = dateTimeService;
         _seoSettings = seoSettings;
+        _slugNameValidator = slugNameValidator;
     }
 
     public virtual async Task<PageListModel> PreparePageListModel()
@@ -75,8 +77,7 @@ public class PageViewModelService : IPageViewModelService
         var page = model.ToEntity(_dateTimeService);
         await _pageService.InsertPage(page);
         //search engine name
-        model.SeName = await page.ValidateSeName(model.SeName, page.Title ?? page.SystemName, true, _seoSettings,
-            _slugService, _languageService);
+        model.SeName = await _slugNameValidator.ValidateSeName(page, model.SeName, page.Title ?? page.SystemName, true);
         page.Locales =
             await model.Locales.ToTranslationProperty(page, x => x.Title, _seoSettings, _slugService, _languageService);
         page.SeName = model.SeName;
@@ -91,8 +92,7 @@ public class PageViewModelService : IPageViewModelService
         page = model.ToEntity(page, _dateTimeService);
         page.Locales =
             await model.Locales.ToTranslationProperty(page, x => x.Title, _seoSettings, _slugService, _languageService);
-        model.SeName = await page.ValidateSeName(model.SeName, page.Title ?? page.SystemName, true, _seoSettings,
-            _slugService, _languageService);
+        model.SeName = await _slugNameValidator.ValidateSeName(page, model.SeName, page.Title ?? page.SystemName, true);
         page.SeName = model.SeName;
         await _pageService.UpdatePage(page);
 

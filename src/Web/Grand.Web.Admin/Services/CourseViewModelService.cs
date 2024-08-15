@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -33,7 +32,8 @@ public class CourseViewModelService(
     IProductService productService,
     IStoreService storeService,
     IVendorService vendorService,
-    SeoSettings seoSettings)
+    SeoSettings seoSettings,
+    ISlugNameValidator slugNameValidator)
     : ICourseViewModelService
 {
     public virtual async Task<CourseModel> PrepareCourseModel(CourseModel model = null)
@@ -58,8 +58,7 @@ public class CourseViewModelService(
         await courseService.Insert(course);
 
         //locales
-        model.SeName =
-            await course.ValidateSeName(model.SeName, course.Name, true, seoSettings, slugService, languageService);
+        model.SeName = await slugNameValidator.ValidateSeName(course, model.SeName, course.Name, true);
         course.SeName = model.SeName;
         await courseService.Update(course);
 
@@ -81,8 +80,7 @@ public class CourseViewModelService(
         var prevProductId = course.ProductId;
 
         course = model.ToEntity(course);
-        model.SeName =
-            await course.ValidateSeName(model.SeName, course.Name, true, seoSettings, slugService, languageService);
+        model.SeName = await slugNameValidator.ValidateSeName(course, model.SeName, course.Name, true);
         course.SeName = model.SeName;
         //locales
         course.Locales =
