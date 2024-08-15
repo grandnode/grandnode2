@@ -13,17 +13,17 @@ public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, Bra
     private readonly IBrandService _brandService;
     private readonly IPictureService _pictureService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     public UpdateBrandCommandHandler(
         IBrandService brandService,
         ISlugService slugService,
         IPictureService pictureService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _brandService = brandService;
         _slugService = slugService;
         _pictureService = pictureService;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task<BrandDto> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
@@ -31,7 +31,7 @@ public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, Bra
         var brand = await _brandService.GetBrandById(request.Model.Id);
         var prevPictureId = brand.PictureId;
         brand = request.Model.ToEntity(brand);
-        request.Model.SeName = await _slugNameValidator.ValidateSeName(brand, request.Model.SeName, brand.Name, true);
+        request.Model.SeName = await _seNameService.ValidateSeName(brand, request.Model.SeName, brand.Name, true);
         brand.SeName = request.Model.SeName;
         await _brandService.UpdateBrand(brand);
         //search engine name

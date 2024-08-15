@@ -12,22 +12,22 @@ public class AddCollectionCommandHandler : IRequestHandler<AddCollectionCommand,
 {
     private readonly ICollectionService _collectionService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     public AddCollectionCommandHandler(
         ICollectionService collectionService,
         ISlugService slugService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _collectionService = collectionService;
         _slugService = slugService;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task<CollectionDto> Handle(AddCollectionCommand request, CancellationToken cancellationToken)
     {
         var collection = request.Model.ToEntity();
         await _collectionService.InsertCollection(collection);
-        request.Model.SeName = await _slugNameValidator.ValidateSeName(collection, request.Model.SeName, collection.Name, true);
+        request.Model.SeName = await _seNameService.ValidateSeName(collection, request.Model.SeName, collection.Name, true);
         collection.SeName = request.Model.SeName;
         await _collectionService.UpdateCollection(collection);
         await _slugService.SaveSlug(collection, request.Model.SeName, "");

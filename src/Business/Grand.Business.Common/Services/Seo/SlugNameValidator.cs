@@ -7,7 +7,7 @@ using Grand.SharedKernel.Extensions;
 
 namespace Grand.Business.Common.Services.Seo;
 
-public class SlugNameValidator(ISlugService slugService, ILanguageService languageService, SeoSettings seoSettings) : ISlugNameValidator
+public class SeNameService(ISlugService slugService, ILanguageService languageService, SeoSettings seoSettings) : ISeNameService
 {
     public async Task<string> ValidateSeName<T>(T entity, string seName, string name, bool ensureNotEmpty) where T : BaseEntity, ISlugEntity
     {

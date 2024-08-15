@@ -32,7 +32,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
     private readonly ISlugService _slugService;
     private readonly ITaxCategoryService _taxService;
     private readonly IWarehouseService _warehouseService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     public ProductImportDataObject(
         IProductService productService,
         IPictureService pictureService,
@@ -47,7 +47,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
         IBrandService brandService,
         ICollectionService collectionService,
         IProductCollectionService productCollectionService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _productService = productService;
         _pictureService = pictureService;
@@ -62,7 +62,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
         _brandService = brandService;
         _collectionService = collectionService;
         _productCollectionService = productCollectionService;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task Execute(IEnumerable<ProductDto> data)
@@ -99,7 +99,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
 
         //search engine name
         var seName = product.SeName ?? product.Name;
-        seName = await _slugNameValidator.ValidateSeName(product, seName, product.Name, true);
+        seName = await _seNameService.ValidateSeName(product, seName, product.Name, true);
         await _slugService.SaveSlug(product, seName, "");
         product.SeName = seName;
         await _productService.UpdateProduct(product);

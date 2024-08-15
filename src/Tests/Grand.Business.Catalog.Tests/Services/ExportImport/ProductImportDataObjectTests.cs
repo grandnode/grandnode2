@@ -60,7 +60,7 @@ public class ProductImportDataObjectTests
     private Mock<ITaxCategoryService> _taxServiceMock;
     private Mock<IWarehouseService> _warehouseServiceMock;
     private Mock<IWorkContext> _workContextMock;
-    private ISlugNameValidator _slugNameValidator;
+    private ISeNameService _seNameService;
     [TestInitialize]
     public void Init()
     {
@@ -91,14 +91,14 @@ public class ProductImportDataObjectTests
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _productService = new ProductService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object,
             new AclService(new AccessControlConfig()));
-        _slugNameValidator = new SlugNameValidator(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
+        _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _productImportDataObject = new ProductImportDataObject
         (_productService, _pictureServiceMock.Object, _productLayoutServiceMock.Object, _deliveryDateServiceMock.Object,
             _taxServiceMock.Object, _warehouseServiceMock.Object, _measureServiceMock.Object, _slugServiceMock.Object,
             _categoryServiceMock.Object, _productCategoryServiceMock.Object, _brandServiceMock.Object,
             _collectionServiceMock.Object,
             _productCollectionServiceMock.Object,
-            _slugNameValidator);
+            _seNameService);
     }
 
     [TestMethod]

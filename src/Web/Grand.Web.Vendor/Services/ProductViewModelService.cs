@@ -64,7 +64,7 @@ public class ProductViewModelService : IProductViewModelService
     private readonly ITranslationService _translationService;
     private readonly IWarehouseService _warehouseService;
     private readonly IWorkContext _workContext;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     public ProductViewModelService(
         IProductService productService,
         IInventoryManageService inventoryManageService,
@@ -96,7 +96,7 @@ public class ProductViewModelService : IProductViewModelService
         CurrencySettings currencySettings,
         MeasureSettings measureSettings,
         TaxSettings taxSettings, SeoSettings seoSettings, 
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _productService = productService;
         _inventoryManageService = inventoryManageService;
@@ -129,7 +129,7 @@ public class ProductViewModelService : IProductViewModelService
         _measureSettings = measureSettings;
         _taxSettings = taxSettings;
         _seoSettings = seoSettings;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
@@ -692,7 +692,7 @@ public class ProductViewModelService : IProductViewModelService
         product.VendorId = _workContext.CurrentVendor!.Id;
         await _productService.InsertProduct(product);
 
-        model.SeName = await _slugNameValidator.ValidateSeName(product, model.SeName, product.Name, true);
+        model.SeName = await _seNameService.ValidateSeName(product, model.SeName, product.Name, true);
         product.SeName = model.SeName;
         product.Locales = await model.Locales.ToTranslationProperty(product, x => x.Name,
             _seoSettings, _slugService, _languageService);
@@ -718,7 +718,7 @@ public class ProductViewModelService : IProductViewModelService
         //product
         product = model.ToEntity(product, _dateTimeService);
         product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
-        model.SeName = await _slugNameValidator.ValidateSeName(product, model.SeName, product.Name, true);
+        model.SeName = await _seNameService.ValidateSeName(product, model.SeName, product.Name, true);
         product.SeName = model.SeName;
         product.Locales = await model.Locales.ToTranslationProperty(product, x => x.Name, _seoSettings,
             _slugService, _languageService);

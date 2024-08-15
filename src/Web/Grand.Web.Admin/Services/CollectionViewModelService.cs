@@ -37,7 +37,7 @@ public class CollectionViewModelService : ICollectionViewModelService
     private readonly ILanguageService _languageService;
     private readonly IWorkContext _workContext;
     private readonly SeoSettings _seoSettings;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     
     #endregion
 
@@ -57,7 +57,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         ILanguageService languageService,
         IWorkContext workContext,
         SeoSettings seoSettings, 
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _collectionLayoutService = collectionLayoutService;
         _collectionService = collectionService;
@@ -72,7 +72,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         _languageService = languageService;
         _workContext = workContext;
         _seoSettings = seoSettings;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     #endregion
@@ -124,7 +124,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         collection.Locales =
             await model.Locales.ToTranslationProperty(collection, x => x.Name, _seoSettings, _slugService,
                 _languageService);
-        model.SeName = await _slugNameValidator.ValidateSeName(collection, model.SeName, collection.Name, true);
+        model.SeName = await _seNameService.ValidateSeName(collection, model.SeName, collection.Name, true);
         collection.SeName = model.SeName;
         await _collectionService.UpdateCollection(collection);
 
@@ -159,7 +159,7 @@ public class CollectionViewModelService : ICollectionViewModelService
                     collection.AppliedDiscounts.Remove(discount.Id);
             }
 
-        model.SeName = await _slugNameValidator.ValidateSeName(collection, model.SeName, collection.Name, true);
+        model.SeName = await _seNameService.ValidateSeName(collection, model.SeName, collection.Name, true);
         collection.SeName = model.SeName;
 
         await _collectionService.UpdateCollection(collection);

@@ -16,20 +16,20 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>
     private readonly ICategoryService _categoryService;
     private readonly IPictureService _pictureService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     
     public CategoryImportDataObject(
         ICategoryService categoryService,
         IPictureService pictureService,
         ICategoryLayoutService categoryLayoutService,
         ISlugService slugService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _categoryService = categoryService;
         _pictureService = pictureService;
         _categoryLayoutService = categoryLayoutService;
         _slugService = slugService;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task Execute(IEnumerable<CategoryDto> data)
@@ -80,7 +80,7 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>
         }
 
         var seName = category.SeName ?? category.Name;
-        seName = await _slugNameValidator.ValidateSeName(category, seName, category.Name, true);
+        seName = await _seNameService.ValidateSeName(category, seName, category.Name, true);
         category.SeName = seName;
         await _categoryService.UpdateCategory(category);
         await _slugService.SaveSlug(category, seName, "");

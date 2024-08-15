@@ -35,14 +35,14 @@ public class BlogViewModelService : IBlogViewModelService
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IWorkContext _workContext;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     
     public BlogViewModelService(IBlogService blogService, IDateTimeService dateTimeService, IStoreService storeService,
         ISlugService slugService,
         IPictureService pictureService, ICustomerService customerService, ITranslationService translationService,
         IProductService productService,
         IVendorService vendorService, ILanguageService languageService, IWorkContext workContext,
-        SeoSettings seoSettings, ISlugNameValidator slugNameValidator)
+        SeoSettings seoSettings, ISeNameService seNameService)
     {
         _blogService = blogService;
         _dateTimeService = dateTimeService;
@@ -56,7 +56,7 @@ public class BlogViewModelService : IBlogViewModelService
         _languageService = languageService;
         _workContext = workContext;
         _seoSettings = seoSettings;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public virtual async Task<(IEnumerable<BlogPostModel> blogPosts, int totalCount)> PrepareBlogPostsModel(
@@ -84,7 +84,7 @@ public class BlogViewModelService : IBlogViewModelService
         await _blogService.InsertBlogPost(blogPost);
 
         //search engine name
-        var seName = await _slugNameValidator.ValidateSeName(blogPost, model.SeName, model.Title, true);
+        var seName = await _seNameService.ValidateSeName(blogPost, model.SeName, model.Title, true);
         blogPost.SeName = seName;
         blogPost.Locales =
             await model.Locales.ToTranslationProperty(blogPost, x => x.Title, _seoSettings, _slugService,
@@ -105,7 +105,7 @@ public class BlogViewModelService : IBlogViewModelService
         await _blogService.UpdateBlogPost(blogPost);
 
         //search engine name
-        var seName = await _slugNameValidator.ValidateSeName(blogPost, model.SeName, model.Title, true);
+        var seName = await _seNameService.ValidateSeName(blogPost, model.SeName, model.Title, true);
         blogPost.SeName = seName;
         blogPost.Locales =
             await model.Locales.ToTranslationProperty(blogPost, x => x.Title, _seoSettings, _slugService,

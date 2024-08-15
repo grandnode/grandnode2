@@ -16,15 +16,15 @@ public class AddProductCommandHandler : IRequestHandler<AddProductCommand, Produ
 {
     private readonly IProductService _productService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     public AddProductCommandHandler(
         IProductService productService,
         ISlugService slugService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _productService = productService;
         _slugService = slugService;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task<ProductDto> Handle(AddProductCommand request, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public class AddProductCommandHandler : IRequestHandler<AddProductCommand, Produ
         var product = request.Model.ToEntity();
         await _productService.InsertProduct(product);
 
-        request.Model.SeName = await _slugNameValidator.ValidateSeName(product, request.Model.SeName, product.Name, true);
+        request.Model.SeName = await _seNameService.ValidateSeName(product, request.Model.SeName, product.Name, true);
         product.SeName = request.Model.SeName;
         //search engine name
         await _slugService.SaveSlug(product, request.Model.SeName, "");

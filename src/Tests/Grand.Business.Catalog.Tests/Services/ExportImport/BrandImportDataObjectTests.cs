@@ -41,7 +41,7 @@ public class BrandImportDataObjectTests
     private IRepository<Brand> _repository;
     private Mock<ISlugService> _slugServiceMock;
     private Mock<IWorkContext> _workContextMock;
-    private ISlugNameValidator _slugNameValidator;
+    private ISeNameService _seNameService;
     [TestInitialize]
     public void Init()
     {
@@ -62,9 +62,9 @@ public class BrandImportDataObjectTests
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _brandService = new BrandService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object,
             new AccessControlConfig());
-        _slugNameValidator = new SlugNameValidator(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
+        _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _brandImportDataObject = new BrandImportDataObject(_brandService, _pictureServiceMock.Object,
-            _brandLayoutServiceMock.Object, _slugServiceMock.Object, _slugNameValidator);
+            _brandLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService);
     }
 
     [TestMethod]

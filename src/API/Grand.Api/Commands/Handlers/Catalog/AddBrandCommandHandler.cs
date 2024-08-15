@@ -12,22 +12,22 @@ public class AddBrandCommandHandler : IRequestHandler<AddBrandCommand, BrandDto>
 {
     private readonly IBrandService _brandService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     public AddBrandCommandHandler(
         IBrandService brandService,
         ISlugService slugService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _brandService = brandService;
         _slugService = slugService;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task<BrandDto> Handle(AddBrandCommand request, CancellationToken cancellationToken)
     {
         var brand = request.Model.ToEntity();
         await _brandService.InsertBrand(brand);
-        request.Model.SeName = await _slugNameValidator.ValidateSeName(brand, request.Model.SeName, brand.Name, true);
+        request.Model.SeName = await _seNameService.ValidateSeName(brand, request.Model.SeName, brand.Name, true);
         brand.SeName = request.Model.SeName;
         await _brandService.UpdateBrand(brand);
         await _slugService.SaveSlug(brand, request.Model.SeName, "");

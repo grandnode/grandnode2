@@ -33,7 +33,7 @@ public class CourseViewModelService(
     IStoreService storeService,
     IVendorService vendorService,
     SeoSettings seoSettings,
-    ISlugNameValidator slugNameValidator)
+    ISeNameService seNameService)
     : ICourseViewModelService
 {
     public virtual async Task<CourseModel> PrepareCourseModel(CourseModel model = null)
@@ -58,7 +58,7 @@ public class CourseViewModelService(
         await courseService.Insert(course);
 
         //locales
-        model.SeName = await slugNameValidator.ValidateSeName(course, model.SeName, course.Name, true);
+        model.SeName = await seNameService.ValidateSeName(course, model.SeName, course.Name, true);
         course.SeName = model.SeName;
         await courseService.Update(course);
 
@@ -80,7 +80,7 @@ public class CourseViewModelService(
         var prevProductId = course.ProductId;
 
         course = model.ToEntity(course);
-        model.SeName = await slugNameValidator.ValidateSeName(course, model.SeName, course.Name, true);
+        model.SeName = await seNameService.ValidateSeName(course, model.SeName, course.Name, true);
         course.SeName = model.SeName;
         //locales
         course.Locales =

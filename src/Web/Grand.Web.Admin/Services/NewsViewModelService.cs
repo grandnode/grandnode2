@@ -28,7 +28,7 @@ public class NewsViewModelService : INewsViewModelService
     private readonly ILanguageService _languageService;
     private readonly ICustomerService _customerService;
     private readonly SeoSettings _seoSettings;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
 
     #endregion
     
@@ -42,7 +42,7 @@ public class NewsViewModelService : INewsViewModelService
         ILanguageService languageService,
         ICustomerService customerService,
         SeoSettings seoSettings, 
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _newsService = newsService;
         _dateTimeService = dateTimeService;
@@ -52,7 +52,7 @@ public class NewsViewModelService : INewsViewModelService
         _languageService = languageService;
         _customerService = customerService;
         _seoSettings = seoSettings;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     #endregion
@@ -76,7 +76,7 @@ public class NewsViewModelService : INewsViewModelService
         var newsItem = model.ToEntity(_dateTimeService);
         await _newsService.InsertNews(newsItem);
 
-        var seName = await _slugNameValidator.ValidateSeName(newsItem, model.SeName, model.Title, true);
+        var seName = await _seNameService.ValidateSeName(newsItem, model.SeName, model.Title, true);
         newsItem.SeName = seName;
         newsItem.Locales =
             await model.Locales.ToTranslationProperty(newsItem, x => x.Title, _seoSettings, _slugService,
@@ -94,7 +94,7 @@ public class NewsViewModelService : INewsViewModelService
     {
         var prevPictureId = newsItem.PictureId;
         newsItem = model.ToEntity(newsItem, _dateTimeService);
-        var seName = await _slugNameValidator.ValidateSeName(newsItem, model.SeName, model.Title, true);
+        var seName = await _seNameService.ValidateSeName(newsItem, model.SeName, model.Title, true);
         newsItem.SeName = seName;
         newsItem.Locales =
             await model.Locales.ToTranslationProperty(newsItem, x => x.Title, _seoSettings, _slugService,

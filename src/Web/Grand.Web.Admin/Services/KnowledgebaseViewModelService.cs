@@ -16,7 +16,7 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
 {
     private readonly IKnowledgebaseService _knowledgebaseService;
     private readonly ILanguageService _languageService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     private readonly SeoSettings _seoSettings;
     private readonly ISlugService _slugService;
 
@@ -25,13 +25,13 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
         ISlugService slugService,
         ILanguageService languageService,
         SeoSettings seoSettings, 
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _knowledgebaseService = knowledgebaseService;
         _slugService = slugService;
         _languageService = languageService;
         _seoSettings = seoSettings;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public virtual async Task PrepareCategory(KnowledgebaseCategoryModel model)
@@ -113,7 +113,7 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
         var knowledgebaseCategory = model.ToEntity();
         knowledgebaseCategory.Locales = await model.Locales.ToTranslationProperty(knowledgebaseCategory, x => x.Name,
             _seoSettings, _slugService, _languageService);
-        model.SeName = await _slugNameValidator.ValidateSeName(knowledgebaseCategory, model.SeName, knowledgebaseCategory.Name, true);
+        model.SeName = await _seNameService.ValidateSeName(knowledgebaseCategory, model.SeName, knowledgebaseCategory.Name, true);
         knowledgebaseCategory.SeName = model.SeName;
         await _knowledgebaseService.InsertKnowledgebaseCategory(knowledgebaseCategory);
         await _slugService.SaveSlug(knowledgebaseCategory, model.SeName, "");
@@ -127,7 +127,7 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
         knowledgebaseCategory = model.ToEntity(knowledgebaseCategory);
         knowledgebaseCategory.Locales = await model.Locales.ToTranslationProperty(knowledgebaseCategory, x => x.Name,
             _seoSettings, _slugService, _languageService);
-        model.SeName = await _slugNameValidator.ValidateSeName(knowledgebaseCategory, model.SeName, knowledgebaseCategory.Name, true);
+        model.SeName = await _seNameService.ValidateSeName(knowledgebaseCategory, model.SeName, knowledgebaseCategory.Name, true);
         knowledgebaseCategory.SeName = model.SeName;
         await _knowledgebaseService.UpdateKnowledgebaseCategory(knowledgebaseCategory);
         await _slugService.SaveSlug(knowledgebaseCategory, model.SeName, "");
@@ -155,7 +155,7 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
         var knowledgebaseArticle = model.ToEntity();
         knowledgebaseArticle.Locales = await model.Locales.ToTranslationProperty(knowledgebaseArticle, x => x.Name,
             _seoSettings, _slugService, _languageService);
-        model.SeName = await _slugNameValidator.ValidateSeName(knowledgebaseArticle, model.SeName, knowledgebaseArticle.Name, true);
+        model.SeName = await _seNameService.ValidateSeName(knowledgebaseArticle, model.SeName, knowledgebaseArticle.Name, true);
         knowledgebaseArticle.SeName = model.SeName;
         knowledgebaseArticle.AllowComments = model.AllowComments;
         await _knowledgebaseService.InsertKnowledgebaseArticle(knowledgebaseArticle);
@@ -170,7 +170,7 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
         knowledgebaseArticle = model.ToEntity(knowledgebaseArticle);
         knowledgebaseArticle.Locales = await model.Locales.ToTranslationProperty(knowledgebaseArticle, x => x.Name,
             _seoSettings, _slugService, _languageService);
-        model.SeName = await _slugNameValidator.ValidateSeName(knowledgebaseArticle, model.SeName, knowledgebaseArticle.Name, true);
+        model.SeName = await _seNameService.ValidateSeName(knowledgebaseArticle, model.SeName, knowledgebaseArticle.Name, true);
         knowledgebaseArticle.SeName = model.SeName;
         knowledgebaseArticle.AllowComments = model.AllowComments;
         await _knowledgebaseService.UpdateKnowledgebaseArticle(knowledgebaseArticle);

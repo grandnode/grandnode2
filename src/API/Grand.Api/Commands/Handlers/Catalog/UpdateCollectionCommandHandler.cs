@@ -13,17 +13,17 @@ public class UpdateCollectionCommandHandler : IRequestHandler<UpdateCollectionCo
     private readonly ICollectionService _collectionService;
     private readonly IPictureService _pictureService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     public UpdateCollectionCommandHandler(
         ICollectionService collectionService,
         ISlugService slugService,
         IPictureService pictureService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _collectionService = collectionService;
         _slugService = slugService;
         _pictureService = pictureService;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task<CollectionDto> Handle(UpdateCollectionCommand request, CancellationToken cancellationToken)
@@ -31,7 +31,7 @@ public class UpdateCollectionCommandHandler : IRequestHandler<UpdateCollectionCo
         var collection = await _collectionService.GetCollectionById(request.Model.Id);
         var prevPictureId = collection.PictureId;
         collection = request.Model.ToEntity(collection);
-        request.Model.SeName = await _slugNameValidator.ValidateSeName(collection, request.Model.SeName, collection.Name, true);
+        request.Model.SeName = await _seNameService.ValidateSeName(collection, request.Model.SeName, collection.Name, true);
         collection.SeName = request.Model.SeName;
         await _collectionService.UpdateCollection(collection);
         //search engine name

@@ -13,17 +13,17 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
     private readonly ICategoryService _categoryService;
     private readonly IPictureService _pictureService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     public UpdateCategoryCommandHandler(
         ICategoryService categoryService,
         ISlugService slugService,
         IPictureService pictureService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _categoryService = categoryService;
         _slugService = slugService;
         _pictureService = pictureService;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task<CategoryDto> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
@@ -31,7 +31,7 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
         var category = await _categoryService.GetCategoryById(request.Model.Id);
         var prevPictureId = category.PictureId;
         category = request.Model.ToEntity(category);
-        request.Model.SeName = await _slugNameValidator.ValidateSeName(category, request.Model.SeName, category.Name, true);
+        request.Model.SeName = await _seNameService.ValidateSeName(category, request.Model.SeName, category.Name, true);
         category.SeName = request.Model.SeName;
         await _categoryService.UpdateCategory(category);
         //search engine name

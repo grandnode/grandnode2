@@ -16,21 +16,21 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
     private readonly IProductService _productService;
     private readonly ISlugService _slugService;
     private readonly IStockQuantityService _stockQuantityService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     public UpdateProductCommandHandler(
         IProductService productService,
         ISlugService slugService,
         IOutOfStockSubscriptionService outOfStockSubscriptionService,
         IStockQuantityService stockQuantityService,
         IMediator mediator,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _productService = productService;
         _slugService = slugService;
         _outOfStockSubscriptionService = outOfStockSubscriptionService;
         _stockQuantityService = stockQuantityService;
         _mediator = mediator;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task<ProductDto> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
@@ -41,7 +41,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         var prevPublished = product.Published;
 
         product = request.Model.ToEntity(product);
-        request.Model.SeName = await _slugNameValidator.ValidateSeName(product, request.Model.SeName, product.Name, true);
+        request.Model.SeName = await _seNameService.ValidateSeName(product, request.Model.SeName, product.Name, true);
         product.SeName = request.Model.SeName;
         //search engine name
         await _slugService.SaveSlug(product, request.Model.SeName, "");

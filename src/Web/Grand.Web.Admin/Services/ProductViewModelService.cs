@@ -71,7 +71,7 @@ public class ProductViewModelService(
     SeoSettings seoSettings,
     IAuctionService auctionService,
     IPriceFormatter priceFormatter,
-    ISlugNameValidator slugNameValidator)
+    ISeNameService seNameService)
     : IProductViewModelService
 {
     public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
@@ -699,7 +699,7 @@ public class ProductViewModelService(
         var product = model.ToEntity(dateTimeService);
         await productService.InsertProduct(product);
 
-        model.SeName = await slugNameValidator.ValidateSeName(product, model.SeName, product.Name, true);
+        model.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
         product.SeName = model.SeName;
         product.Locales =
             await model.Locales.ToTranslationProperty(product, x => x.Name, seoSettings, slugService, languageService);
@@ -743,7 +743,7 @@ public class ProductViewModelService(
         //product
         product = model.ToEntity(product, dateTimeService);
         product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
-        model.SeName = await slugNameValidator.ValidateSeName(product, model.SeName, product.Name, true);
+        model.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
         product.SeName = model.SeName;
         product.Locales =
             await model.Locales.ToTranslationProperty(product, x => x.Name, seoSettings, slugService, languageService);

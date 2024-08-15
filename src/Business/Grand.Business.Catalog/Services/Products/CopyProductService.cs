@@ -14,18 +14,18 @@ public class CopyProductService : ICopyProductService
 
     private readonly IProductService _productService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     
     #endregion
     #region Ctor
 
     public CopyProductService(IProductService productService,
         ISlugService slugService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _productService = productService;
         _slugService = slugService;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     #endregion
@@ -187,7 +187,7 @@ public class CopyProductService : ICopyProductService
         await _productService.InsertProduct(productCopy);
 
         //search engine name
-        var seName = await _slugNameValidator.ValidateSeName(productCopy, "", productCopy.Name, true);
+        var seName = await _seNameService.ValidateSeName(productCopy, "", productCopy.Name, true);
         productCopy.SeName = seName;
         await _productService.UpdateProduct(productCopy);
         await _slugService.SaveSlug(productCopy, seName, "");

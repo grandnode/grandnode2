@@ -16,20 +16,20 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>
     private readonly ICollectionService _collectionService;
     private readonly IPictureService _pictureService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     public CollectionImportDataObject(
         ICollectionService collectionService,
         IPictureService pictureService,
         ICollectionLayoutService collectionLayoutService,
         ISlugService slugService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _collectionService = collectionService;
         _pictureService = pictureService;
         _collectionLayoutService = collectionLayoutService;
         _slugService = slugService;
 
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task Execute(IEnumerable<CollectionDto> data)
@@ -76,7 +76,7 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>
         }
 
         var sename = collection.SeName ?? collection.Name;
-        sename = await _slugNameValidator.ValidateSeName(collection, sename, collection.Name, true);
+        sename = await _seNameService.ValidateSeName(collection, sename, collection.Name, true);
         collection.SeName = sename;
 
         await _collectionService.UpdateCollection(collection);

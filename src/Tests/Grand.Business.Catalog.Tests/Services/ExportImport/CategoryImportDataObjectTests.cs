@@ -42,7 +42,7 @@ public class CategoryImportDataObjectTests
     private IRepository<Category> _repository;
     private Mock<ISlugService> _slugServiceMock;
     private Mock<IWorkContext> _workContextMock;
-    private ISlugNameValidator _slugNameValidator;
+    private ISeNameService _seNameService;
     [TestInitialize]
     public void Init()
     {
@@ -63,9 +63,9 @@ public class CategoryImportDataObjectTests
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _categoryService = new CategoryService(_cacheBase, _repository, _workContextMock.Object, _mediatorMock.Object,
             new AclService(new AccessControlConfig()), new AccessControlConfig());
-        _slugNameValidator = new SlugNameValidator(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
+        _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _categoryImportDataObject = new CategoryImportDataObject(_categoryService, _pictureServiceMock.Object,
-            _categoryLayoutServiceMock.Object, _slugServiceMock.Object, _slugNameValidator);
+            _categoryLayoutServiceMock.Object, _slugServiceMock.Object, _seNameService);
     }
 
     [TestMethod]

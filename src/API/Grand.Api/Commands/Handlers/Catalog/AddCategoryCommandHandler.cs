@@ -12,23 +12,23 @@ public class AddCategoryCommandHandler : IRequestHandler<AddCategoryCommand, Cat
 {
     private readonly ICategoryService _categoryService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
 
     public AddCategoryCommandHandler(
         ICategoryService categoryService,
         ISlugService slugService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _categoryService = categoryService;
         _slugService = slugService;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task<CategoryDto> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
     {
         var category = request.Model.ToEntity();
         await _categoryService.InsertCategory(category);
-        request.Model.SeName = await _slugNameValidator.ValidateSeName(category, request.Model.SeName, category.Name, true);
+        request.Model.SeName = await _seNameService.ValidateSeName(category, request.Model.SeName, category.Name, true);
         category.SeName = request.Model.SeName;
         await _categoryService.UpdateCategory(category);
         await _slugService.SaveSlug(category, request.Model.SeName, "");

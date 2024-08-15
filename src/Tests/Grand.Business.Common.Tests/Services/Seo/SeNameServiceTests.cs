@@ -10,12 +10,12 @@ using NUnit.Framework.Legacy;
 
 namespace Grand.Business.Common.Tests.Services.Seo
 {
-    public class SlugNameValidatorTests
+    public class SeNameServiceTests
     {
         private Mock<ISlugService> _mockSlugService;
         private Mock<ILanguageService> _mockLanguageService;
         private SeoSettings _seoSettings;
-        private SlugNameValidator _slugNameValidator;
+        private SeNameService _seNameService;
 
         [SetUp]
         public void Setup()
@@ -30,7 +30,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
                 AllowSlashChar = false,
                 SeoCharConversion = null
             };
-            _slugNameValidator = new SlugNameValidator(_mockSlugService.Object, _mockLanguageService.Object, _seoSettings);
+            _seNameService = new SeNameService(_mockSlugService.Object, _mockLanguageService.Object, _seoSettings);
         }
 
         [Test]
@@ -43,7 +43,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             bool ensureNotEmpty = false;
 
             // Act
-            var result = await _slugNameValidator.ValidateSeName(entity, seName, name, ensureNotEmpty);
+            var result = await _seNameService.ValidateSeName(entity, seName, name, ensureNotEmpty);
 
             // Assert
             ClassicAssert.AreEqual("test-name", result);
@@ -59,7 +59,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             bool ensureNotEmpty = true;
 
             // Act
-            var result = await _slugNameValidator.ValidateSeName(entity, seName, name, ensureNotEmpty);
+            var result = await _seNameService.ValidateSeName(entity, seName, name, ensureNotEmpty);
 
             // Assert
             ClassicAssert.AreEqual("123", result);
@@ -78,7 +78,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             _mockLanguageService.Setup(l => l.GetAllLanguages(true, "")).ReturnsAsync(new List<Language>());
 
             // Act
-            var result = await _slugNameValidator.ValidateSeName(entity, seName, name, ensureNotEmpty);
+            var result = await _seNameService.ValidateSeName(entity, seName, name, ensureNotEmpty);
 
             // Assert
             ClassicAssert.AreEqual("reserved-slug-1", result);
@@ -97,7 +97,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
                 .ReturnsAsync(new[] { new Language { UniqueSeoCode = "en" } });
 
             // Act
-            var result = await _slugNameValidator.ValidateSeName(entity, seName, name, true);
+            var result = await _seNameService.ValidateSeName(entity, seName, name, true);
 
             // Assert
             ClassicAssert.IsTrue(result.StartsWith("en-"));
@@ -117,7 +117,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
                 .ReturnsAsync(new[] { new Language { UniqueSeoCode = "en" } });
 
             // Act
-            var result = await _slugNameValidator.ValidateSeName(entity, seName, name, true);
+            var result = await _seNameService.ValidateSeName(entity, seName, name, true);
 
             // Assert
             ClassicAssert.AreEqual(seName.Substring(0, 200), result);
@@ -136,7 +136,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
                 .ReturnsAsync(new[] { new Language { UniqueSeoCode = "en" } });
 
             // Act
-            var result = await _slugNameValidator.ValidateSeName(entity, seName, name, true);
+            var result = await _seNameService.ValidateSeName(entity, seName, name, true);
 
             // Assert
             ClassicAssert.AreEqual("unique-slug", result);
@@ -157,7 +157,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
                 .ReturnsAsync(new EntityUrl { EntityId = "2", EntityName = "OtherEntity" });
 
             // Act
-            var result = await _slugNameValidator.ValidateSeName(entity, seName, name, true);
+            var result = await _seNameService.ValidateSeName(entity, seName, name, true);
 
             // Assert
             ClassicAssert.IsTrue(result.StartsWith("reserved-slug-") && result.Length > "reserved-slug-4".Length);

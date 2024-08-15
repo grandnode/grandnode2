@@ -29,7 +29,7 @@ public class VendorInfoController : BaseVendorController
         ISlugService slugService,
         SeoSettings seoSettings,
         VendorSettings vendorSettings, 
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _translationService = translationService;
         _vendorService = vendorService;
@@ -39,7 +39,7 @@ public class VendorInfoController : BaseVendorController
         _slugService = slugService;
         _seoSettings = seoSettings;
         _vendorSettings = vendorSettings;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     #endregion
@@ -52,7 +52,7 @@ public class VendorInfoController : BaseVendorController
     private readonly ILanguageService _languageService;
     private readonly ICountryService _countryService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     private readonly SeoSettings _seoSettings;
     private readonly VendorSettings _vendorSettings;
 
@@ -110,7 +110,7 @@ public class VendorInfoController : BaseVendorController
         vendor.Locales =
             await model.Locales.ToTranslationProperty(vendor, x => x.Name, _seoSettings, _slugService,
                 _languageService);
-        model.SeName = await _slugNameValidator.ValidateSeName(vendor, model.SeName, vendor.Name, true);
+        model.SeName = await _seNameService.ValidateSeName(vendor, model.SeName, vendor.Name, true);
         vendor.Address = model.Address.ToEntity();
         vendor.SeName = model.SeName;
 

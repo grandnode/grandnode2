@@ -16,20 +16,20 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>
     private readonly IBrandService _brandService;
     private readonly IPictureService _pictureService;
     private readonly ISlugService _slugService;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     
     public BrandImportDataObject(
         IBrandService brandService,
         IPictureService pictureService,
         IBrandLayoutService brandLayoutService,
         ISlugService slugService,
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _brandService = brandService;
         _pictureService = pictureService;
         _brandLayoutService = brandLayoutService;
         _slugService = slugService;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     public async Task Execute(IEnumerable<BrandDto> data)
@@ -74,7 +74,7 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>
         }
 
         var seName = brand.SeName ?? brand.Name;
-        seName = await _slugNameValidator.ValidateSeName(brand, seName, brand.Name, true);
+        seName = await _seNameService.ValidateSeName(brand, seName, brand.Name, true);
         brand.SeName = seName;
 
         await _brandService.UpdateBrand(brand);

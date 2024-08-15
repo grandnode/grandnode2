@@ -31,7 +31,7 @@ public class BrandViewModelService : IBrandViewModelService
     private readonly ILanguageService _languageService;
     private readonly IWorkContext _workContext;
     private readonly SeoSettings _seoSettings;
-    private readonly ISlugNameValidator _slugNameValidator;
+    private readonly ISeNameService _seNameService;
     
     #endregion
 
@@ -47,7 +47,7 @@ public class BrandViewModelService : IBrandViewModelService
         ILanguageService languageService,
         IWorkContext workContext,
         SeoSettings seoSettings, 
-        ISlugNameValidator slugNameValidator)
+        ISeNameService seNameService)
     {
         _brandLayoutService = brandLayoutService;
         _brandService = brandService;
@@ -58,7 +58,7 @@ public class BrandViewModelService : IBrandViewModelService
         _languageService = languageService;
         _workContext = workContext;
         _seoSettings = seoSettings;
-        _slugNameValidator = slugNameValidator;
+        _seNameService = seNameService;
     }
 
     #endregion
@@ -109,7 +109,7 @@ public class BrandViewModelService : IBrandViewModelService
         //search engine name
         brand.Locales =
             await model.Locales.ToTranslationProperty(brand, x => x.Name, _seoSettings, _slugService, _languageService);
-        model.SeName = await _slugNameValidator.ValidateSeName(brand, model.SeName, brand.Name, true);
+        model.SeName = await _seNameService.ValidateSeName(brand, model.SeName, brand.Name, true);
         brand.SeName = model.SeName;
         await _brandService.UpdateBrand(brand);
 
@@ -143,7 +143,7 @@ public class BrandViewModelService : IBrandViewModelService
                     brand.AppliedDiscounts.Remove(discount.Id);
             }
 
-        model.SeName = await _slugNameValidator.ValidateSeName(brand, model.SeName, brand.Name, true);
+        model.SeName = await _seNameService.ValidateSeName(brand, model.SeName, brand.Name, true);
         brand.SeName = model.SeName;
 
         await _brandService.UpdateBrand(brand);
