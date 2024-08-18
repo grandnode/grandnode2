@@ -6,7 +6,9 @@ using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Domain;
 using Grand.Domain.Localization;
 using Grand.Domain.Seo;
+using Grand.Infrastructure.Models;
 using NUnit.Framework.Legacy;
+using System.Linq.Expressions;
 
 namespace Grand.Business.Common.Tests.Services.Seo
 {
@@ -163,10 +165,135 @@ namespace Grand.Business.Common.Tests.Services.Seo
             ClassicAssert.IsTrue(result.StartsWith("reserved-slug-") && result.Length > "reserved-slug-4".Length);
         }
         
+        [Test]
+        public async Task TranslationSeNameProperties_ShouldReturnEmptyList_WhenInputListIsEmpty()
+        {
+            // Arrange
+            var list = new List<LocalizedModelLocal>();
+            var entity = new TestEntity { Id = "1" };
+            Expression<Func<LocalizedModelLocal, string>> keySelector = x => x.SomeProperty;
+
+            // Act
+            var result = await _seNameService.TranslationSeNameProperties(list, entity, keySelector);
+
+            // Assert
+            ClassicAssert.IsEmpty(result);
+        }
+        [Test]
+        public async Task TranslationSeNameProperties_ShouldAddTranslationEntity_WhenPropertyIsValid()
+        {
+            // Arrange
+            var list = new List<LocalizedModelLocal>
+            {
+                new LocalizedModelLocal { SomeProperty = "SomeValue", LanguageId = "1" }
+            };
+            var entity = new TestEntity { Id = "1" };
+            var seName = "slug";
+            Expression<Func<LocalizedModelLocal, string>> keySelector = x => x.SomeProperty;
+
+            _mockSlugService.Setup(s => s.GetBySlug(It.IsAny<string>())).ReturnsAsync(new EntityUrl() { Slug = seName, EntityId = "123", EntityName = "TestEntity" });
+
+
+            // Act
+            var result = await _seNameService.TranslationSeNameProperties(list, entity, keySelector);
+
+            // Assert
+            ClassicAssert.AreEqual(1, result.Count);
+            ClassicAssert.AreEqual("1", result[0].LanguageId);
+            ClassicAssert.AreEqual("SomeProperty", result[0].LocaleKey);
+            ClassicAssert.AreEqual("SomeValue", result[0].LocaleValue);
+        }
+        [Test]
+        public async Task TranslationSeNameProperties_ShouldAddTranslationEntity_AddSlug_WhenPropertyIsValid()
+        {
+            // Arrange
+            var list = new List<LocalizedSlugModelLocal>
+            {
+                new LocalizedSlugModelLocal { SomeProperty = "SomeValue", LanguageId = "1" }
+            };
+            
+            var entity = new TestTransEntity { Id = "1" };
+            var seName = "slug";
+            Expression<Func<LocalizedSlugModelLocal, string>> keySelector = x => x.SomeProperty;
+
+            _mockSlugService.Setup(s => s.GetBySlug(It.IsAny<string>())).ReturnsAsync(new EntityUrl() { Slug = seName, EntityId = "1", EntityName = "TestTransEntity" });
+
+
+            // Act
+            var result = await _seNameService.TranslationSeNameProperties(list, entity, keySelector);
+
+            // Assert
+            ClassicAssert.AreEqual(2, result.Count);
+            ClassicAssert.AreEqual("1", result[0].LanguageId);
+            ClassicAssert.AreEqual("SomeProperty", result[0].LocaleKey);
+            ClassicAssert.AreEqual("SomeValue", result[0].LocaleValue);
+            
+            ClassicAssert.AreEqual("1", result[1].LanguageId);
+            ClassicAssert.AreEqual("SeName", result[1].LocaleKey);
+            ClassicAssert.AreEqual("somevalue", result[1].LocaleValue);
+        }
+        
+        [Test]
+        public async Task SaveSeName_ShouldCallSaveSlugOnce_WhenEntityHasNoLocales()
+        {
+            // Arrange
+            var entity = new TestTransEntity { Id = "1", SeName = "test-se-name"};
+
+            // Act
+            await _seNameService.SaveSeName(entity);
+
+            // Assert
+            _mockSlugService.Verify(x => x.SaveSlug(entity, "test-se-name", ""), Times.Once);
+        }
+        [Test]
+        public async Task SaveSeName_ShouldCallSaveSlugMultipleTimes_WhenEntityHasLocalesWithDifferentSeName()
+        {
+            // Arrange
+            var entity = new TestTransEntity { Id = "1", SeName = "main-se-name"};
+            var locale1 = new TranslationEntity
+            {
+                LocaleKey = nameof(ISlugEntity.SeName),
+                LocaleValue = "locale1-se-name",
+                LanguageId = "en"
+            };
+            entity.Locales.Add(locale1);
+            var locale2 = new TranslationEntity
+            {
+                LocaleKey = nameof(ISlugEntity.SeName),
+                LocaleValue = "locale2-se-name",
+                LanguageId = "fr"
+            };
+            entity.Locales.Add(locale2);
+
+            // Act
+            await _seNameService.SaveSeName(entity);
+
+            // Assert
+            _mockSlugService.Verify(x => x.SaveSlug(entity, "main-se-name", ""), Times.Once);
+            _mockSlugService.Verify(x => x.SaveSlug(entity, "locale1-se-name", "en"), Times.Once);
+            _mockSlugService.Verify(x => x.SaveSlug(entity, "locale2-se-name", "fr"), Times.Once);
+        }
+        class LocalizedModelLocal : ILocalizedModelLocal
+        {
+            public string LanguageId { get; set; }
+            public string SomeProperty { get; set; }
+        }
+        
+        class LocalizedSlugModelLocal : ILocalizedModelLocal, ISlugModelLocal
+        {
+            public string LanguageId { get; set; }
+            public string SomeProperty { get; set; }
+            public string SeName { get; set; }
+        }
         class TestEntity : BaseEntity, ISlugEntity
         {
             // Implement necessary members of ISlugEntity if needed
             public string SeName { get; set; }
+        }
+        class TestTransEntity : BaseEntity, ISlugEntity, ITranslationEntity
+        {
+            public string SeName { get; set; }
+            public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
         }
     }
 }
