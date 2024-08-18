@@ -115,7 +115,7 @@ public class KnowledgebaseController : BasePublicController
             string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()), _workContext.CurrentStore.Id,
             _workContext.WorkingLanguage.Id);
         model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
-            (await category.GetCategoryBreadCrumb(_knowledgebaseService, _aclService, _workContext))
+            (await GetCategoryBreadCrumb(category))
             .Select(catBr => new KnowledgebaseCategoryModel {
                 Id = catBr.Id,
                 Name = catBr.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
@@ -250,7 +250,7 @@ public class KnowledgebaseController : BasePublicController
                 _workContext.CurrentStore.Id,
                 _workContext.WorkingLanguage.Id);
             model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
-                (await category.GetCategoryBreadCrumb(_knowledgebaseService, _aclService, _workContext))
+                (await GetCategoryBreadCrumb(category))
                 .Select(catBr => new KnowledgebaseCategoryModel {
                     Id = catBr.Id,
                     Name = catBr.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
@@ -303,5 +303,31 @@ public class KnowledgebaseController : BasePublicController
         //If we got this far, something failed, redisplay form
         await PrepareKnowledgebaseArticleModel(model, article, customerService);
         return View("Article", model);
+    }
+    
+    private async Task<IList<KnowledgebaseCategory>> GetCategoryBreadCrumb(KnowledgebaseCategory category, bool showHidden = false)
+    {
+        ArgumentNullException.ThrowIfNull(category);
+
+        var result = new List<KnowledgebaseCategory>();
+
+        //used to prevent circular references
+        var alreadyProcessedCategoryIds = new List<string>();
+
+        while (category != null && //not null                
+               (showHidden || category.Published) && //published
+               (showHidden || _aclService.Authorize(category, _workContext.CurrentCustomer)) && //ACL
+               (showHidden || _aclService.Authorize(category, _workContext.CurrentStore.Id)) && //Store acl
+               !alreadyProcessedCategoryIds.Contains(category.Id)) //prevent circular references
+        {
+            result.Add(category);
+
+            alreadyProcessedCategoryIds.Add(category.Id);
+
+            category = await _knowledgebaseService.GetKnowledgebaseCategory(category.ParentCategoryId);
+        }
+
+        result.Reverse();
+        return result;
     }
 }
