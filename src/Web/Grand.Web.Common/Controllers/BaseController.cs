@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure.Models;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Events;
 using Grand.Web.Common.Extensions;

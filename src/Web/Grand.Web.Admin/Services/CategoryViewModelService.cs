@@ -8,7 +8,6 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
-using Grand.Domain.Seo;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
@@ -24,12 +23,9 @@ public class CategoryViewModelService : ICategoryViewModelService
     private readonly ICategoryLayoutService _categoryLayoutService;
     private readonly ICategoryService _categoryService;
     private readonly IDiscountService _discountService;
-    private readonly ILanguageService _languageService;
     private readonly IPictureService _pictureService;
     private readonly IProductCategoryService _productCategoryService;
     private readonly IProductService _productService;
-    private readonly SeoSettings _seoSettings;
-    private readonly ISlugService _slugService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
@@ -43,12 +39,9 @@ public class CategoryViewModelService : ICategoryViewModelService
         ITranslationService translationService,
         IStoreService storeService,
         IPictureService pictureService,
-        ISlugService slugService,
         IProductService productService,
         IVendorService vendorService,
-        ILanguageService languageService,
         CatalogSettings catalogSettings,
-        SeoSettings seoSettings, 
         ISeNameService seNameService)
     {
         _categoryService = categoryService;
@@ -57,13 +50,10 @@ public class CategoryViewModelService : ICategoryViewModelService
         _discountService = discountService;
         _translationService = translationService;
         _storeService = storeService;
-        _slugService = slugService;
         _productService = productService;
         _pictureService = pictureService;
         _vendorService = vendorService;
-        _languageService = languageService;
         _catalogSettings = catalogSettings;
-        _seoSettings = seoSettings;
         _seNameService = seNameService;
     }
 
@@ -137,17 +127,13 @@ public class CategoryViewModelService : ICategoryViewModelService
         foreach (var discount in allDiscounts)
             if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
                 category.AppliedDiscounts.Add(discount.Id);
-        await _categoryService.InsertCategory(category);
 
         //locales
-        category.Locales =
-            await model.Locales.ToTranslationProperty(category, x => x.Name, _seoSettings, _slugService,
-                _languageService);
-        model.SeName = await _seNameService.ValidateSeName(category, model.SeName, category.Name, true);
-        category.SeName = model.SeName;
-        await _categoryService.UpdateCategory(category);
+        category.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, category, x => x.Name);
+        category.SeName = await _seNameService.ValidateSeName(category, model.SeName, category.Name, true);
 
-        await _slugService.SaveSlug(category, model.SeName, "");
+        await _categoryService.InsertCategory(category);
+        await _seNameService.SaveSeName(category);
 
         //update picture seo file name
         await _pictureService.UpdatePictureSeoNames(category.PictureId, category.Name);
@@ -159,12 +145,10 @@ public class CategoryViewModelService : ICategoryViewModelService
     {
         var prevPictureId = category.PictureId;
         category = model.ToEntity(category);
-        model.SeName = await _seNameService.ValidateSeName(category, model.SeName, category.Name, true);
-        category.SeName = model.SeName;
-        //locales
-        category.Locales =
-            await model.Locales.ToTranslationProperty(category, x => x.Name, _seoSettings, _slugService,
-                _languageService);
+
+        category.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, category, x => x.Name);
+        category.SeName = await _seNameService.ValidateSeName(category, model.SeName, category.Name, true);
+
         //discounts
         var allDiscounts = await _discountService.GetDiscountsQuery(DiscountType.AssignedToCategories);
         foreach (var discount in allDiscounts)
@@ -184,7 +168,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         await _categoryService.UpdateCategory(category);
 
         //search engine name
-        await _slugService.SaveSlug(category, model.SeName, "");
+        await _seNameService.SaveSeName(category);
 
         //delete an old picture (if deleted or updated)
         if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != category.PictureId)

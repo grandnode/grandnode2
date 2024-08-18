@@ -1,4 +1,4 @@
-﻿namespace Grand.Web.Common.Models;
+﻿namespace Grand.Infrastructure.Models;
 
 public interface ISlugModelLocal
 {

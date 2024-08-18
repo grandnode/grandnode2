@@ -17,7 +17,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Media;
-using Grand.Domain.Seo;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
@@ -54,8 +53,6 @@ public class ProductViewModelService : IProductViewModelService
     private readonly IProductCollectionService _productCollectionService;
     private readonly IProductLayoutService _productLayoutService;
     private readonly IProductService _productService;
-    private readonly SeoSettings _seoSettings;
-    private readonly ISlugService _slugService;
     private readonly ISpecificationAttributeService _specificationAttributeService;
     private readonly IStockQuantityService _stockQuantityService;
     private readonly IStoreService _storeService;
@@ -86,7 +83,6 @@ public class ProductViewModelService : IProductViewModelService
         ITaxCategoryService taxCategoryService,
         ICustomerService customerService,
         IStoreService storeService,
-        ISlugService slugService,
         IOutOfStockSubscriptionService outOfStockSubscriptionService,
         ILanguageService languageService,
         IProductAttributeFormatter productAttributeFormatter,
@@ -95,7 +91,7 @@ public class ProductViewModelService : IProductViewModelService
         IPriceFormatter priceFormatter,
         CurrencySettings currencySettings,
         MeasureSettings measureSettings,
-        TaxSettings taxSettings, SeoSettings seoSettings, 
+        TaxSettings taxSettings, 
         ISeNameService seNameService)
     {
         _productService = productService;
@@ -118,7 +114,6 @@ public class ProductViewModelService : IProductViewModelService
         _taxCategoryService = taxCategoryService;
         _customerService = customerService;
         _storeService = storeService;
-        _slugService = slugService;
         _outOfStockSubscriptionService = outOfStockSubscriptionService;
         _stockQuantityService = stockQuantityService;
         _languageService = languageService;
@@ -128,7 +123,6 @@ public class ProductViewModelService : IProductViewModelService
         _currencySettings = currencySettings;
         _measureSettings = measureSettings;
         _taxSettings = taxSettings;
-        _seoSettings = seoSettings;
         _seNameService = seNameService;
     }
 
@@ -689,20 +683,18 @@ public class ProductViewModelService : IProductViewModelService
     {
         //product
         var product = model.ToEntity(_dateTimeService);
-        product.VendorId = _workContext.CurrentVendor!.Id;
+        product.VendorId = _workContext.CurrentVendor?.Id;
+        
+        product.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
+        product.SeName = await _seNameService.ValidateSeName(product, model.SeName, product.Name, true);
+
         await _productService.InsertProduct(product);
 
-        model.SeName = await _seNameService.ValidateSeName(product, model.SeName, product.Name, true);
-        product.SeName = model.SeName;
-        product.Locales = await model.Locales.ToTranslationProperty(product, x => x.Name,
-            _seoSettings, _slugService, _languageService);
-
         //search engine name
-        await _slugService.SaveSlug(product, model.SeName, "");
+        await _seNameService.SaveSeName(product);
+        
         //warehouses
         await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
-
-        await _productService.UpdateProduct(product);
 
         return product;
     }
@@ -718,19 +710,20 @@ public class ProductViewModelService : IProductViewModelService
         //product
         product = model.ToEntity(product, _dateTimeService);
         product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
-        model.SeName = await _seNameService.ValidateSeName(product, model.SeName, product.Name, true);
-        product.SeName = model.SeName;
-        product.Locales = await model.Locales.ToTranslationProperty(product, x => x.Name, _seoSettings,
-            _slugService, _languageService);
-
-        //search engine name
-        await _slugService.SaveSlug(product, model.SeName, "");
-        //warehouses
-        await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
-        //picture seo names
-        await UpdatePictureSeoNames(product);
+        
+        product.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
+        product.SeName = await _seNameService.ValidateSeName(product, model.SeName, product.Name, true);
 
         await _productService.UpdateProduct(product);
+        
+        //search engine name
+        await _seNameService.SaveSeName(product);
+        
+        //warehouses
+        await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
+        
+        //picture seo names
+        await UpdatePictureSeoNames(product);
 
         //out of stock notifications
         await OutOfStockNotifications(product, prevStockQuantity, prevMultiWarehouseStock);

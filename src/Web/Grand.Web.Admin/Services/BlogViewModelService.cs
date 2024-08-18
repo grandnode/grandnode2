@@ -8,7 +8,6 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
-using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
@@ -26,36 +25,35 @@ public class BlogViewModelService : IBlogViewModelService
     private readonly IBlogService _blogService;
     private readonly ICustomerService _customerService;
     private readonly IDateTimeService _dateTimeService;
-    private readonly ILanguageService _languageService;
     private readonly IPictureService _pictureService;
     private readonly IProductService _productService;
-    private readonly SeoSettings _seoSettings;
-    private readonly ISlugService _slugService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IWorkContext _workContext;
     private readonly ISeNameService _seNameService;
     
-    public BlogViewModelService(IBlogService blogService, IDateTimeService dateTimeService, IStoreService storeService,
-        ISlugService slugService,
-        IPictureService pictureService, ICustomerService customerService, ITranslationService translationService,
+    public BlogViewModelService(
+        IBlogService blogService, 
+        IDateTimeService dateTimeService, 
+        IStoreService storeService,
+        IPictureService pictureService, 
+        ICustomerService customerService, 
+        ITranslationService translationService,
         IProductService productService,
-        IVendorService vendorService, ILanguageService languageService, IWorkContext workContext,
-        SeoSettings seoSettings, ISeNameService seNameService)
+        IVendorService vendorService, 
+        IWorkContext workContext,
+        ISeNameService seNameService)
     {
         _blogService = blogService;
         _dateTimeService = dateTimeService;
         _storeService = storeService;
-        _slugService = slugService;
         _pictureService = pictureService;
         _customerService = customerService;
         _translationService = translationService;
         _productService = productService;
         _vendorService = vendorService;
-        _languageService = languageService;
         _workContext = workContext;
-        _seoSettings = seoSettings;
         _seNameService = seNameService;
     }
 
@@ -81,16 +79,13 @@ public class BlogViewModelService : IBlogViewModelService
     public virtual async Task<BlogPost> InsertBlogPostModel(BlogPostModel model)
     {
         var blogPost = model.ToEntity(_dateTimeService);
-        await _blogService.InsertBlogPost(blogPost);
 
         //search engine name
-        var seName = await _seNameService.ValidateSeName(blogPost, model.SeName, model.Title, true);
-        blogPost.SeName = seName;
-        blogPost.Locales =
-            await model.Locales.ToTranslationProperty(blogPost, x => x.Title, _seoSettings, _slugService,
-                _languageService);
-        await _blogService.UpdateBlogPost(blogPost);
-        await _slugService.SaveSlug(blogPost, seName, "");
+        blogPost.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, blogPost, x => x.Title);
+        blogPost.SeName = await _seNameService.ValidateSeName(blogPost, model.SeName, blogPost.Title, true);
+        
+        await _blogService.InsertBlogPost(blogPost);
+        await _seNameService.SaveSeName(blogPost);
 
         //update picture seo file name
         await _pictureService.UpdatePictureSeoNames(blogPost.PictureId, blogPost.Title);
@@ -102,16 +97,13 @@ public class BlogViewModelService : IBlogViewModelService
     {
         var prevPictureId = blogPost.PictureId;
         blogPost = model.ToEntity(blogPost, _dateTimeService);
-        await _blogService.UpdateBlogPost(blogPost);
 
         //search engine name
-        var seName = await _seNameService.ValidateSeName(blogPost, model.SeName, model.Title, true);
-        blogPost.SeName = seName;
-        blogPost.Locales =
-            await model.Locales.ToTranslationProperty(blogPost, x => x.Title, _seoSettings, _slugService,
-                _languageService);
+        blogPost.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, blogPost, x => x.Title);
+        blogPost.SeName = await _seNameService.ValidateSeName(blogPost, model.SeName, blogPost.Title, true);
+        
         await _blogService.UpdateBlogPost(blogPost);
-        await _slugService.SaveSlug(blogPost, seName, "");
+        await _seNameService.SaveSeName(blogPost);
 
         //delete an old picture (if deleted or updated)
         if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != blogPost.PictureId)

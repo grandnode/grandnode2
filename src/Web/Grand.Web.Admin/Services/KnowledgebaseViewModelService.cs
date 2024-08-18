@@ -1,13 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Domain.Knowledgebase;
-using Grand.Domain.Seo;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Knowledgebase;
-using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
@@ -15,22 +12,13 @@ namespace Grand.Web.Admin.Services;
 public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
 {
     private readonly IKnowledgebaseService _knowledgebaseService;
-    private readonly ILanguageService _languageService;
     private readonly ISeNameService _seNameService;
-    private readonly SeoSettings _seoSettings;
-    private readonly ISlugService _slugService;
 
     public KnowledgebaseViewModelService(
         IKnowledgebaseService knowledgebaseService,
-        ISlugService slugService,
-        ILanguageService languageService,
-        SeoSettings seoSettings, 
         ISeNameService seNameService)
     {
         _knowledgebaseService = knowledgebaseService;
-        _slugService = slugService;
-        _languageService = languageService;
-        _seoSettings = seoSettings;
         _seNameService = seNameService;
     }
 
@@ -110,27 +98,26 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
 
     public virtual async Task<KnowledgebaseCategory> InsertKnowledgebaseCategoryModel(KnowledgebaseCategoryModel model)
     {
-        var knowledgebaseCategory = model.ToEntity();
-        knowledgebaseCategory.Locales = await model.Locales.ToTranslationProperty(knowledgebaseCategory, x => x.Name,
-            _seoSettings, _slugService, _languageService);
-        model.SeName = await _seNameService.ValidateSeName(knowledgebaseCategory, model.SeName, knowledgebaseCategory.Name, true);
-        knowledgebaseCategory.SeName = model.SeName;
-        await _knowledgebaseService.InsertKnowledgebaseCategory(knowledgebaseCategory);
-        await _slugService.SaveSlug(knowledgebaseCategory, model.SeName, "");
+        var knowledgeBaseCategory = model.ToEntity();
+        
+        knowledgeBaseCategory.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, knowledgeBaseCategory, x => x.Name);
+        knowledgeBaseCategory.SeName = await _seNameService.ValidateSeName(knowledgeBaseCategory, model.SeName, knowledgeBaseCategory.Name, true);
 
-        return knowledgebaseCategory;
+        await _knowledgebaseService.InsertKnowledgebaseCategory(knowledgeBaseCategory);
+        await _seNameService.SaveSeName(knowledgeBaseCategory);
+
+        return knowledgeBaseCategory;
     }
 
     public virtual async Task<KnowledgebaseCategory> UpdateKnowledgebaseCategoryModel(
         KnowledgebaseCategory knowledgebaseCategory, KnowledgebaseCategoryModel model)
     {
         knowledgebaseCategory = model.ToEntity(knowledgebaseCategory);
-        knowledgebaseCategory.Locales = await model.Locales.ToTranslationProperty(knowledgebaseCategory, x => x.Name,
-            _seoSettings, _slugService, _languageService);
-        model.SeName = await _seNameService.ValidateSeName(knowledgebaseCategory, model.SeName, knowledgebaseCategory.Name, true);
-        knowledgebaseCategory.SeName = model.SeName;
+        knowledgebaseCategory.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, knowledgebaseCategory, x => x.Name);
+        knowledgebaseCategory.SeName = await _seNameService.ValidateSeName(knowledgebaseCategory, model.SeName, knowledgebaseCategory.Name, true);
+
         await _knowledgebaseService.UpdateKnowledgebaseCategory(knowledgebaseCategory);
-        await _slugService.SaveSlug(knowledgebaseCategory, model.SeName, "");
+        await _seNameService.SaveSeName(knowledgebaseCategory);
 
         return knowledgebaseCategory;
     }
@@ -152,31 +139,31 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
 
     public virtual async Task<KnowledgebaseArticle> InsertKnowledgebaseArticleModel(KnowledgebaseArticleModel model)
     {
-        var knowledgebaseArticle = model.ToEntity();
-        knowledgebaseArticle.Locales = await model.Locales.ToTranslationProperty(knowledgebaseArticle, x => x.Name,
-            _seoSettings, _slugService, _languageService);
-        model.SeName = await _seNameService.ValidateSeName(knowledgebaseArticle, model.SeName, knowledgebaseArticle.Name, true);
-        knowledgebaseArticle.SeName = model.SeName;
-        knowledgebaseArticle.AllowComments = model.AllowComments;
-        await _knowledgebaseService.InsertKnowledgebaseArticle(knowledgebaseArticle);
-        await _slugService.SaveSlug(knowledgebaseArticle, model.SeName, "");
+        var knowledgeBaseArticle = model.ToEntity();
+        knowledgeBaseArticle.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, knowledgeBaseArticle, x => x.Name);
+        knowledgeBaseArticle.SeName = await _seNameService.ValidateSeName(knowledgeBaseArticle, model.SeName, knowledgeBaseArticle.Name, true);
 
-        return knowledgebaseArticle;
+        knowledgeBaseArticle.AllowComments = model.AllowComments;
+        
+        await _knowledgebaseService.InsertKnowledgebaseArticle(knowledgeBaseArticle);
+        await _seNameService.SaveSeName(knowledgeBaseArticle);
+        
+        return knowledgeBaseArticle;
     }
 
     public virtual async Task<KnowledgebaseArticle> UpdateKnowledgebaseArticleModel(
-        KnowledgebaseArticle knowledgebaseArticle, KnowledgebaseArticleModel model)
+        KnowledgebaseArticle knowledgeBaseArticle, KnowledgebaseArticleModel model)
     {
-        knowledgebaseArticle = model.ToEntity(knowledgebaseArticle);
-        knowledgebaseArticle.Locales = await model.Locales.ToTranslationProperty(knowledgebaseArticle, x => x.Name,
-            _seoSettings, _slugService, _languageService);
-        model.SeName = await _seNameService.ValidateSeName(knowledgebaseArticle, model.SeName, knowledgebaseArticle.Name, true);
-        knowledgebaseArticle.SeName = model.SeName;
-        knowledgebaseArticle.AllowComments = model.AllowComments;
-        await _knowledgebaseService.UpdateKnowledgebaseArticle(knowledgebaseArticle);
-        await _slugService.SaveSlug(knowledgebaseArticle, model.SeName, "");
+        knowledgeBaseArticle = model.ToEntity(knowledgeBaseArticle);
+        knowledgeBaseArticle.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, knowledgeBaseArticle, x => x.Name);
+        knowledgeBaseArticle.SeName = await _seNameService.ValidateSeName(knowledgeBaseArticle, model.SeName, knowledgeBaseArticle.Name, true);
+        
+        knowledgeBaseArticle.AllowComments = model.AllowComments;
 
-        return knowledgebaseArticle;
+        await _knowledgebaseService.UpdateKnowledgebaseArticle(knowledgeBaseArticle);
+        await _seNameService.SaveSeName(knowledgeBaseArticle);
+
+        return knowledgeBaseArticle;
     }
 
     public virtual async Task DeleteKnowledgebaseArticle(KnowledgebaseArticle knowledgebaseArticle)

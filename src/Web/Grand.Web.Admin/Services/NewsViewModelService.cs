@@ -1,12 +1,10 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Cms;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.News;
-using Grand.Domain.Seo;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
@@ -23,11 +21,8 @@ public class NewsViewModelService : INewsViewModelService
     private readonly INewsService _newsService;
     private readonly IDateTimeService _dateTimeService;
     private readonly ITranslationService _translationService;
-    private readonly ISlugService _slugService;
     private readonly IPictureService _pictureService;
-    private readonly ILanguageService _languageService;
     private readonly ICustomerService _customerService;
-    private readonly SeoSettings _seoSettings;
     private readonly ISeNameService _seNameService;
 
     #endregion
@@ -37,21 +32,15 @@ public class NewsViewModelService : INewsViewModelService
     public NewsViewModelService(INewsService newsService,
         IDateTimeService dateTimeService,
         ITranslationService translationService,
-        ISlugService slugService,
         IPictureService pictureService,
-        ILanguageService languageService,
         ICustomerService customerService,
-        SeoSettings seoSettings, 
         ISeNameService seNameService)
     {
         _newsService = newsService;
         _dateTimeService = dateTimeService;
         _translationService = translationService;
-        _slugService = slugService;
         _pictureService = pictureService;
-        _languageService = languageService;
         _customerService = customerService;
-        _seoSettings = seoSettings;
         _seNameService = seNameService;
     }
 
@@ -74,16 +63,13 @@ public class NewsViewModelService : INewsViewModelService
     public virtual async Task<NewsItem> InsertNewsItemModel(NewsItemModel model)
     {
         var newsItem = model.ToEntity(_dateTimeService);
-        await _newsService.InsertNews(newsItem);
 
-        var seName = await _seNameService.ValidateSeName(newsItem, model.SeName, model.Title, true);
-        newsItem.SeName = seName;
-        newsItem.Locales =
-            await model.Locales.ToTranslationProperty(newsItem, x => x.Title, _seoSettings, _slugService,
-                _languageService);
-        await _newsService.UpdateNews(newsItem);
+        newsItem.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, newsItem, x => x.Title);
+        newsItem.SeName = await _seNameService.ValidateSeName(newsItem, model.SeName, newsItem.Title, true);
+
+        await _newsService.InsertNews(newsItem);
         //search engine name
-        await _slugService.SaveSlug(newsItem, seName, "");
+        await _seNameService.SaveSeName(newsItem);
 
         //update picture seo file name
         await _pictureService.UpdatePictureSeoNames(newsItem.PictureId, newsItem.Title);
@@ -94,15 +80,13 @@ public class NewsViewModelService : INewsViewModelService
     {
         var prevPictureId = newsItem.PictureId;
         newsItem = model.ToEntity(newsItem, _dateTimeService);
-        var seName = await _seNameService.ValidateSeName(newsItem, model.SeName, model.Title, true);
-        newsItem.SeName = seName;
-        newsItem.Locales =
-            await model.Locales.ToTranslationProperty(newsItem, x => x.Title, _seoSettings, _slugService,
-                _languageService);
-        await _newsService.UpdateNews(newsItem);
+        
+        newsItem.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, newsItem, x => x.Title);
+        newsItem.SeName = await _seNameService.ValidateSeName(newsItem, model.SeName, newsItem.Title, true);
 
+        await _newsService.UpdateNews(newsItem);
         //search engine name
-        await _slugService.SaveSlug(newsItem, seName, "");
+        await _seNameService.SaveSeName(newsItem);
 
         //delete an old picture (if deleted or updated)
         if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != newsItem.PictureId)

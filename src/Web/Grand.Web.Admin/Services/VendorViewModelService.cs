@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Events.Customers;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -9,7 +8,6 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
-using Grand.Domain.Seo;
 using Grand.Domain.Vendors;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
@@ -17,7 +15,6 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Common;
 using Grand.Web.Admin.Models.Vendors;
-using Grand.Web.Common.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -31,12 +28,9 @@ public class VendorViewModelService(
     IDateTimeService dateTimeService,
     ICountryService countryService,
     IStoreService storeService,
-    ISlugService slugService,
     IPictureService pictureService,
     IMediator mediator,
     VendorSettings vendorSettings,
-    ILanguageService languageService,
-    SeoSettings seoSettings,
     ISeNameService seNameService)
     : IVendorViewModelService
 {
@@ -177,24 +171,20 @@ public class VendorViewModelService(
     {
         var vendor = model.ToEntity();
         vendor.Address = model.Address.ToEntity();
-        await vendorService.InsertVendor(vendor);
-
         //discounts
         var allDiscounts = await discountService.GetDiscountsQuery(DiscountType.AssignedToVendors);
         foreach (var discount in allDiscounts)
             if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
                 vendor.AppliedDiscounts.Add(discount.Id);
-
-        //search engine name
-        model.SeName = await seNameService.ValidateSeName(vendor, model.SeName, vendor.Name, true);
-        vendor.Locales =
-            await model.Locales.ToTranslationProperty(vendor, x => x.Name, seoSettings, slugService, languageService);
-        vendor.SeName = model.SeName;
-        await vendorService.UpdateVendor(vendor);
+        
+        vendor.Locales = await seNameService.TranslationSeNameProperties(model.Locales, vendor, x => x.Name);
+        vendor.SeName = await seNameService.ValidateSeName(vendor, model.SeName, vendor.Name, true);
+        
+        await vendorService.InsertVendor(vendor);
+        await seNameService.SaveSeName(vendor);
 
         //update picture seo file name
         await pictureService.UpdatePictureSeoNames(vendor.PictureId, vendor.Name);
-        await slugService.SaveSlug(vendor, model.SeName, "");
 
         return vendor;
     }
@@ -203,9 +193,8 @@ public class VendorViewModelService(
     {
         var prevPictureId = vendor.PictureId;
         vendor = model.ToEntity(vendor);
-        vendor.Locales =
-            await model.Locales.ToTranslationProperty(vendor, x => x.Name, seoSettings, slugService, languageService);
-        model.SeName = await seNameService.ValidateSeName(vendor, model.SeName, vendor.Name, true);
+        vendor.Locales = await seNameService.TranslationSeNameProperties(model.Locales, vendor, x => x.Name);
+        vendor.SeName = await seNameService.ValidateSeName(vendor, model.SeName, vendor.Name, true);
         vendor.Address = model.Address.ToEntity(vendor.Address);
 
         //discounts
@@ -224,12 +213,10 @@ public class VendorViewModelService(
                     vendor.AppliedDiscounts.Remove(discount.Id);
             }
 
-        vendor.SeName = model.SeName;
-
         await vendorService.UpdateVendor(vendor);
         //search engine name                
-        await slugService.SaveSlug(vendor, model.SeName, "");
-
+        await seNameService.SaveSeName(vendor);
+        
         //delete an old picture (if deleted or updated)
         if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != vendor.PictureId)
         {

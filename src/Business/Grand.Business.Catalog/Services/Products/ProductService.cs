@@ -187,6 +187,7 @@ public class ProductService : IProductService
         //update
         var update = UpdateBuilder<Product>.Create()
             .Set(x => x.AdditionalShippingCharge, product.AdditionalShippingCharge)
+            .Set(x => x.AppliedDiscounts, product.AppliedDiscounts)
             .Set(x => x.AdminComment, product.AdminComment)
             .Set(x => x.AllowOutOfStockSubscriptions, product.AllowOutOfStockSubscriptions)
             .Set(x => x.AllowCustomerReviews, product.AllowCustomerReviews)

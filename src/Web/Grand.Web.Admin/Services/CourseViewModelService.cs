@@ -7,7 +7,6 @@ using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Courses;
-using Grand.Domain.Seo;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
@@ -23,16 +22,13 @@ public class CourseViewModelService(
     ICourseLevelService courseLevelService,
     ICourseLessonService courseLessonService,
     ICourseSubjectService courseSubjectService,
-    ISlugService slugService,
     IPictureService pictureService,
-    ILanguageService languageService,
     ITranslationService translationService,
     IProductCourseService productCourseService,
     IDownloadService downloadService,
     IProductService productService,
     IStoreService storeService,
     IVendorService vendorService,
-    SeoSettings seoSettings,
     ISeNameService seNameService)
     : ICourseViewModelService
 {
@@ -55,15 +51,14 @@ public class CourseViewModelService(
     public virtual async Task<Course> InsertCourseModel(CourseModel model)
     {
         var course = model.ToEntity();
-        await courseService.Insert(course);
 
         //locales
-        model.SeName = await seNameService.ValidateSeName(course, model.SeName, course.Name, true);
-        course.SeName = model.SeName;
-        await courseService.Update(course);
-
-        await slugService.SaveSlug(course, model.SeName, "");
-
+        course.Locales = await seNameService.TranslationSeNameProperties(model.Locales, course, x => x.Name);
+        course.SeName = await seNameService.ValidateSeName(course, model.SeName, course.Name, true);
+        
+        await courseService.Insert(course);
+        await seNameService.SaveSeName(course);
+        
         //update picture seo file name
         await pictureService.UpdatePictureSeoNames(course.PictureId, course.Name);
 
@@ -80,14 +75,15 @@ public class CourseViewModelService(
         var prevProductId = course.ProductId;
 
         course = model.ToEntity(course);
-        model.SeName = await seNameService.ValidateSeName(course, model.SeName, course.Name, true);
-        course.SeName = model.SeName;
+        
         //locales
-        course.Locales =
-            await model.Locales.ToTranslationProperty(course, x => x.Name, seoSettings, slugService, languageService);
+        course.Locales = await seNameService.TranslationSeNameProperties(model.Locales, course, x => x.Name);
+        course.SeName = await seNameService.ValidateSeName(course, model.SeName, course.Name, true);
+
         await courseService.Update(course);
+        
         //search engine name
-        await slugService.SaveSlug(course, model.SeName, "");
+        await seNameService.SaveSeName(course);
 
         //delete an old picture (if deleted or updated)
         if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != course.PictureId)

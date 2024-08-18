@@ -59,7 +59,6 @@ public class ProductViewModelService(
     IDiscountService discountService,
     ICustomerService customerService,
     IStoreService storeService,
-    ISlugService slugService,
     IOutOfStockSubscriptionService outOfStockSubscriptionService,
     IDownloadService downloadService,
     ILanguageService languageService,
@@ -697,19 +696,7 @@ public class ProductViewModelService(
 
         //product
         var product = model.ToEntity(dateTimeService);
-        await productService.InsertProduct(product);
-
-        model.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
-        product.SeName = model.SeName;
-        product.Locales =
-            await model.Locales.ToTranslationProperty(product, x => x.Name, seoSettings, slugService, languageService);
-
-        //search engine name
-        await slugService.SaveSlug(product, model.SeName, "");
-        //tags
-        await SaveProductTags(product, ParseProductTags(model.ProductTags));
-        //warehouses
-        await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
+        
         //discounts
         var allDiscounts =
             await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus,
@@ -718,11 +705,26 @@ public class ProductViewModelService(
             if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
             {
                 product.AppliedDiscounts.Add(discount.Id);
-                await productService.InsertDiscount(discount.Id, product.Id);
             }
+        
+        product.Locales = await seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
+        product.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
+        
+        await productService.InsertProduct(product);
 
+        //search engine name
+        await seNameService.SaveSeName(product);
+        
+        //tags
+        await SaveProductTags(product, ParseProductTags(model.ProductTags));
+        
+        //warehouses
+        await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
+        
+        
+        
         await productService.UpdateProduct(product);
-
+        
         return product;
     }
 
@@ -743,19 +745,8 @@ public class ProductViewModelService(
         //product
         product = model.ToEntity(product, dateTimeService);
         product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
-        model.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
-        product.SeName = model.SeName;
-        product.Locales =
-            await model.Locales.ToTranslationProperty(product, x => x.Name, seoSettings, slugService, languageService);
-
-        //search engine name
-        await slugService.SaveSlug(product, model.SeName, "");
-        //tags
-        await SaveProductTags(product, ParseProductTags(model.ProductTags));
-        //warehouses
-        await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
-        //picture seo names
-        await UpdatePictureSeoNames(product);
+        product.Locales = await seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
+        product.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
         //discounts
         var allDiscounts =
             await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus,
@@ -767,7 +758,6 @@ public class ProductViewModelService(
                 if (product.AppliedDiscounts.Count(d => d == discount.Id) == 0)
                 {
                     product.AppliedDiscounts.Add(discount.Id);
-                    await productService.InsertDiscount(discount.Id, product.Id);
                 }
             }
             else
@@ -776,11 +766,19 @@ public class ProductViewModelService(
                 if (product.AppliedDiscounts.Count(d => d == discount.Id) > 0)
                 {
                     product.AppliedDiscounts.Remove(discount.Id);
-                    await productService.DeleteDiscount(discount.Id, product.Id);
                 }
             }
-
+               
         await productService.UpdateProduct(product);
+
+        //search engine name
+        await seNameService.SaveSeName(product);
+        //tags
+        await SaveProductTags(product, ParseProductTags(model.ProductTags));
+        //warehouses
+        await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
+        //picture seo names
+        await UpdatePictureSeoNames(product);
 
         //out of stock notifications
         await OutOfStockNotifications(product, model, prevStockQuantity, prevMultiWarehouseStock);
