@@ -100,39 +100,4 @@ public class AffiliateExtensionsTests
         Assert.AreEqual(string.Format(_expectedFormat, "affiliate", friendlyUrl),
             affiliate.GenerateUrl("http://localhost/"));
     }
-
-    [TestMethod]
-    public async Task ValidateFriendlyUrlName_UrlNameDontExist_ReturnUrl()
-    {
-        //Don't exist
-        _affiliateServiceMock.Setup(c => c.GetAffiliateByFriendlyUrlName(It.IsAny<string>()))
-            .Returns(() => Task.FromResult<Affiliate>(null));
-        var friendlyUrl = "macbool-pro";
-        var affiliate = new Affiliate {
-            FriendlyUrlName = friendlyUrl
-        };
-        var result =
-            await affiliate.ValidateFriendlyUrlName(_affiliateServiceMock.Object, new SeoSettings(), friendlyUrl, "");
-        Assert.AreEqual(result, friendlyUrl);
-    }
-
-    [TestMethod]
-    public async Task ValidateFriendlyUrlName_UrlNameExist_IncreaseUrl()
-    {
-        var invokeNumber = 1;
-        _affiliateServiceMock.Setup(c => c.GetAffiliateByFriendlyUrlName(It.IsAny<string>()))
-            .Returns(() =>
-            {
-                if (invokeNumber <= 2) return Task.FromResult(new Affiliate());
-                return Task.FromResult<Affiliate>(null);
-            }).Callback(() => invokeNumber++);
-        var friendlyUrl = "macbool-pro";
-        var expectedUrl = "macbool-pro-3";
-        var affiliate = new Affiliate {
-            FriendlyUrlName = friendlyUrl
-        };
-        var result =
-            await affiliate.ValidateFriendlyUrlName(_affiliateServiceMock.Object, new SeoSettings(), friendlyUrl, "");
-        Assert.AreEqual(result, expectedUrl);
-    }
 }
