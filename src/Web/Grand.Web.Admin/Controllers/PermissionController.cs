@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using DotLiquid.Util;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -50,7 +51,7 @@ public class PermissionController : BaseAdminController
         var customerGroups = await _groupService.GetAllCustomerGroups(showHidden: true);
         foreach (var pr in permissionRecords.OrderBy(x => x.Category))
             model.AvailablePermissions.Add(new PermissionRecordModel {
-                Name = pr.GetTranslationPermissionName(_translationService, _workContext),
+                Name =_translationService.GetResource(pr.GetTranslationPermissionName(), _workContext.WorkingLanguage.Id),
                 SystemName = pr.SystemName,
                 Area = pr.Area,
                 Category = pr.Category,
@@ -169,7 +170,7 @@ public class PermissionController : BaseAdminController
         if (permissionRecord != null)
         {
             model.AvailableActions = permissionRecord.Actions.ToList();
-            model.PermissionName = permissionRecord.GetTranslationPermissionName(_translationService, _workContext);
+            model.PermissionName = _translationService.GetResource(permissionRecord.GetTranslationPermissionName(), _workContext.WorkingLanguage.Id);
         }
         else
         {

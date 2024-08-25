@@ -263,7 +263,7 @@ public class CustomerGroupController : BaseAdminController
         foreach (var pr in permissionRecords)
             model.Add(new CustomerGroupPermissionModel {
                 Id = pr.Id,
-                Name = pr.GetTranslationPermissionName(_translationService, _workContext),
+                Name = _translationService.GetResource(pr.GetTranslationPermissionName(), _workContext.WorkingLanguage.Id),
                 SystemName = pr.SystemName,
                 Actions = pr.Actions.ToList(),
                 Access = pr.CustomerGroups.Contains(customerGroupId)

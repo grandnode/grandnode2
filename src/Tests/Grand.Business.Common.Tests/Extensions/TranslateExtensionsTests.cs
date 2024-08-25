@@ -63,34 +63,6 @@ public class TranslateExtensionsTests
         var fake = new FakeStruct();
         Assert.ThrowsException<ArgumentException>(() => fake.GetTranslationEnum(translationServiceMock.Object, "PL"));
     }
-
-    [TestMethod]
-    public void GetTranslationPermissionName_ReturnExpectedValue()
-    {
-        var expectedValue = "PLpermision";
-        var translationServiceMock = new Mock<ITranslationService>();
-        translationServiceMock
-            .Setup(c => c.GetResource(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
-            .Returns(expectedValue);
-        var record = new Permission {
-            SystemName = "sysname"
-        };
-        var result = record.GetTranslationPermissionName(translationServiceMock.Object, "PL");
-        Assert.AreEqual(result, expectedValue);
-    }
-
-    [TestMethod]
-    public void GetTranslationPermissionName_NullArgument_ThrowException()
-    {
-        var expectedValue = "PLpermision";
-        var translationServiceMock = new Mock<ITranslationService>();
-        translationServiceMock
-            .Setup(c => c.GetResource(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
-            .Returns(expectedValue);
-        Permission record = null;
-        Assert.ThrowsException<ArgumentNullException>(() =>
-            record.GetTranslationPermissionName(translationServiceMock.Object, "PL"));
-    }
-
+    
     private struct FakeStruct;
 }

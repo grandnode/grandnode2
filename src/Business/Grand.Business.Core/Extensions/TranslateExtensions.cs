@@ -108,40 +108,10 @@ public static class TranslateExtensions
     ///     We don't have UI to manage permission localizable name. That's why we're using this extension method
     /// </summary>
     /// <param name="permissionRecord">Permission record</param>
-    /// <param name="translationService">Translation service</param>
-    /// <param name="workContext">Work context</param>
     /// <returns>Translation value</returns>
-    public static string GetTranslationPermissionName(this Permission permissionRecord,
-        ITranslationService translationService, IWorkContext workContext)
+    public static string GetTranslationPermissionName(this Permission permissionRecord)
     {
-        ArgumentNullException.ThrowIfNull(workContext);
-
-        return GetTranslationPermissionName(permissionRecord, translationService, workContext.WorkingLanguage.Id);
-    }
-
-    /// <summary>
-    ///     Get translation value of enum
-    ///     We don't have UI to manage permission translation name. That's why we're using this extension method
-    /// </summary>
-    /// <param name="permissionRecord">Permission record</param>
-    /// <param name="translationService">Translation service</param>
-    /// <param name="languageId">Language identifier</param>
-    /// <returns>Translation value</returns>
-    public static string GetTranslationPermissionName(this Permission permissionRecord,
-        ITranslationService translationService, string languageId)
-    {
-        ArgumentNullException.ThrowIfNull(permissionRecord);
-        ArgumentNullException.ThrowIfNull(translationService);
-
-        //Translation value
-        var name = $"Permission.{permissionRecord.SystemName}";
-        var result = translationService.GetResource(name, languageId, "", true);
-
-        //set default value if required
-        if (string.IsNullOrEmpty(result))
-            result = permissionRecord.Name;
-
-        return result;
+        return $"Permission.{permissionRecord.SystemName}";
     }
 
     /// <summary>
