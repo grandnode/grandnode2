@@ -15,12 +15,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Stripe.net" Version="45.6.0" />
+        <PackageReference Include="Stripe.net" Version="45.9.0" />
     </ItemGroup>
 
     <Target Name="CopyFile" AfterTargets="AfterBuild">
         <ItemGroup>
-            <CopyFiles Include="$(NuGetPackageRoot)\stripe.net\45.6.0\lib\net6.0\*.*" />
+            <CopyFiles Include="$(NuGetPackageRoot)\stripe.net\45.9.0\lib\net6.0\*.*" />
         </ItemGroup>
         <Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Payments.StripeCheckout\" />
     </Target>
