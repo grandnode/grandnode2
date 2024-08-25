@@ -11,8 +11,10 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
@@ -29,6 +31,34 @@ namespace Grand.Web.Vendor.Services;
 
 public class OrderViewModelService : IOrderViewModelService
 {
+    #region Fields
+
+    private readonly IOrderService _orderService;
+    private readonly IDateTimeService _dateTimeService;
+    private readonly IPriceFormatter _priceFormatter;
+    private readonly ITranslationService _translationService;
+    private readonly IWorkContext _workContext;
+    private readonly ICurrencyService _currencyService;
+    private readonly IPaymentService _paymentService;
+    private readonly ICountryService _countryService;
+    private readonly IProductService _productService;
+    private readonly IGiftVoucherService _giftVoucherService;
+    private readonly IDownloadService _downloadService;
+    private readonly IStoreService _storeService;
+    private readonly IVendorService _vendorService;
+    private readonly IAddressAttributeParser _addressAttributeParser;
+    private readonly IPictureService _pictureService;
+    private readonly IMerchandiseReturnService _merchandiseReturnService;
+    private readonly ICustomerService _customerService;
+    private readonly IWarehouseService _warehouseService;
+    private readonly CurrencySettings _currencySettings;
+    private readonly TaxSettings _taxSettings;
+    private readonly AddressSettings _addressSettings;
+    private readonly IOrderTagService _orderTagService;
+    private readonly IOrderStatusService _orderStatusService;
+
+    #endregion
+
     #region Ctor
 
     public OrderViewModelService(IOrderService orderService,
@@ -426,8 +456,7 @@ public class OrderViewModelService : IOrderViewModelService
                 IsDownloadActivated = orderItem.IsDownloadActivated
             };
             //picture
-            var orderItemPicture =
-                await product.GetProductPicture(orderItem.Attributes, _productService, _pictureService);
+            var orderItemPicture = await GetProductPicture(product, orderItem.Attributes);
             orderItemModel.PictureThumbnailUrl = await _pictureService.GetPictureUrl(orderItemPicture, 75);
 
             //license file
@@ -540,31 +569,47 @@ public class OrderViewModelService : IOrderViewModelService
         return orders;
     }
 
-    #region Fields
+    private async Task<Picture> GetProductPicture(Product product, IList<CustomAttribute> attributes)
+    {
+        ArgumentNullException.ThrowIfNull(product);
 
-    private readonly IOrderService _orderService;
-    private readonly IDateTimeService _dateTimeService;
-    private readonly IPriceFormatter _priceFormatter;
-    private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
-    private readonly ICurrencyService _currencyService;
-    private readonly IPaymentService _paymentService;
-    private readonly ICountryService _countryService;
-    private readonly IProductService _productService;
-    private readonly IGiftVoucherService _giftVoucherService;
-    private readonly IDownloadService _downloadService;
-    private readonly IStoreService _storeService;
-    private readonly IVendorService _vendorService;
-    private readonly IAddressAttributeParser _addressAttributeParser;
-    private readonly IPictureService _pictureService;
-    private readonly IMerchandiseReturnService _merchandiseReturnService;
-    private readonly ICustomerService _customerService;
-    private readonly IWarehouseService _warehouseService;
-    private readonly CurrencySettings _currencySettings;
-    private readonly TaxSettings _taxSettings;
-    private readonly AddressSettings _addressSettings;
-    private readonly IOrderTagService _orderTagService;
-    private readonly IOrderStatusService _orderStatusService;
+        Picture picture = null;
 
-    #endregion
+        if (attributes != null && attributes.Any())
+        {
+            var comb = product.FindProductAttributeCombination(attributes);
+            if (comb != null)
+                if (!string.IsNullOrEmpty(comb.PictureId))
+                {
+                    var combPicture = await _pictureService.GetPictureById(comb.PictureId);
+                    if (combPicture != null) picture = combPicture;
+                }
+
+            if (picture == null)
+            {
+                var attributeValues = product.ParseProductAttributeValues(attributes);
+                foreach (var attributeValue in attributeValues)
+                {
+                    var attributePicture = await _pictureService.GetPictureById(attributeValue.PictureId);
+                    if (attributePicture != null)
+                    {
+                        picture = attributePicture;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (picture == null)
+        {
+            var pp = product.ProductPictures.OrderByDescending(p => p.IsDefault) 
+                .ThenBy(p => p.DisplayOrder) 
+                .FirstOrDefault();
+            if (pp != null)
+                picture = await _pictureService.GetPictureById(pp.PictureId);
+        }
+
+        return picture;
+    }
+    
 }

@@ -291,7 +291,8 @@ public class ProductController : BaseVendorController
 
             await _productService.InsertProductPicture(new ProductPicture {
                 PictureId = pictureCopy.Id,
-                DisplayOrder = productPicture.DisplayOrder
+                DisplayOrder = productPicture.DisplayOrder,
+                IsDefault = productPicture.IsDefault
             }, newProduct.Id);
         }
     }

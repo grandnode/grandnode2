@@ -21,6 +21,7 @@ public class UpdateProductPictureCommandHandler : IRequestHandler<UpdateProductP
         if (pp != null)
         {
             pp.DisplayOrder = request.Model.DisplayOrder;
+            pp.IsDefault = request.Model.IsDefault;
             await _productService.UpdateProductPicture(pp, request.Product.Id);
         }
 

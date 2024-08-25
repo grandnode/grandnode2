@@ -205,7 +205,8 @@ public partial class InstallationService
 
         var productpicture1 = new ProductPicture {
             PictureId = picture1.Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         };
         var productpicture2 = new ProductPicture {
             PictureId = picture2.Id,
@@ -256,7 +257,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_sony_ps5_pad_1.png"), "image/png",
                 pictureService.GetPictureSeName(productSonyPS5Pad.Name), reference: Reference.Product,
                 objectId: productSonyPS5Pad.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productSonyPS5Pad.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -307,7 +309,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_ideapad_dual_1.png"), "image/png",
                 pictureService.GetPictureSeName(productLenovoIdeaPadDual.Name), reference: Reference.Product,
                 objectId: productLenovoIdeaPadDual.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productLenovoIdeaPadDual.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -398,7 +401,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_mi_notebook_1.png"), "image/png",
                 pictureService.GetPictureSeName(productMiNotebook.Name), reference: Reference.Product,
                 objectId: productMiNotebook.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productMiNotebook.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -492,7 +496,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_legion_y740_1.png"), "image/png",
                 pictureService.GetPictureSeName(productLenovoLegionY740.Name), reference: Reference.Product,
                 objectId: productLenovoLegionY740.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productLenovoLegionY740.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -586,7 +591,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_ps5_camera_1.png"), "image/png",
                 pictureService.GetPictureSeName(productPs5Camera.Name), reference: Reference.Product,
                 objectId: productPs5Camera.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productPs5Camera.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -679,7 +685,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_acer_nitro_1.png"), "image/png",
                 pictureService.GetPictureSeName(productAcerNitro.Name), reference: Reference.Product,
                 objectId: productAcerNitro.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productAcerNitro.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -774,7 +781,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_dell_g5_1.png"), "image/png",
                 pictureService.GetPictureSeName(productDellG5.Name), reference: Reference.Product,
                 objectId: productDellG5.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productDellG5.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -849,7 +857,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_dell_xps_1.png"), "image/png",
                 pictureService.GetPictureSeName(productDellXPS.Name), reference: Reference.Product,
                 objectId: productDellXPS.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productDellXPS.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -904,7 +913,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_yoga_duet_1.png"), "image/png",
                 pictureService.GetPictureSeName(productLenovoYogaDuet.Name), reference: Reference.Product,
                 objectId: productLenovoYogaDuet.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productLenovoYogaDuet.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -955,7 +965,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_smart_tab_1.png"), "image/png",
                 pictureService.GetPictureSeName(productLenovoSmartTab.Name), reference: Reference.Product,
                 objectId: productLenovoSmartTab.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productLenovoSmartTab.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -1006,7 +1017,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_asus_mixed_reality_1.png"), "image/png",
                 pictureService.GetPictureSeName(productAsusMixedReality.Name), reference: Reference.Product,
                 objectId: productAsusMixedReality.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productAsusMixedReality.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -1061,7 +1073,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_acer_projector_1.png"), "image/png",
                 pictureService.GetPictureSeName(productAcerProjector.Name), reference: Reference.Product,
                 objectId: productAcerProjector.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productAcerProjector.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -1113,7 +1126,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_acer_monitor_1.png"), "image/png",
                 pictureService.GetPictureSeName(productAcerMonitor.Name), reference: Reference.Product,
                 objectId: productAcerMonitor.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productAcerMonitor.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -1172,7 +1186,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_Redmi_K30.png"), "image/png",
                 pictureService.GetPictureSeName(productRedmiK30.Name), reference: Reference.Product,
                 objectId: productRedmiK30.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productRedmiK30);
 
@@ -1218,7 +1233,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_Redmi_Note_9_1.png"), "image/png",
                 pictureService.GetPictureSeName(productRedmiNote9.Name), reference: Reference.Product,
                 objectId: productRedmiNote9.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productRedmiNote9.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -1271,7 +1287,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_POCO_F2_Pro.png"), "image/png",
                 pictureService.GetPictureSeName(productPocoF2Pro.Name), reference: Reference.Product,
                 objectId: productPocoF2Pro.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productPocoF2Pro);
 
@@ -1338,7 +1355,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_Mi_Smart_Band_3i_1.png"), "image/png",
                 pictureService.GetPictureSeName(productMiSmartBand.Name), reference: Reference.Product,
                 objectId: productMiSmartBand.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productMiSmartBand.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -1389,7 +1407,8 @@ public partial class InstallationService
             PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_ps4_1.png"),
                 "image/png", pictureService.GetPictureSeName(productPs4.Name), reference: Reference.Product,
                 objectId: productPs4.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productPs4.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_ps4_2.png"),
@@ -1441,7 +1460,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_mi_beard_1.png"), "image/png",
                 pictureService.GetPictureSeName(productMiBeard.Name), reference: Reference.Product,
                 objectId: productMiBeard.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productMiBeard.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -1543,7 +1563,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_predator_1.png"), "image/png",
                 pictureService.GetPictureSeName(productAdidasPredator.Name), reference: Reference.Product,
                 objectId: productAdidasPredator.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productAdidasPredator);
 
@@ -1643,7 +1664,8 @@ public partial class InstallationService
             PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_adidas.png"),
                 "image/png", pictureService.GetPictureSeName(productAdidasNitrocharge.Name),
                 reference: Reference.Product, objectId: productAdidasNitrocharge.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productAdidasNitrocharge.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -1725,7 +1747,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_adidasturfs.png"), "image/png",
                 pictureService.GetPictureSeName(productAdidasTurfs.Name), reference: Reference.Product,
                 objectId: productAdidasTurfs.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productAdidasTurfs);
 
@@ -1821,7 +1844,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_derby_awayshirt_1.png"), "image/png",
                 pictureService.GetPictureSeName("Derby County Away Shirt"), reference: Reference.Product,
                 objectId: productDerbyKit_associated_1.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productDerbyKit_associated_1);
         var productDerbyKit_associated_2 = new Product {
@@ -1944,7 +1968,8 @@ public partial class InstallationService
             PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_kidskit.png"),
                 "image/png", pictureService.GetPictureSeName(productNikeKids.Name), reference: Reference.Product,
                 objectId: productNikeKids.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productNikeKids);
 
@@ -2000,7 +2025,8 @@ public partial class InstallationService
             PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_psg_1.png"),
                 "image/png", pictureService.GetPictureSeName(productPsgKit.Name), reference: Reference.Product,
                 objectId: productPsgKit.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productPsgKit.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_psg_2.png"),
@@ -2058,7 +2084,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_derby_shirt_1.png"), "image/png",
                 pictureService.GetPictureSeName(productDerbyShirt.Name), reference: Reference.Product,
                 objectId: productDerbyShirt.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productDerbyShirt);
 
@@ -2101,7 +2128,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_derby_shorts_1.png"), "image/png",
                 pictureService.GetPictureSeName(productDerbyShorts.Name), reference: Reference.Product,
                 objectId: productDerbyShorts.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productDerbyShorts);
 
@@ -2144,7 +2172,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_derby_shirt_1.png"), "image/png",
                 pictureService.GetPictureSeName(productDerbyKitHome.Name), reference: Reference.Product,
                 objectId: productDerbyKitHome.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productDerbyKitHome);
 
@@ -2204,7 +2233,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_chicago_jersey_1.png"), "image/png",
                 pictureService.GetPictureSeName(productChicagoBulls.Name), reference: Reference.Product,
                 objectId: productChicagoBulls.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productChicagoBulls.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -2288,7 +2318,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_vivoactive.png"), "image/png",
                 pictureService.GetPictureSeName(productVivoactive.Name), reference: Reference.Product,
                 objectId: productVivoactive.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productVivoactive);
 
@@ -2333,7 +2364,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_garmin_fenix_1.png"), "image/png",
                 pictureService.GetPictureSeName(productGarminFenix.Name), reference: Reference.Product,
                 objectId: productGarminFenix.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productGarminFenix.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -2385,7 +2417,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_forerunner.png"), "image/png",
                 pictureService.GetPictureSeName(productForerunner.Name), reference: Reference.Product,
                 objectId: productForerunner.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productForerunner);
 
@@ -2517,7 +2550,8 @@ public partial class InstallationService
             PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_gta_1.png"),
                 "image/png", pictureService.GetPictureSeName(productGTA.Name), reference: Reference.Product,
                 objectId: productGTA.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productGTA);
 
@@ -2620,7 +2654,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_lego_falcon_1.png"), "image/png",
                 pictureService.GetPictureSeName(productLegoFalcon.Name), reference: Reference.Product,
                 objectId: productLegoFalcon.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productLegoFalcon.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -2673,7 +2708,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_lego_hogwarts_1.png"), "image/png",
                 pictureService.GetPictureSeName(productLegoHogwarts.Name), reference: Reference.Product,
                 objectId: productLegoHogwarts.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productLegoHogwarts.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -2725,7 +2761,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_LegoCity_1.png"), "image/png",
                 pictureService.GetPictureSeName(productLegoCity.Name), reference: Reference.Product,
                 objectId: productLegoCity.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productLegoCity.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(
@@ -2781,7 +2818,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_adidasball.png"), "image/png",
                 pictureService.GetPictureSeName(productAdidasBall.Name), reference: Reference.Product,
                 objectId: productAdidasBall.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productAdidasBall);
 
@@ -2826,7 +2864,8 @@ public partial class InstallationService
             PictureId = (await pictureService.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_mikasa.png"),
                 "image/png", pictureService.GetPictureSeName(productMikasa.Name), reference: Reference.Product,
                 objectId: productMikasa.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productMikasa);
 
@@ -2871,7 +2910,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_spalding.png"), "image/png",
                 pictureService.GetPictureSeName(productSpalding.Name), reference: Reference.Product,
                 objectId: productSpalding.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(productSpalding);
 
@@ -2913,7 +2953,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_25giftcart.png"), "image/png",
                 pictureService.GetPictureSeName(product25GiftVoucher.Name), reference: Reference.Product,
                 objectId: product25GiftVoucher.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(product25GiftVoucher);
 
@@ -2959,7 +3000,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_50giftcart.png"), "image/png",
                 pictureService.GetPictureSeName(product50GiftVoucher.Name), reference: Reference.Product,
                 objectId: product50GiftVoucher.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(product50GiftVoucher);
 
@@ -3003,7 +3045,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_100giftcart.png"), "image/png",
                 pictureService.GetPictureSeName(product100GiftVoucher.Name), reference: Reference.Product,
                 objectId: product100GiftVoucher.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         await _productRepository.InsertAsync(product100GiftVoucher);
 
@@ -3048,7 +3091,8 @@ public partial class InstallationService
                 File.ReadAllBytes(sampleImagesPath + "product_sony_ps5_console_1.png"), "image/png",
                 pictureService.GetPictureSeName(productPlaystationBundlePack.Name), reference: Reference.Product,
                 objectId: productPlaystationBundlePack.Id)).Id,
-            DisplayOrder = 1
+            DisplayOrder = 1,
+            IsDefault = true
         });
         productPlaystationBundlePack.ProductPictures.Add(new ProductPicture {
             PictureId = (await pictureService.InsertPicture(

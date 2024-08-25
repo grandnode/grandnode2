@@ -51,6 +51,7 @@
                                 fields: {
                                     PictureUrl: {editable: false, type: "string" },
                                     DisplayOrder: {editable: true, type: "number" },
+                                    IsDefault: { editable: true, type: "boolean" },
                                     AltAttribute: {editable: true, type: "string" },
                                     TitleAttribute: {editable: true, type: "string" }
                                 }
@@ -87,7 +88,16 @@
                         title: "@Loc["Admin.Catalog.Products.Pictures.Fields.Picture"]",
                         template: "<a class='k-link editpicture' href=\"@Url.Action("ProductPicturePopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&Id=#=Id#&btnId=btnRefreshProductPictures&formId=product-form\"><img alt='#=PictureId#' src='#=PictureUrl#' width='150' /></a>",
                         width: 165
-                    }, {
+                    },
+                    {
+                        field: "IsDefault",
+                        title: "@Loc["Admin.Catalog.Products.Pictures.Fields.IsDefault"]",
+                        width: 100,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '# if(IsDefault) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    },
+                    {
                         field: "DisplayOrder",
                         title: "@Loc["Admin.Catalog.Products.Pictures.Fields.DisplayOrder"]",
                         minScreenWidth: 750,

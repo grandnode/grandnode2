@@ -562,7 +562,9 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     private async Task<(PictureModel defaultPictureModel, List<PictureModel> pictureModels)>
         PrepareProductPictureModel(Product product, int defaultPictureSize, bool isAssociatedProduct, string name)
     {
-        var defaultPicture = product.ProductPictures.MinBy(x => x.DisplayOrder) ?? new ProductPicture();
+        var defaultPicture = product.ProductPictures.OrderByDescending(p => p.IsDefault)  
+            .ThenBy(p => p.DisplayOrder) 
+            .FirstOrDefault() ?? new ProductPicture();
 
         var picture = await _pictureService.GetPictureById(defaultPicture.PictureId);
 
@@ -1137,7 +1139,9 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                 bundleProduct.PriceValue = productprice.productprice;
             }
 
-            var productPicture = p1.ProductPictures.MinBy(x => x.DisplayOrder) ?? new ProductPicture();
+            var productPicture = p1.ProductPictures.OrderByDescending(p => p.IsDefault)  
+                .ThenBy(p => p.DisplayOrder) 
+                .FirstOrDefault() ?? new ProductPicture();
 
             var picture = await _pictureService.GetPictureById(productPicture.PictureId);
 

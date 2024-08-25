@@ -50,7 +50,9 @@ public static class ProductExtensions
 
         if (picture == null)
         {
-            var pp = product.ProductPictures.MinBy(x => x.DisplayOrder);
+            var pp = product.ProductPictures.OrderByDescending(p => p.IsDefault)  
+                .ThenBy(p => p.DisplayOrder) 
+                .FirstOrDefault();
             if (pp != null)
                 picture = await pictureService.GetPictureById(pp.PictureId);
         }

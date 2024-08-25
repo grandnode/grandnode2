@@ -461,12 +461,15 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
         }
 
         //prepare picture model
-        result.Add(await PreparePictureModel(product.ProductPictures.MinBy(x => x.DisplayOrder)));
+        result.Add(await PreparePictureModel(product.ProductPictures.OrderByDescending(p => p.IsDefault)  
+            .ThenBy(p => p.DisplayOrder) 
+            .FirstOrDefault()));
 
         //prepare second picture model
         if (!_catalogSettings.SecondPictureOnCatalogPages) return result;
 
-        var secondPicture = product.ProductPictures.OrderBy(x => x.DisplayOrder).Skip(1).Take(1)
+        var secondPicture = product.ProductPictures.OrderByDescending(p => p.IsDefault)  
+            .ThenBy(p => p.DisplayOrder).Skip(1).Take(1)
             .FirstOrDefault();
         if (secondPicture != null)
             result.Add(await PreparePictureModel(secondPicture));

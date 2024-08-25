@@ -2988,6 +2988,9 @@
 	<Resource Name="Admin.Catalog.Products.Pictures.Fields.ExtraField" Area="Admin">
 		<Value>Extra field</Value>
 	</Resource>
+	<Resource Name="Admin.Catalog.Products.Pictures.Fields.IsDefault" Area="Admin">
+		<Value>The default photo</Value>
+	</Resource>
 	<Resource Name="Admin.Catalog.Products.Pictures.Fields.OverrideAltAttribute" Area="Admin">
 		<Value>Alt</Value>
 	</Resource>

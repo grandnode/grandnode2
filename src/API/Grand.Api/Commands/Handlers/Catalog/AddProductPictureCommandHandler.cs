@@ -31,7 +31,8 @@ public class AddProductPictureCommandHandler : IRequestHandler<AddProductPicture
 
         await _productService.InsertProductPicture(new ProductPicture {
             PictureId = picture.Id,
-            DisplayOrder = request.Model.DisplayOrder
+            DisplayOrder = request.Model.DisplayOrder,
+            IsDefault = request.Model.IsDefault
         }, product.Id);
 
         return true;

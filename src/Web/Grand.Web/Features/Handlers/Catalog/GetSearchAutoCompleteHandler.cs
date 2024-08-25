@@ -121,7 +121,9 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
             var pictureUrl = "";
             if (_catalogSettings.ShowProductImagesInSearchAutoComplete)
             {
-                var picture = item.ProductPictures.MinBy(x => x.DisplayOrder);
+                var picture = item.ProductPictures.OrderByDescending(p => p.IsDefault)  
+                    .ThenBy(p => p.DisplayOrder) 
+                    .FirstOrDefault();
                 if (picture != null)
                     pictureUrl = await _pictureService.GetPictureUrl(picture.PictureId,
                         _mediaSettings.AutoCompleteSearchThumbPictureSize);

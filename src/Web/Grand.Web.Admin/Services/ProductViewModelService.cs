@@ -131,7 +131,8 @@ public class ProductViewModelService(
                 ProductId = product.Id,
                 PictureId = picture.PictureId,
                 PictureUrl = await pictureService.GetPictureUrl(picture.PictureId),
-                DisplayOrder = picture.DisplayOrder
+                DisplayOrder = picture.DisplayOrder,
+                IsDefault = picture.IsDefault
             });
         model.PrimaryStoreCurrencyCode =
             (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
@@ -169,7 +170,8 @@ public class ProductViewModelService(
                 ProductId = product.Id,
                 PictureId = x.PictureId,
                 PictureUrl = await pictureService.GetPictureUrl(x.PictureId),
-                DisplayOrder = x.DisplayOrder
+                DisplayOrder = x.DisplayOrder,
+                IsDefault = x.IsDefault
             });
 
         var associatedProduct = await productService.GetProductById(model.AssociatedProductId);
@@ -1794,7 +1796,8 @@ public class ProductViewModelService(
                 ProductId = product.Id,
                 PictureId = x.PictureId,
                 PictureUrl = await pictureService.GetPictureUrl(x.PictureId),
-                DisplayOrder = x.DisplayOrder
+                DisplayOrder = x.DisplayOrder,
+                IsDefault = x.IsDefault
             });
         return model;
     }
@@ -2349,6 +2352,7 @@ public class ProductViewModelService(
                 AltAttribute = picture?.AltAttribute,
                 TitleAttribute = picture?.TitleAttribute,
                 DisplayOrder = x.DisplayOrder,
+                IsDefault = x.IsDefault,
                 Style = picture?.Style,
                 ExtraField = picture?.ExtraField
             };
@@ -2370,6 +2374,7 @@ public class ProductViewModelService(
             AltAttribute = picture?.AltAttribute,
             TitleAttribute = picture?.TitleAttribute,
             DisplayOrder = productPicture.DisplayOrder,
+            IsDefault = productPicture.IsDefault,
             Style = picture?.Style,
             ExtraField = picture?.ExtraField
         };
@@ -2384,12 +2389,12 @@ public class ProductViewModelService(
 
         if (product.ProductPictures.Any(x => x.PictureId == picture.Id))
             return;
-
-        await productService.InsertProductPicture(new ProductPicture {
+        
+        var productPicture = new ProductPicture {
             PictureId = picture.Id,
             DisplayOrder = displayOrder
-        }, product.Id);
-
+        };
+        await productService.InsertProductPicture(productPicture, product.Id);
         await pictureService.SetSeoFilename(picture, pictureService.GetPictureSeName(product.Name));
     }
 
@@ -2406,6 +2411,7 @@ public class ProductViewModelService(
             throw new ArgumentException("No picture found with the specified id");
 
         productPicture.DisplayOrder = model.DisplayOrder;
+        productPicture.IsDefault = model.IsDefault;
         await productService.UpdateProductPicture(productPicture, product.Id);
 
         //Update picture fields
