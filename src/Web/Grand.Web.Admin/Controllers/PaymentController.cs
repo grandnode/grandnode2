@@ -83,7 +83,7 @@ public class PaymentController : BaseAdminController
                 if (plugin != null)
                 {
                     tmp.ConfigurationUrl = plugin.ConfigurationUrl();
-                    tmp.LogoUrl = pluginInfo.GetLogoUrl(_workContext);
+                    tmp.LogoUrl = pluginInfo.GetLogoUrl(_workContext.CurrentHost.Url);
                 }
             }
 
