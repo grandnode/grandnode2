@@ -1,15 +1,12 @@
 ﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Courses;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
-using Grand.Domain.Pages;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Course;
-using Grand.Web.Models.Pages;
 using Grand.Web.Models.Vendors;
 using System.Globalization;
 
@@ -102,38 +99,7 @@ public static class MappingExtensions
         };
         return model;
     }
-
-
-    //page
-    public static PageModel ToModel(this Page entity, Language language, IDateTimeService dateTimeService,
-        string password = "")
-    {
-        var model = new PageModel {
-            Id = entity.Id,
-            SystemName = entity.SystemName,
-            IncludeInSitemap = entity.IncludeInSitemap,
-            IsPasswordProtected = entity.IsPasswordProtected,
-            Password = entity.Password == password ? password : "",
-            Title = entity.IsPasswordProtected && entity.Password != password
-                ? ""
-                : entity.GetTranslation(x => x.Title, language.Id),
-            Body = entity.IsPasswordProtected && entity.Password != password
-                ? ""
-                : entity.GetTranslation(x => x.Body, language.Id),
-            MetaKeywords = entity.GetTranslation(x => x.MetaKeywords, language.Id),
-            MetaDescription = entity.GetTranslation(x => x.MetaDescription, language.Id),
-            MetaTitle = entity.GetTranslation(x => x.MetaTitle, language.Id),
-            SeName = entity.GetSeName(language.Id),
-            PageLayoutId = entity.PageLayoutId,
-            Published = entity.Published,
-            StartDate = entity.StartDateUtc.HasValue
-                ? dateTimeService.ConvertToUserTime(entity.StartDateUtc.Value)
-                : default,
-            EndDate = entity.EndDateUtc.HasValue ? dateTimeService.ConvertToUserTime(entity.EndDateUtc.Value) : default
-        };
-        return model;
-    }
-
+    
     public static Address ToEntity(this AddressModel model, Customer customer, AddressSettings addressSettings,
         bool trimFields = true)
     {

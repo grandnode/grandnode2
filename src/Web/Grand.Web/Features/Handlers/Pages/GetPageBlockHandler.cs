@@ -1,8 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Domain.Localization;
+using Grand.Domain.Pages;
 using Grand.Infrastructure;
-using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Pages;
 using Grand.Web.Models.Pages;
 using MediatR;
@@ -45,6 +47,36 @@ public class GetPageBlockHandler : IRequestHandler<GetPageBlock, PageModel>
         //ACL (access control list)
         return !_aclService.Authorize(page, _workContext.CurrentCustomer)
             ? null
-            : page.ToModel(_workContext.WorkingLanguage, _dateTimeService, request.Password);
+            : ToModel(page, _workContext.WorkingLanguage, request.Password);
     }
+    
+    private PageModel ToModel(Page entity, Language language,
+        string password = "")
+    {
+        var model = new PageModel {
+            Id = entity.Id,
+            SystemName = entity.SystemName,
+            IncludeInSitemap = entity.IncludeInSitemap,
+            IsPasswordProtected = entity.IsPasswordProtected,
+            Password = entity.Password == password ? password : "",
+            Title = entity.IsPasswordProtected && entity.Password != password
+                ? ""
+                : entity.GetTranslation(x => x.Title, language.Id),
+            Body = entity.IsPasswordProtected && entity.Password != password
+                ? ""
+                : entity.GetTranslation(x => x.Body, language.Id),
+            MetaKeywords = entity.GetTranslation(x => x.MetaKeywords, language.Id),
+            MetaDescription = entity.GetTranslation(x => x.MetaDescription, language.Id),
+            MetaTitle = entity.GetTranslation(x => x.MetaTitle, language.Id),
+            SeName = entity.GetSeName(language.Id),
+            PageLayoutId = entity.PageLayoutId,
+            Published = entity.Published,
+            StartDate = entity.StartDateUtc.HasValue
+                ? _dateTimeService.ConvertToUserTime(entity.StartDateUtc.Value)
+                : default,
+            EndDate = entity.EndDateUtc.HasValue ? _dateTimeService.ConvertToUserTime(entity.EndDateUtc.Value) : default
+        };
+        return model;
+    }
+
 }
