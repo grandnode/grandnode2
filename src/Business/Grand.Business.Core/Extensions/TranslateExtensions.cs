@@ -101,8 +101,7 @@ public static class TranslateExtensions
 
         return result;
     }
-
-
+    
     /// <summary>
     ///     Get translation value of permission
     ///     We don't have UI to manage permission localizable name. That's why we're using this extension method
@@ -113,29 +112,7 @@ public static class TranslateExtensions
     {
         return $"Permission.{permissionRecord.SystemName}";
     }
-
-    /// <summary>
-    ///     Delete a translation name of a permission
-    /// </summary>
-    /// <param name="permissionRecord">Permission record</param>
-    /// <param name="translationService">Translation service</param>
-    /// <param name="languageService">Language service</param>
-    public static async Task DeleteTranslationPermissionName(this Permission permissionRecord,
-        ITranslationService translationService, ILanguageService languageService)
-    {
-        ArgumentNullException.ThrowIfNull(permissionRecord);
-        ArgumentNullException.ThrowIfNull(translationService);
-        ArgumentNullException.ThrowIfNull(languageService);
-
-        var name = $"Permission.{permissionRecord.SystemName}";
-        foreach (var lang in await languageService.GetAllLanguages(true))
-        {
-            var lsr = await translationService.GetTranslateResourceByName(name, lang.Id);
-            if (lsr != null)
-                await translationService.DeleteTranslateResource(lsr);
-        }
-    }
-
+    
     /// <summary>
     ///     Delete a translation resource
     /// </summary>
