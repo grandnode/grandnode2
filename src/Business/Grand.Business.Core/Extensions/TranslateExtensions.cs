@@ -115,42 +115,6 @@ public static class TranslateExtensions
     }
 
     /// <summary>
-    ///     Save translation name of a permission
-    /// </summary>
-    /// <param name="permissionRecord">Permission record</param>
-    /// <param name="translationService">Translation service</param>
-    /// <param name="languageService">Language service</param>
-    public static async Task SaveTranslationPermissionName(this Permission permissionRecord,
-        ITranslationService translationService, ILanguageService languageService)
-    {
-        ArgumentNullException.ThrowIfNull(permissionRecord);
-        ArgumentNullException.ThrowIfNull(translationService);
-        ArgumentNullException.ThrowIfNull(languageService);
-
-        var name = $"Permission.{permissionRecord.SystemName}";
-        var value = permissionRecord.Name;
-
-        foreach (var lang in await languageService.GetAllLanguages(true))
-        {
-            var lsr = await translationService.GetTranslateResourceByName(name, lang.Id);
-            if (lsr == null)
-            {
-                lsr = new TranslationResource {
-                    LanguageId = lang.Id,
-                    Name = name,
-                    Value = value
-                };
-                await translationService.InsertTranslateResource(lsr);
-            }
-            else
-            {
-                lsr.Value = value;
-                await translationService.UpdateTranslateResource(lsr);
-            }
-        }
-    }
-
-    /// <summary>
     ///     Delete a translation name of a permission
     /// </summary>
     /// <param name="permissionRecord">Permission record</param>

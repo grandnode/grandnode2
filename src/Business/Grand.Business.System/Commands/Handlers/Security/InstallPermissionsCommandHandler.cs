@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Commands.System.Security;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Customers;
+using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using MediatR;
 
@@ -74,9 +74,33 @@ public class InstallPermissionsCommandHandler : IRequestHandler<InstallPermissio
             await _permissionService.InsertPermission(permission1);
 
             //save localization
-            await permission1.SaveTranslationPermissionName(_translationService, _languageService);
+            await SaveTranslationPermissionName(permission1);
         }
 
         return true;
+    }
+    private async Task SaveTranslationPermissionName(Permission permissionRecord)
+    {
+        var name = $"Permission.{permissionRecord.SystemName}";
+        var value = permissionRecord.Name;
+
+        foreach (var lang in await _languageService.GetAllLanguages(true))
+        {
+            var lsr = await _translationService.GetTranslateResourceByName(name, lang.Id);
+            if (lsr == null)
+            {
+                lsr = new TranslationResource {
+                    LanguageId = lang.Id,
+                    Name = name,
+                    Value = value
+                };
+                await _translationService.InsertTranslateResource(lsr);
+            }
+            else
+            {
+                lsr.Value = value;
+                await _translationService.UpdateTranslateResource(lsr);
+            }
+        }
     }
 }
