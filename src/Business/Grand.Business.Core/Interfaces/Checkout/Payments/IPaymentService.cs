@@ -83,7 +83,7 @@ public interface IPaymentService
     ///     Post redirect payment (used by payment gateways that redirecting to a another URL)
     /// </summary>
     /// <param name="paymentTransaction">Payment transaction</param>
-    Task PostRedirectPayment(PaymentTransaction paymentTransaction);
+    Task<string> PostRedirectPayment(PaymentTransaction paymentTransaction);
 
     /// <summary>
     ///     Gets a value indicating whether customers can complete a payment after order is placed but not completed (for

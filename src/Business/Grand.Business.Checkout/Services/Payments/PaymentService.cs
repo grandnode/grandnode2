@@ -223,18 +223,18 @@ public class PaymentService : IPaymentService
     ///     Post redirect payment (used by payment gateways that redirecting to a another URL)
     /// </summary>
     /// <param name="paymentTransaction">Payment Transaction</param>
-    public virtual async Task PostRedirectPayment(PaymentTransaction paymentTransaction)
+    public virtual async Task<string> PostRedirectPayment(PaymentTransaction paymentTransaction)
     {
         ArgumentNullException.ThrowIfNull(paymentTransaction);
 
         //already paid or order.OrderTotal == 0
         if (paymentTransaction.TransactionStatus == TransactionStatus.Paid)
-            return;
+            return "";
 
         var paymentMethod = LoadPaymentMethodBySystemName(paymentTransaction.PaymentMethodSystemName);
         if (paymentMethod == null)
             throw new GrandException("Payment method couldn't be loaded");
-        await paymentMethod.PostRedirectPayment(paymentTransaction);
+        return await paymentMethod.PostRedirectPayment(paymentTransaction);
     }
 
     /// <summary>

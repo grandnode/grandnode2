@@ -193,10 +193,10 @@ public class BrainTreePaymentProvider : IPaymentProvider
     ///     Post redirect payment (used by payment gateways that redirecting to a another URL)
     /// </summary>
     /// <param name="paymentTransaction">Payment transaction</param>
-    public Task PostRedirectPayment(PaymentTransaction paymentTransaction)
+    public Task<string> PostRedirectPayment(PaymentTransaction paymentTransaction)
     {
         //nothing
-        return Task.CompletedTask;
+        return Task.FromResult(string.Empty);
     }
 
     /// <summary>

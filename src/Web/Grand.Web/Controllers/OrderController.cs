@@ -63,23 +63,6 @@ public class OrderController : BasePublicController
 
     #endregion
 
-    #region Utilities
-
-    protected virtual bool IsRequestBeingRedirected {
-        get {
-            var response = HttpContext.Response;
-            return new List<int> { 301, 302 }.Contains(response.StatusCode);
-        }
-    }
-
-    protected virtual bool IsPostBeingDone {
-        get => HttpContext.Items["grand.IsPOSTBeingDone"] != null &&
-               Convert.ToBoolean(HttpContext.Items["grand.IsPOSTBeingDone"]);
-        set => HttpContext.Items["grand.IsPOSTBeingDone"] = value;
-    }
-
-    #endregion
-
     #region Methods
 
     //My account / Orders
@@ -201,14 +184,10 @@ public class OrderController : BasePublicController
         if (paymentTransaction == null || !await _paymentService.CanRePostRedirectPayment(paymentTransaction))
             return RedirectToRoute("OrderDetails", new { orderId });
 
-        await _paymentService.PostRedirectPayment(paymentTransaction);
-
-        if (IsRequestBeingRedirected || IsPostBeingDone)
-            //redirection or POST has been done in PostProcessPayment
-            return Content("Redirected");
-
-        //if no redirection has been done (to a third-party payment page)
-        //theoretically it's not possible
+        var redirectUrl = await _paymentService.PostRedirectPayment(paymentTransaction);
+        if (!string.IsNullOrEmpty(redirectUrl))
+            return Redirect(redirectUrl);
+        
         return RedirectToRoute("OrderDetails", new { orderId });
     }
 

@@ -36,7 +36,7 @@ public interface IPaymentProvider : IProvider
     ///     Post redirect payment (used by payment gateways that redirecting to a another URL)
     /// </summary>
     /// <param name="paymentTransaction">Payment transaction</param>
-    Task PostRedirectPayment(PaymentTransaction paymentTransaction);
+    Task<string> PostRedirectPayment(PaymentTransaction paymentTransaction);
 
     /// <summary>
     ///     Returns a value indicating whether payment method should be hidden during checkout

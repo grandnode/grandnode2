@@ -781,10 +781,11 @@ public class CheckoutController : BasePublicController
             if ((DateTime.UtcNow - order.CreatedOnUtc).TotalMinutes > 5)
                 return RedirectToRoute("HomePage");
 
-            await _paymentService.PostRedirectPayment(paymentTransaction);
-
-            if (IsRequestBeingRedirected || IsPostBeingDone) return Content("Redirected");
-
+            // Get the redirect URL from PostRedirectPayment
+            var redirectUrl = await _paymentService.PostRedirectPayment(paymentTransaction);
+            if (!string.IsNullOrEmpty(redirectUrl))
+                return Redirect(redirectUrl);
+            
             return RedirectToRoute("CheckoutCompleted", new { orderId = order.Id });
         }
         catch (Exception exc)
@@ -849,20 +850,6 @@ public class CheckoutController : BasePublicController
 
         return errors;
     }
-
-    protected virtual bool IsRequestBeingRedirected {
-        get {
-            var response = HttpContext.Response;
-            return new List<int> { 301, 302 }.Contains(response.StatusCode);
-        }
-    }
-
-    protected virtual bool IsPostBeingDone {
-        get => HttpContext.Items["grand.IsPOSTBeingDone"] != null &&
-               Convert.ToBoolean(HttpContext.Items["grand.IsPOSTBeingDone"]);
-        set => HttpContext.Items["grand.IsPOSTBeingDone"] = value;
-    }
-
     #endregion
 
     #region Private methods
