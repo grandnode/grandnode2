@@ -1,4 +1,3 @@
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Data;
@@ -12,26 +11,13 @@ namespace Widgets.Slider;
 /// <summary>
 ///     Plugin
 /// </summary>
-public class SliderWidgetPlugin : BasePlugin, IPlugin
+public class SliderWidgetPlugin(
+    IPictureService pictureService,
+    IRepository<PictureSlider> pictureSliderRepository,
+    IDatabaseContext databaseContext,
+    IPluginTranslateResource pluginTranslateResource)
+    : BasePlugin, IPlugin
 {
-    private readonly IDatabaseContext _databaseContext;
-    private readonly ILanguageService _languageService;
-    private readonly IPictureService _pictureService;
-    private readonly IRepository<PictureSlider> _pictureSliderRepository;
-    private readonly ITranslationService _translationService;
-
-    public SliderWidgetPlugin(IPictureService pictureService,
-        IRepository<PictureSlider> pictureSliderRepository,
-        ITranslationService translationService,
-        ILanguageService languageService,
-        IDatabaseContext databaseContext)
-    {
-        _pictureService = pictureService;
-        _pictureSliderRepository = pictureSliderRepository;
-        _translationService = translationService;
-        _languageService = languageService;
-        _databaseContext = databaseContext;
-    }
 
     /// <summary>
     ///     Install plugin
@@ -39,7 +25,7 @@ public class SliderWidgetPlugin : BasePlugin, IPlugin
     public override async Task Install()
     {
         //Create index
-        await _databaseContext.CreateIndex(_pictureSliderRepository,
+        await databaseContext.CreateIndex(pictureSliderRepository,
             OrderBuilder<PictureSlider>.Create().Ascending(x => x.SliderTypeId).Ascending(x => x.DisplayOrder),
             "SliderTypeId_DisplayOrder");
 
@@ -58,10 +44,10 @@ public class SliderWidgetPlugin : BasePlugin, IPlugin
                 "<div class=\"row slideRow justify-content-start\"><div class=\"col-lg-6 d-flex flex-column justify-content-center align-items-center\"><div><div class=\"animate-top animate__animated animate__backInDown\" >exclusive - modern - elegant</div><div class=\"animate-center-title animate__animated animate__backInLeft animate__delay-05s\">Smart watches</div><div class=\"animate-center-content animate__animated animate__backInLeft animate__delay-1s\">Go to collection and see more...</div><a href=\"/smartwatches\" class=\"animate-bottom btn btn-info animate__animated animate__backInUp animate__delay-15s\"> SHOP NOW </a></div></div></div>"
         };
 
-        var pic1 = await _pictureService.InsertPicture(byte1, "image/png", "banner_1", reference: Reference.Widget,
+        var pic1 = await pictureService.InsertPicture(byte1, "image/png", "banner_1", reference: Reference.Widget,
             objectId: pictureSlider1.Id, validateBinary: false);
         pictureSlider1.PictureId = pic1.Id;
-        await _pictureSliderRepository.InsertAsync(pictureSlider1);
+        await pictureSliderRepository.InsertAsync(pictureSlider1);
 
 
         var pictureSlider2 = new PictureSlider {
@@ -73,116 +59,62 @@ public class SliderWidgetPlugin : BasePlugin, IPlugin
             Description =
                 "<div class=\"row slideRow\"><div class=\"col-md-6 offset-md-6 col-12 offset-0 d-flex flex-column justify-content-center align-items-start px-0 pr-md-3\"><div class=\"slide-title text-dark animate__animated animate__fadeInRight animate__delay-05s\"><h2 class=\"mt-0\">Redmi Note 9</h2></div><div class=\"slide-content animate__animated animate__fadeInRight animate__delay-1s\"><p class=\"mb-0\"><span>Equipped with a high-performance octa-core processor <br/> with a maximum clock frequency of 2.0 GHz.</span></p></div><div class=\"slide-price animate__animated animate__fadeInRight animate__delay-15s d-inline-flex align-items-center justify-content-start w-100 mt-2\"><p class=\"actual\">$249.00</p><p class=\"old-price\">$399.00</p></div><div class=\"slide-button animate__animated animate__fadeInRight animate__delay-2s mt-3\"><a class=\"btn btn-outline-info\" href=\"/redmi-note-9\">BUY REDMI NOTE 9</a></div></div></div>"
         };
-        var pic2 = await _pictureService.InsertPicture(byte2, "image/png", "banner_2", reference: Reference.Widget,
+        var pic2 = await pictureService.InsertPicture(byte2, "image/png", "banner_2", reference: Reference.Widget,
             objectId: pictureSlider2.Id, validateBinary: false);
         pictureSlider2.PictureId = pic2.Id;
 
-        await _pictureSliderRepository.InsertAsync(pictureSlider2);
+        await pictureSliderRepository.InsertAsync(pictureSlider2);
 
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.DisplayOrder", "Display order");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.LimitedToGroups", "Limited to groups");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.LimitedToStores", "Limited to stores");
-
-
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.FriendlyName", "Widget Slider");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Added",
-            "Slider added");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Addnew",
-            "Add new slider");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.AvailableStores", "Available stores");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.AvailableStores.Hint", "Select stores for which the slider will be shown.");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Backtolist", "Back to list");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Category",
-            "Category");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Category.Hint", "Select the category where slider should appear.");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Category.Required", "Category is required");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Description", "Description");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Description.Hint", "Enter the description of the slider");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.DisplayOrder", "Display Order");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.DisplayOrder.Hint", "The slider display order. 1 represents the first item in the list.");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Edit",
-            "Edit slider");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Edited",
-            "Slider edited");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.Displayorder", "Display Order");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.Link", "Link");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.ObjectType", "Slider type");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.Picture", "Picture");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.Published", "Published");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.Title", "Title");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.FullWidth",
-            "Full width");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.FullWidth.hint", "Full width");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Info",
-            "Info");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.LimitedToStores", "Limited to stores");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.LimitedToStores.Hint",
-            "Determines whether the slider is available only at certain stores.");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Link",
-            "URL");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Link.Hint",
-            "Enter URL. Leave empty if you don't want this picture to be clickable.");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Manage",
-            "Manage Bootstrap Slider");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Collection", "Collection");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Collection.Hint", "Select the collection where slider should appear.");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Collection.Required", "Collection is required");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Brand",
-            "Brand");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Brand.Hint", "Select the brand where slider should appear.");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Brand.Required", "Brand is required");
-
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Name",
-            "Name");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Name.Hint",
-            "Enter the name of the slider");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Name.Required", "Name is required");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Picture",
-            "Picture");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Picture.Required", "Picture is required");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Published",
-            "Published");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.Published.Hint", "Specify it should be visible or not");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.SliderType", "Slider type");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Widgets.Slider.SliderType.Hint", "Choose the slider type. Home page, category or collection page.");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Stores",
-            "Stores");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.StartDate",
-            "Start Date");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.EndDate",
-            "End Date");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Fields.DisplayOrder", "Display order");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Fields.LimitedToGroups", "Limited to groups");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Fields.LimitedToStores", "Limited to stores");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.FriendlyName", "Widget Slider");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Added", "Slider added");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Addnew", "Add new slider");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.AvailableStores", "Available stores");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.AvailableStores.Hint", "Select stores for which the slider will be shown.");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Backtolist", "Back to list");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Category", "Category");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Category.Hint", "Select the category where slider should appear.");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Category.Required", "Category is required");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Description", "Description");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Description.Hint", "Enter the description of the slider");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.DisplayOrder", "Display Order");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.DisplayOrder.Hint", "The slider display order. 1 represents the first item in the list.");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Edit", "Edit slider");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Edited", "Slider edited");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Fields.Displayorder", "Display Order");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Fields.Link", "Link");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Fields.ObjectType", "Slider type");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Fields.Picture", "Picture");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Fields.Published", "Published");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Fields.Title", "Title");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.FullWidth", "Full width");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.FullWidth.hint", "Full width");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Info", "Info");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.LimitedToStores", "Limited to stores");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.LimitedToStores.Hint", "Determines whether the slider is available only at certain stores.");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Link", "URL");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Link.Hint", "Enter URL. Leave empty if you don't want this picture to be clickable.");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Manage", "Manage Bootstrap Slider");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Collection", "Collection");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Collection.Hint", "Select the collection where slider should appear.");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Collection.Required", "Collection is required");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Brand", "Brand");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Brand.Hint", "Select the brand where slider should appear.");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Brand.Required", "Brand is required");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Name", "Name");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Name.Hint", "Enter the name of the slider");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Name.Required", "Name is required");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Picture", "Picture");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Picture.Required", "Picture is required");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Published", "Published");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.Published.Hint", "Specify it should be visible or not");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.SliderType", "Slider type");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Widgets.Slider.SliderType.Hint", "Choose the slider type. Home page, category or collection page.");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.Stores", "Stores");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.StartDate", "Start Date");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource( "Widgets.Slider.EndDate", "End Date");
 
         await base.Install();
     }
@@ -193,74 +125,53 @@ public class SliderWidgetPlugin : BasePlugin, IPlugin
     public override async Task Uninstall()
     {
         //clear repository
-        await _pictureSliderRepository.DeleteAsync(_pictureSliderRepository.Table.ToList());
+        await pictureSliderRepository.DeleteAsync(pictureSliderRepository.Table.ToList());
 
         //locales
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Added");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Addnew");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.AvailableStores");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.AvailableStores.Hint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Backtolist");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Category");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Category.Hint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Category.Required");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Description");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Description.Hint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.DisplayOrder");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.DisplayOrder.Hint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Edit");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Edited");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.Displayorder");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Fields.Link");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.ObjectType");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.Picture");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.Published");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Fields.Title");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Info");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.LimitedToStores");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.LimitedToStores.Hint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Link");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Link.Hint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Manage");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Collection");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Collection.Hint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Collection.Required");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Brand");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Brand.Hint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Brand.Required");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Name");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Name.Hint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Name.Required");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Picture");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Picture.Required");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Published");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.Published.Hint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.SliderType");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Widgets.Slider.SliderType.Hint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Stores");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.StartDate");
-        await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.EndDate");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Added");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Addnew");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.AvailableStores");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.AvailableStores.Hint");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Backtolist");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Category");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Category.Hint");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Category.Required");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Description");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Description.Hint");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.DisplayOrder");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.DisplayOrder.Hint");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Edit");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Edited");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Fields.Displayorder");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Fields.Link");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Fields.ObjectType");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Fields.Picture");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Fields.Published");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Fields.Title");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Info");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.LimitedToStores");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.LimitedToStores.Hint");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Link");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Link.Hint");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Manage");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Collection");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Collection.Hint");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Collection.Required");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Brand");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Brand.Hint");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Brand.Required");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Name");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Name.Hint");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Name.Required");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Picture");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Picture.Required");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Published");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.Published.Hint");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.SliderType");
+        await pluginTranslateResource.DeletePluginTranslationResource("Widgets.Slider.SliderType.Hint");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.Stores");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.StartDate");
+        await pluginTranslateResource.DeletePluginTranslationResource( "Widgets.Slider.EndDate");
 
         await base.Uninstall();
     }

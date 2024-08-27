@@ -1,4 +1,3 @@
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Plugins;
@@ -8,29 +7,10 @@ namespace Authentication.Facebook;
 /// <summary>
 ///     Represents method for the authentication with Facebook account
 /// </summary>
-public class FacebookAuthenticationPlugin : BasePlugin, IPlugin
+public class FacebookAuthenticationPlugin(
+    ISettingService settingService,
+    IPluginTranslateResource pluginTranslateResource) : BasePlugin, IPlugin
 {
-    #region Ctor
-
-    public FacebookAuthenticationPlugin(ISettingService settingService,
-        ITranslationService translationService,
-        ILanguageService languageService)
-    {
-        _settingService = settingService;
-        _translationService = translationService;
-        _languageService = languageService;
-    }
-
-    #endregion
-
-    #region Fields
-
-    private readonly ISettingService _settingService;
-    private readonly ITranslationService _translationService;
-    private readonly ILanguageService _languageService;
-
-    #endregion
-
     #region Methods
 
     /// <summary>
@@ -48,23 +28,16 @@ public class FacebookAuthenticationPlugin : BasePlugin, IPlugin
     public override async Task Install()
     {
         //settings
-        await _settingService.SaveSetting(new FacebookExternalAuthSettings());
+        await settingService.SaveSetting(new FacebookExternalAuthSettings());
 
         //locales
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Authentication.Facebook.Login", "Login using Facebook account");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Authentication.Facebook.ClientKeyIdentifier", "App ID/API Key");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Authentication.Facebook.ClientSecret", "App Secret");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Authentication.Facebook.Failed", "Facebook - Login error");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Authentication.Facebook.Failed.ErrorCode", "Error code");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Authentication.Facebook.Failed.ErrorMessage", "Error message");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Authentication.Facebook.DisplayOrder", "Display order");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Authentication.Facebook.Login", "Login using Facebook account");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Authentication.Facebook.ClientKeyIdentifier", "App ID/API Key");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Authentication.Facebook.ClientSecret", "App Secret");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Authentication.Facebook.Failed", "Facebook - Login error");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Authentication.Facebook.Failed.ErrorCode", "Error code");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Authentication.Facebook.Failed.ErrorMessage", "Error message");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Authentication.Facebook.DisplayOrder", "Display order");
 
         await base.Install();
     }
@@ -75,15 +48,12 @@ public class FacebookAuthenticationPlugin : BasePlugin, IPlugin
     public override async Task Uninstall()
     {
         //settings
-        await _settingService.DeleteSetting<FacebookExternalAuthSettings>();
+        await settingService.DeleteSetting<FacebookExternalAuthSettings>();
 
         //locales
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Authentication.Facebook.Login");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Authentication.Facebook.ClientKeyIdentifier");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Authentication.Facebook.ClientSecret");
+        await pluginTranslateResource.DeletePluginTranslationResource("Authentication.Facebook.Login");
+        await pluginTranslateResource.DeletePluginTranslationResource("Authentication.Facebook.ClientKeyIdentifier");
+        await pluginTranslateResource.DeletePluginTranslationResource("Authentication.Facebook.ClientSecret");
 
         await base.Uninstall();
     }

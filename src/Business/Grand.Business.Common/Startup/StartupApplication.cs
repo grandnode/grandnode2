@@ -73,6 +73,7 @@ public class StartupApplication : IStartupApplication
     {
         serviceCollection.AddScoped<ITranslationService, TranslationService>();
         serviceCollection.AddScoped<ILanguageService, LanguageService>();
+        serviceCollection.AddScoped<IPluginTranslateResource, PluginTranslateResource>();
     }
 
     private void RegisterSecurityService(IServiceCollection serviceCollection)

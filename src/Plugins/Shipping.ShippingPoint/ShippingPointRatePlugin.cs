@@ -1,31 +1,12 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Plugins;
 
 namespace Shipping.ShippingPoint;
 
-public class ShippingPointRatePlugin : BasePlugin, IPlugin
+public class ShippingPointRatePlugin(
+    IPluginTranslateResource pluginTranslateResource)
+    : BasePlugin, IPlugin
 {
-    #region Ctor
-
-    public ShippingPointRatePlugin(
-        ITranslationService translationService,
-        ILanguageService languageService
-    )
-    {
-        _translationService = translationService;
-        _languageService = languageService;
-    }
-
-    #endregion
-
-    #region Fields
-
-    private readonly ITranslationService _translationService;
-    private readonly ILanguageService _languageService;
-
-    #endregion
-
     #region Methods
 
     /// <summary>
@@ -34,52 +15,29 @@ public class ShippingPointRatePlugin : BasePlugin, IPlugin
     public override async Task Install()
     {
         //locales       
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.FriendlyName", "Shipping Point");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.PluginName", "Shipping Point");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.PluginDescription", "Choose a place where you can pick up your order");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.ShippingPointName", "Point Name");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.Description", "Description");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.PickupFee", "Pickup Fee");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.OpeningHours", "Open Between");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.Store", "Store Name");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.City", "City");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.Address1", "Address 1");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.ZipPostalCode", "Zip postal code");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.Country", "Country");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.FriendlyName", "Shipping Point");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.PluginName", "Shipping Point");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.PluginDescription", "Choose a place where you can pick up your order");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Fields.ShippingPointName", "Point Name");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Fields.Description", "Description");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Fields.PickupFee", "Pickup Fee");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Fields.OpeningHours", "Open Between");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Fields.Store", "Store Name");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Fields.City", "City");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Fields.Address1", "Address 1");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Fields.ZipPostalCode", "Zip postal code");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Fields.Country", "Country");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.ShippingPointName", "Point Name");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Address", "Address");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.MethodAndFee", "{0} ({1})");
 
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.ShippingPointName", "Point Name");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Address", "Address");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.MethodAndFee", "{0} ({1})");
-
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.AddNew", "Add New Point");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.RequiredShippingPointName", "Shipping Point Name Is Required");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.RequiredDescription", "Description Is Required");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.RequiredOpeningHours", "Opening Hours Are Required");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.SelectShippingOption", "Select Shipping Option");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.ChooseShippingPoint", "Choose Shipping Point");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.SelectBeforeProceed", "Select Shipping Option Before Proceed");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.AddNew", "Add New Point");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.RequiredShippingPointName", "Shipping Point Name Is Required");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.RequiredDescription", "Description Is Required");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.RequiredOpeningHours", "Opening Hours Are Required");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.SelectShippingOption", "Select Shipping Option");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.ChooseShippingPoint", "Choose Shipping Point");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.SelectBeforeProceed", "Select Shipping Option Before Proceed");
 
         await base.Install();
     }
@@ -89,51 +47,27 @@ public class ShippingPointRatePlugin : BasePlugin, IPlugin
     /// </summary>
     public override async Task Uninstall()
     {
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.PluginName");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.PluginDescription");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.ShippingPointName");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.Description");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.PickupFee");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.OpeningHours");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.Store");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.AddNew");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.RequiredShippingPointName");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.RequiredDescription");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.RequiredOpeningHours");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.SelectShippingOption");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.ChooseShippingPoint");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.SelectBeforeProceed");
-
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.City");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.Address1");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.ZipPostalCode");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Fields.Country");
-
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.ShippingPointName");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.Address");
-        await this.DeletePluginTranslationResource(_translationService, _languageService,
-            "Shipping.ShippingPoint.MethodAndFee");
-
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.PluginName");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.PluginDescription");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Fields.ShippingPointName");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Fields.Description");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Fields.PickupFee");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Fields.OpeningHours");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Fields.Store");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.AddNew");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.RequiredShippingPointName");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.RequiredDescription");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.RequiredOpeningHours");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.SelectShippingOption");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.ChooseShippingPoint");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.SelectBeforeProceed");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Fields.City");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Fields.Address1");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Fields.ZipPostalCode");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Fields.Country");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.ShippingPointName");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Address");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.MethodAndFee");
 
         await base.Uninstall();
     }

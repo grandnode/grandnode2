@@ -1,35 +1,15 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Configuration;
+﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Plugins;
 
 namespace Shipping.ByWeight;
 
-public class ByWeightShippingPlugin : BasePlugin, IPlugin
+public class ByWeightShippingPlugin(
+    ISettingService settingService,
+    IPluginTranslateResource pluginTranslateResource)
+    : BasePlugin, IPlugin
 {
-    #region Ctor
-
-    public ByWeightShippingPlugin(
-        ISettingService settingService,
-        ITranslationService translationService,
-        ILanguageService languageService)
-    {
-        _settingService = settingService;
-        _translationService = translationService;
-        _languageService = languageService;
-    }
-
-    #endregion
-
-    #region Fields
-
-    private readonly ISettingService _settingService;
-    private readonly ITranslationService _translationService;
-    private readonly ILanguageService _languageService;
-
-    #endregion
-
     #region Methods
 
     /// <summary>
@@ -41,47 +21,28 @@ public class ByWeightShippingPlugin : BasePlugin, IPlugin
         var settings = new ByWeightShippingSettings {
             LimitMethodsToCreated = false
         };
-        await _settingService.SaveSetting(settings);
+        await settingService.SaveSetting(settings);
 
         //locales
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Shipping.ByWeight.FriendlyName", "Shipping by Weight");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.Store", "Store");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.Warehouse", "Warehouse");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.Country", "Country");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.StateProvince", "State / province");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.Zip", "Zip");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.ShippingMethod", "Shipping method");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.From", "Order weight from");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.To", "Order weight to");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.AdditionalFixedCost", "Additional fixed cost");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.LowerWeightLimit", "Lower weight limit");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.PercentageRateOfSubtotal", "Charge percentage (of subtotal)");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.RatePerWeightUnit", "Rate per weight unit");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.LimitMethodsToCreated", "Limit shipping methods to configured ones");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.DataHtml", "Data");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Fields.DisplayOrder", "DisplayOrder");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.AddRecord", "Add record");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Formula", "Formula to calculate rates");
-        await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService,
-            "Plugins.Shipping.ByWeight.Formula.Value",
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ByWeight.FriendlyName", "Shipping by Weight");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.Store", "Store");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.Warehouse", "Warehouse");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.Country", "Country");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.StateProvince", "State / province");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.Zip", "Zip");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.ShippingMethod", "Shipping method");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.From", "Order weight from");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.To", "Order weight to");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.AdditionalFixedCost", "Additional fixed cost");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.LowerWeightLimit", "Lower weight limit");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.PercentageRateOfSubtotal", "Charge percentage (of subtotal)");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.RatePerWeightUnit", "Rate per weight unit");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.LimitMethodsToCreated", "Limit shipping methods to configured ones");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.DataHtml", "Data");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Fields.DisplayOrder", "DisplayOrder");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.AddRecord", "Add record");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Formula", "Formula to calculate rates");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Plugins.Shipping.ByWeight.Formula.Value",
             "[additional fixed cost] + ([order total weight] - [lower weight limit]) * [rate per weight unit] + [order subtotal] * [charge percentage]");
 
         await base.Install();
