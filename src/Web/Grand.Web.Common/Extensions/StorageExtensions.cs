@@ -20,14 +20,4 @@ public static class Extensions
         var fileBytes = ms.ToArray();
         return fileBytes;
     }
-
-    /// <summary>
-    ///     Gets the picture binary array
-    /// </summary>
-    /// <param name="file">File</param>
-    /// <returns>Picture binary array</returns>
-    public static byte[] GetPictureBits(this IFormFile file)
-    {
-        return GetDownloadBits(file);
-    }
 }
