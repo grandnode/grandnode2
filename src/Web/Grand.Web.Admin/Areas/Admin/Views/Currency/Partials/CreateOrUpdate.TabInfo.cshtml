@@ -92,14 +92,14 @@
         <div class="form-group">
             <admin-label asp-for="RoundingTypeId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="RoundingTypeId" asp-items="((RoundingType)Model.RoundingTypeId).ToSelectList(Context)"/>
+                <admin-select asp-for="RoundingTypeId" asp-items="EnumTranslationService.ToSelectList((RoundingType)Model.RoundingTypeId)"/>
                 <span asp-validation-for="RoundingTypeId"></span>
             </div>
         </div>
         <div class="form-group">
             <admin-label asp-for="MidpointRoundId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="MidpointRoundId" asp-items="((MidpointRounding)Model.MidpointRoundId).ToSelectList(Context)"/>
+                <admin-select asp-for="MidpointRoundId" asp-items="EnumTranslationService.ToSelectList((MidpointRounding)Model.MidpointRoundId)"/>
                 <span asp-validation-for="MidpointRoundId"></span>
             </div>
         </div>

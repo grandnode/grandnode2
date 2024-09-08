@@ -13,6 +13,7 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
@@ -30,7 +31,8 @@ public class CategoryViewModelService : ICategoryViewModelService
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly ISeNameService _seNameService;
-    
+    private readonly IEnumTranslationService _enumTranslationService;
+   
     public CategoryViewModelService(
         ICategoryService categoryService,
         IProductCategoryService productCategoryService,
@@ -42,7 +44,8 @@ public class CategoryViewModelService : ICategoryViewModelService
         IProductService productService,
         IVendorService vendorService,
         CatalogSettings catalogSettings,
-        ISeNameService seNameService)
+        ISeNameService seNameService, 
+        IEnumTranslationService enumTranslationService)
     {
         _categoryService = categoryService;
         _productCategoryService = productCategoryService;
@@ -55,6 +58,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         _vendorService = vendorService;
         _catalogSettings = catalogSettings;
         _seNameService = seNameService;
+        _enumTranslationService = enumTranslationService;
     }
 
     public virtual async Task<CategoryListModel> PrepareCategoryListModel(string storeId)
@@ -254,7 +258,7 @@ public class CategoryViewModelService : ICategoryViewModelService
             model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
         //product types
-        model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList().ToList();
+        model.AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct).ToList();
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "0" });
         return model;
@@ -314,7 +318,7 @@ public class CategoryViewModelService : ICategoryViewModelService
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        model.AvailableSortOptions = ProductSortingEnum.Position.ToSelectList().ToList();
+        model.AvailableSortOptions = _enumTranslationService.ToSelectList(ProductSortingEnum.Position).ToList();
         model.AvailableSortOptions.Insert(0, new SelectListItem { Text = "None", Value = "-1" });
     }
 }

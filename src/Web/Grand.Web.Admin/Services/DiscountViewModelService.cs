@@ -20,6 +20,7 @@ using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Discounts;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -43,7 +44,8 @@ public class DiscountViewModelService : IDiscountViewModelService
         IPriceFormatter priceFormatter,
         IDateTimeService dateTimeService,
         IDiscountProviderLoader discountProviderLoader,
-        IMediator mediator)
+        IMediator mediator, 
+        IEnumTranslationService enumTranslationService)
     {
         _discountService = discountService;
         _translationService = translationService;
@@ -60,15 +62,36 @@ public class DiscountViewModelService : IDiscountViewModelService
         _dateTimeService = dateTimeService;
         _discountProviderLoader = discountProviderLoader;
         _mediator = mediator;
+        _enumTranslationService = enumTranslationService;
     }
+
+    #endregion
+
+    #region Fields
+
+    private readonly IDiscountService _discountService;
+    private readonly ITranslationService _translationService;
+    private readonly ICurrencyService _currencyService;
+    private readonly ICategoryService _categoryService;
+    private readonly IProductService _productService;
+    private readonly IWorkContext _workContext;
+    private readonly IBrandService _brandService;
+    private readonly ICollectionService _collectionService;
+    private readonly IStoreService _storeService;
+    private readonly IVendorService _vendorService;
+    private readonly IOrderService _orderService;
+    private readonly IPriceFormatter _priceFormatter;
+    private readonly IDateTimeService _dateTimeService;
+    private readonly IDiscountProviderLoader _discountProviderLoader;
+    private readonly IMediator _mediator;
+    private readonly IEnumTranslationService _enumTranslationService;
 
     #endregion
 
     public virtual DiscountListModel PrepareDiscountListModel()
     {
         var model = new DiscountListModel {
-            AvailableDiscountTypes = DiscountType.AssignedToOrderTotal
-                .ToSelectList(_translationService, _workContext, false).ToList()
+            AvailableDiscountTypes = _enumTranslationService.ToSelectList(DiscountType.AssignedToOrderTotal, false).ToList()
         };
         model.AvailableDiscountTypes.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
@@ -90,7 +113,7 @@ public class DiscountViewModelService : IDiscountViewModelService
         foreach (var x in discounts.Skip((pageIndex - 1) * pageSize).Take(pageSize))
         {
             var discountModel = x.ToModel(_dateTimeService);
-            discountModel.DiscountTypeName = x.DiscountTypeId.GetTranslationEnum(_translationService, _workContext);
+            discountModel.DiscountTypeName = _enumTranslationService.GetTranslationEnum(x.DiscountTypeId);
             discountModel.TimesUsed =
                 (await _mediator.Send(new GetDiscountUsageHistoryQuery { DiscountId = x.Id, PageSize = 1 })).TotalCount;
             items.Add(discountModel);
@@ -257,7 +280,7 @@ public class DiscountViewModelService : IDiscountViewModelService
             model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
         //product types
-        model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList().ToList();
+        model.AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct).ToList();
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
         return model;
@@ -419,24 +442,4 @@ public class DiscountViewModelService : IDiscountViewModelService
 
         return (items, duh.TotalCount);
     }
-
-    #region Fields
-
-    private readonly IDiscountService _discountService;
-    private readonly ITranslationService _translationService;
-    private readonly ICurrencyService _currencyService;
-    private readonly ICategoryService _categoryService;
-    private readonly IProductService _productService;
-    private readonly IWorkContext _workContext;
-    private readonly IBrandService _brandService;
-    private readonly ICollectionService _collectionService;
-    private readonly IStoreService _storeService;
-    private readonly IVendorService _vendorService;
-    private readonly IOrderService _orderService;
-    private readonly IPriceFormatter _priceFormatter;
-    private readonly IDateTimeService _dateTimeService;
-    private readonly IDiscountProviderLoader _discountProviderLoader;
-    private readonly IMediator _mediator;
-
-    #endregion
 }

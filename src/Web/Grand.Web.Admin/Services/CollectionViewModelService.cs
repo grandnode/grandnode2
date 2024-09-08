@@ -14,6 +14,7 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
@@ -34,6 +35,7 @@ public class CollectionViewModelService : ICollectionViewModelService
     private readonly IVendorService _vendorService;
     private readonly IWorkContext _workContext;
     private readonly ISeNameService _seNameService;
+    private readonly IEnumTranslationService _enumTranslationService;
     
     #endregion
 
@@ -50,7 +52,8 @@ public class CollectionViewModelService : ICollectionViewModelService
         IDiscountService discountService,
         IVendorService vendorService,
         IWorkContext workContext,
-        ISeNameService seNameService)
+        ISeNameService seNameService, 
+        IEnumTranslationService enumTranslationService)
     {
         _collectionLayoutService = collectionLayoutService;
         _collectionService = collectionService;
@@ -63,6 +66,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         _vendorService = vendorService;
         _workContext = workContext;
         _seNameService = seNameService;
+        _enumTranslationService = enumTranslationService;
     }
 
     #endregion
@@ -71,7 +75,7 @@ public class CollectionViewModelService : ICollectionViewModelService
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        model.AvailableSortOptions = ProductSortingEnum.Position.ToSelectList().ToList();
+        model.AvailableSortOptions = _enumTranslationService.ToSelectList(ProductSortingEnum.Position).ToList();
         model.AvailableSortOptions.Insert(0, new SelectListItem { Text = "None", Value = "-1" });
     }
 
@@ -194,8 +198,7 @@ public class CollectionViewModelService : ICollectionViewModelService
             model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
         //product types
-        model.AvailableProductTypes =
-            ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false).ToList();
+        model.AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "0" });
         return model;

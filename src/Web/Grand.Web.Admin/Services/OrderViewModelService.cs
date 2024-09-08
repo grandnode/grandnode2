@@ -29,6 +29,7 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net;
@@ -76,6 +77,7 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IOrderTagService _orderTagService;
     private readonly IOrderStatusService _orderStatusService;
     private readonly IMediator _mediator;
+    private readonly IEnumTranslationService _enumTranslationService;
 
     #endregion
 
@@ -115,7 +117,7 @@ public class OrderViewModelService : IOrderViewModelService
         IOrderTagService orderTagService,
         IOrderStatusService orderStatusService,
         IMediator mediator,
-        IProductAttributeFormatter productAttributeFormatter)
+        IProductAttributeFormatter productAttributeFormatter, IEnumTranslationService enumTranslationService)
     {
         _orderService = orderService;
         _pricingService = priceCalculationService;
@@ -152,6 +154,7 @@ public class OrderViewModelService : IOrderViewModelService
         _orderStatusService = orderStatusService;
         _mediator = mediator;
         _productAttributeFormatter = productAttributeFormatter;
+        _enumTranslationService = enumTranslationService;
     }
 
     #endregion
@@ -182,8 +185,7 @@ public class OrderViewModelService : IOrderViewModelService
         }
 
         //payment statuses
-        model.AvailablePaymentStatuses =
-            PaymentStatus.Pending.ToSelectList(_translationService, _workContext, false).ToList();
+        model.AvailablePaymentStatuses = _enumTranslationService.ToSelectList(PaymentStatus.Pending, false).ToList();
         model.AvailablePaymentStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
         if (paymentStatusId.HasValue)
@@ -202,8 +204,7 @@ public class OrderViewModelService : IOrderViewModelService
             model.AvailableOrderTags.Add(new SelectListItem { Text = s.Name, Value = s.Id });
 
         //shipping statuses
-        model.AvailableShippingStatuses =
-            ShippingStatus.ShippingNotRequired.ToSelectList(_translationService, _workContext, false).ToList();
+        model.AvailableShippingStatuses = _enumTranslationService.ToSelectList(ShippingStatus.ShippingNotRequired, false).ToList();
         model.AvailableShippingStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
 
@@ -325,8 +326,8 @@ public class OrderViewModelService : IOrderViewModelService
                 CurrencyCode = x.CustomerCurrencyCode,
                 OrderStatus = status.FirstOrDefault(y => y.StatusId == x.OrderStatusId)?.Name,
                 OrderStatusId = x.OrderStatusId,
-                PaymentStatus = x.PaymentStatusId.GetTranslationEnum(_translationService, _workContext),
-                ShippingStatus = x.ShippingStatusId.GetTranslationEnum(_translationService, _workContext),
+                PaymentStatus = _enumTranslationService.GetTranslationEnum(x.PaymentStatusId),
+                ShippingStatus = _enumTranslationService.GetTranslationEnum(x.ShippingStatusId),
                 CustomerEmail = x.BillingAddress?.Email,
                 CustomerId = x.CustomerId,
                 CustomerFullName = $"{x.BillingAddress?.FirstName} {x.BillingAddress?.LastName}",
@@ -575,7 +576,7 @@ public class OrderViewModelService : IOrderViewModelService
         //payment method info
         var pm = _paymentService.LoadPaymentMethodBySystemName(order.PaymentMethodSystemName);
         model.PaymentMethod = pm != null ? pm.FriendlyName : order.PaymentMethodSystemName;
-        model.PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, _workContext);
+        model.PaymentStatus = _enumTranslationService.GetTranslationEnum(order.PaymentStatusId);
         model.PaymentStatusEnum = order.PaymentStatusId;
         var pt = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
         if (pt != null)
@@ -619,7 +620,7 @@ public class OrderViewModelService : IOrderViewModelService
         model.BillingAddress.FaxRequired = _addressSettings.FaxRequired;
         model.BillingAddress.NoteEnabled = _addressSettings.NoteEnabled;
 
-        model.ShippingStatus = order.ShippingStatusId.GetTranslationEnum(_translationService, _workContext);
+        model.ShippingStatus = _enumTranslationService.GetTranslationEnum(order.ShippingStatusId);
         if (order.ShippingStatusId != ShippingStatus.ShippingNotRequired)
         {
             model.IsShippable = true;
@@ -783,7 +784,7 @@ public class OrderViewModelService : IOrderViewModelService
                 orderItemModel.RecurringInfo = string.Format(
                     _translationService.GetResource("Admin.Orders.Products.RecurringPeriod"),
                     product.RecurringCycleLength,
-                    product.RecurringCyclePeriodId.GetTranslationEnum(_translationService, _workContext),
+                    _enumTranslationService.GetTranslationEnum(product.RecurringCyclePeriodId),
                     product.RecurringTotalCycles);
 
             //merchandise returns
@@ -809,8 +810,7 @@ public class OrderViewModelService : IOrderViewModelService
             OrderId = order.Id,
             OrderNumber = order.OrderNumber,
             //product types
-            AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false)
-                .ToList()
+            AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList()
         };
 
         model.AvailableProductTypes.Insert(0,

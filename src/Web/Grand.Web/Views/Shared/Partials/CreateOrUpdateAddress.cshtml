@@ -1,4 +1,5 @@
-﻿@model AddressModel
+﻿@inject IEnumTranslationService EnumTranslationService;
+@model AddressModel
 @{
     var prefix = ViewData.TemplateInfo.HtmlFieldPrefix;
 }
@@ -265,7 +266,7 @@
     {
         <div class="form-group col-sm-12 col-md-6">
             <label asp-for="AddressTypeId" class="col-form-label">@Loc["Address.Fields.AddressType"]:</label>
-            <select asp-for="AddressTypeId" asp-items="@AddressType.Any.ToSelectList(Context, false).ToList()" class="form-control custom-select"></select>
+            <select asp-for="AddressTypeId" asp-items="@EnumTranslationService.ToSelectList(AddressType.Any, false).ToList()" class="form-control custom-select"></select>
         </div>
     }
     @if (Model.CustomAddressAttributes.Any())

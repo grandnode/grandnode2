@@ -42,7 +42,7 @@
 {
     <script>
             @{
-                var areas = TranslationResourceArea.Common.ToSelectList(Context);
+                var areas = EnumTranslationService.ToSelectList(TranslationResourceArea.Common);
             }
             var allArea = [
                 @foreach (var method in areas)

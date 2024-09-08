@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using Grand.Api.Validators.Common;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
@@ -13,6 +14,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Web.Common.Localization;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
@@ -38,7 +40,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly ITaxService _taxService;
     private readonly ITranslationService _translationService;
-
+    private readonly IEnumTranslationService _enumTranslationService;
     public GetWishlistHandler(
         IPermissionService permissionService,
         IProductService productService,
@@ -52,7 +54,8 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
         LinkGenerator linkGenerator,
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings, 
+        IEnumTranslationService enumTranslationService)
     {
         _permissionService = permissionService;
         _productService = productService;
@@ -67,6 +70,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
         _shoppingCartSettings = shoppingCartSettings;
         _catalogSettings = catalogSettings;
         _mediaSettings = mediaSettings;
+        _enumTranslationService = enumTranslationService;
     }
 
     public async Task<WishlistModel> Handle(GetWishlist request, CancellationToken cancellationToken)
@@ -129,7 +133,7 @@ public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
                 cartItemModel.RecurringInfo = string.Format(
                     _translationService.GetResource("ShoppingCart.RecurringPeriod"),
                     product.RecurringCycleLength,
-                    product.RecurringCyclePeriodId.GetTranslationEnum(_translationService, request.Language.Id),
+                    _enumTranslationService.GetTranslationEnum(product.RecurringCyclePeriodId),
                     product.RecurringTotalCycles);
 
             //unit prices

@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Directory;
+﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -8,10 +7,10 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
@@ -21,11 +20,11 @@ public class CheckoutAttributeViewModelService(
     ICheckoutAttributeParser checkoutAttributeParser,
     ITranslationService translationService,
     ITaxCategoryService taxCategoryService,
-    IWorkContext workContext,
     ICurrencyService currencyService,
     CurrencySettings currencySettings,
     IMeasureService measureService,
-    MeasureSettings measureSettings)
+    MeasureSettings measureSettings,
+    IEnumTranslationService enumTranslationService)
     : ICheckoutAttributeViewModelService
 {
     public virtual async Task<IEnumerable<CheckoutAttributeModel>> PrepareCheckoutAttributeListModel()
@@ -34,8 +33,7 @@ public class CheckoutAttributeViewModelService(
         return checkoutAttributes.Select((Func<CheckoutAttribute, CheckoutAttributeModel>)(x =>
         {
             var attributeModel = x.ToModel();
-            attributeModel.AttributeControlTypeName =
-                x.AttributeControlTypeId.GetTranslationEnum(translationService, workContext);
+            attributeModel.AttributeControlTypeName = enumTranslationService.GetTranslationEnum(x.AttributeControlTypeId);
             return attributeModel;
         }));
     }

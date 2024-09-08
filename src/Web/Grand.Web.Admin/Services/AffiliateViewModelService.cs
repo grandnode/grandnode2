@@ -14,6 +14,7 @@ using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Affiliates;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
@@ -31,13 +32,13 @@ public class AffiliateViewModelService : IAffiliateViewModelService
     private readonly SeoSettings _seoSettings;
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
-
+    private readonly IEnumTranslationService _enumTranslationService;
     public AffiliateViewModelService(IWorkContext workContext, ICountryService countryService,
         IPriceFormatter priceFormatter, IAffiliateService affiliateService,
         ICustomerService customerService, IOrderService orderService, ITranslationService translationService,
         IDateTimeService dateTimeService,
         IOrderStatusService orderStatusService,
-        SeoSettings seoSettings, ICurrencyService currencyService)
+        SeoSettings seoSettings, ICurrencyService currencyService, IEnumTranslationService enumTranslationService)
     {
         _workContext = workContext;
         _countryService = countryService;
@@ -50,6 +51,7 @@ public class AffiliateViewModelService : IAffiliateViewModelService
         _orderStatusService = orderStatusService;
         _seoSettings = seoSettings;
         _currencyService = currencyService;
+        _enumTranslationService = enumTranslationService;
     }
 
     public virtual async Task PrepareAffiliateModel(AffiliateModel model, Affiliate affiliate, bool excludeProperties,
@@ -202,8 +204,8 @@ public class AffiliateViewModelService : IAffiliateViewModelService
                 OrderNumber = order.OrderNumber,
                 OrderCode = order.Code,
                 OrderStatus = statuses.FirstOrDefault(y => y.StatusId == order.OrderStatusId)?.Name,
-                PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, _workContext),
-                ShippingStatus = order.ShippingStatusId.GetTranslationEnum(_translationService, _workContext),
+                PaymentStatus = _enumTranslationService.GetTranslationEnum(order.PaymentStatusId),
+                ShippingStatus = _enumTranslationService.GetTranslationEnum(order.ShippingStatusId),
                 OrderTotal = _priceFormatter.FormatPrice(order.OrderTotal,
                     await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode)),
                 CreatedOn = _dateTimeService.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc)

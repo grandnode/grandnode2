@@ -12,6 +12,7 @@ using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -26,6 +27,7 @@ public class HasOneProductController : BaseAdminPluginController
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IWorkContext _workContext;
+    private readonly IEnumTranslationService _enumTranslationService;
 
     public HasOneProductController(IDiscountService discountService,
         IPermissionService permissionService,
@@ -33,7 +35,8 @@ public class HasOneProductController : BaseAdminPluginController
         ITranslationService translationService,
         IStoreService storeService,
         IVendorService vendorService,
-        IProductService productService)
+        IProductService productService, 
+        IEnumTranslationService enumTranslationService)
     {
         _discountService = discountService;
         _permissionService = permissionService;
@@ -42,6 +45,7 @@ public class HasOneProductController : BaseAdminPluginController
         _storeService = storeService;
         _vendorService = vendorService;
         _productService = productService;
+        _enumTranslationService = enumTranslationService;
     }
 
     public async Task<IActionResult> Configure(string discountId, string discountRequirementId)
@@ -134,7 +138,7 @@ public class HasOneProductController : BaseAdminPluginController
             model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
         //product types
-        model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList(HttpContext, false).ToList();
+        model.AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
 

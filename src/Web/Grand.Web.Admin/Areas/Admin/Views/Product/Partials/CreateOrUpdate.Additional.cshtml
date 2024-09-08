@@ -53,7 +53,7 @@
         <div class="form-group" id="pnlGiftVoucherType">
             <admin-label asp-for="GiftVoucherTypeId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="GiftVoucherTypeId" asp-items="((GiftVoucherType)Model.GiftVoucherTypeId).ToSelectList(Context)"/>
+                <admin-select asp-for="GiftVoucherTypeId" asp-items="EnumTranslationService.ToSelectList((GiftVoucherType)Model.GiftVoucherTypeId)"/>
                 <span asp-validation-for="GiftVoucherTypeId"></span>
             </div>
         </div>
@@ -113,7 +113,7 @@
         <div class="form-group" id="pnlDownloadActivationType">
             <admin-label asp-for="DownloadActivationTypeId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="DownloadActivationTypeId" asp-items="((DownloadActivationType)Model.DownloadActivationTypeId).ToSelectList(Context)"/>
+                <admin-select asp-for="DownloadActivationTypeId" asp-items="EnumTranslationService.ToSelectList((DownloadActivationType)Model.DownloadActivationTypeId)"/>
                 <span asp-validation-for="DownloadActivationTypeId"></span>
             </div>
         </div>
@@ -175,7 +175,7 @@
         <div class="form-group" id="pnlCyclePeriod">
             <admin-label asp-for="RecurringCyclePeriodId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="RecurringCyclePeriodId" asp-items="((RecurringCyclePeriod)Model.RecurringCyclePeriodId).ToSelectList(Context)"/>
+                <admin-select asp-for="RecurringCyclePeriodId" asp-items="EnumTranslationService.ToSelectList((RecurringCyclePeriod)Model.RecurringCyclePeriodId)"/>
                 <span asp-validation-for="RecurringCyclePeriodId"></span>
             </div>
         </div>

@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -11,7 +10,7 @@ using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -31,8 +30,8 @@ public class PaymentTransactionController : BaseAdminController
         IWorkContext workContext,
         IGroupService groupService,
         IDateTimeService dateTimeService,
-        IMediator mediator
-    )
+        IMediator mediator,
+        IEnumTranslationService enumTranslationService)
     {
         _translationService = translationService;
         _paymentTransactionService = paymentTransactionService;
@@ -41,6 +40,7 @@ public class PaymentTransactionController : BaseAdminController
         _groupService = groupService;
         _dateTimeService = dateTimeService;
         _mediator = mediator;
+        _enumTranslationService = enumTranslationService;
     }
 
     #endregion
@@ -54,7 +54,8 @@ public class PaymentTransactionController : BaseAdminController
     private readonly IGroupService _groupService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IMediator _mediator;
-
+    private readonly IEnumTranslationService _enumTranslationService;
+    
     #endregion Fields
 
     #region Methods
@@ -68,7 +69,7 @@ public class PaymentTransactionController : BaseAdminController
     public IActionResult List()
     {
         var model = new PaymentTransactionListModel {
-            PaymentTransactionStatus = TransactionStatus.Pending.ToSelectList(_translationService, _workContext, false)
+            PaymentTransactionStatus = _enumTranslationService.ToSelectList(TransactionStatus.Pending, false)
                 .ToList()
         };
         model.PaymentTransactionStatus.Insert(0,
@@ -129,7 +130,7 @@ public class PaymentTransactionController : BaseAdminController
                 OrderNumber = order?.OrderNumber,
                 CreatedOn = _dateTimeService.ConvertToUserTime(item.CreatedOnUtc, DateTimeKind.Utc),
                 TransactionStatus = item.TransactionStatus,
-                Status = item.TransactionStatus.GetTranslationEnum(_translationService, _workContext)
+                Status = _enumTranslationService.GetTranslationEnum(item.TransactionStatus)
             };
             dataModel.Add(trmodel);
         }
@@ -198,7 +199,7 @@ public class PaymentTransactionController : BaseAdminController
             OrderNumber = order?.OrderNumber,
             CreatedOn = _dateTimeService.ConvertToUserTime(paymentTransaction.CreatedOnUtc, DateTimeKind.Utc),
             TransactionStatus = paymentTransaction.TransactionStatus,
-            Status = paymentTransaction.TransactionStatus.GetTranslationEnum(_translationService, _workContext),
+            Status = _enumTranslationService.GetTranslationEnum(paymentTransaction.TransactionStatus),
             IPAddress = paymentTransaction.IPAddress,
             Description = paymentTransaction.Description,
             AdditionalInfo = paymentTransaction.AdditionalInfo,

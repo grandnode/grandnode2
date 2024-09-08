@@ -28,6 +28,7 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net;
 using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
@@ -70,7 +71,8 @@ public class ProductViewModelService(
     SeoSettings seoSettings,
     IAuctionService auctionService,
     IPriceFormatter priceFormatter,
-    ISeNameService seNameService)
+    ISeNameService seNameService,
+    IEnumTranslationService enumTranslationService)
     : IProductViewModelService
 {
     public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
@@ -539,8 +541,7 @@ public class ProductViewModelService(
             model.AvailableWarehouses.Add(new SelectListItem { Text = wh.Name, Value = wh.Id });
 
         //product types
-        model.AvailableProductTypes =
-            ProductType.SimpleProduct.ToSelectList(translationService, workContext, false).ToList();
+        model.AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "0" });
 
@@ -635,7 +636,7 @@ public class ProductViewModelService(
             var defaultProductPicture = x.ProductPictures.FirstOrDefault() ?? new ProductPicture();
             productModel.PictureThumbnailUrl = await pictureService.GetPictureUrl(defaultProductPicture.PictureId, 100);
             //product type
-            productModel.ProductTypeName = x.ProductTypeId.GetTranslationEnum(translationService, workContext);
+            productModel.ProductTypeName = enumTranslationService.GetTranslationEnum(x.ProductTypeId);
             //friendly stock quantity
             //if a simple product AND "manage inventory" is "Track inventory", then display
             if (x.ProductTypeId == ProductType.SimpleProduct &&
@@ -1230,11 +1231,10 @@ public class ProductViewModelService(
     {
         var model = new BulkEditListModel();
 
-        var storeId = string.Empty;
+        string storeId;
 
         //product types
-        model.AvailableProductTypes =
-            ProductType.SimpleProduct.ToSelectList(translationService, workContext, false).ToList();
+        model.AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "0" });
 
@@ -1288,8 +1288,7 @@ public class ProductViewModelService(
                 OldPrice = x.OldPrice,
                 Price = x.Price,
                 ManageInventoryMethodId = (int)x.ManageInventoryMethodId,
-                ManageInventoryMethod =
-                    x.ManageInventoryMethodId.GetTranslationEnum(translationService, workContext.WorkingLanguage.Id),
+                ManageInventoryMethod = enumTranslationService.GetTranslationEnum(x.ManageInventoryMethodId),
                 StockQuantity = x.StockQuantity,
                 Published = x.Published
             };
@@ -1470,7 +1469,7 @@ public class ProductViewModelService(
                 TextPrompt = x.TextPrompt,
                 IsRequired = x.IsRequired,
                 ShowOnCatalogPage = x.ShowOnCatalogPage,
-                AttributeControlType = x.AttributeControlTypeId.GetTranslationEnum(translationService, workContext),
+                AttributeControlType = enumTranslationService.GetTranslationEnum(x.AttributeControlTypeId),
                 AttributeControlTypeId = x.AttributeControlTypeId,
                 DisplayOrder = x.DisplayOrder,
                 Combination = x.Combination
@@ -1823,7 +1822,7 @@ public class ProductViewModelService(
                 Id = x.Id,
                 ProductAttributeMappingId = productAttributeMapping.Id, //TODO - check x.ProductAttributeMappingId,
                 AttributeValueTypeId = x.AttributeValueTypeId,
-                AttributeValueTypeName = x.AttributeValueTypeId.GetTranslationEnum(translationService, workContext),
+                AttributeValueTypeName = enumTranslationService.GetTranslationEnum(x.AttributeValueTypeId),
                 AssociatedProductId = x.AssociatedProductId,
                 AssociatedProductName = associatedProduct != null ? associatedProduct.Name : "",
                 Name = productAttributeMapping.AttributeControlTypeId != AttributeControlType.ColorSquares
@@ -1860,7 +1859,7 @@ public class ProductViewModelService(
         var model = new ProductModel.ProductAttributeValueModel {
             ProductAttributeMappingId = pa.Id, //TODO - check pav.ProductAttributeMappingId,
             AttributeValueTypeId = pav.AttributeValueTypeId,
-            AttributeValueTypeName = pav.AttributeValueTypeId.GetTranslationEnum(translationService, workContext),
+            AttributeValueTypeName = enumTranslationService.GetTranslationEnum(pav.AttributeValueTypeId),
             AssociatedProductId = pav.AssociatedProductId,
             AssociatedProductName = associatedProduct != null ? associatedProduct.Name : "",
             Name = pav.Name,
@@ -2450,7 +2449,7 @@ public class ProductViewModelService(
                 AttributeTypeId = (int)x.AttributeTypeId,
                 AttributeId = x.SpecificationAttributeId,
                 ProductId = product.Id,
-                AttributeTypeName = x.AttributeTypeId.GetTranslationEnum(translationService, workContext),
+                AttributeTypeName = enumTranslationService.GetTranslationEnum(x.AttributeTypeId),
                 AllowFiltering = x.AllowFiltering,
                 ShowOnProductPage = x.ShowOnProductPage,
                 DisplayOrder = x.DisplayOrder,
@@ -2627,8 +2626,7 @@ public class ProductViewModelService(
             model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
         //product types
-        model.AvailableProductTypes =
-            ProductType.SimpleProduct.ToSelectList(translationService, workContext, false).ToList();
+        model.AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "0" });
 

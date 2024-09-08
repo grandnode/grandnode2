@@ -11,6 +11,7 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
@@ -27,6 +28,7 @@ public class BrandViewModelService : IBrandViewModelService
     private readonly IDateTimeService _dateTimeService;
     private readonly IWorkContext _workContext;
     private readonly ISeNameService _seNameService;
+    private readonly IEnumTranslationService _enumTranslationService;
     
     #endregion
 
@@ -39,7 +41,8 @@ public class BrandViewModelService : IBrandViewModelService
         IDiscountService discountService,
         IDateTimeService dateTimeService,
         IWorkContext workContext,
-        ISeNameService seNameService)
+        ISeNameService seNameService, 
+        IEnumTranslationService enumTranslationService)
     {
         _brandLayoutService = brandLayoutService;
         _brandService = brandService;
@@ -48,6 +51,7 @@ public class BrandViewModelService : IBrandViewModelService
         _dateTimeService = dateTimeService;
         _workContext = workContext;
         _seNameService = seNameService;
+        _enumTranslationService = enumTranslationService;
     }
 
     #endregion
@@ -56,7 +60,7 @@ public class BrandViewModelService : IBrandViewModelService
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        model.AvailableSortOptions = ProductSortingEnum.Position.ToSelectList().ToList();
+        model.AvailableSortOptions = _enumTranslationService.ToSelectList(ProductSortingEnum.Position).ToList();
         model.AvailableSortOptions.Insert(0, new SelectListItem { Text = "None", Value = "-1" });
     }
 

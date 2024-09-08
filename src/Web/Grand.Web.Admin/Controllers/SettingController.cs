@@ -23,7 +23,6 @@ using Grand.Domain.Security;
 using Grand.Domain.Seo;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
@@ -32,6 +31,7 @@ using Grand.Web.Admin.Models.Settings;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Themes;
@@ -49,22 +49,14 @@ public class SettingController(
     IPictureService pictureService,
     ITranslationService translationService,
     IDateTimeService dateTimeService,
-    IWorkContext workContext,
     IMediator mediator,
     IMerchandiseReturnService merchandiseReturnService,
     ILanguageService languageService,
     IOrderStatusService orderStatusService,
-    ICacheBase cacheBase)
+    ICacheBase cacheBase,
+    IEnumTranslationService enumTranslationService)
     : BaseAdminController
 {
-    #region Fields
-
-    #endregion
-
-    #region Constructors
-
-    #endregion
-
     #region Utilities
 
     protected async Task ClearCache()
@@ -189,7 +181,7 @@ public class SettingController(
         foreach (int option in Enum.GetValues(typeof(ProductSortingEnum)))
             model.Add(new SortOptionModel {
                 Id = option,
-                Name = ((ProductSortingEnum)option).GetTranslationEnum(translationService, workContext),
+                Name = enumTranslationService.GetTranslationEnum((ProductSortingEnum)option),
                 IsActive = !catalogSettings.ProductSortingEnumDisabled.Contains(option),
                 DisplayOrder = catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(option, out var value)
                     ? value
@@ -658,8 +650,7 @@ public class SettingController(
                     model.SecuritySettings.AdminAreaAllowedIpAddresses += ",";
             }
 
-        model.SecuritySettings.AvailableReCaptchaVersions =
-            GoogleReCaptchaVersion.V2.ToSelectList(HttpContext, false).ToList();
+        model.SecuritySettings.AvailableReCaptchaVersions = enumTranslationService.ToSelectList(GoogleReCaptchaVersion.V2, false).ToList();
 
         //PDF settings
         var pdfSettings = settingService.LoadSetting<PdfSettings>(storeScope);

@@ -36,7 +36,7 @@
                 <admin-label asp-for="CustomerSettings.TwoFactorAuthenticationType" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-select asp-for="CustomerSettings.TwoFactorAuthenticationType" asp-items="((TwoFactorAuthenticationType)Model.CustomerSettings.TwoFactorAuthenticationType).ToSelectList(Context)"/>
+                <admin-select asp-for="CustomerSettings.TwoFactorAuthenticationType" asp-items="EnumTranslationService.ToSelectList((TwoFactorAuthenticationType)Model.CustomerSettings.TwoFactorAuthenticationType)"/>
                 <span asp-validation-for="CustomerSettings.TwoFactorAuthenticationType"></span>
             </div>
         </div>
@@ -45,7 +45,7 @@
                 <admin-label asp-for="CustomerSettings.DefaultPasswordFormat" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-select asp-for="CustomerSettings.DefaultPasswordFormat" asp-items="((PasswordFormat)Model.CustomerSettings.DefaultPasswordFormat).ToSelectList(Context)"/>
+                <admin-select asp-for="CustomerSettings.DefaultPasswordFormat" asp-items="EnumTranslationService.ToSelectList((PasswordFormat)Model.CustomerSettings.DefaultPasswordFormat)"/>
                 <span asp-validation-for="CustomerSettings.DefaultPasswordFormat"></span>
             </div>
         </div>
@@ -54,7 +54,7 @@
                 <admin-label asp-for="CustomerSettings.HashedPasswordFormat" class="control-label"/>
             </div>
             <div class="col-4 col-md-8 col-sm-8">
-                <admin-select asp-for="CustomerSettings.HashedPasswordFormat" asp-items="Model.CustomerSettings.HashedPasswordFormat.ToSelectList(Context)"/>
+                <admin-select asp-for="CustomerSettings.HashedPasswordFormat" asp-items="EnumTranslationService.ToSelectList(Model.CustomerSettings.HashedPasswordFormat)"/>
                 <span asp-validation-for="CustomerSettings.HashedPasswordFormat"></span>
             </div>
         </div>

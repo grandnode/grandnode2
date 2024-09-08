@@ -110,6 +110,7 @@ public class StartupApplication : IStartupApplication
 
         serviceCollection.AddScoped<IValidatorFactory, ValidatorFactory>();
 
+        serviceCollection.AddScoped<IEnumTranslationService, EnumTranslationService>();
         if (DataSettingsManager.DatabaseIsInstalled())
         {
             serviceCollection.AddScoped<LocService>();

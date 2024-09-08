@@ -108,8 +108,7 @@
             <admin-label asp-for="AttributeControlTypeId"/>
             <div class="col-md-9 col-sm-9">
                 @{
-                    var attributeControlTypes = ((AttributeControlType)Model.AttributeControlTypeId).ToSelectList(Context, valuesToExclude:
-                        [(int)AttributeControlType.ImageSquares, (int)AttributeControlType.Hidden]);
+                    var attributeControlTypes = EnumTranslationService.ToSelectList(((AttributeControlType)Model.AttributeControlTypeId), valuesToExclude: [(int)AttributeControlType.ImageSquares, (int)AttributeControlType.Hidden]);
                 }
                 <admin-select asp-for="AttributeControlTypeId" asp-items="attributeControlTypes"/>
                 <span asp-validation-for="AttributeControlTypeId"></span>

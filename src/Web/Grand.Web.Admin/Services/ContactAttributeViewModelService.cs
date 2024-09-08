@@ -1,6 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Marketing.Contacts;
+﻿using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Messages;
@@ -8,6 +6,7 @@ using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Messages;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
@@ -15,8 +14,8 @@ namespace Grand.Web.Admin.Services;
 public class ContactAttributeViewModelService(
     IContactAttributeService contactAttributeService,
     IContactAttributeParser contactAttributeParser,
-    ITranslationService translationService,
-    IWorkContext workContext)
+    IWorkContext workContext,
+    IEnumTranslationService enumTranslationService)
     : IContactAttributeViewModelService
 {
     public virtual async Task<IEnumerable<ContactAttributeModel>> PrepareContactAttributeListModel()
@@ -26,8 +25,7 @@ public class ContactAttributeViewModelService(
         return contactAttributes.Select(x =>
         {
             var attributeModel = x.ToModel();
-            attributeModel.AttributeControlTypeName =
-                x.AttributeControlType.GetTranslationEnum(translationService, workContext);
+            attributeModel.AttributeControlTypeName = enumTranslationService.GetTranslationEnum(x.AttributeControlType);
             return attributeModel;
         });
     }

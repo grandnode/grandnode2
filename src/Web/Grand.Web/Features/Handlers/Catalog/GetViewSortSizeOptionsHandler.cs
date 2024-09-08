@@ -1,7 +1,7 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Extensions;
+using Grand.Web.Common.Localization;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using MediatR;
@@ -17,13 +17,14 @@ public class GetViewSortSizeOptionsHandler : IRequestHandler<GetViewSortSizeOpti
     private readonly CatalogSettings _catalogSettings;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ITranslationService _translationService;
-
+    private readonly IEnumTranslationService _enumTranslationService;
     public GetViewSortSizeOptionsHandler(ITranslationService translationService, CatalogSettings catalogSettings,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor, IEnumTranslationService enumTranslationService)
     {
         _translationService = translationService;
         _catalogSettings = catalogSettings;
         _httpContextAccessor = httpContextAccessor;
+        _enumTranslationService = enumTranslationService;
     }
 
     public async Task<(CatalogPagingFilteringModel pagingFilteringModel, CatalogPagingFilteringModel command)>
@@ -63,8 +64,7 @@ public class GetViewSortSizeOptionsHandler : IRequestHandler<GetViewSortSizeOpti
             var currentPageUrl = _httpContextAccessor.HttpContext?.Request.GetDisplayUrl();
             var sortUrl = CommonExtensions.ModifyQueryString(currentPageUrl, "orderby", option.Key.ToString());
 
-            var sortValue =
-                ((ProductSortingEnum)option.Key).GetTranslationEnum(_translationService, request.Language.Id);
+            var sortValue = _enumTranslationService.GetTranslationEnum((ProductSortingEnum)option.Key);
             request.PagingFilteringModel.AvailableSortOptions.Add(new SelectListItem {
                 Text = sortValue,
                 Value = sortUrl,

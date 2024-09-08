@@ -1,7 +1,6 @@
 ﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, Grand.Web.Common
 @addTagHelper *, Grand.Web.Admin
-@addTagHelper *, Grand.Web
 
 @using System.Globalization
 @using Microsoft.AspNetCore.Http.Extensions
@@ -57,3 +56,4 @@
 @using Grand.Web.Admin.Models.Permissions
 @using Grand.Web.Common.Localization
 @inject LocService Loc
+@inject IEnumTranslationService EnumTranslationService

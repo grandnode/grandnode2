@@ -65,7 +65,7 @@
         <div class="form-group">
             <admin-label asp-for="SecureSocketOptionsId"/>
             <div class="col-md-9 col-sm-9">
-                <admin-select asp-for="SecureSocketOptionsId" asp-items="((SecureSocketOptions)Model.SecureSocketOptionsId).ToSelectList(Context)"/>
+                <admin-select asp-for="SecureSocketOptionsId" asp-items="EnumTranslationService.ToSelectList((SecureSocketOptions)Model.SecureSocketOptionsId)"/>
             </div>
         </div>
         @if (!string.IsNullOrEmpty(Model.Id))

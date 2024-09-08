@@ -16,14 +16,13 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Common;
 using Grand.Web.Admin.Models.Orders;
-using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
 
 public class MerchandiseReturnViewModelService(
     IOrderService orderService,
-    IWorkContext workContext,
     IProductService productService,
     ICustomerService customerService,
     IDateTimeService dateTimeService,
@@ -37,7 +36,8 @@ public class MerchandiseReturnViewModelService(
     IAddressAttributeService addressAttributeService,
     IAddressAttributeParser addressAttributeParser,
     IDownloadService downloadService,
-    OrderSettings orderSettings)
+    OrderSettings orderSettings,
+    IEnumTranslationService enumTranslationService)
     : IMerchandiseReturnViewModelService
 {
     public virtual async Task<MerchandiseReturnModel> PrepareMerchandiseReturnModel(MerchandiseReturnModel model,
@@ -195,8 +195,7 @@ public class MerchandiseReturnViewModelService(
     {
         var model = new MerchandiseReturnListModel {
             //Merchandise return status
-            MerchandiseReturnStatus = MerchandiseReturnStatus.Pending
-                .ToSelectList(translationService, workContext, false).ToList()
+            MerchandiseReturnStatus = enumTranslationService.ToSelectList(MerchandiseReturnStatus.Pending, false).ToList()
         };
         model.MerchandiseReturnStatus.Insert(0,
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "-1" });

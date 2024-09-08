@@ -37,14 +37,14 @@
             <div class="form-group">
                 <admin-label asp-for="CustomerHasOrders"/>
                 <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="CustomerHasOrders" asp-items="((CampaignCondition)Model.CustomerHasOrders).ToSelectList(Context)"/>
+                    <admin-select asp-for="CustomerHasOrders" asp-items="EnumTranslationService.ToSelectList((CampaignCondition)Model.CustomerHasOrders)"/>
                     <span asp-validation-for="CustomerHasOrders"></span>
                 </div>
             </div>
             <div class="form-group">
                 <admin-label asp-for="CustomerHasShoppingCart"/>
                 <div class="col-md-9 col-sm-9">
-                    <admin-select asp-for="CustomerHasShoppingCart" asp-items="((CampaignCondition)Model.CustomerHasShoppingCart).ToSelectList(Context)"/>
+                    <admin-select asp-for="CustomerHasShoppingCart" asp-items="EnumTranslationService.ToSelectList((CampaignCondition)Model.CustomerHasShoppingCart)"/>
                     <span asp-validation-for="CustomerHasShoppingCart"></span>
                 </div>
             </div>

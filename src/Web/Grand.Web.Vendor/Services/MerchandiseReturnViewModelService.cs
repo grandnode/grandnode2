@@ -12,6 +12,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Interfaces;
 using Grand.Web.Vendor.Models.Common;
@@ -22,6 +23,28 @@ namespace Grand.Web.Vendor.Services;
 
 public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelService
 {
+
+    #region Fields
+
+    private readonly IOrderService _orderService;
+    private readonly IWorkContext _workContext;
+    private readonly IProductService _productService;
+    private readonly IDateTimeService _dateTimeService;
+    private readonly ICustomerService _customerService;
+    private readonly ITranslationService _translationService;
+    private readonly IMessageProviderService _messageProviderService;
+    private readonly LanguageSettings _languageSettings;
+    private readonly IMerchandiseReturnService _merchandiseReturnService;
+    private readonly IPriceFormatter _priceFormatter;
+    private readonly AddressSettings _addressSettings;
+    private readonly OrderSettings _orderSettings;
+    private readonly ICountryService _countryService;
+    private readonly IAddressAttributeService _addressAttributeService;
+    private readonly IAddressAttributeParser _addressAttributeParser;
+    private readonly IEnumTranslationService _enumTranslationService;
+
+    #endregion Fields
+
     #region Constructors
 
     public MerchandiseReturnViewModelService(
@@ -39,7 +62,8 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
         ICountryService countryService,
         IAddressAttributeService addressAttributeService,
         IAddressAttributeParser addressAttributeParser,
-        OrderSettings orderSettings)
+        OrderSettings orderSettings, 
+        IEnumTranslationService enumTranslationService)
     {
         _orderService = orderService;
         _workContext = workContext;
@@ -56,6 +80,7 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
         _addressAttributeService = addressAttributeService;
         _addressAttributeParser = addressAttributeParser;
         _orderSettings = orderSettings;
+        _enumTranslationService = enumTranslationService;
     }
 
     #endregion
@@ -151,8 +176,7 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
     {
         var model = new MerchandiseReturnListModel {
             //Merchandise return status
-            MerchandiseReturnStatus = MerchandiseReturnStatus.Pending
-                .ToSelectList(_translationService, _workContext, false).ToList()
+            MerchandiseReturnStatus = _enumTranslationService.ToSelectList(MerchandiseReturnStatus.Pending, false).ToList()
         };
         model.MerchandiseReturnStatus.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "-1" });
@@ -325,24 +349,4 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
         await _messageProviderService.SendMerchandiseReturnStatusChangedCustomerMessage(merchandiseReturn, order,
             _languageSettings.DefaultAdminLanguageId);
     }
-
-    #region Fields
-
-    private readonly IOrderService _orderService;
-    private readonly IWorkContext _workContext;
-    private readonly IProductService _productService;
-    private readonly IDateTimeService _dateTimeService;
-    private readonly ICustomerService _customerService;
-    private readonly ITranslationService _translationService;
-    private readonly IMessageProviderService _messageProviderService;
-    private readonly LanguageSettings _languageSettings;
-    private readonly IMerchandiseReturnService _merchandiseReturnService;
-    private readonly IPriceFormatter _priceFormatter;
-    private readonly AddressSettings _addressSettings;
-    private readonly OrderSettings _orderSettings;
-    private readonly ICountryService _countryService;
-    private readonly IAddressAttributeService _addressAttributeService;
-    private readonly IAddressAttributeParser _addressAttributeParser;
-
-    #endregion Fields
 }

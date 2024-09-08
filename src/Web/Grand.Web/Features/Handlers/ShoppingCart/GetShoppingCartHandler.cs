@@ -19,6 +19,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Web.Common.Localization;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
@@ -58,7 +59,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IWarehouseService _warehouseService;
-
+    private readonly IEnumTranslationService _enumTranslationService;
     public GetShoppingCartHandler(
         IProductService productService,
         IPictureService pictureService,
@@ -86,7 +87,8 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         OrderSettings orderSettings,
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings,
-        CommonSettings commonSettings)
+        CommonSettings commonSettings, 
+        IEnumTranslationService enumTranslationService)
     {
         _productService = productService;
         _pictureService = pictureService;
@@ -115,6 +117,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         _shoppingCartSettings = shoppingCartSettings;
         _catalogSettings = catalogSettings;
         _commonSettings = commonSettings;
+        _enumTranslationService = enumTranslationService;
     }
 
     public async Task<ShoppingCartModel> Handle(GetShoppingCart request, CancellationToken cancellationToken)
@@ -385,7 +388,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                 cartItemModel.RecurringInfo = string.Format(
                     _translationService.GetResource("ShoppingCart.RecurringPeriod"),
                     product.RecurringCycleLength,
-                    product.RecurringCyclePeriodId.GetTranslationEnum(_translationService, request.Language.Id),
+                    _enumTranslationService.GetTranslationEnum(product.RecurringCyclePeriodId),
                     product.RecurringTotalCycles);
 
             //reservation info

@@ -13,6 +13,7 @@ using Grand.Infrastructure;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Interfaces;
@@ -39,7 +40,8 @@ public class ProductController : BaseVendorController
         IProductReservationService productReservationService,
         IAuctionService auctionService,
         IDateTimeService dateTimeService,
-        IPermissionService permissionService)
+        IPermissionService permissionService, 
+        IEnumTranslationService enumTranslationService)
     {
         _productViewModelService = productViewModelService;
         _productService = productService;
@@ -51,6 +53,7 @@ public class ProductController : BaseVendorController
         _auctionService = auctionService;
         _dateTimeService = dateTimeService;
         _permissionService = permissionService;
+        _enumTranslationService = enumTranslationService;
     }
 
     #endregion
@@ -67,6 +70,7 @@ public class ProductController : BaseVendorController
     private readonly IAuctionService _auctionService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IPermissionService _permissionService;
+    private readonly IEnumTranslationService _enumTranslationService;
 
     #endregion
 
@@ -2472,9 +2476,7 @@ public class ProductController : BaseVendorController
                             ProductId = model.ProductId,
                             Resource = model.Resource,
                             Parameter = model.Parameter,
-                            Duration = model.Interval + " " +
-                                       ((IntervalUnit)model.IntervalUnit).GetTranslationEnum(_translationService,
-                                           _workContext)
+                            Duration = model.Interval + " " + _enumTranslationService.GetTranslationEnum((IntervalUnit)model.IntervalUnit)
                         });
                     }
                 }

@@ -1,27 +1,22 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Customers;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Services;
 
 public class CustomerAttributeViewModelService : ICustomerAttributeViewModelService
 {
     private readonly ICustomerAttributeService _customerAttributeService;
-    private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IEnumTranslationService _enumTranslationService;
 
     public CustomerAttributeViewModelService(ICustomerAttributeService customerAttributeService,
-        ITranslationService translationService,
-        IWorkContext workContext)
+        IEnumTranslationService enumTranslationService)
     {
         _customerAttributeService = customerAttributeService;
-        _translationService = translationService;
-        _workContext = workContext;
+        _enumTranslationService = enumTranslationService;
     }
 
     public virtual async Task<CustomerAttribute> InsertCustomerAttributeModel(CustomerAttributeModel model)
@@ -61,8 +56,7 @@ public class CustomerAttributeViewModelService : ICustomerAttributeViewModelServ
         return customerAttributes.Select((Func<CustomerAttribute, CustomerAttributeModel>)(x =>
         {
             var attributeModel = x.ToModel();
-            attributeModel.AttributeControlTypeName =
-                x.AttributeControlTypeId.GetTranslationEnum(_translationService, _workContext);
+            attributeModel.AttributeControlTypeName = _enumTranslationService.GetTranslationEnum(x.AttributeControlTypeId);
             return attributeModel;
         }));
     }

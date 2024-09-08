@@ -5,7 +5,7 @@
 @{
     //page title
     ViewBag.Title = Loc["Admin.Documents.Document.Manage"];
-    var selectedList = DocumentStatus.Open.ToSelectList(Context, false).ToList();
+    var selectedList = EnumTranslationService.ToSelectList(DocumentStatus.Open, false).ToList();
     selectedList.Insert(0, new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "-1", Selected = true });
 }
 

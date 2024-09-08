@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -11,6 +10,7 @@ using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Vendor.Models.Report;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +35,7 @@ public class ReportsController : BaseVendorController
     private readonly IStockQuantityService _stockQuantityService;
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
-
+    private readonly IEnumTranslationService _enumTranslationService;
     public ReportsController(IOrderReportService orderReportService,
         IProductsReportService productsReportService,
         ICustomerReportService customerReportService,
@@ -49,7 +49,8 @@ public class ReportsController : BaseVendorController
         IDateTimeService dateTimeService,
         IOrderStatusService orderStatusService,
         ICurrencyService currencyService,
-        ICustomerService customerService)
+        ICustomerService customerService, 
+        IEnumTranslationService enumTranslationService)
     {
         _orderReportService = orderReportService;
         _productsReportService = productsReportService;
@@ -65,6 +66,7 @@ public class ReportsController : BaseVendorController
         _orderStatusService = orderStatusService;
         _currencyService = currencyService;
         _customerService = customerService;
+        _enumTranslationService = enumTranslationService;
     }
 
     [NonAction]
@@ -121,7 +123,7 @@ public class ReportsController : BaseVendorController
     {
         var model = new BestsellersReportModel {
             //payment statuses
-            AvailablePaymentStatuses = PaymentStatus.Pending.ToSelectList(HttpContext, false).ToList()
+            AvailablePaymentStatuses = _enumTranslationService.ToSelectList(PaymentStatus.Pending, false).ToList()
         };
         model.AvailablePaymentStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Vendor.Common.All"), Value = "" });
@@ -228,7 +230,7 @@ public class ReportsController : BaseVendorController
     {
         var model = new CountryReportModel {
             //payment statuses
-            AvailablePaymentStatuses = PaymentStatus.Pending.ToSelectList(HttpContext, false).ToList()
+            AvailablePaymentStatuses = _enumTranslationService.ToSelectList(PaymentStatus.Pending, false).ToList()
         };
 
         model.AvailablePaymentStatuses.Insert(0,
@@ -294,9 +296,7 @@ public class ReportsController : BaseVendorController
             var lowStockModel = new LowStockProductModel {
                 Id = product.Id,
                 Name = product.Name,
-                ManageInventoryMethod =
-                    product.ManageInventoryMethodId.GetTranslationEnum(_translationService,
-                        _workContext.WorkingLanguage.Id),
+                ManageInventoryMethod = _enumTranslationService.GetTranslationEnum(product.ManageInventoryMethodId),
                 StockQuantity = _stockQuantityService.GetTotalStockQuantity(product, total: true),
                 Published = product.Published
             };
@@ -312,9 +312,7 @@ public class ReportsController : BaseVendorController
                 Name = product.Name,
                 Attributes = await _productAttributeFormatter.FormatAttributes(product, combination.Attributes,
                     _workContext.CurrentCustomer, "<br />", true, true, true, false),
-                ManageInventoryMethod =
-                    product.ManageInventoryMethodId.GetTranslationEnum(_translationService,
-                        _workContext.WorkingLanguage.Id),
+                ManageInventoryMethod = _enumTranslationService.GetTranslationEnum(product.ManageInventoryMethodId),
                 StockQuantity = combination.StockQuantity,
                 Published = product.Published
             };
@@ -338,8 +336,7 @@ public class ReportsController : BaseVendorController
         var model = new CustomerReportsModel();
         var status = await _orderStatusService.GetAll();
 
-        model.AvailablePaymentStatuses =
-            PaymentStatus.Pending.ToSelectList(_translationService, _workContext, false).ToList();
+        model.AvailablePaymentStatuses = _enumTranslationService.ToSelectList(PaymentStatus.Pending, false).ToList();
         model.AvailablePaymentStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Vendor.Common.All"), Value = "" });
 

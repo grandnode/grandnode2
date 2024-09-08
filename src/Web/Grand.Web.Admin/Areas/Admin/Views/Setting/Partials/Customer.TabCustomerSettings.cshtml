@@ -26,7 +26,7 @@
             <admin-label asp-for="CustomerSettings.UserRegistrationType" class="control-label"/>
         </div>
         <div class="col-6 col-md-6 col-sm-6">
-            <admin-select asp-for="CustomerSettings.UserRegistrationType" asp-items="((UserRegistrationType)Model.CustomerSettings.UserRegistrationType).ToSelectList(Context)"/>
+            <admin-select asp-for="CustomerSettings.UserRegistrationType" asp-items="EnumTranslationService.ToSelectList((UserRegistrationType)Model.CustomerSettings.UserRegistrationType)"/>
             <span asp-validation-for="CustomerSettings.UserRegistrationType"></span>
         </div>
     </div>
@@ -217,7 +217,7 @@
             <admin-label asp-for="CustomerSettings.CustomerNameFormat" class="control-label"/>
         </div>
         <div class="col-6 col-md-6 col-sm-6">
-            <admin-select asp-for="CustomerSettings.CustomerNameFormat" asp-items="((CustomerNameFormat)Model.CustomerSettings.CustomerNameFormat).ToSelectList(Context)"/>
+            <admin-select asp-for="CustomerSettings.CustomerNameFormat" asp-items="EnumTranslationService.ToSelectList((CustomerNameFormat)Model.CustomerSettings.CustomerNameFormat)"/>
             <span asp-validation-for="CustomerSettings.CustomerNameFormat"></span>
         </div>
     </div>

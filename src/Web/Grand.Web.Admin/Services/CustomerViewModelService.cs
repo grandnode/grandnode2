@@ -31,6 +31,7 @@ using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Admin.Models.Messages;
 using Grand.Web.Admin.Models.ShoppingCart;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -69,7 +70,8 @@ public class CustomerViewModelService : ICustomerViewModelService
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly IWorkContext _workContext;
-
+    private readonly IEnumTranslationService _enumTranslationService;
+    
     public CustomerViewModelService(
         ICustomerService customerService,
         IGroupService groupService,
@@ -97,7 +99,8 @@ public class CustomerViewModelService : ICustomerViewModelService
         TaxSettings taxSettings,
         LoyaltyPointsSettings loyaltyPointsSettings,
         AddressSettings addressSettings,
-        CommonSettings commonSettings)
+        CommonSettings commonSettings, 
+        IEnumTranslationService enumTranslationService)
     {
         _customerService = customerService;
         _groupService = groupService;
@@ -111,6 +114,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         _countryService = countryService;
         _customerSettings = customerSettings;
         _commonSettings = commonSettings;
+        _enumTranslationService = enumTranslationService;
         _workContext = workContext;
         _vendorService = vendorService;
         _addressSettings = addressSettings;
@@ -212,9 +216,7 @@ public class CustomerViewModelService : ICustomerViewModelService
                 }
 
                 model.VatNumber = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.VatNumber);
-                model.VatNumberStatusNote =
-                    ((VatNumberStatus)customer.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.VatNumberStatusId))
-                    .GetTranslationEnum(_translationService, _workContext);
+                model.VatNumberStatusNote = _enumTranslationService.GetTranslationEnum((VatNumberStatus)customer.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.VatNumberStatusId));
                 model.CreatedOn = _dateTimeService.ConvertToUserTime(customer.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate =
                     _dateTimeService.ConvertToUserTime(customer.LastActivityDateUtc, DateTimeKind.Utc);
@@ -958,10 +960,8 @@ public class CustomerViewModelService : ICustomerViewModelService
             model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
         //product types
-        model.AvailableProductTypes =
-            ProductType.SimpleProduct.ToSelectList(_translationService, _workContext, false).ToList();
-        model.AvailableProductTypes.Insert(0,
-            new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
+        model.AvailableProductTypes.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
 
         return model;
     }

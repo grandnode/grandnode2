@@ -10,6 +10,7 @@ using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
@@ -21,19 +22,22 @@ public class CustomerTagViewModelService : ICustomerTagViewModelService
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
+    private readonly IEnumTranslationService _enumTranslationService;
 
     public CustomerTagViewModelService(
         ITranslationService translationService,
         IProductService productService,
         IStoreService storeService,
         IVendorService vendorService,
-        ICustomerTagService customerTagService)
+        ICustomerTagService customerTagService, 
+        IEnumTranslationService enumTranslationService)
     {
         _translationService = translationService;
         _productService = productService;
         _storeService = storeService;
         _vendorService = vendorService;
         _customerTagService = customerTagService;
+        _enumTranslationService = enumTranslationService;
     }
 
     public virtual CustomerModel PrepareCustomerModelForList(Customer customer)
@@ -93,7 +97,7 @@ public class CustomerTagViewModelService : ICustomerTagViewModelService
             model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
         //product types
-        model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList().ToList();
+        model.AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct).ToList();
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
         return model;

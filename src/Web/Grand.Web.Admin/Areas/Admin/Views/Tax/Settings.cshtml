@@ -349,7 +349,7 @@
         <admin-label asp-for="MidpointRounding" class="control-label"/>
     </div>
     <div class="col-4 col-md-8 col-sm-8">
-        <admin-select asp-for="MidpointRounding" asp-items="MidpointRounding.ToEven.ToSelectList(Context)"/>
+        <admin-select asp-for="MidpointRounding" asp-items="EnumTranslationService.ToSelectList(MidpointRounding.ToEven)"/>
         <span asp-validation-for="MidpointRounding"></span>
     </div>
 </div>

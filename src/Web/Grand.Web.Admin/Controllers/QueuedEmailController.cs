@@ -1,16 +1,15 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain;
 using Grand.Domain.Messages;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Messages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,19 +22,19 @@ public class QueuedEmailController : BaseAdminController
     private readonly IEmailAccountService _emailAccountService;
     private readonly IQueuedEmailService _queuedEmailService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
-
+    private readonly IEnumTranslationService _enumTranslationService;
+    
     public QueuedEmailController(IQueuedEmailService queuedEmailService,
         IEmailAccountService emailAccountService,
         IDateTimeService dateTimeService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IEnumTranslationService enumTranslationService)
     {
         _queuedEmailService = queuedEmailService;
         _emailAccountService = emailAccountService;
         _dateTimeService = dateTimeService;
         _translationService = translationService;
-        _workContext = workContext;
+        _enumTranslationService = enumTranslationService;
     }
 
     private DataSourceResult PrepareDataSource(IPagedList<QueuedEmail> queuedEmails)
@@ -44,7 +43,7 @@ public class QueuedEmailController : BaseAdminController
             Data = queuedEmails.Select((Func<QueuedEmail, QueuedEmailModel>)(x =>
             {
                 var m = x.ToModel();
-                m.PriorityName = x.PriorityId.GetTranslationEnum(_translationService, _workContext);
+                m.PriorityName = _enumTranslationService.GetTranslationEnum(x.PriorityId);
                 m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
                 if (x.DontSendBeforeDateUtc.HasValue)
                     m.DontSendBeforeDate =
@@ -119,7 +118,7 @@ public class QueuedEmailController : BaseAdminController
             return RedirectToAction("List");
 
         var model = email.ToModel();
-        model.PriorityName = email.PriorityId.GetTranslationEnum(_translationService, _workContext);
+        model.PriorityName = _enumTranslationService.GetTranslationEnum(email.PriorityId);
         model.CreatedOn = _dateTimeService.ConvertToUserTime(email.CreatedOnUtc, DateTimeKind.Utc);
         model.EmailAccountName = (await _emailAccountService.GetEmailAccountById(email.EmailAccountId)).DisplayName;
         if (email.SentOnUtc.HasValue)
@@ -156,7 +155,7 @@ public class QueuedEmailController : BaseAdminController
         }
 
         //If we got this far, something failed, redisplay form
-        model.PriorityName = email.PriorityId.GetTranslationEnum(_translationService, _workContext);
+        model.PriorityName = _enumTranslationService.GetTranslationEnum(email.PriorityId);
         model.CreatedOn = _dateTimeService.ConvertToUserTime(email.CreatedOnUtc, DateTimeKind.Utc);
         if (email.SentOnUtc.HasValue)
             model.SentOn = _dateTimeService.ConvertToUserTime(email.SentOnUtc.Value, DateTimeKind.Utc);

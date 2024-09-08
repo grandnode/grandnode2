@@ -10,6 +10,7 @@ using Grand.Infrastructure;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
@@ -24,12 +25,13 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
     private readonly IPriceFormatter _priceFormatter;
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
-
+    private readonly IEnumTranslationService _enumTranslationService;
+    
     public CustomerReportViewModelService(IWorkContext workContext,
         ICustomerService customerService,
         ITranslationService translationService, ICustomerReportService customerReportService,
         IDateTimeService dateTimeService, IPriceFormatter priceFormatter,
-        IOrderStatusService orderStatusService, ICurrencyService currencyService)
+        IOrderStatusService orderStatusService, ICurrencyService currencyService, IEnumTranslationService enumTranslationService)
     {
         _workContext = workContext;
         _customerService = customerService;
@@ -39,6 +41,7 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
         _priceFormatter = priceFormatter;
         _orderStatusService = orderStatusService;
         _currencyService = currencyService;
+        _enumTranslationService = enumTranslationService;
     }
 
     public virtual async Task<CustomerReportsModel> PrepareCustomerReportsModel()
@@ -54,12 +57,10 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
 
         model.BestCustomersByNumberOfOrders.AvailableOrderStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-        model.BestCustomersByNumberOfOrders.AvailablePaymentStatuses =
-            PaymentStatus.Pending.ToSelectList(_translationService, _workContext, false).ToList();
+        model.BestCustomersByNumberOfOrders.AvailablePaymentStatuses = _enumTranslationService.ToSelectList(PaymentStatus.Pending, false).ToList();
         model.BestCustomersByNumberOfOrders.AvailablePaymentStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-        model.BestCustomersByNumberOfOrders.AvailableShippingStatuses = ShippingStatus.Pending
-            .ToSelectList(_translationService, _workContext, false).ToList();
+        model.BestCustomersByNumberOfOrders.AvailableShippingStatuses = _enumTranslationService.ToSelectList(ShippingStatus.Pending, false).ToList();
         model.BestCustomersByNumberOfOrders.AvailableShippingStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
 
@@ -70,12 +71,10 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
         };
         model.BestCustomersByOrderTotal.AvailableOrderStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-        model.BestCustomersByOrderTotal.AvailablePaymentStatuses =
-            PaymentStatus.Pending.ToSelectList(_translationService, _workContext, false).ToList();
+        model.BestCustomersByOrderTotal.AvailablePaymentStatuses = _enumTranslationService.ToSelectList(PaymentStatus.Pending, false).ToList();
         model.BestCustomersByOrderTotal.AvailablePaymentStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-        model.BestCustomersByOrderTotal.AvailableShippingStatuses = ShippingStatus.Pending
-            .ToSelectList(_translationService, _workContext, false).ToList();
+        model.BestCustomersByOrderTotal.AvailableShippingStatuses = _enumTranslationService.ToSelectList(ShippingStatus.Pending, false).ToList();
         model.BestCustomersByOrderTotal.AvailableShippingStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
 

@@ -21,6 +21,7 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Interfaces;
 using Grand.Web.Vendor.Models.Orders;
@@ -56,7 +57,8 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly AddressSettings _addressSettings;
     private readonly IOrderTagService _orderTagService;
     private readonly IOrderStatusService _orderStatusService;
-
+    private readonly IEnumTranslationService _enumTranslationService;
+    
     #endregion
 
     #region Ctor
@@ -83,7 +85,7 @@ public class OrderViewModelService : IOrderViewModelService
         TaxSettings taxSettings,
         AddressSettings addressSettings,
         IOrderTagService orderTagService,
-        IOrderStatusService orderStatusService)
+        IOrderStatusService orderStatusService, IEnumTranslationService enumTranslationService)
     {
         _orderService = orderService;
         _dateTimeService = dateTimeService;
@@ -108,6 +110,7 @@ public class OrderViewModelService : IOrderViewModelService
         _customerService = customerService;
         _orderTagService = orderTagService;
         _orderStatusService = orderStatusService;
+        _enumTranslationService = enumTranslationService;
     }
 
     #endregion
@@ -136,8 +139,7 @@ public class OrderViewModelService : IOrderViewModelService
         }
 
         //payment statuses
-        model.AvailablePaymentStatuses =
-            PaymentStatus.Pending.ToSelectList(_translationService, _workContext, false).ToList();
+        model.AvailablePaymentStatuses = _enumTranslationService.ToSelectList(PaymentStatus.Pending, false).ToList();
         model.AvailablePaymentStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Vendor.Common.All"), Value = " " });
         if (paymentStatusId.HasValue)
@@ -156,8 +158,7 @@ public class OrderViewModelService : IOrderViewModelService
             model.AvailableOrderTags.Add(new SelectListItem { Text = s.Name, Value = s.Id });
 
         //shipping statuses
-        model.AvailableShippingStatuses =
-            ShippingStatus.Pending.ToSelectList(_translationService, _workContext, false).ToList();
+        model.AvailableShippingStatuses = _enumTranslationService.ToSelectList(ShippingStatus.Pending, false).ToList();
         model.AvailableShippingStatuses.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Vendor.Common.All"), Value = " " });
         if (shippingStatusId.HasValue)
@@ -251,7 +252,7 @@ public class OrderViewModelService : IOrderViewModelService
                 CurrencyCode = x.CustomerCurrencyCode,
                 OrderStatus = status.FirstOrDefault(y => y.StatusId == x.OrderStatusId)?.Name,
                 OrderStatusId = x.OrderStatusId,
-                PaymentStatus = x.PaymentStatusId.GetTranslationEnum(_translationService, _workContext),
+                PaymentStatus = _enumTranslationService.GetTranslationEnum(x.PaymentStatusId),
                 CustomerEmail = x.BillingAddress?.Email,
                 CustomerFullName = $"{x.BillingAddress?.FirstName} {x.BillingAddress?.LastName}",
                 CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
@@ -311,7 +312,7 @@ public class OrderViewModelService : IOrderViewModelService
         //payment method info
         var pm = _paymentService.LoadPaymentMethodBySystemName(order.PaymentMethodSystemName);
         model.PaymentMethod = pm != null ? pm.FriendlyName : order.PaymentMethodSystemName;
-        model.PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, _workContext);
+        model.PaymentStatus = _enumTranslationService.GetTranslationEnum(order.PaymentStatusId);
         model.PaymentStatusEnum = order.PaymentStatusId;
 
         #endregion
@@ -515,7 +516,7 @@ public class OrderViewModelService : IOrderViewModelService
                 orderItemModel.RecurringInfo = string.Format(
                     _translationService.GetResource("Vendor.Orders.Products.RecurringPeriod"),
                     product.RecurringCycleLength,
-                    product.RecurringCyclePeriodId.GetTranslationEnum(_translationService, _workContext),
+                    _enumTranslationService.GetTranslationEnum(product.RecurringCyclePeriodId),
                     product.RecurringTotalCycles);
 
             //merchandise returns

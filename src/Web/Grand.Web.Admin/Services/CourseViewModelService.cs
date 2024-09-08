@@ -13,6 +13,7 @@ using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Courses;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
@@ -29,7 +30,8 @@ public class CourseViewModelService(
     IProductService productService,
     IStoreService storeService,
     IVendorService vendorService,
-    ISeNameService seNameService)
+    ISeNameService seNameService,
+    IEnumTranslationService enumTranslationService)
     : ICourseViewModelService
 {
     public virtual async Task<CourseModel> PrepareCourseModel(CourseModel model = null)
@@ -207,7 +209,7 @@ public class CourseViewModelService(
             model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
         //product types
-        model.AvailableProductTypes = ProductType.SimpleProduct.ToSelectList().ToList();
+        model.AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct).ToList();
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
         return model;

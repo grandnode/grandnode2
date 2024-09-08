@@ -1,10 +1,9 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
+using Grand.Web.Common.Localization;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using MediatR;
@@ -21,26 +20,26 @@ public class GetCustomerOrderListHandler : IRequestHandler<GetCustomerOrderList,
     private readonly OrderSettings _orderSettings;
     private readonly IOrderStatusService _orderStatusService;
     private readonly IPriceFormatter _priceFormatter;
-    private readonly ITranslationService _translationService;
-
+    private readonly IEnumTranslationService _enumTranslationService;
+    
     public GetCustomerOrderListHandler(
         IDateTimeService dateTimeService,
-        ITranslationService translationService,
         IGroupService groupService,
         IMediator mediator,
         IPriceFormatter priceFormatter,
         IOrderStatusService orderStatusService,
         IOrderService orderService,
         ICurrencyService currencyService,
-        OrderSettings orderSettings)
+        OrderSettings orderSettings, 
+        IEnumTranslationService enumTranslationService)
     {
         _dateTimeService = dateTimeService;
-        _translationService = translationService;
         _groupService = groupService;
         _priceFormatter = priceFormatter;
         _orderStatusService = orderStatusService;
         _orderService = orderService;
         _orderSettings = orderSettings;
+        _enumTranslationService = enumTranslationService;
         _currencyService = currencyService;
         _mediator = mediator;
     }
@@ -88,8 +87,8 @@ public class GetCustomerOrderListHandler : IRequestHandler<GetCustomerOrderList,
                 CreatedOn = _dateTimeService.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc),
                 OrderStatusId = order.OrderStatusId,
                 OrderStatus = status?.Name,
-                PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, request.Language.Id),
-                ShippingStatus = order.ShippingStatusId.GetTranslationEnum(_translationService, request.Language.Id),
+                PaymentStatus = _enumTranslationService.GetTranslationEnum(order.PaymentStatusId),
+                ShippingStatus = _enumTranslationService.GetTranslationEnum(order.ShippingStatusId),
                 IsMerchandiseReturnAllowed =
                     await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }),
                 OrderTotal = _priceFormatter.FormatPrice(order.OrderTotal,

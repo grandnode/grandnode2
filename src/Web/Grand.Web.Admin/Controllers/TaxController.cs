@@ -13,6 +13,7 @@ using Grand.Web.Admin.Models.Common;
 using Grand.Web.Admin.Models.Tax;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -30,7 +31,8 @@ public class TaxController : BaseAdminController
         IServiceProvider serviceProvider,
         ICacheBase cacheBase,
         ITranslationService translationService,
-        ICountryService countryService)
+        ICountryService countryService, 
+        IEnumTranslationService enumTranslationService)
     {
         _taxService = taxService;
         _taxCategoryService = taxCategoryService;
@@ -39,6 +41,7 @@ public class TaxController : BaseAdminController
         _cacheBase = cacheBase;
         _translationService = translationService;
         _countryService = countryService;
+        _enumTranslationService = enumTranslationService;
     }
 
     #endregion
@@ -52,7 +55,8 @@ public class TaxController : BaseAdminController
     private readonly ICacheBase _cacheBase;
     private readonly ITranslationService _translationService;
     private readonly ICountryService _countryService;
-
+    private readonly IEnumTranslationService _enumTranslationService;
+    
     #endregion
 
     #region Tax Providers
@@ -130,8 +134,8 @@ public class TaxController : BaseAdminController
         var model = taxSettings.ToModel();
 
         model.ActiveStore = storeScope;
-        model.TaxBasedOnValues = taxSettings.TaxBasedOn.ToSelectList(HttpContext);
-        model.TaxDisplayTypeValues = taxSettings.TaxDisplayType.ToSelectList(HttpContext);
+        model.TaxBasedOnValues = _enumTranslationService.ToSelectList(taxSettings.TaxBasedOn);
+        model.TaxDisplayTypeValues = _enumTranslationService.ToSelectList(taxSettings.TaxDisplayType);
 
         //tax categories
         var taxCategories = await _taxCategoryService.GetAllTaxCategories();

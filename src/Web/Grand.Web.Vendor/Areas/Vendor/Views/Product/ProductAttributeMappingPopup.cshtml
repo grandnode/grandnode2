@@ -71,7 +71,7 @@
                             <div class="form-group">
                                 <admin-label asp-for="AttributeControlType"/>
                                 <div class="col-md-9 col-sm-9">
-                                    <admin-select asp-for="AttributeControlTypeId" asp-items="Model.AttributeControlTypeId.ToSelectList(Context, valuesToExclude: [(int)AttributeControlType.Hidden])"/>
+                                    <admin-select asp-for="AttributeControlTypeId" asp-items="EnumTranslationService.ToSelectList(Model.AttributeControlTypeId, valuesToExclude: [(int)AttributeControlType.Hidden])"/>
                                     <span asp-validation-for="AttributeControlTypeId"></span>
                                 </div>
                             </div>

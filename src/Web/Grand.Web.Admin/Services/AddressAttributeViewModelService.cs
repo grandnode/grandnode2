@@ -1,37 +1,25 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Addresses;
-using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Domain.Common;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Common;
+using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Services;
 
-public class AddressAttributeViewModelService : IAddressAttributeViewModelService
+public class AddressAttributeViewModelService(
+    IAddressAttributeService addressAttributeService,
+    IEnumTranslationService enumTranslationService)
+    : IAddressAttributeViewModelService
 {
-    private readonly IAddressAttributeService _addressAttributeService;
-    private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
-
-    public AddressAttributeViewModelService(IAddressAttributeService addressAttributeService,
-        ITranslationService translationService, IWorkContext workContext)
-    {
-        _addressAttributeService = addressAttributeService;
-        _translationService = translationService;
-        _workContext = workContext;
-    }
-
     public virtual async Task<(IEnumerable<AddressAttributeModel> addressAttributes, int totalCount)>
         PrepareAddressAttributes()
     {
-        var addressAttributes = await _addressAttributeService.GetAllAddressAttributes();
+        var addressAttributes = await addressAttributeService.GetAllAddressAttributes();
         return (addressAttributes.Select(x =>
         {
             var attributeModel = x.ToModel();
-            attributeModel.AttributeControlTypeName =
-                x.AttributeControlType.GetTranslationEnum(_translationService, _workContext);
+            attributeModel.AttributeControlTypeName = enumTranslationService.GetTranslationEnum(x.AttributeControlType);
             return attributeModel;
         }), addressAttributes.Count);
     }
@@ -51,7 +39,7 @@ public class AddressAttributeViewModelService : IAddressAttributeViewModelServic
     public virtual async Task<AddressAttribute> InsertAddressAttributeModel(AddressAttributeModel model)
     {
         var addressAttribute = model.ToEntity();
-        await _addressAttributeService.InsertAddressAttribute(addressAttribute);
+        await addressAttributeService.InsertAddressAttribute(addressAttribute);
 
         return addressAttribute;
     }
@@ -60,14 +48,14 @@ public class AddressAttributeViewModelService : IAddressAttributeViewModelServic
         AddressAttribute addressAttribute)
     {
         addressAttribute = model.ToEntity(addressAttribute);
-        await _addressAttributeService.UpdateAddressAttribute(addressAttribute);
+        await addressAttributeService.UpdateAddressAttribute(addressAttribute);
         return addressAttribute;
     }
 
     public virtual async Task<(IEnumerable<AddressAttributeValueModel> addressAttributeValues, int totalCount)>
         PrepareAddressAttributeValues(string addressAttributeId)
     {
-        var values = (await _addressAttributeService.GetAddressAttributeById(addressAttributeId))
+        var values = (await addressAttributeService.GetAddressAttributeById(addressAttributeId))
             .AddressAttributeValues;
         return (values.Select(x => x.ToModel()), values.Count);
     }
@@ -83,7 +71,7 @@ public class AddressAttributeViewModelService : IAddressAttributeViewModelServic
     public virtual async Task<AddressAttributeValue> InsertAddressAttributeValueModel(AddressAttributeValueModel model)
     {
         var addressAttributeValue = model.ToEntity();
-        await _addressAttributeService.InsertAddressAttributeValue(addressAttributeValue);
+        await addressAttributeService.InsertAddressAttributeValue(addressAttributeValue);
         return addressAttributeValue;
     }
 
@@ -98,7 +86,7 @@ public class AddressAttributeViewModelService : IAddressAttributeViewModelServic
         AddressAttributeValue addressAttributeValue)
     {
         addressAttributeValue = model.ToEntity(addressAttributeValue);
-        await _addressAttributeService.UpdateAddressAttributeValue(addressAttributeValue);
+        await addressAttributeService.UpdateAddressAttributeValue(addressAttributeValue);
         return addressAttributeValue;
     }
 }
