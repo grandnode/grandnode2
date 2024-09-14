@@ -23,8 +23,7 @@ public static class GiftVoucherExtensions
         string recipientName,
         string recipientEmail, string senderName, string senderEmail, string giftVoucherMessage)
     {
-        if (customAttributes == null)
-            customAttributes = new List<CustomAttribute>();
+        customAttributes ??= new List<CustomAttribute>();
 
         customAttributes.Add(new CustomAttribute { Key = "RecipientName", Value = recipientName });
         customAttributes.Add(new CustomAttribute { Key = "RecipientEmail", Value = recipientEmail });
@@ -48,8 +47,7 @@ public static class GiftVoucherExtensions
         out string recipientEmail, out string senderName,
         out string senderEmail, out string giftVoucherMessage)
     {
-        if (customAttributes == null)
-            customAttributes = new List<CustomAttribute>();
+        customAttributes ??= new List<CustomAttribute>();
 
         recipientName = customAttributes.FirstOrDefault(x => x.Key == "RecipientName")?.Value;
         recipientEmail = customAttributes.FirstOrDefault(x => x.Key == "RecipientEmail")?.Value;
