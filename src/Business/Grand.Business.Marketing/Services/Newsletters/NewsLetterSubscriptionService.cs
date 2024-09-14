@@ -83,7 +83,7 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
             await PublishSubscriptionEvent(newsLetterSubscription.Email, true, publishSubscriptionEvents);
 
         //save history
-        await newsLetterSubscription.SaveHistory<NewsLetterSubscription>(_historyService);
+        await _historyService.SaveObject(newsLetterSubscription);
 
         //Publish event
         await _mediator.EntityInserted(newsLetterSubscription);
@@ -109,8 +109,8 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
         await _subscriptionRepository.UpdateAsync(newsLetterSubscription);
 
         //save history
-        await newsLetterSubscription.SaveHistory<NewsLetterSubscription>(_historyService);
-
+        await _historyService.SaveObject(newsLetterSubscription);
+        
         //Publish the un/subscribe event 
         if (prevNewsLetterSubscription != null)
             switch (newsLetterSubscription.Active)
