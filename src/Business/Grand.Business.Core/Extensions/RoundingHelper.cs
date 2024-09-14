@@ -25,7 +25,7 @@ public static class RoundingHelper
     /// <param name="roundingType">The rounding type</param>
     /// <param name="midpointRounding">Mid point rounding</param>
     /// <returns>Rounded value</returns>
-    public static double Round(this double value, int doubles, RoundingType roundingType,
+    private static double Round(this double value, int doubles, RoundingType roundingType,
         MidpointRounding midpointRounding)
     {
         //default round (Rounding001)
