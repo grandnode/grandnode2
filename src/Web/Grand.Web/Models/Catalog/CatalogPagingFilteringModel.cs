@@ -68,7 +68,7 @@ public class CatalogPagingFilteringModel : BasePageableModel
             //comma separated list of parameters to exclude
             const string excludedQueryStringParams = "pagenumber";
             var excludedQueryStringParamsSplitted =
-                excludedQueryStringParams.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                excludedQueryStringParams.Split([','], StringSplitOptions.RemoveEmptyEntries);
             foreach (var exclude in excludedQueryStringParamsSplitted)
                 url = CommonExtensions.ModifyQueryString(url, exclude, null);
             return url;

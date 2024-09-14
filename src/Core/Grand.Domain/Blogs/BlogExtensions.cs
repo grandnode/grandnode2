@@ -9,7 +9,7 @@ public static class BlogExtensions
         var parsedTags = new List<string>();
         if (!string.IsNullOrEmpty(blogPost.Tags))
         {
-            var tags2 = blogPost.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var tags2 = blogPost.Tags.Split([','], StringSplitOptions.RemoveEmptyEntries);
             foreach (var tag2 in tags2)
             {
                 var tmp = tag2.Trim();

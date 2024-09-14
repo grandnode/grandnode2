@@ -105,7 +105,7 @@ public class PictureService : IPictureService
         var fileName = $"{pictureId}_0.{lastPart}";
         var filePath = await GetPicturePhysicalPath(fileName);
         if (string.IsNullOrEmpty(filePath))
-            return Array.Empty<byte>();
+            return [];
 
         return await File.ReadAllBytesAsync(filePath);
     }
@@ -207,7 +207,7 @@ public class PictureService : IPictureService
             if (dirThumb != null)
             {
                 var file = _mediaFileStore.Combine(dirThumb.PhysicalPath, thumbFileName);
-                File.WriteAllBytes(file, binary ?? Array.Empty<byte>());
+                File.WriteAllBytes(file, binary ?? []);
             }
             else
             {
@@ -542,7 +542,7 @@ public class PictureService : IPictureService
             pictureBinary = ValidatePicture(pictureBinary, mimeType);
 
         var picture = new Picture {
-            PictureBinary = _storageSettings.PictureStoreInDb ? pictureBinary : Array.Empty<byte>(),
+            PictureBinary = _storageSettings.PictureStoreInDb ? pictureBinary : [],
             MimeType = mimeType,
             SeoFilename = seoFilename,
             AltAttribute = altAttribute,
@@ -599,7 +599,7 @@ public class PictureService : IPictureService
 
         if (pictureBinary != null)
         {
-            picture.PictureBinary = _storageSettings.PictureStoreInDb ? pictureBinary : Array.Empty<byte>();
+            picture.PictureBinary = _storageSettings.PictureStoreInDb ? pictureBinary : [];
             await _pictureRepository.UpdateField(picture.Id, x => x.PictureBinary, picture.PictureBinary);
         }
 

@@ -83,7 +83,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
 
         //account is already assigned to another user
         if (currentLoggedInUser.Id != associatedUser.Id)
-            return Error(new[] { "Account is already assigned" });
+            return Error(["Account is already assigned"]);
 
         if (string.IsNullOrEmpty(returnUrl))
             return new RedirectToRouteResult("HomePage", new { area = "" });
@@ -114,7 +114,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
             return await RegisterNewUser(parameters, returnUrl);
 
         //registration is disabled
-        return Error(new[] { "Registration is disabled" });
+        return Error(["Registration is disabled"]);
     }
 
     /// <summary>
@@ -154,7 +154,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
             return _customerSettings.UserRegistrationType == UserRegistrationType.AdminApproval
                 ? new RedirectToRouteResult("RegisterResult",
                     new { resultId = (int)UserRegistrationType.AdminApproval })
-                : Error(new[] { "Error on registration" });
+                : Error(["Error on registration"]);
         await _authenticationService.SignIn(_workContext.CurrentCustomer, false);
 
         return new RedirectToRouteResult("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
@@ -261,7 +261,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         ArgumentNullException.ThrowIfNull(parameters);
 
         if (!AuthenticationProviderIsAvailable(parameters.ProviderSystemName))
-            return Error(new[] { "External authentication method cannot be loaded" });
+            return Error(["External authentication method cannot be loaded"]);
 
         //get current logged-in user
         var currentLoggedInUser = await _groupService.IsRegistered(_workContext.CurrentCustomer)

@@ -26,7 +26,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             _mockLanguageService = new Mock<ILanguageService>();
             _mockLanguageService.Setup(l => l.GetAllLanguages(true, "")).ReturnsAsync(new List<Language>());
             _seoSettings = new SeoSettings {
-                ReservedEntityUrlSlugs = new List<string> { "reserved-slug" },
+                ReservedEntityUrlSlugs = ["reserved-slug"],
                 ConvertNonWesternChars = false,
                 AllowUnicodeCharsInUrls = false,
                 AllowSlashChar = false,
@@ -96,7 +96,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             _mockSlugService.Setup(s => s.GetBySlug(It.IsAny<string>())).ReturnsAsync(new EntityUrl() { Slug = seName, EntityId = "123", EntityName = "TestEntity" });
 
             _mockLanguageService.Setup(l => l.GetAllLanguages(true, ""))
-                .ReturnsAsync(new[] { new Language { UniqueSeoCode = "en" } });
+                .ReturnsAsync([new Language { UniqueSeoCode = "en" }]);
 
             // Act
             var result = await _seNameService.ValidateSeName(entity, seName, name, true);
@@ -116,7 +116,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             _mockSlugService.Setup(s => s.GetBySlug(It.IsAny<string>())).ReturnsAsync(new EntityUrl() { Slug = seName, EntityId = "123", EntityName = "TestEntity" });
 
             _mockLanguageService.Setup(l => l.GetAllLanguages(true, ""))
-                .ReturnsAsync(new[] { new Language { UniqueSeoCode = "en" } });
+                .ReturnsAsync([new Language { UniqueSeoCode = "en" }]);
 
             // Act
             var result = await _seNameService.ValidateSeName(entity, seName, name, true);
@@ -135,7 +135,7 @@ namespace Grand.Business.Common.Tests.Services.Seo
             _mockSlugService.Setup(s => s.GetBySlug(It.IsAny<string>())).ReturnsAsync(new EntityUrl() { Slug = seName, EntityId = "123", EntityName = "TestEntity" });
 
             _mockLanguageService.Setup(l => l.GetAllLanguages(true, ""))
-                .ReturnsAsync(new[] { new Language { UniqueSeoCode = "en" } });
+                .ReturnsAsync([new Language { UniqueSeoCode = "en" }]);
 
             // Act
             var result = await _seNameService.ValidateSeName(entity, seName, name, true);

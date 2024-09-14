@@ -308,7 +308,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
     {
         return action.ActionConstraints is { Count: > 0 }
             ? action.ActionConstraints.OfType<HttpMethodActionConstraint>().SelectMany(c => c.HttpMethods)
-            : new[] { string.Empty };
+            : [string.Empty];
     }
 
     private static RouteTemplate? ParseTemplate(ControllerActionDescriptor action)
@@ -501,7 +501,7 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             {
                 var propertyMetadata = metadataProperties[i];
                 var key = new PropertyKey(propertyMetadata, source);
-                var bindingInfo = BindingInfo.GetBindingInfo(Enumerable.Empty<object>(), propertyMetadata);
+                var bindingInfo = BindingInfo.GetBindingInfo([], propertyMetadata);
 
                 var propertyContext = new ApiParameterDescriptionContext(
                     propertyMetadata,

@@ -692,10 +692,10 @@ public class SettingController(
         //security settings
         var securitySettings = settingService.LoadSetting<SecuritySettings>(storeScope);
 
-        securitySettings.AdminAreaAllowedIpAddresses ??= new List<string>();
+        securitySettings.AdminAreaAllowedIpAddresses ??= [];
         securitySettings.AdminAreaAllowedIpAddresses.Clear();
         if (!string.IsNullOrEmpty(model.SecuritySettings.AdminAreaAllowedIpAddresses))
-            foreach (var s in model.SecuritySettings.AdminAreaAllowedIpAddresses.Split(new[] { ',' },
+            foreach (var s in model.SecuritySettings.AdminAreaAllowedIpAddresses.Split([','],
                          StringSplitOptions.RemoveEmptyEntries))
                 if (!string.IsNullOrWhiteSpace(s))
                     securitySettings.AdminAreaAllowedIpAddresses.Add(s.Trim());
@@ -935,7 +935,7 @@ public class SettingController(
                         await pictureService.SavePictureInFile(picture.Id, pictureBinary, picture.MimeType);
                 }
 
-                picture.PictureBinary = storeIdDb ? pictureBinary : Array.Empty<byte>();
+                picture.PictureBinary = storeIdDb ? pictureBinary : [];
                 picture.IsNew = true;
 
                 await pictureService.UpdatePicture(picture);

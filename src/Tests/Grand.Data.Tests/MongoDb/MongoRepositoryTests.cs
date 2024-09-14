@@ -165,11 +165,11 @@ public class MongoRepositoryTests
         var products = new List<SampleCollection> {
             new() {
                 Id = "1", Name = "Test",
-                Phones = new[] { "Phone1", "Phone2", "Phone3" }
+                Phones = ["Phone1", "Phone2", "Phone3"]
             },
             new() {
                 Id = "2", Name = "Test2",
-                Phones = new[] { "Phone1", "Phone2", "Phone3" }
+                Phones = ["Phone1", "Phone2", "Phone3"]
             },
             new() { Id = "3", Name = "Test3" }
         };
@@ -195,11 +195,11 @@ public class MongoRepositoryTests
         var products = new List<SampleCollection> {
             new() {
                 Id = "1", Name = "Test",
-                Phones = new[] { "Phone1", "Phone2", "Phone3" }
+                Phones = ["Phone1", "Phone2", "Phone3"]
             },
             new() {
                 Id = "2", Name = "Test2",
-                Phones = new[] { "Phone1", "Phone2", "Phone3" }
+                Phones = ["Phone1", "Phone2", "Phone3"]
             },
             new() { Id = "3", Name = "Test3" }
         };

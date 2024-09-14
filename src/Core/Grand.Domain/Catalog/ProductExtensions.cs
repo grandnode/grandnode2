@@ -63,7 +63,7 @@ public static class ProductExtensions
         var result = new List<int>();
         if (!string.IsNullOrWhiteSpace(product.AllowedQuantities))
             product.AllowedQuantities
-                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Split([','], StringSplitOptions.RemoveEmptyEntries)
                 .ToList()
                 .ForEach(qtyStr =>
                 {
@@ -259,20 +259,10 @@ public static class ProductExtensions
                     {
                         foreach (var str1 in values1Str)
                         {
-                            var hasValue = false;
-                            foreach (var str2 in values2Str)
-                                //case insensitive? 
-                                if (str1.Trim() == str2.Trim())
-                                {
-                                    hasValue = true;
-                                    break;
-                                }
-
-                            if (!hasValue)
-                            {
-                                attributesEqual = false;
-                                break;
-                            }
+                            var hasValue = values2Str.Any(str2 => str1.Trim() == str2.Trim());
+                            if (hasValue) continue;
+                            attributesEqual = false;
+                            break;
                         }
                     }
                     else
@@ -419,12 +409,12 @@ public static class ProductExtensions
         ArgumentNullException.ThrowIfNull(product);
 
         if (string.IsNullOrEmpty(product.RequiredProductIds))
-            return Array.Empty<string>();
+            return [];
 
         var ids = new List<string>();
 
         foreach (var idStr in product.RequiredProductIds
-                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                     .Split([','], StringSplitOptions.RemoveEmptyEntries)
                      .Select(x => x.Trim()))
             ids.Add(idStr);
 

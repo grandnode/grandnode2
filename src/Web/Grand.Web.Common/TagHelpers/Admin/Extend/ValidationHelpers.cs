@@ -44,7 +44,7 @@ internal static class ValidationHelpers
         {
             viewData.ModelState.TryGetValue(viewData.TemplateInfo.HtmlFieldPrefix, out var ms);
 
-            if (ms != null) return new[] { ms };
+            if (ms != null) return [ms];
         }
         else if (viewData.ModelState.Count > 0)
         {

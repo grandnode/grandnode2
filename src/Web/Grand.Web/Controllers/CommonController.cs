@@ -70,7 +70,7 @@ public class CommonController : BasePublicController
         _ = new PathString(url).StartsWithSegments(pathBase, out var result);
         url = WebUtility.UrlDecode(result);
 
-        var firstSegment = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
+        var firstSegment = url.Split(['/'], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
                            string.Empty;
         if (string.IsNullOrEmpty(firstSegment))
             return false;
@@ -366,9 +366,8 @@ public class CommonController : BasePublicController
         //save consent cookies
         await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "",
             _workContext.CurrentStore.Id);
-        var dictionary = new Dictionary<string, bool>();
         var consentCookies = cookiePreference.GetConsentCookies();
-        foreach (var item in consentCookies.Where(x => x.AllowToDisable)) dictionary.Add(item.SystemName, accept);
+        var dictionary = consentCookies.Where(x => x.AllowToDisable).ToDictionary(item => item.SystemName, item => accept);
 
         if (dictionary.Any())
             await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies,

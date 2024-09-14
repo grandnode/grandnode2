@@ -222,7 +222,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
             };
             if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
                 attributeModel.AllowedFileExtensions = attribute.ValidationFileAllowedExtensions
-                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Split([','], StringSplitOptions.RemoveEmptyEntries)
                     .ToList();
 
             if (attribute.ShouldHaveValues())

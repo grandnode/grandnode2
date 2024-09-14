@@ -10,13 +10,13 @@ public static class ExtendedLinq
     public static IEnumerable<IEnumerable<T>> CartesianProduct<T>(
         this IEnumerable<IEnumerable<T>> sequences)
     {
-        IEnumerable<IEnumerable<T>> emptyProduct = new[] { Enumerable.Empty<T>() };
+        IEnumerable<IEnumerable<T>> emptyProduct = [[]];
         return sequences.Aggregate(
             emptyProduct,
             (accumulator, sequence) =>
                 from accseq in accumulator
                 from item in sequence
-                select accseq.Concat(new[] { item }));
+                select accseq.Concat([item]));
     }
 
     public static async Task<bool> AllAsync<T>(this IEnumerable<T> source, Func<T, Task<bool>> predicate)

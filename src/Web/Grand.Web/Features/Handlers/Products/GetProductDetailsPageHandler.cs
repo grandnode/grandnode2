@@ -373,7 +373,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             Mpn = product.Mpn,
             ShowGtin = _catalogSettings.ShowGtin,
             Gtin = product.Gtin,
-            StockAvailability = StockAvailability(product, warehouseId, new List<CustomAttribute>()),
+            StockAvailability = StockAvailability(product, warehouseId, []),
             UserFields = product.UserFields,
             HasSampleDownload = product.IsDownload && product.HasSampleDownload,
             DisplayDiscontinuedMessage =
@@ -869,12 +869,12 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             };
             if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
                 attributeModel.AllowedFileExtensions = attribute.ValidationFileAllowedExtensions
-                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Split([','], StringSplitOptions.RemoveEmptyEntries)
                     .ToList();
 
             var urlselectedValues = !string.IsNullOrEmpty(productAttribute.SeName)
                 ? _httpContextAccessor.HttpContext.Request.Query[productAttribute.SeName].ToList()
-                : new List<string>();
+                : [];
 
             if (attribute.ShouldHaveValues())
             {

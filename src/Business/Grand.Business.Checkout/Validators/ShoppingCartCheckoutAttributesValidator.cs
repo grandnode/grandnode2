@@ -40,12 +40,10 @@ public class ShoppingCartCheckoutAttributesValidator : AbstractValidator<Shoppin
                 {
                     if (a1.Id != a2.Id) continue;
                     var attributeValuesStr = value.CheckoutAttributes.Where(x => x.Key == a1.Id).Select(x => x.Value);
-                    foreach (var str1 in attributeValuesStr)
-                        if (!string.IsNullOrEmpty(str1.Trim()))
-                        {
-                            found = true;
-                            break;
-                        }
+                    if (attributeValuesStr.Any(str1 => !string.IsNullOrEmpty(str1.Trim())))
+                    {
+                        found = true;
+                    }
                 }
 
                 //if not found

@@ -9,7 +9,7 @@ public class PermissionProvider : IPermissionProvider
 {
     public virtual IEnumerable<Permission> GetPermissions()
     {
-        return new[] {
+        return [
             StandardPermission.ManageAccessAdminPanel,
             StandardPermission.ManageAccessVendorPanel,
             StandardPermission.AllowCustomerImpersonation,
@@ -81,15 +81,15 @@ public class PermissionProvider : IPermissionProvider
             StandardPermission.ManageOrderTags,
             StandardPermission.ManageOrderStatus,
             StandardPermission.AllowUseApi
-        };
+        ];
     }
 
     public virtual IEnumerable<DefaultPermission> GetDefaultPermissions()
     {
-        return new[] {
+        return [
             new DefaultPermission {
                 CustomerGroupSystemName = SystemCustomerGroupNames.Administrators,
-                Permissions = new[] {
+                Permissions = [
                     StandardPermission.ManageAccessAdminPanel,
                     StandardPermission.AllowCustomerImpersonation,
                     StandardPermission.ManageProducts,
@@ -160,30 +160,30 @@ public class PermissionProvider : IPermissionProvider
                     StandardPermission.PublicStoreAllowNavigation,
                     StandardPermission.AccessClosedStore,
                     StandardPermission.AllowUseApi
-                }
+                ]
             },
             new DefaultPermission {
                 CustomerGroupSystemName = SystemCustomerGroupNames.Guests,
-                Permissions = new[] {
+                Permissions = [
                     StandardPermission.DisplayPrices,
                     StandardPermission.EnableShoppingCart,
                     StandardPermission.EnableWishlist,
                     StandardPermission.PublicStoreAllowNavigation
-                }
+                ]
             },
             new DefaultPermission {
                 CustomerGroupSystemName = SystemCustomerGroupNames.Registered,
-                Permissions = new[] {
+                Permissions = [
                     StandardPermission.DisplayPrices,
                     StandardPermission.EnableShoppingCart,
                     StandardPermission.EnableWishlist,
                     StandardPermission.PublicStoreAllowNavigation,
                     StandardPermission.AllowUseApi
-                }
+                ]
             },
             new DefaultPermission {
                 CustomerGroupSystemName = SystemCustomerGroupNames.Vendors,
-                Permissions = new[] {
+                Permissions = [
                     StandardPermission.ManageAccessVendorPanel,
                     StandardPermission.ManageProducts,
                     StandardPermission.ManageFiles,
@@ -193,11 +193,11 @@ public class PermissionProvider : IPermissionProvider
                     StandardPermission.ManageShipments,
                     StandardPermission.ManageMerchandiseReturns,
                     StandardPermission.ManageReports
-                }
+                ]
             },
             new DefaultPermission {
                 CustomerGroupSystemName = SystemCustomerGroupNames.Staff,
-                Permissions = new[] {
+                Permissions = [
                     StandardPermission.ManageAccessAdminPanel,
                     StandardPermission.ManageProducts,
                     StandardPermission.ManageFiles,
@@ -210,17 +210,17 @@ public class PermissionProvider : IPermissionProvider
                     StandardPermission.ManageShipments,
                     StandardPermission.ManageMerchandiseReturns,
                     StandardPermission.ManageReports
-                }
+                ]
             },
 
             new DefaultPermission {
                 CustomerGroupSystemName = SystemCustomerGroupNames.SalesManager,
-                Permissions = new[] {
+                Permissions = [
                     StandardPermission.ManageAccessAdminPanel,
                     StandardPermission.ManageOrders,
                     StandardPermission.ManageCustomers
-                }
+                ]
             }
-        };
+        ];
     }
 }

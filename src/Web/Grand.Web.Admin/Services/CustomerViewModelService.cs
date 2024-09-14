@@ -1169,7 +1169,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         var result = new List<string>();
         if (!string.IsNullOrWhiteSpace(customerTags))
         {
-            var values = customerTags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var values = customerTags.Split([','], StringSplitOptions.RemoveEmptyEntries);
             foreach (var val1 in values)
                 if (!string.IsNullOrEmpty(val1.Trim()))
                     result.Add(val1.Trim());

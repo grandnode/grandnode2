@@ -8,9 +8,7 @@ public class BlogPostTagListModel : BaseModel
 
     public int GetFontSize(BlogPostTagModel blogPostTag)
     {
-        var itemWeights = new List<double>();
-        foreach (var tag in Tags)
-            itemWeights.Add(tag.BlogPostCount);
+        var itemWeights = Tags.Select(tag => tag.BlogPostCount).Select(dummy => (double)dummy).ToList();
         var stdDev = StdDev(itemWeights, out var mean);
 
         return GetFontSize(blogPostTag.BlogPostCount, mean, stdDev);

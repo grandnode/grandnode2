@@ -50,14 +50,14 @@ public class GenericDictionaryTypeConverter<K, V> : TypeConverter
     {
         if (value is not string input) return base.ConvertFrom(context, culture, value);
         var items = string.IsNullOrEmpty(input)
-            ? Array.Empty<string>()
+            ? []
             : input.Split(';').Select(x => x.Trim()).ToArray();
 
         var result = new Dictionary<K, V>();
         foreach (var s in items)
         {
             var keyValueStr = string.IsNullOrEmpty(s)
-                ? Array.Empty<string>()
+                ? []
                 : s.Split(',').Select(x => x.Trim()).ToArray();
             if (keyValueStr.Length != 2) continue;
             var dictionaryKey = _typeConverterKey.ConvertFromInvariantString(keyValueStr[0]);

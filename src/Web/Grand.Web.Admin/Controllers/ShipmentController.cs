@@ -530,7 +530,7 @@ public class ShipmentController : BaseAdminController
         if (selectedIds != null)
         {
             var ids = selectedIds
-                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Split([','], StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x)
                 .ToArray();
             shipments.AddRange(await _shipmentService.GetShipmentsByIds(ids));

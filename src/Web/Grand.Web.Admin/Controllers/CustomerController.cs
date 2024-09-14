@@ -1002,7 +1002,7 @@ public class CustomerController : BaseAdminController
         if (selectedIds != null)
         {
             var ids = selectedIds
-                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Split([','], StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x)
                 .ToArray();
             customers.AddRange(await _customerService.GetCustomersByIds(ids));

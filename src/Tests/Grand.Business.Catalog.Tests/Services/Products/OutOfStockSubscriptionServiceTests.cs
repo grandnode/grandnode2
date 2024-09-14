@@ -275,7 +275,7 @@ public class OutOfStockSubscriptionServiceTests
 
         //Act
         await _outOfStockSubscriptionService.SendNotificationsToSubscribers(new Product { Id = "1" },
-            new CustomAttribute[] { new() { Key = "MyKey", Value = "1" } }, "");
+            [new() { Key = "MyKey", Value = "1" }], "");
 
         //Assert
         _mediatorMock.Verify(c => c.Send(It.IsAny<SendNotificationsToSubscribersCommand>(), default),

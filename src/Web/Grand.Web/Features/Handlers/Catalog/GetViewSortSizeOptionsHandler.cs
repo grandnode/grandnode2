@@ -106,7 +106,7 @@ public class GetViewSortSizeOptionsHandler : IRequestHandler<GetViewSortSizeOpti
         if (request.AllowCustomersToSelectPageSize && request.PageSizeOptions != null)
         {
             var pageSizes =
-                request.PageSizeOptions.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                request.PageSizeOptions.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries);
 
             if (pageSizes.Any())
             {

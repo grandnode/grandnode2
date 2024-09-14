@@ -1733,7 +1733,7 @@ public class ProductViewModelService(
                         if (!string.IsNullOrEmpty(cblAttributes))
                         {
                             var anyValueSelected = false;
-                            foreach (var item in cblAttributes.Split(new[] { ',' },
+                            foreach (var item in cblAttributes.Split([','],
                                          StringSplitOptions.RemoveEmptyEntries))
                                 if (!string.IsNullOrEmpty(item))
                                 {
@@ -2086,7 +2086,7 @@ public class ProductViewModelService(
                     {
                         var cblAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                         if (!string.IsNullOrEmpty(cblAttributes))
-                            foreach (var item in cblAttributes.Split(new[] { ',' },
+                            foreach (var item in cblAttributes.Split([','],
                                          StringSplitOptions.RemoveEmptyEntries))
                                 if (!string.IsNullOrEmpty(item))
                                     customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
@@ -2546,7 +2546,7 @@ public class ProductViewModelService(
         var result = new List<string>();
         if (!string.IsNullOrWhiteSpace(productTags))
         {
-            var values = productTags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var values = productTags.Split([','], StringSplitOptions.RemoveEmptyEntries);
             foreach (var val1 in values)
                 if (!string.IsNullOrEmpty(val1.Trim()))
                     result.Add(val1.Trim());

@@ -98,7 +98,7 @@ public class WorkContext : IWorkContext, IWorkContextSetter
         if (string.IsNullOrEmpty(path))
             return await Task.FromResult<Language>(null);
 
-        var firstSegment = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
+        var firstSegment = path.Split(['/'], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
                            string.Empty;
         if (string.IsNullOrEmpty(firstSegment))
             return await Task.FromResult<Language>(null);

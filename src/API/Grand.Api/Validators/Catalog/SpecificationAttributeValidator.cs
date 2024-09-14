@@ -28,10 +28,7 @@ public class SpecificationAttributeValidator : BaseGrandValidator<SpecificationA
         }).WithMessage(translationService.GetResource("Api.Catalog.SpecificationAttribute.Fields.Id.NotExists"));
         RuleFor(x => x).Must((x, _) =>
         {
-            foreach (var item in x.SpecificationAttributeOptions)
-                if (string.IsNullOrEmpty(item.Name))
-                    return false;
-            return true;
+            return x.SpecificationAttributeOptions.All(item => !string.IsNullOrEmpty(item.Name));
         }).WithMessage(
             translationService.GetResource("Api.Catalog.SpecificationAttributeOptions.Fields.Name.Required"));
     }

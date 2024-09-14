@@ -80,7 +80,7 @@ public class ContactUsCommandHandler : IRequestHandler<ContactUsCommand, Contact
 
             if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
                 attributeModel.AllowedFileExtensions = attribute.ValidationFileAllowedExtensions
-                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Split([','], StringSplitOptions.RemoveEmptyEntries)
                     .ToList();
 
             if (attribute.ShouldHaveValues())

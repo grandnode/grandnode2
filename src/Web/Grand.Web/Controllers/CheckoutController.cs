@@ -844,9 +844,7 @@ public class CheckoutController : BasePublicController
     {
         var errors = new List<string>();
         var valuerrors = modelState.Where(entry => entry.Value.Errors.Any());
-        foreach (var item in valuerrors)
-        foreach (var er in item.Value.Errors)
-            errors.Add(er.ErrorMessage);
+        foreach (var item in valuerrors) errors.AddRange(item.Value.Errors.Select(er => er.ErrorMessage));
 
         return errors;
     }

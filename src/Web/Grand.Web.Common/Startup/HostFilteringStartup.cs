@@ -26,7 +26,7 @@ public class HostFilteringStartup : IStartupApplication
 
         //configuration[
         var hosts = securityConfig.AllowedHosts?
-            .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            .Split([';'], StringSplitOptions.RemoveEmptyEntries);
         if (hosts?.Length > 0) services.Configure<HostFilteringOptions>(options => options.AllowedHosts = hosts);
     }
 

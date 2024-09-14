@@ -230,7 +230,7 @@ public class ProductServiceTests
         //Arrange 
         await insertSampleProducts();
         //Act
-        var result = _productService.GetCategoryProductNumber(new Customer(), new[] { "1" });
+        var result = _productService.GetCategoryProductNumber(new Customer(), ["1"]);
 
         //Assert
         Assert.IsTrue(result == 1);

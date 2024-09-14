@@ -1051,7 +1051,7 @@ public class OrderViewModelService : IOrderViewModelService
                     var cblAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                     if (!string.IsNullOrEmpty(cblAttributes))
                         foreach (var item in cblAttributes
-                                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                                     .Split([','], StringSplitOptions.RemoveEmptyEntries))
                             customattributes = ProductExtensions.AddProductAttribute(
                                 customattributes,
                                 attribute, item).ToList();
@@ -1266,7 +1266,7 @@ public class OrderViewModelService : IOrderViewModelService
         var result = new List<string>();
         if (!string.IsNullOrWhiteSpace(orderTags))
         {
-            var values = orderTags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var values = orderTags.Split([','], StringSplitOptions.RemoveEmptyEntries);
             foreach (var val1 in values)
                 if (!string.IsNullOrEmpty(val1.Trim()))
                     result.Add(val1.Trim());

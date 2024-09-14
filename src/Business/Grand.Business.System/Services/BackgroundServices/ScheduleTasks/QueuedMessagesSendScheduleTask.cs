@@ -37,10 +37,10 @@ public class QueuedMessagesSendScheduleTask : IScheduleTask
         {
             var bcc = string.IsNullOrWhiteSpace(queuedEmail.Bcc)
                 ? null
-                : queuedEmail.Bcc.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                : queuedEmail.Bcc.Split([';'], StringSplitOptions.RemoveEmptyEntries);
             var cc = string.IsNullOrWhiteSpace(queuedEmail.CC)
                 ? null
-                : queuedEmail.CC.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                : queuedEmail.CC.Split([';'], StringSplitOptions.RemoveEmptyEntries);
 
             try
             {

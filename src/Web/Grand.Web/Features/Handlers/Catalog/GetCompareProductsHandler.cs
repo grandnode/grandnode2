@@ -73,10 +73,10 @@ public class GetCompareProductsHandler : IRequestHandler<GetCompareProducts, Com
         //try to get cookie
         if (!_httpContextAccessor.HttpContext!.Request.Cookies.TryGetValue(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME,
                 out var productIdsCookie) || string.IsNullOrEmpty(productIdsCookie))
-            return new List<string>();
+            return [];
 
         //get array of string product identifiers from cookie
-        var productIds = productIdsCookie.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+        var productIds = productIdsCookie.Split(['|'], StringSplitOptions.RemoveEmptyEntries);
 
         //return list of int product identifiers
         return productIds.Select(productId => productId).Distinct().Take(10).ToList();

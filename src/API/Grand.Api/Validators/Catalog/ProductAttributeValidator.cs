@@ -27,10 +27,7 @@ public class ProductAttributeValidator : BaseGrandValidator<ProductAttributeDto>
         }).WithMessage(translationService.GetResource("Api.Catalog.ProductAttribute.Fields.Id.NotExists"));
         RuleFor(x => x).Must((x, _) =>
         {
-            foreach (var item in x.PredefinedProductAttributeValues)
-                if (string.IsNullOrEmpty(item.Name))
-                    return false;
-            return true;
+            return x.PredefinedProductAttributeValues.All(item => !string.IsNullOrEmpty(item.Name));
         }).WithMessage(
             translationService.GetResource("Api.Catalog.PredefinedProductAttributeValue.Fields.Name.Required"));
     }
