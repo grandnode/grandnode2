@@ -10,8 +10,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.5" />
     <PackageReference Include="MongoDB.AspNetCore.OData" Version="1.0.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.2" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.7.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.7.3" />
   </ItemGroup>  
 
 </Project>

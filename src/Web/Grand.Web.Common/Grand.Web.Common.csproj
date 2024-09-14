@@ -7,7 +7,7 @@
 		<PackageReference Include="Flurl.Http" Version="4.0.2" />
 		<PackageReference Include="Microsoft.ApplicationInsights.Profiler.AspNetCore" Version="2.7.2" />
 		<PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="8.0.8" />
-		<PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.22.0" />
+		<PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.24.0" />
 		<PackageReference Include="Wangkanai.Detection" Version="8.14.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.8" />
 	</ItemGroup>
