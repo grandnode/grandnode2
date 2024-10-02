@@ -707,9 +707,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> DeleteProductAttributeMapping([FromRoute] string key,
         [FromBody] ProductAttributeMappingDeleteDto model)
     {
-        if (model == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (model == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
