@@ -150,9 +150,11 @@ public class HomeController : BaseAdminController
                 SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration, "");
 
         //home page
-        if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+        if (string.IsNullOrEmpty(returnUrl))
             returnUrl = Url.Action("Index", "Home", new { area = Constants.AreaAdmin });
-
+        //prevent open redirection attack
+        if (!Url.IsLocalUrl(returnUrl))
+            return RedirectToAction("Index", "Home", new { area = Constants.AreaAdmin });
         return Redirect(returnUrl);
     }
 
