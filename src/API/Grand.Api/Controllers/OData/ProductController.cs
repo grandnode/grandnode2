@@ -90,10 +90,10 @@ public class ProductController : BaseODataController
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Patch([FromRoute] string key, [FromBody] JsonPatchDocument<ProductDto> model)
     {
+        if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
-
-        if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -155,9 +155,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> CreateProductCategory([FromRoute] string key,
         [FromBody] ProductCategoryDto productCategory)
     {
-        if (productCategory == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productCategory == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -185,9 +185,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> UpdateProductCategory([FromRoute] string key,
         [FromBody] ProductCategoryDto productCategory)
     {
-        if (productCategory == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productCategory == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -215,9 +215,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> DeleteProductCategory([FromRoute] string key,
         [FromBody] ProductCategoryDeleteDto model)
     {
-        if (model == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (model == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -254,9 +254,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> CreateProductCollection([FromRoute] string key,
         [FromBody] ProductCollectionDto productCollection)
     {
-        if (productCollection == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productCollection == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -284,9 +284,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> UpdateProductCollection([FromRoute] string key,
         [FromBody] ProductCollectionDto productCollection)
     {
-        if (productCollection == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productCollection == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -314,9 +314,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> DeleteProductCollection([FromRoute] string key,
         [FromBody] ProductCollectionDeleteDto model)
     {
-        if (model == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (model == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -353,9 +353,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> CreateProductPicture([FromRoute] string key,
         [FromBody] ProductPictureDto productPicture)
     {
-        if (productPicture == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productPicture == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -382,9 +382,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> UpdateProductPicture([FromRoute] string key,
         [FromBody] ProductPictureDto productPicture)
     {
-        if (productPicture == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productPicture == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -411,9 +411,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> DeleteProductPicture([FromRoute] string key,
         [FromBody] ProductPictureDeleteDto model)
     {
-        if (model == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (model == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -450,9 +450,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> CreateProductSpecification([FromRoute] string key,
         [FromBody] ProductSpecificationAttributeDto productSpecification)
     {
-        if (productSpecification == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productSpecification == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -480,9 +480,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> UpdateProductSpecification([FromRoute] string key,
         [FromBody] ProductSpecificationAttributeDto productSpecification)
     {
-        if (productSpecification == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productSpecification == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -510,9 +510,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> DeleteProductSpecification([FromRoute] string key,
         [FromBody] ProductSpecificationAttributeDeleteDto model)
     {
-        if (model == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (model == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -550,9 +550,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> CreateProductTierPrice([FromRoute] string key,
         [FromBody] ProductTierPriceDto productTierPrice)
     {
-        if (productTierPrice == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productTierPrice == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -579,9 +579,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> UpdateProductTierPrice([FromRoute] string key,
         [FromBody] ProductTierPriceDto productTierPrice)
     {
-        if (productTierPrice == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productTierPrice == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -608,9 +608,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> DeleteProductTierPrice([FromRoute] string key,
         [FromBody] ProductTierPriceDeleteDto model)
     {
-        if (model == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (model == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -647,9 +647,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> CreateProductAttributeMapping([FromRoute] string key,
         [FromBody] ProductAttributeMappingDto productAttributeMapping)
     {
-        if (productAttributeMapping == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productAttributeMapping == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -677,9 +677,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> UpdateProductAttributeMapping([FromRoute] string key,
         [FromBody] ProductAttributeMappingDto productAttributeMapping)
     {
-        if (productAttributeMapping == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (productAttributeMapping == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
@@ -707,9 +707,9 @@ public class ProductController : BaseODataController
     public async Task<IActionResult> DeleteProductAttributeMapping([FromRoute] string key,
         [FromBody] ProductAttributeMappingDeleteDto model)
     {
-        if (model == null) return BadRequest();
-
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        if (model == null) return BadRequest();
 
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
