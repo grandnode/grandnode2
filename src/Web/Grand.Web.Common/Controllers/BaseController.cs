@@ -4,10 +4,8 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Events;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Models;
 using Grand.Web.Common.Page;
 using MediatR;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -216,7 +214,7 @@ public abstract class BaseController : Controller
     /// <returns>Access denied view</returns>
     protected IActionResult AccessDeniedView()
     {
-        return RedirectToAction("AccessDenied", "Home", new { pageUrl = HttpContext.Request.GetEncodedPathAndQuery() });
+        return RedirectToAction("AccessDenied", "Home");
     }
 
     /// <summary>

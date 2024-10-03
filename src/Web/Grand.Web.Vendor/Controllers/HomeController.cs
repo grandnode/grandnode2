@@ -44,10 +44,9 @@ public class HomeController : BaseVendorController
         return View();
     }
 
-    public IActionResult AccessDenied(string pageUrl)
+    public IActionResult AccessDenied()
     {
-        _logger.LogInformation("Access denied to user #{CurrentCustomerEmail} on {PageUrl}",
-            _workContext.CurrentCustomer.Email, pageUrl);
+        _logger.LogInformation("Access denied to user #{CurrentCustomerEmail}", _workContext.CurrentCustomer.Email);
         return View();
     }
 
