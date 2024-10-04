@@ -12,7 +12,7 @@
             @* login main block *@
             <div class="col-sm-8 col-12">
                 <div class="card p-3">
-                    <form asp-route="TwoFactorAuthorization" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post">
+                    <form asp-route="TwoFactorAuthorization" asp-route-returnurl="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ReturnUrl"])" method="post">
                         <div class="row">
                             <div asp-validation-summary="All" class="col-12 justify-content-around text-danger"></div>
                             <div class="col-12 form-group mb-0 d-flex justify-content-around">

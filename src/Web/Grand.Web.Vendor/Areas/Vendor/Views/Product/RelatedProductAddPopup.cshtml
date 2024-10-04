@@ -6,9 +6,9 @@
     ViewBag.Title = Loc["Vendor.Catalog.Products.RelatedProducts.AddNew"];
 }
 <form id="RelatedProductAddPopup" asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="RelatedProductAddPopup"
-      asp-route-productId="@Context.Request.Query["productId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-productId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["productId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
 
     <div class="row">

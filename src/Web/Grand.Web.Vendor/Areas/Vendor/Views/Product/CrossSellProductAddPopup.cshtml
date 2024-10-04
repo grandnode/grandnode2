@@ -6,9 +6,9 @@
     ViewBag.Title = Loc["Vendor.Catalog.Products.CrossSells.AddNew"];
 }
 <form id="CrossSellProductAddPopup" asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="CrossSellProductAddPopup"
-      asp-route-ProductId="@Context.Request.Query["ProductId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
 
     <div class="row">

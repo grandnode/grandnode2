@@ -43,7 +43,7 @@
                                 @Loc["Account.TwoFactorAuth.ManualSetupCode"] @(Model.CustomValues[code])
                             </div>
                         </div>
-                        <form asp-route="EnableTwoFactorAuthorization" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post">
+                        <form asp-route="EnableTwoFactorAuthorization" asp-route-returnurl="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ReturnUrl"])" method="post">
                             <input asp-for="SecretKey" type="hidden"/>
                             <input asp-for="TwoFactorAuthenticationType" type="hidden"/>
                             <input asp-for="@Model.CustomValues[code]" type="hidden"/>
@@ -82,7 +82,7 @@
             <div class="row flex-md-row mt-3 mb-3">
                 <div class="col-lg-6 col-12 text-center">
                     <div class="card">
-                        <form asp-route="EnableTwoFactorAuthorization" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post">
+                        <form asp-route="EnableTwoFactorAuthorization" asp-route-returnurl="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ReturnUrl"])" method="post">
                             <input asp-for="SecretKey" type="hidden"/>
                             <input asp-for="TwoFactorAuthenticationType" type="hidden"/>
                             <div class="card-body">
@@ -119,7 +119,7 @@
             <div class="row flex-md-row mt-3 mb-3">
                 <div class="col-lg-6 col-12 text-center">
                     <div class="card">
-                        <form asp-route="EnableTwoFactorAuthorization" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post">
+                        <form asp-route="EnableTwoFactorAuthorization" asp-route-returnurl="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ReturnUrl"])" method="post">
                             <input asp-for="SecretKey" type="hidden"/>
                             <input asp-for="TwoFactorAuthenticationType" type="hidden"/>
                             <div class="card-body">

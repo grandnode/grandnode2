@@ -18,7 +18,7 @@
             @* login main block *@
             <div class="col-12 mx-lg-0 mx-auto mt-3">
                 <validation-observer v-slot="{ handleSubmit }">
-                    <form asp-route="Login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)" method="post">
+                    <form asp-route="Login" asp-route-returnurl="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ReturnUrl"])" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)" method="post">
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="h5 mb-0 text-center">

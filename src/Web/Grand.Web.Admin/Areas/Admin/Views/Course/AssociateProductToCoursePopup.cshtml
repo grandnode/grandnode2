@@ -7,10 +7,10 @@
 }
 
 <form asp-area="@Constants.AreaAdmin" asp-controller="Course" asp-action="AssociateProductToCoursePopup" method="post"
-      asp-route-CustomerGroupId="@Context.Request.Query["CourseId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-productIdInput="@Context.Request.Query["productIdInput"]"
-      asp-route-productNameInput="@Context.Request.Query["productNameInput"]"
+      asp-route-CustomerGroupId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["CourseId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-productIdInput="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["productIdInput"])"
+      asp-route-productNameInput="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["productNameInput"])"
       id="associateproduct">
 
     <div class="row">
