@@ -5,10 +5,10 @@
     ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.AddNew"];
 }
 <form id="ProductAttributeValueCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeValueCreatePopup" method="post"
-      asp-route-ProductId="@Context.Request.Query["ProductId"]"
-      asp-route-productAttributeMappingId="@Context.Request.Query["ProductAttributeMappingId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
+      asp-route-productAttributeMappingId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductAttributeMappingId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
     <div class="row">
         <div class="col-md-12">

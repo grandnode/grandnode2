@@ -3,9 +3,9 @@
 }
 @model Shipping.ByWeight.Models.ShippingByWeightModel
 <form id="EditPopup" asp-controller="ShippingByWeight" asp-action="EditPopup" method="post"
-      asp-route-ShippingByWeightId="@Context.Request.Query["ShippingByWeightId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-ShippingByWeightId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ShippingByWeightId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
     <div class="row">
         <div class="col-md-12">
