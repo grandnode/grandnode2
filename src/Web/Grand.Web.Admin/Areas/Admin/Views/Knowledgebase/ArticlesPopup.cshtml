@@ -5,9 +5,9 @@
     Layout = "";
 }
 <form id="ArticlesPopup" asp-area="@Constants.AreaAdmin" asp-controller="Knowledgebase" asp-action="ArticlesPopup" method="post"
-      asp-route-KnowledgebaseId="@Context.Request.Query["KnowledgebaseId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-KnowledgebaseId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["KnowledgebaseId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
     <input asp-for="ArticleId" type="hidden"/>
     <div class="row">

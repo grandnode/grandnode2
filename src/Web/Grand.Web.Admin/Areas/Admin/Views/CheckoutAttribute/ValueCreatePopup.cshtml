@@ -5,7 +5,7 @@
 @model CheckoutAttributeValueModel
 
 <form id="ValueCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="CheckoutAttribute" asp-action="ValueCreatePopup"
-      asp-route-checkoutAttributeId="@Context.Request.Query["checkoutAttributeId"]">
+      asp-route-checkoutAttributeId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["checkoutAttributeId"])">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">

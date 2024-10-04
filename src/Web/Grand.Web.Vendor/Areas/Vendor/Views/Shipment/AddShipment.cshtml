@@ -4,7 +4,7 @@
     ViewBag.Title = string.Format(Loc["Vendor.Orders.Shipments.AddNew.Title"], Model.OrderId);
 }
 <form asp-area="@Constants.AreaVendor" asp-controller="Shipment" asp-action="AddShipment" method="post"
-      asp-route-orderId="@Context.Request.Query["orderId"]">
+      asp-route-orderId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["orderId"])">
 
     <div asp-validation-summary="All"></div>
     <input type="hidden" asp-for="@Model.OrderId"/>

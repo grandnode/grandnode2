@@ -3,7 +3,7 @@
     //page title
     ViewBag.Title = Loc["Admin.Catalog.ProductReviews.EditProductReviewDetails"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="ProductReview" asp-action="Edit" method="post" asp-route-ProductId="@Context.Request.Query["ProductId"]">
+<form asp-area="@Constants.AreaAdmin" asp-controller="ProductReview" asp-action="Edit" method="post" asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])">
 
     <div class="row">
         <div class="col-md-12">

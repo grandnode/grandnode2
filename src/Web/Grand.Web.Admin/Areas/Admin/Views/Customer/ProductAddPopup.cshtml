@@ -7,10 +7,10 @@
 }
 
 <form id="ProductAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="Customer" asp-action="ProductAddPopup" method="post"
-      asp-route-CustomerId="@Context.Request.Query["CustomerId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]"
-      asp-route-personalized="@Context.Request.Query["personalized"]">
+      asp-route-CustomerId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["CustomerId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])"
+      asp-route-personalized="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["personalized"])">
 
     <div class="row">
         <div class="col-md-12">

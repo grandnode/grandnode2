@@ -5,8 +5,8 @@
 <form id="ProductSpecificationPopup" asp-area="@Constants.AreaVendor"
       asp-controller="Product" asp-action="ProductSpecAttrPopup"
       enctype="multipart/form-data" method="post"
-      asp-route-ProductId="@Context.Request.Query["ProductId"]"
-      asp-route-Id="@Context.Request.Query["Id"]">
+      asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
+      asp-route-Id="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["Id"])">
 
     <div asp-validation-summary="All"></div>
     <input asp-for="ProductId" type="hidden"/>

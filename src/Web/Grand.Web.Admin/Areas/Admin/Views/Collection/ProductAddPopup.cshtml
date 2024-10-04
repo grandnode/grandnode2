@@ -7,9 +7,9 @@
 }
 
 <form id="ProductAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="Collection" asp-action="ProductAddPopup" method="post"
-      asp-route-CollectionId="@Context.Request.Query["CollectionId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-CollectionId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["CollectionId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
     <div class="row">
         <div class="col-md-12">

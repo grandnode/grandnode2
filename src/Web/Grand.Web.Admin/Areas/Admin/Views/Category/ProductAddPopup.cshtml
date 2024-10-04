@@ -7,9 +7,9 @@
     ViewBag.Title = Loc["Admin.Catalog.Categories.Products.AddNew"];
 }
 <form id="ProductAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="Category" asp-action="ProductAddPopup" method="post"
-      asp-route-CategoryId="@Context.Request.Query["CategoryId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-CategoryId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["CategoryId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
     <div class="row">
         <div class="col-md-12">

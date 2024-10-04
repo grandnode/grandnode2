@@ -4,9 +4,9 @@
     ViewBag.Title = Loc["Admin.Orders.Address.EditAddress"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="AddressEdit"
-      asp-route-addressId="@Context.Request.Query["addressId"]"
-      asp-route-billingAddress="@Context.Request.Query["BillingAddress"]"
-      asp-route-orderId="@Context.Request.Query["orderId"]">
+      asp-route-addressId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["addressId"])"
+      asp-route-billingAddress="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["BillingAddress"])"
+      asp-route-orderId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["orderId"])">
 
     <div class="row">
         <div class="col-md-12">

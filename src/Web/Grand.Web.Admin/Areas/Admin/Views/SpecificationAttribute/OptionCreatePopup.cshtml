@@ -7,7 +7,7 @@
     ViewBag.Title = Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="SpecificationAttribute" asp-action="OptionCreatePopup"
-      method="post" id="specificationattribute-form" asp-route-Id="@Context.Request.Query["Id"]">
+      method="post" id="specificationattribute-form" asp-route-Id="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["Id"])">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">

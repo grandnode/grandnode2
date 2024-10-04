@@ -9,9 +9,9 @@
     ViewBag.Title = Loc["Admin.Customers.CustomerAttributes.Values.EditValueDetails"];
 }
 <form id="ValueEditPopup" asp-area="@Constants.AreaAdmin" asp-controller="CustomerAttribute" asp-action="ValueEditPopup"
-      asp-route-customerAttributeId="@Context.Request.Query["customerAttributeId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-customerAttributeId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["customerAttributeId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
     <div class="row">
         <div class="col-md-12">

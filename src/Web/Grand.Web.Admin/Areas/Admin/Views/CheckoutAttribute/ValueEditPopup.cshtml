@@ -3,7 +3,7 @@
     Layout = "";
 }
 <form id="ValueEditPopup" asp-area="@Constants.AreaAdmin" asp-controller="CheckoutAttribute" asp-action="ValueEditPopup"
-      asp-route-checkoutAttributeId="@Context.Request.Query["checkoutAttributeId"]">
+      asp-route-checkoutAttributeId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["checkoutAttributeId"])">
 
     <div class="row">
         <div class="col-md-12">

@@ -65,7 +65,7 @@
 </script>
 
 <validation-observer v-slot="{ handleSubmit }">
-<form asp-route="Register" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
+<form asp-route="Register" asp-route-returnurl="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ReturnUrl"])" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
 <div class="page registration-page">
 <div asp-validation-summary="All" class="message-error"></div>
 <div class="card my-3">

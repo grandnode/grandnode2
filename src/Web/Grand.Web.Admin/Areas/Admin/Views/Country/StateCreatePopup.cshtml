@@ -3,7 +3,7 @@
     Layout = "";
 }
 <form id="StateCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="StateCreatePopup"
-      asp-route-countryId="@Context.Request.Query["countryId"]">
+      asp-route-countryId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["countryId"])">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">

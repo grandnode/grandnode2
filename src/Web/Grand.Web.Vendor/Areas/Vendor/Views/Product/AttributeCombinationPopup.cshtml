@@ -4,10 +4,10 @@
     ViewBag.Title = string.IsNullOrEmpty(Model.Id) ? Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.AddTitle"] : Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Update"];
 }
 <form id="AttributeCombinationPopup" asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="AttributeCombinationPopup" enctype="multipart/form-data"
-      asp-route-productId="@Context.Request.Query["productId"]"
-      asp-route-Id="@Context.Request.Query["Id"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-productId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["productId"])"
+      asp-route-Id="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["Id"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
 
 <div asp-validation-summary="All"></div>

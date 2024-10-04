@@ -5,9 +5,9 @@
     ViewBag.Title = Loc["Admin.Customers.CustomerAttributes.Values.AddNew"];
 }
 <form id="ValueCreatePopup" manifest="ValueCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="CustomerAttribute" asp-action="ValueCreatePopup"
-      asp-route-customerAttributeId="@Context.Request.Query["customerAttributeId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-customerAttributeId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["customerAttributeId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
 
     <div class="row">

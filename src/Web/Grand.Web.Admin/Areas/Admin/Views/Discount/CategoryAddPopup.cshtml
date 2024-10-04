@@ -7,9 +7,9 @@
 }
 
 <form id="CategoryAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="Discount" asp-action="CategoryAddPopup" method="post"
-      asp-route-DiscountId="@Context.Request.Query["DiscountId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-DiscountId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["DiscountId"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
 
     <div class="row">
         <div class="col-md-12">
