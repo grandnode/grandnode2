@@ -135,6 +135,12 @@ public class HomeController : BaseAdminController
 
     public async Task<IActionResult> ChangeStore(string storeid, string returnUrl = "")
     {
+        var validUrls = new List<string>
+        {
+            Url.Action("Index", "Home", new { area = Constants.AreaAdmin }),
+            // Add other valid URLs here
+        };
+
         if (storeid != null)
             storeid = storeid.Trim();
 
@@ -150,7 +156,7 @@ public class HomeController : BaseAdminController
                 SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration, "");
 
         //home page
-        if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+        if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl) || !validUrls.Contains(returnUrl))
             returnUrl = Url.Action("Index", "Home", new { area = Constants.AreaAdmin });
 
         return Redirect(returnUrl);
