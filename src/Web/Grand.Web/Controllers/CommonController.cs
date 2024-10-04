@@ -316,7 +316,8 @@ public class CommonController : BasePublicController
         [FromServices] StoreInformationSettings storeInformationSettings,
         [FromServices] IThemeContextFactory themeContextFactory, string themeName, string returnUrl = "")
     {
-        if (!storeInformationSettings.AllowCustomerToSelectTheme) return Redirect(returnUrl);
+        var validUrls = new List<string> { Url.RouteUrl("HomePage"), Url.RouteUrl("AnotherPage") }; // Add other valid URLs here
+        if (!storeInformationSettings.AllowCustomerToSelectTheme) return Redirect(validUrls.Contains(returnUrl) ? returnUrl : Url.RouteUrl("HomePage"));
 
         var themeContext = themeContextFactory.GetThemeContext("");
         if (themeContext != null) await themeContext.SetTheme(themeName);
@@ -325,7 +326,7 @@ public class CommonController : BasePublicController
         await _mediator.Publish(new ChangeThemeEvent(_workContext.CurrentCustomer, themeName));
 
         //home page
-        if (string.IsNullOrEmpty(returnUrl))
+        if (string.IsNullOrEmpty(returnUrl) || !validUrls.Contains(returnUrl))
             returnUrl = Url.RouteUrl("HomePage");
 
         //prevent open redirection attack
