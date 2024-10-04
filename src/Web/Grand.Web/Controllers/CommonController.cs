@@ -270,8 +270,11 @@ public class CommonController : BasePublicController
         if (string.IsNullOrEmpty(returnUrl))
             returnUrl = Url.RouteUrl("HomePage");
 
+        // List of valid URLs
+        var validUrls = new List<string> { Url.RouteUrl("HomePage"), Url.RouteUrl("AnotherSafePage") };
+
         //prevent open redirection attack
-        if (!Url.IsLocalUrl(returnUrl))
+        if (!Url.IsLocalUrl(returnUrl) || !validUrls.Contains(returnUrl))
             returnUrl = Url.RouteUrl("HomePage");
 
         return Redirect(returnUrl);
@@ -292,8 +295,11 @@ public class CommonController : BasePublicController
         if (string.IsNullOrEmpty(returnUrl))
             returnUrl = Url.RouteUrl("HomePage");
 
+        // List of valid URLs
+        var validUrls = new List<string> { Url.RouteUrl("HomePage"), Url.RouteUrl("AnotherSafePage") };
+
         //prevent open redirection attack
-        if (!Url.IsLocalUrl(returnUrl))
+        if (!Url.IsLocalUrl(returnUrl) || !validUrls.Contains(returnUrl))
             returnUrl = Url.RouteUrl("HomePage");
 
         //whether customers are allowed to select tax display type
@@ -328,8 +334,11 @@ public class CommonController : BasePublicController
         if (string.IsNullOrEmpty(returnUrl))
             returnUrl = Url.RouteUrl("HomePage");
 
+        // List of valid URLs
+        var validUrls = new List<string> { Url.RouteUrl("HomePage"), Url.RouteUrl("AnotherSafePage") };
+
         //prevent open redirection attack
-        if (!Url.IsLocalUrl(returnUrl))
+        if (!Url.IsLocalUrl(returnUrl) || !validUrls.Contains(returnUrl))
             returnUrl = Url.RouteUrl("HomePage");
 
         return Redirect(returnUrl);
