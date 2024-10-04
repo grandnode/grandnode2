@@ -143,15 +143,11 @@ public class CommonController : BasePublicController
     public virtual async Task<IActionResult> SetLanguage(
         [FromServices] AppConfig config,
         [FromServices] ICustomerService customerService,
-        string langCode, string returnUrl = default)
+        string langCode, string returnUrl = "")
     {
         var language = await _languageService.GetLanguageByCode(langCode);
         if (!language?.Published ?? false)
             language = _workContext.WorkingLanguage;
-
-        //home page
-        if (string.IsNullOrEmpty(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
 
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
@@ -227,10 +223,6 @@ public class CommonController : BasePublicController
         //notification
         await _mediator.Publish(new ChangeCurrencyEvent(_workContext.CurrentCustomer, currency));
 
-        //home page
-        if (string.IsNullOrEmpty(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
-
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
             returnUrl = Url.RouteUrl("HomePage");
@@ -266,10 +258,6 @@ public class CommonController : BasePublicController
                 }
             }
 
-        //home page
-        if (string.IsNullOrEmpty(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
-
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
             returnUrl = Url.RouteUrl("HomePage");
@@ -284,13 +272,9 @@ public class CommonController : BasePublicController
     public virtual async Task<IActionResult> SetTaxType(
         [FromServices] TaxSettings taxSettings,
         [FromServices] ICustomerService customerService,
-        int customerTaxType, string returnUrl = default)
+        int customerTaxType, string returnUrl = "")
     {
         var taxDisplayType = (TaxDisplayType)Enum.ToObject(typeof(TaxDisplayType), customerTaxType);
-
-        //home page
-        if (string.IsNullOrEmpty(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
 
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
@@ -323,10 +307,6 @@ public class CommonController : BasePublicController
 
         //notification
         await _mediator.Publish(new ChangeThemeEvent(_workContext.CurrentCustomer, themeName));
-
-        //home page
-        if (string.IsNullOrEmpty(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
 
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
