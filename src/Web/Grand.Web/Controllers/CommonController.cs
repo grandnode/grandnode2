@@ -274,11 +274,11 @@ public class CommonController : BasePublicController
         [FromServices] ICustomerService customerService,
         int customerTaxType, string returnUrl = "")
     {
-        var taxDisplayType = (TaxDisplayType)Enum.ToObject(typeof(TaxDisplayType), customerTaxType);
-
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
             returnUrl = Url.RouteUrl("HomePage");
+
+        var taxDisplayType = (TaxDisplayType)Enum.ToObject(typeof(TaxDisplayType), customerTaxType);
 
         //whether customers are allowed to select tax display type
         if (!taxSettings.AllowCustomersToSelectTaxDisplayType)
@@ -300,6 +300,10 @@ public class CommonController : BasePublicController
         [FromServices] StoreInformationSettings storeInformationSettings,
         [FromServices] IThemeContextFactory themeContextFactory, string themeName, string returnUrl = "")
     {
+        //prevent open redirection attack
+        if (!Url.IsLocalUrl(returnUrl))
+            returnUrl = Url.RouteUrl("HomePage");
+
         if (!storeInformationSettings.AllowCustomerToSelectTheme) return Redirect(returnUrl);
 
         var themeContext = themeContextFactory.GetThemeContext("");
@@ -307,10 +311,6 @@ public class CommonController : BasePublicController
 
         //notification
         await _mediator.Publish(new ChangeThemeEvent(_workContext.CurrentCustomer, themeName));
-
-        //prevent open redirection attack
-        if (!Url.IsLocalUrl(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
 
         return Redirect(returnUrl);
     }
