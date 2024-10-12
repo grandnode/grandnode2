@@ -695,7 +695,7 @@ public class SettingController(
         securitySettings.AdminAreaAllowedIpAddresses ??= [];
         securitySettings.AdminAreaAllowedIpAddresses.Clear();
         if (!string.IsNullOrEmpty(model.SecuritySettings.AdminAreaAllowedIpAddresses))
-            foreach (var s in model.SecuritySettings.AdminAreaAllowedIpAddresses.Split([','],
+            foreach (var s in model.SecuritySettings.AdminAreaAllowedIpAddresses.Split(new[] { ',' },
                          StringSplitOptions.RemoveEmptyEntries))
                 if (!string.IsNullOrWhiteSpace(s))
                     securitySettings.AdminAreaAllowedIpAddresses.Add(s.Trim());

@@ -63,7 +63,7 @@ public static class ProductExtensions
         var result = new List<int>();
         if (!string.IsNullOrWhiteSpace(product.AllowedQuantities))
             product.AllowedQuantities
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .ToList()
                 .ForEach(qtyStr =>
                 {
@@ -414,7 +414,7 @@ public static class ProductExtensions
         var ids = new List<string>();
 
         foreach (var idStr in product.RequiredProductIds
-                     .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                      .Select(x => x.Trim()))
             ids.Add(idStr);
 

@@ -199,7 +199,7 @@ public class HasAllProductsController : BaseAdminPluginController
         if (string.IsNullOrWhiteSpace(productIds)) return new JsonResult(new { Text = result });
         var ids = new List<string>();
         var rangeArray = productIds
-            .Split([','], StringSplitOptions.RemoveEmptyEntries)
+            .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
             .Select(x => x.Trim())
             .ToList();
 

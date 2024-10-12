@@ -33,6 +33,8 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
     private readonly ITaxCategoryService _taxService;
     private readonly IWarehouseService _warehouseService;
     private readonly ISeNameService _seNameService;
+    private static readonly char[] separators = new[] { ',' };
+
     public ProductImportDataObject(
         IProductService productService,
         IPictureService pictureService,
@@ -172,7 +174,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
 
     private async Task PrepareProductCategories(Product product, string categoryIds)
     {
-        foreach (var id in categoryIds.Split([';'], StringSplitOptions.RemoveEmptyEntries)
+        foreach (var id in categoryIds.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                      .Select(x => x.Trim()))
         {
             if (product.ProductCategories.FirstOrDefault(x => x.CategoryId == id) != null) continue;
@@ -190,7 +192,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
 
     private async Task PrepareProductCollections(Product product, string collectionIds)
     {
-        foreach (var id in collectionIds.Split([';'], StringSplitOptions.RemoveEmptyEntries)
+        foreach (var id in collectionIds.Split(separators, StringSplitOptions.RemoveEmptyEntries)
                      .Select(x => x.Trim()))
         {
             if (product.ProductCollections.FirstOrDefault(x => x.CollectionId == id) != null) continue;

@@ -13,7 +13,7 @@ public class QueuedMessagesSendScheduleTask : IScheduleTask
     private readonly IEmailSender _emailSender;
     private readonly ILogger<QueuedMessagesSendScheduleTask> _logger;
     private readonly IQueuedEmailService _queuedEmailService;
-
+    private static readonly char[] separators = new[] { ',' };
 
     public QueuedMessagesSendScheduleTask(IQueuedEmailService queuedEmailService,
         IEmailSender emailSender, ILogger<QueuedMessagesSendScheduleTask> logger,
@@ -37,10 +37,10 @@ public class QueuedMessagesSendScheduleTask : IScheduleTask
         {
             var bcc = string.IsNullOrWhiteSpace(queuedEmail.Bcc)
                 ? null
-                : queuedEmail.Bcc.Split([';'], StringSplitOptions.RemoveEmptyEntries);
+                : queuedEmail.Bcc.Split(separators, StringSplitOptions.RemoveEmptyEntries);
             var cc = string.IsNullOrWhiteSpace(queuedEmail.CC)
                 ? null
-                : queuedEmail.CC.Split([';'], StringSplitOptions.RemoveEmptyEntries);
+                : queuedEmail.CC.Split(separators, StringSplitOptions.RemoveEmptyEntries);
 
             try
             {

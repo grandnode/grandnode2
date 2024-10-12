@@ -149,7 +149,7 @@ public class ContactController : BasePublicController
         if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
         {
             var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.ToLowerInvariant()
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .ToList();
             if (!allowedFileExtensions.Contains(fileExtension.ToLowerInvariant()))
                 return Json(new {

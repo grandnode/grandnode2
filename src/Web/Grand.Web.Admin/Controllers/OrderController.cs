@@ -172,7 +172,7 @@ public class OrderController(
         if (selectedIds != null)
         {
             var ids = selectedIds
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x)
                 .ToArray();
             orders.AddRange(await orderService.GetOrdersByIds(ids));
@@ -398,7 +398,7 @@ public class OrderController(
         if (selectedIds != null)
         {
             var ids = selectedIds
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x)
                 .ToArray();
             orders.AddRange(await orderService.GetOrdersByIds(ids));
