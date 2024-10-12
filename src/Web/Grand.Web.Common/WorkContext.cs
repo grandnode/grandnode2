@@ -98,7 +98,7 @@ public class WorkContext : IWorkContext, IWorkContextSetter
         if (string.IsNullOrEmpty(path))
             return await Task.FromResult<Language>(null);
 
-        var firstSegment = path.Split(separators, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
+        var firstSegment = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
                            string.Empty;
         if (string.IsNullOrEmpty(firstSegment))
             return await Task.FromResult<Language>(null);
@@ -447,8 +447,6 @@ public class WorkContext : IWorkContext, IWorkContextSetter
     ///     Gets the current domain host
     /// </summary>
     public virtual DomainHost CurrentHost => _storeHelper.DomainHost;
-
-    private static readonly char[] separators = new[] { '/' };
 
     #endregion
 }

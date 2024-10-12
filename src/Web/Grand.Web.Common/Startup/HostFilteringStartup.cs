@@ -26,7 +26,7 @@ public class HostFilteringStartup : IStartupApplication
 
         //configuration[
         var hosts = securityConfig.AllowedHosts?
-            .Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            .Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
         if (hosts?.Length > 0) services.Configure<HostFilteringOptions>(options => options.AllowedHosts = hosts);
     }
 
@@ -51,6 +51,4 @@ public class HostFilteringStartup : IStartupApplication
     public int Priority => -40;
 
     public bool BeforeConfigure => true;
-
-    private static readonly char[] separators = new[] { ';' };
 }

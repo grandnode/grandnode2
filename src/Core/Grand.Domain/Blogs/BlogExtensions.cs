@@ -2,8 +2,6 @@
 
 public static class BlogExtensions
 {
-    private static readonly char[] separators = new[] { ',' };
-
     public static string[] ParseTags(this BlogPost blogPost)
     {
         ArgumentNullException.ThrowIfNull(blogPost);
@@ -11,7 +9,7 @@ public static class BlogExtensions
         var parsedTags = new List<string>();
         if (!string.IsNullOrEmpty(blogPost.Tags))
         {
-            var tags2 = blogPost.Tags.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            var tags2 = blogPost.Tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var tag2 in tags2)
             {
                 var tmp = tag2.Trim();

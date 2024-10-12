@@ -49,8 +49,7 @@ public class LanguageAttribute : TypeFilterAttribute
         private readonly IWorkContext _workContext;
         private readonly ILanguageService _languageService;
         private readonly AppConfig _config;
-        private static readonly char[] separators = new[] { '/' };
-
+        
         #endregion
 
         #region Methods
@@ -106,7 +105,7 @@ public class LanguageAttribute : TypeFilterAttribute
             _ = new PathString(url).StartsWithSegments(pathBase, out var result);
             url = WebUtility.UrlDecode(result);
 
-            var firstSegment = url.Split(separators, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
+            var firstSegment = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
                                string.Empty;
             if (string.IsNullOrEmpty(firstSegment))
                 return false;
