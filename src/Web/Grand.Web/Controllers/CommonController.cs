@@ -70,7 +70,7 @@ public class CommonController : BasePublicController
         _ = new PathString(url).StartsWithSegments(pathBase, out var result);
         url = WebUtility.UrlDecode(result);
 
-        var firstSegment = url.Split(['/'], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
+        var firstSegment = url.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
                            string.Empty;
         if (string.IsNullOrEmpty(firstSegment))
             return false;

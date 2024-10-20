@@ -869,7 +869,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             };
             if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
                 attributeModel.AllowedFileExtensions = attribute.ValidationFileAllowedExtensions
-                    .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .ToList();
 
             var urlselectedValues = !string.IsNullOrEmpty(productAttribute.SeName)

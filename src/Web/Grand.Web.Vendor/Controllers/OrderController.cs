@@ -188,7 +188,7 @@ public class OrderController : BaseVendorController
         if (selectedIds != null)
         {
             var ids = selectedIds
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x)
                 .ToArray();
             orders.AddRange(await _orderService.GetOrdersByIds(ids));

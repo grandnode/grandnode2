@@ -356,7 +356,7 @@ public class ProductController : BaseAdminController
         {
             var ids = new List<string>();
             var rangeArray = productIds
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.Trim())
                 .ToList();
 
@@ -1500,7 +1500,7 @@ public class ProductController : BaseAdminController
         if (selectedIds != null)
         {
             var ids = selectedIds
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x)
                 .ToArray();
             products.AddRange(await _productService.GetProductsByIds(ids, true));

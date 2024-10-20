@@ -314,7 +314,7 @@ public class ProductController : BaseVendorController
         if (!string.IsNullOrWhiteSpace(productIds))
         {
             var rangeArray = productIds
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.Trim())
                 .ToList();
 
@@ -1439,7 +1439,7 @@ public class ProductController : BaseVendorController
         if (selectedIds != null)
         {
             var ids = selectedIds
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x)
                 .ToArray();
             products.AddRange(await _productService.GetProductsByIds(ids, true));
