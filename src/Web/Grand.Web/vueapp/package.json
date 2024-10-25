@@ -15,7 +15,7 @@
     "pikaday": "^1.8.2",
     "sass-loader": "^12.6.0",
     "vee-validate": "^3.1.0",
-    "vue": "^2.7.8",
+    "vue": "^3.0.0",
     "vue-awesome-countdown": "^1.1.4",
     "vue-gallery-slideshow": "^1.5.2"
   },
