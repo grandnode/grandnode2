@@ -6,6 +6,10 @@ public static class CommonPath
 
     public static string Plugins => "Plugins";
 
+    public static string TmpUploadPath = "TempUploads";
+
+    public static string DirectoryParam = "Directory";
+
     /// <summary>
     ///     Extra parameter to path
     /// </summary>
@@ -23,13 +27,7 @@ public static class CommonPath
     /// <returns>The physical path.</returns>
     public static string InstalledPluginsFilePath =>
         Path.Combine(BaseDirectory, AppData, Param, "InstalledPlugins.cfg");
-    
-    /// <summary>
-    ///     Maps a temp upload path to a physical disk path.
-    /// </summary>
-    /// <returns>The physical path.</returns>
-    public static string TmpUploadPath => Path.Combine(BaseDirectory, AppData, Param, "TempUploads");
-
+        
     /// <summary>
     ///     Gets or sets application base path
     /// </summary>

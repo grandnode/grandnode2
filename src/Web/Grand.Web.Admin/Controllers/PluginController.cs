@@ -274,7 +274,7 @@ public class PluginController(
             Error(translationService.GetResource("Admin.Common.UploadFile"));
             return RedirectToAction("List");
         }
-
+        var tempDirectory = Path.Combine(webHostEnvironment.ContentRootPath, CommonPath.Plugins, CommonPath.TmpUploadPath);
         var zipFilePath = "";
         try
         {
@@ -282,7 +282,6 @@ public class PluginController(
                 throw new Exception("Only zip archives are supported");
 
             //ensure that temp directory is created
-            var tempDirectory = CommonPath.TmpUploadPath;
             Directory.CreateDirectory(new DirectoryInfo(tempDirectory).FullName);
 
             //copy original archive to the temp directory
@@ -300,8 +299,8 @@ public class PluginController(
         finally
         {
             //delete temporary file
-            if (!string.IsNullOrEmpty(zipFilePath))
-                System.IO.File.Delete(zipFilePath);
+            if(Directory.Exists(tempDirectory))
+                DeleteDirectory(tempDirectory);
         }
 
         logger.LogInformation("The plugin has been uploaded by the user {CurrentCustomerEmail}",
