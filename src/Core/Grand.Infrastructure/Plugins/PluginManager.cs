@@ -22,9 +22,7 @@ public static class PluginManager
     public const string CopyPath = "Plugins/bin";
 
     private static readonly object _synLock = new();
-
-    private static string PluginsFolder = "Plugins";
-
+    
     #endregion
 
     #region Fields
