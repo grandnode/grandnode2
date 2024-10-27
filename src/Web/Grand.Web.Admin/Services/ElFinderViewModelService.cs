@@ -25,6 +25,8 @@ public class ElFinderViewModelService : IElFinderViewModelService
     private readonly string _urlpathUploded;
     private readonly string _urlThumb;
 
+    private static string ImageThumbPath => Path.Combine("assets", "images", "thumbs");
+
     public ElFinderViewModelService(
         IDriver driver,
         IConnector connector,
@@ -60,11 +62,11 @@ public class ElFinderViewModelService : IElFinderViewModelService
         _urlpathUploded = (string.IsNullOrEmpty(CommonPath.Param) ? "/" : $"/{CommonPath.Param}/")
                           + uploaded.Path.Replace("\\", "/") + "/";
 
-        var thumbs = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);
+        var thumbs = _mediaFileStore.GetDirectoryInfo(ImageThumbPath);
         if (thumbs == null)
         {
-            _mediaFileStore.TryCreateDirectory(CommonPath.ImageThumbPath);
-            thumbs = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);
+            _mediaFileStore.TryCreateDirectory(ImageThumbPath);
+            thumbs = _mediaFileStore.GetDirectoryInfo(ImageThumbPath);
         }
 
         _fullPathToThumbs = thumbs.PhysicalPath;

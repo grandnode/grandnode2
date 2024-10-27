@@ -62,6 +62,7 @@ public class PictureService : IPictureService
     private readonly StorageSettings _storageSettings;
 
     private static string ImagePath => Path.Combine("assets", "images");
+    private static string ImageThumbPath => Path.Combine("assets", "images", "thumbs");
 
     #endregion
 
@@ -120,7 +121,7 @@ public class PictureService : IPictureService
     protected virtual Task DeletePictureThumbs(Picture picture)
     {
         var filter = $"{picture.Id}*.*";
-        var thumbDirectoryPath = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);
+        var thumbDirectoryPath = _mediaFileStore.GetDirectoryInfo(ImageThumbPath);
         if (thumbDirectoryPath == null) return Task.CompletedTask;
         var currentFiles = Directory.GetFiles(thumbDirectoryPath.PhysicalPath, filter, SearchOption.AllDirectories);
         foreach (var currentFileName in currentFiles)
@@ -144,7 +145,7 @@ public class PictureService : IPictureService
     /// <returns>Local picture physical path</returns>
     protected virtual async Task<string> GetThumbPhysicalPath(string thumbFileName)
     {
-        var thumbFile = _mediaFileStore.Combine(CommonPath.ImageThumbPath, thumbFileName);
+        var thumbFile = _mediaFileStore.Combine(ImageThumbPath, thumbFileName);
         var fileInfo = await _mediaFileStore.GetFileInfo(thumbFile);
         return fileInfo?.PhysicalPath;
     }
@@ -158,7 +159,7 @@ public class PictureService : IPictureService
     protected virtual string GetThumbUrl(string thumbFileName, string storeLocation = null)
     {
         storeLocation = !string.IsNullOrEmpty(storeLocation) ? storeLocation : "";
-        return _mediaFileStore.Combine(storeLocation, CommonPath.Param, CommonPath.ImageThumbPath, thumbFileName);
+        return _mediaFileStore.Combine(storeLocation, CommonPath.Param, ImageThumbPath, thumbFileName);
     }
 
     /// <summary>
@@ -198,12 +199,12 @@ public class PictureService : IPictureService
     {
         try
         {
-            var dirThumb = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);
+            var dirThumb = _mediaFileStore.GetDirectoryInfo(ImageThumbPath);
             if (dirThumb == null)
             {
-                var result = _mediaFileStore.TryCreateDirectory(CommonPath.ImageThumbPath);
+                var result = _mediaFileStore.TryCreateDirectory(ImageThumbPath);
                 if (result)
-                    dirThumb = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);
+                    dirThumb = _mediaFileStore.GetDirectoryInfo(ImageThumbPath);
             }
 
             if (dirThumb != null)
@@ -482,7 +483,7 @@ public class PictureService : IPictureService
     public virtual async Task ClearThumbs()
     {
         const string searchPattern = "*.*";
-        var path = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath)?.PhysicalPath;
+        var path = _mediaFileStore.GetDirectoryInfo(ImageThumbPath)?.PhysicalPath;
 
         if (!Directory.Exists(path))
             return;

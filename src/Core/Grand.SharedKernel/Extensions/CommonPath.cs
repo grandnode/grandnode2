@@ -22,12 +22,6 @@ public static class CommonPath
     public static string PluginsPath => Path.Combine(BaseDirectory, "Plugins");
 
     /// <summary>
-    ///     Maps a image thumb path.
-    /// </summary>
-    /// <returns>The path.</returns>
-    public static string ImageThumbPath => Path.Combine("assets", "images", "thumbs");
-
-    /// <summary>
     ///     Maps a image upload path.
     /// </summary>
     /// <returns>The path.</returns>
