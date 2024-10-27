@@ -20,14 +20,7 @@ public static class CommonPath
     /// </summary>
     /// <returns>The physical path.</returns>
     public static string PluginsPath => Path.Combine(BaseDirectory, "Plugins");
-
-    /// <summary>
-    ///     Maps a image upload path.
-    /// </summary>
-    /// <returns>The path.</returns>
-    public static string ImageUploadedPath => Path.Combine("assets", "images", "uploaded");
-
-
+    
     /// <summary>
     ///     Maps a installled plugins path to a physical disk path.
     /// </summary>
