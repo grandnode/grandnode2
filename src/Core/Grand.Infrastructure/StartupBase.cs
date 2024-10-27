@@ -125,10 +125,10 @@ public static class StartupBase
     /// </summary>
     /// <param name="mvcCoreBuilder"></param>
     /// <param name="configuration"></param>
-    private static void RegisterExtensions(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration)
+    private static void RegisterExtensions(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration, IWebHostEnvironment hostEnvironment)
     {
-        //Load plugins
-        PluginManager.Load(mvcCoreBuilder, configuration);
+        //Load plugins        
+        PluginManager.Load(mvcCoreBuilder, configuration, hostEnvironment);
 
         //Load CTX scripts
         RoslynCompiler.Load(mvcCoreBuilder.PartManager, configuration);
@@ -191,8 +191,7 @@ public static class StartupBase
     /// <param name="services">Collection of service descriptors</param>
     /// <param name="configuration">Configuration</param>
     /// <param name="typeSearcher">Type searcher</param>
-    private static IMvcCoreBuilder RegisterApplication(IServiceCollection services, IConfiguration configuration,
-        ITypeSearcher typeSearcher)
+    private static IMvcCoreBuilder RegisterApplication(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment hostingEnvironment, ITypeSearcher typeSearcher)
     {
         //add accessor to HttpContext
         services.AddHttpContextAccessor();
@@ -202,15 +201,15 @@ public static class StartupBase
         InitDatabase(services, configuration);
 
         //set base application path
-        var provider = services.BuildServiceProvider();
-        var hostingEnvironment = provider.GetRequiredService<IWebHostEnvironment>();
         var param = configuration["Directory"];
         if (!string.IsNullOrEmpty(param))
             CommonPath.Param = param;
 
         CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
         CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
+        
         services.AddTransient<ValidationFilter>();
+
         var mvcCoreBuilder = services.AddMvcCore(options =>
         {
             options.Filters.AddService<ValidationFilter>();
@@ -273,11 +272,14 @@ public static class StartupBase
         var typeSearcher = new TypeSearcher();
         services.AddSingleton<ITypeSearcher>(typeSearcher);
 
+        var provider = services.BuildServiceProvider();
+        var hostingEnvironment = provider.GetRequiredService<IWebHostEnvironment>();
+
         //register application
-        var mvcBuilder = RegisterApplication(services, configuration, typeSearcher);
+        var mvcBuilder = RegisterApplication(services, configuration, hostingEnvironment, typeSearcher);
 
         //register extensions 
-        RegisterExtensions(mvcBuilder, configuration);
+        RegisterExtensions(mvcBuilder, configuration, hostingEnvironment);
 
         var startupConfigurations = typeSearcher.ClassesOfType<IStartupApplication>();
 

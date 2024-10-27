@@ -185,12 +185,14 @@ public static class ApplicationBuilderExtensions
                     ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, appConfig.StaticFilesCacheControl);
             }
         });
+        var webHostEnvironment = application.ApplicationServices.GetRequiredService<IWebHostEnvironment>();
+        var pluginsPath = Path.Combine(webHostEnvironment.ContentRootPath, CommonPath.Plugins);
 
         //plugins
-        if (Directory.Exists(CommonPath.PluginsPath))
+        if (Directory.Exists(pluginsPath))
             application.UseStaticFiles(new StaticFileOptions {
-                FileProvider = new PhysicalFileProvider(CommonPath.PluginsPath),
-                RequestPath = new PathString("/Plugins"),
+                FileProvider = new PhysicalFileProvider(pluginsPath),
+                RequestPath = new PathString($"/{CommonPath.Plugins}"),
                 OnPrepareResponse = ctx =>
                 {
                     if (!string.IsNullOrEmpty(appConfig.StaticFilesCacheControl))

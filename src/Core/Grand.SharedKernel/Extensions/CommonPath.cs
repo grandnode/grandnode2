@@ -4,6 +4,8 @@ public static class CommonPath
 {
     public static string AppData => "App_Data";
 
+    public static string Plugins => "Plugins";
+
     /// <summary>
     ///     Extra parameter to path
     /// </summary>
@@ -14,12 +16,6 @@ public static class CommonPath
     /// </summary>
     /// <returns>The physical path.</returns>
     public static string SettingsPath => Path.Combine(BaseDirectory, AppData, Param, "Settings.cfg");
-
-    /// <summary>
-    ///     Maps a theme path to a physical disk path.
-    /// </summary>
-    /// <returns>The physical path.</returns>
-    public static string PluginsPath => Path.Combine(BaseDirectory, "Plugins");
     
     /// <summary>
     ///     Maps a installled plugins path to a physical disk path.
@@ -27,13 +23,7 @@ public static class CommonPath
     /// <returns>The physical path.</returns>
     public static string InstalledPluginsFilePath =>
         Path.Combine(BaseDirectory, AppData, Param, "InstalledPlugins.cfg");
-
-    /// <summary>
-    ///     Maps a installled plugins path to a physical disk path.
-    /// </summary>
-    /// <returns>The physical path.</returns>
-    public static string PluginsCopyPath => Path.Combine(BaseDirectory, PluginsPath, "bin");
-
+    
     /// <summary>
     ///     Maps a temp upload path to a physical disk path.
     /// </summary>

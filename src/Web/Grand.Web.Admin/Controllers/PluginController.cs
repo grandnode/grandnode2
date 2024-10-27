@@ -8,9 +8,9 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Models.Plugins;
 using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
@@ -28,17 +28,10 @@ public class PluginController(
     IWorkContext workContext,
     IServiceProvider serviceProvider,
     IEnumTranslationService enumTranslationService,
+    IWebHostEnvironment webHostEnvironment,
     ExtensionsConfig extConfig)
     : BaseAdminController
 {
-    #region Fields
-
-    #endregion
-
-    #region Constructors
-
-    #endregion
-
     #region Utilities
 
     [NonAction]
@@ -232,7 +225,7 @@ public class PluginController(
                 //No plugin found with the specified id
                 return RedirectToAction("List");
 
-            var pluginsPath = CommonPath.PluginsPath;
+            var pluginsPath = "Plugins";
 
             foreach (var folder in Directory.GetDirectories(pluginsPath))
                 if (Path.GetFileName(folder) != "bin" && Directory.GetFiles(folder).Select(x => Path.GetFileName(x))
@@ -322,7 +315,7 @@ public class PluginController(
 
     private void Upload(string archivePath)
     {
-        var pluginsDirectory = CommonPath.PluginsPath;
+        var pluginsPath = Path.Combine(webHostEnvironment.ContentRootPath, CommonPath.Plugins);
         var uploadedItemDirectoryName = "";
         PluginInfo _pluginInfo = null;
         using (var archive = ZipFile.Open(archivePath, ZipArchiveMode.Update))
@@ -393,7 +386,7 @@ public class PluginController(
         if (string.IsNullOrEmpty(uploadedItemDirectoryName))
             throw new Exception("Cannot get the plugin directory name");
 
-        var pathToUpload = Path.Combine(pluginsDirectory, uploadedItemDirectoryName);
+        var pathToUpload = Path.Combine(pluginsPath, uploadedItemDirectoryName);
 
         try
         {
@@ -402,7 +395,7 @@ public class PluginController(
         }
         catch { }
 
-        ZipFile.ExtractToDirectory(archivePath, pluginsDirectory);
+        ZipFile.ExtractToDirectory(archivePath, pluginsPath);
     }
 
     #endregion
