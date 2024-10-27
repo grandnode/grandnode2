@@ -13,12 +13,6 @@ public static class CommonPath
     ///     Maps a settings path to a physical disk path.
     /// </summary>
     /// <returns>The physical path.</returns>
-    public static string DataProtectionKeysPath => Path.Combine(BaseDirectory, AppData, Param, "DataProtectionKeys");
-
-    /// <summary>
-    ///     Maps a settings path to a physical disk path.
-    /// </summary>
-    /// <returns>The physical path.</returns>
     public static string SettingsPath => Path.Combine(BaseDirectory, AppData, Param, "Settings.cfg");
 
     /// <summary>

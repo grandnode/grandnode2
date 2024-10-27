@@ -122,13 +122,8 @@ public static class ServiceCollectionExtensions
         else
         {
             var securityConfig = new SecurityConfig();
-            configuration.GetSection("Security").Bind(securityConfig);
-
-            var dataProtectionKeysPath = string.IsNullOrEmpty(securityConfig.KeyPersistenceLocation)
-                ? CommonPath.DataProtectionKeysPath
-                : securityConfig.KeyPersistenceLocation;
-            var dataProtectionKeysFolder = new DirectoryInfo(dataProtectionKeysPath);
-
+            configuration.GetSection("Security").Bind(securityConfig);            
+            var dataProtectionKeysFolder = new DirectoryInfo(securityConfig.KeyPersistenceLocation);
             //configure the data protection system to persist keys to the specified directory
             services.AddDataProtection().PersistKeysToFileSystem(dataProtectionKeysFolder);
         }
