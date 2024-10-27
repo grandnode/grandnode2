@@ -231,8 +231,8 @@ public class InstallController : Controller
                 DbProvider = model.DataProvider
             };
 
-            await DataSettingsManager.SaveSettings(settings);
-            DataSettingsManager.LoadSettings(true);
+            await DataSettingsManager.Instance.SaveSettings(settings);
+            DataSettingsManager.Instance.LoadSettings(true);
 
             var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
             await installationService.InstallData(
@@ -244,7 +244,7 @@ public class InstallController : Controller
             _logger.LogInformation("Database has been installed");
 
             //reset cache
-            DataSettingsManager.ResetCache();
+            DataSettingsManager.Instance.ResetCache();
 
             PluginManager.ClearPlugins();
 
@@ -281,10 +281,10 @@ public class InstallController : Controller
         catch (Exception exception)
         {
             //reset cache
-            DataSettingsManager.ResetCache();
+            DataSettingsManager.Instance.ResetCache();
             await _cacheBase.Clear();
 
-            System.IO.File.Delete(CommonPath.SettingsPath);
+            System.IO.File.Delete(Path.Combine(AppContext.BaseDirectory, CommonPath.AppData, CommonPath.SettingsFile));
 
             ModelState.AddModelError("",
                 string.Format(locService.GetResource(model.SelectedLanguage, "SetupFailed"),

@@ -10,7 +10,7 @@ public class MongoStoreFilesContext : IStoreFilesContext
 
     public MongoStoreFilesContext()
     {
-        var connectionString = DataSettingsManager.LoadSettings().ConnectionString;
+        var connectionString = DataSettingsManager.Instance.LoadSettings().ConnectionString;
 
         var mongourl = new MongoUrl(connectionString);
         var databaseName = mongourl.DatabaseName;

@@ -36,7 +36,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public MongoRepository(IAuditInfoProvider auditInfoProvider)
     {
         _auditInfoProvider = auditInfoProvider;
-        var connection = DataSettingsManager.LoadSettings();
+        var connection = DataSettingsManager.Instance.LoadSettings();
 
         if (!string.IsNullOrEmpty(connection.ConnectionString))
         {

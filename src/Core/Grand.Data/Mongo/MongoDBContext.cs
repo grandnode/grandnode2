@@ -11,7 +11,7 @@ public class MongoDBContext : IDatabaseContext
 
     public MongoDBContext()
     {
-        var connection = DataSettingsManager.LoadSettings();
+        var connection = DataSettingsManager.Instance.LoadSettings();
         if (!string.IsNullOrEmpty(connection.ConnectionString))
             PrepareMongoDatabase(connection.ConnectionString);
     }
@@ -134,7 +134,7 @@ public class MongoDBContext : IDatabaseContext
 
     protected IMongoDatabase TryReadMongoDatabase()
     {
-        _connectionString = DataSettingsManager.LoadSettings().ConnectionString;
+        _connectionString = DataSettingsManager.Instance.LoadSettings().ConnectionString;
 
         var mongourl = new MongoUrl(_connectionString);
         var databaseName = mongourl.DatabaseName;

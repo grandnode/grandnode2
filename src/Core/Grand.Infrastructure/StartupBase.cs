@@ -36,7 +36,7 @@ public static class StartupBase
     {
         var dbConfig = services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
         if (!string.IsNullOrEmpty(dbConfig.ConnectionString))
-            DataSettingsManager.LoadDataSettings(new DataSettings {
+            DataSettingsManager.Instance.LoadDataSettings(new DataSettings {
                 ConnectionString = dbConfig.ConnectionString,
                 DbProvider = (DbProvider)dbConfig.DbProvider
             });
@@ -207,9 +207,11 @@ public static class StartupBase
 
         CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
         CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
-        
-        services.AddTransient<ValidationFilter>();
 
+        var settingsPath = Path.Combine(hostingEnvironment.ContentRootPath, CommonPath.AppData, configuration["Directory"] ?? "", CommonPath.SettingsFile);
+        DataSettingsManager.Initialize(settingsPath);
+
+        services.AddTransient<ValidationFilter>();
         var mvcCoreBuilder = services.AddMvcCore(options =>
         {
             options.Filters.AddService<ValidationFilter>();

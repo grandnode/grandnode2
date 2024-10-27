@@ -10,16 +10,12 @@ public static class CommonPath
 
     public static string DirectoryParam = "Directory";
 
+    public static string SettingsFile = "Settings.cfg";
+
     /// <summary>
     ///     Extra parameter to path
     /// </summary>
     public static string Param { get; set; } = "";
-
-    /// <summary>
-    ///     Maps a settings path to a physical disk path.
-    /// </summary>
-    /// <returns>The physical path.</returns>
-    public static string SettingsPath => Path.Combine(BaseDirectory, AppData, Param, "Settings.cfg");
     
     /// <summary>
     ///     Maps a installled plugins path to a physical disk path.

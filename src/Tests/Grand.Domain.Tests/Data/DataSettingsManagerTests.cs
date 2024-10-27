@@ -10,24 +10,25 @@ public class DataSettingsManagerTests
 {
     public DataSettingsManagerTests()
     {
-        CommonPath.BaseDirectory = TestContext.CurrentContext.TestDirectory;
+        var path = Path.Combine(TestContext.CurrentContext.TestDirectory, CommonPath.AppData, CommonPath.SettingsFile);
+        DataSettingsManager.Initialize(path);
     }
 
     [TestInitialize]
     public void Setup()
     {
-        DataSettingsManager.LoadDataSettings(null);
+        DataSettingsManager.Instance.LoadDataSettings(null);
 
-        if (File.Exists(CommonPath.SettingsPath))
-            File.Delete(CommonPath.SettingsPath);
+        /*if (File.Exists(CommonPath.SettingsPath))
+            File.Delete(CommonPath.SettingsPath);*/
     }
 
     [TestMethod]
     public async Task SaveSettings_LoadSettings_Test()
     {
-        await DataSettingsManager.SaveSettings(new DataSettings
+        await DataSettingsManager.Instance.SaveSettings(new DataSettings
             { ConnectionString = "connectionstring", DbProvider = DbProvider.MongoDB });
-        var settings = DataSettingsManager.LoadSettings();
+        var settings = DataSettingsManager.Instance.LoadSettings();
         Assert.IsNotNull(settings);
         Assert.IsTrue(DataSettingsManager.DatabaseIsInstalled());
         Assert.AreEqual("connectionstring", settings.ConnectionString);
@@ -37,7 +38,7 @@ public class DataSettingsManagerTests
     [TestMethod]
     public async Task DatabaseIsInstalledTest_True()
     {
-        await DataSettingsManager.SaveSettings(new DataSettings
+        await DataSettingsManager.Instance.SaveSettings(new DataSettings
             { ConnectionString = "connectionstring", DbProvider = DbProvider.MongoDB });
         Assert.IsTrue(DataSettingsManager.DatabaseIsInstalled());
     }

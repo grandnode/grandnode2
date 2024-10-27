@@ -52,7 +52,8 @@ public class PriceServiceTests
     [TestInitialize]
     public void TestInitialize()
     {
-        CommonPath.BaseDirectory = "";
+        var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
+        DataSettingsManager.Initialize(settingsPath);
 
         _store = new Store { Id = "1" };
         tempWorkContext = new Mock<IWorkContext>();

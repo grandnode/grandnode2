@@ -32,7 +32,8 @@ public class CurrencyServiceTests
     [TestInitialize]
     public void TestInitialize()
     {
-        CommonPath.BaseDirectory = "";
+        var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
+        DataSettingsManager.Initialize(settingsPath);
 
         currencyUSD = new Currency {
             Id = "1",

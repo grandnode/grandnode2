@@ -971,7 +971,7 @@ public partial class InstallationService : IInstallationService
     {
         try
         {
-            var dataSettings = DataSettingsManager.LoadSettings(true);
+            var dataSettings = DataSettingsManager.Instance.LoadSettings(true);
             var dbContext = _serviceProvider.GetRequiredService<IDatabaseContext>();
             dbContext.SetConnection(dataSettings.ConnectionString);
 
