@@ -201,7 +201,7 @@ public static class StartupBase
         InitDatabase(services, configuration);
 
         //set base application path
-        var param = configuration["Directory"];
+        var param = configuration[CommonPath.Param];
         if (!string.IsNullOrEmpty(param))
             CommonPath.Param = param;
 

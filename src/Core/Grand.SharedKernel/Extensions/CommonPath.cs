@@ -27,11 +27,6 @@ public static class CommonPath
     /// <summary>
     ///     Gets or sets web application content files
     /// </summary>
-    public static string WebRootPath => Path.Combine(WebHostEnvironment, Param);
-
-    /// <summary>
-    ///     Gets or sets web application content files
-    /// </summary>
     public static string WebHostEnvironment { get; set; }
 
     /// <summary>
@@ -45,16 +40,6 @@ public static class CommonPath
         return Path.Combine(BaseDirectory, path);
     }
 
-    /// <summary>
-    ///     Maps a virtual path to a physical disk path (for tenants).
-    /// </summary>
-    /// <param name="path">The path to map. E.g. "~/bin"</param>
-    /// <returns>The physical path. E.g. "c:\inetpub\wwwroot\"</returns>
-    public static string WebMapPath(string path)
-    {
-        path = path.Replace("~/", "").TrimStart('/');
-        return Path.Combine(WebRootPath, path);
-    }
 
     /// <summary>
     ///     Maps a virtual path to a physical disk path. (not for tenants)
