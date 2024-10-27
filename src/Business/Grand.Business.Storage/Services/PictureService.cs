@@ -61,6 +61,8 @@ public class PictureService : IPictureService
     private readonly MediaSettings _mediaSettings;
     private readonly StorageSettings _storageSettings;
 
+    private static string ImagePath => Path.Combine("assets", "images");
+
     #endregion
 
     #region Utilities
@@ -166,7 +168,7 @@ public class PictureService : IPictureService
     /// <returns>Physical picture path</returns>
     protected virtual async Task<string> GetPicturePhysicalPath(string fileName)
     {
-        var fileInfo = await _mediaFileStore.GetFileInfo(_mediaFileStore.Combine(CommonPath.ImagePath, fileName));
+        var fileInfo = await _mediaFileStore.GetFileInfo(_mediaFileStore.Combine(ImagePath, fileName));
         return fileInfo?.PhysicalPath;
     }
 
@@ -255,11 +257,11 @@ public class PictureService : IPictureService
     public virtual async Task<string> GetDefaultPictureUrl(int targetSize = 0, string storeLocation = null)
     {
         var filePath = await GetPicturePhysicalPath(_mediaSettings.DefaultImageName);
-        if (string.IsNullOrEmpty(filePath)) return _mediaFileStore.Combine(CommonPath.ImagePath, "no-image.png");
+        if (string.IsNullOrEmpty(filePath)) return _mediaFileStore.Combine(ImagePath, "no-image.png");
         if (targetSize == 0)
             return !string.IsNullOrEmpty(storeLocation)
                 ? storeLocation
-                : _mediaFileStore.Combine(CommonPath.ImagePath, _mediaSettings.DefaultImageName);
+                : _mediaFileStore.Combine(ImagePath, _mediaSettings.DefaultImageName);
 
         var fileExtension = Path.GetExtension(filePath);
         var thumbFileName = $"{Path.GetFileNameWithoutExtension(filePath)}_{targetSize}{fileExtension}";
@@ -686,7 +688,7 @@ public class PictureService : IPictureService
     {
         var lastPart = GetFileExtensionFromMimeType(mimeType);
         var fileName = $"{pictureId}_0.{lastPart}";
-        var dirPath = _mediaFileStore.GetDirectoryInfo(CommonPath.ImagePath);
+        var dirPath = _mediaFileStore.GetDirectoryInfo(ImagePath);
         if (dirPath != null)
         {
             var filepath = _mediaFileStore.Combine(dirPath.PhysicalPath, fileName);
