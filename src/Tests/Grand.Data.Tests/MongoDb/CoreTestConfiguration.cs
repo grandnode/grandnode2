@@ -50,8 +50,6 @@ public static class CoreTestConfiguration
 
     public static DatabaseNamespace DatabaseNamespace { get; } = GetDatabaseNamespace();
 
-    public static MessageEncoderSettings MessageEncoderSettings { get; } = new();
-
     public static TraceSource TraceSource { get; private set; }
 
     // static methods
@@ -108,25 +106,9 @@ public static class CoreTestConfiguration
         var hasWritableServer = 0;
         var builder = ConfigureCluster();
         var cluster = builder.BuildCluster();
-        cluster.DescriptionChanged += (o, e) =>
-        {
-            var anyWritableServer = e.NewClusterDescription.Servers.Any(
-                description => description.Type.IsWritable());
-            if (TraceSource != null)
-            {
-                TraceSource.TraceEvent(TraceEventType.Information, 0,
-                    "CreateCluster: DescriptionChanged event handler called.");
-                TraceSource.TraceEvent(TraceEventType.Information, 0,
-                    $"CreateCluster: anyWritableServer = {anyWritableServer}.");
-                TraceSource.TraceEvent(TraceEventType.Information, 0,
-                    $"CreateCluster: new description: {e.NewClusterDescription}.");
-            }
-
-            Interlocked.Exchange(ref hasWritableServer, anyWritableServer ? 1 : 0);
-        };
+        
         if (TraceSource != null)
             TraceSource.TraceEvent(TraceEventType.Information, 0, "CreateCluster: initializing cluster.");
-        cluster.Initialize();
 
         // wait until the cluster has connected to a writable server
         SpinWait.SpinUntil(() => Interlocked.CompareExchange(ref hasWritableServer, 0, 0) != 0,
