@@ -89,8 +89,13 @@ public class DeleteOrderItemCommandHandler : IRequestHandler<DeleteOrderItemComm
         request.Order.OrderTotal -= request.OrderItem.PriceInclTax;
 
         if (request.Order.ShippingStatusId == ShippingStatus.PartiallyShipped)
+        {
             if (!request.Order.HasItemsToAddToShipment() && shipments.All(x => x.DeliveryDateUtc != null))
                 request.Order.ShippingStatusId = ShippingStatus.Delivered;
+            if (!request.Order.HasItemsToAddToShipment() && shipments.All(x => x.ShippedDateUtc != null))
+                request.Order.ShippingStatusId = ShippingStatus.Shipped;
+        }
+
         //TODO 
         //request.Order.OrderTaxes
 
