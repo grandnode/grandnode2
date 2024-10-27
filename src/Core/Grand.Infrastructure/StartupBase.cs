@@ -210,6 +210,9 @@ public static class StartupBase
 
         var settingsPath = Path.Combine(hostingEnvironment.ContentRootPath, CommonPath.AppData, configuration["Directory"] ?? "", CommonPath.SettingsFile);
         DataSettingsManager.Initialize(settingsPath);
+        
+        var pluginPaths= Path.Combine(hostingEnvironment.ContentRootPath, CommonPath.AppData, configuration["Directory"] ?? "", CommonPath.InstalledPluginsFile);
+        PluginPaths.Initialize(pluginPaths);
 
         services.AddTransient<ValidationFilter>();
         var mvcCoreBuilder = services.AddMvcCore(options =>

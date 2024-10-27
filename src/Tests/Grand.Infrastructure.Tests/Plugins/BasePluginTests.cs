@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestContext = NUnit.Framework.TestContext;
 
@@ -13,9 +14,11 @@ public class BasePluginTests
     [TestInitialize]
     public void Init()
     {
-        CommonPath.BaseDirectory = TestContext.CurrentContext.TestDirectory;
-        if (File.Exists(CommonPath.InstalledPluginsFilePath))
-            File.Delete(CommonPath.InstalledPluginsFilePath);
+        var pluginPaths = Path.Combine(TestContext.CurrentContext.TestDirectory, CommonPath.AppData, CommonPath.InstalledPluginsFile);
+        PluginPaths.Initialize(pluginPaths);
+
+        if (File.Exists(PluginPaths.Instance.InstalledPluginsFile))
+            File.Delete(PluginPaths.Instance.InstalledPluginsFile);
 
         sampleBasePlugin = new SampleBasePlugin();
     }
@@ -30,7 +33,7 @@ public class BasePluginTests
     public async Task InstallTest()
     {
         await sampleBasePlugin.Install();
-        var plugins = PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
+        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
         Assert.IsNotNull(plugins);
         Assert.AreEqual("SamplePlugin", plugins.FirstOrDefault());
     }
@@ -40,7 +43,7 @@ public class BasePluginTests
     {
         await sampleBasePlugin.Install();
         await sampleBasePlugin.Uninstall();
-        var plugins = PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
+        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
         Assert.AreEqual(0, plugins.Count);
     }
 
@@ -48,7 +51,7 @@ public class BasePluginTests
     public async Task UninstallTest()
     {
         await sampleBasePlugin.Uninstall();
-        var plugins = PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
+        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
         Assert.AreEqual(0, plugins.Count);
     }
 }

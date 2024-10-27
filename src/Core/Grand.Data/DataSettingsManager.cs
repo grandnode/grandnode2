@@ -1,5 +1,4 @@
-﻿using Grand.SharedKernel.Extensions;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace Grand.Data;
 
@@ -26,10 +25,7 @@ public sealed class DataSettingsManager
         {
             lock (_lock)
             {
-                if (_instance == null)
-                {
-                    _instance = new DataSettingsManager(settingsPath);
-                }
+                _instance ??= new DataSettingsManager(settingsPath);
             }
         }
     }

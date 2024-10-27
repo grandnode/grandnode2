@@ -68,7 +68,7 @@ public static class PluginManager
                 var installedPluginSystemNames =
                     !string.IsNullOrEmpty(_config.InstalledPlugins)
                         ? _config.InstalledPlugins.Split(",").Select(x => x.Trim())
-                        : PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
+                        : PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
 
                 _logger.LogInformation("Creating shadow copy folder and querying for dlls");
                 Directory.CreateDirectory(_pluginFolder.FullName);
@@ -206,7 +206,7 @@ public static class PluginManager
     /// </summary>
     public static void ClearPlugins()
     {
-        var filePath = CommonPath.InstalledPluginsFilePath;
+        var filePath = PluginPaths.Instance.InstalledPluginsFile;
         if (File.Exists(filePath))
             File.Delete(filePath);
     }
