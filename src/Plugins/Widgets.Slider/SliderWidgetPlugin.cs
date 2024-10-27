@@ -4,6 +4,7 @@ using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
+using Microsoft.AspNetCore.Hosting;
 using Widgets.Slider.Domain;
 
 namespace Widgets.Slider;
@@ -15,7 +16,8 @@ public class SliderWidgetPlugin(
     IPictureService pictureService,
     IRepository<PictureSlider> pictureSliderRepository,
     IDatabaseContext databaseContext,
-    IPluginTranslateResource pluginTranslateResource)
+    IPluginTranslateResource pluginTranslateResource,
+    IWebHostEnvironment webHostEnvironment)
     : BasePlugin, IPlugin
 {
 
@@ -30,7 +32,7 @@ public class SliderWidgetPlugin(
             "SliderTypeId_DisplayOrder");
 
         //pictures
-        var sampleImagesPath = CommonPath.MapPath("Plugins/Widgets.Slider/Assets/slider/sample-images/");
+        var sampleImagesPath = Path.Combine(webHostEnvironment.ContentRootPath, "Plugins/Widgets.Slider/Assets/slider/sample-images/");
         var byte1 = await File.ReadAllBytesAsync(sampleImagesPath + "banner1.png");
         var byte2 = await File.ReadAllBytesAsync(sampleImagesPath + "banner2.png");
 

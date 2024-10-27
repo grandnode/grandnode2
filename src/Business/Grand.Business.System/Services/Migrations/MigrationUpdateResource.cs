@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Data;
 using Grand.Domain.Localization;
-using Grand.SharedKernel.Extensions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -13,8 +13,8 @@ public static class MigrationUpdateResource
         string filename)
     {
         var langRepository = serviceProvider.GetRequiredService<IRepository<Language>>();
-        var logService = serviceProvider.GetRequiredService<ILoggerFactory>()
-            .CreateLogger("ImportLanguageResourcesFromXml");
+        var logService = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("ImportLanguageResourcesFromXml");
+        var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
         var translationService = serviceProvider.GetRequiredService<ITranslationService>();
 
         try
@@ -22,7 +22,7 @@ public static class MigrationUpdateResource
             var language = langRepository.Table.FirstOrDefault(l => l.Name == "English") ??
                            langRepository.Table.FirstOrDefault();
 
-            var filePath = CommonPath.MapPath(filename);
+            var filePath = Path.Combine(hostingEnvironment.ContentRootPath, filename);
             var localesXml = File.ReadAllText(filePath);
             translationService.ImportResourcesFromXmlInstall(language, localesXml).GetAwaiter().GetResult();
         }

@@ -1,10 +1,12 @@
 ﻿using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Extensions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting.Internal;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Runtime.Loader;
@@ -24,7 +26,7 @@ public static class RoslynCompiler
     /// </summary>
     public static IEnumerable<ResultCompiler> ReferencedScripts { get; set; }
 
-    public static void Load(ApplicationPartManager applicationPartManager, IConfiguration configuration)
+    public static void Load(ApplicationPartManager applicationPartManager, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
     {
         ArgumentNullException.ThrowIfNull(applicationPartManager);
 
@@ -36,9 +38,9 @@ public static class RoslynCompiler
 
         var referencedScripts = new List<ResultCompiler>();
 
-        var roslynFolder = new DirectoryInfo(CommonPath.MapPath(ScriptPath));
+        var roslynFolder = new DirectoryInfo(Path.Combine(webHostEnvironment.ContentRootPath, ScriptPath));
+        _shadowCopyScriptPath = new DirectoryInfo(Path.Combine(webHostEnvironment.ContentRootPath, ShadowCopyScriptPath));
 
-        _shadowCopyScriptPath = new DirectoryInfo(CommonPath.MapPath(ShadowCopyScriptPath));
         Directory.CreateDirectory(_shadowCopyScriptPath.FullName);
 
         //clear bin files

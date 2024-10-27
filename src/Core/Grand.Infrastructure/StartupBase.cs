@@ -131,7 +131,7 @@ public static class StartupBase
         PluginManager.Load(mvcCoreBuilder, configuration, hostEnvironment);
 
         //Load CTX scripts
-        RoslynCompiler.Load(mvcCoreBuilder.PartManager, configuration);
+        RoslynCompiler.Load(mvcCoreBuilder.PartManager, configuration, hostEnvironment);
     }
 
     /// <summary>

@@ -29,14 +29,4 @@ public static class CommonPath
     /// </summary>
     public static string WebHostEnvironment { get; set; }
 
-    /// <summary>
-    ///     Maps a path to a physical disk path.
-    /// </summary>
-    /// <param name="path">The path to map. E.g. "~/bin"</param>
-    /// <returns>The physical path. E.g. "c:\inetpub\wwwroot\bin"</returns>
-    public static string MapPath(string path)
-    {
-        path = path.Replace("~/", "").TrimStart('/');
-        return Path.Combine(BaseDirectory, path);
-    }
 }

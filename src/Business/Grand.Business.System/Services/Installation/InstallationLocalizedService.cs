@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Business.Core.Utilities.System;
 using Grand.SharedKernel.Extensions;
+using Microsoft.AspNetCore.Hosting;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -9,7 +10,7 @@ namespace Grand.Business.System.Services.Installation;
 /// <summary>
 ///     Translation service for installation process
 /// </summary>
-public class InstallationLocalizedService : IInstallationLocalizedService
+public class InstallationLocalizedService(IWebHostEnvironment hostingEnvironment) : IInstallationLocalizedService
 {
     /// <summary>
     ///     Available collation
@@ -20,6 +21,8 @@ public class InstallationLocalizedService : IInstallationLocalizedService
     ///     Available languages
     /// </summary>
     private IList<InstallationLanguage> _availableLanguages;
+
+    private readonly IWebHostEnvironment _hostingEnvironment = hostingEnvironment;
 
     /// <summary>
     ///     Get locale resource value
@@ -80,8 +83,8 @@ public class InstallationLocalizedService : IInstallationLocalizedService
             return _availableLanguages;
 
         _availableLanguages = new List<InstallationLanguage>();
-        foreach (var filePath in Directory.EnumerateFiles(CommonPath.MapPath("App_Data/Resources/Installation/"),
-                     "*.xml"))
+        var path = Path.Combine(_hostingEnvironment.ContentRootPath, "App_Data/Resources/Installation");
+        foreach (var filePath in Directory.EnumerateFiles(path, "*.xml"))
         {
             var xmlDocument = new XmlDocument();
             xmlDocument.Load(File.OpenRead(filePath));
@@ -162,7 +165,7 @@ public class InstallationLocalizedService : IInstallationLocalizedService
             return _availableCollation;
 
         _availableCollation = new List<InstallationCollation>();
-        var filePath = CommonPath.MapPath("App_Data/Resources/supportedcollation.xml");
+        var filePath = Path.Combine(_hostingEnvironment.ContentRootPath, "App_Data/Resources/supportedcollation.xml");
         var xmlDocument = new XmlDocument { XmlResolver = null };
         xmlDocument.Load(File.OpenRead(filePath));
 
