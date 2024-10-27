@@ -197,14 +197,14 @@ public static class StartupBase
         services.AddHttpContextAccessor();
 
         RegisterConfigurations(services, configuration);
-
-        InitDatabase(services, configuration);
        
         var settingsPath = Path.Combine(hostingEnvironment.ContentRootPath, CommonPath.AppData, configuration["Directory"] ?? "", CommonPath.SettingsFile);
         DataSettingsManager.Initialize(settingsPath);
         
         var pluginPaths= Path.Combine(hostingEnvironment.ContentRootPath, CommonPath.AppData, configuration["Directory"] ?? "", CommonPath.InstalledPluginsFile);
         PluginPaths.Initialize(pluginPaths);
+
+        InitDatabase(services, configuration);
 
         services.AddTransient<ValidationFilter>();
         var mvcCoreBuilder = services.AddMvcCore(options =>
