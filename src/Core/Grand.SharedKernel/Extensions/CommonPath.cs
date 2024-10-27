@@ -39,16 +39,4 @@ public static class CommonPath
         path = path.Replace("~/", "").TrimStart('/');
         return Path.Combine(BaseDirectory, path);
     }
-
-
-    /// <summary>
-    ///     Maps a virtual path to a physical disk path. (not for tenants)
-    /// </summary>
-    /// <param name="path">The path to map. E.g. "~/bin"</param>
-    /// <returns>The physical path. E.g. "c:\inetpub\wwwroot\"</returns>
-    public static string WebHostMapPath(string path)
-    {
-        path = path.Replace("~/", "").TrimStart('/');
-        return Path.Combine(WebHostEnvironment, path);
-    }
 }
