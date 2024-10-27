@@ -44,7 +44,7 @@ public class StripeCheckoutService : IStripeCheckoutService
             var stripeEvent = EventUtility.ConstructEvent(json, stripeSignature,
                 _stripeCheckoutPaymentSettings.WebhookEndpointSecret);
             // Handle the event
-            if (stripeEvent.Type == Events.PaymentIntentSucceeded)
+            if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
             {
                 var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
                 await CreatePaymentTransaction(paymentIntent);
