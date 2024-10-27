@@ -10,7 +10,7 @@ public class LiteDbRepositoryTests
     [TestInitialize]
     public void Init()
     {
-        CommonPath.BaseDirectory = "";
+
     }
 
     [TestMethod]

@@ -24,8 +24,6 @@ public class ProductAttributeServiceTests
     [TestInitialize]
     public void Init()
     {
-        CommonPath.BaseDirectory = "";
-
         _repository = new MongoDBRepositoryTest<Product>();
         _repositoryproductAttribute = new MongoDBRepositoryTest<ProductAttribute>();
         _mediatorMock = new Mock<IMediator>();

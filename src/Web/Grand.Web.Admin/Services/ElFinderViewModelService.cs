@@ -8,6 +8,8 @@ using Grand.Web.Admin.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Services;
 
@@ -59,8 +61,9 @@ public class ElFinderViewModelService : IElFinderViewModelService
         }
 
         _fullPathToUpload = uploaded.PhysicalPath;
+        var configuration = httpContextAccessor.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
 
-        _urlpathUploded = (string.IsNullOrEmpty(CommonPath.Param) ? "/" : $"/{CommonPath.Param}/")
+        _urlpathUploded = (string.IsNullOrEmpty(configuration[CommonPath.DirectoryParam]) ? "/" : $"/{configuration[CommonPath.DirectoryParam]}/")
                           + uploaded.Path.Replace("\\", "/") + "/";
 
         var thumbs = _mediaFileStore.GetDirectoryInfo(ImageThumbPath);

@@ -199,15 +199,7 @@ public static class StartupBase
         RegisterConfigurations(services, configuration);
 
         InitDatabase(services, configuration);
-
-        //set base application path
-        var param = configuration[CommonPath.Param];
-        if (!string.IsNullOrEmpty(param))
-            CommonPath.Param = param;
-
-        CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
-        CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
-
+       
         var settingsPath = Path.Combine(hostingEnvironment.ContentRootPath, CommonPath.AppData, configuration["Directory"] ?? "", CommonPath.SettingsFile);
         DataSettingsManager.Initialize(settingsPath);
         

@@ -33,10 +33,6 @@ public class InventoryManageServiceTests
     [TestInitialize]
     public void Init()
     {
-        CommonPath.BaseDirectory = "";
-
-        CommonPath.BaseDirectory = "";
-
         _repository = new MongoDBRepositoryTest<Product>();
         _repositoryInventoryJournal = new MongoDBRepositoryTest<InventoryJournal>();
         _workContextMock = new Mock<IWorkContext>();

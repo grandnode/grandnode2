@@ -13,8 +13,6 @@ public class MongoRepositoryTests
     public void Init()
     {
         _myRepository = new MongoDBRepositoryTest<SampleCollection>();
-
-        CommonPath.BaseDirectory = "";
     }
 
     [TestMethod]

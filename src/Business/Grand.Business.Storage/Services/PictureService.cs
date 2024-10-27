@@ -159,7 +159,7 @@ public class PictureService : IPictureService
     protected virtual string GetThumbUrl(string thumbFileName, string storeLocation = null)
     {
         storeLocation = !string.IsNullOrEmpty(storeLocation) ? storeLocation : "";
-        return _mediaFileStore.Combine(storeLocation, CommonPath.Param, ImageThumbPath, thumbFileName);
+        return _mediaFileStore.Combine(storeLocation, ImageThumbPath, thumbFileName);
     }
 
     /// <summary>

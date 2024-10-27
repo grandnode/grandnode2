@@ -34,8 +34,6 @@ public class TaxServiceTests
     [TestInitialize]
     public void TestInitialize()
     {
-        CommonPath.BaseDirectory = "";
-
         var serviceProvider = new Mock<IServiceProvider>();
         serviceProvider.Setup(x => x.GetService(typeof(FixedRateTestTaxProvider)))
             .Returns(new FixedRateTestTaxProvider());

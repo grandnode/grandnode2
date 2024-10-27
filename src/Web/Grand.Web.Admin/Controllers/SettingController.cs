@@ -767,7 +767,7 @@ public class SettingController(
     {
         //edit js file needed by firebase
         var filename = "firebase-messaging-sw.js";
-        var filePath = Path.Combine(webHostEnvironment.WebRootPath, configuration[CommonPath.Param] ?? "", filename);
+        var filePath = Path.Combine(webHostEnvironment.WebRootPath, configuration[CommonPath.DirectoryParam] ?? "", filename);
         if (System.IO.File.Exists(filePath))
         {
             var lines = System.IO.File.ReadAllLines(filePath);

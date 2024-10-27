@@ -24,8 +24,6 @@ public class ProductTagServiceTests
     [TestInitialize]
     public void InitializeTests()
     {
-        CommonPath.BaseDirectory = "";
-
         _repositoryProductTag = new MongoDBRepositoryTest<ProductTag>();
         _productRepository = new MongoDBRepositoryTest<Product>();
         _mediatorMock = new Mock<IMediator>();
