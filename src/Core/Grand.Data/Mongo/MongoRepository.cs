@@ -443,9 +443,9 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Gets a table collection
     /// </summary>
-    public virtual IQueryable<T> TableCollection(string collectionName)
+    public virtual IQueryable<C> TableCollection<C>() where C : class
     {
-        return _collection.Database.GetCollection<T>(collectionName).AsQueryable();
+        return _database.GetCollection<C>(typeof(T).Name).AsQueryable();
     }
 
     #endregion
