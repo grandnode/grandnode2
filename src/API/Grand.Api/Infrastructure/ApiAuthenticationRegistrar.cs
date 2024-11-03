@@ -35,12 +35,7 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                     context.Response.StatusCode = 401;
                     context.Response.ContentType = "text/plain";
                     await context.Response.WriteAsync(context.Exception.Message);
-                },
-                OnChallenge = context =>
-                {
-                    context.HandleResponse();
-                    return Task.CompletedTask;
-                },
+                },                
                 OnTokenValidated = async context =>
                 {
                     try
@@ -88,12 +83,7 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                     context.Response.StatusCode = 401;
                     context.Response.ContentType = "text/plain";
                     await context.Response.WriteAsync(context.Exception.Message);
-                },
-                OnChallenge = context =>
-                {
-                    context.HandleResponse();
-                    return Task.CompletedTask;
-                },
+                },                
                 OnTokenValidated = async context =>
                 {
                     try
