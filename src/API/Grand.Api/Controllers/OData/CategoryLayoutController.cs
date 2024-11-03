@@ -1,4 +1,5 @@
-﻿using Grand.Api.Queries.Models.Common;
+﻿using Grand.Api.DTOs.Common;
+using Grand.Api.Queries.Models.Common;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
@@ -35,7 +36,7 @@ public class CategoryLayoutController : BaseODataController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
 
-        var layout = await _mediator.Send(new GetLayoutQuery { Id = key, LayoutName = typeof(CategoryLayout).Name });
+        var layout = await _mediator.Send(new GetGenericQuery<LayoutDto, CategoryLayout>(key));
         if (!layout.Any()) return NotFound();
 
         return Ok(layout.FirstOrDefault());
@@ -50,6 +51,6 @@ public class CategoryLayoutController : BaseODataController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
 
-        return Ok(await _mediator.Send(new GetLayoutQuery { LayoutName = typeof(CategoryLayout).Name }));
+        return Ok(await _mediator.Send(new GetGenericQuery<LayoutDto, CategoryLayout>()));
     }
 }

@@ -10,17 +10,16 @@ public class GetGenericQueryHandler<T, C> : IRequestHandler<GetGenericQuery<T, C
     where T : BaseApiEntityModel
     where C : BaseEntity
 {
-    private readonly IDatabaseContext _dbContext;
+    private readonly IRepository<C> _repository;
 
-    public GetGenericQueryHandler(IDatabaseContext dbContext)
+    public GetGenericQueryHandler(IRepository<C> repository)
     {
-        _dbContext = dbContext;
+        _repository = repository;
     }
 
     public async Task<IQueryable<T>> Handle(GetGenericQuery<T, C> request, CancellationToken cancellationToken)
     {
-        var query = _dbContext.Table<T>(typeof(C).Name);
-
+        var query = _repository.TableCollection<T>();
         if (string.IsNullOrEmpty(request.Id))
             return query;
         return await Task.FromResult(query.Where(x => x.Id == request.Id));

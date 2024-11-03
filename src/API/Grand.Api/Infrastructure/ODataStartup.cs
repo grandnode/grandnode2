@@ -135,7 +135,11 @@ public class ODataStartup : IStartupApplication
             (typeof(CustomerGroupDto), typeof(CustomerGroup)),
             (typeof(StoreDto), typeof(Store)),
             (typeof(LanguageDto), typeof(Language)),
-            (typeof(PictureDto), typeof(Picture))
+            (typeof(PictureDto), typeof(Picture)),
+            (typeof(LayoutDto), typeof(BrandLayout)),
+            (typeof(LayoutDto), typeof(CollectionLayout)),
+            (typeof(LayoutDto), typeof(CategoryLayout)),
+            (typeof(LayoutDto), typeof(ProductLayout))
         };
 
         foreach (var (dto, entity) in handlerTypes)
