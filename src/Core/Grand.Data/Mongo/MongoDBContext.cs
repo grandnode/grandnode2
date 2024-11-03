@@ -33,14 +33,6 @@ public class MongoDBContext : IDatabaseContext
     public bool InstallProcessCreateTable => true;
     public bool InstallProcessCreateIndex => true;
 
-    public IQueryable<T> Table<T>(string collectionName)
-    {
-        if (string.IsNullOrEmpty(collectionName))
-            throw new ArgumentNullException(nameof(collectionName));
-
-        return _database.GetCollection<T>(collectionName).AsQueryable();
-    }
-
     public async Task<bool> DatabaseExist()
     {
         if (string.IsNullOrEmpty(_connectionString))

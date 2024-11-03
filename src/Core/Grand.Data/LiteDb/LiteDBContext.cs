@@ -23,14 +23,6 @@ public class LiteDBContext : IDatabaseContext
     public bool InstallProcessCreateTable => false;
     public bool InstallProcessCreateIndex => true;
 
-    public IQueryable<T> Table<T>(string collectionName)
-    {
-        if (string.IsNullOrEmpty(collectionName))
-            throw new ArgumentNullException(nameof(collectionName));
-
-        return _database.GetCollection<T>(collectionName).FindAll().AsQueryable();
-    }
-
     public async Task<bool> DatabaseExist()
     {
         return await Task.FromResult(_database.CollectionExists(nameof(GrandNodeVersion)));
