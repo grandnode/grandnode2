@@ -262,11 +262,6 @@ public class InstallController : Controller
                         ex.Message + " " + ex.InnerException?.Message);
                 }
 
-            //register default permissions
-            //var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
-            //await _mediator.Send(new InstallPermissionsCommand { PermissionProvider = permissionProvider });
-            //_logger.LogInformation("Permission has been installed");
-
             //install migration process - install only header
             var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
             migrationProcess.InstallApplication();
