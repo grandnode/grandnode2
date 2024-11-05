@@ -9,6 +9,11 @@ COPY ./src/ /app/
 ARG GIT_COMMIT
 ARG GIT_BRANCH
 
+# Build modules
+RUN for module in /app/Modules/*; do \
+    dotnet build "$module" -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH; \
+  done
+
 # Build plugins
 RUN for plugin in /app/Plugins/*; do \
     dotnet build "$plugin" -c Release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH; \
