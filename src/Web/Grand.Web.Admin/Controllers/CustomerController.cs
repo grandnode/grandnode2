@@ -7,7 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;

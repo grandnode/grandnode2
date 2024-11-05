@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Web.Admin.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;

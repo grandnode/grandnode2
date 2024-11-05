@@ -1,6 +1,8 @@
 ﻿using Grand.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Common.Middleware;
 
@@ -33,6 +35,16 @@ public class InstallUrlMiddleware
         //whether database is installed
         if (!DataSettingsManager.DatabaseIsInstalled())
         {
+            var configuration = context.RequestServices.GetService<IConfiguration>();
+            var isInstallerModuleEnabled = configuration.GetValue<bool>("FeatureFlags:Modules:Grand.Module.Installer");
+            if (!isInstallerModuleEnabled)
+            {
+                // Return a response indicating the installer module is not enabled
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                await context.Response.WriteAsync("The installation module is not enabled.");
+                return;
+            }
+
             const string installUrl = "/install";
             if (!context.Request.GetEncodedPathAndQuery().StartsWith(installUrl, StringComparison.OrdinalIgnoreCase))
             {
