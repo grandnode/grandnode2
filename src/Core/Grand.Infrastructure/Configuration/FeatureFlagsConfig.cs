@@ -2,5 +2,5 @@
 
 public class FeatureFlagsConfig
 {
-    public Dictionary<string, bool> Modules { get; set; }
+    public Dictionary<string, bool> Modules { get; set; } = new Dictionary<string, bool>();
 }
