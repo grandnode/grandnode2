@@ -1,9 +1,9 @@
-﻿using Grand.Domain.Catalog;
+﻿using Grand.Domain.Blogs;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Module.Installer.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Module.Installer.Services;
 
@@ -191,10 +191,10 @@ public partial class InstallationService
         allProducts.Add(productBuildComputer);
 
         var picture1 = await _pictureRepository.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_desktop_1.png"),
-            "image/png", (productBuildComputer.Name), reference: Reference.Product,
+            "image/png", SeoExtensions.GenerateSlug(productBuildComputer.Name, true, false, false), reference: Reference.Product,
             objectId: productBuildComputer.Id);
         var picture2 = await _pictureRepository.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_desktop_2.png"),
-            "image/png", (productBuildComputer.Name), reference: Reference.Product,
+            "image/png", SeoExtensions.GenerateSlug(productBuildComputer.Name, true, false, false), reference: Reference.Product,
             objectId: productBuildComputer.Id);
 
         await _productRepository.InsertAsync(productBuildComputer);
@@ -251,7 +251,7 @@ public partial class InstallationService
         productSonyPS5Pad.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_sony_ps5_pad_1.png"), "image/png",
-                (productSonyPS5Pad.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productSonyPS5Pad.Name), reference: Reference.Product,
                 objectId: productSonyPS5Pad.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -259,7 +259,7 @@ public partial class InstallationService
         productSonyPS5Pad.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_sony_ps5_pad_2.png"), "image/png",
-                (productSonyPS5Pad.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productSonyPS5Pad.Name), reference: Reference.Product,
                 objectId: productSonyPS5Pad.Id)).Id,
             DisplayOrder = 1
         });
@@ -303,7 +303,7 @@ public partial class InstallationService
         productLenovoIdeaPadDual.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_ideapad_dual_1.png"), "image/png",
-                (productLenovoIdeaPadDual.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLenovoIdeaPadDual.Name), reference: Reference.Product,
                 objectId: productLenovoIdeaPadDual.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -311,7 +311,7 @@ public partial class InstallationService
         productLenovoIdeaPadDual.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_ideapad_dual_2.png"), "image/png",
-                (productLenovoIdeaPadDual.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLenovoIdeaPadDual.Name), reference: Reference.Product,
                 objectId: productLenovoIdeaPadDual.Id)).Id,
             DisplayOrder = 2
         });
@@ -395,7 +395,7 @@ public partial class InstallationService
         productMiNotebook.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_mi_notebook_1.png"), "image/png",
-                (productMiNotebook.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productMiNotebook.Name), reference: Reference.Product,
                 objectId: productMiNotebook.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -403,7 +403,7 @@ public partial class InstallationService
         productMiNotebook.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_mi_notebook_2.png"), "image/png",
-                (productMiNotebook.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productMiNotebook.Name), reference: Reference.Product,
                 objectId: productMiNotebook.Id)).Id,
             DisplayOrder = 2
         });
@@ -490,7 +490,7 @@ public partial class InstallationService
         productLenovoLegionY740.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_legion_y740_1.png"), "image/png",
-                (productLenovoLegionY740.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLenovoLegionY740.Name), reference: Reference.Product,
                 objectId: productLenovoLegionY740.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -498,7 +498,7 @@ public partial class InstallationService
         productLenovoLegionY740.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_legion_y740_2.png"), "image/png",
-                (productLenovoLegionY740.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLenovoLegionY740.Name), reference: Reference.Product,
                 objectId: productLenovoLegionY740.Id)).Id,
             DisplayOrder = 1
         });
@@ -585,7 +585,7 @@ public partial class InstallationService
         productPs5Camera.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_ps5_camera_1.png"), "image/png",
-                (productPs5Camera.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productPs5Camera.Name), reference: Reference.Product,
                 objectId: productPs5Camera.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -593,7 +593,7 @@ public partial class InstallationService
         productPs5Camera.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_ps5_camera_2.png"), "image/png",
-                (productPs5Camera.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productPs5Camera.Name), reference: Reference.Product,
                 objectId: productPs5Camera.Id)).Id,
             DisplayOrder = 2
         });
@@ -679,7 +679,7 @@ public partial class InstallationService
         productAcerNitro.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_acer_nitro_1.png"), "image/png",
-                (productAcerNitro.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAcerNitro.Name), reference: Reference.Product,
                 objectId: productAcerNitro.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -687,7 +687,7 @@ public partial class InstallationService
         productAcerNitro.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_acer_nitro_2.png"), "image/png",
-                (productAcerNitro.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAcerNitro.Name), reference: Reference.Product,
                 objectId: productAcerNitro.Id)).Id,
             DisplayOrder = 2
         });
@@ -775,7 +775,7 @@ public partial class InstallationService
         productDellG5.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_dell_g5_1.png"), "image/png",
-                (productDellG5.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productDellG5.Name), reference: Reference.Product,
                 objectId: productDellG5.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -783,7 +783,7 @@ public partial class InstallationService
         productDellG5.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_dell_g5_2.png"), "image/png",
-                (productDellG5.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productDellG5.Name), reference: Reference.Product,
                 objectId: productDellG5.Id)).Id,
             DisplayOrder = 1
         });
@@ -851,7 +851,7 @@ public partial class InstallationService
         productDellXPS.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_dell_xps_1.png"), "image/png",
-                (productDellXPS.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productDellXPS.Name), reference: Reference.Product,
                 objectId: productDellXPS.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -859,7 +859,7 @@ public partial class InstallationService
         productDellXPS.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_dell_xps_2.png"), "image/png",
-                (productDellXPS.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productDellXPS.Name), reference: Reference.Product,
                 objectId: productDellXPS.Id)).Id,
             DisplayOrder = 2
         });
@@ -907,7 +907,7 @@ public partial class InstallationService
         productLenovoYogaDuet.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_yoga_duet_1.png"), "image/png",
-                (productLenovoYogaDuet.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLenovoYogaDuet.Name), reference: Reference.Product,
                 objectId: productLenovoYogaDuet.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -915,7 +915,7 @@ public partial class InstallationService
         productLenovoYogaDuet.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_yoga_duet_2.png"), "image/png",
-                (productLenovoYogaDuet.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLenovoYogaDuet.Name), reference: Reference.Product,
                 objectId: productLenovoYogaDuet.Id)).Id,
             DisplayOrder = 1
         });
@@ -959,7 +959,7 @@ public partial class InstallationService
         productLenovoSmartTab.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_smart_tab_1.png"), "image/png",
-                (productLenovoSmartTab.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLenovoSmartTab.Name), reference: Reference.Product,
                 objectId: productLenovoSmartTab.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -967,7 +967,7 @@ public partial class InstallationService
         productLenovoSmartTab.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lenovo_smart_tab_2.png"), "image/png",
-                (productLenovoSmartTab.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLenovoSmartTab.Name), reference: Reference.Product,
                 objectId: productLenovoSmartTab.Id)).Id,
             DisplayOrder = 1
         });
@@ -1011,7 +1011,7 @@ public partial class InstallationService
         productAsusMixedReality.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_asus_mixed_reality_1.png"), "image/png",
-                (productAsusMixedReality.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAsusMixedReality.Name), reference: Reference.Product,
                 objectId: productAsusMixedReality.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -1019,7 +1019,7 @@ public partial class InstallationService
         productAsusMixedReality.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_asus_mixed_reality_2.png"), "image/png",
-                (productAsusMixedReality.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAsusMixedReality.Name), reference: Reference.Product,
                 objectId: productAsusMixedReality.Id)).Id,
             DisplayOrder = 1
         });
@@ -1067,7 +1067,7 @@ public partial class InstallationService
         productAcerProjector.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_acer_projector_1.png"), "image/png",
-                (productAcerProjector.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAcerProjector.Name), reference: Reference.Product,
                 objectId: productAcerProjector.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -1075,7 +1075,7 @@ public partial class InstallationService
         productAcerProjector.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_acer_projector_2.png"), "image/png",
-                (productAcerProjector.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAcerProjector.Name), reference: Reference.Product,
                 objectId: productAcerProjector.Id)).Id,
             DisplayOrder = 1
         });
@@ -1120,7 +1120,7 @@ public partial class InstallationService
         productAcerMonitor.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_acer_monitor_1.png"), "image/png",
-                (productAcerMonitor.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAcerMonitor.Name), reference: Reference.Product,
                 objectId: productAcerMonitor.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -1128,7 +1128,7 @@ public partial class InstallationService
         productAcerMonitor.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_acer_monitor_2.png"), "image/png",
-                (productAcerMonitor.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAcerMonitor.Name), reference: Reference.Product,
                 objectId: productAcerMonitor.Id)).Id,
             DisplayOrder = 2
         });
@@ -1180,7 +1180,7 @@ public partial class InstallationService
         productRedmiK30.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_Redmi_K30.png"), "image/png",
-                (productRedmiK30.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productRedmiK30.Name), reference: Reference.Product,
                 objectId: productRedmiK30.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -1227,7 +1227,7 @@ public partial class InstallationService
         productRedmiNote9.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_Redmi_Note_9_1.png"), "image/png",
-                (productRedmiNote9.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productRedmiNote9.Name), reference: Reference.Product,
                 objectId: productRedmiNote9.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -1235,7 +1235,7 @@ public partial class InstallationService
         productRedmiNote9.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_Redmi_Note_9_2.png"), "image/png",
-                (productRedmiNote9.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productRedmiNote9.Name), reference: Reference.Product,
                 objectId: productRedmiNote9.Id)).Id,
             DisplayOrder = 2
         });
@@ -1281,7 +1281,7 @@ public partial class InstallationService
         productPocoF2Pro.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_POCO_F2_Pro.png"), "image/png",
-                (productPocoF2Pro.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productPocoF2Pro.Name), reference: Reference.Product,
                 objectId: productPocoF2Pro.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -1349,7 +1349,7 @@ public partial class InstallationService
         productMiSmartBand.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_Mi_Smart_Band_3i_1.png"), "image/png",
-                (productMiSmartBand.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productMiSmartBand.Name), reference: Reference.Product,
                 objectId: productMiSmartBand.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -1357,7 +1357,7 @@ public partial class InstallationService
         productMiSmartBand.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_Mi_Smart_Band_3i_2.png"), "image/png",
-                (productMiSmartBand.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productMiSmartBand.Name), reference: Reference.Product,
                 objectId: productMiSmartBand.Id)).Id,
             DisplayOrder = 2
         });
@@ -1401,14 +1401,14 @@ public partial class InstallationService
         allProducts.Add(productPs4);
         productPs4.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_ps4_1.png"),
-                "image/png", (productPs4.Name), reference: Reference.Product,
+                "image/png", SeoExtensions.GenerateSlug(productPs4.Name), reference: Reference.Product,
                 objectId: productPs4.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
         });
         productPs4.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_ps4_2.png"),
-                "image/png", (productPs4.Name), reference: Reference.Product,
+                "image/png", SeoExtensions.GenerateSlug(productPs4.Name), reference: Reference.Product,
                 objectId: productPs4.Id)).Id,
             DisplayOrder = 2
         });
@@ -1454,7 +1454,7 @@ public partial class InstallationService
         productMiBeard.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_mi_beard_1.png"), "image/png",
-                (productMiBeard.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productMiBeard.Name), reference: Reference.Product,
                 objectId: productMiBeard.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -1462,7 +1462,7 @@ public partial class InstallationService
         productMiBeard.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_mi_beard_2.png"), "image/png",
-                (productMiBeard.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productMiBeard.Name), reference: Reference.Product,
                 objectId: productMiBeard.Id)).Id,
             DisplayOrder = 1
         });
@@ -1557,7 +1557,7 @@ public partial class InstallationService
         productAdidasPredator.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_predator_1.png"), "image/png",
-                (productAdidasPredator.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAdidasPredator.Name), reference: Reference.Product,
                 objectId: productAdidasPredator.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -1658,7 +1658,7 @@ public partial class InstallationService
         allProducts.Add(productAdidasNitrocharge);
         productAdidasNitrocharge.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_adidas.png"),
-                "image/png", (productAdidasNitrocharge.Name),
+                "image/png", SeoExtensions.GenerateSlug(productAdidasNitrocharge.Name),
                 reference: Reference.Product, objectId: productAdidasNitrocharge.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -1666,21 +1666,21 @@ public partial class InstallationService
         productAdidasNitrocharge.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_adidas_2.png"), "image/png",
-                (productAdidasNitrocharge.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAdidasNitrocharge.Name), reference: Reference.Product,
                 objectId: productAdidasNitrocharge.Id)).Id,
             DisplayOrder = 2
         });
         productAdidasNitrocharge.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_adidas_3.png"), "image/png",
-                (productAdidasNitrocharge.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAdidasNitrocharge.Name), reference: Reference.Product,
                 objectId: productAdidasNitrocharge.Id)).Id,
             DisplayOrder = 3
         });
         productAdidasNitrocharge.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_adidas_4.png"), "image/png",
-                (productAdidasNitrocharge.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAdidasNitrocharge.Name), reference: Reference.Product,
                 objectId: productAdidasNitrocharge.Id)).Id,
             DisplayOrder = 4
         });
@@ -1741,7 +1741,7 @@ public partial class InstallationService
         productAdidasTurfs.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_adidasturfs.png"), "image/png",
-                (productAdidasTurfs.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAdidasTurfs.Name), reference: Reference.Product,
                 objectId: productAdidasTurfs.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -1790,14 +1790,14 @@ public partial class InstallationService
         productDerbyKit.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_derby_awayshirt_1.png"), "image/png",
-                (productDerbyKit.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productDerbyKit.Name), reference: Reference.Product,
                 objectId: productDerbyKit.Id)).Id,
             DisplayOrder = 1
         });
         productDerbyKit.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_derby_shirt_1.png"), "image/png",
-                (productDerbyKit.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productDerbyKit.Name), reference: Reference.Product,
                 objectId: productDerbyKit.Id)).Id,
             DisplayOrder = 2
         });
@@ -1879,7 +1879,7 @@ public partial class InstallationService
         productDerbyKit_associated_2.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_derby_shirt_1.png"), "image/png",
-                ("Derby County Shirt - Home"), reference: Reference.Product,
+                SeoExtensions.GenerateSlug("Derby County Shirt - Home"), reference: Reference.Product,
                 objectId: productDerbyKit_associated_2.Id)).Id,
             DisplayOrder = 1
         });
@@ -1962,7 +1962,7 @@ public partial class InstallationService
         allProducts.Add(productNikeKids);
         productNikeKids.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_kidskit.png"),
-                "image/png", (productNikeKids.Name), reference: Reference.Product,
+                "image/png", SeoExtensions.GenerateSlug(productNikeKids.Name), reference: Reference.Product,
                 objectId: productNikeKids.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2019,14 +2019,14 @@ public partial class InstallationService
         allProducts.Add(productPsgKit);
         productPsgKit.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_psg_1.png"),
-                "image/png", (productPsgKit.Name), reference: Reference.Product,
+                "image/png", SeoExtensions.GenerateSlug(productPsgKit.Name), reference: Reference.Product,
                 objectId: productPsgKit.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
         });
         productPsgKit.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_psg_2.png"),
-                "image/png", (productPsgKit.Name), reference: Reference.Product,
+                "image/png", SeoExtensions.GenerateSlug(productPsgKit.Name), reference: Reference.Product,
                 objectId: productPsgKit.Id)).Id,
             DisplayOrder = 1
         });
@@ -2078,7 +2078,7 @@ public partial class InstallationService
         productDerbyShirt.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_derby_shirt_1.png"), "image/png",
-                (productDerbyShirt.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productDerbyShirt.Name), reference: Reference.Product,
                 objectId: productDerbyShirt.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2122,7 +2122,7 @@ public partial class InstallationService
         productDerbyShorts.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_derby_shorts_1.png"), "image/png",
-                (productDerbyShorts.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productDerbyShorts.Name), reference: Reference.Product,
                 objectId: productDerbyShorts.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2166,7 +2166,7 @@ public partial class InstallationService
         productDerbyKitHome.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_derby_shirt_1.png"), "image/png",
-                (productDerbyKitHome.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productDerbyKitHome.Name), reference: Reference.Product,
                 objectId: productDerbyKitHome.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2227,7 +2227,7 @@ public partial class InstallationService
         productChicagoBulls.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_chicago_jersey_1.png"), "image/png",
-                (productChicagoBulls.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productChicagoBulls.Name), reference: Reference.Product,
                 objectId: productChicagoBulls.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2235,7 +2235,7 @@ public partial class InstallationService
         productChicagoBulls.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_chicago_jersey_2.png"), "image/png",
-                (productChicagoBulls.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productChicagoBulls.Name), reference: Reference.Product,
                 objectId: productChicagoBulls.Id)).Id,
             DisplayOrder = 2
         });
@@ -2312,7 +2312,7 @@ public partial class InstallationService
         productVivoactive.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_vivoactive.png"), "image/png",
-                (productVivoactive.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productVivoactive.Name), reference: Reference.Product,
                 objectId: productVivoactive.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2358,7 +2358,7 @@ public partial class InstallationService
         productGarminFenix.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_garmin_fenix_1.png"), "image/png",
-                (productGarminFenix.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productGarminFenix.Name), reference: Reference.Product,
                 objectId: productGarminFenix.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2366,7 +2366,7 @@ public partial class InstallationService
         productGarminFenix.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_garmin_fenix_2.png"), "image/png",
-                (productGarminFenix.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productGarminFenix.Name), reference: Reference.Product,
                 objectId: productGarminFenix.Id)).Id,
             DisplayOrder = 1
         });
@@ -2411,7 +2411,7 @@ public partial class InstallationService
         productForerunner.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_forerunner.png"), "image/png",
-                (productForerunner.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productForerunner.Name), reference: Reference.Product,
                 objectId: productForerunner.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2426,7 +2426,7 @@ public partial class InstallationService
             DownloadGuid = Guid.NewGuid(),
             ContentType = "application/x-zip-co",
             UseDownloadUrl = true,
-            DownloadBinary = File.ReadAllBytes(sampleDownloadsPath + "product_cyberpunk_1.zip"),
+            DownloadUrl = "https://raw.githubusercontent.com/grandnode/sample/refs/heads/main/product_cyberpunk_1.zip",
             Extension = ".zip",
             Filename = "Cyberpunk",
             DownloadType = DownloadType.Product
@@ -2436,7 +2436,7 @@ public partial class InstallationService
             DownloadGuid = Guid.NewGuid(),
             ContentType = "text/plain",
             UseDownloadUrl = true,
-            DownloadBinary = File.ReadAllBytes(sampleDownloadsPath + "product_cyberpunk_2.txt"),
+            DownloadUrl = "https://raw.githubusercontent.com/grandnode/sample/refs/heads/main/product_cyberpunk_2.txt",
             Extension = ".txt",
             Filename = "Cyberpunk",
             DownloadType = DownloadType.Product
@@ -2483,7 +2483,7 @@ public partial class InstallationService
         productCyberpunk.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_cyberpunk_1.png"), "image/png",
-                (productCyberpunk.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productCyberpunk.Name), reference: Reference.Product,
                 objectId: productCyberpunk.Id)).Id,
             DisplayOrder = 1
         });
@@ -2493,7 +2493,7 @@ public partial class InstallationService
             DownloadGuid = Guid.NewGuid(),
             ContentType = "application/x-zip-co",
             UseDownloadUrl = true,
-            DownloadBinary = File.ReadAllBytes(sampleDownloadsPath + "product_GTA_1.zip"),
+            DownloadUrl = "https://raw.githubusercontent.com/grandnode/sample/refs/heads/main/product_GTA_1.zip",
             Extension = ".zip",
             Filename = "GTA",
             DownloadType = DownloadType.Product
@@ -2503,7 +2503,7 @@ public partial class InstallationService
         var downloadGTA2 = new Download {
             DownloadGuid = Guid.NewGuid(),
             ContentType = "text/plain",
-            DownloadBinary = File.ReadAllBytes(sampleDownloadsPath + "product_GTA_2.txt"),
+            DownloadUrl = "https://raw.githubusercontent.com/grandnode/sample/refs/heads/main/product_GTA_2.txt",
             Extension = ".txt",
             Filename = "GTA",
             DownloadType = DownloadType.Product
@@ -2549,7 +2549,7 @@ public partial class InstallationService
 
         productGTA.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_gta_1.png"),
-                "image/png", (productGTA.Name), reference: Reference.Product,
+                "image/png", SeoExtensions.GenerateSlug(productGTA.Name), reference: Reference.Product,
                 objectId: productGTA.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2561,7 +2561,7 @@ public partial class InstallationService
             DownloadGuid = Guid.NewGuid(),
             ContentType = "application/x-zip-co",
             UseDownloadUrl = true,
-            DownloadBinary = File.ReadAllBytes(sampleDownloadsPath + "product_cod_1.zip"),
+            DownloadUrl = "https://raw.githubusercontent.com/grandnode/sample/refs/heads/main/product_cod_1.zip",
             Extension = ".zip",
             Filename = "Call of Duty",
             DownloadType = DownloadType.Product
@@ -2602,13 +2602,15 @@ public partial class InstallationService
                 }
             }
         };
-        allProducts.Add(productCod);
+        
         productCod.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_cod_1.png"),
-                "image/png", (productCod.Name), reference: Reference.Product,
+                "image/png", SeoExtensions.GenerateSlug(productCod.Name, true, false, false), reference: Reference.Product,
                 objectId: productCod.Id)).Id,
             DisplayOrder = 1
         });
+        
+        allProducts.Add(productCod);
         await _productRepository.InsertAsync(productCod);
 
         #endregion
@@ -2655,7 +2657,7 @@ public partial class InstallationService
         productLegoFalcon.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lego_falcon_1.png"), "image/png",
-                (productLegoFalcon.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLegoFalcon.Name), reference: Reference.Product,
                 objectId: productLegoFalcon.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2663,7 +2665,7 @@ public partial class InstallationService
         productLegoFalcon.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lego_falcon_2.png"), "image/png",
-                (productLegoFalcon.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLegoFalcon.Name), reference: Reference.Product,
                 objectId: productLegoFalcon.Id)).Id,
             DisplayOrder = 1
         });
@@ -2709,7 +2711,7 @@ public partial class InstallationService
         productLegoHogwarts.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lego_hogwarts_1.png"), "image/png",
-                (productLegoHogwarts.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLegoHogwarts.Name), reference: Reference.Product,
                 objectId: productLegoHogwarts.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2717,7 +2719,7 @@ public partial class InstallationService
         productLegoHogwarts.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_lego_hogwarts_2.png"), "image/png",
-                (productLegoHogwarts.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLegoHogwarts.Name), reference: Reference.Product,
                 objectId: productLegoHogwarts.Id)).Id,
             DisplayOrder = 1
         });
@@ -2762,7 +2764,7 @@ public partial class InstallationService
         productLegoCity.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_LegoCity_1.png"), "image/png",
-                (productLegoCity.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLegoCity.Name), reference: Reference.Product,
                 objectId: productLegoCity.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2770,7 +2772,7 @@ public partial class InstallationService
         productLegoCity.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_LegoCity_2.png"), "image/png",
-                (productLegoCity.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productLegoCity.Name), reference: Reference.Product,
                 objectId: productLegoCity.Id)).Id,
             DisplayOrder = 2
         });
@@ -2819,7 +2821,7 @@ public partial class InstallationService
         productAdidasBall.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_adidasball.png"), "image/png",
-                (productAdidasBall.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productAdidasBall.Name), reference: Reference.Product,
                 objectId: productAdidasBall.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2865,7 +2867,7 @@ public partial class InstallationService
         allProducts.Add(productMikasa);
         productMikasa.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(File.ReadAllBytes(sampleImagesPath + "product_mikasa.png"),
-                "image/png", (productMikasa.Name), reference: Reference.Product,
+                "image/png", SeoExtensions.GenerateSlug(productMikasa.Name), reference: Reference.Product,
                 objectId: productMikasa.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2911,7 +2913,7 @@ public partial class InstallationService
         productSpalding.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_spalding.png"), "image/png",
-                (productSpalding.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productSpalding.Name), reference: Reference.Product,
                 objectId: productSpalding.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -2954,7 +2956,7 @@ public partial class InstallationService
         product25GiftVoucher.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_25giftcart.png"), "image/png",
-                (product25GiftVoucher.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(product25GiftVoucher.Name), reference: Reference.Product,
                 objectId: product25GiftVoucher.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -3001,7 +3003,7 @@ public partial class InstallationService
         product50GiftVoucher.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_50giftcart.png"), "image/png",
-                (product50GiftVoucher.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(product50GiftVoucher.Name), reference: Reference.Product,
                 objectId: product50GiftVoucher.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -3046,7 +3048,7 @@ public partial class InstallationService
         product100GiftVoucher.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_100giftcart.png"), "image/png",
-                (product100GiftVoucher.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(product100GiftVoucher.Name), reference: Reference.Product,
                 objectId: product100GiftVoucher.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -3092,7 +3094,7 @@ public partial class InstallationService
         productPlaystationBundlePack.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_sony_ps5_console_1.png"), "image/png",
-                (productPlaystationBundlePack.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productPlaystationBundlePack.Name), reference: Reference.Product,
                 objectId: productPlaystationBundlePack.Id)).Id,
             DisplayOrder = 1,
             IsDefault = true
@@ -3100,7 +3102,7 @@ public partial class InstallationService
         productPlaystationBundlePack.ProductPictures.Add(new ProductPicture {
             PictureId = (await _pictureRepository.InsertPicture(
                 File.ReadAllBytes(sampleImagesPath + "product_sony_ps5_console_2.png"), "image/png",
-                (productPlaystationBundlePack.Name), reference: Reference.Product,
+                SeoExtensions.GenerateSlug(productPlaystationBundlePack.Name), reference: Reference.Product,
                 objectId: productPlaystationBundlePack.Id)).Id,
             DisplayOrder = 2
         });

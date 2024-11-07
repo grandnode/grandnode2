@@ -11,8 +11,8 @@ public static class SeoExtensions
     /// <param name="allowSlashChar"></param>
     /// <param name="charConversions"></param>
     /// <returns>Result</returns>
-    public static string GenerateSlug(string name, bool convertNonWesternChars, bool allowUnicodeCharsInUrls,
-        bool allowSlashChar, string? charConversions = null)
+    public static string GenerateSlug(string name, bool convertNonWesternChars = true, bool allowUnicodeCharsInUrls = false,
+        bool allowSlashChar = false, string? charConversions = null)
     {
         if (string.IsNullOrEmpty(name))
             return name;
