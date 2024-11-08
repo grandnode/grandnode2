@@ -72,6 +72,7 @@ public class GrandCommonStartup : IStartupApplication
         var appConfig = serviceProvider.GetRequiredService<AppConfig>();
         var performanceConfig = serviceProvider.GetRequiredService<PerformanceConfig>();
         var securityConfig = serviceProvider.GetRequiredService<SecurityConfig>();
+        var featureFlagsConfig = serviceProvider.GetRequiredService<FeatureFlagsConfig>(); 
 
         //add HealthChecks
         application.UseGrandHealthChecks();
@@ -93,7 +94,7 @@ public class GrandCommonStartup : IStartupApplication
         application.UseGrandStaticFiles(appConfig);
 
         //check whether database is installed
-        if (!performanceConfig.IgnoreInstallUrlMiddleware)
+        if (featureFlagsConfig.Modules.TryGetValue("Grand.Module.Installer", out var value) && value)
             application.UseInstallUrl();
 
         //use HTTP session

@@ -4,6 +4,7 @@ using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Mapper;
+using Grand.Infrastructure.Modules;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
 using Grand.Infrastructure.TypeConverters;
@@ -127,6 +128,9 @@ public static class StartupBase
     /// <param name="configuration"></param>
     private static void RegisterExtensions(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration, IWebHostEnvironment hostEnvironment)
     {
+        //Load Modules
+        ModuleLoader.LoadModules(mvcCoreBuilder, configuration, hostEnvironment);
+
         //Load plugins        
         PluginManager.Load(mvcCoreBuilder, configuration, hostEnvironment);
 
@@ -249,6 +253,7 @@ public static class StartupBase
         services.StartupConfig<BackendAPIConfig>(configuration.GetSection("BackendAPI"));
         services.StartupConfig<FrontendAPIConfig>(configuration.GetSection("FrontendAPI"));
         services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
+        services.StartupConfig<FeatureFlagsConfig>(configuration.GetSection("FeatureFlags"));
         services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
         services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
         services.StartupConfig<ApplicationInsightsConfig>(configuration.GetSection("ApplicationInsights"));

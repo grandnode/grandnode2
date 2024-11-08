@@ -1,7 +1,7 @@
 ﻿using Grand.Api.DTOs.Customers;
 using Grand.Api.Queries.Models.Common;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Domain.Vendors;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

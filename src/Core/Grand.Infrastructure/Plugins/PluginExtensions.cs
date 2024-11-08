@@ -1,4 +1,3 @@
-using Grand.SharedKernel.Extensions;
 using System.Text.Json;
 
 namespace Grand.Infrastructure.Plugins;

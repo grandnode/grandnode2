@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Admin.Models.Customers;
 

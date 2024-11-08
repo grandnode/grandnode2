@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
 
 namespace Grand.Business.Checkout.Validators;
