@@ -34,12 +34,12 @@
 	<Target Name="PublishViews" BeforeTargets="PrepareForPublish">
 		<ItemGroup>
 			<PluginFiles Include="Plugins/**/*" />
+			<ModuleFiles Include="Modules/**/*" />
 		</ItemGroup>
 		<Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PublishDir)/Plugins/%(RecursiveDir)" SkipUnchangedFiles="true" />
+		<Copy SourceFiles="@(ModuleFiles)" DestinationFolder="$(PublishDir)/Modules/%(RecursiveDir)" SkipUnchangedFiles="true" />
 	</Target>
-	<!--<PropertyGroup>
-    <EnableDefaultContentItems>false</EnableDefaultContentItems>
-  	</PropertyGroup>-->
+
 	<ItemGroup>
 		<Content Remove="Plugins\**" />
 		<Compile Remove="Plugins\**" />
