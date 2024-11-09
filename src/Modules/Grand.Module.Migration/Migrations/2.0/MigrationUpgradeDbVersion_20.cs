@@ -4,7 +4,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Grand.Business.System.Services.Migrations._2._0;
+namespace Grand.Module.Migration.Migrations._2._0;
 
 public class MigrationUpgradeDbVersion_20 : IMigration
 {
@@ -27,7 +27,7 @@ public class MigrationUpgradeDbVersion_20 : IMigration
         var repository = serviceProvider.GetRequiredService<IRepository<GrandNodeVersion>>();
 
         var dbversion = repository.Table.ToList().FirstOrDefault();
-        dbversion.DataBaseVersion = $"{GrandVersion.SupportedDBVersion}";
+        dbversion!.DataBaseVersion = $"{GrandVersion.SupportedDBVersion}";
         repository.Update(dbversion);
 
         return true;

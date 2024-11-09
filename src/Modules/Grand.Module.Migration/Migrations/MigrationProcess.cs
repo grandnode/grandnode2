@@ -3,7 +3,7 @@ using Grand.Domain;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.Logging;
 
-namespace Grand.Business.System.Services.Migrations;
+namespace Grand.Module.Migration.Migrations;
 
 public class MigrationProcess : IMigrationProcess
 {

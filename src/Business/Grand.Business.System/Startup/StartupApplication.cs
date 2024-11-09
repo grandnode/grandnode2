@@ -5,11 +5,9 @@ using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Business.System.Services.Admin;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Business.System.Services.MachineNameProvider;
-using Grand.Business.System.Services.Migrations;
 using Grand.Business.System.Services.Reports;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Migrations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -66,7 +64,6 @@ public class StartupApplication : IStartupApplication
 
     private void RegisterAdmin(IServiceCollection serviceCollection)
     {
-        serviceCollection.AddScoped<IAdminSiteMapService, AdminSiteMapService>();
-        serviceCollection.AddScoped<IMigrationProcess, MigrationProcess>();
+        serviceCollection.AddScoped<IAdminSiteMapService, AdminSiteMapService>();        
     }
 }

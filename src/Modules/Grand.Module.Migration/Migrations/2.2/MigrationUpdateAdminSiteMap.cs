@@ -5,7 +5,7 @@ using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Grand.Business.System.Services.Migrations._2._2;
+namespace Grand.Module.Migration.Migrations._2._2;
 
 public class MigrationUpdateAdminSiteMap : IMigration
 {
@@ -48,7 +48,7 @@ public class MigrationUpdateAdminSiteMap : IMigration
             var log = sitemapSystem?.ChildNodes.FirstOrDefault(x => x.SystemName == "Log");
             if (log != null)
             {
-                sitemapSystem.ChildNodes.Remove(log);
+                sitemapSystem!.ChildNodes.Remove(log);
                 sitemapSystem.PermissionNames.Remove("ManageSystemLog");
                 repository.Update(sitemapSystem);
             }
@@ -57,7 +57,7 @@ public class MigrationUpdateAdminSiteMap : IMigration
             var activityLog = sitemapCustomers?.ChildNodes.FirstOrDefault(x => x.SystemName == "Activity Log");
             if (activityLog != null)
             {
-                sitemapCustomers.ChildNodes.Remove(activityLog);
+                sitemapCustomers!.ChildNodes.Remove(activityLog);
                 sitemapCustomers.PermissionNames.Remove("ManageActivityLog");
                 repository.Update(sitemapCustomers);
             }
@@ -66,7 +66,7 @@ public class MigrationUpdateAdminSiteMap : IMigration
             var activityStatLog = sitemapReports?.ChildNodes.FirstOrDefault(x => x.SystemName == "Activity Stats");
             if (activityStatLog != null)
             {
-                sitemapReports.ChildNodes.Remove(activityStatLog);
+                sitemapReports!.ChildNodes.Remove(activityStatLog);
                 sitemapReports.PermissionNames.Remove("ManageActivityLog");
                 repository.Update(sitemapReports);
             }
@@ -75,7 +75,7 @@ public class MigrationUpdateAdminSiteMap : IMigration
             var activityTypes = sitemapSettings?.ChildNodes.FirstOrDefault(x => x.SystemName == "Activity Types");
             if (activityTypes != null)
             {
-                sitemapSettings.ChildNodes.Remove(activityTypes);
+                sitemapSettings!.ChildNodes.Remove(activityTypes);
                 sitemapSettings.PermissionNames.Remove("ManageActivityLog");
                 repository.Update(sitemapSettings);
             }

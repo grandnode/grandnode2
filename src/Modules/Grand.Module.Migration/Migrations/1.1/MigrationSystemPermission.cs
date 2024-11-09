@@ -1,12 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Data;
+﻿using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Grand.Business.System.Services.Migrations._1._1;
+namespace Grand.Module.Migration.Migrations._1._1;
 
 public class MigrationSystemPermission : IMigration
 {
@@ -24,9 +23,9 @@ public class MigrationSystemPermission : IMigration
     public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Permission>>();
-        var groupService = serviceProvider.GetRequiredService<IGroupService>();
+        var customerGroupRepository = serviceProvider.GetRequiredService<IRepository<CustomerGroup>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationSystemPermission>>();
-
+        var administrator = customerGroupRepository.Table.FirstOrDefault(x => x.SystemName == SystemCustomerGroupNames.Administrators);
         try
         {
             var permission = repository.Table.FirstOrDefault(x => x.SystemName == PermissionSystemName.System);
@@ -38,8 +37,7 @@ public class MigrationSystemPermission : IMigration
                     Area = "Admin area",
                     Category = "System"
                 };
-                permission.CustomerGroups.Add(groupService
-                    .GetCustomerGroupBySystemName(SystemCustomerGroupNames.Administrators).GetAwaiter().GetResult().Id);
+                permission.CustomerGroups.Add(administrator!.Id);
                 repository.Insert(permission);
             }
         }

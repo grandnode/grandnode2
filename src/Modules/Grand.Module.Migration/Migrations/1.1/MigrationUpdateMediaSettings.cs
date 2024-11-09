@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Data;
+﻿using Grand.Data;
 using Grand.Domain.Configuration;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Migrations;
@@ -7,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace Grand.Business.System.Services.Migrations._1._1;
+namespace Grand.Module.Migration.Migrations._1._1;
 
 public class MigrationUpdateMediaSettings : IMigration
 {
@@ -25,8 +24,7 @@ public class MigrationUpdateMediaSettings : IMigration
     public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Setting>>();
-        var mediaSettings = repository.Table.FirstOrDefault(x => x.Name == "mediasettings");
-        var settingService = serviceProvider.GetRequiredService<ISettingService>();
+        var mediaSettings = repository.Table.FirstOrDefault(x => x.Name == "mediasettings");        
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationUpdateMediaSettings>>();
 
         try
@@ -36,8 +34,10 @@ public class MigrationUpdateMediaSettings : IMigration
                 var metadata = mediaSettings.Metadata;
                 var settingsLogo = JsonSerializer.Deserialize<SettingsMedia>(metadata);
                 if (settingsLogo != null)
-                    settingService.SaveSetting(new StorageSettings { PictureStoreInDb = settingsLogo.StoreInDb })
-                        .GetAwaiter().GetResult();
+                {
+                    var setting = SettingExtensions.CreateSetting(new StorageSettings { PictureStoreInDb = settingsLogo.StoreInDb },  "");
+                    repository.Insert(setting);
+                }
             }
         }
         catch (Exception ex)

@@ -1,12 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Data;
+﻿using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Grand.Business.System.Services.Migrations._2._2;
+namespace Grand.Module.Migration.Migrations._2._2;
 
 public class MigrationSystemPermission : IMigration
 {
@@ -26,19 +25,19 @@ public class MigrationSystemPermission : IMigration
     public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Permission>>();
-        var groupService = serviceProvider.GetRequiredService<IGroupService>();
+        var customerGroupRepository = serviceProvider.GetRequiredService<IRepository<CustomerGroup>>();
+        var vendor = customerGroupRepository.Table.FirstOrDefault(x => x.SystemName == SystemCustomerGroupNames.Vendors);
+
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationSystemPermission>>();
 
         try
         {
-            var customerGroupVendorId = groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Vendors)
-                .GetAwaiter().GetResult().Id;
             var permissionAccessVendor =
                 repository.Table.FirstOrDefault(x => x.SystemName == PermissionSystemName.AccessVendorPanel);
             if (permissionAccessVendor == null)
             {
                 permissionAccessVendor = StandardPermission.ManageAccessVendorPanel;
-                permissionAccessVendor.CustomerGroups.Add(customerGroupVendorId);
+                permissionAccessVendor.CustomerGroups.Add(vendor!.Id);
                 repository.Insert(permissionAccessVendor);
             }
 
@@ -46,7 +45,7 @@ public class MigrationSystemPermission : IMigration
                 repository.Table.FirstOrDefault(x => x.SystemName == PermissionSystemName.AccessAdminPanel);
             if (permissionAccessAdmin != null)
             {
-                permissionAccessAdmin.CustomerGroups.Remove(customerGroupVendorId);
+                permissionAccessAdmin.CustomerGroups.Remove(vendor!.Id);
                 repository.Update(permissionAccessAdmin);
             }
 

@@ -5,7 +5,7 @@ using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Grand.Business.System.Services.Migrations._1._1;
+namespace Grand.Module.Migration.Migrations._1._1;
 
 public class MigrationUpdateAdminSiteMap : IMigration
 {

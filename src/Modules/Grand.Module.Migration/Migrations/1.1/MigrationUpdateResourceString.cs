@@ -1,7 +1,7 @@
 ﻿using Grand.Data;
 using Grand.Infrastructure.Migrations;
 
-namespace Grand.Business.System.Services.Migrations._1._1;
+namespace Grand.Module.Migration.Migrations._1._1;
 
 public class MigrationUpdateResourceString : IMigration
 {
