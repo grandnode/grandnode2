@@ -1,4 +1,6 @@
-﻿using Grand.Infrastructure;
+﻿using Grand.Data;
+using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Migrations;
 using Grand.Module.Migration.Migrations;
 using Microsoft.AspNetCore.Builder;
@@ -17,6 +19,16 @@ public class StartupApplication : IStartupApplication
 
     public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
     {
+        if (!DataSettingsManager.DatabaseIsInstalled())
+            return;
+
+        var serviceProvider = application.ApplicationServices;
+        var featureFlagsConfig = serviceProvider.GetRequiredService<FeatureFlagsConfig>();
+        if (featureFlagsConfig.Modules.TryGetValue("Grand.Module.Migration", out var value) && value)
+        {
+            var migrationProcess = serviceProvider.GetRequiredService<IMigrationProcess>();
+            migrationProcess.RunMigrationProcess();
+        }
     }
 
     public int Priority => 100;
