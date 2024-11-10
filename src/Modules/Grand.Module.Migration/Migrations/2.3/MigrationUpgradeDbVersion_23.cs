@@ -26,7 +26,7 @@ public class MigrationUpgradeDbVersion_23 : IMigration
     {
         var repository = serviceProvider.GetRequiredService<IRepository<GrandNodeVersion>>();
 
-        var dbversion = repository.Table.ToList().FirstOrDefault();
+        var dbversion = repository.Table.FirstOrDefault();
         dbversion!.InstalledVersion = $"{GrandVersion.SupportedDBVersion}";
         dbversion!.DataBaseVersion = $"{GrandVersion.SupportedDBVersion}";
         repository.Update(dbversion);
