@@ -418,6 +418,7 @@ public partial class InstallationService : IInstallationService
     protected virtual async Task InstallVersion()
     {
         var version = new GrandNodeVersion {
+            InstalledVersion = GrandVersion.SupportedDBVersion,
             DataBaseVersion = GrandVersion.SupportedDBVersion
         };
         await _versionRepository.InsertAsync(version);
@@ -1006,10 +1007,8 @@ public partial class InstallationService : IInstallationService
         try
         {
             var dataSettings = DataSettingsManager.Instance.LoadSettings(true);
-            var dbContext = _serviceProvider.GetRequiredService<IDatabaseContext>();
-            dbContext.SetConnection(dataSettings.ConnectionString);
-
-            if (dbContext.InstallProcessCreateTable)
+            var dbContext = _serviceProvider.GetRequiredService<IDatabaseFactoryContext>().GetDatabaseContext();
+            if (dataSettings.DbProvider != DbProvider.LiteDB)
             {
                 var typeSearcher = _serviceProvider.GetRequiredService<ITypeSearcher>();
                 var q = typeSearcher.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "Grand.Domain");
@@ -1019,7 +1018,7 @@ public partial class InstallationService : IInstallationService
                         await dbContext.CreateTable(item.Name, local);
             }
 
-            if (dbContext.InstallProcessCreateIndex)
+            if (dataSettings.DbProvider != DbProvider.LiteDB)
                 await CreateIndexes(dbContext, dataSettings);
         }
         catch (Exception ex)

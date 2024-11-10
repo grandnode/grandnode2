@@ -3,10 +3,7 @@
 namespace Grand.Data;
 
 public interface IDatabaseContext
-{
-    bool InstallProcessCreateTable { get; }
-    bool InstallProcessCreateIndex { get; }
-    void SetConnection(string connectionString);
+{    
     Task<bool> DatabaseExist();   
     Task CreateTable(string name, string collation);
     Task DeleteTable(string name);

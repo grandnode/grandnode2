@@ -1,5 +1,6 @@
 ﻿using Grand.Data;
 using Grand.Domain;
+using Grand.Domain.Common;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.Logging;
 
@@ -11,18 +12,21 @@ public class MigrationProcess : IMigrationProcess
     private readonly ILogger<MigrationProcess> _logger;
 
     private readonly IRepository<MigrationDb> _repositoryMigration;
+    private readonly IRepository<GrandNodeVersion> _repositoryVersion;
     private readonly IServiceProvider _serviceProvider;
 
     public MigrationProcess(
         IDatabaseContext databaseContext,
         IServiceProvider serviceProvider,
         ILogger<MigrationProcess> logger,
-        IRepository<MigrationDb> repositoryMigration)
+        IRepository<MigrationDb> repositoryMigration,
+        IRepository<GrandNodeVersion> repositoryVersion)
     {
         _databaseContext = databaseContext;
         _serviceProvider = serviceProvider;
         _logger = logger;
         _repositoryMigration = repositoryMigration;
+        _repositoryVersion = repositoryVersion;
     }
 
     public virtual MigrationResult RunProcess(IMigration migration)
@@ -52,20 +56,13 @@ public class MigrationProcess : IMigrationProcess
     public virtual void RunMigrationProcess()
     {
         var migrationsDb = GetMigrationDb();
+        var version = _repositoryVersion.Table.FirstOrDefault();
+        var majorVersion = string.IsNullOrEmpty(version?.InstalledVersion) ? int.Parse(version?.DataBaseVersion.Split('.')[0]!) : int.Parse(version?.InstalledVersion.Split('.')[0]!);
+        var minorVersion = string.IsNullOrEmpty(version?.InstalledVersion) ? int.Parse(version?.DataBaseVersion.Split('.')[1]!) : int.Parse(version?.InstalledVersion.Split('.')[1]!);
         var migrationManager = new MigrationManager();
-        foreach (var item in migrationManager.GetCurrentMigrations())
+        foreach (var item in migrationManager.GetCurrentMigrations(new DbVersion(majorVersion, minorVersion)))
             if (migrationsDb.FirstOrDefault(x => x.Identity == item.Identity) == null)
                 RunProcess(item);
-    }
-
-    public virtual void InstallApplication()
-    {
-        var migrationManager = new MigrationManager();
-        foreach (var item in migrationManager.GetCurrentMigrations())
-            SaveMigration(new MigrationResult {
-                Migration = item,
-                Success = true
-            }, true);
     }
 
     private MigrationResult RunProcessInternal(IMigration migration)
@@ -82,8 +79,7 @@ public class MigrationProcess : IMigrationProcess
         _repositoryMigration.Insert(new MigrationDb {
             Identity = migrationResult.Migration.Identity,
             Name = migrationResult.Migration.Name,
-            Version = migrationResult.Migration.Version.ToString(),
-            InstallApp = install
+            Version = migrationResult.Migration.Version.ToString()
         });
     }
 

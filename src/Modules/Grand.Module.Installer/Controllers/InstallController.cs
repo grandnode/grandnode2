@@ -6,7 +6,6 @@ using Grand.Infrastructure.Plugins;
 using Grand.Module.Installer.Interfaces;
 using Grand.Module.Installer.Models;
 using Grand.SharedKernel.Extensions;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,39 +18,40 @@ namespace Grand.Module.Installer.Controllers;
 
 public class InstallController : Controller
 {
-    #region Ctor
-
-    public InstallController(
-        ICacheBase cacheBase,
-        IHostApplicationLifetime applicationLifetime,
-        IServiceProvider serviceProvider,
-        IMediator mediator,
-        DatabaseConfig litedbConfig,
-        ILogger<InstallController> logger)
-    {
-        _cacheBase = cacheBase;
-        _applicationLifetime = applicationLifetime;
-        _serviceProvider = serviceProvider;
-        _mediator = mediator;
-        _dbConfig = litedbConfig;
-        _logger = logger;
-    }
-
-    #endregion
 
     #region Fields
 
     private readonly ICacheBase _cacheBase;
-    private readonly IServiceProvider _serviceProvider;
     private readonly IHostApplicationLifetime _applicationLifetime;
-    private readonly IMediator _mediator;
     private readonly DatabaseConfig _dbConfig;
+    private readonly IDatabaseFactoryContext _databaseFactory;
+    private readonly IInstallationLocalizedService _installationLocalizedService;
     private readonly ILogger<InstallController> _logger;
 
     /// <summary>
     ///     Cookie name to language for the installation page
     /// </summary>
     private const string LANGUAGE_COOKIE_NAME = ".Grand.installation.lang";
+
+    #endregion
+
+    #region Ctor
+
+    public InstallController(
+        ICacheBase cacheBase,
+        IHostApplicationLifetime applicationLifetime,
+        IDatabaseFactoryContext databaseFactory,
+        IInstallationLocalizedService installationLocalizedService,
+        DatabaseConfig dbConfig,
+        ILogger<InstallController> logger)
+    {
+        _cacheBase = cacheBase;
+        _applicationLifetime = applicationLifetime;
+        _installationLocalizedService = installationLocalizedService;
+        _dbConfig = dbConfig;
+        _databaseFactory = databaseFactory;
+        _logger = logger;
+    }
 
     #endregion
 
@@ -70,8 +70,6 @@ public class InstallController : Controller
 
     private InstallModel PrepareModel(InstallModel? model)
     {
-        var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
-
         model ??= new InstallModel {
             AdminEmail = "admin@yourstore.com",
             InstallSampleData = false,
@@ -87,10 +85,10 @@ public class InstallController : Controller
 
         model.SelectedLanguage = GetLanguage();
 
-        foreach (var lang in locService.GetAvailableLanguages())
+        foreach (var lang in _installationLocalizedService.GetAvailableLanguages())
         {
             var selected = false;
-            if (locService.GetCurrentLanguage(model.SelectedLanguage).Code == lang.Code)
+            if (_installationLocalizedService.GetCurrentLanguage(model.SelectedLanguage).Code == lang.Code)
             {
                 selected = true;
                 model.SelectedLanguage = lang.Code;
@@ -104,11 +102,11 @@ public class InstallController : Controller
         }
 
         //prepare collation list
-        foreach (var col in locService.GetAvailableCollations())
+        foreach (var col in _installationLocalizedService.GetAvailableCollations())
             model.AvailableCollation.Add(new SelectListItem {
                 Value = col.Value,
                 Text = col.Name,
-                Selected = locService.GetCurrentLanguage().Code == col.Value
+                Selected = _installationLocalizedService.GetCurrentLanguage().Code == col.Value
             });
 
         return model;
@@ -187,8 +185,7 @@ public class InstallController : Controller
             {
                 if (model.DataProvider != DbProvider.LiteDB)
                 {
-                    var mdb = _serviceProvider.GetRequiredService<IDatabaseContext>();
-                    mdb.SetConnection(connectionString);
+                    var mdb = _databaseFactory.GetDatabaseContext(connectionString, DbProvider.MongoDB);
                     if (await mdb.DatabaseExist())
                         ModelState.AddModelError("",
                             locService.GetResource(model.SelectedLanguage, "AlreadyInstalled"));
@@ -212,7 +209,7 @@ public class InstallController : Controller
         if (installed)
             return View(new InstallModel { Installed = true, AdminEmail = "", AdminPassword = "", ConfirmPassword = "" });
 
-        var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
+        var locService = HttpContext.RequestServices.GetRequiredService<IInstallationLocalizedService>();
 
         if (model.DatabaseConnectionString != null)
             model.DatabaseConnectionString = model.DatabaseConnectionString.Trim();
@@ -233,7 +230,7 @@ public class InstallController : Controller
             await DataSettingsManager.Instance.SaveSettings(settings);
             DataSettingsManager.Instance.LoadSettings(true);
 
-            var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
+            var installationService = HttpContext.RequestServices.GetRequiredService<IInstallationService>();
             await installationService.InstallData(
                 HttpContext.Request.Scheme, HttpContext.Request.Host,
                 model.AdminEmail, model.AdminPassword, model.Collation,
@@ -252,7 +249,7 @@ public class InstallController : Controller
             foreach (var pluginInfo in pluginsInfo)
                 try
                 {
-                    var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
+                    var plugin = pluginInfo.Instance<IPlugin>(HttpContext.RequestServices.CreateScope().ServiceProvider);
                     await plugin.Install();
                     _logger.LogInformation($"Plugin {plugin.PluginInfo.FriendlyName} has been installed");
                 }
@@ -261,12 +258,6 @@ public class InstallController : Controller
                     _logger.LogError(ex, "Error during installing plugin " + pluginInfo.SystemName,
                         ex.Message + " " + ex.InnerException?.Message);
                 }
-
-            //install migration process - install only header
-            var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
-            migrationProcess.InstallApplication();
-
-            _logger.LogInformation("Migration process has been executed");
 
             //restart application
             await _cacheBase.SetAsync("Installed", async () => await Task.FromResult(true));
