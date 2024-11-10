@@ -19,7 +19,7 @@ public class MigrationSystemPermission : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
+    public bool UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Permission>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationSystemPermission>>();

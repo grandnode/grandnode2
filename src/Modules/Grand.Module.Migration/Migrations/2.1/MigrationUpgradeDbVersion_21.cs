@@ -22,7 +22,7 @@ public class MigrationUpgradeDbVersion_21 : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
+    public bool UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<GrandNodeVersion>>();
 

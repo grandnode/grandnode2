@@ -1,5 +1,4 @@
-﻿using Grand.Data;
-using Grand.Infrastructure.Migrations;
+﻿using Grand.Infrastructure.Migrations;
 
 namespace Grand.Business.System.Tests.Services.Migrations
 {
@@ -20,7 +19,7 @@ namespace Grand.Business.System.Tests.Services.Migrations
         /// <param name="database"></param>
         /// <param name="serviceProvider"></param>
         /// <returns></returns>
-        public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
+        public bool UpgradeProcess(IServiceProvider serviceProvider)
         { 
             return true;
         }

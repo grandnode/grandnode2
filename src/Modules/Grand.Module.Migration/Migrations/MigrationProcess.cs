@@ -71,7 +71,7 @@ public class MigrationProcess : IMigrationProcess
     private MigrationResult RunProcessInternal(IMigration migration)
     {
         var model = new MigrationResult {
-            Success = migration.UpgradeProcess(_databaseContext, _serviceProvider),
+            Success = migration.UpgradeProcess(_serviceProvider),
             Migration = migration
         };
         return model;

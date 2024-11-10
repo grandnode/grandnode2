@@ -21,7 +21,7 @@ public class MigrationUpdateMediaSettings : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
+    public bool UpgradeProcess(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<Setting>>();
         var mediaSettings = repository.Table.FirstOrDefault(x => x.Name == "mediasettings");        

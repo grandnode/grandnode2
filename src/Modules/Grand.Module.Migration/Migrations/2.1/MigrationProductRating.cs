@@ -19,7 +19,7 @@ public class MigrationProductRating : IMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
+    public bool UpgradeProcess(IServiceProvider serviceProvider)
     {
         var productRepository = serviceProvider.GetRequiredService<IRepository<Product>>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationProductRating>>();
