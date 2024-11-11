@@ -16,9 +16,4 @@ public class MigrationDb : BaseEntity
     ///     Db Version
     /// </summary>
     public string Version { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the migration creation from installation
-    /// </summary>
-    public bool InstallApp { get; set; }
 }

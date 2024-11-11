@@ -31,6 +31,7 @@ public class StartupApplication : IStartupApplication
             //installation service
             serviceCollection.AddScoped<IInstallationLocalizedService, InstallationLocalizedService>();
             serviceCollection.AddScoped<IInstallationService, InstallationService>();
+            serviceCollection.AddTransient<IDatabaseFactoryContext, DatabaseFactoryContext>();
         }
     }
 }

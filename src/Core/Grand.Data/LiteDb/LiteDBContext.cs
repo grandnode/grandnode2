@@ -12,17 +12,7 @@ public class LiteDBContext : IDatabaseContext
     {
         _database = database;
     }
-
-    public void SetConnection(string connectionString)
-    {
-        if (string.IsNullOrEmpty(connectionString))
-            throw new ArgumentNullException(nameof(connectionString));
-    }
-
-    //Not supported by LiteDB
-    public bool InstallProcessCreateTable => false;
-    public bool InstallProcessCreateIndex => true;
-
+   
     public async Task<bool> DatabaseExist()
     {
         return await Task.FromResult(_database.CollectionExists(nameof(GrandNodeVersion)));

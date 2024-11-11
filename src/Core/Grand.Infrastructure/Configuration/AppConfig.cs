@@ -11,11 +11,6 @@ public class AppConfig
     public bool DisableHostedService { get; set; }
 
     /// <summary>
-    ///     A value indicating whether to ignore the migration process
-    /// </summary>
-    public bool SkipMigrationProcess { get; set; }
-
-    /// <summary>
     ///     A value indicating whether SEO friendly URLs with multiple languages are enabled
     /// </summary>
     public bool SeoFriendlyUrlsForLanguagesEnabled { get; set; }
