@@ -1,13 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.System.Admin;
-using Grand.Business.Core.Interfaces.System.MachineNameProvider;
 using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Business.System.Services.Admin;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
-using Grand.Business.System.Services.MachineNameProvider;
 using Grand.Business.System.Services.Reports;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +17,6 @@ public class StartupApplication : IStartupApplication
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         RegisterReports(services);
-        RegisterMachineNameProvider(services, configuration);
         RegisterTask(services);
         RegisterAdmin(services);
     }
@@ -44,24 +40,12 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IScheduleTask, EndAuctionsTask>();
         serviceCollection.AddScoped<IScheduleTask, CancelOrderScheduledTask>();
     }
-
     private void RegisterReports(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ICustomerReportService, CustomerReportService>();
         serviceCollection.AddScoped<IOrderReportService, OrderReportService>();
         serviceCollection.AddScoped<IProductsReportService, ProductsReportService>();
     }
-
-    private void RegisterMachineNameProvider(IServiceCollection serviceCollection, IConfiguration configuration)
-    {
-        var config = new AzureConfig();
-        configuration.GetSection("Azure").Bind(config);
-        if (config.RunOnAzureWebApps)
-            serviceCollection.AddSingleton<IMachineNameProvider, AzureWebAppsMachineNameProvider>();
-        else
-            serviceCollection.AddSingleton<IMachineNameProvider, DefaultMachineNameProvider>();
-    }
-
     private void RegisterAdmin(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IAdminSiteMapService, AdminSiteMapService>();        

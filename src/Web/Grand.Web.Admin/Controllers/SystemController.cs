@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.System.MachineNameProvider;
 using Grand.Domain.Permissions;
 using Grand.Domain.Directory;
 using Grand.Infrastructure;
@@ -35,7 +34,6 @@ public class SystemController : BaseAdminController
         IDateTimeService dateTimeService,
         IWorkContext workContext,
         ITranslationService translationService,
-        IMachineNameProvider machineNameProvider,
         IHostApplicationLifetime applicationLifetime,
         IWebHostEnvironment webHostEnvironment,
         ILogger<SystemController> logger,
@@ -57,7 +55,6 @@ public class SystemController : BaseAdminController
         _logger = logger;
         _extConfig = extConfig;
         _accessControlConfig = accessControlConfig;
-        _machineNameProvider = machineNameProvider;
     }
 
     #endregion
@@ -71,7 +68,6 @@ public class SystemController : BaseAdminController
     private readonly IDateTimeService _dateTimeService;
     private readonly IWorkContext _workContext;
     private readonly ITranslationService _translationService;
-    private readonly IMachineNameProvider _machineNameProvider;
     private readonly IHostApplicationLifetime _applicationLifetime;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly ILogger<SystemController> _logger;
@@ -104,7 +100,7 @@ public class SystemController : BaseAdminController
         }
         catch (Exception) { }
 
-        model.MachineName = _machineNameProvider.GetMachineName();
+        model.MachineName = Environment.MachineName;
         model.WebRootPath = _webHostEnvironment.WebRootPath;
         model.ContentRootPath = _webHostEnvironment.ContentRootPath;
         model.EnvironmentName = _webHostEnvironment.EnvironmentName;
