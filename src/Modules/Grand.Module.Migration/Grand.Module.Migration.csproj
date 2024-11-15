@@ -20,12 +20,12 @@
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<OutputPath>..\..\Web\Grand.Web\Modules\</OutputPath>
+		<OutputPath>..\..\Web\Grand.Web\Modules\Grand.Module.Migration\</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<OutputPath>..\..\Web\Grand.Web\Modules\</OutputPath>
+		<OutputPath>..\..\Web\Grand.Web\Modules\Grand.Module.Migration\</OutputPath>
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
 

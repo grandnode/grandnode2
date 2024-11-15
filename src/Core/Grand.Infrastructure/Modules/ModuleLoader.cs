@@ -4,12 +4,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 
 namespace Grand.Infrastructure.Modules;
 
 public static class ModuleLoader
 {
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public static void LoadModules(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
     {
         var modulesSection = configuration.GetSection("FeatureFlags:Modules");
@@ -27,13 +29,29 @@ public static class ModuleLoader
             if (module.Value)
             {
                 var moduleName = module.Key;
-                var modulePath = Path.Combine(hostingEnvironment.ContentRootPath, "Modules", $"{moduleName}.dll");
-                if (File.Exists(modulePath))
+                var modulePath = Path.Combine(hostingEnvironment.ContentRootPath, "Modules", moduleName);
+                var moduleFile = Path.Combine(modulePath, $"{moduleName}.dll");
+                if (File.Exists(moduleFile))
                 {
                     try
                     {
-                        var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(modulePath);
-                        AddApplicationPart(mvcCoreBuilder, assembly);
+                        var assemblyLoadContext = new ModuleLoadContext(Path.Combine(hostingEnvironment.ContentRootPath, "Modules", moduleName));
+
+                        foreach (var dependencyDll in Directory.GetFiles(modulePath, "*.dll"))
+                        {
+                            if (!AppDomain.CurrentDomain.GetAssemblies().Any(a => a.Location == dependencyDll))
+                            {
+                                try
+                                {
+                                    var assembly = assemblyLoadContext.LoadFromAssemblyPath(dependencyDll);
+                                    AddApplicationPart(mvcCoreBuilder, assembly);
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
+                            }
+                        }
                         logger.LogInformation($"Module '{moduleName}' has been successfully loaded.");
                     }
                     catch (Exception ex)
@@ -52,6 +70,7 @@ public static class ModuleLoader
             }
         }
     }
+
     private static void AddApplicationPart(IMvcCoreBuilder mvcCoreBuilder, Assembly assembly)
     {
         mvcCoreBuilder.AddApplicationPart(assembly);
@@ -62,6 +81,16 @@ public static class ModuleLoader
             var applicationPartFactory = ApplicationPartFactory.GetApplicationPartFactory(relatedAssembly);
             foreach (var part in applicationPartFactory.GetApplicationParts(relatedAssembly))
                 mvcCoreBuilder.PartManager.ApplicationParts.Add(part);
+        }
+    }
+
+    private class ModuleLoadContext : AssemblyLoadContext
+    {
+        private readonly string _modulePath;
+
+        public ModuleLoadContext(string modulePath) : base(isCollectible: true)
+        {
+            _modulePath = modulePath;
         }
     }
 }
