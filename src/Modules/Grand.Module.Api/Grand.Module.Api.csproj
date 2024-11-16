@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+   <PropertyGroup>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+    <Import Project="..\..\Build\Grand.Common.props" />
+    <ItemGroup>
+        <ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
+            <Private>False</Private>
+			<ExcludeAssets>runtime</ExcludeAssets>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
+            <Private>False</Private>
+			<ExcludeAssets>runtime</ExcludeAssets>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
+            <Private>False</Private>
+			<ExcludeAssets>runtime</ExcludeAssets>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
+            <Private>False</Private>
+			<ExcludeAssets>runtime</ExcludeAssets>
+        </ProjectReference>
+        <ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
+            <Private>False</Private>
+			<ExcludeAssets>runtime</ExcludeAssets>
+        </ProjectReference>
+    </ItemGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <OutputPath>..\..\Web\Grand.Web\Modules\Grand.Module.Api\</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <OutputPath>..\..\Web\Grand.Web\Modules\Grand.Module.Api\</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="8.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.OData" Version="9.0.0" />
+        <PackageReference Include="MongoDB.AspNetCore.OData" Version="1.0.1" >
+            <ExcludeAssets>runtime</ExcludeAssets>
+            <IncludeAssets>compile</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.9.0" />
+    </ItemGroup>
+    <Target Name="CopyMongoDBODataDLL" AfterTargets="Build">
+        <ItemGroup>
+            <MongoDBODataFiles Include="$(NuGetPackageRoot)mongodb.aspnetcore.odata\1.0.1\lib\net5.0\MongoDB.AspNetCore.OData.dll" />
+        </ItemGroup>
+        <Copy SourceFiles="@(MongoDBODataFiles)" DestinationFolder="$(OutDir)" />
+    </Target>
+</Project>
