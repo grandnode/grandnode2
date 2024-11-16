@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
    <PropertyGroup>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <!--<PreserveCompilationContext>false</PreserveCompilationContext>
-        <EnableDynamicLoading>true</EnableDynamicLoading>-->
     </PropertyGroup>
     <Import Project="..\..\Build\Grand.Common.props" />
     <ItemGroup>
