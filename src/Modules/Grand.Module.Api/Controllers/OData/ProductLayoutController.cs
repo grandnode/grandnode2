@@ -12,7 +12,7 @@ using System.Net;
 
 namespace Grand.Module.Api.Controllers.OData;
 
-[Route("odata/ProductLayout")]
+[Route($"{Configurations.ODataRoutePrefix}/ProductLayout")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class ProductLayoutController : BaseODataController
 {

@@ -12,7 +12,7 @@ using System.Net;
 
 namespace Grand.Module.Api.Controllers.OData;
 
-[Route("odata/Currency")]
+[Route($"{Configurations.ODataRoutePrefix}/Currency")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class CurrencyController : BaseODataController
 {

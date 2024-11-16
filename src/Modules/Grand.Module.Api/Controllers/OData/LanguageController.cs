@@ -12,7 +12,7 @@ using System.Net;
 
 namespace Grand.Module.Api.Controllers.OData;
 
-[Route("odata/Language")]
+[Route($"{Configurations.ODataRoutePrefix}/Language")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class LanguageController : BaseODataController
 {

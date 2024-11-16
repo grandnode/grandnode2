@@ -11,7 +11,7 @@ using System.Net;
 
 namespace Grand.Module.Api.Controllers.OData;
 
-[Route("odata/Picture")]
+[Route($"{Configurations.ODataRoutePrefix}/Picture")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class PictureController : BaseODataController
 {

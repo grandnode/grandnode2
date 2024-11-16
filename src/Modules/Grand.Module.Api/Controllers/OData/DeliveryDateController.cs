@@ -12,7 +12,7 @@ using System.Net;
 
 namespace Grand.Module.Api.Controllers.OData;
 
-[Route("odata/DeliveryDate")]
+[Route($"{Configurations.ODataRoutePrefix}/DeliveryDate")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class DeliveryDateController : BaseODataController
 {

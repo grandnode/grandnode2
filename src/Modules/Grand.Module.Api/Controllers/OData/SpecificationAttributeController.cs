@@ -14,7 +14,7 @@ using System.Net;
 
 namespace Grand.Module.Api.Controllers.OData;
 
-[Route("odata/SpecificationAttribute")]
+[Route($"{Configurations.ODataRoutePrefix}/SpecificationAttribute")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class SpecificationAttributeController : BaseODataController
 {

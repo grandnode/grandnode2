@@ -14,7 +14,7 @@ using System.Net;
 
 namespace Grand.Module.Api.Controllers.OData;
 
-[Route("odata/Category")]
+[Route($"{Configurations.ODataRoutePrefix}/Category")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class CategoryController : BaseODataController
 {

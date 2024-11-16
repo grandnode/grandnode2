@@ -13,7 +13,7 @@ using System.Net;
 
 namespace Grand.Module.Api.Controllers.OData;
 
-[Route("odata/Customer")]
+[Route($"{Configurations.ODataRoutePrefix}/Customer")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class CustomerController : BaseODataController
 {

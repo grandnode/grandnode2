@@ -10,10 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
+using Grand.Module.Api.Constants;
 
 namespace Grand.Module.Api.Controllers.OData;
 
-[Route("odata/Brand")]
+[Route($"{Configurations.ODataRoutePrefix}/Brand")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class BrandController : BaseODataController
 {

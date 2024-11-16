@@ -12,7 +12,7 @@ using System.Net;
 
 namespace Grand.Module.Api.Controllers.OData;
 
-[Route("odata/PickupPoint")]
+[Route($"{Configurations.ODataRoutePrefix}/PickupPoint")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class PickupPointController : BaseODataController
 {

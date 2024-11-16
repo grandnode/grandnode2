@@ -12,7 +12,7 @@ using System.Net;
 
 namespace Grand.Module.Api.Controllers.OData;
 
-[Route("odata/CollectionLayout")]
+[Route($"{Configurations.ODataRoutePrefix}/CollectionLayout")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class CollectionLayoutController : BaseODataController
 {
