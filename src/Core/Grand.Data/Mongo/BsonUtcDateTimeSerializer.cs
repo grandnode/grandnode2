@@ -1,4 +1,4 @@
-﻿using MongoDB.Bson.Serialization;
+﻿/*using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace Grand.Data.Mongo;
@@ -15,4 +15,4 @@ public class BsonUtcDateTimeSerializer : DateTimeSerializer
         var utcValue = new DateTime(value.Ticks, DateTimeKind.Utc);
         base.Serialize(context, args, utcValue);
     }
-}
+}*/
