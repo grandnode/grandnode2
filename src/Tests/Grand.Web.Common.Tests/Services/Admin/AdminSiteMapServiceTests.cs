@@ -1,12 +1,12 @@
-﻿using Grand.Business.System.Services.Admin;
-using Grand.Data;
+﻿using Grand.Data;
 using Grand.Domain.Admin;
 using Grand.Infrastructure.Caching;
+using Grand.Web.Common.Menu;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.System.Tests.Services.Admin;
+namespace Grand.Web.Common.Tests.Services.Admin;
 
 [TestClass]
 public class AdminSiteMapServiceTests

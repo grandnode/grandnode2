@@ -1,7 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.System.Admin;
-using Grand.Business.Core.Interfaces.System.Reports;
+﻿using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
-using Grand.Business.System.Services.Admin;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Business.System.Services.Reports;
 using Grand.Infrastructure;
@@ -18,7 +16,6 @@ public class StartupApplication : IStartupApplication
     {
         RegisterReports(services);
         RegisterTask(services);
-        RegisterAdmin(services);
     }
 
     public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
@@ -45,9 +42,5 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<ICustomerReportService, CustomerReportService>();
         serviceCollection.AddScoped<IOrderReportService, OrderReportService>();
         serviceCollection.AddScoped<IProductsReportService, ProductsReportService>();
-    }
-    private void RegisterAdmin(IServiceCollection serviceCollection)
-    {
-        serviceCollection.AddScoped<IAdminSiteMapService, AdminSiteMapService>();        
     }
 }

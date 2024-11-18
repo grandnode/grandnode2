@@ -6,7 +6,7 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 
-namespace Grand.Business.System.Services.Admin;
+namespace Grand.Web.Common.Menu;
 
 public class AdminSiteMapService : IAdminSiteMapService
 {

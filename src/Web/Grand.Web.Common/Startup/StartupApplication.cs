@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
@@ -8,6 +9,7 @@ using Grand.Infrastructure.Caching.Redis;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Menu;
 using Grand.Web.Common.Middleware;
 using Grand.Web.Common.Page;
 using Grand.Web.Common.Routing;
@@ -97,6 +99,9 @@ public class StartupApplication : IStartupApplication
 
         //Default theme view
         serviceCollection.AddScoped<IThemeView, DefaultThemeView>();
+        
+        //Admin site map service
+        serviceCollection.AddScoped<IAdminSiteMapService, AdminSiteMapService>();        
     }
 
 
