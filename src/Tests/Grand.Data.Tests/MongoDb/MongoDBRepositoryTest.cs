@@ -1,6 +1,9 @@
 ﻿using Grand.Data.Mongo;
 using Grand.Domain;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace Grand.Data.Tests.MongoDb;
 
@@ -10,6 +13,7 @@ public class MongoDBRepositoryTest<T> : MongoRepository<T>, IRepository<T> where
         DriverTestConfiguration.Client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName),
         new AuditInfoProvider())
     {
+        BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
         var cp = new ConventionPack {
             new IgnoreExtraElementsConvention(true)
         };

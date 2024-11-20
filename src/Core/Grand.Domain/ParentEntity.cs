@@ -15,5 +15,5 @@ public abstract class ParentEntity
     public string Id {
         get => _id;
         set => _id = string.IsNullOrEmpty(value) ? UniqueIdentifier.New : value;
-    }
+    }   
 }
