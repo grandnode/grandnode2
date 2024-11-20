@@ -15,8 +15,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Braintree" Version="5.27.0" />
-		<PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
+		<PackageReference Include="Braintree" />
+		<PackageReference Include="System.Xml.XPath.XmlDocument" />
 	</ItemGroup>
 
 	<Target Name="CopyFile" AfterTargets="AfterBuild">
