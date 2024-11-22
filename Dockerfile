@@ -4,6 +4,7 @@ LABEL stage=build-env
 WORKDIR /app
 
 # Copy 
+COPY Directory.Packages.props /app/
 COPY ./src/ /app/
 
 ARG GIT_COMMIT
