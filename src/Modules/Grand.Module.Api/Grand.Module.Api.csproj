@@ -37,15 +37,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="8.0.10" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.10" />
-        <PackageReference Include="Microsoft.AspNetCore.OData" Version="9.0.0" />
-        <PackageReference Include="MongoDB.AspNetCore.OData" Version="1.0.1" >
+        <PackageReference Include="Microsoft.AspNetCore.JsonPatch" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+        <PackageReference Include="Microsoft.AspNetCore.OData" />
+        <PackageReference Include="MongoDB.AspNetCore.OData" >
             <ExcludeAssets>runtime</ExcludeAssets>
             <IncludeAssets>compile</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.9.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
     </ItemGroup>
     <Target Name="CopyMongoDBODataDLL" AfterTargets="Build">
         <ItemGroup>

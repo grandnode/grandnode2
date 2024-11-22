@@ -15,7 +15,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Stripe.net" Version="46.2.1" />
+        <PackageReference Include="Stripe.net" />
     </ItemGroup>
 
     <Target Name="CopyFile" AfterTargets="AfterBuild">
