@@ -1,12 +1,7 @@
 name: Docker Image CI
 
 env:
-  TAG: 'latest'
-  
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
+  TAG: 'tmp-net9'
   
 jobs:
 
