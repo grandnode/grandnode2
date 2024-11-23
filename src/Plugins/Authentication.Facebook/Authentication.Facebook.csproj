@@ -20,7 +20,7 @@
   
   <Target Name="CopyFile" AfterTargets="AfterBuild">
     <ItemGroup>
-      <CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.facebook\8.0.10\lib\net8.0\*.dll" />
+      <CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.facebook\9.0.0\lib\net9.0\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Authentication.Facebook\" />
   </Target>

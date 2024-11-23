@@ -20,7 +20,7 @@
 
     <Target Name="CopyFile" AfterTargets="AfterBuild">
         <ItemGroup>
-            <CopyFiles Include="$(NuGetPackageRoot)\stripe.net\46.2.1\lib\net6.0\*.*" />
+            <CopyFiles Include="$(NuGetPackageRoot)\stripe.net\47.1.0\lib\net8.0\*.*" />
         </ItemGroup>
         <Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Payments.StripeCheckout\" />
     </Target>
