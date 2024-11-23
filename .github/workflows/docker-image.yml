@@ -3,6 +3,11 @@ name: Docker Image CI
 env:
   TAG: 'tmp-net9'
   
+on:
+  push:
+    branches: [ "feature/dotnet9" ]
+  workflow_dispatch:
+  
 jobs:
 
   build:
