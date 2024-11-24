@@ -20,7 +20,6 @@ public static class TaskHandler
         var appConfig = new AppConfig();
         configuration.GetSection("Application").Bind(appConfig);
 
-        if (appConfig.DisableHostedService) return;
         var typeSearcher = new TypeSearcher();
         var scheduleTasks = typeSearcher.ClassesOfType<IScheduleTask>();
 
