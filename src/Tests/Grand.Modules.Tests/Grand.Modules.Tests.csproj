@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Build\Grand.Common.props" />
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>Grand.Modules.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj" />
+    <ProjectReference Include="..\..\Modules\Grand.Module.Migration\Grand.Module.Migration.csproj" />
+    <ProjectReference Include="..\..\Modules\Grand.Module.ScheduledTasks\Grand.Module.ScheduledTasks.csproj" />
+  </ItemGroup>
+
+</Project>
