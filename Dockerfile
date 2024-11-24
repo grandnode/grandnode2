@@ -26,6 +26,7 @@ RUN dotnet publish /app/Web/Grand.Web/Grand.Web.csproj -c Release -o ./build/rel
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS runtime
 
+RUN apk add --no-cache icu-libs
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 EXPOSE 8080
