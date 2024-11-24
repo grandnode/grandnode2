@@ -13,7 +13,7 @@ public partial class InstallationService
             new() {
                 ScheduleTaskName = "Send emails",
                 Type =
-                    "Grand.Module.Installer.BackgroundServices.ScheduleTasks.QueuedMessagesSendScheduleTask, Grand.Business.System",
+                    "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.QueuedMessagesSendScheduleTask, Grand.Business.System",
                 Enabled = true,
                 StopOnError = false,
                 TimeInterval = 1
@@ -21,7 +21,7 @@ public partial class InstallationService
             new() {
                 ScheduleTaskName = "Delete guests",
                 Type =
-                    "Grand.Module.Installer.BackgroundServices.ScheduleTasks.DeleteGuestsScheduleTask, Grand.Business.System",
+                    "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.DeleteGuestsScheduleTask, Grand.Business.System",
                 Enabled = true,
                 StopOnError = false,
                 TimeInterval = 1440
@@ -29,7 +29,7 @@ public partial class InstallationService
             new() {
                 ScheduleTaskName = "Clear cache",
                 Type =
-                    "Grand.Module.Installer.BackgroundServices.ScheduleTasks.ClearCacheScheduleTask, Grand.Business.System",
+                    "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.ClearCacheScheduleTask, Grand.Business.System",
                 Enabled = false,
                 StopOnError = false,
                 TimeInterval = 120
@@ -37,7 +37,7 @@ public partial class InstallationService
             new() {
                 ScheduleTaskName = "Update currency exchange rates",
                 Type =
-                    "Grand.Module.Installer.BackgroundServices.ScheduleTasks.UpdateExchangeRateScheduleTask, Grand.Business.System",
+                    "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.UpdateExchangeRateScheduleTask, Grand.Business.System",
                 Enabled = true,
                 StopOnError = false,
                 TimeInterval = 1440
@@ -45,7 +45,7 @@ public partial class InstallationService
             new() {
                 ScheduleTaskName = "Generate sitemap XML file",
                 Type =
-                    "Grand.Module.Installer.BackgroundServices.ScheduleTasks.GenerateSitemapXmlTask, Grand.Business.System",
+                    "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.GenerateSitemapXmlTask, Grand.Business.System",
                 Enabled = false,
                 StopOnError = false,
                 TimeInterval = 10080
@@ -53,7 +53,7 @@ public partial class InstallationService
             new() {
                 ScheduleTaskName = "End of the auctions",
                 Type =
-                    "Grand.Module.Installer.BackgroundServices.ScheduleTasks.EndAuctionsTask, Grand.Business.System",
+                    "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.EndAuctionsTask, Grand.Business.System",
                 Enabled = false,
                 StopOnError = false,
                 TimeInterval = 60
@@ -61,7 +61,7 @@ public partial class InstallationService
             new() {
                 ScheduleTaskName = "Cancel unpaid and pending orders",
                 Type =
-                    "Grand.Module.Installer.BackgroundServices.ScheduleTasks.CancelOrderScheduledTask, Grand.Business.System",
+                    "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.CancelOrderScheduledTask, Grand.Business.System",
                 Enabled = false,
                 StopOnError = false,
                 TimeInterval = 1440
