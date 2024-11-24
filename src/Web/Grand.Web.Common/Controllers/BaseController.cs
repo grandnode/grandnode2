@@ -1,13 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Events;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Page;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -21,18 +18,6 @@ namespace Grand.Web.Common.Controllers;
 [CustomerActivity]
 public abstract class BaseController : Controller
 {
-    public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-    {
-        // event notification before execute
-        var mediator = context.HttpContext.RequestServices.GetService<IMediator>();
-        await mediator.Publish(new ActionExecutingContextNotification(context, true));
-
-        await next();
-
-        //event notification after execute
-        await mediator.Publish(new ActionExecutingContextNotification(context, false));
-    }
-
     #region Notifications
 
     /// <summary>
@@ -197,8 +182,7 @@ public abstract class BaseController : Controller
             var locale = Activator.CreateInstance<TLocalizedModelLocal>();
             locale.LanguageId = language.Id;
 
-            if (configure != null)
-                configure.Invoke(locale, locale.LanguageId);
+            configure?.Invoke(locale, locale.LanguageId);
 
             locales.Add(locale);
         }
@@ -216,16 +200,5 @@ public abstract class BaseController : Controller
     {
         return RedirectToAction("AccessDenied", "Home");
     }
-
-    /// <summary>
-    ///     Access denied json data for kendo grid
-    /// </summary>
-    /// <returns>Access denied json data</returns>
-    protected JsonResult AccessDeniedKendoGridJson()
-    {
-        var translationService = HttpContext.RequestServices.GetRequiredService<ITranslationService>();
-        return ErrorForKendoGridJson(translationService.GetResource("Admin.AccessDenied.Description"));
-    }
-
     #endregion
 }
