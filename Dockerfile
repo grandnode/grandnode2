@@ -24,7 +24,7 @@ RUN for plugin in /app/Plugins/*; do \
 RUN dotnet publish /app/Web/Grand.Web/Grand.Web.csproj -c Release -o ./build/release -p:SourceRevisionId=$GIT_COMMIT -p:GitBranch=$GIT_BRANCH
 
 # Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 EXPOSE 8080
 WORKDIR /app
 COPY --from=build-env /app/build/release .
