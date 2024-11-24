@@ -17,6 +17,7 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.ExportImport;
+using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
@@ -67,6 +68,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<ICategoryLayoutService, CategoryLayoutService>();
         serviceCollection.AddScoped<ICollectionLayoutService, CollectionLayoutService>();
         serviceCollection.AddScoped<IProductTagService, ProductTagService>();
+        serviceCollection.AddScoped<IProductsReportService, ProductsReportService>();
         serviceCollection.AddScoped<ICustomerGroupProductService, CustomerGroupProductService>();
         serviceCollection.AddScoped<IInventoryManageService, InventoryManageService>();
         serviceCollection.AddScoped<IStockQuantityService, StockQuantityService>();

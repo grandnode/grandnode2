@@ -1,7 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.System.Reports;
-using Grand.Business.Core.Interfaces.System.ScheduleTasks;
+﻿using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
-using Grand.Business.System.Services.Reports;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -14,7 +12,6 @@ public class StartupApplication : IStartupApplication
 {
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        RegisterReports(services);
         RegisterTask(services);
     }
 
@@ -36,11 +33,5 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IScheduleTask, UpdateExchangeRateScheduleTask>();
         serviceCollection.AddScoped<IScheduleTask, EndAuctionsTask>();
         serviceCollection.AddScoped<IScheduleTask, CancelOrderScheduledTask>();
-    }
-    private void RegisterReports(IServiceCollection serviceCollection)
-    {
-        serviceCollection.AddScoped<ICustomerReportService, CustomerReportService>();
-        serviceCollection.AddScoped<IOrderReportService, OrderReportService>();
-        serviceCollection.AddScoped<IProductsReportService, ProductsReportService>();
     }
 }

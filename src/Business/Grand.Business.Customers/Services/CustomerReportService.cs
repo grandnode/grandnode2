@@ -8,7 +8,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 
-namespace Grand.Business.System.Services.Reports;
+namespace Grand.Business.Customers.Services;
 
 /// <summary>
 ///     Customer report service
