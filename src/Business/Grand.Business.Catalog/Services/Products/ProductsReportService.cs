@@ -3,7 +3,7 @@ using Grand.Business.Core.Utilities.System;
 using Grand.Data;
 using Grand.Domain.Catalog;
 
-namespace Grand.Business.System.Services.Reports;
+namespace Grand.Business.Catalog.Services.Products;
 
 /// <summary>
 ///     Product report service

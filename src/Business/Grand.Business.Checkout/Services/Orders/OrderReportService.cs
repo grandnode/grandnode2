@@ -9,7 +9,7 @@ using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using System.Globalization;
 
-namespace Grand.Business.System.Services.Reports;
+namespace Grand.Business.Checkout.Services.Orders;
 
 /// <summary>
 ///     Order report service
