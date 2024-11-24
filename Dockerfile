@@ -1,5 +1,5 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
 LABEL stage=build-env
 WORKDIR /app
 
