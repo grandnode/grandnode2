@@ -14,9 +14,9 @@ public interface IScheduleTaskService
     /// <summary>
     ///     Gets a task by its type
     /// </summary>
-    /// <param name="type">Task type</param>
+    /// <param name="name">Task name</param>
     /// <returns>Task</returns>
-    Task<ScheduleTask> GetTaskByType(string type);
+    Task<ScheduleTask> GetTaskByName(string name);
 
     /// <summary>
     ///     Gets all tasks

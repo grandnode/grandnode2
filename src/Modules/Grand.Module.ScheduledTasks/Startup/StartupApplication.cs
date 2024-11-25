@@ -26,12 +26,12 @@ public class StartupApplication : IStartupApplication
     {
         serviceCollection.AddScoped<IScheduleTaskService, ScheduleTaskService>();
 
-        serviceCollection.AddScoped<IScheduleTask, QueuedMessagesSendScheduleTask>();
-        serviceCollection.AddScoped<IScheduleTask, ClearCacheScheduleTask>();
-        serviceCollection.AddScoped<IScheduleTask, GenerateSitemapXmlTask>();
-        serviceCollection.AddScoped<IScheduleTask, DeleteGuestsScheduleTask>();
-        serviceCollection.AddScoped<IScheduleTask, UpdateExchangeRateScheduleTask>();
-        serviceCollection.AddScoped<IScheduleTask, EndAuctionsTask>();
-        serviceCollection.AddScoped<IScheduleTask, CancelOrderScheduledTask>();
+        serviceCollection.AddKeyedScoped<IScheduleTask, QueuedMessagesSendScheduleTask>("Send emails");
+        serviceCollection.AddKeyedScoped<IScheduleTask, ClearCacheScheduleTask>("Clear cache");
+        serviceCollection.AddKeyedScoped<IScheduleTask, GenerateSitemapXmlTask>("Generate sitemap XML file");
+        serviceCollection.AddKeyedScoped<IScheduleTask, DeleteGuestsScheduleTask>("Delete guests");
+        serviceCollection.AddKeyedScoped<IScheduleTask, UpdateExchangeRateScheduleTask>("Update currency exchange rates");
+        serviceCollection.AddKeyedScoped<IScheduleTask, EndAuctionsTask>("End of the auctions");
+        serviceCollection.AddKeyedScoped<IScheduleTask, CancelOrderScheduledTask>("Cancel unpaid and pending orders");
     }
 }

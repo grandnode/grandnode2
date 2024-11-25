@@ -35,17 +35,16 @@ public class ScheduleTaskService : IScheduleTaskService
     }
 
     /// <summary>
-    ///     Gets a task by its type
+    ///     Gets a task by its name
     /// </summary>
-    /// <param name="type">Task type</param>
     /// <returns>Task</returns>
-    public virtual async Task<ScheduleTask> GetTaskByType(string type)
+    public virtual async Task<ScheduleTask> GetTaskByName(string name)
     {
-        if (string.IsNullOrWhiteSpace(type))
+        if (string.IsNullOrWhiteSpace(name))
             return null;
 
-        var query = _taskRepository.Table.Where(st => st.Type == type).OrderByDescending(t => t.Id);
-        return await Task.FromResult(query.FirstOrDefault());
+        var task = _taskRepository.Table.FirstOrDefault(x => x.ScheduleTaskName == name);
+        return await Task.FromResult(task);
     }
 
     /// <summary>

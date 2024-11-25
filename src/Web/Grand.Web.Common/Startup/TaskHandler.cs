@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Data;
-using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Plugins;
-using Grand.Infrastructure.TypeSearch;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,20 +15,11 @@ public static class TaskHandler
         //database is already installed, so start scheduled tasks
         if (!DataSettingsManager.DatabaseIsInstalled()) return;
 
-        var appConfig = new AppConfig();
-        configuration.GetSection("Application").Bind(appConfig);
+        var scheduleTaskKeyedServices = KeyedServiceHelper.GetKeyedServicesForInterface<IScheduleTask>(services);
 
-        var typeSearcher = new TypeSearcher();
-        var scheduleTasks = typeSearcher.ClassesOfType<IScheduleTask>();
-
-        var scheduleTasksInstalled = scheduleTasks
-            .Where(PluginExtensions.OnlyInstalledPlugins); //ignore not installed plugins
-
-        foreach (var task in scheduleTasksInstalled)
+        foreach (var task in scheduleTaskKeyedServices)
         {
-            var assemblyName = task.Assembly.GetName().Name;
-            services.AddSingleton<IHostedService, BackgroundServiceTask>(sp =>
-                new BackgroundServiceTask($"{task.FullName}, {assemblyName}", sp));
+            services.AddSingleton<IHostedService, BackgroundServiceTask>(sp => new BackgroundServiceTask(task, sp));
         }
     }
 }

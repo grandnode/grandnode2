@@ -14,7 +14,6 @@ public class ScheduleTaskProfile : Profile, IAutoMapperProfile
 
         CreateMap<ScheduleTaskModel, ScheduleTask>()
             .ForMember(dest => dest.Id, mo => mo.Ignore())
-            .ForMember(dest => dest.Type, mo => mo.Ignore())
             .ForMember(dest => dest.ScheduleTaskName, mo => mo.Ignore())
             .ForMember(dest => dest.LastNonSuccessEndUtc, mo => mo.Ignore())
             .ForMember(dest => dest.LastStartUtc, mo => mo.Ignore())
