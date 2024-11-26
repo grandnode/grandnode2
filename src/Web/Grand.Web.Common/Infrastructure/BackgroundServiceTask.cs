@@ -10,11 +10,11 @@ namespace Grand.Web.Common.Infrastructure;
 public class BackgroundServiceTask : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly string _taskType;
+    private readonly string Name;
 
-    public BackgroundServiceTask(string taskType, IServiceProvider serviceProvider)
+    public BackgroundServiceTask(string name, IServiceProvider serviceProvider)
     {
-        _taskType = taskType;
+        Name = name;
         _serviceProvider = serviceProvider;
     }
 
@@ -27,10 +27,10 @@ public class BackgroundServiceTask : BackgroundService
                 var serviceProvider = scope.ServiceProvider;
                 var logger = serviceProvider.GetService<ILogger<BackgroundServiceTask>>();
                 var scheduleTaskService = serviceProvider.GetService<IScheduleTaskService>();
-                var task = await scheduleTaskService.GetTaskByType(_taskType);
+                var task = await scheduleTaskService.GetTaskByName(Name);
                 if (task == null)
                 {
-                    logger.LogInformation("Task {TaskType} is not exists in the database", _taskType);
+                    logger.LogInformation("Task {TaskName} is not exists in the database", Name);
                     break;
                 }
 
@@ -39,66 +39,55 @@ public class BackgroundServiceTask : BackgroundService
                 if (task.Enabled && (string.IsNullOrEmpty(task.LeasedByMachineName) ||
                                      machineName == task.LeasedByMachineName))
                 {
-                    var typeofTask = Type.GetType(_taskType);
-                    if (typeofTask != null)
-                    {
-                        var scheduleTask = serviceProvider.GetServices<IScheduleTask>()
-                            .FirstOrDefault(x => x.GetType() == typeofTask);
-                        if (scheduleTask != null)
-                        {
-                            //assign current customer (background task) / current store (from task)
-                            await WorkContext(serviceProvider, task);
-                            var runTask = true;
-                            if (task.LastStartUtc.HasValue)
-                            {
-                                var dateTimeNow = DateTime.UtcNow;
-                                if (dateTimeNow < task.LastStartUtc.Value.AddMinutes(task.TimeInterval))
-                                {
-                                    runTask = false;
-                                    timeInterval =
-                                        (int)(task.LastStartUtc.Value.AddMinutes(task.TimeInterval) - dateTimeNow)
-                                        .TotalMinutes;
-                                }
-                                else
-                                {
-                                    runTask = true;
-                                    timeInterval = task.TimeInterval > 0 ? task.TimeInterval : 1;
-                                }
-                            }
 
-                            if (runTask)
+                    var scheduleTask = serviceProvider.GetRequiredKeyedService<IScheduleTask>(task.ScheduleTaskName);
+                    if (scheduleTask != null)
+                    {
+                        //assign current customer (background task) / current store (from task)
+                        await WorkContext(serviceProvider, task);
+                        var runTask = true;
+                        if (task.LastStartUtc.HasValue)
+                        {
+                            var dateTimeNow = DateTime.UtcNow;
+                            if (dateTimeNow < task.LastStartUtc.Value.AddMinutes(task.TimeInterval))
                             {
-                                task.LastStartUtc = DateTime.UtcNow;
-                                try
-                                {
-                                    //TODO - add settings
-                                    //logger.Information($"Task {_taskType} execute");
-                                    await scheduleTask.Execute();
-                                    task.LastSuccessUtc = DateTime.UtcNow;
-                                    task.LastNonSuccessEndUtc = null;
-                                }
-                                catch (Exception exc)
-                                {
-                                    task.LastNonSuccessEndUtc = DateTime.UtcNow;
-                                    task.Enabled = !task.StopOnError;
-                                    logger.LogError(exc,
-                                        "Error while running the \'{TaskScheduleTaskName}\' schedule task",
-                                        task.ScheduleTaskName);
-                                }
+                                runTask = false;
+                                timeInterval =
+                                    (int)(task.LastStartUtc.Value.AddMinutes(task.TimeInterval) - dateTimeNow)
+                                    .TotalMinutes;
+                            }
+                            else
+                            {
+                                runTask = true;
+                                timeInterval = task.TimeInterval > 0 ? task.TimeInterval : 1;
                             }
                         }
-                        else
+
+                        if (runTask)
                         {
-                            task.Enabled = !task.StopOnError;
-                            task.LastNonSuccessEndUtc = DateTime.UtcNow;
-                            logger.LogError("Type {TaskType} is not registered", _taskType);
+                            task.LastStartUtc = DateTime.UtcNow;
+                            try
+                            {                                
+                                logger.LogInformation($"Task {Name} execute");
+                                await scheduleTask.Execute();
+                                task.LastSuccessUtc = DateTime.UtcNow;
+                                task.LastNonSuccessEndUtc = null;
+                            }
+                            catch (Exception exc)
+                            {
+                                task.LastNonSuccessEndUtc = DateTime.UtcNow;
+                                task.Enabled = !task.StopOnError;
+                                logger.LogError(exc,
+                                    "Error while running the \'{TaskScheduleTaskName}\' schedule task",
+                                    task.ScheduleTaskName);
+                            }
                         }
                     }
                     else
                     {
                         task.Enabled = !task.StopOnError;
                         task.LastNonSuccessEndUtc = DateTime.UtcNow;
-                        logger.LogError("Type {TaskType} is null (type not exists)", _taskType);
+                        logger.LogError("Type {TaskName} is not registered", Name);
                     }
 
                     await scheduleTaskService.UpdateTask(task);

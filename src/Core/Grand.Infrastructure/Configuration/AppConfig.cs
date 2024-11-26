@@ -6,11 +6,6 @@ namespace Grand.Infrastructure.Configuration;
 public class AppConfig
 {
     /// <summary>
-    ///     Indicates whether we should Disable HostedService - BackgroundServiceTask
-    /// </summary>
-    public bool DisableHostedService { get; set; }
-
-    /// <summary>
     ///     A value indicating whether SEO friendly URLs with multiple languages are enabled
     /// </summary>
     public bool SeoFriendlyUrlsForLanguagesEnabled { get; set; }
