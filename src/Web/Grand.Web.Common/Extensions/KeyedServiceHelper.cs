@@ -6,14 +6,14 @@ public static class KeyedServiceHelper
 {
     public static IList<string> GetKeyedServicesForInterface<TInterface>(IServiceCollection services)
     {
-        var keyedServices = new List<string>();
-        foreach (var service in services)
-        {
-            if (service.ServiceType == typeof(TInterface) && service.IsKeyedService)
-            {
-                keyedServices.Add(service.ServiceKey.ToString());
-            }
-        }
-        return keyedServices;
+        ArgumentNullException.ThrowIfNull(services);
+
+        return services
+            .Where(service =>
+                service.ServiceType == typeof(TInterface) &&
+                service.IsKeyedService &&
+                service.ServiceKey != null)
+            .Select(service => service.ServiceKey.ToString())
+            .ToList();
     }
 }
