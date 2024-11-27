@@ -65,7 +65,7 @@ public class InstallController : Controller
 
     private InstallModel PrepareModel(InstallModel? model)
     {
-        var installationLocalizedService = HttpContext.RequestServices.GetService<IInstallationLocalizedService>();
+        var installationLocalizedService = HttpContext.RequestServices.GetRequiredService<IInstallationLocalizedService>();
 
         model ??= new InstallModel {
             AdminEmail = "admin@yourstore.com",
