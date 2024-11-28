@@ -36,32 +36,35 @@ jobs:
       run: |
         docker run --name grandnode2-container -d -p 8080:80 --link mongodb-container:mongo grandnode2:pr-latest
 
+    - name: Show application logs
+      run: docker logs grandnode2-container
+
     - name: Wait for the application to be ready
       run: |
         echo "Waiting for the application to start..."
         for i in {1..10}; do
-          curl -s http://localhost:8080/install && break
+          curl -s http://localhost:8080 && echo "Application is up!" && break
           echo "Retrying in 3 seconds..."
           sleep 3
         done
 
+
     - name: Trigger the installer via POST request
       run: |
         echo "Running installation with form-data..."
-        curl -X POST http://localhost:8080/api/installer \
+        curl -X POST http://localhost:8080/install \
           -H "Content-Type: multipart/form-data" \
           -F "AdminEmail=admin@example.com" \
           -F "AdminPassword=SecurePassword123" \
           -F "ConfirmPassword=SecurePassword123" \
           -F "DataProvider=0" \
-          -F "MongoDBServerName=localhost:27017" \
+          -F "MongoDBServerName=mongo" \
           -F "MongoDBDatabaseName=grandnode" \
           -F "InstallSampleData=true" \
           -F "CompanyName=My Company" \
           -F "CompanyAddress=123 Main St" \
           -F "CompanyPhoneNumber=1234567890" \
           -F "CompanyEmail=info@company.com"
-
 
     - name: Restart the application container
       run: |
