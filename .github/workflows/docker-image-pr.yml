@@ -13,14 +13,14 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag grandnode2:$(date +%s)
+      run: docker build . --file Dockerfile --tag grandnode2:pr-latest
 
     - name: List Docker images
       run: docker images
 
     - name: Run the Docker container
       run: |
-        docker run --name grandnode2-container -d grandnode2:$(date +%s)
+        docker run --name grandnode2-container -d grandnode2:pr-latest
     
     - name: Check if container is running
       run: docker ps
