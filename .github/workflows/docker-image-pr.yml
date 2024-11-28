@@ -7,12 +7,25 @@ on:
     branches: [ "feature/workflow-docker-image" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
+
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file Dockerfile --tag grandnode2:$(date +%s)
+
+    - name: List Docker images
+      run: docker images
+
+    - name: Run the Docker container
+      run: |
+        docker run --name grandnode2-container -d grandnode2:$(date +%s)
+    
+    - name: Check if container is running
+      run: docker ps
+
+    - name: Stop and remove the container
+      run: |
+        docker stop grandnode2-container
+        docker rm grandnode2-container
