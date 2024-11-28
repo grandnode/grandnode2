@@ -40,27 +40,28 @@ jobs:
       run: |
         echo "Waiting for the application to start..."
         for i in {1..10}; do
-          curl -s http://localhost:8080 && break
+          curl -s http://localhost:8080/install && break
           echo "Retrying in 3 seconds..."
           sleep 3
         done
 
     - name: Trigger the installer via POST request
       run: |
-        echo "Running installation..."
-        curl -X POST http://localhost:8080/install \
-          -H "Content-Type: application/x-www-form-urlencoded" \
-          --data-urlencode "AdminEmail=admin@example.com" \
-          --data-urlencode "AdminPassword=SecurePassword123" \
-          --data-urlencode "ConfirmPassword=SecurePassword123" \
-          --data-urlencode "DataProvider=0" \
-          --data-urlencode "MongoDBServerName=mongo" \
-          --data-urlencode "MongoDBDatabaseName=grandnode" \
-          --data-urlencode "InstallSampleData=true" \
-          --data-urlencode "CompanyName=My Company" \
-          --data-urlencode "CompanyAddress=123 Main St" \
-          --data-urlencode "CompanyPhoneNumber=1234567890" \
-          --data-urlencode "CompanyEmail=info@company.com"
+        echo "Running installation with form-data..."
+        curl -X POST http://localhost:8080/api/installer \
+          -H "Content-Type: multipart/form-data" \
+          -F "AdminEmail=admin@example.com" \
+          -F "AdminPassword=SecurePassword123" \
+          -F "ConfirmPassword=SecurePassword123" \
+          -F "DataProvider=0" \
+          -F "MongoDBServerName=localhost:27017" \
+          -F "MongoDBDatabaseName=grandnode" \
+          -F "InstallSampleData=true" \
+          -F "CompanyName=My Company" \
+          -F "CompanyAddress=123 Main St" \
+          -F "CompanyPhoneNumber=1234567890" \
+          -F "CompanyEmail=info@company.com"
+
 
     - name: Restart the application container
       run: |
