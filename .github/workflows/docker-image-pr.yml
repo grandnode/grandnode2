@@ -15,16 +15,66 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag grandnode2:pr-latest
 
+    - name: Start MongoDB container
+      run: |
+        docker run --name mongodb-container -d -p 27017:27017 mongo:latest
+
+    - name: Wait for MongoDB to be ready
+      run: |
+        echo "Waiting for MongoDB to start..."
+        for i in {1..10}; do
+          nc -z localhost 27017 && echo "MongoDB is up" && break
+          echo "Retrying in 3 seconds..."
+          sleep 3
+        done
+        
     - name: List Docker images
       run: docker images
 
-    - name: Run the Docker container
-      run: |
-        docker run --name grandnode2-container -d grandnode2:pr-latest
-    
-    - name: Check if container is running
-      run: docker ps
 
+    - name: Run the application container
+      run: |
+        docker run --name grandnode2-container -d -p 8080:80 --link mongodb-container:mongo grandnode2:${{ env.IMAGE_TAG }}
+
+    - name: Wait for the application to be ready
+      run: |
+        echo "Waiting for the application to start..."
+        for i in {1..10}; do
+          curl -s http://localhost:8080 && break
+          echo "Retrying in 3 seconds..."
+          sleep 3
+        done
+
+    - name: Trigger the installer via POST request
+      run: |
+        echo "Running installation..."
+        curl -X POST http://localhost:8080/install \
+          -H "Content-Type: application/x-www-form-urlencoded" \
+          --data-urlencode "AdminEmail=admin@example.com" \
+          --data-urlencode "AdminPassword=SecurePassword123" \
+          --data-urlencode "ConfirmPassword=SecurePassword123" \
+          --data-urlencode "DataProvider=0" \
+          --data-urlencode "MongoDBServerName=mongo" \
+          --data-urlencode "MongoDBDatabaseName=grandnode" \
+          --data-urlencode "InstallSampleData=true" \
+          --data-urlencode "CompanyName=My Company" \
+          --data-urlencode "CompanyAddress=123 Main St" \
+          --data-urlencode "CompanyPhoneNumber=1234567890" \
+          --data-urlencode "CompanyEmail=info@company.com"
+
+    - name: Restart the application container
+      run: |
+        docker restart grandnode2-container
+    
+    - name: Test HTTP response after installation
+      run: |
+        response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080)
+        if [ "$response" -ne 200 ]; then
+          echo "Expected HTTP 200 but got $response"
+          exit 1
+        fi
+        echo "HTTP test passed with response code $response"
+        
     - name: Stop and remove the container
       run: |
         docker stop grandnode2-container
