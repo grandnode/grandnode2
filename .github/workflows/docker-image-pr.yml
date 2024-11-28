@@ -34,7 +34,7 @@ jobs:
 
     - name: Run the application container
       run: |
-        docker run --name grandnode2-container -d -p 8080:80 --link mongodb-container:mongo grandnode2:${{ env.IMAGE_TAG }}
+        docker run --name grandnode2-container -d -p 8080:80 --link mongodb-container:mongo grandnode2:pr-latest
 
     - name: Wait for the application to be ready
       run: |
