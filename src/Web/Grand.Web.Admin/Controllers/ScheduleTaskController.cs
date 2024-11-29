@@ -117,8 +117,7 @@ public class ScheduleTaskController : BaseAdminController
             return RedirectToAction("List");
         }
 
-        model.ScheduleTaskName = scheduleTask.ScheduleTaskName;
-        model.Type = scheduleTask.Type;
+        model.ScheduleTaskName = scheduleTask.ScheduleTaskName;        
         model = await PrepareStores(model);
         Error(ModelState);
 
@@ -132,9 +131,8 @@ public class ScheduleTaskController : BaseAdminController
         {
             var scheduleTask = await _scheduleTaskService.GetTaskById(id);
             if (scheduleTask == null) throw new Exception("Schedule task cannot be loaded");
-            var typeofTask = Type.GetType(scheduleTask.Type);
-            var task = HttpContext.RequestServices.GetServices<IScheduleTask>()
-                .FirstOrDefault(x => x.GetType() == typeofTask);
+           
+            var task = HttpContext.RequestServices.GetRequiredKeyedService<IScheduleTask>(scheduleTask.ScheduleTaskName);
             if (task != null)
             {
                 scheduleTask.LastStartUtc = DateTime.UtcNow;
@@ -157,7 +155,7 @@ public class ScheduleTaskController : BaseAdminController
             }
             else
             {
-                Error($"Task {typeofTask?.Name} has not been registered");
+                Error($"Task {scheduleTask.ScheduleTaskName} has not been registered");
             }
         }
         catch (Exception exc)

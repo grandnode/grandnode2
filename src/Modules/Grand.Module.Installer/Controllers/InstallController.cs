@@ -1,8 +1,8 @@
 ﻿using Grand.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Migrations;
 using Grand.Infrastructure.Plugins;
+using Grand.Module.Installer.Filters;
 using Grand.Module.Installer.Interfaces;
 using Grand.Module.Installer.Models;
 using Grand.SharedKernel.Extensions;
@@ -16,6 +16,7 @@ using MongoDB.Driver;
 
 namespace Grand.Module.Installer.Controllers;
 
+[DatabaseConfigured]
 public class InstallController : Controller
 {
 
@@ -24,8 +25,6 @@ public class InstallController : Controller
     private readonly ICacheBase _cacheBase;
     private readonly IHostApplicationLifetime _applicationLifetime;
     private readonly DatabaseConfig _dbConfig;
-    private readonly IDatabaseFactoryContext _databaseFactory;
-    private readonly IInstallationLocalizedService _installationLocalizedService;
     private readonly ILogger<InstallController> _logger;
 
     /// <summary>
@@ -40,16 +39,12 @@ public class InstallController : Controller
     public InstallController(
         ICacheBase cacheBase,
         IHostApplicationLifetime applicationLifetime,
-        IDatabaseFactoryContext databaseFactory,
-        IInstallationLocalizedService installationLocalizedService,
         DatabaseConfig dbConfig,
         ILogger<InstallController> logger)
     {
         _cacheBase = cacheBase;
         _applicationLifetime = applicationLifetime;
-        _installationLocalizedService = installationLocalizedService;
         _dbConfig = dbConfig;
-        _databaseFactory = databaseFactory;
         _logger = logger;
     }
 
@@ -70,6 +65,8 @@ public class InstallController : Controller
 
     private InstallModel PrepareModel(InstallModel? model)
     {
+        var installationLocalizedService = HttpContext.RequestServices.GetRequiredService<IInstallationLocalizedService>();
+
         model ??= new InstallModel {
             AdminEmail = "admin@yourstore.com",
             InstallSampleData = false,
@@ -85,10 +82,10 @@ public class InstallController : Controller
 
         model.SelectedLanguage = GetLanguage();
 
-        foreach (var lang in _installationLocalizedService.GetAvailableLanguages())
+        foreach (var lang in installationLocalizedService.GetAvailableLanguages())
         {
             var selected = false;
-            if (_installationLocalizedService.GetCurrentLanguage(model.SelectedLanguage).Code == lang.Code)
+            if (installationLocalizedService.GetCurrentLanguage(model.SelectedLanguage).Code == lang.Code)
             {
                 selected = true;
                 model.SelectedLanguage = lang.Code;
@@ -102,21 +99,18 @@ public class InstallController : Controller
         }
 
         //prepare collation list
-        foreach (var col in _installationLocalizedService.GetAvailableCollations())
+        foreach (var col in installationLocalizedService.GetAvailableCollations())
             model.AvailableCollation.Add(new SelectListItem {
                 Value = col.Value,
                 Text = col.Name,
-                Selected = _installationLocalizedService.GetCurrentLanguage().Code == col.Value
+                Selected = installationLocalizedService.GetCurrentLanguage().Code == col.Value
             });
 
         return model;
     }
 
     public virtual async Task<IActionResult> Index()
-    {
-        if (DataSettingsManager.DatabaseIsInstalled())
-            return RedirectToRoute("HomePage");
-
+    {        
         var installed = await _cacheBase.GetAsync("Installed", async () => await Task.FromResult(false));
         return View(installed ? new InstallModel { Installed = true, AdminEmail = "", AdminPassword = "", ConfirmPassword = "" } : PrepareModel(null));
     }
@@ -185,7 +179,7 @@ public class InstallController : Controller
             {
                 if (model.DataProvider != DbProvider.LiteDB)
                 {
-                    var mdb = _databaseFactory.GetDatabaseContext(connectionString, DbProvider.MongoDB);
+                    var mdb = HttpContext.RequestServices.GetRequiredService<IDatabaseFactoryContext>().GetDatabaseContext(connectionString, DbProvider.MongoDB);
                     if (await mdb.DatabaseExist())
                         ModelState.AddModelError("",
                             locService.GetResource(model.SelectedLanguage, "AlreadyInstalled"));
@@ -202,9 +196,6 @@ public class InstallController : Controller
     [HttpPost]
     public virtual async Task<IActionResult> Index(InstallModel model)
     {
-        if (DataSettingsManager.DatabaseIsInstalled())
-            return RedirectToRoute("HomePage");
-
         var installed = await _cacheBase.GetAsync("Installed", async () => await Task.FromResult(false));
         if (installed)
             return View(new InstallModel { Installed = true, AdminEmail = "", AdminPassword = "", ConfirmPassword = "" });

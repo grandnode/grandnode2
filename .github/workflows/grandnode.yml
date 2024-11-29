@@ -45,7 +45,7 @@ jobs:
     - name: Grand.Business.Storage Unit Tests
       run: dotnet test ./src/Tests/Grand.Business.Storage.Tests/Grand.Business.Storage.Tests.csproj
     - name: Grand.Business.System Unit Tests
-      run: dotnet test ./src/Tests/Grand.Business.System.Tests/Grand.Business.System.Tests.csproj
+      run: dotnet test ./src/Tests/Grand.Modules.Tests/Grand.Modules.Tests.csproj
     - name: Grand.Business.Data Unit Tests
       run: dotnet test ./src/Tests/Grand.Data.Tests/Grand.Data.Tests.csproj
     - name: Grand.Domain.Domain.Tests Unit Tests
