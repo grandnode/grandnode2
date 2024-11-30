@@ -13,6 +13,8 @@ namespace Grand.Web.Common.Startup;
 /// </summary>
 public class UrlRewriteStartup : IStartupApplication
 {
+    private const string UrlRewriteFilePath = "App_Data/UrlRewrite.xml";
+
     /// <summary>
     ///     Add and configure any of the middleware
     /// </summary>
@@ -31,32 +33,36 @@ public class UrlRewriteStartup : IStartupApplication
     {
         var urlConfig = application.Services.GetRequiredService<UrlRewriteConfig>();
         var urlRewriteOptions = new RewriteOptions();
-        var rewriteOptions = false;
-        if (urlConfig.UseUrlRewrite)
-            if (File.Exists("App_Data/UrlRewrite.xml"))
-            {
-                using var streamReader = File.OpenText("App_Data/UrlRewrite.xml");
-                rewriteOptions = true;
-                urlRewriteOptions.AddIISUrlRewrite(streamReader);
-            }
+        
+        ConfigureUrlRewriteOptions(urlRewriteOptions, urlConfig);
+        ConfigureHttpsOptions(urlRewriteOptions, urlConfig);
 
-        if (urlConfig.UrlRewriteHttpsOptions)
+        if (urlRewriteOptions.Rules.Count > 0)
         {
-            rewriteOptions = true;
-            urlRewriteOptions.AddRedirectToHttps(urlConfig.UrlRewriteHttpsOptionsStatusCode,
-                urlConfig.UrlRewriteHttpsOptionsPort);
-        }
-
-        if (urlConfig.UrlRedirectToHttpsPermanent)
-        {
-            rewriteOptions = true;
-            urlRewriteOptions.AddRedirectToHttpsPermanent();
-        }
-
-        if (rewriteOptions)
             application.UseRewriter(urlRewriteOptions);
+        }
+    }
+    private void ConfigureUrlRewriteOptions(RewriteOptions options, UrlRewriteConfig config)
+    {
+        if (config.UseUrlRewrite && File.Exists(UrlRewriteFilePath))
+        {
+            using var streamReader = File.OpenText(UrlRewriteFilePath);
+            options.AddIISUrlRewrite(streamReader);
+        }
     }
 
+    private void ConfigureHttpsOptions(RewriteOptions options, UrlRewriteConfig config)
+    {
+        if (config.UrlRewriteHttpsOptions)
+        {
+            options.AddRedirectToHttps(config.UrlRewriteHttpsOptionsStatusCode, config.UrlRewriteHttpsOptionsPort);
+        }
+
+        if (config.UrlRedirectToHttpsPermanent)
+        {
+            options.AddRedirectToHttpsPermanent();
+        }
+    }
     /// <summary>
     ///     Gets order of this startup configuration implementation
     /// </summary>
