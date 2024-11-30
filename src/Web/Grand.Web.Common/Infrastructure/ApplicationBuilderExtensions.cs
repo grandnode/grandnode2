@@ -205,7 +205,7 @@ public static class ApplicationBuilderExtensions
     ///     Configure UseForwardedHeaders
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseGrandForwardedHeaders(this IApplicationBuilder application)
+    public static void UseGrandForwardedHeaders(this WebApplication application)
     {
         application.UseForwardedHeaders(new ForwardedHeadersOptions {
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -216,7 +216,7 @@ public static class ApplicationBuilderExtensions
     ///     Configure Health checks
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseGrandHealthChecks(this IApplicationBuilder application)
+    public static void UseGrandHealthChecks(this WebApplication application)
     {
         application.UseHealthChecks("/health/live");
     }
@@ -225,7 +225,7 @@ public static class ApplicationBuilderExtensions
     ///     Configures the default security headers for your application.
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseDefaultSecurityHeaders(this IApplicationBuilder application)
+    public static void UseDefaultSecurityHeaders(this WebApplication application)
     {
         var policyCollection = new HeaderPolicyCollection()
             .AddXssProtectionBlock()
@@ -272,7 +272,7 @@ public static class ApplicationBuilderExtensions
     ///     Configure middleware checking whether database is installed
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseInstallUrl(this IApplicationBuilder application)
+    public static void UseInstallUrl(this WebApplication application)
     {
         application.UseMiddleware<InstallUrlMiddleware>();
     }
@@ -281,7 +281,7 @@ public static class ApplicationBuilderExtensions
     ///     Configures whether use or not the Header X-Powered-By and its value.
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UsePoweredBy(this IApplicationBuilder application)
+    public static void UsePoweredBy(this WebApplication application)
     {
         application.UseMiddleware<PoweredByMiddleware>();
     }
