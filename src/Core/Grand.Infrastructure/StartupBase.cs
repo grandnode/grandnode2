@@ -331,7 +331,7 @@ public static class StartupBase
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
     /// <param name="webHostEnvironment">WebHostEnvironment</param>
-    public static void ConfigureRequestPipeline(IApplicationBuilder application,
+    public static void ConfigureRequestPipeline(WebApplication application,
         IWebHostEnvironment webHostEnvironment)
     {
         //find startup configurations provided by other assemblies

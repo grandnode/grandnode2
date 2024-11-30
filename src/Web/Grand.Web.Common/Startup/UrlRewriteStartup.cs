@@ -27,10 +27,9 @@ public class UrlRewriteStartup : IStartupApplication
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
     /// <param name="webHostEnvironment">WebHostEnvironment</param>
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
-        var serviceProvider = application.ApplicationServices;
-        var urlConfig = serviceProvider.GetRequiredService<UrlRewriteConfig>();
+        var urlConfig = application.Services.GetRequiredService<UrlRewriteConfig>();
         var urlRewriteOptions = new RewriteOptions();
         var rewriteOptions = false;
         if (urlConfig.UseUrlRewrite)

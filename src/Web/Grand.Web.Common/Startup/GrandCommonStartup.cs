@@ -66,13 +66,12 @@ public class GrandCommonStartup : IStartupApplication
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
     /// <param name="webHostEnvironment">WebHostEnvironment</param>
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
-        var serviceProvider = application.ApplicationServices;
-        var appConfig = serviceProvider.GetRequiredService<AppConfig>();
-        var performanceConfig = serviceProvider.GetRequiredService<PerformanceConfig>();
-        var securityConfig = serviceProvider.GetRequiredService<SecurityConfig>();
-        var featureFlagsConfig = serviceProvider.GetRequiredService<FeatureFlagsConfig>(); 
+        var appConfig = application.Services.GetRequiredService<AppConfig>();
+        var performanceConfig = application.Services.GetRequiredService<PerformanceConfig>();
+        var securityConfig = application.Services.GetRequiredService<SecurityConfig>();
+        var featureFlagsConfig = application.Services.GetRequiredService<FeatureFlagsConfig>(); 
 
         //add HealthChecks
         application.UseGrandHealthChecks();

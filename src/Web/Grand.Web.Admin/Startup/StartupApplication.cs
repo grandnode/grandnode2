@@ -62,7 +62,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IAreaViewFactory, AdminAreaViewFactory>();
     }
 
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
     }
 

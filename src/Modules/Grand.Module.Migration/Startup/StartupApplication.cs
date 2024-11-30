@@ -17,16 +17,15 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IMigrationProcess, MigrationProcess>();
     }
 
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
         if (!DataSettingsManager.DatabaseIsInstalled())
             return;
 
-        var serviceProvider = application.ApplicationServices;
-        var featureFlagsConfig = serviceProvider.GetRequiredService<FeatureFlagsConfig>();
+        var featureFlagsConfig = application.Services.GetRequiredService<FeatureFlagsConfig>();
         if (featureFlagsConfig.Modules.TryGetValue("Grand.Module.Migration", out var value) && value)
         {
-            var migrationProcess = serviceProvider.GetRequiredService<IMigrationProcess>();
+            var migrationProcess = application.Services.GetRequiredService<IMigrationProcess>();
             migrationProcess.RunMigrationProcess();
         }
     }

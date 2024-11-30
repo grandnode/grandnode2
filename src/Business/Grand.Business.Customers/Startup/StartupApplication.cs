@@ -20,7 +20,7 @@ public class StartupApplication : IStartupApplication
         RegisterCustomerService(services);
     }
 
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
     }
 

@@ -22,7 +22,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IRobotsTxtService, RobotsTxtService>();
     }
 
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
     }
 

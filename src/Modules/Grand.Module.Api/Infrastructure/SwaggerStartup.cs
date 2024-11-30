@@ -14,11 +14,11 @@ namespace Grand.Module.Api.Infrastructure;
 
 public class SwaggerStartup : IStartupApplication
 {
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
-        var backendApiConfig = application.ApplicationServices.GetService<BackendAPIConfig>();
-        var frontApiConfig = application.ApplicationServices.GetService<FrontendAPIConfig>();
-        var swagger = application.ApplicationServices.GetService<IConfiguration>().GetValue<bool>("UseSwagger");
+        var backendApiConfig = application.Services.GetService<BackendAPIConfig>();
+        var frontApiConfig = application.Services.GetService<FrontendAPIConfig>();
+        var swagger = application.Services.GetService<IConfiguration>().GetValue<bool>("UseSwagger");
         if (backendApiConfig.Enabled)
             application.UseODataQueryRequest();
 
