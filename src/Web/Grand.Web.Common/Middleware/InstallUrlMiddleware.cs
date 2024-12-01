@@ -35,7 +35,7 @@ public class InstallUrlMiddleware
         //whether database is installed
         if (!DataSettingsManager.DatabaseIsInstalled())
         {
-            var featureManager = context.RequestServices.GetService<IFeatureManager>();
+            var featureManager = context.RequestServices.GetRequiredService<IFeatureManager>();
             var isInstallerModuleEnabled = await featureManager.IsEnabledAsync("Grand.Module.Installer");
             if (!isInstallerModuleEnabled)
             {
