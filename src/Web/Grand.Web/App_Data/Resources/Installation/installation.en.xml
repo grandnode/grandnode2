@@ -159,7 +159,7 @@
     <Value>Use integrated Windows authentication</Value>
   </LocaleResource>
   <LocaleResource Name="Installed">
-    <Value>Application has been installed successfully, please restart application.</Value>
+    <Value>Application has been installed successfully. Please restart the application. We recommend disabling the feature flag in appsettings "Grand.Module.Installer" by setting it to false..</Value>
   </LocaleResource>
   <LocaleResource Name="AlreadyInstalled">
     <Value>This database already exists and has GrandNode installed on it. Choose different database.</Value>

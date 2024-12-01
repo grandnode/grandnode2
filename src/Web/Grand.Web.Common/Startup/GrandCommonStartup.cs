@@ -93,8 +93,8 @@ public class GrandCommonStartup : IStartupApplication
         //use static files feature
         application.UseGrandStaticFiles(appConfig);
 
-        if (featureManager.IsEnabledAsync("Grand.Module.Installer").Result)
-            application.UseInstallUrl();
+        //install middleware
+        application.UseInstallUrl();
 
         //use HTTP session
         application.UseSession();

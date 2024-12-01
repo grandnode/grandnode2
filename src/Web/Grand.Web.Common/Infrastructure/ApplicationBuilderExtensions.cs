@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
 using Microsoft.Net.Http.Headers;
 
 namespace Grand.Web.Common.Infrastructure;
@@ -274,7 +275,7 @@ public static class ApplicationBuilderExtensions
     /// <param name="application">Builder for configuring an application's request pipeline</param>
     public static void UseInstallUrl(this WebApplication application)
     {
-        application.UseMiddleware<InstallUrlMiddleware>();
+        application.UseMiddlewareForFeature<InstallUrlMiddleware>("Grand.Module.Installer");
     }
 
     /// <summary>
