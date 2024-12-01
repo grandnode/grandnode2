@@ -70,18 +70,19 @@ jobs:
       run: |
         echo "Waiting for the application to start..."
         for i in {1..10}; do
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080)
-          if [ "$RESPONSE" -eq 200 ]; then
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080 || echo "error")
+          if [ "$RESPONSE" = "200" ]; then
             echo "Application is up with HTTP 200 response!"
-            break
+            exit 0
+          elif [ "$RESPONSE" = "error" ]; then
+            echo "Curl encountered an error. Retrying in 3 seconds..."
+          else
+            echo "Received HTTP response code: $RESPONSE. Retrying in 3 seconds..."
           fi
-          echo "Retrying in 3 seconds... Response code: $RESPONSE"
           sleep 3
         done
-        if [ "$RESPONSE" -ne 200 ]; then
-          echo "Application did not start successfully. Final response code: $RESPONSE"
-          exit 1
-        fi
+        echo "Application did not start successfully. Final response code: $RESPONSE"
+        exit 1
         
     - name: Stop and remove the container
       run: |
