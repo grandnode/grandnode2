@@ -11,31 +11,43 @@ namespace Grand.Infrastructure.Modules;
 
 public static class ModuleLoader
 {
-    private const string MODULE_SECTION_PATH = "FeatureFlags:Modules";
+    private const string MODULE_SECTION_PATH = "FeatureManagement";
     private const string MODULES_DIRECTORY = "Modules";
     private const string LOGGER_NAME = "ModuleManager";
 
+    private static List<(string FeatureName, bool IsEnabled)> GetFeatureList(IConfiguration configuration)
+    {
+        var featureSection = configuration.GetSection(MODULE_SECTION_PATH);
+        if (!featureSection.Exists())
+        {
+            return new List<(string, bool)>();
+        }
+
+        return featureSection.GetChildren()
+            .Select(feature => (
+                FeatureName: feature.Key,
+                IsEnabled: bool.TryParse(feature.Value, out var isEnabled) && isEnabled
+            ))
+            .ToList();
+    }
+    
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void LoadModules(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
     {
-        var modulesSection = configuration.GetSection(MODULE_SECTION_PATH);
-        if (!modulesSection.Exists())
+        var modules = GetFeatureList(configuration);
+        if (modules.Count == 0)
         {
             return;
         }
-
         var logger = CreateLogger(mvcCoreBuilder.Services);
-        var modules = modulesSection.Get<Dictionary<string, bool>>();
-
-        foreach (var (moduleName, isEnabled) in modules)
+        foreach (var module in modules)
         {
-            if (!isEnabled)
+            if (!module.IsEnabled)
             {
-                logger.LogInformation("Module '{ModuleName}' is disabled.", moduleName);
+                logger.LogInformation("Module '{ModuleName}' is disabled.", module.FeatureName);
                 continue;
             }
-
-            LoadModule(moduleName, hostingEnvironment, mvcCoreBuilder, logger);
+            LoadModule(module.FeatureName, hostingEnvironment, mvcCoreBuilder, logger);
         }
     }
 

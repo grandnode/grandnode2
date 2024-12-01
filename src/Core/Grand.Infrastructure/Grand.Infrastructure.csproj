@@ -15,6 +15,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
     <PackageReference Include="MediatR" />
+    <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
     <PackageReference Include="Scrutor" />
     <PackageReference Include="StackExchange.Redis" />
     <PackageReference Include="FluentValidation" />
