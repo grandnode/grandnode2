@@ -5,6 +5,7 @@
   <ItemGroup>
     <PackageVersion Include="MaxMind.GeoIP2" Version="5.2.0" />
     <PackageVersion Include="ExcelMapper" Version="5.2.593" />
+    <PackageVersion Include="Microsoft.FeatureManagement.AspNetCore" Version="4.0.0" />
     <PackageVersion Include="NPOI" Version="2.7.2" />
     <PackageVersion Include="Scryber.Core" Version="6.0.4-beta" />
     <PackageVersion Include="Scryber.Core.OpenType" Version="6.1.0-beta" />

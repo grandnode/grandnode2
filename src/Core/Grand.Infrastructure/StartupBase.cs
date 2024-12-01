@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.FeatureManagement;
 
 namespace Grand.Infrastructure;
 
@@ -253,7 +254,6 @@ public static class StartupBase
         services.StartupConfig<BackendAPIConfig>(configuration.GetSection("BackendAPI"));
         services.StartupConfig<FrontendAPIConfig>(configuration.GetSection("FrontendAPI"));
         services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
-        services.StartupConfig<FeatureFlagsConfig>(configuration.GetSection("FeatureFlags"));
         services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
         services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
         services.StartupConfig<ApplicationInsightsConfig>(configuration.GetSection("ApplicationInsights"));
@@ -270,6 +270,8 @@ public static class StartupBase
     /// <param name="configuration">Configuration root of the application</param>
     public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddFeatureManagement();
+
         //find startup configurations provided by other assemblies
         var typeSearcher = new TypeSearcher();
         services.AddSingleton<ITypeSearcher>(typeSearcher);

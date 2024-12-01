@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.FeatureManagement;
 
 namespace Grand.Module.Migration.Startup;
 
@@ -21,9 +22,8 @@ public class StartupApplication : IStartupApplication
     {
         if (!DataSettingsManager.DatabaseIsInstalled())
             return;
-
-        var featureFlagsConfig = application.Services.GetRequiredService<FeatureFlagsConfig>();
-        if (featureFlagsConfig.Modules.TryGetValue("Grand.Module.Migration", out var value) && value)
+        var featureManager = application.Services.GetRequiredService<IFeatureManager>();
+        if (featureManager.IsEnabledAsync("Grand.Module.Migration").Result)
         {
             var migrationProcess = application.Services.GetRequiredService<IMigrationProcess>();
             migrationProcess.RunMigrationProcess();
