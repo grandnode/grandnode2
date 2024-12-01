@@ -1,8 +1,8 @@
 ﻿using Grand.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.FeatureManagement;
 
 namespace Grand.Web.Common.Middleware;
 
@@ -35,8 +35,8 @@ public class InstallUrlMiddleware
         //whether database is installed
         if (!DataSettingsManager.DatabaseIsInstalled())
         {
-            var configuration = context.RequestServices.GetService<IConfiguration>();
-            var isInstallerModuleEnabled = configuration.GetValue<bool>("FeatureFlags:Modules:Grand.Module.Installer");
+            var featureManager = context.RequestServices.GetService<IFeatureManager>();
+            var isInstallerModuleEnabled = await featureManager.IsEnabledAsync("Grand.Module.Installer");
             if (!isInstallerModuleEnabled)
             {
                 // Return a response indicating the installer module is not enabled
