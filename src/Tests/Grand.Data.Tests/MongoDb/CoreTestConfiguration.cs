@@ -16,12 +16,9 @@
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Servers;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
 using System.Diagnostics;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Grand.Data.Tests.MongoDb;
 
@@ -68,23 +65,6 @@ public static class CoreTestConfiguration
             .ConfigureCluster(c =>
                 c.With(serverSelectionTimeout: TimeSpan.FromMilliseconds(int.Parse(serverSelectionTimeoutString))));
 
-        if (ConnectionString.Tls.HasValue && ConnectionString.Tls.Value)
-        {
-            var certificateFilename = Environment.GetEnvironmentVariable("MONGO_SSL_CERT_FILE");
-            if (certificateFilename != null)
-                builder.ConfigureSsl(ssl =>
-                {
-                    var password = Environment.GetEnvironmentVariable("MONGO_SSL_CERT_PASS");
-                    X509Certificate cert;
-                    if (password == null)
-                        cert = new X509Certificate2(certificateFilename);
-                    else
-                        cert = new X509Certificate2(certificateFilename, password);
-                    return ssl.With(
-                        clientCertificates: new[] { cert });
-                });
-        }
-
         return ConfigureLogging(builder);
     }
 
@@ -106,7 +86,7 @@ public static class CoreTestConfiguration
         var hasWritableServer = 0;
         var builder = ConfigureCluster();
         var cluster = builder.BuildCluster();
-        
+
         if (TraceSource != null)
             TraceSource.TraceEvent(TraceEventType.Information, 0, "CreateCluster: initializing cluster.");
 

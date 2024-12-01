@@ -16,7 +16,7 @@ public class StartupApplication : IStartupApplication
         RegisterInstallService(services);
     }
 
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
     }
 

@@ -33,9 +33,9 @@ namespace Grand.Module.Api.Infrastructure;
 
 public class ODataStartup : IStartupApplication
 {
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
-        var apiConfig = application.ApplicationServices.GetService<BackendAPIConfig>();
+        var apiConfig = application.Services.GetService<BackendAPIConfig>();
         if (apiConfig.Enabled) application.UseCors(Configurations.CorsPolicyName);
     }
 
