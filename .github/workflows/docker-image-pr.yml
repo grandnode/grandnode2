@@ -45,7 +45,6 @@ jobs:
           sleep 3
         done
 
-
     - name: Trigger the installer via POST request
       run: |
         echo "Running installation with form-data..."
@@ -71,10 +70,19 @@ jobs:
       run: |
         echo "Waiting for the application to start..."
         for i in {1..10}; do
-          curl -s http://localhost:8080 && echo "Application is up!" && break
-          echo "Retrying in 3 seconds..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080 || echo "error")
+          if [ "$RESPONSE" = "200" ]; then
+            echo "Application is up with HTTP 200 response!"
+            exit 0
+          elif [ "$RESPONSE" = "error" ]; then
+            echo "Curl encountered an error. Retrying in 3 seconds..."
+          else
+            echo "Received HTTP response code: $RESPONSE. Retrying in 3 seconds..."
+          fi
           sleep 3
         done
+        echo "Application did not start successfully. Final response code: $RESPONSE"
+        exit 1
         
     - name: Stop and remove the container
       run: |
