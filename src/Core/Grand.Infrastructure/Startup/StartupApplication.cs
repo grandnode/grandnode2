@@ -18,7 +18,7 @@ public class StartupApplication : IStartupApplication
     public bool BeforeConfigure => false;
 
 
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
     }
 
@@ -37,7 +37,7 @@ public class StartupApplication : IStartupApplication
         var applicationInsights = new ApplicationInsightsConfig();
         configuration.GetSection("ApplicationInsights").Bind(applicationInsights);
 
-        var dataProviderSettings = DataSettingsManager.LoadSettings();
+        var dataProviderSettings = DataSettingsManager.Instance.LoadSettings();
         if (string.IsNullOrEmpty(dataProviderSettings.ConnectionString))
         {
             serviceCollection.AddTransient(_ => dataProviderSettings);

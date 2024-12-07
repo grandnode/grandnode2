@@ -36,7 +36,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public MongoRepository(IAuditInfoProvider auditInfoProvider)
     {
         _auditInfoProvider = auditInfoProvider;
-        var connection = DataSettingsManager.LoadSettings();
+        var connection = DataSettingsManager.Instance.LoadSettings();
 
         if (!string.IsNullOrEmpty(connection.ConnectionString))
         {
@@ -443,9 +443,9 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Gets a table collection
     /// </summary>
-    public virtual IQueryable<T> TableCollection(string collectionName)
+    public virtual IQueryable<C> TableCollection<C>() where C : class
     {
-        return _collection.Database.GetCollection<T>(collectionName).AsQueryable();
+        return _database.GetCollection<C>(typeof(T).Name).AsQueryable();
     }
 
     #endregion

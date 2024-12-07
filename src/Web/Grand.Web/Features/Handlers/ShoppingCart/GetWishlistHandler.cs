@@ -1,5 +1,4 @@
-﻿using Grand.Api.Validators.Common;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
@@ -8,7 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Checkout;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;

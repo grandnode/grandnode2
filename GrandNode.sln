@@ -31,8 +31,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.Storage", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.Catalog", "src\Business\Grand.Business.Catalog\Grand.Business.Catalog.csproj", "{6925EF20-C289-482E-855E-DAFCE62BE16A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.System", "src\Business\Grand.Business.System\Grand.Business.System.csproj", "{9B4BF192-F99A-4969-8472-A0C36B615DB3}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.Authentication", "src\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj", "{6F9902AA-DBCE-4BB8-AEBE-47264A10D933}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.Messages", "src\Business\Grand.Business.Messages\Grand.Business.Messages.csproj", "{D2E8AC42-2751-4AF9-87E4-54A8B2034360}"
@@ -77,10 +75,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.Authenticati
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.Catalog.Tests", "src\Tests\Grand.Business.Catalog.Tests\Grand.Business.Catalog.Tests.csproj", "{CC40A0A2-BD47-49B9-A1E1-6E1819117EB1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{FFCB0026-FA9B-434F-BB7A-57997C968070}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Api", "src\API\Grand.Api\Grand.Api.csproj", "{EAB65B15-BD78-4ABA-B759-BA5D94223499}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.Cms.Tests", "src\Tests\Grand.Business.Cms.Tests\Grand.Business.Cms.Tests.csproj", "{B023CB66-17B2-4B82-B9C1-09E6716131C4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.Customers.Tests", "src\Tests\Grand.Business.Customers.Tests\Grand.Business.Customers.Tests.csproj", "{9D142307-0C53-490B-AFAB-C634FDF57A64}"
@@ -93,7 +87,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.Messages.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.Storage.Tests", "src\Tests\Grand.Business.Storage.Tests\Grand.Business.Storage.Tests.csproj", "{E0CDC8F3-2F79-40ED-AD7C-EF3F7B056BEA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.System.Tests", "src\Tests\Grand.Business.System.Tests\Grand.Business.System.Tests.csproj", "{3CCCC424-B13F-479B-94A2-A0A6B05C0858}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Modules.Tests", "src\Tests\Grand.Modules.Tests\Grand.Modules.Tests.csproj", "{3CCCC424-B13F-479B-94A2-A0A6B05C0858}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Business.Checkout.Tests", "src\Tests\Grand.Business.Checkout.Tests\Grand.Business.Checkout.Tests.csproj", "{B34CA673-578B-46D8-BEC0-2C32BF6997F9}"
 EndProject
@@ -117,23 +111,33 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.SharedKernel.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Domain.Tests", "src\Tests\Grand.Domain.Tests\Grand.Domain.Tests.csproj", "{EEEE2033-07A4-42BB-AFEE-3F83E0BD3044}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.Infrastructure.Tests", "src\Tests\Grand.Infrastructure.Tests\Grand.Infrastructure.Tests.csproj", "{50049A49-D27E-4200-9875-F6C486FD608D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Infrastructure.Tests", "src\Tests\Grand.Infrastructure.Tests\Grand.Infrastructure.Tests.csproj", "{50049A49-D27E-4200-9875-F6C486FD608D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.Web.Admin.Tests", "src\Tests\Grand.Web.Admin.Tests\Grand.Web.Admin.Tests.csproj", "{0B2B4B1B-EBF7-447F-9E5F-C55CE3247929}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Web.Admin.Tests", "src\Tests\Grand.Web.Admin.Tests\Grand.Web.Admin.Tests.csproj", "{0B2B4B1B-EBF7-447F-9E5F-C55CE3247929}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.Web.Common.Tests", "src\Tests\Grand.Web.Common.Tests\Grand.Web.Common.Tests.csproj", "{6969D83E-567C-47A7-8E7F-7FE40940704E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Web.Common.Tests", "src\Tests\Grand.Web.Common.Tests\Grand.Web.Common.Tests.csproj", "{6969D83E-567C-47A7-8E7F-7FE40940704E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.Web.Vendor", "src\Web\Grand.Web.Vendor\Grand.Web.Vendor.csproj", "{061F07B8-067A-43E6-B0FF-250027EE705F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Web.Vendor", "src\Web\Grand.Web.Vendor\Grand.Web.Vendor.csproj", "{061F07B8-067A-43E6-B0FF-250027EE705F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.Data", "src\Core\Grand.Data\Grand.Data.csproj", "{1308D857-1D87-4973-A848-077F8BBD28DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Data", "src\Core\Grand.Data\Grand.Data.csproj", "{1308D857-1D87-4973-A848-077F8BBD28DF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{BF4543A8-0731-4FDD-BB6B-0ADB9561F981}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.SharedUIResources", "src\Web\Grand.SharedUIResources\Grand.SharedUIResources.csproj", "{09958AAA-44BC-42DE-86D1-0E39EF3C0C68}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.SharedUIResources", "src\Web\Grand.SharedUIResources\Grand.SharedUIResources.csproj", "{09958AAA-44BC-42DE-86D1-0E39EF3C0C68}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Theme.Modern", "src\Plugins\Theme.Modern\Theme.Modern.csproj", "{9DAAD56A-8DB7-4A41-BAF3-9486D617AB05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Theme.Modern", "src\Plugins\Theme.Modern\Theme.Modern.csproj", "{9DAAD56A-8DB7-4A41-BAF3-9486D617AB05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Payments.StripeCheckout", "src\Plugins\Payments.StripeCheckout\Payments.StripeCheckout.csproj", "{8AD9B827-7FB6-4581-85BB-82D7F298DE1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Payments.StripeCheckout", "src\Plugins\Payments.StripeCheckout\Payments.StripeCheckout.csproj", "{8AD9B827-7FB6-4581-85BB-82D7F298DE1A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{583FFBBD-421C-4FB7-BBDA-F9CAF35A354A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Module.Installer", "src\Modules\Grand.Module.Installer\Grand.Module.Installer.csproj", "{62460E0C-D4D1-4606-9716-965267B77BA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.Module.Migration", "src\Modules\Grand.Module.Migration\Grand.Module.Migration.csproj", "{75F9D855-026B-4BCB-90CE-3800F02FA0A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.Module.Api", "src\Modules\Grand.Module.Api\Grand.Module.Api.csproj", "{E0B26803-010B-4198-8016-002242076B61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.Module.ScheduledTasks", "src\Modules\Grand.Module.ScheduledTasks\Grand.Module.ScheduledTasks.csproj", "{136F1E35-8B20-465C-8D42-30A5A0D0DA1F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -181,10 +185,6 @@ Global
 		{6925EF20-C289-482E-855E-DAFCE62BE16A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6925EF20-C289-482E-855E-DAFCE62BE16A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6925EF20-C289-482E-855E-DAFCE62BE16A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9B4BF192-F99A-4969-8472-A0C36B615DB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9B4BF192-F99A-4969-8472-A0C36B615DB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9B4BF192-F99A-4969-8472-A0C36B615DB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9B4BF192-F99A-4969-8472-A0C36B615DB3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6F9902AA-DBCE-4BB8-AEBE-47264A10D933}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6F9902AA-DBCE-4BB8-AEBE-47264A10D933}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F9902AA-DBCE-4BB8-AEBE-47264A10D933}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -269,10 +269,6 @@ Global
 		{CC40A0A2-BD47-49B9-A1E1-6E1819117EB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC40A0A2-BD47-49B9-A1E1-6E1819117EB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC40A0A2-BD47-49B9-A1E1-6E1819117EB1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EAB65B15-BD78-4ABA-B759-BA5D94223499}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EAB65B15-BD78-4ABA-B759-BA5D94223499}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EAB65B15-BD78-4ABA-B759-BA5D94223499}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EAB65B15-BD78-4ABA-B759-BA5D94223499}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B023CB66-17B2-4B82-B9C1-09E6716131C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B023CB66-17B2-4B82-B9C1-09E6716131C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B023CB66-17B2-4B82-B9C1-09E6716131C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -356,6 +352,22 @@ Global
 		{8AD9B827-7FB6-4581-85BB-82D7F298DE1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AD9B827-7FB6-4581-85BB-82D7F298DE1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AD9B827-7FB6-4581-85BB-82D7F298DE1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62460E0C-D4D1-4606-9716-965267B77BA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62460E0C-D4D1-4606-9716-965267B77BA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62460E0C-D4D1-4606-9716-965267B77BA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62460E0C-D4D1-4606-9716-965267B77BA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75F9D855-026B-4BCB-90CE-3800F02FA0A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75F9D855-026B-4BCB-90CE-3800F02FA0A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75F9D855-026B-4BCB-90CE-3800F02FA0A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75F9D855-026B-4BCB-90CE-3800F02FA0A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0B26803-010B-4198-8016-002242076B61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0B26803-010B-4198-8016-002242076B61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0B26803-010B-4198-8016-002242076B61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0B26803-010B-4198-8016-002242076B61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{136F1E35-8B20-465C-8D42-30A5A0D0DA1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{136F1E35-8B20-465C-8D42-30A5A0D0DA1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{136F1E35-8B20-465C-8D42-30A5A0D0DA1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{136F1E35-8B20-465C-8D42-30A5A0D0DA1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -371,9 +383,9 @@ Global
 		{35427306-7271-456A-A337-F7D7E79FB027} = {6EAC4D2C-4A86-4C9F-8427-CB374F69F08C}
 		{B93A72CF-18A9-40E1-8902-63EEA6094905} = {6EAC4D2C-4A86-4C9F-8427-CB374F69F08C}
 		{6925EF20-C289-482E-855E-DAFCE62BE16A} = {6EAC4D2C-4A86-4C9F-8427-CB374F69F08C}
-		{9B4BF192-F99A-4969-8472-A0C36B615DB3} = {6EAC4D2C-4A86-4C9F-8427-CB374F69F08C}
 		{6F9902AA-DBCE-4BB8-AEBE-47264A10D933} = {6EAC4D2C-4A86-4C9F-8427-CB374F69F08C}
 		{D2E8AC42-2751-4AF9-87E4-54A8B2034360} = {6EAC4D2C-4A86-4C9F-8427-CB374F69F08C}
+		{1A6A0104-F610-4DD3-88BE-C4029034E5DA} = {BF4543A8-0731-4FDD-BB6B-0ADB9561F981}
 		{34A46D97-5996-46B3-BDCA-631EDAA0E210} = {FA350BD6-C29D-40D9-BA47-FE5FBDFC84A0}
 		{BA4579AF-9C20-477A-891B-926968B11C68} = {F6F48227-B3C5-4A51-B33F-FF9AD96352DB}
 		{6F24BF9C-EA4E-42AB-A9A8-435CE69362B8} = {F6F48227-B3C5-4A51-B33F-FF9AD96352DB}
@@ -392,7 +404,6 @@ Global
 		{56643517-D513-4A7E-A245-018DC9E2B451} = {38ECA068-176F-463C-A1D7-044341D4CACB}
 		{E78BA3F9-119E-4F7E-893F-3972B22F5096} = {6360202A-F931-4BBD-ADBD-C9A628EE59F8}
 		{CC40A0A2-BD47-49B9-A1E1-6E1819117EB1} = {6360202A-F931-4BBD-ADBD-C9A628EE59F8}
-		{EAB65B15-BD78-4ABA-B759-BA5D94223499} = {FFCB0026-FA9B-434F-BB7A-57997C968070}
 		{B023CB66-17B2-4B82-B9C1-09E6716131C4} = {6360202A-F931-4BBD-ADBD-C9A628EE59F8}
 		{9D142307-0C53-490B-AFAB-C634FDF57A64} = {6360202A-F931-4BBD-ADBD-C9A628EE59F8}
 		{DA207F2A-1F21-4B78-8441-236B1A9EA728} = {6360202A-F931-4BBD-ADBD-C9A628EE59F8}
@@ -411,10 +422,13 @@ Global
 		{061F07B8-067A-43E6-B0FF-250027EE705F} = {38ECA068-176F-463C-A1D7-044341D4CACB}
 		{1308D857-1D87-4973-A848-077F8BBD28DF} = {FA350BD6-C29D-40D9-BA47-FE5FBDFC84A0}
 		{BF4543A8-0731-4FDD-BB6B-0ADB9561F981} = {38ECA068-176F-463C-A1D7-044341D4CACB}
-		{1A6A0104-F610-4DD3-88BE-C4029034E5DA} = {BF4543A8-0731-4FDD-BB6B-0ADB9561F981}
 		{09958AAA-44BC-42DE-86D1-0E39EF3C0C68} = {BF4543A8-0731-4FDD-BB6B-0ADB9561F981}
 		{9DAAD56A-8DB7-4A41-BAF3-9486D617AB05} = {F6F48227-B3C5-4A51-B33F-FF9AD96352DB}
 		{8AD9B827-7FB6-4581-85BB-82D7F298DE1A} = {F6F48227-B3C5-4A51-B33F-FF9AD96352DB}
+		{62460E0C-D4D1-4606-9716-965267B77BA3} = {583FFBBD-421C-4FB7-BBDA-F9CAF35A354A}
+		{75F9D855-026B-4BCB-90CE-3800F02FA0A7} = {583FFBBD-421C-4FB7-BBDA-F9CAF35A354A}
+		{E0B26803-010B-4198-8016-002242076B61} = {583FFBBD-421C-4FB7-BBDA-F9CAF35A354A}
+		{136F1E35-8B20-465C-8D42-30A5A0D0DA1F} = {583FFBBD-421C-4FB7-BBDA-F9CAF35A354A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88B478F4-FD3B-4C24-9E84-4FAAF0254397}

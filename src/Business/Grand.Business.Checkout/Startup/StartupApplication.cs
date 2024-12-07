@@ -10,6 +10,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.ExportImport;
+using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
@@ -29,7 +30,7 @@ public class StartupApplication : IStartupApplication
         RegisterExportImport(services);
     }
 
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
     }
 
@@ -52,6 +53,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<ICheckoutAttributeParser, CheckoutAttributeParser>();
         serviceCollection.AddScoped<ICheckoutAttributeService, CheckoutAttributeService>();
         serviceCollection.AddScoped<IOrderTagService, OrderTagService>();
+        serviceCollection.AddScoped<IOrderReportService, OrderReportService>();
     }
 
     private void RegisterPaymentsService(IServiceCollection serviceCollection)

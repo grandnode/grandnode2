@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Checkout;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;

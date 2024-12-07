@@ -21,8 +21,6 @@ public class OutOfStockSubscriptionServiceTests
     [TestInitialize]
     public void InitializeTests()
     {
-        CommonPath.BaseDirectory = "";
-
         _repository = new MongoDBRepositoryTest<OutOfStockSubscription>();
         _mediatorMock = new Mock<IMediator>();
         _mediatorMock.Setup(x => x.Send(It.IsAny<SendNotificationsToSubscribersCommand>(), default))

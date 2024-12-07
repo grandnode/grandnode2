@@ -138,7 +138,7 @@ public class ProductImportDataObjectTests
         _languageServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .Returns(Task.FromResult(new EntityUrl { Slug = "slug", EntityName = "Product" }));
 
         //Act
         await _productImportDataObject.Execute(products);
@@ -199,7 +199,7 @@ public class ProductImportDataObjectTests
             .Returns(Task.FromResult<IList<MeasureUnit>>(new List<MeasureUnit> { new() }));
 
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .Returns(Task.FromResult(new EntityUrl { Slug = "slug", EntityName = "Product" }));
         //Act
         await _productImportDataObject.Execute(products);
 
@@ -253,7 +253,7 @@ public class ProductImportDataObjectTests
             .Returns(Task.FromResult<IList<MeasureUnit>>(new List<MeasureUnit> { new() }));
 
         _slugServiceMock.Setup(c => c.GetBySlug(It.IsAny<string>()))
-            .Returns(Task.FromResult(new EntityUrl { Slug = "slug" }));
+            .Returns(Task.FromResult(new EntityUrl { Slug = "slug", EntityName = "Product" }));
         //Act
         await _productImportDataObject.Execute(products);
 

@@ -22,7 +22,8 @@ public class AddressAttributeServiceTests
     [TestInitialize]
     public void Init()
     {
-        CommonPath.BaseDirectory = "";
+        var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
+        DataSettingsManager.Initialize(settingsPath);
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<MongoRepository<AddressAttribute>>(Mock.Of<IAuditInfoProvider>());
         _mediatorMock = new Mock<IMediator>();

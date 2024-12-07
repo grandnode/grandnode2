@@ -35,8 +35,6 @@ public class ProductAttributeFormatterTests
     [TestInitialize]
     public void InitializeTests()
     {
-        CommonPath.BaseDirectory = "";
-
         _workContextMock = new Mock<IWorkContext>();
         _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
         _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());

@@ -26,8 +26,6 @@ public class UpdateProductReviewTotalsCommandHandlerTest
     [TestInitialize]
     public void Init()
     {
-        CommonPath.BaseDirectory = "";
-
         var reviews = new List<ProductReview> {
             new() { Id = "1", ReplyText = "text1" },
             new() { Id = "2", ReplyText = "text2" }

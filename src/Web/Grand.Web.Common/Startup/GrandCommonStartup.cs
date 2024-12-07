@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.FeatureManagement;
 
 namespace Grand.Web.Common.Startup;
 
@@ -66,12 +67,12 @@ public class GrandCommonStartup : IStartupApplication
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
     /// <param name="webHostEnvironment">WebHostEnvironment</param>
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
-        var serviceProvider = application.ApplicationServices;
-        var appConfig = serviceProvider.GetRequiredService<AppConfig>();
-        var performanceConfig = serviceProvider.GetRequiredService<PerformanceConfig>();
-        var securityConfig = serviceProvider.GetRequiredService<SecurityConfig>();
+        var appConfig = application.Services.GetRequiredService<AppConfig>();
+        var performanceConfig = application.Services.GetRequiredService<PerformanceConfig>();
+        var securityConfig = application.Services.GetRequiredService<SecurityConfig>();
+        var featureManager = application.Services.GetRequiredService<IFeatureManager>();
 
         //add HealthChecks
         application.UseGrandHealthChecks();
@@ -92,9 +93,8 @@ public class GrandCommonStartup : IStartupApplication
         //use static files feature
         application.UseGrandStaticFiles(appConfig);
 
-        //check whether database is installed
-        if (!performanceConfig.IgnoreInstallUrlMiddleware)
-            application.UseInstallUrl();
+        //install middleware
+        application.UseInstallUrl();
 
         //use HTTP session
         application.UseSession();

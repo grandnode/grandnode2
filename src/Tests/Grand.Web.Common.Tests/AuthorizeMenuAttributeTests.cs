@@ -30,8 +30,9 @@ public class AuthorizeMenuAttributeTests
     [TestInitialize]
     public void Setup()
     {
-        CommonPath.BaseDirectory = "";
-        var settings = DataSettingsManager.LoadSettings();
+        var path = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
+        DataSettingsManager.Initialize(path);
+        var settings = DataSettingsManager.Instance.LoadSettings();
         _mockPermissionService = new Mock<IPermissionService>();
         _mockAdminSiteMapService = new Mock<IAdminSiteMapService>();
         _mockWorkContext = new Mock<IWorkContext>();

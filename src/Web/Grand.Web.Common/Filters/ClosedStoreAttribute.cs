@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Data;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;

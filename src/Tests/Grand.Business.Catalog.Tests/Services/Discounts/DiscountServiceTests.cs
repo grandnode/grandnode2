@@ -44,8 +44,6 @@ public class DiscountServiceTests
     [TestInitialize]
     public void InitializeTests()
     {
-        CommonPath.BaseDirectory = "";
-
         _repository = new MongoDBRepositoryTest<Discount>();
         _discountCouponRepository = new MongoDBRepositoryTest<DiscountCoupon>();
         _discountUsageHistoryRepository = new MongoDBRepositoryTest<DiscountUsageHistory>();

@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;

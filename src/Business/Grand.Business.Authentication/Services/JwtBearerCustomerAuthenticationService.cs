@@ -2,9 +2,9 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Permissions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Grand.Business.Authentication.Services;

@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;

@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Storage;
+﻿using DotLiquid.Tags;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Storage.Services;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
@@ -40,12 +41,14 @@ public class StartupApplication : IStartupApplication
 
         services.AddScoped<IMediaFileStore>(serviceProvider =>
         {
-            var fileStore = new FileSystemStore(CommonPath.WebRootPath);
+            var webHostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+            var param = configuration[CommonPath.DirectoryParam];
+            var fileStore = new FileSystemStore(Path.Combine(webHostEnvironment.WebRootPath, param ?? ""));
             return new DefaultMediaFileStore(fileStore);
         });
     }
 
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
     }
 

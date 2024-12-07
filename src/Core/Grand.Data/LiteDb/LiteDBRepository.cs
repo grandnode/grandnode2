@@ -1,6 +1,7 @@
 using Grand.Domain;
 using Grand.SharedKernel.Attributes;
 using LiteDB;
+using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -39,7 +40,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     public LiteDBRepository(IAuditInfoProvider auditInfoProvider)
     {
         _auditInfoProvider = auditInfoProvider;
-        var connection = DataSettingsManager.LoadSettings();
+        var connection = DataSettingsManager.Instance.LoadSettings();
 
         if (!string.IsNullOrEmpty(connection.ConnectionString))
         {
@@ -569,9 +570,9 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Gets a table collection
     /// </summary>
-    public virtual IQueryable<T> TableCollection(string collectionName)
+    public virtual IQueryable<C> TableCollection<C>() where C : class
     {
-        return _database.GetCollection<T>(collectionName).Query().ToEnumerable().AsQueryable();
+        return _database.GetCollection<C>(nameof(T)).Query().ToEnumerable().AsQueryable();
     }
 
     #endregion

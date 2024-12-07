@@ -10,10 +10,7 @@ public class ScheduleTaskModel : BaseEntityModel
     public string ScheduleTaskName { get; set; }
 
     [GrandResourceDisplayName("Admin.System.ScheduleTasks.LeasedByMachineName")]
-    public string LeasedByMachineName { get; set; }
-
-    [GrandResourceDisplayName("Admin.System.ScheduleTasks.Type")]
-    public string Type { get; set; }
+    public string LeasedByMachineName { get; set; }    
 
     [GrandResourceDisplayName("Admin.System.ScheduleTasks.Enabled")]
     public bool Enabled { get; set; }

@@ -15,5 +15,5 @@ public interface IMigration : IBaseMigration
     /// <param name="database"></param>
     /// <param name="serviceProvider"></param>
     /// <returns></returns>
-    bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider);
+    bool UpgradeProcess(IServiceProvider serviceProvider);
 }

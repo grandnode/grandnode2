@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel;

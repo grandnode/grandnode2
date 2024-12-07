@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\Build\Grand.Common.props" />
+	<PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
+			<Private>False</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
+			<Private>False</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
+			<Private>False</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
+			<Private>False</Private>
+		</ProjectReference>
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\..\Web\Grand.Web\Modules\Grand.Module.Migration\</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath>..\..\Web\Grand.Web\Modules\Grand.Module.Migration\</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+	</PropertyGroup>
+
+
+</Project>

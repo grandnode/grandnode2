@@ -22,7 +22,8 @@ public class DocumentTypeServiceTests
     [TestInitialize]
     public void Init()
     {
-        CommonPath.BaseDirectory = "";
+        var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
+        DataSettingsManager.Initialize(settingsPath);
 
         _mediatorMock = new Mock<IMediator>();
         _documentTypeRepositoryMock = new Mock<IRepository<DocumentType>>();

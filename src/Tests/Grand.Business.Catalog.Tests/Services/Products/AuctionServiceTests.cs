@@ -29,8 +29,6 @@ public class AuctionServiceTests
     [TestInitialize]
     public void InitializeTests()
     {
-        CommonPath.BaseDirectory = "";
-
         _repository = new MongoDBRepositoryTest<Bid>();
         _productrepository = new MongoDBRepositoryTest<Product>();
         _workContextMock = new Mock<IWorkContext>();

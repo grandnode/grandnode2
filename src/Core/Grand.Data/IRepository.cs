@@ -206,5 +206,5 @@ public interface IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Gets a table collection
     /// </summary>
-    IQueryable<T> TableCollection(string collectionName);
+    IQueryable<C> TableCollection<C>() where C : class;    
 }

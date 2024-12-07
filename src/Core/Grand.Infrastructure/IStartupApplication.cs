@@ -29,5 +29,5 @@ public interface IStartupApplication
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
     /// <param name="webHostEnvironment">WebHostEnvironment</param>
-    void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment);
+    void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment);
 }

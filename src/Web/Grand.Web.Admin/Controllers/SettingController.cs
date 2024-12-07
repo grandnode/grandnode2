@@ -5,7 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Domain.Admin;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
@@ -36,8 +36,10 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Themes;
 using MediatR;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using OperatingSystem = Grand.Infrastructure.OperatingSystem;
 
 namespace Grand.Web.Admin.Controllers;
@@ -743,7 +745,7 @@ public class SettingController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> PushNotifications(PushNotificationsSettingsModel model)
+    public async Task<IActionResult> PushNotifications(PushNotificationsSettingsModel model, [FromServices] IConfiguration configuration, [FromServices] IWebHostEnvironment webHostEnvironment)
     {
         var storeScope = await GetActiveStore();
         var settings = settingService.LoadSetting<PushNotificationsSettings>(storeScope);
@@ -755,21 +757,20 @@ public class SettingController(
         await ClearCache();
 
         //save to file
-        SavePushNotificationsToFile(model);
+        SavePushNotificationsToFile(model, configuration, webHostEnvironment);
 
         Success(translationService.GetResource("Admin.Configuration.Updated"));
         return await PushNotifications();
     }
 
-    private void SavePushNotificationsToFile(PushNotificationsSettingsModel model)
+    private void SavePushNotificationsToFile(PushNotificationsSettingsModel model, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
     {
         //edit js file needed by firebase
         var filename = "firebase-messaging-sw.js";
-        var oryginalFilePath = CommonPath.WebHostMapPath(filename);
-        var savedFilePath = CommonPath.WebMapPath(filename);
-        if (System.IO.File.Exists(oryginalFilePath))
+        var filePath = Path.Combine(webHostEnvironment.WebRootPath, configuration[CommonPath.DirectoryParam] ?? "", filename);
+        if (System.IO.File.Exists(filePath))
         {
-            var lines = System.IO.File.ReadAllLines(oryginalFilePath);
+            var lines = System.IO.File.ReadAllLines(filePath);
             var i = 0;
             foreach (var line in lines)
             {
@@ -783,11 +784,11 @@ public class SettingController(
                 i++;
             }
 
-            System.IO.File.WriteAllLines(savedFilePath, lines);
+            System.IO.File.WriteAllLines(filePath, lines);
         }
         else
         {
-            throw new ArgumentNullException($"{oryginalFilePath} not exist");
+            throw new ArgumentNullException($"{filePath} not exist");
         }
     }
 

@@ -14,13 +14,12 @@ public class DbCheckStartup : IStartupApplication
     public int Priority => 0;
     public bool BeforeConfigure => false;
 
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
         if (!DataSettingsManager.DatabaseIsInstalled())
             return;
 
-        var serviceProvider = application.ApplicationServices;
-        var performanceConfig = serviceProvider.GetRequiredService<PerformanceConfig>();
+        var performanceConfig = application.Services.GetRequiredService<PerformanceConfig>();
 
         if (!performanceConfig.IgnoreDbVersionCheckMiddleware)
             application.UseMiddleware<DbVersionCheckMiddleware>();

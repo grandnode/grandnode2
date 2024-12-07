@@ -8,7 +8,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;

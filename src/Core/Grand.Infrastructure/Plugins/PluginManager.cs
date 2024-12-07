@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Extensions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +22,7 @@ public static class PluginManager
     public const string CopyPath = "Plugins/bin";
 
     private static readonly object _synLock = new();
-
+    
     #endregion
 
     #region Fields
@@ -45,7 +46,7 @@ public static class PluginManager
     ///     Load plugins
     /// </summary>
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public static void Load(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration)
+    public static void Load(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration, IWebHostEnvironment hostEnvironment)
     {
         _config = new ExtensionsConfig();
         configuration.GetSection("Extensions").Bind(_config);
@@ -58,16 +59,16 @@ public static class PluginManager
             _logger = mvcCoreBuilder.Services.BuildServiceProvider().GetService<ILoggerFactory>()
                 .CreateLogger("PluginManager");
 
-            _pluginFolder = new DirectoryInfo(CommonPath.PluginsPath);
-            _copyFolder = new DirectoryInfo(CommonPath.PluginsCopyPath);
-
+            _pluginFolder = new DirectoryInfo(Path.Combine(hostEnvironment.ContentRootPath, CommonPath.Plugins));
+            _copyFolder = new DirectoryInfo(Path.Combine(hostEnvironment.ContentRootPath, CommonPath.Plugins, "bin"));
+                
             var referencedPlugins = new List<PluginInfo>();
             try
             {
                 var installedPluginSystemNames =
                     !string.IsNullOrEmpty(_config.InstalledPlugins)
                         ? _config.InstalledPlugins.Split(",").Select(x => x.Trim())
-                        : PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
+                        : PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
 
                 _logger.LogInformation("Creating shadow copy folder and querying for dlls");
                 Directory.CreateDirectory(_pluginFolder.FullName);
@@ -205,7 +206,7 @@ public static class PluginManager
     /// </summary>
     public static void ClearPlugins()
     {
-        var filePath = CommonPath.InstalledPluginsFilePath;
+        var filePath = PluginPaths.Instance.InstalledPluginsFile;
         if (File.Exists(filePath))
             File.Delete(filePath);
     }

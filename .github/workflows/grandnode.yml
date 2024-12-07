@@ -17,7 +17,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
     - name: Create mongoDB Docker container      
       run: sudo docker run -d -p 27017:27017 mongo:latest
     - name: Restore
@@ -45,7 +45,7 @@ jobs:
     - name: Grand.Business.Storage Unit Tests
       run: dotnet test ./src/Tests/Grand.Business.Storage.Tests/Grand.Business.Storage.Tests.csproj
     - name: Grand.Business.System Unit Tests
-      run: dotnet test ./src/Tests/Grand.Business.System.Tests/Grand.Business.System.Tests.csproj
+      run: dotnet test ./src/Tests/Grand.Modules.Tests/Grand.Modules.Tests.csproj
     - name: Grand.Business.Data Unit Tests
       run: dotnet test ./src/Tests/Grand.Data.Tests/Grand.Data.Tests.csproj
     - name: Grand.Domain.Domain.Tests Unit Tests

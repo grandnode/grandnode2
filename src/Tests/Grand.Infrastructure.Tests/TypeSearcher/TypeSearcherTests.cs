@@ -17,7 +17,7 @@ public class TypeSearcherTests
     [TestMethod]
     public void ClassesOfTypeTest_onlyConcreteClasses_false()
     {
-        Assert.IsTrue(_typeSearcher.ClassesOfType<ICacheBase>(false).Any());
+        Assert.IsTrue(_typeSearcher.ClassesOfType<ICacheBase>().Any());
     }
 
     [TestMethod]

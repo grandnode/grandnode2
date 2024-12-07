@@ -27,8 +27,6 @@ public class BrandServiceTests
     [TestInitialize]
     public void InitializeTests()
     {
-        CommonPath.BaseDirectory = "";
-
         _repository = new MongoDBRepositoryTest<Brand>();
         _workContextMock = new Mock<IWorkContext>();
         _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });

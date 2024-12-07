@@ -10,7 +10,7 @@ public class MongoStoreFilesContext : IStoreFilesContext
 
     public MongoStoreFilesContext()
     {
-        var connectionString = DataSettingsManager.LoadSettings().ConnectionString;
+        var connectionString = DataSettingsManager.Instance.LoadSettings().ConnectionString;
 
         var mongourl = new MongoUrl(connectionString);
         var databaseName = mongourl.DatabaseName;
@@ -25,7 +25,7 @@ public class MongoStoreFilesContext : IStoreFilesContext
     public async Task<byte[]> BucketDownload(string id)
     {
         var bucket = new GridFSBucket(_database);
-        var binary = await bucket.DownloadAsBytesAsync(new ObjectId(id), new GridFSDownloadOptions { CheckMD5 = true });
+        var binary = await bucket.DownloadAsBytesAsync(new ObjectId(id), new GridFSDownloadOptions());
         return binary;
     }
 

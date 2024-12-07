@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Permissions;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Web.Admin.Extensions;

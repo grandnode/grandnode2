@@ -21,8 +21,8 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
     }
 
-    public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
-    {
+    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
+    {        
     }
 
     public int Priority => 100;

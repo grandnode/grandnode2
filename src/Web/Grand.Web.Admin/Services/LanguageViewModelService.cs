@@ -1,25 +1,37 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Localization;
-using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Localization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Services;
 
 public class LanguageViewModelService : ILanguageViewModelService
 {
+
+    #region Fields
+
+    private readonly ILanguageService _languageService;
+    private readonly ITranslationService _translationService;
+    private readonly ICurrencyService _currencyService;
+    private readonly IWebHostEnvironment _hostingEnvironment;
+
+    #endregion
+
     #region Constructors
 
     public LanguageViewModelService(ILanguageService languageService,
         ITranslationService translationService,
-        ICurrencyService currencyService)
+        ICurrencyService currencyService,
+        IWebHostEnvironment hostingEnvironment)
     {
         _translationService = translationService;
         _languageService = languageService;
         _currencyService = currencyService;
+        _hostingEnvironment = hostingEnvironment;
     }
 
     #endregion
@@ -27,9 +39,9 @@ public class LanguageViewModelService : ILanguageViewModelService
     public virtual void PrepareFlagsModel(LanguageModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
-
+        var filepath = Path.Combine(_hostingEnvironment.WebRootPath, "assets/images/flags");
         model.FlagFileNames = Directory
-            .EnumerateFiles(CommonPath.WebHostMapPath("/assets/images/flags/"), "*.png", SearchOption.TopDirectoryOnly)
+            .EnumerateFiles(filepath, "*.png", SearchOption.TopDirectoryOnly)
             .Select(Path.GetFileName)
             .ToList();
     }
@@ -149,12 +161,4 @@ public class LanguageViewModelService : ILanguageViewModelService
         resources = resources.AsQueryable();
         return (resources.Skip((pageIndex - 1) * pageSize).Take(pageSize), resources.Count());
     }
-
-    #region Fields
-
-    private readonly ILanguageService _languageService;
-    private readonly ITranslationService _translationService;
-    private readonly ICurrencyService _currencyService;
-
-    #endregion
 }

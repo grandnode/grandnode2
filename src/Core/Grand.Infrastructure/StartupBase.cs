@@ -4,6 +4,7 @@ using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Mapper;
+using Grand.Infrastructure.Modules;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
 using Grand.Infrastructure.TypeConverters;
@@ -19,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.FeatureManagement;
 
 namespace Grand.Infrastructure;
 
@@ -36,7 +38,7 @@ public static class StartupBase
     {
         var dbConfig = services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
         if (!string.IsNullOrEmpty(dbConfig.ConnectionString))
-            DataSettingsManager.LoadDataSettings(new DataSettings {
+            DataSettingsManager.Instance.LoadDataSettings(new DataSettings {
                 ConnectionString = dbConfig.ConnectionString,
                 DbProvider = (DbProvider)dbConfig.DbProvider
             });
@@ -125,13 +127,16 @@ public static class StartupBase
     /// </summary>
     /// <param name="mvcCoreBuilder"></param>
     /// <param name="configuration"></param>
-    private static void RegisterExtensions(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration)
+    private static void RegisterExtensions(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration, IWebHostEnvironment hostEnvironment)
     {
-        //Load plugins
-        PluginManager.Load(mvcCoreBuilder, configuration);
+        //Load Modules
+        ModuleLoader.LoadModules(mvcCoreBuilder, configuration, hostEnvironment);
+
+        //Load plugins        
+        PluginManager.Load(mvcCoreBuilder, configuration, hostEnvironment);
 
         //Load CTX scripts
-        RoslynCompiler.Load(mvcCoreBuilder.PartManager, configuration);
+        RoslynCompiler.Load(mvcCoreBuilder.PartManager, configuration, hostEnvironment);
     }
 
     /// <summary>
@@ -191,25 +196,21 @@ public static class StartupBase
     /// <param name="services">Collection of service descriptors</param>
     /// <param name="configuration">Configuration</param>
     /// <param name="typeSearcher">Type searcher</param>
-    private static IMvcCoreBuilder RegisterApplication(IServiceCollection services, IConfiguration configuration,
-        ITypeSearcher typeSearcher)
+    private static IMvcCoreBuilder RegisterApplication(IServiceCollection services, IConfiguration configuration, IWebHostEnvironment hostingEnvironment, ITypeSearcher typeSearcher)
     {
         //add accessor to HttpContext
         services.AddHttpContextAccessor();
 
         RegisterConfigurations(services, configuration);
+       
+        var settingsPath = Path.Combine(hostingEnvironment.ContentRootPath, CommonPath.AppData, configuration["Directory"] ?? "", CommonPath.SettingsFile);
+        DataSettingsManager.Initialize(settingsPath);
+        
+        var pluginPaths= Path.Combine(hostingEnvironment.ContentRootPath, CommonPath.AppData, configuration["Directory"] ?? "", CommonPath.InstalledPluginsFile);
+        PluginPaths.Initialize(pluginPaths);
 
         InitDatabase(services, configuration);
 
-        //set base application path
-        var provider = services.BuildServiceProvider();
-        var hostingEnvironment = provider.GetRequiredService<IWebHostEnvironment>();
-        var param = configuration["Directory"];
-        if (!string.IsNullOrEmpty(param))
-            CommonPath.Param = param;
-
-        CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
-        CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
         services.AddTransient<ValidationFilter>();
         var mvcCoreBuilder = services.AddMvcCore(options =>
         {
@@ -269,15 +270,20 @@ public static class StartupBase
     /// <param name="configuration">Configuration root of the application</param>
     public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddFeatureManagement();
+
         //find startup configurations provided by other assemblies
         var typeSearcher = new TypeSearcher();
         services.AddSingleton<ITypeSearcher>(typeSearcher);
 
+        var provider = services.BuildServiceProvider();
+        var hostingEnvironment = provider.GetRequiredService<IWebHostEnvironment>();
+
         //register application
-        var mvcBuilder = RegisterApplication(services, configuration, typeSearcher);
+        var mvcBuilder = RegisterApplication(services, configuration, hostingEnvironment, typeSearcher);
 
         //register extensions 
-        RegisterExtensions(mvcBuilder, configuration);
+        RegisterExtensions(mvcBuilder, configuration, hostingEnvironment);
 
         var startupConfigurations = typeSearcher.ClassesOfType<IStartupApplication>();
 
@@ -327,7 +333,7 @@ public static class StartupBase
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
     /// <param name="webHostEnvironment">WebHostEnvironment</param>
-    public static void ConfigureRequestPipeline(IApplicationBuilder application,
+    public static void ConfigureRequestPipeline(WebApplication application,
         IWebHostEnvironment webHostEnvironment)
     {
         //find startup configurations provided by other assemblies

@@ -1,0 +1,250 @@
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.System.Reports;
+using Grand.Business.Core.Utilities.System;
+using Grand.Data;
+using Grand.Domain;
+using Grand.Domain.Customers;
+using Grand.Domain.Orders;
+using Grand.Domain.Payments;
+using Grand.Domain.Shipping;
+
+namespace Grand.Business.Customers.Services;
+
+/// <summary>
+///     Customer report service
+/// </summary>
+public class CustomerReportService : ICustomerReportService
+{
+    #region Ctor
+
+    /// <summary>
+    ///     Ctor
+    /// </summary>
+    /// <param name="customerRepository">Customer repository</param>
+    /// <param name="orderRepository">Order repository</param>
+    /// <param name="dateTimeService">Date time helper</param>
+    /// <param name="groupService">group service</param>
+    public CustomerReportService(IRepository<Customer> customerRepository,
+        IRepository<Order> orderRepository,
+        IGroupService groupService,
+        IDateTimeService dateTimeService)
+    {
+        _customerRepository = customerRepository;
+        _orderRepository = orderRepository;
+        _groupService = groupService;
+        _dateTimeService = dateTimeService;
+    }
+
+    #endregion
+
+    #region Fields
+
+    private readonly IRepository<Customer> _customerRepository;
+    private readonly IRepository<Order> _orderRepository;
+    private readonly IGroupService _groupService;
+    private readonly IDateTimeService _dateTimeService;
+
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    ///     Get best customers
+    /// </summary>
+    /// <param name="storeId">Store ident</param>
+    /// <param name="vendorId">Vendor ident</param>
+    /// <param name="createdFromUtc">Order created date from (UTC); null to load all records</param>
+    /// <param name="createdToUtc">Order created date to (UTC); null to load all records</param>
+    /// <param name="os">Order status; null to load all records</param>
+    /// <param name="ps">Order payment status; null to load all records</param>
+    /// <param name="ss">Order shipment status; null to load all records</param>
+    /// <param name="orderBy">1 - order by order total, 2 - order by number of orders</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
+    /// <returns>Report</returns>
+    public virtual IPagedList<BestCustomerReportLine> GetBestCustomersReport(string storeId = "", string vendorId = "",
+        DateTime? createdFromUtc = null,
+        DateTime? createdToUtc = null, int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
+        int orderBy = 0,
+        int pageIndex = 0, int pageSize = 214748364)
+    {
+        var query = from p in _orderRepository.Table
+            select p;
+
+        query = query.Where(o => !o.Deleted);
+        if (os.HasValue)
+            query = query.Where(o => o.OrderStatusId == os.Value);
+        if (ps.HasValue)
+            query = query.Where(o => o.PaymentStatusId == ps.Value);
+        if (ss.HasValue)
+            query = query.Where(o => o.ShippingStatusId == ss.Value);
+        if (createdFromUtc.HasValue)
+            query = query.Where(o => createdFromUtc.Value <= o.CreatedOnUtc);
+        if (createdToUtc.HasValue)
+            query = query.Where(o => createdToUtc.Value >= o.CreatedOnUtc);
+        if (!string.IsNullOrEmpty(storeId))
+            query = query.Where(o => o.StoreId == storeId);
+
+        if (string.IsNullOrEmpty(vendorId))
+        {
+            var query2 = from co in query
+                group co by co.CustomerId
+                into g
+                select new {
+                    CustomerId = g.Key,
+                    OrderTotal = g.Sum(x => x.OrderTotal / x.CurrencyRate),
+                    OrderCount = g.Count()
+                };
+            query2 = orderBy switch {
+                1 => query2.OrderByDescending(x => x.OrderTotal),
+                2 => query2.OrderByDescending(x => x.OrderCount),
+                _ => throw new ArgumentException("Wrong orderBy parameter", nameof(orderBy))
+            };
+
+            var tmp = new PagedList<dynamic>(query2, pageIndex, pageSize);
+            return new PagedList<BestCustomerReportLine>(tmp.Select(x => new BestCustomerReportLine {
+                CustomerId = x.CustomerId,
+                OrderTotal = x.OrderTotal,
+                OrderCount = x.OrderCount
+            }), tmp.PageIndex, tmp.PageSize, tmp.TotalCount);
+        }
+
+        var vendorQuery = from p in query
+            from item in p.OrderItems
+            select new {
+                item.VendorId,
+                p.CustomerId, OrderCode = p.Code,
+                item.Quantity,
+                item.PriceInclTax,
+                p.Rate
+            };
+
+        vendorQuery = vendorQuery.Where(x => x.VendorId == vendorId);
+
+        var vendorQueryGroup = from co in vendorQuery
+            group co by co.CustomerId
+            into g
+            select new {
+                CustomerId = g.Key,
+                OrderTotal = g.Sum(x => x.PriceInclTax / x.Rate),
+                OrderCount = g.Count()
+            };
+        vendorQueryGroup = orderBy switch {
+            1 => vendorQueryGroup.OrderByDescending(x => x.OrderTotal),
+            2 => vendorQueryGroup.OrderByDescending(x => x.OrderCount),
+            _ => throw new ArgumentException("Wrong orderBy parameter", nameof(orderBy))
+        };
+
+        var vendorReport = new PagedList<dynamic>(vendorQueryGroup, pageIndex, pageSize);
+        return new PagedList<BestCustomerReportLine>(vendorReport.Select(x => new BestCustomerReportLine {
+            CustomerId = x.CustomerId,
+            OrderTotal = x.OrderTotal,
+            OrderCount = x.OrderCount
+        }), vendorReport.PageIndex, vendorReport.PageSize, vendorReport.TotalCount);
+    }
+
+    /// <summary>
+    ///     Gets a report of customers registered in the last days
+    /// </summary>
+    /// <param name="storeId">Store ident</param>
+    /// <param name="days">Customers registered in the last days</param>
+    /// <returns>Number of registered customers</returns>
+    public virtual async Task<int> GetRegisteredCustomersReport(string storeId, int days)
+    {
+        var date = _dateTimeService.ConvertToUserTime(DateTime.Now).AddDays(-days);
+
+        var registeredCustomerGroup =
+            await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
+        if (registeredCustomerGroup == null)
+            return 0;
+
+        var query = from c in _customerRepository.Table
+            where !c.Deleted &&
+                  (string.IsNullOrEmpty(storeId) || c.StoreId == storeId) &&
+                  c.Groups.Any(cr => cr == registeredCustomerGroup.Id) &&
+                  c.CreatedOnUtc >= date
+            //&& c.CreatedOnUtc <= DateTime.UtcNow
+            select c;
+        var count = query.Count();
+        return count;
+    }
+
+
+    /// <summary>
+    ///     Get "customer by time" report
+    /// </summary>
+    /// <param name="storeId">Store ident</param>
+    /// <param name="startTimeUtc">Start date</param>
+    /// <param name="endTimeUtc">End date</param>
+    /// <returns>Result</returns>
+    public virtual async Task<IList<CustomerByTimeReportLine>> GetCustomerByTimeReport(string storeId,
+        DateTime? startTimeUtc = null,
+        DateTime? endTimeUtc = null)
+
+    {
+        var report = new List<CustomerByTimeReportLine>();
+        startTimeUtc ??= DateTime.MinValue;
+        endTimeUtc ??= DateTime.UtcNow;
+
+        var endTime = new DateTime(endTimeUtc.Value.Year, endTimeUtc.Value.Month, endTimeUtc.Value.Day, 23, 59, 00);
+        var builderquery = from p in _customerRepository.Table
+            select p;
+
+        var customergroup = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
+        var customerGroupRegister = customergroup.Id;
+        builderquery = builderquery.Where(o => !o.Deleted);
+        builderquery = builderquery.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc <= endTime);
+        builderquery = builderquery.Where(o => o.Groups.Any(y => y == customerGroupRegister));
+        if (!string.IsNullOrEmpty(storeId))
+            builderquery = builderquery.Where(o => o.StoreId == storeId);
+
+        var daydiff = (endTimeUtc.Value - startTimeUtc.Value).TotalDays;
+        if (daydiff > 31)
+        {
+            var query = builderquery.GroupBy(x => new {
+                    x.CreatedOnUtc.Year,
+                    x.CreatedOnUtc.Month
+                })
+                .Select(g => new CustomerStats {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Count = g.Count()
+                }).ToList();
+            foreach (var item in query)
+                report.Add(new CustomerByTimeReportLine {
+                    Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0'),
+                    Registered = item.Count
+                });
+        }
+        else
+        {
+            var query = builderquery.GroupBy(x =>
+                    new { x.CreatedOnUtc.Year, x.CreatedOnUtc.Month, x.CreatedOnUtc.Day })
+                .Select(g => new CustomerStats {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Day = g.Key.Day,
+                    Count = g.Count()
+                }).ToList();
+            foreach (var item in query)
+                report.Add(new CustomerByTimeReportLine {
+                    Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0') + "-" +
+                           item.Day.ToString().PadLeft(2, '0'),
+                    Registered = item.Count
+                });
+        }
+
+
+        return report.OrderBy(x => x.Time).ToList();
+    }
+
+    #endregion
+}
+
+public class CustomerStats
+{
+    public int Year { get; set; }
+    public int Month { get; set; }
+    public int Day { get; set; }
+    public int Count { get; set; }
+}

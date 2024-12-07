@@ -32,8 +32,6 @@ public class ProductServiceTests
     [TestInitialize]
     public void InitializeTests()
     {
-        CommonPath.BaseDirectory = "";
-
         _productRepository = new MongoDBRepositoryTest<Product>();
         _workContextMock = new Mock<IWorkContext>();
         _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });

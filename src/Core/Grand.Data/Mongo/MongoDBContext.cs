@@ -6,53 +6,17 @@ namespace Grand.Data.Mongo;
 
 public class MongoDBContext : IDatabaseContext
 {
-    private string _connectionString;
     protected IMongoDatabase _database;
-
-    public MongoDBContext()
-    {
-        var connection = DataSettingsManager.LoadSettings();
-        if (!string.IsNullOrEmpty(connection.ConnectionString))
-            PrepareMongoDatabase(connection.ConnectionString);
-    }
-
 
     public MongoDBContext(IMongoDatabase mongodatabase)
     {
         _database = mongodatabase;
     }
-
-    public void SetConnection(string connectionString)
-    {
-        if (string.IsNullOrEmpty(connectionString))
-            throw new ArgumentNullException(nameof(connectionString));
-
-        PrepareMongoDatabase(connectionString);
-    }
-
-    public bool InstallProcessCreateTable => true;
-    public bool InstallProcessCreateIndex => true;
-
-    public IQueryable<T> Table<T>(string collectionName)
-    {
-        if (string.IsNullOrEmpty(collectionName))
-            throw new ArgumentNullException(nameof(collectionName));
-
-        return _database.GetCollection<T>(collectionName).AsQueryable();
-    }
-
+    
     public async Task<bool> DatabaseExist()
     {
-        if (string.IsNullOrEmpty(_connectionString))
-            throw new ArgumentNullException(nameof(_connectionString));
-
-        var client = new MongoClient(_connectionString);
-        var databaseName = new MongoUrl(_connectionString).DatabaseName;
-        var database = client.GetDatabase(databaseName);
-        await database.RunCommandAsync((Command<BsonDocument>)"{ping:1}");
-
         var filter = new BsonDocument("name", "GrandNodeVersion");
-        var found = database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter }).Result;
+        var found = await _database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter });
         return await found.AnyAsync();
     }
 
@@ -117,28 +81,5 @@ public class MongoDBContext : IDatabaseContext
             await ((MongoRepository<T>)repository).Collection.Indexes.DropOneAsync(indexName);
         }
         catch { }
-    }
-
-    private void PrepareMongoDatabase(string connectionString)
-    {
-        _connectionString = connectionString;
-        var mongourl = new MongoUrl(connectionString);
-        var databaseName = mongourl.DatabaseName;
-        _database = new MongoClient(connectionString).GetDatabase(databaseName);
-    }
-
-    public IMongoDatabase Database()
-    {
-        return _database;
-    }
-
-    protected IMongoDatabase TryReadMongoDatabase()
-    {
-        _connectionString = DataSettingsManager.LoadSettings().ConnectionString;
-
-        var mongourl = new MongoUrl(_connectionString);
-        var databaseName = mongourl.DatabaseName;
-        var mongodb = new MongoClient(_connectionString).GetDatabase(databaseName);
-        return mongodb;
     }
 }

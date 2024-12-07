@@ -38,7 +38,8 @@ public class PriceFormatterTests
     [TestInitialize]
     public void TestInitialize()
     {
-        CommonPath.BaseDirectory = "";
+        var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
+        DataSettingsManager.Initialize(settingsPath);
 
         var eventPublisher = new Mock<IMediator>();
         _eventPublisher = eventPublisher.Object;

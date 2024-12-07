@@ -11,6 +11,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel.Extensions;
 using MediatR;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -32,8 +33,8 @@ public class CategoryServiceTests
     [TestInitialize]
     public void Init()
     {
-        CommonPath.BaseDirectory = "";
-
+        var settingsPath = Path.Combine("", CommonPath.AppData, CommonPath.SettingsFile);
+        DataSettingsManager.Initialize(settingsPath);
         _casheManagerMock = new Mock<ICacheBase>();
         _categoryRepositoryMock = new Mock<IRepository<Category>>();
         _productRepositoryMock = new Mock<MongoRepository<Product>>(Mock.Of<IAuditInfoProvider>());

@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.FeatureManagement;
 using Microsoft.Net.Http.Headers;
 
 namespace Grand.Web.Common.Infrastructure;
@@ -29,11 +30,10 @@ public static class ApplicationBuilderExtensions
     ///     Add exception handling
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseGrandExceptionHandler(this IApplicationBuilder application)
+    public static void UseGrandExceptionHandler(this WebApplication application)
     {
-        var serviceProvider = application.ApplicationServices;
-        var appConfig = serviceProvider.GetRequiredService<AppConfig>();
-        var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+        var appConfig = application.Services.GetRequiredService<AppConfig>();
+        var hostingEnvironment = application.Services.GetRequiredService<IWebHostEnvironment>();
         var useDetailedExceptionPage = appConfig.DisplayFullErrorStack || hostingEnvironment.IsDevelopment();
         if (useDetailedExceptionPage)
             //get detailed exceptions for developing and testing purposes
@@ -83,7 +83,7 @@ public static class ApplicationBuilderExtensions
     ///     Adds a special handler that checks for responses with the 404 status code that do not have a body
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UsePageNotFound(this IApplicationBuilder application)
+    public static void UsePageNotFound(this WebApplication application)
     {
         application.UseStatusCodePages(async context =>
         {
@@ -112,7 +112,7 @@ public static class ApplicationBuilderExtensions
     ///     Adds a special handler that checks for responses with the 400 status code (bad request)
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseBadRequestResult(this IApplicationBuilder application)
+    public static void UseBadRequestResult(this WebApplication application)
     {
         application.UseStatusCodePages(context =>
         {
@@ -135,7 +135,7 @@ public static class ApplicationBuilderExtensions
     ///     Configure authentication
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseGrandAuthentication(this IApplicationBuilder application)
+    public static void UseGrandAuthentication(this WebApplication application)
     {
         application.UseAuthentication();
         application.UseAuthorization();
@@ -145,11 +145,11 @@ public static class ApplicationBuilderExtensions
     ///     Configure MVC endpoint
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseGrandEndpoints(this IApplicationBuilder application)
+    public static void UseGrandEndpoints(this WebApplication application)
     {
         application.UseEndpoints(endpoints =>
         {
-            var typeSearcher = endpoints.ServiceProvider.GetRequiredService<ITypeSearcher>();
+            var typeSearcher = application.Services.GetRequiredService<ITypeSearcher>();
             var endpointProviders = typeSearcher.ClassesOfType<IEndpointProvider>();
             var instances = endpointProviders
                 .Where(PluginExtensions.OnlyInstalledPlugins)
@@ -165,7 +165,7 @@ public static class ApplicationBuilderExtensions
     ///     Configure MVC endpoint
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseGrandDetection(this IApplicationBuilder application)
+    public static void UseGrandDetection(this WebApplication application)
     {
         application.UseDetection();
     }
@@ -175,7 +175,7 @@ public static class ApplicationBuilderExtensions
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
     /// <param name="appConfig">AppConfig</param>
-    public static void UseGrandStaticFiles(this IApplicationBuilder application, AppConfig appConfig)
+    public static void UseGrandStaticFiles(this WebApplication application, AppConfig appConfig)
     {
         //static files
         application.UseStaticFiles(new StaticFileOptions {
@@ -185,12 +185,14 @@ public static class ApplicationBuilderExtensions
                     ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, appConfig.StaticFilesCacheControl);
             }
         });
+        var webHostEnvironment = application.Services.GetRequiredService<IWebHostEnvironment>();
+        var pluginsPath = Path.Combine(webHostEnvironment.ContentRootPath, CommonPath.Plugins);
 
         //plugins
-        if (Directory.Exists(CommonPath.PluginsPath))
+        if (Directory.Exists(pluginsPath))
             application.UseStaticFiles(new StaticFileOptions {
-                FileProvider = new PhysicalFileProvider(CommonPath.PluginsPath),
-                RequestPath = new PathString("/Plugins"),
+                FileProvider = new PhysicalFileProvider(pluginsPath),
+                RequestPath = new PathString($"/{CommonPath.Plugins}"),
                 OnPrepareResponse = ctx =>
                 {
                     if (!string.IsNullOrEmpty(appConfig.StaticFilesCacheControl))
@@ -204,7 +206,7 @@ public static class ApplicationBuilderExtensions
     ///     Configure UseForwardedHeaders
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseGrandForwardedHeaders(this IApplicationBuilder application)
+    public static void UseGrandForwardedHeaders(this WebApplication application)
     {
         application.UseForwardedHeaders(new ForwardedHeadersOptions {
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -215,7 +217,7 @@ public static class ApplicationBuilderExtensions
     ///     Configure Health checks
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseGrandHealthChecks(this IApplicationBuilder application)
+    public static void UseGrandHealthChecks(this WebApplication application)
     {
         application.UseHealthChecks("/health/live");
     }
@@ -224,7 +226,7 @@ public static class ApplicationBuilderExtensions
     ///     Configures the default security headers for your application.
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseDefaultSecurityHeaders(this IApplicationBuilder application)
+    public static void UseDefaultSecurityHeaders(this WebApplication application)
     {
         var policyCollection = new HeaderPolicyCollection()
             .AddXssProtectionBlock()
@@ -271,16 +273,16 @@ public static class ApplicationBuilderExtensions
     ///     Configure middleware checking whether database is installed
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseInstallUrl(this IApplicationBuilder application)
+    public static void UseInstallUrl(this WebApplication application)
     {
-        application.UseMiddleware<InstallUrlMiddleware>();
+        application.UseMiddlewareForFeature<InstallUrlMiddleware>("Grand.Module.Installer");
     }
 
     /// <summary>
     ///     Configures whether use or not the Header X-Powered-By and its value.
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UsePoweredBy(this IApplicationBuilder application)
+    public static void UsePoweredBy(this WebApplication application)
     {
         application.UseMiddleware<PoweredByMiddleware>();
     }
