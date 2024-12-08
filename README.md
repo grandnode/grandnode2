@@ -72,7 +72,7 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites (develop version)
 
-GrandNode requires .NET Core 8.0, MongoDB 4.0+, and OS-specific dependency tools. 
+GrandNode requires .NET Core 9.0, MongoDB 4.0+, and OS-specific dependency tools. 
 
 ### Installation
 
@@ -89,7 +89,7 @@ If you want to download the latest stable version of GrandNode please use the fo
 docker pull grandnode/grandnode2:x.xx 
 ```
 
-* Open locally with VS2022+
+* Open locally with VS2022+ (v17.12.0) or above
 
 Run the project in the Visual Studio 2022+, extract the source code package downloaded from Releases tab to a folder. Enter the extracted folder and double-click the GrandNode.sln solution file. Select the Plugins project, rebuild it, then select the GrandNode.Web project.
 

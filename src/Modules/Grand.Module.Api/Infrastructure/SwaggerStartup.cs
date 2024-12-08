@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.OData;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
 namespace Grand.Module.Api.Infrastructure;
@@ -18,11 +19,10 @@ public class SwaggerStartup : IStartupApplication
     {
         var backendApiConfig = application.Services.GetService<BackendAPIConfig>();
         var frontApiConfig = application.Services.GetService<FrontendAPIConfig>();
-        var swagger = application.Services.GetService<IConfiguration>().GetValue<bool>("UseSwagger");
         if (backendApiConfig.Enabled)
             application.UseODataQueryRequest();
 
-        if (swagger && (backendApiConfig.Enabled || frontApiConfig.Enabled))
+        if (webHostEnvironment.IsDevelopment() && (backendApiConfig.Enabled || frontApiConfig.Enabled))
         {
             application.UseSwagger();
             application.UseSwaggerUI(c =>
@@ -40,8 +40,9 @@ public class SwaggerStartup : IStartupApplication
     {
         var backendApiConfig = services.BuildServiceProvider().GetService<BackendAPIConfig>();
         var frontApiConfig = services.BuildServiceProvider().GetService<FrontendAPIConfig>();
-        var swagger = configuration.GetValue<bool>("UseSwagger");
-        if (swagger && (backendApiConfig.Enabled || frontApiConfig.Enabled))
+        var webHostEnvironment = services.BuildServiceProvider().GetService<IWebHostEnvironment>();
+
+        if (webHostEnvironment.IsDevelopment() && (backendApiConfig.Enabled || frontApiConfig.Enabled))
             services.AddSwaggerGen(c =>
             {
                 if (backendApiConfig.Enabled)

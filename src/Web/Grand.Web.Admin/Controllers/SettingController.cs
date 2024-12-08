@@ -765,33 +765,46 @@ public class SettingController(
 
     private void SavePushNotificationsToFile(PushNotificationsSettingsModel model, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
     {
-        //edit js file needed by firebase
-        var filename = "firebase-messaging-sw.js";
-        var filePath = Path.Combine(webHostEnvironment.WebRootPath, configuration[CommonPath.DirectoryParam] ?? "", filename);
-        if (System.IO.File.Exists(filePath))
-        {
-            var lines = System.IO.File.ReadAllLines(filePath);
-            var i = 0;
-            foreach (var line in lines)
-            {
-                if (line.Contains("apiKey")) lines[i] = "apiKey: \"" + model.PushApiKey + "\",";
-                if (line.Contains("authDomain")) lines[i] = "authDomain: \"" + model.AuthDomain + "\",";
-                if (line.Contains("databaseURL")) lines[i] = "databaseURL: \"" + model.DatabaseUrl + "\",";
-                if (line.Contains("projectId")) lines[i] = "projectId: \"" + model.ProjectId + "\",";
-                if (line.Contains("storageBucket")) lines[i] = "storageBucket: \"" + model.StorageBucket + "\",";
-                if (line.Contains("messagingSenderId")) lines[i] = "messagingSenderId: \"" + model.SenderId + "\",";
-                if (line.Contains("appId")) lines[i] = "appId: \"" + model.AppId + "\",";
-                i++;
-            }
+        var fullPath = GetSafeFilePath(configuration, webHostEnvironment, "firebase-messaging-sw.js");
 
-            System.IO.File.WriteAllLines(filePath, lines);
+        if (System.IO.File.Exists(fullPath))
+        {
+            var lines = System.IO.File.ReadAllLines(fullPath);
+            lines = UpdateFileLines(lines, model);
+            System.IO.File.WriteAllLines(fullPath, lines);
         }
         else
-        {
-            throw new ArgumentNullException($"{filePath} not exist");
-        }
+            throw new ArgumentNullException($"{fullPath} not exist");
     }
 
+    private string GetSafeFilePath(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, string filename)
+    {
+        var directoryParam = configuration[CommonPath.DirectoryParam] ?? "";
+        var safeDirectoryName = Path.GetFileName(directoryParam);
+        var combinedPath = Path.Combine(webHostEnvironment.WebRootPath, safeDirectoryName, filename);
+        var fullPath = Path.GetFullPath(combinedPath, webHostEnvironment.WebRootPath);
+
+        if (!fullPath.StartsWith(webHostEnvironment.WebRootPath, StringComparison.OrdinalIgnoreCase))
+            throw new ArgumentException("Invalid path parameter - attempt to go outside allowed directory.");
+
+        return fullPath;
+    }
+
+    private string[] UpdateFileLines(string[] lines, PushNotificationsSettingsModel model)
+    {
+        for (var i = 0; i < lines.Length; i++)
+        {
+            if (lines[i].Contains("apiKey")) lines[i] = $"apiKey: \"{model.PushApiKey}\",";
+            if (lines[i].Contains("authDomain")) lines[i] = $"authDomain: \"{model.AuthDomain}\",";
+            if (lines[i].Contains("databaseURL")) lines[i] = $"databaseURL: \"{model.DatabaseUrl}\",";
+            if (lines[i].Contains("projectId")) lines[i] = $"projectId: \"{model.ProjectId}\",";
+            if (lines[i].Contains("storageBucket")) lines[i] = $"storageBucket: \"{model.StorageBucket}\",";
+            if (lines[i].Contains("messagingSenderId")) lines[i] = $"messagingSenderId: \"{model.SenderId}\",";
+            if (lines[i].Contains("appId")) lines[i] = $"appId: \"{model.AppId}\",";
+        }
+        return lines;
+    }
+    
     public IActionResult AdminSearch()
     {
         var settings = settingService.LoadSetting<AdminSearchSettings>();
