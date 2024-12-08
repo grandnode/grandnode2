@@ -853,7 +853,7 @@ public class PictureService : IPictureService
 
         try
         {
-            using var resized = image.Resize(new SKImageInfo((int)width, (int)height), SKFilterQuality.High);
+            using var resized = image.Resize(new SKImageInfo((int)width, (int)height), SKSamplingOptions.Default);
             using var resImage = SKImage.FromBitmap(resized);
             var skData = resImage.Encode(format, _mediaSettings.ImageQuality);
             return skData?.ToArray();
