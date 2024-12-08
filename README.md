@@ -37,6 +37,7 @@ Advanced personalization, scalability, speed, and high efficiency - these are fe
 [![Build Status](https://dev.azure.com/grandnode/grandnode2/_apis/build/status/grandnode.grandnode2?branchName=main)](https://dev.azure.com/grandnode/grandnode2/_build/latest?definitionId=8&branchName=main)
 [![Docker Image CI](https://github.com/grandnode/grandnode2/actions/workflows/docker-image.yml/badge.svg)](https://github.com/grandnode/grandnode2/actions/workflows/docker-image.yml)
 ![License](https://img.shields.io/github/license/grandnode/grandnode2)
+[![CodeQL Advanced](https://github.com/grandnode/grandnode2/actions/workflows/codeql.yml/badge.svg)](https://github.com/grandnode/grandnode2/actions/workflows/codeql.yml)
 <a href="https://docs.grandnode.com/"><img src="https://img.shields.io/badge/Docs-docs.grandnode.com-brightgreen"></a>
 </div>
 
