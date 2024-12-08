@@ -173,10 +173,10 @@ public class WorkContext : IWorkContext, IWorkContextSetter
         customer = await GetAuthenticatedCustomer();
         if (customer != null) return _cachedCustomer = customer;
 
-        customer = await GetGuestCustomer();
+        customer = await GetApiUserCustomer();
         if (customer != null) return _cachedCustomer = customer;
 
-        customer = await GetApiUserCustomer();
+        customer = await GetGuestCustomer();
         if (customer != null) return _cachedCustomer = customer;
 
         customer = await GetSearchEngineCustomer();
