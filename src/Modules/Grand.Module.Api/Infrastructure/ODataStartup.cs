@@ -35,8 +35,6 @@ public class ODataStartup : IStartupApplication
 {
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
-        var apiConfig = application.Services.GetService<BackendAPIConfig>();
-        if (apiConfig.Enabled) application.UseCors(Configurations.CorsPolicyName);
     }
 
     public void ConfigureServices(IServiceCollection services,
@@ -48,12 +46,6 @@ public class ODataStartup : IStartupApplication
             //register RequestHandler
             RegisterRequestHandler(services);
 
-            //cors
-            services.AddCors(options =>
-            {
-                options.AddPolicy(Configurations.CorsPolicyName,
-                    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-            });
             //Add OData
             services.AddControllers(options =>
             {
