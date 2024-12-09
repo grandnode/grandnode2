@@ -780,6 +780,11 @@ public class SettingController(
     private string GetSafeFilePath(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, string filename)
     {
         var directoryParam = configuration[CommonPath.DirectoryParam] ?? "";
+
+        // Validate directoryParam to ensure it does not contain ".." or path separators
+        if (directoryParam.Contains("..") || directoryParam.Contains("/") || directoryParam.Contains("\\"))
+            throw new ArgumentException("Invalid directory parameter - contains illegal characters.");
+
         var safeDirectoryName = Path.GetFileName(directoryParam);
         var combinedPath = Path.Combine(webHostEnvironment.WebRootPath, safeDirectoryName, filename);
         var fullPath = Path.GetFullPath(combinedPath, webHostEnvironment.WebRootPath);
