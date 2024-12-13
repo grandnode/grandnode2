@@ -49,7 +49,7 @@
     </ItemGroup>
     <Target Name="CopyMongoDBODataDLL" AfterTargets="Build">
         <ItemGroup>
-            <MongoDBODataFiles Include="$(NuGetPackageRoot)mongodb.aspnetcore.odata\1.0.1\lib\net5.0\MongoDB.AspNetCore.OData.dll" />
+            <MongoDBODataFiles Include="$(NuGetPackageRoot)mongodb.aspnetcore.odata\1.1.0\lib\net5.0\MongoDB.AspNetCore.OData.dll" />
         </ItemGroup>
         <Copy SourceFiles="@(MongoDBODataFiles)" DestinationFolder="$(OutDir)" />
     </Target>

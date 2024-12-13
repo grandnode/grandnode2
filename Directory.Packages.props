@@ -9,9 +9,9 @@
     <PackageVersion Include="NPOI" Version="2.7.2" />
     <PackageVersion Include="Scryber.Core" Version="6.0.4-beta" />
     <PackageVersion Include="Scryber.Core.OpenType" Version="6.1.0-beta" />
-    <PackageVersion Include="MailKit" Version="4.8.0" />
-    <PackageVersion Include="AWSSDK.Core" Version="3.7.400.59" />
-    <PackageVersion Include="AWSSDK.S3" Version="3.7.410.1" />
+    <PackageVersion Include="MailKit" Version="4.9.0" />
+    <PackageVersion Include="AWSSDK.Core" Version="3.7.400.63" />
+    <PackageVersion Include="AWSSDK.S3" Version="3.7.410.5" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.23.0" />
     <PackageVersion Include="SkiaSharp" Version="3.116.1" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.1" />
@@ -39,9 +39,9 @@
     <PackageVersion Include="Microsoft.AspNetCore.JsonPatch" Version="9.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.1.1" />
-    <PackageVersion Include="MongoDB.AspNetCore.OData" Version="1.0.1" />
-    <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.1.0" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.Annotations" Version="7.1.0" />
+    <PackageVersion Include="MongoDB.AspNetCore.OData" Version="1.1.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.0" />
     <PackageVersion Include="Braintree" Version="5.28.0" />
