@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
@@ -19,6 +20,7 @@ using Grand.Web.Events;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -375,7 +377,8 @@ public class CommonController : BasePublicController
             Store = _workContext.CurrentStore
         });
 
-        return Json(new {
+        return Json(new
+        {
             html = await this.RenderPartialViewToString("PrivacyPreference", model, true),
             model
         });
@@ -453,6 +456,44 @@ public class CommonController : BasePublicController
         await _mediator.Send(new CurrentPositionCommand { Customer = _workContext.CurrentCustomer, Model = model });
 
         return Content("");
+    }
+
+    [AllowAnonymous]
+    [IgnoreApi]
+    [HttpGet]
+    public virtual async Task<IActionResult> QueuedEmail([FromServices] IQueuedEmailService queuedEmailService, string emailId)
+    {
+        if (string.IsNullOrEmpty(emailId))
+        {
+            return GetTrackingPixel();
+        }
+
+        var isFromAdmin = Request.GetTypedHeaders().Referer?.ToString()?.Contains("admin/queuedemail/edit/",
+            StringComparison.OrdinalIgnoreCase) ?? false;
+
+        if (!isFromAdmin)
+        {
+            var queuedEmail = await queuedEmailService.GetQueuedEmailById(emailId);
+            if (queuedEmail != null && queuedEmail.ReadOnUtc == null)
+            {
+                queuedEmail.ReadOnUtc = DateTime.UtcNow;
+                await queuedEmailService.UpdateQueuedEmail(queuedEmail);
+            }
+        }
+
+        return GetTrackingPixel();
+
+        IActionResult GetTrackingPixel()
+        {
+
+            const string TRACKING_PIXEL = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+            return File(
+                Convert.FromBase64String(TRACKING_PIXEL),
+                "image/png",
+                "pixel.png"
+            );
+        }
+
     }
 
     #endregion

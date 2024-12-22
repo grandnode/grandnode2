@@ -453,7 +453,7 @@ public class EndpointProvider : IEndpointProvider
         //pixel
         endpointRouteBuilder.MapControllerRoute("PixelQueuedEmail",
             "queuedemail/pixel.png",
-            new { controller = "Pixel", action = "QueuedEmail" });
+            new { controller = "Common", action = "QueuedEmail" });
     }
 
     private void RegisterBlogRoute(IEndpointRouteBuilder endpointRouteBuilder, string pattern)
