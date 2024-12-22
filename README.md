@@ -82,7 +82,7 @@ latest stable version, download it from the Releases page or switch to a release
 * Docker 
 ```
 docker run -d -p 127.0.0.1:27017:27017 --name mongodb mongo 
-docker run -d -p 80:8080 --name grandnode2 --link mongodb:mongo grandnode/grandnode2
+docker run -d -p 80:8080 --name grandnode2 --link mongodb:mongo -v grandnode_images:/app/wwwroot/assets/images -v grandnode_appdata:/app/App_Data grandnode/grandnode2
 ``` 
 If you want to download the latest stable version of GrandNode please use the following command, where x.xx is a number of GrandNode release: 
 ```
