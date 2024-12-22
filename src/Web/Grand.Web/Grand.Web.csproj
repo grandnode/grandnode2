@@ -20,6 +20,7 @@
 		<ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
 		<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
 		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
+		<ProjectReference Include="..\Grand.Web.Models\Grand.Web.Models.csproj" />
 		<ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
 		<ProjectReference Include="..\Grand.Web.Admin\Grand.Web.Admin.csproj" />
 		<ProjectReference Include="..\Grand.Web.Vendor\Grand.Web.Vendor.csproj" />

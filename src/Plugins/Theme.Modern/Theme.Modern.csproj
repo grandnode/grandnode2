@@ -34,7 +34,7 @@
             <Private>false</Private>
             <ExcludeAssets>all</ExcludeAssets>
         </ProjectReference>
-        <ProjectReference Include="..\..\Web\Grand.Web\Grand.Web.csproj">
+        <ProjectReference Include="..\..\Web\Grand.Web.Models\Grand.Web.Models.csproj">
             <Private>false</Private>
             <ExcludeAssets>all</ExcludeAssets>
         </ProjectReference>
