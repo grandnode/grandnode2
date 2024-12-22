@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using Grand.Web.Common.Models;
+using Grand.Infrastructure.Models;
 using MediatR;
 
 namespace Grand.Web.Features.Models.ShoppingCart;

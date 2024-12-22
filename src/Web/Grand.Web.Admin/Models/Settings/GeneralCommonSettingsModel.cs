@@ -94,9 +94,6 @@ public class GeneralCommonSettingsModel : BaseModel
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.UseSystemEmailForContactUsForm")]
         public bool UseSystemEmailForContactUsForm { get; set; }
 
-        [GrandResourceDisplayName("Admin.Settings.GeneralCommon.AllowToReadLetsEncryptFile")]
-        public bool AllowToReadLetsEncryptFile { get; set; }
-
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.AllowToSelectStore")]
         public bool AllowToSelectStore { get; set; }
 

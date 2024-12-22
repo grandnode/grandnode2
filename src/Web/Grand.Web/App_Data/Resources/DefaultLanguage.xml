@@ -10107,9 +10107,6 @@
 	<Resource Name="Admin.Settings.GeneralCommon.AllowSlashChar" Area="Admin">
 		<Value>Allow to use slash char</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.AllowToReadLetsEncryptFile" Area="Admin">
-		<Value>Allow to read Let's Encrypt file</Value>
-	</Resource>
 	<Resource Name="Admin.Settings.GeneralCommon.AllowToSelectAdminTheme" Area="Admin">
 		<Value>Allow to select admin theme</Value>
 	</Resource>
