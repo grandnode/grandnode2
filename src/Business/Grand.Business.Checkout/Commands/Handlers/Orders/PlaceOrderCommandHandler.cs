@@ -1042,13 +1042,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         Customer originalCustomerIfImpersonated)
     {
         using var scope = scopeFactory.CreateScope();
-
-        var workContext = scope.ServiceProvider.GetService<IWorkContextSetter>();
-        await workContext.SetCurrentCustomer(customer);
-        await workContext.SetWorkingLanguage(customer);
-        await workContext.SetWorkingCurrency(customer);
-        await workContext.SetTaxDisplayType(customer);
-
         var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
         var messageProviderService = scope.ServiceProvider.GetRequiredService<IMessageProviderService>();
         var orderSettings = scope.ServiceProvider.GetRequiredService<OrderSettings>();

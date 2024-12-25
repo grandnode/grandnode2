@@ -79,8 +79,8 @@ public class StartupApplication : IStartupApplication
     private void RegisterContextService(IServiceCollection serviceCollection)
     {
         //work context
-        serviceCollection.AddScoped<IWorkContext, WorkContext>();
-        serviceCollection.AddScoped<IWorkContextSetter>(provider => provider.GetService<IWorkContext>() as WorkContext);
+        serviceCollection.AddSingleton<IWorkContextAccessor, WorkContextAccessor>();
+        serviceCollection.AddScoped<IWorkContextSetter, WorkContextSetter>();
 
         //helper for Settings
         serviceCollection.AddScoped<IStoreHelper, StoreHelper>();
