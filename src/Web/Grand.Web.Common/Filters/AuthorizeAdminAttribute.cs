@@ -37,12 +37,12 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
         #region Ctor
 
         public AuthorizeAdminFilter(bool ignoreFilter, IPermissionService permissionService,
-            SecuritySettings securitySettings, IWorkContext workContext, IGroupService groupService)
+            SecuritySettings securitySettings, IWorkContextAccessor workContextAccessor, IGroupService groupService)
         {
             _ignoreFilter = ignoreFilter;
             _permissionService = permissionService;
             _securitySettings = securitySettings;
-            _workContext = workContext;
+            _workContext = workContextAccessor.WorkContext;
             _groupService = groupService;
         }
 

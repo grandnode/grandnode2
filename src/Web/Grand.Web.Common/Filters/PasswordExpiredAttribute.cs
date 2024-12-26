@@ -30,9 +30,9 @@ public class PasswordExpiredAttribute : TypeFilterAttribute
     {
         #region Ctor
 
-        public PasswordFilter(IWorkContext workContext, IMediator mediator)
+        public PasswordFilter(IWorkContextAccessor workContextAccessor, IMediator mediator)
         {
-            _workContext = workContext;
+            _workContext = workContextAccessor.WorkContext;
             _mediator = mediator;
         }
 

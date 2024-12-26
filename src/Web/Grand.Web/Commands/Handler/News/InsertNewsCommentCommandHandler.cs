@@ -19,11 +19,11 @@ public class InsertNewsCommentCommandHandler : IRequestHandler<InsertNewsComment
     private readonly NewsSettings _newsSettings;
     private readonly IWorkContext _workContext;
 
-    public InsertNewsCommentCommandHandler(IWorkContext workContext, INewsService newsService,
+    public InsertNewsCommentCommandHandler(IWorkContextAccessor workContextAccessor, INewsService newsService,
         ICustomerService customerService, IMessageProviderService messageProviderService, NewsSettings newsSettings,
         LanguageSettings languageSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _newsService = newsService;
         _customerService = customerService;
         _messageProviderService = messageProviderService;

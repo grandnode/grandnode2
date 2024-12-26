@@ -23,13 +23,13 @@ public class OrderController : BaseVendorController
         IOrderViewModelService orderViewModelService,
         IOrderService orderService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPdfService pdfService)
     {
         _orderViewModelService = orderViewModelService;
         _orderService = orderService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _pdfService = pdfService;
     }
 

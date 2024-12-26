@@ -20,13 +20,13 @@ public class OnlineCustomerController : BaseAdminController
         IDateTimeService dateTimeService,
         CustomerSettings customerSettings,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _customerService = customerService;
         _dateTimeService = dateTimeService;
         _customerSettings = customerSettings;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     #endregion

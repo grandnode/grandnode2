@@ -19,11 +19,11 @@ public class
     public UpdateSpecificationAttributeCommandHandler(
         ISpecificationAttributeService specificationAttributeService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _specificationAttributeService = specificationAttributeService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<SpecificationAttributeDto> Handle(UpdateSpecificationAttributeCommand request,

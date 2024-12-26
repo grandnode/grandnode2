@@ -37,11 +37,11 @@ public class AuthorizeVendorAttribute : TypeFilterAttribute
     {
         #region Ctor
 
-        public AuthorizeVendorFilter(bool ignoreFilter, IWorkContext workContext, IGroupService groupService,
+        public AuthorizeVendorFilter(bool ignoreFilter, IWorkContextAccessor workContextAccessor, IGroupService groupService,
             IPermissionService permissionService)
         {
             _ignoreFilter = ignoreFilter;
-            _workContext = workContext;
+            _workContext = workContextAccessor.WorkContext;
             _groupService = groupService;
             _permissionService = permissionService;
         }

@@ -36,7 +36,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
 
     public ShipmentViewModelService(
         IOrderService orderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IProductService productService,
         IShipmentService shipmentService,
@@ -51,7 +51,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
         ShippingProviderSettings shippingProviderSettings)
     {
         _orderService = orderService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _productService = productService;
         _shipmentService = shipmentService;

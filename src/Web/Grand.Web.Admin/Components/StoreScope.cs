@@ -15,10 +15,10 @@ public class StoreScopeViewComponent : BaseAdminViewComponent
 {
     #region Constructors
 
-    public StoreScopeViewComponent(IStoreService storeService, IWorkContext workContext, IGroupService groupService)
+    public StoreScopeViewComponent(IStoreService storeService, IWorkContextAccessor workContextAccessor, IGroupService groupService)
     {
         _storeService = storeService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
     }
 

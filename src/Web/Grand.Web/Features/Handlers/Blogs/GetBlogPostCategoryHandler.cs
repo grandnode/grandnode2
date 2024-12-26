@@ -16,11 +16,11 @@ public class GetBlogPostCategoryHandler : IRequestHandler<GetBlogPostCategory, I
     private readonly IWorkContext _workContext;
 
     public GetBlogPostCategoryHandler(IBlogService blogService, ICacheBase cacheBase,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _blogService = blogService;
         _cacheBase = cacheBase;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<IList<BlogPostCategoryModel>> Handle(GetBlogPostCategory request,

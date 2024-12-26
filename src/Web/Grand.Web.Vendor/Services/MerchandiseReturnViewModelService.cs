@@ -49,7 +49,7 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
 
     public MerchandiseReturnViewModelService(
         IOrderService orderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IProductService productService,
         ICustomerService customerService,
         IDateTimeService dateTimeService,
@@ -66,7 +66,7 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
         IEnumTranslationService enumTranslationService)
     {
         _orderService = orderService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _productService = productService;
         _customerService = customerService;
         _dateTimeService = dateTimeService;

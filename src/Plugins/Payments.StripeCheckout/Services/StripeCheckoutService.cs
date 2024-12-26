@@ -18,13 +18,13 @@ public class StripeCheckoutService : IStripeCheckoutService
     private readonly IWorkContext _workContext;
 
     public StripeCheckoutService(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         StripeCheckoutPaymentSettings stripeCheckoutPaymentSettings,
         ILogger<StripeCheckoutService> logger,
         IMediator mediator,
         IPaymentTransactionService paymentTransactionService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _stripeCheckoutPaymentSettings = stripeCheckoutPaymentSettings;
         _logger = logger;
         _mediator = mediator;

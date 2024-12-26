@@ -30,7 +30,7 @@ public class BlogController : BaseAdminController
         ILanguageService languageService,
         ITranslationService translationService,
         IStoreService storeService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IDateTimeService dateTimeService,
         IPictureViewModelService pictureViewModelService,
@@ -41,7 +41,7 @@ public class BlogController : BaseAdminController
         _languageService = languageService;
         _translationService = translationService;
         _storeService = storeService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _dateTimeService = dateTimeService;
         _pictureViewModelService = pictureViewModelService;

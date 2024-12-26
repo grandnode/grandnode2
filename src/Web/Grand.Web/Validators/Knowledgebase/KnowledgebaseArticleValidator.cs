@@ -18,7 +18,7 @@ public class KnowledgebaseArticleValidator : BaseGrandValidator<KnowledgebaseArt
     public KnowledgebaseArticleValidator(
         IEnumerable<IValidatorConsumer<KnowledgebaseArticleModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
-        IWorkContext workContext, IGroupService groupService,
+        IWorkContextAccessor workContextAccessor, IGroupService groupService,
         IKnowledgebaseService knowledgebaseService, KnowledgebaseSettings knowledgebaseSettings,
         CaptchaSettings captchaSettings,
         IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
@@ -31,7 +31,7 @@ public class KnowledgebaseArticleValidator : BaseGrandValidator<KnowledgebaseArt
 
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            if (await groupService.IsGuest(workContext.CurrentCustomer) &&
+            if (await groupService.IsGuest(workContextAccessor.WorkContext.CurrentCustomer) &&
                 !knowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments)
                 context.AddFailure(
                     translationService.GetResource("Knowledgebase.Article.Comments.OnlyRegisteredUsersLeaveComments"));

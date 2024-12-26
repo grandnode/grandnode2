@@ -20,13 +20,13 @@ public class PageService : IPageService
     #region Ctor
 
     public PageService(IRepository<Page> pageRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IAclService aclService,
         IMediator mediator,
         ICacheBase cacheBase, AccessControlConfig accessControlConfig)
     {
         _pageRepository = pageRepository;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _aclService = aclService;
         _mediator = mediator;
         _cacheBase = cacheBase;

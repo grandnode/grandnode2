@@ -24,12 +24,12 @@ public class PaymentCashOnDeliveryController : BasePaymentController
     private readonly IWorkContext _workContext;
 
 
-    public PaymentCashOnDeliveryController(IWorkContext workContext,
+    public PaymentCashOnDeliveryController(IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
         ISettingService settingService,
         ITranslationService translationService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _storeService = storeService;
         _settingService = settingService;
         _translationService = translationService;

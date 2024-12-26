@@ -11,14 +11,14 @@ public class ProductValidVendor : BaseGrandValidator<IProductValidVendor>
 {
     public ProductValidVendor(
         IEnumerable<IValidatorConsumer<IProductValidVendor>> validators,
-        ITranslationService translationService, IProductService productService, IWorkContext workContext)
+        ITranslationService translationService, IProductService productService, IWorkContextAccessor workContextAccessor)
         : base(validators)
     {
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
             var product = await productService.GetProductById(x.ProductId);
             if (product == null) return true;
-            return product.VendorId == workContext.CurrentVendor.Id;
+            return product.VendorId == workContextAccessor.WorkContext.CurrentVendor.Id;
         }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permissions"));
     }
 }
@@ -27,7 +27,7 @@ public class ProductRelatedValidVendor : BaseGrandValidator<IProductRelatedValid
 {
     public ProductRelatedValidVendor(
         IEnumerable<IValidatorConsumer<IProductRelatedValidVendor>> validators,
-        ITranslationService translationService, IProductService productService, IWorkContext workContext)
+        ITranslationService translationService, IProductService productService, IWorkContextAccessor workContextAccessor)
         : base(validators)
     {
         RuleFor(x => x).MustAsync(async (x, _, _) =>
@@ -36,8 +36,8 @@ public class ProductRelatedValidVendor : BaseGrandValidator<IProductRelatedValid
             if (product1 == null) return true;
             var product2 = await productService.GetProductById(x.ProductId2);
             if (product2 == null) return true;
-            return product1.VendorId == workContext.CurrentVendor.Id ||
-                   product2.VendorId == workContext.CurrentVendor.Id;
+            return product1.VendorId == workContextAccessor.WorkContext.CurrentVendor.Id ||
+                   product2.VendorId == workContextAccessor.WorkContext.CurrentVendor.Id;
         }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permissions"));
     }
 }

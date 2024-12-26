@@ -27,7 +27,7 @@ public class GetBlogPostListHandler : IRequestHandler<GetBlogPostList, BlogPostL
 
     public GetBlogPostListHandler(
         IBlogService blogService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPictureService pictureService,
         ITranslationService translationService,
         IDateTimeService dateTimeService,
@@ -35,7 +35,7 @@ public class GetBlogPostListHandler : IRequestHandler<GetBlogPostList, BlogPostL
         MediaSettings mediaSettings)
     {
         _blogService = blogService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _pictureService = pictureService;
         _translationService = translationService;
         _dateTimeService = dateTimeService;

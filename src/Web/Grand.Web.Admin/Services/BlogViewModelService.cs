@@ -44,7 +44,7 @@ public class BlogViewModelService : IBlogViewModelService
         ITranslationService translationService,
         IProductService productService,
         IVendorService vendorService, 
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ISeNameService seNameService, 
         IEnumTranslationService enumTranslationService)
     {
@@ -56,7 +56,7 @@ public class BlogViewModelService : IBlogViewModelService
         _translationService = translationService;
         _productService = productService;
         _vendorService = vendorService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _seNameService = seNameService;
         _enumTranslationService = enumTranslationService;
     }

@@ -15,11 +15,11 @@ public class DeleteCollectionCommandHandler : IRequestHandler<DeleteCollectionCo
     public DeleteCollectionCommandHandler(
         ICollectionService collectionService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _collectionService = collectionService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<bool> Handle(DeleteCollectionCommand request, CancellationToken cancellationToken)

@@ -31,7 +31,7 @@ public class VendorController : BasePublicController
     #region Constructors
 
     public VendorController(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService,
         ICustomerService customerService,
         IMessageProviderService messageProviderService,
@@ -45,7 +45,7 @@ public class VendorController : BasePublicController
         CaptchaSettings captchaSettings,
         CommonSettings commonSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
         _customerService = customerService;
         _messageProviderService = messageProviderService;

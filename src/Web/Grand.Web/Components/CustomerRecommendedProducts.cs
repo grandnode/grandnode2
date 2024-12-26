@@ -14,11 +14,11 @@ public class CustomerRecommendedProductsViewComponent : BaseViewComponent
     #region Constructors
 
     public CustomerRecommendedProductsViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         CatalogSettings catalogSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
     }

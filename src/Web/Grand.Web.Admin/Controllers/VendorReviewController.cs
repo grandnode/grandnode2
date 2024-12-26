@@ -22,13 +22,13 @@ public class VendorReviewController : BaseAdminController
         IVendorService vendorService,
         ITranslationService translationService,
         IGroupService groupService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _vendorViewModelService = vendorViewModelService;
         _vendorService = vendorService;
         _translationService = translationService;
         _groupService = groupService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     #endregion

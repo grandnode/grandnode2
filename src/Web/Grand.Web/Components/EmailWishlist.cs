@@ -19,14 +19,14 @@ public class EmailWishlistViewComponent : BaseViewComponent
     private readonly IWorkContext _workContext;
 
     public EmailWishlistViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IShoppingCartService shoppingCartService,
         IPermissionService permissionService,
         ShoppingCartSettings shoppingCartSettings,
         CaptchaSettings captchaSettings
     )
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _shoppingCartService = shoppingCartService;
         _permissionService = permissionService;
         _shoppingCartSettings = shoppingCartSettings;

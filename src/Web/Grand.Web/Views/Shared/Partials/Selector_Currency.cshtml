@@ -2,10 +2,10 @@
 @using Grand.Business.Core.Extensions
 @using Grand.Business.Core.Interfaces.Common.Directory
 @inject ICurrencyService currencyService
-@inject IWorkContext workContext
+@inject IWorkContextAccessor workContextAccessor
 
 @{
-    var availableCurrencies = (await currencyService.GetAllCurrencies(storeId: workContext.CurrentStore.Id))
+    var availableCurrencies = (await currencyService.GetAllCurrencies(storeId: workContextAccessor.WorkContext.CurrentStore.Id))
         .Select(x =>
         {
             //currency char
@@ -15,7 +15,7 @@
             var currencyModel = new CurrencyModel
             {
                 Id = x.Id,
-                Name = x.GetTranslation(y => y.Name, workContext.WorkingLanguage.Id),
+                        Name = x.GetTranslation(y => y.Name, workContextAccessor.WorkContext.WorkingLanguage.Id),
                 CurrencyCode = x.CurrencyCode,
                 CurrencySymbol = currencySymbol
             };
@@ -30,7 +30,7 @@
             x.Name,
             Text = x.CurrencyCode,
             Value = Url.RouteUrl("ChangeCurrency", new { currencyCode = x.CurrencyCode, returnUrl }),
-            Selected = x.Id.Equals(workContext.WorkingCurrency.Id)
+            Selected = x.Id.Equals(workContextAccessor.WorkContext.WorkingCurrency.Id)
         });
         <b-dropdown class="mr-2" text="@currencies.FirstOrDefault(x => x.Selected).Text">
             @foreach (var item in currencies)

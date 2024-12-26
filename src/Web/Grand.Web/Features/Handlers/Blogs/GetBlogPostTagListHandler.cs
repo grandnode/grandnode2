@@ -17,12 +17,12 @@ public class GetBlogPostTagListHandler : IRequestHandler<GetBlogPostTagList, Blo
     private readonly ICacheBase _cacheBase;
     private readonly IWorkContext _workContext;
 
-    public GetBlogPostTagListHandler(IBlogService blogService, ICacheBase cacheBase, IWorkContext workContext,
+    public GetBlogPostTagListHandler(IBlogService blogService, ICacheBase cacheBase, IWorkContextAccessor workContextAccessor,
         BlogSettings blogSettings)
     {
         _blogService = blogService;
         _cacheBase = cacheBase;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _blogSettings = blogSettings;
     }
 

@@ -32,14 +32,14 @@ public class CategoryService : ICategoryService
     /// <param name="accessControlConfig"></param>
     public CategoryService(ICacheBase cacheBase,
         IRepository<Category> categoryRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         IAclService aclService,
         AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _categoryRepository = categoryRepository;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _aclService = aclService;
         _accessControlConfig = accessControlConfig;

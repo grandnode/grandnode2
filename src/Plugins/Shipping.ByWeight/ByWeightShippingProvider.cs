@@ -25,7 +25,7 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
 
     public ByWeightShippingCalcPlugin(
         IShippingMethodService shippingMethodService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService,
         IProductService productService,
         ICheckoutAttributeParser checkoutAttributeParser,
@@ -34,7 +34,7 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
         ByWeightShippingSettings byWeightShippingSettings)
     {
         _shippingMethodService = shippingMethodService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
         _productService = productService;
         _checkoutAttributeParser = checkoutAttributeParser;

@@ -12,10 +12,10 @@ public class CustomerNavigationViewComponent : BaseViewComponent
     private readonly IWorkContext _workContext;
 
     public CustomerNavigationViewComponent(IMediator mediator,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<IViewComponentResult> InvokeAsync(int selectedTabId = 0)

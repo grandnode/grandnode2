@@ -19,12 +19,12 @@ public class ProductCollectionService : IProductCollectionService
 
     public ProductCollectionService(ICacheBase cacheBase,
         IRepository<Product> productRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator, AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _productRepository = productRepository;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _accessControlConfig = accessControlConfig;
     }

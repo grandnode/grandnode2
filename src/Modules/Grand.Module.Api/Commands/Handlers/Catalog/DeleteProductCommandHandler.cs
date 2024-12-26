@@ -15,11 +15,11 @@ public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand,
     public DeleteProductCommandHandler(
         IProductService productService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _productService = productService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<bool> Handle(DeleteProductCommand request, CancellationToken cancellationToken)

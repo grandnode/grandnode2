@@ -13,12 +13,12 @@ public class RecentlyViewedProductsBlockViewComponent : BaseViewComponent
     #region Constructors
 
     public RecentlyViewedProductsBlockViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IRecentlyViewedProductsService recentlyViewedProductsService,
         IMediator mediator,
         CatalogSettings catalogSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _recentlyViewedProductsService = recentlyViewedProductsService;
         _mediator = mediator;
         _catalogSettings = catalogSettings;

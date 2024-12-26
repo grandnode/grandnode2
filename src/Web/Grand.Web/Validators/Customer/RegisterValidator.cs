@@ -27,7 +27,7 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
         IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
         IMediator mediator, ICustomerAttributeParser customerAttributeParser,
         ICustomerService customerService,
-        IGroupService groupService, IWorkContext workContext
+        IGroupService groupService, IWorkContextAccessor workContextAccessor
     )
         : base(validators)
     {
@@ -135,7 +135,7 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
             var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
             foreach (var error in customerAttributeWarnings) context.AddFailure(error);
 
-            if (await groupService.IsRegistered(workContext.CurrentCustomer))
+            if (await groupService.IsRegistered(workContextAccessor.WorkContext.CurrentCustomer))
             {
                 context.AddFailure("Current customer is already registered");
                 return;

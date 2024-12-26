@@ -25,7 +25,7 @@ public class HomeController : BaseAdminController
         ITranslationService translationService,
         IStoreService storeService,
         ICustomerService customerService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IOrderReportService orderReportService,
         IProductsReportService productsReportService,
@@ -36,7 +36,7 @@ public class HomeController : BaseAdminController
         _translationService = translationService;
         _storeService = storeService;
         _customerService = customerService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _orderReportService = orderReportService;
         _productsReportService = productsReportService;

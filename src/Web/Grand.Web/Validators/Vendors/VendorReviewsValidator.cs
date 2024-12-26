@@ -22,7 +22,7 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
         IEnumerable<IValidatorConsumer<VendorReviewsModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         IMediator mediator,
-        IGroupService groupService, IWorkContext workContext, IVendorService vendorService,
+        IGroupService groupService, IWorkContextAccessor workContextAccessor, IVendorService vendorService,
         CaptchaSettings captchaSettings, VendorSettings vendorSettings,
         IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
@@ -44,13 +44,13 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
                 context.AddFailure(
                     translationService.GetResource("VendorReviews.VendorNotActiveOrAllowCustomerReviewsDisabled"));
 
-            if (await groupService.IsGuest(workContext.CurrentCustomer) &&
+            if (await groupService.IsGuest(workContextAccessor.WorkContext.CurrentCustomer) &&
                 !vendorSettings.AllowAnonymousUsersToReviewVendor)
                 context.AddFailure(translationService.GetResource("VendorReviews.OnlyRegisteredUsersCanWriteReviews"));
             //allow reviews only by customer that bought something from this vendor
             if (vendorSettings.VendorReviewPossibleOnlyAfterPurchasing &&
                 !(await mediator.Send(new GetOrderQuery {
-                    CustomerId = workContext.CurrentCustomer.Id,
+                    CustomerId = workContextAccessor.WorkContext.CurrentCustomer.Id,
                     VendorId = x.VendorId,
                     Os = (int)OrderStatusSystem.Complete,
                     PageSize = 1
@@ -61,7 +61,7 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
 
             if (vendorSettings.VendorReviewPossibleOnlyOnce)
                 if ((await vendorService.GetAllVendorReviews(
-                        workContext.CurrentCustomer.Id,
+                        workContextAccessor.WorkContext.CurrentCustomer.Id,
                         null,
                         vendorId: vendor.Id,
                         pageSize: 1)).Any())

@@ -13,10 +13,10 @@ public class ExternalMethodsViewComponent : BaseViewComponent
 
     public ExternalMethodsViewComponent(
         IExternalAuthenticationService externalAuthenticationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _externalAuthenticationService = externalAuthenticationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()

@@ -21,14 +21,14 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
     private readonly IWorkContext _workContext;
 
 
-    public MerchandiseReturnSubmitCommandHandler(IWorkContext workContext,
+    public MerchandiseReturnSubmitCommandHandler(IWorkContextAccessor workContextAccessor,
         IProductService productService,
         IMerchandiseReturnService merchandiseReturnService,
         IMessageProviderService messageProviderService,
         IGroupService groupService,
         LanguageSettings languageSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _productService = productService;
         _merchandiseReturnService = merchandiseReturnService;
         _messageProviderService = messageProviderService;

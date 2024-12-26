@@ -15,11 +15,11 @@ public class DeleteCustomerGroupCommandHandler : IRequestHandler<DeleteCustomerG
     public DeleteCustomerGroupCommandHandler(
         IGroupService groupService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _groupService = groupService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<bool> Handle(DeleteCustomerGroupCommand request, CancellationToken cancellationToken)

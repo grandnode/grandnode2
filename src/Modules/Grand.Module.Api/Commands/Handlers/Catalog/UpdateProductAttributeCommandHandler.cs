@@ -17,11 +17,11 @@ public class UpdateProductAttributeCommandHandler : IRequestHandler<UpdateProduc
     public UpdateProductAttributeCommandHandler(
         IProductAttributeService productAttributeService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _productAttributeService = productAttributeService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<ProductAttributeDto> Handle(UpdateProductAttributeCommand request,

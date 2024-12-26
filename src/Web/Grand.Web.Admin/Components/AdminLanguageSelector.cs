@@ -13,10 +13,10 @@ public class AdminLanguageSelectorViewComponent : BaseAdminViewComponent
     private readonly IWorkContext _workContext;
 
     public AdminLanguageSelectorViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ILanguageService languageService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _languageService = languageService;
     }
 

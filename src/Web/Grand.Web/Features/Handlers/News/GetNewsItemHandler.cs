@@ -27,11 +27,11 @@ public class GetNewsItemHandler : IRequestHandler<GetNewsItem, NewsItemModel>
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
 
-    public GetNewsItemHandler(IWorkContext workContext, IDateTimeService dateTimeService,
+    public GetNewsItemHandler(IWorkContextAccessor workContextAccessor, IDateTimeService dateTimeService,
         IPictureService pictureService, ITranslationService translationService, ICustomerService customerService,
         MediaSettings mediaSettings, CaptchaSettings captchaSettings, CustomerSettings customerSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _dateTimeService = dateTimeService;
         _pictureService = pictureService;
         _translationService = translationService;

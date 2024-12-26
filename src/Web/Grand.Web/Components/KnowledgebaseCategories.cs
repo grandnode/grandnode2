@@ -14,11 +14,11 @@ public class KnowledgebaseCategories : BaseViewComponent
     private readonly KnowledgebaseSettings _knowledgebaseSettings;
     private readonly IWorkContext _workContext;
 
-    public KnowledgebaseCategories(IKnowledgebaseService knowledgebaseService, IWorkContext workContext,
+    public KnowledgebaseCategories(IKnowledgebaseService knowledgebaseService, IWorkContextAccessor workContextAccessor,
         KnowledgebaseSettings knowledgebaseSettings)
     {
         _knowledgebaseService = knowledgebaseService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _knowledgebaseSettings = knowledgebaseSettings;
     }
 

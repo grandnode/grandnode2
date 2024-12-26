@@ -15,11 +15,11 @@ public class ProductReviewsViewComponent : BaseViewComponent
     public ProductReviewsViewComponent(
         IProductService productService,
         IMediator mediator,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         CatalogSettings catalogSettings)
     {
         _productService = productService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
     }

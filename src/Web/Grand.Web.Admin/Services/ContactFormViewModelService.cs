@@ -24,14 +24,14 @@ public class ContactFormViewModelService : IContactFormViewModelService
     public ContactFormViewModelService(IContactUsService contactUsService,
         IDateTimeService dateTimeService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
         IEmailAccountService emailAccountService)
     {
         _contactUsService = contactUsService;
         _dateTimeService = dateTimeService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _storeService = storeService;
         _emailAccountService = emailAccountService;
     }

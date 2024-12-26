@@ -41,7 +41,7 @@ public class CustomerController : BaseAdminController
         ICustomerViewModelService customerViewModelService,
         ICustomerManagerService customerManagerService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IExportManager<Customer> exportManager,
         ICustomerAttributeParser customerAttributeParser,
@@ -59,7 +59,7 @@ public class CustomerController : BaseAdminController
         _customerViewModelService = customerViewModelService;
         _customerManagerService = customerManagerService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _exportManager = exportManager;
         _customerAttributeParser = customerAttributeParser;

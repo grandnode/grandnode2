@@ -23,7 +23,7 @@ public class GetVendorReviewsHandler : IRequestHandler<GetVendorReviews, VendorR
     private readonly IWorkContext _workContext;
 
     public GetVendorReviewsHandler(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IVendorService vendorService,
         ICustomerService customerService,
         IDateTimeService dateTimeService,
@@ -32,7 +32,7 @@ public class GetVendorReviewsHandler : IRequestHandler<GetVendorReviews, VendorR
         VendorSettings vendorSettings,
         CaptchaSettings captchaSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _vendorService = vendorService;
         _customerService = customerService;
         _dateTimeService = dateTimeService;

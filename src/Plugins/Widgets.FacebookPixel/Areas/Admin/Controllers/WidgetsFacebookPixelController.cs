@@ -21,12 +21,12 @@ public class WidgetsFacebookPixelController : BaseAdminPluginController
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
 
-    public WidgetsFacebookPixelController(IWorkContext workContext,
+    public WidgetsFacebookPixelController(IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
         ISettingService settingService,
         ITranslationService translationService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _storeService = storeService;
         _settingService = settingService;
         _translationService = translationService;

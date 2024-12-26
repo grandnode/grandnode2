@@ -30,7 +30,7 @@ public class HasAllProductsController : BaseAdminPluginController
     
     public HasAllProductsController(IDiscountService discountService,
         IPermissionService permissionService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService,
         IStoreService storeService,
         IVendorService vendorService,
@@ -39,7 +39,7 @@ public class HasAllProductsController : BaseAdminPluginController
     {
         _discountService = discountService;
         _permissionService = permissionService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
         _storeService = storeService;
         _vendorService = vendorService;

@@ -1,7 +1,7 @@
-﻿@inject IWorkContext workContext
+﻿@inject IWorkContextAccessor workContextAccessor
 
 @{
-    var supportRtl = workContext.WorkingLanguage.Rtl;
+    var supportRtl = workContextAccessor.WorkContext.WorkingLanguage.Rtl;
 
     <script asp-location="Head" src="/bundles/app.runtime.bundle.js"></script>
     <script asp-location="Head" src="/bundles/chunk-vendors.runtime.bundle.js"></script>

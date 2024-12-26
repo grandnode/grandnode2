@@ -86,7 +86,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         ITaxService taxService,
         ICustomerService customerService,
         IDiscountService discountService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IMessageProviderService messageProviderService,
         IVendorService vendorService,
@@ -121,7 +121,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _customerService = customerService;
         _groupService = groupService;
         _discountService = discountService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _messageProviderService = messageProviderService;
         _vendorService = vendorService;
         _salesEmployeeService = salesEmployeeService;

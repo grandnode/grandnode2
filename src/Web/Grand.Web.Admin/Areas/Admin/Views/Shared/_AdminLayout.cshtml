@@ -4,16 +4,16 @@
 @using Grand.Domain.Permissions
 @using Grand.Domain.Customers
 @using Grand.Domain.Localization
-@inject IWorkContext workContext
+@inject IWorkContextAccessor workContextAccessor
 @inject IPermissionService permissionService
 @inject CustomerSettings customerSettings
 @inject LanguageSettings languageSettings
 @inject IGroupService groupService
 @{
-    var currentCustomer = workContext.CurrentCustomer;
+    var currentCustomer = workContextAccessor.WorkContext.CurrentCustomer;
     var usernamesEnabled = customerSettings.UsernamesEnabled;
     var currentVersion = GrandVersion.FullVersion;
-    var supportRtl = workContext.WorkingLanguage.Rtl &&
+    var supportRtl = workContextAccessor.WorkContext.WorkingLanguage.Rtl &&
                      !languageSettings.IgnoreRtlPropertyForAdminArea;
 
     //page title

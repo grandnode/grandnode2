@@ -22,13 +22,13 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
 
     public SubscribeNewsletterHandler(INewsLetterSubscriptionService newsLetterSubscriptionService,
         ITranslationService translationService,
-        IMessageProviderService messageProviderService, IWorkContext workContext,
+        IMessageProviderService messageProviderService, IWorkContextAccessor workContextAccessor,
         INewsletterCategoryService newsletterCategoryService)
     {
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _translationService = translationService;
         _messageProviderService = messageProviderService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _newsletterCategoryService = newsletterCategoryService;
     }
 

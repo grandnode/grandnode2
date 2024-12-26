@@ -26,7 +26,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         IContactAttributeParser contactAttributeParser,
         IContactAttributeService contactAttributeService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService, CommonSettings commonSettings,
         CaptchaSettings captchaSettings,
         IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator)
@@ -35,7 +35,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
         _contactAttributeParser = contactAttributeParser;
         _contactAttributeService = contactAttributeService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
 
         RuleFor(x => x.Email).NotEmpty().WithMessage(translationService.GetResource("ContactUs.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
@@ -60,7 +60,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
         {
             var contactAttributeWarnings = await GetContactAttributesWarnings(
                 x.Attributes.Select(z => new CustomAttribute { Key = z.Key, Value = z.Value }).ToList(),
-                workContext.CurrentStore.Id);
+                workContextAccessor.WorkContext.CurrentStore.Id);
             if (contactAttributeWarnings.Any())
                 foreach (var item in contactAttributeWarnings)
                     context.AddFailure(item);

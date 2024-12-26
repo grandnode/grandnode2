@@ -37,7 +37,7 @@ public class ProductController : BaseAdminController
         IProductViewModelService productViewModelService,
         IProductService productService,
         IInventoryManageService inventoryManageService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         ILanguageService languageService,
         ITranslationService translationService,
@@ -50,7 +50,7 @@ public class ProductController : BaseAdminController
         _productViewModelService = productViewModelService;
         _productService = productService;
         _inventoryManageService = inventoryManageService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _languageService = languageService;
         _translationService = translationService;

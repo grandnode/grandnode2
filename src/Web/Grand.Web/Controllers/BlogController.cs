@@ -27,14 +27,14 @@ public class BlogController : BasePublicController
         IMediator mediator,
         IBlogService blogService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         BlogSettings blogSettings)
     {
         _mediator = mediator;
         _blogService = blogService;
         _translationService = translationService;
         _blogSettings = blogSettings;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     #endregion

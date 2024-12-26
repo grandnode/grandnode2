@@ -32,7 +32,7 @@ public class ProductController : BasePublicController
 
     public ProductController(
         IProductService productService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService,
         IRecentlyViewedProductsService recentlyViewedProductsService,
         IShoppingCartService shoppingCartService,
@@ -44,7 +44,7 @@ public class ProductController : BasePublicController
     )
     {
         _productService = productService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
         _recentlyViewedProductsService = recentlyViewedProductsService;
         _shoppingCartService = shoppingCartService;

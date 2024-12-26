@@ -21,7 +21,7 @@ public class OutOfStockSubscriptionController : BasePublicController
     #region Constructors
 
     public OutOfStockSubscriptionController(IProductService productService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         ITranslationService translationService,
         IOutOfStockSubscriptionService outOfStockSubscriptionService,
@@ -32,7 +32,7 @@ public class OutOfStockSubscriptionController : BasePublicController
         ShoppingCartSettings shoppingCartSettings)
     {
         _productService = productService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _translationService = translationService;
         _outOfStockSubscriptionService = outOfStockSubscriptionService;

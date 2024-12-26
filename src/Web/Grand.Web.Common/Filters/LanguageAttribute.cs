@@ -34,10 +34,10 @@ public class LanguageAttribute : TypeFilterAttribute
         #region Ctor
 
         public LanguageSeoCodeFilter(
-            IWorkContext workContext, ILanguageService languageService,
+            IWorkContextAccessor workContextAccessor, ILanguageService languageService,
             AppConfig config)
         {
-            _workContext = workContext;
+            _workContext = workContextAccessor.WorkContext;
             _languageService = languageService;
             _config = config;
         }

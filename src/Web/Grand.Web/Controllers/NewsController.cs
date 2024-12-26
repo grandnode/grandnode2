@@ -24,7 +24,7 @@ public class NewsController : BasePublicController
     #region Constructors
 
     public NewsController(INewsService newsService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService,
         IAclService aclService,
         IPermissionService permissionService,
@@ -32,7 +32,7 @@ public class NewsController : BasePublicController
         NewsSettings newsSettings)
     {
         _newsService = newsService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
         _aclService = aclService;
         _permissionService = permissionService;

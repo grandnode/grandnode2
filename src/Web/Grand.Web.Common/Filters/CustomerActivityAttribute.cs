@@ -32,11 +32,11 @@ public class CustomerActivityAttribute : TypeFilterAttribute
 
         public CustomerActivityFilter(
             ICustomerService customerService,
-            IWorkContext workContext,
+            IWorkContextAccessor workContextAccessor,
             CustomerSettings customerSettings)
         {
             _customerService = customerService;
-            _workContext = workContext;
+            _workContext = workContextAccessor.WorkContext;
             _customerSettings = customerSettings;
         }
 

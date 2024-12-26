@@ -24,7 +24,7 @@ public class WishlistController : BasePublicController
     #region Constructors
 
     public WishlistController(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IShoppingCartService shoppingCartService,
         ITranslationService translationService,
         ICustomerService customerService,
@@ -32,7 +32,7 @@ public class WishlistController : BasePublicController
         IMediator mediator,
         ShoppingCartSettings shoppingCartSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _shoppingCartService = shoppingCartService;
         _translationService = translationService;
         _customerService = customerService;

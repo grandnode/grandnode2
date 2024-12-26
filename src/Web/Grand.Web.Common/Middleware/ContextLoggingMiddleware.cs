@@ -1,7 +1,6 @@
 ﻿using Grand.Infrastructure;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Common.Middleware;
 
@@ -18,10 +17,9 @@ public class ContextLoggingMiddleware
         _next = next;
     }
 
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, IWorkContextAccessor workContextAccessor)
     {
-        var workContext = context.RequestServices.GetRequiredService<IWorkContext>();
-
+        var workContext = workContextAccessor.WorkContext;
         var requestTelemetry = context.Features.Get<RequestTelemetry>();
         if (requestTelemetry != null)
         {

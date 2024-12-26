@@ -60,7 +60,7 @@ public class ReportsController : BaseAdminController
         ICustomerReportService customerReportService,
         ICustomerReportViewModelService customerReportViewModelService,
         IPermissionService permissionService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPriceFormatter priceFormatter,
         IProductService productService,
         IProductAttributeFormatter productAttributeFormatter,
@@ -82,7 +82,7 @@ public class ReportsController : BaseAdminController
         _customerReportService = customerReportService;
         _customerReportViewModelService = customerReportViewModelService;
         _permissionService = permissionService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _priceFormatter = priceFormatter;
         _productService = productService;
         _productAttributeFormatter = productAttributeFormatter;

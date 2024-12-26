@@ -10,10 +10,10 @@ public class AdminWidgetViewComponent : BaseAdminViewComponent
 {
     #region Constructors
 
-    public AdminWidgetViewComponent(IWidgetService widgetService, IWorkContext workContext)
+    public AdminWidgetViewComponent(IWidgetService widgetService, IWorkContextAccessor workContextAccessor)
     {
         _widgetService = widgetService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     #endregion

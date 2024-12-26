@@ -32,7 +32,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
     private readonly IWorkContext _workContext;
 
     public GetMerchandiseReturnHandler(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMerchandiseReturnService merchandiseReturnService,
         IShipmentService shipmentService,
         IProductService productService,
@@ -44,7 +44,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
         OrderSettings orderSettings,
         ICurrencyService currencyService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _merchandiseReturnService = merchandiseReturnService;
         _shipmentService = shipmentService;
         _productService = productService;

@@ -25,14 +25,14 @@ public class CustomerGroupController : BaseAdminController
         IGroupService groupService,
         ITranslationService translationService,
         IPermissionService permissionService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICustomerGroupProductService customerGroupProductService)
     {
         _customerGroupViewModelService = customerGroupViewModelService;
         _groupService = groupService;
         _translationService = translationService;
         _permissionService = permissionService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _customerGroupProductService = customerGroupProductService;
     }
 

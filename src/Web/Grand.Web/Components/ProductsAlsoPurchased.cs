@@ -20,7 +20,7 @@ public class ProductsAlsoPurchasedViewComponent : BaseViewComponent
         IMediator mediator,
         ICacheBase cacheBase,
         IOrderReportService orderReportService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         CatalogSettings catalogSettings
     )
     {
@@ -28,7 +28,7 @@ public class ProductsAlsoPurchasedViewComponent : BaseViewComponent
         _mediator = mediator;
         _cacheBase = cacheBase;
         _orderReportService = orderReportService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _catalogSettings = catalogSettings;
     }
 

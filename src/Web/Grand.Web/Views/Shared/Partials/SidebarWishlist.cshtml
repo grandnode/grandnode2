@@ -1,7 +1,7 @@
 ﻿@model int
-@inject IWorkContext workContext
+@inject IWorkContextAccessor workContextAccessor
 @{
-    var supportRtl = workContext.WorkingLanguage.Rtl;
+    var supportRtl = workContextAccessor.WorkContext.WorkingLanguage.Rtl;
 }
 <li class="nav-item">
     <ul class="sidebar-cart wishlist px-0">

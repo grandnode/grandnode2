@@ -20,12 +20,12 @@ public class WidgetsGoogleAnalyticsController : BaseAdminPluginController
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
 
-    public WidgetsGoogleAnalyticsController(IWorkContext workContext,
+    public WidgetsGoogleAnalyticsController(IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
         ISettingService settingService,
         ITranslationService translationService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _storeService = storeService;
         _settingService = settingService;
         _translationService = translationService;

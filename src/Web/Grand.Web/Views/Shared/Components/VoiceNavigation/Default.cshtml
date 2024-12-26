@@ -1,6 +1,6 @@
-﻿@inject IWorkContext workContext
+﻿@inject IWorkContextAccessor workContextAccessor
 @{
-    var lang = workContext.WorkingLanguage.LanguageCulture;
+    var lang = workContextAccessor.WorkContext.WorkingLanguage.LanguageCulture;
 }
 <template v-if="voicenavigator.allowed">
     <button id="voicePageButton"

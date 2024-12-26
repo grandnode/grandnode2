@@ -9,11 +9,11 @@ namespace Widgets.Slider.Services;
 public class SliderService : ISliderService
 {
     public SliderService(IRepository<PictureSlider> repositoryPictureSlider,
-        IWorkContext workContext, IAclService aclService,
+        IWorkContextAccessor workContextAccessor, IAclService aclService,
         ICacheBase cacheManager)
     {
         _repositoryPictureSlider = repositoryPictureSlider;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _aclService = aclService;
         _cacheBase = cacheManager;
     }

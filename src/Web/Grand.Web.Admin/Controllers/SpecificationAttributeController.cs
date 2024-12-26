@@ -23,7 +23,7 @@ public class SpecificationAttributeController : BaseAdminController
         ISpecificationAttributeService specificationAttributeService,
         ILanguageService languageService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IProductService productService,
         SeoSettings seoSettings)
@@ -31,7 +31,7 @@ public class SpecificationAttributeController : BaseAdminController
         _specificationAttributeService = specificationAttributeService;
         _languageService = languageService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _productService = productService;
         _seoSettings = seoSettings;

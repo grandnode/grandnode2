@@ -27,7 +27,7 @@ public class PaymentTransactionController : BaseAdminController
         ITranslationService translationService,
         IPaymentTransactionService paymentTransactionService,
         IOrderService orderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IDateTimeService dateTimeService,
         IMediator mediator,
@@ -36,7 +36,7 @@ public class PaymentTransactionController : BaseAdminController
         _translationService = translationService;
         _paymentTransactionService = paymentTransactionService;
         _orderService = orderService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _dateTimeService = dateTimeService;
         _mediator = mediator;

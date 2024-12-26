@@ -34,7 +34,7 @@ public class NewsLetterSubscriptionController : BaseAdminController
         ITranslationService translationService,
         IStoreService storeService,
         IGroupService groupService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _newsletterCategoryService = newsletterCategoryService;
@@ -42,7 +42,7 @@ public class NewsLetterSubscriptionController : BaseAdminController
         _translationService = translationService;
         _storeService = storeService;
         _groupService = groupService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     [NonAction]

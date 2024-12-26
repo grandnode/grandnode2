@@ -80,7 +80,7 @@ public class ProductViewModelService : IProductViewModelService
         ITranslationService translationService,
         IProductLayoutService productLayoutService,
         ISpecificationAttributeService specificationAttributeService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IWarehouseService warehouseService,
         IDeliveryDateService deliveryDateService,
         ITaxCategoryService taxCategoryService,
@@ -112,7 +112,7 @@ public class ProductViewModelService : IProductViewModelService
         _translationService = translationService;
         _productLayoutService = productLayoutService;
         _specificationAttributeService = specificationAttributeService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _warehouseService = warehouseService;
         _deliveryDateService = deliveryDateService;
         _taxCategoryService = taxCategoryService;

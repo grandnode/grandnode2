@@ -30,7 +30,7 @@ public class PaymentController : BaseAdminController
         IShippingMethodService shippingMethodService,
         ITranslationService translationService,
         IServiceProvider serviceProvider,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _paymentService = paymentService;
         _settingService = settingService;
@@ -38,7 +38,7 @@ public class PaymentController : BaseAdminController
         _shippingMethodService = shippingMethodService;
         _translationService = translationService;
         _serviceProvider = serviceProvider;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     #endregion

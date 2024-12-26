@@ -22,7 +22,7 @@ public class VendorInfoController : BaseVendorController
         ITranslationService translationService,
         IVendorService vendorService,
         ILanguageService languageService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICountryService countryService,
         VendorSettings vendorSettings, 
         ISeNameService seNameService)
@@ -30,7 +30,7 @@ public class VendorInfoController : BaseVendorController
         _translationService = translationService;
         _vendorService = vendorService;
         _languageService = languageService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _countryService = countryService;
         _vendorSettings = vendorSettings;
         _seNameService = seNameService;

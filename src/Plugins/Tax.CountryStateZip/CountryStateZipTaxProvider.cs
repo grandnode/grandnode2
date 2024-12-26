@@ -20,13 +20,13 @@ public class CountryStateZipTaxProvider : ITaxProvider
 
     public CountryStateZipTaxProvider(ITranslationService translationService,
         ICacheBase cacheBase,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITaxRateService taxRateService,
         CountryStateZipTaxSettings countryStateZipTaxSettings)
     {
         _translationService = translationService;
         _cacheBase = cacheBase;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _taxRateService = taxRateService;
         _countryStateZipTaxSettings = countryStateZipTaxSettings;
     }

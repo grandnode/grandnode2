@@ -23,7 +23,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
     public ShippingPointRateProvider(
         IShippingPointService shippingPointService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICustomerService customerService,
         ICountryService countryService,
         ICurrencyService currencyService,
@@ -32,7 +32,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
     {
         _shippingPointService = shippingPointService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _customerService = customerService;
         _countryService = countryService;
         _currencyService = currencyService;

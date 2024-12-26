@@ -24,14 +24,14 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
     private readonly ITaxService _taxService;
     private readonly IWorkContext _workContext;
 
-    public ProductAttributeFormatter(IWorkContext workContext,
+    public ProductAttributeFormatter(IWorkContextAccessor workContextAccessor,
         IProductAttributeService productAttributeService,
         ITaxService taxService,
         IPriceFormatter priceFormatter,
         IPricingService priceCalculationService,
         IProductService productService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _productAttributeService = productAttributeService;
         _taxService = taxService;
         _priceFormatter = priceFormatter;

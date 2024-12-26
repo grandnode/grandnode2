@@ -24,14 +24,14 @@ public class PageController : BaseAdminController
         IPageService pageService,
         ILanguageService languageService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IDateTimeService dateTimeService)
     {
         _pageViewModelService = pageViewModelService;
         _pageService = pageService;
         _languageService = languageService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _dateTimeService = dateTimeService;
     }
 

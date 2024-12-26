@@ -81,7 +81,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         ITranslationService translationService,
         ILoyaltyPointsService loyaltyPointsService,
         ICountryService countryService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IVendorService vendorService,
         IStoreService storeService,
         ICustomerAttributeParser customerAttributeParser,
@@ -115,7 +115,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         _customerSettings = customerSettings;
         _commonSettings = commonSettings;
         _enumTranslationService = enumTranslationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _vendorService = vendorService;
         _addressSettings = addressSettings;
         _storeService = storeService;

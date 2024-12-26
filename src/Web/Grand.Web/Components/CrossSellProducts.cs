@@ -15,13 +15,13 @@ public class CrossSellProductsViewComponent : BaseViewComponent
 
     public CrossSellProductsViewComponent(
         IProductService productService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         CatalogSettings catalogSettings,
         ShoppingCartSettings shoppingCartSettings)
     {
         _productService = productService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
         _shoppingCartSettings = shoppingCartSettings;

@@ -15,11 +15,11 @@ public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryComman
     public DeleteCategoryCommandHandler(
         ICategoryService categoryService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _categoryService = categoryService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<bool> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)

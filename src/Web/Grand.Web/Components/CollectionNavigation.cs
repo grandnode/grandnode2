@@ -15,11 +15,11 @@ public class CollectionNavigationViewComponent : BaseViewComponent
 
     public CollectionNavigationViewComponent(
         IMediator mediator,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         CatalogSettings catalogSettings)
     {
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _catalogSettings = catalogSettings;
     }
 

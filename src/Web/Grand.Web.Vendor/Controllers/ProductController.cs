@@ -34,7 +34,7 @@ public class ProductController : BaseVendorController
         IProductViewModelService productViewModelService,
         IProductService productService,
         IInventoryManageService inventoryManageService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ILanguageService languageService,
         ITranslationService translationService,
         IProductReservationService productReservationService,
@@ -46,7 +46,7 @@ public class ProductController : BaseVendorController
         _productViewModelService = productViewModelService;
         _productService = productService;
         _inventoryManageService = inventoryManageService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _languageService = languageService;
         _translationService = translationService;
         _productReservationService = productReservationService;

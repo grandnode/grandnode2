@@ -22,14 +22,14 @@ public class PaymentStripeCheckoutController : BasePaymentController
     private readonly IWorkContext _workContext;
 
     public PaymentStripeCheckoutController(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IOrderService orderService,
         ILogger<PaymentStripeCheckoutController> logger,
         IPaymentTransactionService paymentTransactionService,
         PaymentSettings paymentSettings,
         StripeCheckoutPaymentSettings stripeCheckoutPaymentSettings, IStripeCheckoutService stripeCheckoutService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _orderService = orderService;
         _logger = logger;
         _paymentTransactionService = paymentTransactionService;

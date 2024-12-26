@@ -30,7 +30,7 @@ public class OrderController : BasePublicController
     #region Constructors
 
     public OrderController(IOrderService orderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPaymentService paymentService,
         IPaymentTransactionService paymentTransactionService,
         ITranslationService translationService,
@@ -39,7 +39,7 @@ public class OrderController : BasePublicController
         OrderSettings orderSettings)
     {
         _orderService = orderService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _paymentService = paymentService;
         _paymentTransactionService = paymentTransactionService;
         _translationService = translationService;

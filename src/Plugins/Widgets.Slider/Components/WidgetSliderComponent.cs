@@ -18,11 +18,11 @@ public class WidgetSliderComponent : ViewComponent
     public WidgetSliderComponent(
         IPictureService pictureService,
         ISliderService sliderService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _pictureService = pictureService;
         _sliderService = sliderService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     private async Task<string> GetPictureUrl(string pictureId)

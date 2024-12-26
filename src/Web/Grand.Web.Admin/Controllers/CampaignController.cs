@@ -33,7 +33,7 @@ public class CampaignController : BaseAdminController
         IEmailAccountService emailAccountService,
         INewsLetterSubscriptionService newsLetterSubscriptionService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
         EmailAccountSettings emailAccountSettings)
     {
@@ -43,7 +43,7 @@ public class CampaignController : BaseAdminController
         _emailAccountSettings = emailAccountSettings;
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _storeService = storeService;
     }
 

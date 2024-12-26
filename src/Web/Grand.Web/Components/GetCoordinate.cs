@@ -11,10 +11,10 @@ public class GetCoordinateViewComponent : BaseViewComponent
     private readonly CustomerSettings _customerSettings;
     private readonly IWorkContext _workContext;
 
-    public GetCoordinateViewComponent(CustomerSettings customerSettings, IWorkContext workContext)
+    public GetCoordinateViewComponent(CustomerSettings customerSettings, IWorkContextAccessor workContextAccessor)
     {
         _customerSettings = customerSettings;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public IViewComponentResult Invoke()

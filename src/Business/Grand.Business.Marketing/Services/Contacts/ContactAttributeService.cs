@@ -24,12 +24,12 @@ public class ContactAttributeService : IContactAttributeService
     public ContactAttributeService(ICacheBase cacheBase,
         IRepository<ContactAttribute> contactAttributeRepository,
         IMediator mediator,
-        IWorkContext workContext, AccessControlConfig accessControlConfig)
+        IWorkContextAccessor workContextAccessor, AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _contactAttributeRepository = contactAttributeRepository;
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _accessControlConfig = accessControlConfig;
     }
 

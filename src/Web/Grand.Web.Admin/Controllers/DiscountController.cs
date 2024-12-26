@@ -33,7 +33,7 @@ public class DiscountController : BaseAdminController
         IDiscountViewModelService discountViewModelService,
         IDiscountService discountService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IDateTimeService dateTimeService,
         IGroupService groupService,
         IDiscountProviderLoader discountProviderLoader,
@@ -42,7 +42,7 @@ public class DiscountController : BaseAdminController
         _discountViewModelService = discountViewModelService;
         _discountService = discountService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _dateTimeService = dateTimeService;
         _groupService = groupService;
         _discountProviderLoader = discountProviderLoader;

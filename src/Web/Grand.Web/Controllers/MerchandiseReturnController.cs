@@ -27,7 +27,7 @@ public class MerchandiseReturnController : BasePublicController
     public MerchandiseReturnController(
         IMerchandiseReturnService merchandiseReturnService,
         IOrderService orderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         ITranslationService translationService,
         IMediator mediator,
@@ -36,7 +36,7 @@ public class MerchandiseReturnController : BasePublicController
     {
         _merchandiseReturnService = merchandiseReturnService;
         _orderService = orderService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _translationService = translationService;
         _mediator = mediator;

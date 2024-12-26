@@ -20,11 +20,11 @@ public class ShoppingCartValidator : IShoppingCartValidator
     private readonly IWorkContext _workContext;
 
     public ShoppingCartValidator(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         IValidatorFactory validatorFactory)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _validatorFactory = validatorFactory;
     }

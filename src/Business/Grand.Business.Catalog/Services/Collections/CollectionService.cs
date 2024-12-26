@@ -25,13 +25,13 @@ public class CollectionService : ICollectionService
     /// </summary>
     public CollectionService(ICacheBase cacheBase,
         IRepository<Collection> collectionRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         IAclService aclService, AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _collectionRepository = collectionRepository;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _aclService = aclService;
         _accessControlConfig = accessControlConfig;

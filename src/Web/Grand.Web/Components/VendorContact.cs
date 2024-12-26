@@ -17,13 +17,13 @@ public class VendorContactViewComponent : BaseViewComponent
 
     public VendorContactViewComponent(
         IVendorService vendorService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         VendorSettings vendorSettings,
         CommonSettings commonSettings,
         CaptchaSettings captchaSettings)
     {
         _vendorService = vendorService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _vendorSettings = vendorSettings;
         _commonSettings = commonSettings;
         _captchaSettings = captchaSettings;

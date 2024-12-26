@@ -32,7 +32,7 @@ public class ShoppingCartController : BasePublicController
     #region Constructors
 
     public ShoppingCartController(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IShoppingCartService shoppingCartService,
         ITranslationService translationService,
         IDiscountService discountService,
@@ -45,7 +45,7 @@ public class ShoppingCartController : BasePublicController
         ShoppingCartSettings shoppingCartSettings,
         OrderSettings orderSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _shoppingCartService = shoppingCartService;
         _translationService = translationService;
         _discountService = discountService;

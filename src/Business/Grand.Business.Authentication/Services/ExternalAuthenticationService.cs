@@ -31,7 +31,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         IGroupService groupService,
         IMediator mediator,
         IRepository<ExternalAuthentication> externalAuthenticationRecordRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IEnumerable<IExternalAuthenticationProvider> externalAuthenticationProviders,
         CustomerSettings customerSettings,
         ExternalAuthenticationSettings externalAuthenticationSettings)
@@ -44,7 +44,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         _groupService = groupService;
         _mediator = mediator;
         _externalAuthenticationRecordRepository = externalAuthenticationRecordRepository;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _externalAuthenticationProviders = externalAuthenticationProviders;
     }
 

@@ -13,11 +13,11 @@ public class HomePageNewProductsViewComponent : BaseViewComponent
     #region Constructors
 
     public HomePageNewProductsViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         CatalogSettings catalogSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
     }

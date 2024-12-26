@@ -32,7 +32,7 @@ public class SystemController : BaseAdminController
         ICurrencyService currencyService,
         IMeasureService measureService,
         IDateTimeService dateTimeService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService,
         IHostApplicationLifetime applicationLifetime,
         IWebHostEnvironment webHostEnvironment,
@@ -48,7 +48,7 @@ public class SystemController : BaseAdminController
         _currencySettings = currencySettings;
         _measureSettings = measureSettings;
         _dateTimeService = dateTimeService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
         _applicationLifetime = applicationLifetime;
         _webHostEnvironment = webHostEnvironment;

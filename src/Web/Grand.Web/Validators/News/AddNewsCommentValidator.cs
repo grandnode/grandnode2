@@ -18,7 +18,7 @@ public class AddNewsCommentValidator : BaseGrandValidator<AddNewsCommentModel>
     public AddNewsCommentValidator(
         IEnumerable<IValidatorConsumer<AddNewsCommentModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
-        IWorkContext workContext, IGroupService groupService, INewsService newsService,
+        IWorkContextAccessor workContextAccessor, IGroupService groupService, INewsService newsService,
         CaptchaSettings captchaSettings, NewsSettings newsSettings,
         IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
@@ -32,7 +32,7 @@ public class AddNewsCommentValidator : BaseGrandValidator<AddNewsCommentModel>
             .WithMessage(translationService.GetResource("News.Comments.CommentText.Required"));
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            if (await groupService.IsGuest(workContext.CurrentCustomer) &&
+            if (await groupService.IsGuest(workContextAccessor.WorkContext.CurrentCustomer) &&
                 !newsSettings.AllowNotRegisteredUsersToLeaveComments)
                 context.AddFailure(translationService.GetResource("News.Comments.OnlyRegisteredUsersLeaveComments"));
             var newsItem = await newsService.GetNewsById(x.Id);

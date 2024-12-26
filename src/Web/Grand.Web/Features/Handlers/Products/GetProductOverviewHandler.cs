@@ -39,7 +39,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
 
     public GetProductOverviewHandler(
         IPermissionService permissionService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IProductService productService,
         IBrandService brandService,
         IPricingService priceCalculationService,
@@ -54,7 +54,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
         CatalogSettings catalogSettings)
     {
         _permissionService = permissionService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _productService = productService;
         _brandService = brandService;
         _pricingService = priceCalculationService;

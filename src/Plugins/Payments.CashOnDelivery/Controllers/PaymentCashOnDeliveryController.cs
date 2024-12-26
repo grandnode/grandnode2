@@ -12,10 +12,10 @@ public class PaymentCashOnDeliveryController : BasePaymentController
     private readonly IWorkContext _workContext;
 
     public PaymentCashOnDeliveryController(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ISettingService settingService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _settingService = settingService;
     }
 

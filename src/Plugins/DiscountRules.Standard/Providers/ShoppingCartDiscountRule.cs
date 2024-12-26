@@ -17,12 +17,12 @@ public class ShoppingCartDiscountRule : IDiscountRule
     private readonly IWorkContext _workContext;
 
     public ShoppingCartDiscountRule(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IProductService productService,
         IHttpContextAccessor httpContextAccessor,
         ShoppingCartSettings shoppingCartSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _productService = productService;
         _httpContextAccessor = httpContextAccessor;
         _shoppingCartSettings = shoppingCartSettings;

@@ -10,10 +10,10 @@ public class CustomerLoggedInEventHandler : INotificationHandler<CustomerLoggedI
     private readonly IShoppingCartService _shoppingCartService;
     private readonly IWorkContext _workContext;
 
-    public CustomerLoggedInEventHandler(IShoppingCartService shoppingCartService, IWorkContext workContext)
+    public CustomerLoggedInEventHandler(IShoppingCartService shoppingCartService, IWorkContextAccessor workContextAccessor)
     {
         _shoppingCartService = shoppingCartService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task Handle(CustomerLoggedInEvent notification, CancellationToken cancellationToken)

@@ -19,12 +19,12 @@ public class InsertBlogCommentCommandHandler : IRequestHandler<InsertBlogComment
     private readonly IMessageProviderService _messageProviderService;
     private readonly IWorkContext _workContext;
 
-    public InsertBlogCommentCommandHandler(IBlogService blogService, IWorkContext workContext,
+    public InsertBlogCommentCommandHandler(IBlogService blogService, IWorkContextAccessor workContextAccessor,
         ICustomerService customerService, IMessageProviderService messageProviderService,
         LanguageSettings languageSettings, BlogSettings blogSettings)
     {
         _blogService = blogService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _customerService = customerService;
         _messageProviderService = messageProviderService;
 

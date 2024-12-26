@@ -12,10 +12,10 @@ public class CategoryFeaturedProductsViewComponent : BaseViewComponent
 
     public CategoryFeaturedProductsViewComponent(
         IMediator mediator,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     #endregion

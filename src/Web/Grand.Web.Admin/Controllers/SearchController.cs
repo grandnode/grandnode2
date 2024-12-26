@@ -45,7 +45,7 @@ public class SearchController : BaseAdminController
         IBrandService brandService, ICollectionService collectionService,
         IPageService pageService, INewsService newsService, IBlogService blogService, ICustomerService customerService,
         IOrderService orderService,
-        AdminSearchSettings adminSearchSettings, ITranslationService translationService, IWorkContext workContext,
+        AdminSearchSettings adminSearchSettings, ITranslationService translationService, IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IStoreService storeService, IVendorService vendorService)
     {
@@ -60,7 +60,7 @@ public class SearchController : BaseAdminController
         _orderService = orderService;
         _adminSearchSettings = adminSearchSettings;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _storeService = storeService;
         _vendorService = vendorService;

@@ -27,7 +27,7 @@ public class ShipmentController : BaseVendorController
         IShipmentViewModelService shipmentViewModelService,
         IOrderService orderService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPdfService pdfService,
         IShipmentService shipmentService,
         IDateTimeService dateTimeService,
@@ -36,7 +36,7 @@ public class ShipmentController : BaseVendorController
         _shipmentViewModelService = shipmentViewModelService;
         _orderService = orderService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _pdfService = pdfService;
         _shipmentService = shipmentService;
         _dateTimeService = dateTimeService;

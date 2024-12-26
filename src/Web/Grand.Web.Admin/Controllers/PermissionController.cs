@@ -18,12 +18,12 @@ public class PermissionController : BaseAdminController
 {
     #region Constructors
 
-    public PermissionController(IWorkContext workContext,
+    public PermissionController(IWorkContextAccessor workContextAccessor,
         IPermissionService permissionService,
         IGroupService groupService,
         ITranslationService translationService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _permissionService = permissionService;
         _groupService = groupService;
         _translationService = translationService;

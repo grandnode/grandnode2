@@ -16,13 +16,13 @@ public class VendorReviewsViewComponent : BaseViewComponent
     public VendorReviewsViewComponent(
         IVendorService vendorService,
         IGroupService groupService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         VendorSettings vendorSettings)
     {
         _vendorService = vendorService;
         _groupService = groupService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _vendorSettings = vendorSettings;
     }

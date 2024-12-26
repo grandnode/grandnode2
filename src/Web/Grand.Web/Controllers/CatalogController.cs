@@ -33,7 +33,7 @@ public class CatalogController : BasePublicController
         ICategoryService categoryService,
         IBrandService brandService,
         ICollectionService collectionService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         ITranslationService translationService,
         IAclService aclService,
@@ -45,7 +45,7 @@ public class CatalogController : BasePublicController
         _categoryService = categoryService;
         _brandService = brandService;
         _collectionService = collectionService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _translationService = translationService;
         _aclService = aclService;

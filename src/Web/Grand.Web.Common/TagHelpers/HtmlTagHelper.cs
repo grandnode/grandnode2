@@ -12,9 +12,9 @@ public class HtmlTagHelper : TagHelper
     private readonly IPageHeadBuilder _pageHeadBuilder;
     private readonly IWorkContext _workContext;
 
-    public HtmlTagHelper(IWorkContext workContext, IPageHeadBuilder pageHeadBuilder)
+    public HtmlTagHelper(IWorkContextAccessor workContextAccessor, IPageHeadBuilder pageHeadBuilder)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _pageHeadBuilder = pageHeadBuilder;
     }
 

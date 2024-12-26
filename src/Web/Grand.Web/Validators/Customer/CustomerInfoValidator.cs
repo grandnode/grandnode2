@@ -16,7 +16,7 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
 {
     public CustomerInfoValidator(
         IEnumerable<IValidatorConsumer<CustomerInfoModel>> validators,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICustomerService customerService,
         IMediator mediator, ICustomerAttributeParser customerAttributeParser,
         ITranslationService translationService,
@@ -119,7 +119,7 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
             var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
             foreach (var error in customerAttributeWarnings) context.AddFailure(error);
 
-            if (workContext.CurrentCustomer.Email != x.Email.ToLower() && customerSettings.AllowUsersToChangeEmail)
+            if (workContextAccessor.WorkContext.CurrentCustomer.Email != x.Email.ToLower() && customerSettings.AllowUsersToChangeEmail)
             {
                 if (!CommonHelper.IsValidEmail(x.Email))
                     context.AddFailure(
@@ -135,7 +135,7 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
             }
 
             if (customerSettings.UsernamesEnabled && customerSettings.AllowUsersToChangeUsernames &&
-                workContext.CurrentCustomer.Username != x.Username.ToLower())
+                workContextAccessor.WorkContext.CurrentCustomer.Username != x.Username.ToLower())
             {
                 if (x.Username.ToLower().Length > 100)
                     context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.UsernameTooLong"));

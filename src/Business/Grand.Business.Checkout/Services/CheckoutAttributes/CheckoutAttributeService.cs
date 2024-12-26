@@ -25,12 +25,12 @@ public class CheckoutAttributeService : ICheckoutAttributeService
         ICacheBase cacheBase,
         IRepository<CheckoutAttribute> checkoutAttributeRepository,
         IMediator mediator,
-        IWorkContext workContext, AccessControlConfig accessControlConfig)
+        IWorkContextAccessor workContextAccessor, AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _checkoutAttributeRepository = checkoutAttributeRepository;
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _accessControlConfig = accessControlConfig;
     }
 

@@ -26,14 +26,14 @@ public class MerchandiseReturnController : BaseAdminController
         ITranslationService translationService,
         IMerchandiseReturnService merchandiseReturnService,
         IOrderService orderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService)
     {
         _merchandiseReturnViewModelService = merchandiseReturnViewModelService;
         _translationService = translationService;
         _merchandiseReturnService = merchandiseReturnService;
         _orderService = orderService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
     }
 

@@ -30,7 +30,7 @@ public class CategoryController : BaseAdminController
         ICategoryViewModelService categoryViewModelService,
         ILanguageService languageService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IPictureViewModelService pictureViewModelService)
     {
@@ -38,7 +38,7 @@ public class CategoryController : BaseAdminController
         _categoryViewModelService = categoryViewModelService;
         _languageService = languageService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _pictureViewModelService = pictureViewModelService;
     }

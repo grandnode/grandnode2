@@ -35,7 +35,7 @@ public class CheckoutController : BasePublicController
     #region Constructors
 
     public CheckoutController(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService,
         ICustomerService customerService,
         IGroupService groupService,
@@ -55,7 +55,7 @@ public class CheckoutController : BasePublicController
         ShippingSettings shippingSettings,
         AddressSettings addressSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
         _customerService = customerService;
         _groupService = groupService;

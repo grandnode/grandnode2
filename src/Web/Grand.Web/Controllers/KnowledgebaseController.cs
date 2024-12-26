@@ -39,7 +39,7 @@ public class KnowledgebaseController : BasePublicController
     public KnowledgebaseController(
         KnowledgebaseSettings knowledgebaseSettings,
         IKnowledgebaseService knowledgebaseService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICacheBase cacheBase,
         IAclService aclService,
         ITranslationService translationService,
@@ -52,7 +52,7 @@ public class KnowledgebaseController : BasePublicController
     {
         _knowledgebaseSettings = knowledgebaseSettings;
         _knowledgebaseService = knowledgebaseService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _cacheBase = cacheBase;
         _aclService = aclService;
         _translationService = translationService;

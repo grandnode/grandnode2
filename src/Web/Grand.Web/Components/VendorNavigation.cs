@@ -14,11 +14,11 @@ public class VendorNavigationViewComponent : BaseViewComponent
     private readonly IWorkContext _workContext;
 
     public VendorNavigationViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         VendorSettings vendorSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _vendorSettings = vendorSettings;
     }

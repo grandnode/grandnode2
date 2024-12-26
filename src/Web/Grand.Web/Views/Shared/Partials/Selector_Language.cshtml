@@ -1,8 +1,8 @@
 ﻿@using Grand.Business.Core.Interfaces.Common.Localization
 @inject ILanguageService languageService
-@inject IWorkContext workContext
+@inject IWorkContextAccessor workContextAccessor
 @{
-    var availableLanguages = (await languageService.GetAllLanguages(storeId: workContext.CurrentStore.Id))
+    var availableLanguages = (await languageService.GetAllLanguages(storeId: workContextAccessor.WorkContext.CurrentStore.Id))
         .Select(x => new LanguageModel
         {
             Id = x.Id,
@@ -16,10 +16,10 @@
     if (availableLanguages.Count > 1)
     {
         <div>
-            <b-dropdown class="mr-2" text="@availableLanguages.FirstOrDefault(x => x.Id == workContext.WorkingLanguage.Id)?.Name">
+            <b-dropdown class="mr-2" text="@availableLanguages.FirstOrDefault(x => x.Id == workContextAccessor.WorkContext.WorkingLanguage.Id)?.Name">
                 @foreach (var lang in availableLanguages)
                 {
-                    var className = lang.Id == workContext.WorkingLanguage.Id ? "active" : "";
+                    var className = lang.Id == workContextAccessor.WorkContext.WorkingLanguage.Id ? "active" : "";
                     <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeLanguage", new { langcode = lang.UniqueSeoCode, returnurl })">
                         @lang.Name
                     </b-dropdown-item>

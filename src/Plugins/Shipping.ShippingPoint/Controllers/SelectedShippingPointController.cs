@@ -22,14 +22,14 @@ public class SelectedShippingPointController : Controller
         IShippingPointService shippingPointService,
         ICountryService countryService,
         IPriceFormatter priceFormatter,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICurrencyService currencyService,
         ITranslationService translationService)
     {
         _shippingPointService = shippingPointService;
         _countryService = countryService;
         _priceFormatter = priceFormatter;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _currencyService = currencyService;
         _translationService = translationService;
     }

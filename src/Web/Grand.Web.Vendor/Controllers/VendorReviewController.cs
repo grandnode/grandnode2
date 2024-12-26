@@ -20,12 +20,12 @@ public class VendorReviewController : BaseVendorController
         IVendorReviewViewModelService vendorReviewViewModelService,
         IVendorService vendorService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _vendorReviewViewModelService = vendorReviewViewModelService;
         _vendorService = vendorService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     #endregion

@@ -19,13 +19,13 @@ public class GoogleAuthenticationEventConsumer : INotificationHandler<Registered
     public GoogleAuthenticationEventConsumer(
         ICustomerService customerService,
         IMessageProviderService messageProviderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         CustomerSettings customerSettings
     )
     {
         _customerService = customerService;
         _messageProviderService = messageProviderService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _customerSettings = customerSettings;
     }
 

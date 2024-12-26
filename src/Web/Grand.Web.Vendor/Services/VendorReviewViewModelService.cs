@@ -21,7 +21,7 @@ public class VendorReviewViewModelService : IVendorReviewViewModelService
     private readonly IWorkContext _workContext;
 
     public VendorReviewViewModelService(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IVendorService vendorService,
         ICustomerService customerService,
         ITranslationService translationService,
@@ -33,7 +33,7 @@ public class VendorReviewViewModelService : IVendorReviewViewModelService
         _translationService = translationService;
         _dateTimeService = dateTimeService;
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public virtual async Task PrepareVendorReviewModel(VendorReviewModel model,

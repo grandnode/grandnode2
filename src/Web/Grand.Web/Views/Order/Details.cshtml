@@ -1,9 +1,9 @@
 @using System.Globalization
 @model OrderDetailsModel
 @inject IPageHeadBuilder pagebuilder
-@inject IWorkContext workContext
+@inject IWorkContextAccessor workContextAccessor
 @{
-    var supportRtl = workContext.WorkingLanguage.Rtl;
+    var supportRtl = workContextAccessor.WorkContext.WorkingLanguage.Rtl;
 
     Layout = "_SingleColumn";
 

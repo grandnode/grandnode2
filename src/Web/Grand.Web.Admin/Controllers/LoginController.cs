@@ -38,7 +38,7 @@ public class LoginController : BaseController
         ICustomerService customerService,
         IGrandAuthenticationService authenticationService,
         IMessageProviderService messageProviderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator)
     {
         _customerSettings = customerSettings;
@@ -48,7 +48,7 @@ public class LoginController : BaseController
         _customerService = customerService;
         _authenticationService = authenticationService;
         _messageProviderService = messageProviderService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
     }
 

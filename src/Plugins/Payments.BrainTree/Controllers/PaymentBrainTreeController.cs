@@ -24,13 +24,13 @@ public class PaymentBrainTreeController : BasePaymentController
     public PaymentBrainTreeController(BrainTreePaymentSettings brainTreePaymentSettings,
         IOrderCalculationService orderTotalCalculationService,
         IShoppingCartService shoppingCartService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService)
     {
         _brainTreePaymentSettings = brainTreePaymentSettings;
         _orderTotalCalculationService = orderTotalCalculationService;
         _shoppingCartService = shoppingCartService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
     }
 

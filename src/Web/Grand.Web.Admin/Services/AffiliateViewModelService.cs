@@ -33,14 +33,14 @@ public class AffiliateViewModelService : IAffiliateViewModelService
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
     private readonly IEnumTranslationService _enumTranslationService;
-    public AffiliateViewModelService(IWorkContext workContext, ICountryService countryService,
+    public AffiliateViewModelService(IWorkContextAccessor workContextAccessor, ICountryService countryService,
         IPriceFormatter priceFormatter, IAffiliateService affiliateService,
         ICustomerService customerService, IOrderService orderService, ITranslationService translationService,
         IDateTimeService dateTimeService,
         IOrderStatusService orderStatusService,
         SeoSettings seoSettings, ICurrencyService currencyService, IEnumTranslationService enumTranslationService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _countryService = countryService;
         _priceFormatter = priceFormatter;
         _affiliateService = affiliateService;

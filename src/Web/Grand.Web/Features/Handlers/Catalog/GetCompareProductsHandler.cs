@@ -22,14 +22,14 @@ public class GetCompareProductsHandler : IRequestHandler<GetCompareProducts, Com
 
     public GetCompareProductsHandler(
         IProductService productService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IAclService aclService,
         IMediator mediator,
         IHttpContextAccessor httpContextAccessor,
         CatalogSettings catalogSettings)
     {
         _productService = productService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _aclService = aclService;
         _mediator = mediator;
         _httpContextAccessor = httpContextAccessor;

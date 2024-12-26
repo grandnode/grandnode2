@@ -16,11 +16,11 @@ public class ContactVendorCommandHandler : IRequestHandler<ContactVendorSendComm
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
 
-    public ContactVendorCommandHandler(IMessageProviderService messageProviderService, IWorkContext workContext,
+    public ContactVendorCommandHandler(IMessageProviderService messageProviderService, IWorkContextAccessor workContextAccessor,
         ITranslationService translationService, CommonSettings commonSettings)
     {
         _messageProviderService = messageProviderService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
         _commonSettings = commonSettings;
     }

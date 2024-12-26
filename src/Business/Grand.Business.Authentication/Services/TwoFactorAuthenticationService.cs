@@ -17,11 +17,11 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
     private readonly IWorkContext _workContext;
 
     public TwoFactorAuthenticationService(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICustomerService customerService,
         IEnumerable<ISMSVerificationService> smsVerificationService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _customerService = customerService;
         _smsVerificationService = smsVerificationService;
         _twoFactorAuthentication = new TwoFactorAuthenticator();

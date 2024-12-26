@@ -30,7 +30,7 @@ public class CollectionController : BaseAdminController
     public CollectionController(
         ICollectionViewModelService collectionViewModelService,
         ICollectionService collectionService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
         ILanguageService languageService,
         ITranslationService translationService,
@@ -39,7 +39,7 @@ public class CollectionController : BaseAdminController
     {
         _collectionViewModelService = collectionViewModelService;
         _collectionService = collectionService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _storeService = storeService;
         _languageService = languageService;
         _translationService = translationService;

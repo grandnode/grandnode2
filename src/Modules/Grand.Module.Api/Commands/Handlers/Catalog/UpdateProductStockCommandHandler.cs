@@ -22,14 +22,14 @@ public class UpdateProductStockCommandHandler : IRequestHandler<UpdateProductSto
         IStockQuantityService stockQuantityService,
         ITranslationService translationService,
         IOutOfStockSubscriptionService outOfStockSubscriptionService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _productService = productService;
         _inventoryManageService = inventoryManageService;
         _stockQuantityService = stockQuantityService;
         _translationService = translationService;
         _outOfStockSubscriptionService = outOfStockSubscriptionService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<bool> Handle(UpdateProductStockCommand request, CancellationToken cancellationToken)

@@ -39,13 +39,13 @@ public class ClosedStoreAttribute : TypeFilterAttribute
 
         public CheckAccessClosedStoreFilter(bool ignoreFilter,
             IPermissionService permissionService,
-            IWorkContext workContext,
+            IWorkContextAccessor workContextAccessor,
             IPageService pageService,
             StoreInformationSettings storeInformationSettings)
         {
             _ignoreFilter = ignoreFilter;
             _permissionService = permissionService;
-            _workContext = workContext;
+            _workContext = workContextAccessor.WorkContext;
             _pageService = pageService;
             _storeInformationSettings = storeInformationSettings;
         }

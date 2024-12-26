@@ -11,9 +11,9 @@ public class PushNotificationsRegistration : BaseViewComponent
     private readonly PushNotificationsSettings _pushNotificationsSettings;
     private readonly IWorkContext _workContext;
 
-    public PushNotificationsRegistration(IWorkContext workContext, PushNotificationsSettings pushNotificationsSettings)
+    public PushNotificationsRegistration(IWorkContextAccessor workContextAccessor, PushNotificationsSettings pushNotificationsSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _pushNotificationsSettings = pushNotificationsSettings;
     }
 

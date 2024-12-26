@@ -20,12 +20,12 @@ public class GetPageBlockHandler : IRequestHandler<GetPageBlock, PageModel>
 
     public GetPageBlockHandler(
         IPageService pageService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IAclService aclService,
         IDateTimeService dateTimeService)
     {
         _pageService = pageService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _aclService = aclService;
         _dateTimeService = dateTimeService;
     }

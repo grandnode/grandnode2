@@ -19,11 +19,11 @@ public class NewsService : INewsService
 
     public NewsService(IRepository<NewsItem> newsItemRepository,
         IMediator mediator,
-        IWorkContext workContext, AccessControlConfig accessControlConfig)
+        IWorkContextAccessor workContextAccessor, AccessControlConfig accessControlConfig)
     {
         _newsItemRepository = newsItemRepository;
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _accessControlConfig = accessControlConfig;
     }
 

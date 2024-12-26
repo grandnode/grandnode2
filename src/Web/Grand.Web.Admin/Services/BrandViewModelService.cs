@@ -40,7 +40,7 @@ public class BrandViewModelService : IBrandViewModelService
         IPictureService pictureService,
         IDiscountService discountService,
         IDateTimeService dateTimeService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ISeNameService seNameService, 
         IEnumTranslationService enumTranslationService)
     {
@@ -49,7 +49,7 @@ public class BrandViewModelService : IBrandViewModelService
         _pictureService = pictureService;
         _discountService = discountService;
         _dateTimeService = dateTimeService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _seNameService = seNameService;
         _enumTranslationService = enumTranslationService;
     }

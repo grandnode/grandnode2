@@ -13,11 +13,11 @@ public class HomeController : BaseVendorController
     #region Ctor
 
     public HomeController(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ILogger<HomeController> logger,
         IGrandAuthenticationService authenticationService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _logger = logger;
         _authenticationService = authenticationService;
     }

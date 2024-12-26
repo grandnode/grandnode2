@@ -22,13 +22,13 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
     private readonly ILogger<WidgetsGoogleAnalyticsViewComponent> _logger;
     private readonly IWorkContext _workContext;
 
-    public WidgetsGoogleAnalyticsViewComponent(IWorkContext workContext,
+    public WidgetsGoogleAnalyticsViewComponent(IWorkContextAccessor workContextAccessor,
         ILogger<WidgetsGoogleAnalyticsViewComponent> logger,
         GoogleAnalyticsEcommerceSettings googleAnalyticsEcommerceSettings,
         ICookiePreference cookiePreference,
         IHttpContextAccessor httpContextAccessor)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _logger = logger;
         _googleAnalyticsEcommerceSettings = googleAnalyticsEcommerceSettings;
         _cookiePreference = cookiePreference;

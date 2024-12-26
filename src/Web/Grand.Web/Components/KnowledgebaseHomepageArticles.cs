@@ -14,11 +14,11 @@ public class KnowledgebaseHomepageArticles : BaseViewComponent
     private readonly KnowledgebaseSettings _knowledgebaseSettings;
     private readonly IWorkContext _workContext;
 
-    public KnowledgebaseHomepageArticles(IKnowledgebaseService knowledgebaseService, IWorkContext workContext,
+    public KnowledgebaseHomepageArticles(IKnowledgebaseService knowledgebaseService, IWorkContextAccessor workContextAccessor,
         KnowledgebaseSettings knowledgebaseSettings)
     {
         _knowledgebaseService = knowledgebaseService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _knowledgebaseSettings = knowledgebaseSettings;
     }
 

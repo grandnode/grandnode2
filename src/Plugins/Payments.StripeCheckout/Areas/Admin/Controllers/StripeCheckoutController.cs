@@ -25,13 +25,13 @@ public class StripeCheckoutController : BasePaymentController
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
 
-    public StripeCheckoutController(IWorkContext workContext,
+    public StripeCheckoutController(IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
         ISettingService settingService,
         ITranslationService translationService,
         IPermissionService permissionService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _storeService = storeService;
         _settingService = settingService;
         _translationService = translationService;

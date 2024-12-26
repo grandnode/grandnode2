@@ -13,10 +13,10 @@ public class HomePageCollectionsViewComponent : BaseViewComponent
 
     public HomePageCollectionsViewComponent(
         IMediator mediator,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()

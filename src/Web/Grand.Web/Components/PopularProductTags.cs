@@ -11,10 +11,10 @@ public class PopularProductTagsViewComponent : BaseViewComponent
     private readonly IMediator _mediator;
     private readonly IWorkContext _workContext;
 
-    public PopularProductTagsViewComponent(IMediator mediator, IWorkContext workContext)
+    public PopularProductTagsViewComponent(IMediator mediator, IWorkContextAccessor workContextAccessor)
     {
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()

@@ -18,9 +18,9 @@ public class PriceFormatter : IPriceFormatter
 
     #region Constructors
 
-    public PriceFormatter(IWorkContext workContext)
+    public PriceFormatter(IWorkContextAccessor workContextAccessor)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     #endregion

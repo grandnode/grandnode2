@@ -24,11 +24,11 @@ public class ContactController : BasePublicController
 
     public ContactController(
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator)
     {
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
     }
 

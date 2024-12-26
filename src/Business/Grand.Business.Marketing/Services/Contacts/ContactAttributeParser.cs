@@ -21,11 +21,11 @@ public class ContactAttributeParser : IContactAttributeParser
 
     public ContactAttributeParser(
         IContactAttributeService contactAttributeService,
-        IWorkContext workContext
+        IWorkContextAccessor workContextAccessor
     )
     {
         _contactAttributeService = contactAttributeService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     /// <summary>

@@ -15,11 +15,11 @@ public class EstimateShippingViewComponent : BaseViewComponent
     private readonly IWorkContext _workContext;
 
     public EstimateShippingViewComponent(IMediator mediator, IShoppingCartService shoppingCartService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _mediator = mediator;
         _shoppingCartService = shoppingCartService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()

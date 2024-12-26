@@ -19,12 +19,12 @@ public class InsertVendorReviewCommandHandler : IRequestHandler<InsertVendorRevi
     private readonly IWorkContext _workContext;
 
 
-    public InsertVendorReviewCommandHandler(IVendorService vendorService, IWorkContext workContext,
+    public InsertVendorReviewCommandHandler(IVendorService vendorService, IWorkContextAccessor workContextAccessor,
         ICustomerService customerService, IMessageProviderService messageProviderService,
         LanguageSettings languageSettings, VendorSettings vendorSettings)
     {
         _vendorService = vendorService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _customerService = customerService;
         _messageProviderService = messageProviderService;
         _languageSettings = languageSettings;

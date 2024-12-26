@@ -30,11 +30,11 @@ public class AffiliateAttribute : TypeFilterAttribute
 
         public AffiliateFilter(IAffiliateService affiliateService,
             ICustomerService customerService,
-            IWorkContext workContext)
+            IWorkContextAccessor workContextAccessor)
         {
             _affiliateService = affiliateService;
             _customerService = customerService;
-            _workContext = workContext;
+            _workContext = workContextAccessor.WorkContext;
         }
 
         #endregion

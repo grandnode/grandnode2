@@ -53,7 +53,7 @@ public class OrderCalculationService : IOrderCalculationService
     /// <param name="shippingSettings">Shipping settings</param>
     /// <param name="shoppingCartSettings">Shopping cart settings</param>
     /// <param name="catalogSettings">Catalog settings</param>
-    public OrderCalculationService(IWorkContext workContext,
+    public OrderCalculationService(IWorkContextAccessor workContextAccessor,
         IPricingService priceCalculationService,
         ITaxService taxService,
         IShippingService shippingService,
@@ -72,7 +72,7 @@ public class OrderCalculationService : IOrderCalculationService
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _pricingService = priceCalculationService;
         _taxService = taxService;
         _shippingService = shippingService;

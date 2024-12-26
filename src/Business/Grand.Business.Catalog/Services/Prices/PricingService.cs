@@ -28,7 +28,7 @@ public class PricingService : IPricingService
 {
     #region Ctor
 
-    public PricingService(IWorkContext workContext,
+    public PricingService(IWorkContextAccessor workContextAccessor,
         IDiscountService discountService,
         ICategoryService categoryService,
         IBrandService brandService,
@@ -40,7 +40,7 @@ public class PricingService : IPricingService
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _discountService = discountService;
         _categoryService = categoryService;
         _brandService = brandService;

@@ -35,7 +35,7 @@ public class AccountController : BasePublicController
     public AccountController(
         IGrandAuthenticationService authenticationService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICustomerService customerService,
         IGroupService groupService,
         ICustomerManagerService customerManagerService,
@@ -47,7 +47,7 @@ public class AccountController : BasePublicController
     {
         _authenticationService = authenticationService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _customerService = customerService;
         _groupService = groupService;
         _customerManagerService = customerManagerService;

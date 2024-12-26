@@ -51,7 +51,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         ITranslationService translationService,
         IDiscountService discountService,
         IVendorService vendorService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ISeNameService seNameService, 
         IEnumTranslationService enumTranslationService)
     {
@@ -64,7 +64,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         _translationService = translationService;
         _discountService = discountService;
         _vendorService = vendorService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _seNameService = seNameService;
         _enumTranslationService = enumTranslationService;
     }

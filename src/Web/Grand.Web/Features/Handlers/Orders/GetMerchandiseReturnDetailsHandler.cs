@@ -28,7 +28,7 @@ public class
         IProductService productService,
         IMerchandiseReturnService merchandiseReturnService,
         IPriceFormatter priceFormatter,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         IDateTimeService dateTimeService,
         OrderSettings orderSettings)
@@ -36,7 +36,7 @@ public class
         _productService = productService;
         _merchandiseReturnService = merchandiseReturnService;
         _priceFormatter = priceFormatter;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _dateTimeService = dateTimeService;
         _orderSettings = orderSettings;

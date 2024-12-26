@@ -31,7 +31,7 @@ public class CourseController : BasePublicController
     public CourseController(
         IPermissionService permissionService,
         IAclService aclService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         ITranslationService translationService,
         ICourseService courseService,
@@ -42,7 +42,7 @@ public class CourseController : BasePublicController
     {
         _permissionService = permissionService;
         _aclService = aclService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _translationService = translationService;
         _courseService = courseService;

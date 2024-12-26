@@ -24,12 +24,12 @@ public class ProductCategoryService : IProductCategoryService
     public ProductCategoryService(
         IRepository<Product> productRepository,
         ICacheBase cacheBase,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator, AccessControlConfig accessControlConfig)
     {
         _productRepository = productRepository;
         _cacheBase = cacheBase;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _accessControlConfig = accessControlConfig;
     }

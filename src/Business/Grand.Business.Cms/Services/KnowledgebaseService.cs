@@ -30,14 +30,14 @@ public class KnowledgebaseService : IKnowledgebaseService
         IRepository<KnowledgebaseArticle> knowledgebaseArticleRepository,
         IRepository<KnowledgebaseArticleComment> articleCommentRepository,
         IMediator mediator,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICacheBase cacheBase, AccessControlConfig accessControlConfig)
     {
         _knowledgebaseCategoryRepository = knowledgebaseCategoryRepository;
         _knowledgebaseArticleRepository = knowledgebaseArticleRepository;
         _articleCommentRepository = articleCommentRepository;
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _cacheBase = cacheBase;
         _accessControlConfig = accessControlConfig;
     }

@@ -14,11 +14,11 @@ public class GetStatesProvinceHandler : IRequestHandler<GetStatesProvince, IList
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
 
-    public GetStatesProvinceHandler(ICountryService countryService, IWorkContext workContext,
+    public GetStatesProvinceHandler(ICountryService countryService, IWorkContextAccessor workContextAccessor,
         ITranslationService translationService)
     {
         _countryService = countryService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
     }
 

@@ -24,12 +24,12 @@ public class BrandService : IBrandService
     /// </summary>
     public BrandService(ICacheBase cacheBase,
         IRepository<Brand> brandRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator, AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _brandRepository = brandRepository;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _accessControlConfig = accessControlConfig;
     }

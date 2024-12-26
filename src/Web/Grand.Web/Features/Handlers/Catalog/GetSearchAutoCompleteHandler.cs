@@ -52,7 +52,7 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
         ITaxService taxService,
         IPriceFormatter priceFormatter,
         IMediator mediator,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPermissionService permissionService,
         CatalogSettings catalogSettings,
         MediaSettings mediaSettings,
@@ -66,7 +66,7 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
         _blogService = blogService;
         _pricingService = priceCalculationService;
         _taxService = taxService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _priceFormatter = priceFormatter;
         _mediator = mediator;
         _permissionService = permissionService;

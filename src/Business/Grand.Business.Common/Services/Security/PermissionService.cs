@@ -27,13 +27,13 @@ public class PermissionService : IPermissionService
     public PermissionService(
         IRepository<Permission> permissionRepository,
         IRepository<PermissionAction> permissionActionRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         ICacheBase cacheBase)
     {
         _permissionRepository = permissionRepository;
         _permissionActionRepository = permissionActionRepository;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _cacheBase = cacheBase;
     }

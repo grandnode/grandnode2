@@ -16,11 +16,11 @@ public class GetBlogPostYearHandler : IRequestHandler<GetBlogPostYear, IList<Blo
     private readonly IWorkContext _workContext;
 
     public GetBlogPostYearHandler(IBlogService blogService, ICacheBase cacheBase,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _blogService = blogService;
         _cacheBase = cacheBase;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<IList<BlogPostYearModel>> Handle(GetBlogPostYear request, CancellationToken cancellationToken)

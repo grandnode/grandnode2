@@ -12,9 +12,9 @@ public class PushNotificationsController : BasePublicController
     private readonly IPushNotificationsService _pushNotificationsService;
     private readonly IWorkContext _workContext;
 
-    public PushNotificationsController(IWorkContext workContext, IPushNotificationsService pushNotificationsService)
+    public PushNotificationsController(IWorkContextAccessor workContextAccessor, IPushNotificationsService pushNotificationsService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _pushNotificationsService = pushNotificationsService;
     }
 

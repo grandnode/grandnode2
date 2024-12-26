@@ -24,11 +24,11 @@ public class GetNewsItemListHandler : IRequestHandler<GetNewsItemList, NewsItemL
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
 
-    public GetNewsItemListHandler(IWorkContext workContext,
+    public GetNewsItemListHandler(IWorkContextAccessor workContextAccessor,
         INewsService newsService, IDateTimeService dateTimeService, IPictureService pictureService,
         ITranslationService translationService, NewsSettings newsSettings, MediaSettings mediaSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _newsService = newsService;
         _dateTimeService = dateTimeService;
         _pictureService = pictureService;

@@ -30,7 +30,7 @@ public class BrandController : BaseAdminController
     public BrandController(
         IBrandViewModelService brandViewModelService,
         IBrandService brandService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
         ILanguageService languageService,
         ITranslationService translationService,
@@ -39,7 +39,7 @@ public class BrandController : BaseAdminController
     {
         _brandViewModelService = brandViewModelService;
         _brandService = brandService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _storeService = storeService;
         _languageService = languageService;
         _translationService = translationService;

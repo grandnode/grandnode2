@@ -13,7 +13,7 @@ public class DiscountCouponValidator : BaseGrandValidator<DiscountCouponModel>
     public DiscountCouponValidator(
         IEnumerable<IValidatorConsumer<DiscountCouponModel>> validators,
         IDiscountValidationService discountValidationService,
-        IDiscountService discountService, IWorkContext workContext,
+        IDiscountService discountService, IWorkContextAccessor workContextAccessor,
         ITranslationService translationService)
         : base(validators)
     {
@@ -30,7 +30,7 @@ public class DiscountCouponValidator : BaseGrandValidator<DiscountCouponModel>
             if (discount is { RequiresCouponCode: true, IsEnabled: true })
             {
                 var coupons =
-                    workContext.CurrentCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.DiscountCoupons);
+                    workContextAccessor.WorkContext.CurrentCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.DiscountCoupons);
                 var existsAndUsed = false;
                 foreach (var item in coupons)
                     if (await discountValidationService.ExistsCodeInDiscount(item, discount.Id, null))
@@ -46,7 +46,7 @@ public class DiscountCouponValidator : BaseGrandValidator<DiscountCouponModel>
                     if (!existsAndUsed)
                     {
                         var validationResult = await discountValidationService.ValidateDiscount(discount,
-                            workContext.CurrentCustomer, workContext.CurrentStore, workContext.WorkingCurrency,
+                            workContextAccessor.WorkContext.CurrentCustomer, workContextAccessor.WorkContext.CurrentStore, workContextAccessor.WorkContext.WorkingCurrency,
                             x.DiscountCouponCode);
                         if (!validationResult.IsValid)
                             context.AddFailure(!string.IsNullOrEmpty(validationResult.UserErrorResource)

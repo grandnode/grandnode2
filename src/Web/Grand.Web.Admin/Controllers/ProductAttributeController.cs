@@ -24,7 +24,7 @@ public class ProductAttributeController : BaseAdminController
         IProductAttributeService productAttributeService,
         ILanguageService languageService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         SeoSettings seoSettings)
     {
@@ -32,7 +32,7 @@ public class ProductAttributeController : BaseAdminController
         _productAttributeService = productAttributeService;
         _languageService = languageService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _seoSettings = seoSettings;
     }

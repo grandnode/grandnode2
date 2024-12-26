@@ -17,13 +17,13 @@ public class WidgetsFacebookPixelViewComponent : ViewComponent
     private readonly IWorkContext _workContext;
 
     public WidgetsFacebookPixelViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IOrderService orderService,
         ICookiePreference cookiePreference,
         FacebookPixelSettings facebookPixelSettings
     )
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _orderService = orderService;
         _cookiePreference = cookiePreference;
         _facebookPixelSettings = facebookPixelSettings;

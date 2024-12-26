@@ -14,7 +14,7 @@ public class UpdateQuantityValidator : BaseGrandValidator<UpdateQuantityModel>
     public UpdateQuantityValidator(
         IEnumerable<IValidatorConsumer<UpdateQuantityModel>> validators,
         IPermissionService permissionService, ShoppingCartSettings shoppingCartSettings,
-        IShoppingCartService shoppingCartService, IWorkContext workContext)
+        IShoppingCartService shoppingCartService, IWorkContextAccessor workContextAccessor)
         : base(validators)
     {
         RuleFor(x => x.Quantity).GreaterThan(0).WithMessage("Wrong quantity");
@@ -36,7 +36,7 @@ public class UpdateQuantityValidator : BaseGrandValidator<UpdateQuantityModel>
                 }
             }
 
-            var cart = (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, PrepareCartTypes()))
+            var cart = (await shoppingCartService.GetShoppingCart(workContextAccessor.WorkContext.CurrentStore.Id, PrepareCartTypes()))
                 .FirstOrDefault(z => z.Id == x.ShoppingCartId);
             if (cart == null) context.AddFailure("Shopping cart item not found");
         });

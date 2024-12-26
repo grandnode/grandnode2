@@ -17,11 +17,11 @@ public class AddCustomerGroupCommandHandler : IRequestHandler<AddCustomerGroupCo
     public AddCustomerGroupCommandHandler(
         IGroupService groupService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _groupService = groupService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<CustomerGroupDto> Handle(AddCustomerGroupCommand request, CancellationToken cancellationToken)

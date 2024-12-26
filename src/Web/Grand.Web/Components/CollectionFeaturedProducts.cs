@@ -10,10 +10,10 @@ public class CollectionFeaturedProductsViewComponent : BaseViewComponent
 {
     #region Constructors
 
-    public CollectionFeaturedProductsViewComponent(IMediator mediator, IWorkContext workContext)
+    public CollectionFeaturedProductsViewComponent(IMediator mediator, IWorkContextAccessor workContextAccessor)
     {
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     #endregion

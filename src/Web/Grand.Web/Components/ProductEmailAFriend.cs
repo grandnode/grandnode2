@@ -15,12 +15,12 @@ public class ProductEmailAFriendViewComponent : BaseViewComponent
 
     public ProductEmailAFriendViewComponent(
         IProductService productService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         CatalogSettings catalogSettings,
         CaptchaSettings captchaSettings)
     {
         _productService = productService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _catalogSettings = catalogSettings;
         _captchaSettings = captchaSettings;
     }

@@ -33,10 +33,10 @@ public class DenySystemAccountAttribute : TypeFilterAttribute
     {
         #region Ctor
 
-        public DenySystemAccountFilter(bool ignoreFilter, IWorkContext workContext)
+        public DenySystemAccountFilter(bool ignoreFilter, IWorkContextAccessor workContextAccessor)
         {
             _ignoreFilter = ignoreFilter;
-            _workContext = workContext;
+            _workContext = workContextAccessor.WorkContext;
         }
 
         #endregion

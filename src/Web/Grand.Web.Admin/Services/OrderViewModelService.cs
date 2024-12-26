@@ -89,7 +89,7 @@ public class OrderViewModelService : IOrderViewModelService
         IPriceFormatter priceFormatter,
         IDiscountService discountService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICurrencyService currencyService,
         IPaymentService paymentService,
         IPaymentTransactionService paymentTransactionService,
@@ -125,7 +125,7 @@ public class OrderViewModelService : IOrderViewModelService
         _priceFormatter = priceFormatter;
         _discountService = discountService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _currencyService = currencyService;
         _paymentService = paymentService;
         _paymentTransactionService = paymentTransactionService;

@@ -15,9 +15,9 @@ public class WidgetViewComponent : BaseViewComponent
     private readonly IWidgetService _widgetService;
     private readonly IWorkContext _workContext;
 
-    public WidgetViewComponent(IWorkContext workContext, ICacheBase cacheBase, IWidgetService widgetService)
+    public WidgetViewComponent(IWorkContextAccessor workContextAccessor, ICacheBase cacheBase, IWidgetService widgetService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _cacheBase = cacheBase;
         _widgetService = widgetService;
     }

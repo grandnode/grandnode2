@@ -19,13 +19,13 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
 
-    public ContactUsSendCommandHandler(IWorkContext workContext,
+    public ContactUsSendCommandHandler(IWorkContextAccessor workContextAccessor,
         IContactAttributeParser contactAttributeParser,
         ITranslationService translationService,
         IMessageProviderService messageProviderService,
         CommonSettings commonSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _contactAttributeParser = contactAttributeParser;
         _translationService = translationService;
         _messageProviderService = messageProviderService;

@@ -40,13 +40,13 @@ public class AuthorizeMenuAttribute : TypeFilterAttribute
             bool ignoreFilter,
             IPermissionService permissionService,
             IAdminSiteMapService adminSiteMapService,
-            IWorkContext workContext,
+            IWorkContextAccessor workContextAccessor,
             SecurityConfig securityConfig)
         {
             _ignoreFilter = ignoreFilter;
             _permissionService = permissionService;
             _adminSiteMapService = adminSiteMapService;
-            _workContext = workContext;
+            _workContext = workContextAccessor.WorkContext;
             _securityConfig = securityConfig;
         }
 

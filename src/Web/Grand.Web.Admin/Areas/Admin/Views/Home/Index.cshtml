@@ -10,18 +10,18 @@
 @inject ICustomerService customerService
 @inject IOrderReportService orderReportService
 @inject IPriceFormatter priceFormatter
-@inject IWorkContext workContext
+@inject IWorkContextAccessor workContextAccessor
 @inject ICurrencyService currencyService
 @inject IGroupService groupService
 @{
     //page title
     ViewBag.Title = Loc["Admin.Dashboard"];
-    var isAdminAccess = await groupService.IsAdmin(workContext.CurrentCustomer);
+    var isAdminAccess = await groupService.IsAdmin(workContextAccessor.WorkContext.CurrentCustomer);
     var canAccessReports = await permissionService.Authorize(StandardPermission.ManageReports);
     var canManageOrders = await permissionService.Authorize(StandardPermission.ManageOrders);
-    var customersOnline = (await customerService.GetOnlineCustomers(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineCustomerMinutes), null, workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId, 1, 1)).TotalCount;
-    var customersShoppingCart = await customerService.GetCountOnlineShoppingCart(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineShoppingCartMinutes), workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId);
-    var ordersToday = await orderReportService.GetOrderPeriodReport(0, workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId);
+    var customersOnline = (await customerService.GetOnlineCustomers(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineCustomerMinutes), null, workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId, workContextAccessor.WorkContext.CurrentCustomer.SeId, 1, 1)).TotalCount;
+    var customersShoppingCart = await customerService.GetCountOnlineShoppingCart(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineShoppingCartMinutes), workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId, workContextAccessor.WorkContext.CurrentCustomer.SeId);
+    var ordersToday = await orderReportService.GetOrderPeriodReport(0, workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId, workContextAccessor.WorkContext.CurrentCustomer.SeId);
     var ordersAmount = priceFormatter.FormatPrice(ordersToday.Amount, await currencyService.GetPrimaryStoreCurrency());
 }
 

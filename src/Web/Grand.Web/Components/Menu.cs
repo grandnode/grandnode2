@@ -16,11 +16,11 @@ public class MenuViewComponent : BaseViewComponent
 
     public MenuViewComponent(
         IMediator mediator,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPermissionService permissionService)
     {
         _mediator = mediator;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _permissionService = permissionService;
     }
 

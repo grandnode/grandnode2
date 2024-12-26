@@ -24,13 +24,13 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     private readonly ITaxService _taxService;
     private readonly IWorkContext _workContext;
 
-    public CheckoutAttributeFormatter(IWorkContext workContext,
+    public CheckoutAttributeFormatter(IWorkContextAccessor workContextAccessor,
         ICheckoutAttributeParser checkoutAttributeParser,
         ICurrencyService currencyService,
         ITaxService taxService,
         IPriceFormatter priceFormatter)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _checkoutAttributeParser = checkoutAttributeParser;
         _currencyService = currencyService;
         _taxService = taxService;

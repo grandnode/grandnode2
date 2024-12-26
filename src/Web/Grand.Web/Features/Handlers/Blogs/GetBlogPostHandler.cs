@@ -31,7 +31,7 @@ public class GetBlogPostHandler : IRequestHandler<GetBlogPost, BlogPostModel>
 
     public GetBlogPostHandler(
         IBlogService blogService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPictureService pictureService,
         ITranslationService translationService,
         IDateTimeService dateTimeService,
@@ -41,7 +41,7 @@ public class GetBlogPostHandler : IRequestHandler<GetBlogPost, BlogPostModel>
         CustomerSettings customerSettings)
     {
         _blogService = blogService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _pictureService = pictureService;
         _translationService = translationService;
         _dateTimeService = dateTimeService;

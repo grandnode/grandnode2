@@ -24,11 +24,11 @@ public class TranslationService : ITranslationService
     /// <param name="trRepository">Translate resource repository</param>
     /// <param name="mediator">Mediator</param>
     public TranslationService(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IRepository<TranslationResource> trRepository,
         IMediator mediator)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationRepository = trRepository;
         _mediator = mediator;
     }

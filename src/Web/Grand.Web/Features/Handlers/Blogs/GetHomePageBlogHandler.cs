@@ -28,7 +28,7 @@ public class GetHomePageBlogHandler : IRequestHandler<GetHomePageBlog, HomePageB
     private readonly IWorkContext _workContext;
 
     public GetHomePageBlogHandler(IBlogService blogService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPictureService pictureService,
         ITranslationService translationService,
         IDateTimeService dateTimeService,
@@ -37,7 +37,7 @@ public class GetHomePageBlogHandler : IRequestHandler<GetHomePageBlog, HomePageB
         MediaSettings mediaSettings)
     {
         _blogService = blogService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _pictureService = pictureService;
         _translationService = translationService;
         _dateTimeService = dateTimeService;

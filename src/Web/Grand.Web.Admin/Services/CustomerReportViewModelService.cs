@@ -27,13 +27,13 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
     private readonly IWorkContext _workContext;
     private readonly IEnumTranslationService _enumTranslationService;
     
-    public CustomerReportViewModelService(IWorkContext workContext,
+    public CustomerReportViewModelService(IWorkContextAccessor workContextAccessor,
         ICustomerService customerService,
         ITranslationService translationService, ICustomerReportService customerReportService,
         IDateTimeService dateTimeService, IPriceFormatter priceFormatter,
         IOrderStatusService orderStatusService, ICurrencyService currencyService, IEnumTranslationService enumTranslationService)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _customerService = customerService;
         _translationService = translationService;
         _customerReportService = customerReportService;

@@ -21,13 +21,13 @@ public class ProductReviewController : BaseAdminController
         IProductReviewViewModelService productReviewViewModelService,
         IProductReviewService productReviewService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService)
     {
         _productReviewViewModelService = productReviewViewModelService;
         _productReviewService = productReviewService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
     }
 

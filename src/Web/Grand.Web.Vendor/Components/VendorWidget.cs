@@ -10,10 +10,10 @@ public class VendorWidgetViewComponent : BaseVendorViewComponent
 {
     #region Constructors
 
-    public VendorWidgetViewComponent(IWidgetService widgetService, IWorkContext workContext)
+    public VendorWidgetViewComponent(IWidgetService widgetService, IWorkContextAccessor workContextAccessor)
     {
         _widgetService = widgetService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     #endregion

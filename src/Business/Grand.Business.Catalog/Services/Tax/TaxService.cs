@@ -22,7 +22,7 @@ public class TaxService : ITaxService
     #region Ctor
 
     public TaxService(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         ICountryService countryService,
         IEnumerable<ITaxProvider> taxProviders,
@@ -32,7 +32,7 @@ public class TaxService : ITaxService
         CustomerSettings customerSettings,
         AddressSettings addressSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _taxSettings = taxSettings;
         _taxProviderSettings = taxProviderSettings;

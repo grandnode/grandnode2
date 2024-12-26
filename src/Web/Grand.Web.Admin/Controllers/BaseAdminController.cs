@@ -55,7 +55,7 @@ public abstract class BaseAdminController : BaseController
     protected async Task<string> GetActiveStore()
     {
         var storeService = HttpContext.RequestServices.GetRequiredService<IStoreService>();
-        var workContext = HttpContext.RequestServices.GetRequiredService<IWorkContext>();
+        var workContext = HttpContext.RequestServices.GetRequiredService<IWorkContextAccessor>().WorkContext;
         var groupService = HttpContext.RequestServices.GetRequiredService<IGroupService>();
 
         var stores = await storeService.GetAllStores();

@@ -67,12 +67,12 @@ public static class TranslateExtensions
     /// <returns>Translation value</returns>
     public static string GetTranslationEnum<T>(this T enumValue,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
         where T : struct
     {
-        ArgumentNullException.ThrowIfNull(workContext);
+        ArgumentNullException.ThrowIfNull(workContextAccessor);
 
-        return GetTranslationEnum(enumValue, translationService, workContext.WorkingLanguage.Id);
+        return GetTranslationEnum(enumValue, translationService, workContextAccessor.WorkContext.WorkingLanguage.Id);
     }
 
     /// <summary>

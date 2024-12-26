@@ -27,12 +27,12 @@ public class GetHomePageNewsItemsHandler : IRequestHandler<GetHomePageNewsItems,
     private readonly ITranslationService _translationService;
     private readonly IWorkContext _workContext;
 
-    public GetHomePageNewsItemsHandler(ICacheBase cacheBase, IWorkContext workContext,
+    public GetHomePageNewsItemsHandler(ICacheBase cacheBase, IWorkContextAccessor workContextAccessor,
         INewsService newsService, IDateTimeService dateTimeService, IPictureService pictureService,
         ITranslationService translationService, NewsSettings newsSettings, MediaSettings mediaSettings)
     {
         _cacheBase = cacheBase;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _newsService = newsService;
         _dateTimeService = dateTimeService;
         _pictureService = pictureService;

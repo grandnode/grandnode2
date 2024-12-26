@@ -35,7 +35,7 @@ public class DiscountViewModelService : IDiscountViewModelService
         ICurrencyService currencyService,
         ICategoryService categoryService,
         IProductService productService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICollectionService collectionService,
         IBrandService brandService,
         IStoreService storeService,
@@ -52,7 +52,7 @@ public class DiscountViewModelService : IDiscountViewModelService
         _currencyService = currencyService;
         _categoryService = categoryService;
         _productService = productService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _collectionService = collectionService;
         _brandService = brandService;
         _storeService = storeService;

@@ -28,14 +28,14 @@ public class ProductService : IProductService
     /// </summary>
     public ProductService(ICacheBase cacheBase,
         IRepository<Product> productRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         IAclService aclService
     )
     {
         _cacheBase = cacheBase;
         _productRepository = productRepository;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _aclService = aclService;
     }

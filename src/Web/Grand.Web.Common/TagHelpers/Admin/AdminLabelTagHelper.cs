@@ -16,10 +16,10 @@ public class LabelRequiredTagHelper : LabelTagHelper
 
     private readonly IWorkContext _workContext;
 
-    public LabelRequiredTagHelper(IHtmlGenerator generator, IWorkContext workContext,
+    public LabelRequiredTagHelper(IHtmlGenerator generator, IWorkContextAccessor workContextAccessor,
         ITranslationService translationService) : base(generator)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
     }
 

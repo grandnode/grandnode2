@@ -1,9 +1,9 @@
 ﻿@using Grand.Domain.Blogs
 @model SearchBoxModel
 @inject BlogSettings blogSettings
-@inject IWorkContext workContext
+@inject IWorkContextAccessor workContextAccessor
 @{
-    var lang = workContext.WorkingLanguage.LanguageCulture;
+    var lang = workContextAccessor.WorkContext.WorkingLanguage.LanguageCulture;
 }
 <template id="searchBoxContainer">
     <a class="modal-close" @@click="$bvModal.hide('search-box')">

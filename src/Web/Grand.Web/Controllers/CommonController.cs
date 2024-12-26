@@ -31,11 +31,11 @@ public class CommonController : BasePublicController
 {
     #region Constructors
 
-    public CommonController(IWorkContext workContext,
+    public CommonController(IWorkContextAccessor workContextAccessor,
         ILanguageService languageService,
         IMediator mediator)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _languageService = languageService;
         _mediator = mediator;
     }

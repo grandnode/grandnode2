@@ -33,7 +33,7 @@ public class DownloadController : BasePublicController
         IProductService productService,
         IOrderService orderService,
         IMerchandiseReturnService merchandiseReturnService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService,
         CustomerSettings customerSettings)
     {
@@ -41,7 +41,7 @@ public class DownloadController : BasePublicController
         _productService = productService;
         _orderService = orderService;
         _merchandiseReturnService = merchandiseReturnService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
         _customerSettings = customerSettings;
     }

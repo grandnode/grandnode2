@@ -22,14 +22,14 @@ public class ShoppingCartService : IShoppingCartService
     #region Ctor
 
     public ShoppingCartService(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IProductService productService,
         ICustomerService customerService,
         IMediator mediator,
         IShoppingCartValidator shoppingCartValidator,
         ShoppingCartSettings shoppingCartSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _productService = productService;
         _customerService = customerService;
         _mediator = mediator;

@@ -2,15 +2,15 @@
 @using Grand.Business.Core.Interfaces.Common.Security
 @using Grand.Domain.Permissions
 @inject IGroupService groupService
-@inject IWorkContext workContext
+@inject IWorkContextAccessor workContextAccessor
 @inject IPageHeadBuilder pagebuilder
 @inject IPermissionService permissionService
 @{
     var registerUrl = Url.RouteUrl("Register", new { returnUrl = Context.Request.Query["returnUrl"] });
-    var isAuthenticated = await groupService.IsRegistered(workContext.CurrentCustomer);
-    var isCustomerImpersonated = workContext.OriginalCustomerIfImpersonated != null;
+    var isAuthenticated = await groupService.IsRegistered(workContextAccessor.WorkContext.CurrentCustomer);
+    var isCustomerImpersonated = workContextAccessor.WorkContext.OriginalCustomerIfImpersonated != null;
     var isAdminAccess = await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel);
-    var isVendor = workContext.CurrentVendor != null;
+    var isVendor = workContextAccessor.WorkContext.CurrentVendor != null;
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "header_links_before" })
@@ -19,7 +19,7 @@
     {
         <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("Logout")" title="@Loc["Account.ImpersonatedAs.Finish.Hint"]">
             <b-icon icon="door-closed"></b-icon>
-            <span class="text text-uppercase ml-3">@string.Format(Loc["Account.ImpersonatedAs"], workContext.CurrentCustomer.Email ?? "GUEST")</span>
+            <span class="text text-uppercase ml-3">@string.Format(Loc["Account.ImpersonatedAs"], workContextAccessor.WorkContext.CurrentCustomer.Email ?? "GUEST")</span>
         </a>
     }
     @if (isAuthenticated)

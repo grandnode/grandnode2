@@ -15,10 +15,10 @@ public class DownloadController : BaseAdminController
     private readonly IDownloadService _downloadService;
     private readonly IWorkContext _workContext;
 
-    public DownloadController(IDownloadService downloadService, IWorkContext workContext)
+    public DownloadController(IDownloadService downloadService, IWorkContextAccessor workContextAccessor)
     {
         _downloadService = downloadService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     public async Task<IActionResult> DownloadFile(Guid downloadGuid)

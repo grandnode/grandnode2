@@ -24,12 +24,12 @@ public class MerchandiseReturnController : BaseVendorController
         IMerchandiseReturnViewModelService merchandiseReturnViewModelService,
         ITranslationService translationService,
         IMerchandiseReturnService merchandiseReturnService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _merchandiseReturnViewModelService = merchandiseReturnViewModelService;
         _translationService = translationService;
         _merchandiseReturnService = merchandiseReturnService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
     }
 
     #endregion

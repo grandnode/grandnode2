@@ -16,11 +16,11 @@ public class CustomerCoordinatesService : ICustomerCoordinatesService
 
     public CustomerCoordinatesService(
         IRepository<Customer> customerRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator)
     {
         _customerRepository = customerRepository;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
     }
 

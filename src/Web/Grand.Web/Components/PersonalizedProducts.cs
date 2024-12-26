@@ -13,11 +13,11 @@ public class PersonalizedProductsViewComponent : BaseViewComponent
     #region Constructors
 
     public PersonalizedProductsViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         CatalogSettings catalogSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
     }

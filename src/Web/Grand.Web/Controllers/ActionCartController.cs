@@ -28,7 +28,7 @@ public class ActionCartController : BasePublicController
 
     public ActionCartController(IProductService productService,
         IShoppingCartService shoppingCartService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         ITranslationService translationService,
         ICurrencyService currencyService,
@@ -38,7 +38,7 @@ public class ActionCartController : BasePublicController
     {
         _productService = productService;
         _shoppingCartService = shoppingCartService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _translationService = translationService;
         _currencyService = currencyService;

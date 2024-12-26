@@ -39,7 +39,7 @@ public class ReportsController : BaseVendorController
     public ReportsController(IOrderReportService orderReportService,
         IProductsReportService productsReportService,
         ICustomerReportService customerReportService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPriceFormatter priceFormatter,
         IProductService productService,
         IProductAttributeFormatter productAttributeFormatter,
@@ -55,7 +55,7 @@ public class ReportsController : BaseVendorController
         _orderReportService = orderReportService;
         _productsReportService = productsReportService;
         _customerReportService = customerReportService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _priceFormatter = priceFormatter;
         _productService = productService;
         _productAttributeFormatter = productAttributeFormatter;

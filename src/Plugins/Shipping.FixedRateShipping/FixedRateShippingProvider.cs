@@ -25,7 +25,7 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
 
     public FixedRateShippingProvider(
         IShippingMethodService shippingMethodService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ISettingService settingService,
         ICurrencyService currencyService,
         ITranslationService translationService,
@@ -33,7 +33,7 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
     )
     {
         _shippingMethodService = shippingMethodService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _settingService = settingService;
         _currencyService = currencyService;
         _translationService = translationService;

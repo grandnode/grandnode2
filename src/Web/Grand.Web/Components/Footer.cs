@@ -32,7 +32,7 @@ public class FooterViewComponent : BaseViewComponent
     private readonly IWorkContext _workContext;
 
     public FooterViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPageService pageService,
         IPermissionService permissionService,
         StoreInformationSettings storeInformationSettings,
@@ -43,7 +43,7 @@ public class FooterViewComponent : BaseViewComponent
         VendorSettings vendorSettings,
         CommonSettings commonSettings)
     {
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _pageService = pageService;
         _permissionService = permissionService;
 

@@ -75,7 +75,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
 
     public GetProductDetailsPageHandler(
         IPermissionService permissionService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService,
         IProductService productService,
         IPricingService priceCalculationService,
@@ -107,7 +107,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         ShoppingCartSettings shoppingCartSettings)
     {
         _permissionService = permissionService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _translationService = translationService;
         _productService = productService;
         _pricingService = priceCalculationService;

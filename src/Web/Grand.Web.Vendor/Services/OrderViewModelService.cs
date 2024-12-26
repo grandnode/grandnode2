@@ -67,7 +67,7 @@ public class OrderViewModelService : IOrderViewModelService
         IDateTimeService dateTimeService,
         IPriceFormatter priceFormatter,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICurrencyService currencyService,
         IPaymentService paymentService,
         ICountryService countryService,
@@ -91,7 +91,7 @@ public class OrderViewModelService : IOrderViewModelService
         _dateTimeService = dateTimeService;
         _priceFormatter = priceFormatter;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _currencyService = currencyService;
         _paymentService = paymentService;
         _countryService = countryService;

@@ -26,7 +26,7 @@ public class ShipmentController : BaseAdminController
         IShipmentViewModelService shipmentViewModelService,
         IOrderService orderService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IPdfService pdfService,
         IShipmentService shipmentService,
@@ -36,7 +36,7 @@ public class ShipmentController : BaseAdminController
         _shipmentViewModelService = shipmentViewModelService;
         _orderService = orderService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _groupService = groupService;
         _pdfService = pdfService;
         _shipmentService = shipmentService;

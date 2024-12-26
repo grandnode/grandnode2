@@ -39,7 +39,7 @@ public class CourseController : BaseAdminController
         ICourseSubjectService courseSubjectService,
         ICourseLessonService courseLessonService,
         ICourseViewModelService courseViewModelService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ILanguageService languageService,
         IGroupService groupService)
     {
@@ -49,7 +49,7 @@ public class CourseController : BaseAdminController
         _courseSubjectService = courseSubjectService;
         _courseLessonService = courseLessonService;
         _courseViewModelService = courseViewModelService;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _languageService = languageService;
         _groupService = groupService;
     }

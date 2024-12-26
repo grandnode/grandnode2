@@ -19,14 +19,14 @@ public class HomePageBestSellersViewComponent : BaseViewComponent
     public HomePageBestSellersViewComponent(
         IOrderReportService orderReportService,
         ICacheBase cacheBase,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IProductService productService,
         IMediator mediator,
         CatalogSettings catalogSettings)
     {
         _orderReportService = orderReportService;
         _cacheBase = cacheBase;
-        _workContext = workContext;
+        _workContext = workContextAccessor.WorkContext;
         _productService = productService;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
