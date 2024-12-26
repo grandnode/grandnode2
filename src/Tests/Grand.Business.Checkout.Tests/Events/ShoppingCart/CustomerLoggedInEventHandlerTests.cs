@@ -20,6 +20,8 @@ public class CustomerLoggedInEventHandlerTests
     {
         _shoppingCartServiceMock = new Mock<IShoppingCartService>();
         _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock.Setup(s => s.WorkContext.CurrentCustomer).Returns(new Customer());
+
         _customerLoggedInEventHandler =
             new CustomerLoggedInEventHandler(_shoppingCartServiceMock.Object, _workContextMock.Object);
     }
