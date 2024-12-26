@@ -21,7 +21,7 @@ public class CrossSellProductsViewComponent : BaseViewComponent
         ShoppingCartSettings shoppingCartSettings)
     {
         _productService = productService;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
         _shoppingCartSettings = shoppingCartSettings;
@@ -36,9 +36,9 @@ public class CrossSellProductsViewComponent : BaseViewComponent
         if (_shoppingCartSettings.CrossSellsNumber == 0)
             return Content("");
 
-        var cart = _workContext.CurrentCustomer.ShoppingCartItems
+        var cart = _workContextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems
             .Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
-            .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id)
+            .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContextAccessor.WorkContext.CurrentStore.Id)
             .ToList();
 
         var products =
@@ -62,7 +62,7 @@ public class CrossSellProductsViewComponent : BaseViewComponent
     #region Fields
 
     private readonly IProductService _productService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IMediator _mediator;
 
     private readonly CatalogSettings _catalogSettings;

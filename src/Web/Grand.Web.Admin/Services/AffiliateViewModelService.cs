@@ -31,7 +31,7 @@ public class AffiliateViewModelService : IAffiliateViewModelService
     private readonly IPriceFormatter _priceFormatter;
     private readonly SeoSettings _seoSettings;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
     public AffiliateViewModelService(IWorkContextAccessor workContextAccessor, ICountryService countryService,
         IPriceFormatter priceFormatter, IAffiliateService affiliateService,
@@ -40,7 +40,7 @@ public class AffiliateViewModelService : IAffiliateViewModelService
         IOrderStatusService orderStatusService,
         SeoSettings seoSettings, ICurrencyService currencyService, IEnumTranslationService enumTranslationService)
     {
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _countryService = countryService;
         _priceFormatter = priceFormatter;
         _affiliateService = affiliateService;
@@ -64,9 +64,9 @@ public class AffiliateViewModelService : IAffiliateViewModelService
             model.Id = affiliate.Id;
             model.Name = affiliate.Name;
 
-            var host = _workContext.CurrentHost == null
-                ? _workContext.CurrentStore.Url.TrimEnd('/')
-                : _workContext.CurrentHost.Url.TrimEnd('/');
+            var host = _workContextAccessor.WorkContext.CurrentHost == null
+                ? _workContextAccessor.WorkContext.CurrentStore.Url.TrimEnd('/')
+                : _workContextAccessor.WorkContext.CurrentHost.Url.TrimEnd('/');
             model.Url = affiliate.GenerateUrl(host);
             if (!excludeProperties)
             {

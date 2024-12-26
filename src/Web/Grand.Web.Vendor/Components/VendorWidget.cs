@@ -13,7 +13,7 @@ public class VendorWidgetViewComponent : BaseVendorViewComponent
     public VendorWidgetViewComponent(IWidgetService widgetService, IWorkContextAccessor workContextAccessor)
     {
         _widgetService = widgetService;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     #endregion
@@ -24,8 +24,8 @@ public class VendorWidgetViewComponent : BaseVendorViewComponent
     {
         var model = new List<VendorWidgetModel>();
 
-        var widgets = await _widgetService.LoadActiveWidgetsByWidgetZone(widgetZone, _workContext.CurrentStore.Id,
-            _workContext.CurrentCustomer);
+        var widgets = await _widgetService.LoadActiveWidgetsByWidgetZone(widgetZone, _workContextAccessor.WorkContext.CurrentStore.Id,
+            _workContextAccessor.WorkContext.CurrentCustomer);
         foreach (var item in widgets)
         {
             var viewComponentName = await item.GetPublicViewComponentName(widgetZone);
@@ -51,7 +51,7 @@ public class VendorWidgetViewComponent : BaseVendorViewComponent
     #region Fields
 
     private readonly IWidgetService _widgetService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     #endregion
 }

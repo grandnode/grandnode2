@@ -10,7 +10,7 @@ public class DeleteCustomerGroupCommandHandler : IRequestHandler<DeleteCustomerG
 {
     private readonly IGroupService _groupService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public DeleteCustomerGroupCommandHandler(
         IGroupService groupService,
@@ -19,7 +19,7 @@ public class DeleteCustomerGroupCommandHandler : IRequestHandler<DeleteCustomerG
     {
         _groupService = groupService;
         _translationService = translationService;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     public async Task<bool> Handle(DeleteCustomerGroupCommand request, CancellationToken cancellationToken)

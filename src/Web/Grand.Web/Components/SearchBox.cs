@@ -9,22 +9,22 @@ namespace Grand.Web.Components;
 public class SearchBoxViewComponent : BaseViewComponent
 {
     private readonly IMediator _mediator;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public SearchBoxViewComponent(
         IMediator mediator,
         IWorkContextAccessor workContextAccessor)
     {
         _mediator = mediator;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
         var model = await _mediator.Send(new GetSearchBox {
-            Customer = _workContext.CurrentCustomer,
-            Store = _workContext.CurrentStore,
-            Language = _workContext.WorkingLanguage
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Store = _workContextAccessor.WorkContext.CurrentStore,
+            Language = _workContextAccessor.WorkContext.WorkingLanguage
         });
         return View(model);
     }

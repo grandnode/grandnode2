@@ -10,7 +10,7 @@ public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryComman
 {
     private readonly ICategoryService _categoryService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public DeleteCategoryCommandHandler(
         ICategoryService categoryService,
@@ -19,7 +19,7 @@ public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryComman
     {
         _categoryService = categoryService;
         _translationService = translationService;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     public async Task<bool> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)

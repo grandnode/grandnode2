@@ -23,7 +23,7 @@ public class StripeCheckoutController : BasePaymentController
     private readonly ISettingService _settingService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public StripeCheckoutController(IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
@@ -31,7 +31,7 @@ public class StripeCheckoutController : BasePaymentController
         ITranslationService translationService,
         IPermissionService permissionService)
     {
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _storeService = storeService;
         _settingService = settingService;
         _translationService = translationService;
@@ -45,7 +45,7 @@ public class StripeCheckoutController : BasePaymentController
             return stores.FirstOrDefault()?.Id;
 
         var storeId =
-            _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames
+            _workContextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames
                 .AdminAreaStoreScopeConfiguration);
         var store = await _storeService.GetStoreById(storeId);
 

@@ -12,7 +12,7 @@ public class CustomerCoordinatesService : ICustomerCoordinatesService
 {
     private readonly IRepository<Customer> _customerRepository;
     private readonly IMediator _mediator;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public CustomerCoordinatesService(
         IRepository<Customer> customerRepository,
@@ -20,13 +20,13 @@ public class CustomerCoordinatesService : ICustomerCoordinatesService
         IMediator mediator)
     {
         _customerRepository = customerRepository;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _mediator = mediator;
     }
 
     public Task<(double longitude, double latitude)> GetGeoCoordinate()
     {
-        return GetGeoCoordinate(_workContext.CurrentCustomer);
+        return GetGeoCoordinate(_workContextAccessor.WorkContext.CurrentCustomer);
     }
 
     public async Task<(double longitude, double latitude)> GetGeoCoordinate(Customer customer)
@@ -41,7 +41,7 @@ public class CustomerCoordinatesService : ICustomerCoordinatesService
 
     public async Task SaveGeoCoordinate(double longitude, double latitude)
     {
-        await SaveGeoCoordinate(_workContext.CurrentCustomer, longitude, latitude);
+        await SaveGeoCoordinate(_workContextAccessor.WorkContext.CurrentCustomer, longitude, latitude);
     }
 
     public async Task SaveGeoCoordinate(Customer customer, double longitude, double latitude)

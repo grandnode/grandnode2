@@ -13,7 +13,7 @@ public class WidgetSliderComponent : ViewComponent
 {
     private readonly IPictureService _pictureService;
     private readonly ISliderService _sliderService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public WidgetSliderComponent(
         IPictureService pictureService,
@@ -22,7 +22,7 @@ public class WidgetSliderComponent : ViewComponent
     {
         _pictureService = pictureService;
         _sliderService = sliderService;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     private async Task<string> GetPictureUrl(string pictureId)
@@ -44,8 +44,8 @@ public class WidgetSliderComponent : ViewComponent
             model.Slide.Add(new PublicInfoModel.Slider {
                 Link = item.Link,
                 PictureUrl = await GetPictureUrl(item.PictureId),
-                Name = item.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                Description = item.GetTranslation(x => x.Description, _workContext.WorkingLanguage.Id),
+                Name = item.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                Description = item.GetTranslation(x => x.Description, _workContextAccessor.WorkContext.WorkingLanguage.Id),
                 FullWidth = item.FullWidth,
                 CssClass = i == 1 ? "active" : ""
             });

@@ -10,7 +10,7 @@ public class DeleteSpecificationAttributeCommandHandler : IRequestHandler<Delete
 {
     private readonly ISpecificationAttributeService _specificationAttributeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public DeleteSpecificationAttributeCommandHandler(
         ISpecificationAttributeService specificationAttributeService,
@@ -19,7 +19,7 @@ public class DeleteSpecificationAttributeCommandHandler : IRequestHandler<Delete
     {
         _specificationAttributeService = specificationAttributeService;
         _translationService = translationService;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     public async Task<bool> Handle(DeleteSpecificationAttributeCommand request, CancellationToken cancellationToken)

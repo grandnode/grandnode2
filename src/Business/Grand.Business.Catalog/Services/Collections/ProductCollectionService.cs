@@ -24,7 +24,7 @@ public class ProductCollectionService : IProductCollectionService
     {
         _cacheBase = cacheBase;
         _productRepository = productRepository;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _mediator = mediator;
         _accessControlConfig = accessControlConfig;
     }
@@ -45,7 +45,7 @@ public class ProductCollectionService : IProductCollectionService
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
         var key = string.Format(CacheKey.PRODUCTCOLLECTIONS_ALLBYCOLLECTIONID_KEY, showHidden, collectionId, pageIndex,
-            pageSize, _workContext.CurrentCustomer.Id, storeId);
+            pageSize, _workContextAccessor.WorkContext.CurrentCustomer.Id, storeId);
         return await _cacheBase.GetAsync(key, () =>
         {
             var query = _productRepository.Table.Where(x =>
@@ -56,7 +56,7 @@ public class ProductCollectionService : IProductCollectionService
                 if (!_accessControlConfig.IgnoreAcl)
                 {
                     //ACL (access control list)
-                    var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                    var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
                         where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                         select p;
@@ -149,7 +149,7 @@ public class ProductCollectionService : IProductCollectionService
     #region Fields
 
     private readonly IRepository<Product> _productRepository;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
     private readonly AccessControlConfig _accessControlConfig;

@@ -46,7 +46,7 @@ public class AuthorizeMenuAttribute : TypeFilterAttribute
             _ignoreFilter = ignoreFilter;
             _permissionService = permissionService;
             _adminSiteMapService = adminSiteMapService;
-            _workContext = workContextAccessor.WorkContext;
+            _workContextAccessor = workContextAccessor;
             _securityConfig = securityConfig;
         }
 
@@ -57,7 +57,7 @@ public class AuthorizeMenuAttribute : TypeFilterAttribute
         private readonly bool _ignoreFilter;
         private readonly IPermissionService _permissionService;
         private readonly IAdminSiteMapService _adminSiteMapService;
-        private readonly IWorkContext _workContext;
+        private readonly IWorkContextAccessor _workContextAccessor;
         private readonly SecurityConfig _securityConfig;
 
         #endregion
@@ -103,13 +103,13 @@ public class AuthorizeMenuAttribute : TypeFilterAttribute
                 if (menuSiteMap.AllPermissions)
                 {
                     if (!await menuSiteMap.PermissionNames.AllAsync(async x =>
-                            await _permissionService.Authorize(x, _workContext.CurrentCustomer)))
+                            await _permissionService.Authorize(x, _workContextAccessor.WorkContext.CurrentCustomer)))
                         filterContext.Result = new ForbidResult();
                 }
                 else
                 {
                     if (!await menuSiteMap.PermissionNames.AnyAsync(async x =>
-                            await _permissionService.Authorize(x, _workContext.CurrentCustomer)))
+                            await _permissionService.Authorize(x, _workContextAccessor.WorkContext.CurrentCustomer)))
                         filterContext.Result = new ForbidResult();
                 }
             }

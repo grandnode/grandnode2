@@ -36,7 +36,7 @@ public class DenySystemAccountAttribute : TypeFilterAttribute
         public DenySystemAccountFilter(bool ignoreFilter, IWorkContextAccessor workContextAccessor)
         {
             _ignoreFilter = ignoreFilter;
-            _workContext = workContextAccessor.WorkContext;
+            _workContextAccessor = workContextAccessor;
         }
 
         #endregion
@@ -63,7 +63,7 @@ public class DenySystemAccountAttribute : TypeFilterAttribute
             if (!DataSettingsManager.DatabaseIsInstalled())
                 return Task.CompletedTask;
 
-            if (_workContext.CurrentCustomer.IsSystemAccount())
+            if (_workContextAccessor.WorkContext.CurrentCustomer.IsSystemAccount())
                 context.Result = new RedirectToRouteResult("HomePage", new RouteValueDictionary());
 
             return Task.CompletedTask;
@@ -74,7 +74,7 @@ public class DenySystemAccountAttribute : TypeFilterAttribute
         #region Fields
 
         private readonly bool _ignoreFilter;
-        private readonly IWorkContext _workContext;
+        private readonly IWorkContextAccessor _workContextAccessor;
 
         #endregion
     }

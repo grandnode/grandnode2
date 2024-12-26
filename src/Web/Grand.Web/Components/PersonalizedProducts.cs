@@ -17,7 +17,7 @@ public class PersonalizedProductsViewComponent : BaseViewComponent
         IMediator mediator,
         CatalogSettings catalogSettings)
     {
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
     }
@@ -32,7 +32,7 @@ public class PersonalizedProductsViewComponent : BaseViewComponent
             return Content("");
 
         var products = await _mediator.Send(new GetPersonalizedProductsQuery {
-            CustomerId = _workContext.CurrentCustomer.Id, ProductsNumber = _catalogSettings.PersonalizedProductsNumber
+            CustomerId = _workContextAccessor.WorkContext.CurrentCustomer.Id, ProductsNumber = _catalogSettings.PersonalizedProductsNumber
         });
 
         if (!products.Any())
@@ -52,7 +52,7 @@ public class PersonalizedProductsViewComponent : BaseViewComponent
 
     #region Fields
 
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IMediator _mediator;
     private readonly CatalogSettings _catalogSettings;
 

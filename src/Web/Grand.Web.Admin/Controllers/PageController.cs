@@ -31,7 +31,7 @@ public class PageController : BaseAdminController
         _pageService = pageService;
         _languageService = languageService;
         _translationService = translationService;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _dateTimeService = dateTimeService;
     }
 
@@ -43,7 +43,7 @@ public class PageController : BaseAdminController
     private readonly IPageService _pageService;
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IDateTimeService _dateTimeService;
 
     #endregion Fields
@@ -128,7 +128,7 @@ public class PageController : BaseAdminController
             return RedirectToAction("List");
 
         var model = page.ToModel(_dateTimeService);
-        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_workContext.WorkingLanguage.Id) }, "http");
+        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id) }, "http");
         //layouts
         await _pageViewModelService.PrepareLayoutsModel(model);
         //locales
@@ -169,7 +169,7 @@ public class PageController : BaseAdminController
         }
 
         //If we got this far, something failed, redisplay form
-        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_workContext.WorkingLanguage.Id) }, "http");
+        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id) }, "http");
         //layouts
         await _pageViewModelService.PrepareLayoutsModel(model);
         return View(model);

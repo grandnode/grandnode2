@@ -23,7 +23,7 @@ public class NewsService : INewsService
     {
         _newsItemRepository = newsItemRepository;
         _mediator = mediator;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _accessControlConfig = accessControlConfig;
     }
 
@@ -33,7 +33,7 @@ public class NewsService : INewsService
 
     private readonly IRepository<NewsItem> _newsItemRepository;
     private readonly IMediator _mediator;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly AccessControlConfig _accessControlConfig;
 
     #endregion
@@ -83,7 +83,7 @@ public class NewsService : INewsService
         {
             if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
             {
-                var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;

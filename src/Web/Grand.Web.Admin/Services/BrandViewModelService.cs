@@ -26,7 +26,7 @@ public class BrandViewModelService : IBrandViewModelService
     private readonly IPictureService _pictureService;
     private readonly IDiscountService _discountService;
     private readonly IDateTimeService _dateTimeService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly ISeNameService _seNameService;
     private readonly IEnumTranslationService _enumTranslationService;
     
@@ -49,7 +49,7 @@ public class BrandViewModelService : IBrandViewModelService
         _pictureService = pictureService;
         _discountService = discountService;
         _dateTimeService = dateTimeService;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _seNameService = seNameService;
         _enumTranslationService = enumTranslationService;
     }
@@ -82,7 +82,7 @@ public class BrandViewModelService : IBrandViewModelService
         ArgumentNullException.ThrowIfNull(model);
 
         model.AvailableDiscounts = (await _discountService
-                .GetDiscountsQuery(DiscountType.AssignedToBrands, _workContext.CurrentCustomer.Id))
+                .GetDiscountsQuery(DiscountType.AssignedToBrands, _workContextAccessor.WorkContext.CurrentCustomer.Id))
             .Select(d => d.ToModel(_dateTimeService))
             .ToList();
 

@@ -20,7 +20,7 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
     private readonly GoogleAnalyticsEcommerceSettings _googleAnalyticsEcommerceSettings;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<WidgetsGoogleAnalyticsViewComponent> _logger;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public WidgetsGoogleAnalyticsViewComponent(IWorkContextAccessor workContextAccessor,
         ILogger<WidgetsGoogleAnalyticsViewComponent> logger,
@@ -28,7 +28,7 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
         ICookiePreference cookiePreference,
         IHttpContextAccessor httpContextAccessor)
     {
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _logger = logger;
         _googleAnalyticsEcommerceSettings = googleAnalyticsEcommerceSettings;
         _cookiePreference = cookiePreference;
@@ -41,7 +41,7 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
 
         if (_googleAnalyticsEcommerceSettings.AllowToDisableConsentCookie)
         {
-            var enabled = await _cookiePreference.IsEnable(_workContext.CurrentCustomer, _workContext.CurrentStore,
+            var enabled = await _cookiePreference.IsEnable(_workContextAccessor.WorkContext.CurrentCustomer, _workContextAccessor.WorkContext.CurrentStore,
                 GoogleAnalyticDefaults.ConsentCookieSystemName);
             if ((enabled.HasValue && !enabled.Value) ||
                 (!enabled.HasValue && !_googleAnalyticsEcommerceSettings.ConsentDefaultState))
@@ -80,8 +80,8 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
     private async Task<Order> GetLastOrder()
     {
         var orderService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IOrderService>();
-        var order = (await orderService.SearchOrders(_workContext.CurrentStore.Id,
-            customerId: _workContext.CurrentCustomer.Id, pageSize: 1)).FirstOrDefault();
+        var order = (await orderService.SearchOrders(_workContextAccessor.WorkContext.CurrentStore.Id,
+            customerId: _workContextAccessor.WorkContext.CurrentCustomer.Id, pageSize: 1)).FirstOrDefault();
         return order;
     }
 

@@ -26,7 +26,7 @@ public class HomePageBestSellersViewComponent : BaseViewComponent
     {
         _orderReportService = orderReportService;
         _cacheBase = cacheBase;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _productService = productService;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
@@ -50,11 +50,11 @@ public class HomePageBestSellersViewComponent : BaseViewComponent
                 ? -_catalogSettings.PeriodBestsellers
                 : -12);
             var report = await _cacheBase.GetAsync(
-                string.Format(CacheKeyConst.HOMEPAGE_BESTSELLERS_IDS_KEY, _workContext.CurrentStore.Id), async () =>
+                string.Format(CacheKeyConst.HOMEPAGE_BESTSELLERS_IDS_KEY, _workContextAccessor.WorkContext.CurrentStore.Id), async () =>
                     await _orderReportService.BestSellersReport(
                         createdFromUtc: fromdate,
                         ps: PaymentStatus.Paid,
-                        storeId: _workContext.CurrentStore.Id,
+                        storeId: _workContextAccessor.WorkContext.CurrentStore.Id,
                         pageSize: _catalogSettings.NumberOfBestsellersOnHomepage));
 
             productIds = report.Select(x => x.ProductId).ToList();
@@ -85,7 +85,7 @@ public class HomePageBestSellersViewComponent : BaseViewComponent
 
     private readonly IOrderReportService _orderReportService;
     private readonly ICacheBase _cacheBase;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IProductService _productService;
     private readonly IMediator _mediator;
 

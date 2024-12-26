@@ -18,7 +18,7 @@ public class RecentlyViewedProductsBlockViewComponent : BaseViewComponent
         IMediator mediator,
         CatalogSettings catalogSettings)
     {
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _recentlyViewedProductsService = recentlyViewedProductsService;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
@@ -34,7 +34,7 @@ public class RecentlyViewedProductsBlockViewComponent : BaseViewComponent
             return Content("");
 
         var preparePictureModel = productThumbPictureSize.HasValue;
-        var products = await _recentlyViewedProductsService.GetRecentlyViewedProducts(_workContext.CurrentCustomer.Id,
+        var products = await _recentlyViewedProductsService.GetRecentlyViewedProducts(_workContextAccessor.WorkContext.CurrentCustomer.Id,
             _catalogSettings.RecentlyViewedProductsNumber);
 
         if (!products.Any())
@@ -55,7 +55,7 @@ public class RecentlyViewedProductsBlockViewComponent : BaseViewComponent
 
     #region Fields
 
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IRecentlyViewedProductsService _recentlyViewedProductsService;
     private readonly IMediator _mediator;
 

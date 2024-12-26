@@ -37,7 +37,6 @@ public class ExternalAuthenticationServiceTests
         _mediatorMock = new Mock<IMediator>();
         _externalAuthenticationRecordRepository = new MongoDBRepositoryTest<ExternalAuthentication>();
         _workContextMock = new Mock<IWorkContextAccessor>();
-        _workContextMock.Setup(c => c.WorkContext).Returns(() => new Work());
         _externalAuthenticationProviders = new List<IExternalAuthenticationProvider>
             { new ExternalAuthenticationProviderTest() };
 

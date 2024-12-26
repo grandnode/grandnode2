@@ -35,7 +35,7 @@ public class CommonController : BasePublicController
         ILanguageService languageService,
         IMediator mediator)
     {
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _languageService = languageService;
         _mediator = mediator;
     }
@@ -45,7 +45,7 @@ public class CommonController : BasePublicController
     #region Fields
 
     private readonly ILanguageService _languageService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IMediator _mediator;
 
     #endregion
@@ -149,7 +149,7 @@ public class CommonController : BasePublicController
     {
         var language = await _languageService.GetLanguageByCode(langCode);
         if (!language?.Published ?? false)
-            language = _workContext.WorkingLanguage;
+            language = _workContextAccessor.WorkContext.WorkingLanguage;
 
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
@@ -163,10 +163,10 @@ public class CommonController : BasePublicController
 
             returnUrl = AddLanguageSeo(returnUrl, language);
         }
-        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.LanguageId, language.Id, _workContext.CurrentStore.Id);
+        await customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.LanguageId, language.Id, _workContextAccessor.WorkContext.CurrentStore.Id);
 
         //notification
-        await _mediator.Publish(new ChangeLanguageEvent(_workContext.CurrentCustomer, language));
+        await _mediator.Publish(new ChangeLanguageEvent(_workContextAccessor.WorkContext.CurrentCustomer, language));
 
         return Redirect(returnUrl);
     }
@@ -213,17 +213,17 @@ public class CommonController : BasePublicController
     {
         var currency = await currencyService.GetCurrencyByCode(currencyCode);
         if (currency != null)
-            await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.CurrencyId,
-                currency.Id, _workContext.CurrentStore.Id);
+            await customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.CurrencyId,
+                currency.Id, _workContextAccessor.WorkContext.CurrentStore.Id);
 
         //clear coupon code
-        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.DiscountCoupons, "");
+        await customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.DiscountCoupons, "");
 
         //clear gift card
-        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, "");
+        await customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, "");
 
         //notification
-        await _mediator.Publish(new ChangeCurrencyEvent(_workContext.CurrentCustomer, currency));
+        await _mediator.Publish(new ChangeCurrencyEvent(_workContextAccessor.WorkContext.CurrentCustomer, currency));
 
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
@@ -242,7 +242,7 @@ public class CommonController : BasePublicController
         [FromServices] CommonSettings commonSettings,
         string shortcut, string returnUrl = "")
     {
-        var currentstoreShortcut = _workContext.CurrentStore.Shortcut;
+        var currentstoreShortcut = _workContextAccessor.WorkContext.CurrentStore.Shortcut;
         if (currentstoreShortcut != shortcut)
             if (commonSettings.AllowToSelectStore)
             {
@@ -253,9 +253,9 @@ public class CommonController : BasePublicController
                     await storeHelper.SetStoreCookie(selectedstore.Id);
 
                     //notification
-                    await _mediator.Publish(new ChangeStoreEvent(_workContext.CurrentCustomer, selectedstore));
+                    await _mediator.Publish(new ChangeStoreEvent(_workContextAccessor.WorkContext.CurrentCustomer, selectedstore));
 
-                    if (selectedstore.Url != _workContext.CurrentStore.Url)
+                    if (selectedstore.Url != _workContextAccessor.WorkContext.CurrentStore.Url)
                         return Redirect(selectedstore.SslEnabled ? selectedstore.SecureUrl : selectedstore.Url);
                 }
             }
@@ -287,11 +287,11 @@ public class CommonController : BasePublicController
             return Redirect(returnUrl);
 
         //save passed value
-        await customerService.UpdateUserField(_workContext.CurrentCustomer,
-            SystemCustomerFieldNames.TaxDisplayTypeId, (int)taxDisplayType, _workContext.CurrentStore.Id);
+        await customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer,
+            SystemCustomerFieldNames.TaxDisplayTypeId, (int)taxDisplayType, _workContextAccessor.WorkContext.CurrentStore.Id);
 
         //notification
-        await _mediator.Publish(new ChangeTaxTypeEvent(_workContext.CurrentCustomer, taxDisplayType));
+        await _mediator.Publish(new ChangeTaxTypeEvent(_workContextAccessor.WorkContext.CurrentCustomer, taxDisplayType));
 
         return Redirect(returnUrl);
     }
@@ -312,7 +312,7 @@ public class CommonController : BasePublicController
         if (themeContext != null) await themeContext.SetTheme(themeName);
 
         //notification
-        await _mediator.Publish(new ChangeThemeEvent(_workContext.CurrentCustomer, themeName));
+        await _mediator.Publish(new ChangeThemeEvent(_workContextAccessor.WorkContext.CurrentCustomer, themeName));
 
         return Redirect(returnUrl);
     }
@@ -325,9 +325,9 @@ public class CommonController : BasePublicController
             return RedirectToRoute("HomePage");
 
         var model = await _mediator.Send(new GetSitemap {
-            Customer = _workContext.CurrentCustomer,
-            Language = _workContext.WorkingLanguage,
-            Store = _workContext.CurrentStore
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Language = _workContextAccessor.WorkContext.WorkingLanguage,
+            Store = _workContextAccessor.WorkContext.CurrentStore
         });
         return View(model);
     }
@@ -346,18 +346,18 @@ public class CommonController : BasePublicController
             return Json(new { stored = false });
 
         //save consent cookies
-        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "",
-            _workContext.CurrentStore.Id);
+        await customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "",
+            _workContextAccessor.WorkContext.CurrentStore.Id);
         var consentCookies = cookiePreference.GetConsentCookies();
         var dictionary = consentCookies.Where(x => x.AllowToDisable).ToDictionary(item => item.SystemName, item => accept);
 
         if (dictionary.Any())
-            await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies,
-                dictionary, _workContext.CurrentStore.Id);
+            await customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies,
+                dictionary, _workContextAccessor.WorkContext.CurrentStore.Id);
 
         //save setting - CookieAccepted
-        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.CookieAccepted,
-            true, _workContext.CurrentStore.Id);
+        await customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.CookieAccepted,
+            true, _workContextAccessor.WorkContext.CurrentStore.Id);
 
         return Json(new { stored = true });
     }
@@ -373,8 +373,8 @@ public class CommonController : BasePublicController
             return Json(new { html = "" });
 
         var model = await _mediator.Send(new GetPrivacyPreference {
-            Customer = _workContext.CurrentCustomer,
-            Store = _workContext.CurrentStore
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Store = _workContextAccessor.WorkContext.CurrentStore
         });
 
         return Json(new
@@ -397,8 +397,8 @@ public class CommonController : BasePublicController
             return Json(new { success = false });
 
         const string consent = "ConsentCookies";
-        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "",
-            _workContext.CurrentStore.Id);
+        await customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, "",
+            _workContextAccessor.WorkContext.CurrentStore.Id);
         var selectedConsentCookies = new List<string>();
         foreach (var item in model)
             if (item.Key.StartsWith(consent))
@@ -410,7 +410,7 @@ public class CommonController : BasePublicController
             if (item.AllowToDisable)
                 dictionary.Add(item.SystemName, selectedConsentCookies.Contains(item.SystemName));
 
-        await customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, dictionary, _workContext.CurrentStore.Id);
+        await customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.ConsentCookies, dictionary, _workContextAccessor.WorkContext.CurrentStore.Id);
 
         return Json(new { success = true });
     }
@@ -421,7 +421,7 @@ public class CommonController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> RobotsTextFile()
     {
-        var sb = await _mediator.Send(new GetRobotsTextFile { StoreId = _workContext.CurrentStore.Id });
+        var sb = await _mediator.Send(new GetRobotsTextFile { StoreId = _workContextAccessor.WorkContext.CurrentStore.Id });
         return Content(sb, "text/plain");
     }
 
@@ -453,7 +453,7 @@ public class CommonController : BasePublicController
         if (!customerSettings.GeoEnabled)
             return Content("");
 
-        await _mediator.Send(new CurrentPositionCommand { Customer = _workContext.CurrentCustomer, Model = model });
+        await _mediator.Send(new CurrentPositionCommand { Customer = _workContextAccessor.WorkContext.CurrentCustomer, Model = model });
 
         return Content("");
     }

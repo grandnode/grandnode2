@@ -68,7 +68,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly ITaxService _taxService;
     private readonly TaxSettings _taxSettings;
     private readonly IVendorService _vendorService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public PlaceOrderCommandHandler(
         IOrderService orderService,
@@ -121,7 +121,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _customerService = customerService;
         _groupService = groupService;
         _discountService = discountService;
-        _workContext = workContextAccessor.WorkContext;
+        _workContextAccessor = workContextAccessor;
         _messageProviderService = messageProviderService;
         _vendorService = vendorService;
         _salesEmployeeService = salesEmployeeService;
@@ -183,8 +183,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 #region Events & notes
 
                 _ = Task.Run(
-                    () => SendNotification(_serviceScopeFactory, result.PlacedOrder, _workContext.CurrentCustomer,
-                        _workContext.OriginalCustomerIfImpersonated), cancellationToken);
+                    () => SendNotification(_serviceScopeFactory, result.PlacedOrder, _workContextAccessor.WorkContext.CurrentCustomer,
+                        _workContextAccessor.WorkContext.OriginalCustomerIfImpersonated), cancellationToken);
 
                 //check order status
                 await _mediator.Send(new CheckOrderStatusCommand { Order = result.PlacedOrder }, cancellationToken);
@@ -273,7 +273,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         var paymentTransaction = new PaymentTransaction();
         var paymentTransactionId =
             details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PaymentTransaction,
-                _workContext.CurrentStore.Id);
+                _workContextAccessor.WorkContext.CurrentStore.Id);
         if (!string.IsNullOrEmpty(paymentTransactionId))
         {
             paymentTransaction = await _paymentTransactionService.GetById(paymentTransactionId);
@@ -291,7 +291,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         paymentTransaction.OrderGuid =
             paymentTransaction.OrderGuid == Guid.Empty ? Guid.NewGuid() : paymentTransaction.OrderGuid;
         paymentTransaction.PaymentMethodSystemName = details.PaymentMethodSystemName;
-        paymentTransaction.StoreId = _workContext.CurrentStore.Id;
+        paymentTransaction.StoreId = _workContextAccessor.WorkContext.CurrentStore.Id;
         paymentTransaction.CustomerId = details.Customer.Id;
         paymentTransaction.TransactionAmount = details.OrderTotal;
         paymentTransaction.CurrencyRate = details.CurrencyRate;
@@ -384,7 +384,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     {
         var details = new PlaceOrderContainer {
             //customer
-            Customer = _workContext.CurrentCustomer
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer
         };
         if (details.Customer == null)
             throw new ArgumentException("Customer is not set");
@@ -411,8 +411,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //customer currency
         var currencyTmp = await _currencyService.GetCurrencyById(
             details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CurrencyId,
-                _workContext.CurrentStore.Id));
-        var customerCurrency = currencyTmp is { Published: true } ? currencyTmp : _workContext.WorkingCurrency;
+                _workContextAccessor.WorkContext.CurrentStore.Id));
+        var customerCurrency = currencyTmp is { Published: true } ? currencyTmp : _workContextAccessor.WorkContext.WorkingCurrency;
         details.Currency = customerCurrency;
         var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency();
         details.CurrencyRate = Math.Round(customerCurrency.Rate / primaryStoreCurrency.Rate, 6);
@@ -421,10 +421,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //customer language
         details.Language = await _languageService.GetLanguageById(
             details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId,
-                _workContext.CurrentStore.Id));
+                _workContextAccessor.WorkContext.CurrentStore.Id));
 
         if (details.Language is not { Published: true })
-            details.Language = _workContext.WorkingLanguage;
+            details.Language = _workContextAccessor.WorkContext.WorkingLanguage;
 
         details.BillingAddress = details.Customer.BillingAddress;
         if (!string.IsNullOrEmpty(details.BillingAddress.CountryId))
@@ -437,14 +437,14 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //checkout attributes
         details.CheckoutAttributes =
             details.Customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
-                _workContext.CurrentStore.Id);
+                _workContextAccessor.WorkContext.CurrentStore.Id);
         details.CheckoutAttributeDescription =
             await _checkoutAttributeFormatter.FormatAttributes(details.CheckoutAttributes, details.Customer);
 
         //load and validate customer shopping cart
         details.Cart = details.Customer.ShoppingCartItems
             .Where(sci => sci.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions)
-            .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id)
+            .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContextAccessor.WorkContext.CurrentStore.Id)
             .ToList();
 
         if (!details.Cart.Any())
@@ -484,7 +484,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         if (_taxSettings.AllowCustomersToSelectTaxDisplayType)
             details.TaxDisplayType =
                 (TaxDisplayType)details.Customer.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.TaxDisplayTypeId,
-                    _workContext.CurrentStore.Id);
+                    _workContextAccessor.WorkContext.CurrentStore.Id);
         else
             details.TaxDisplayType = _taxSettings.TaxDisplayType;
 
@@ -517,7 +517,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         {
             var pickupPoint =
                 details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPickupPoint,
-                    _workContext.CurrentStore.Id);
+                    _workContextAccessor.WorkContext.CurrentStore.Id);
             if (_shippingSettings.AllowPickUpInStore && pickupPoint != null)
             {
                 details.PickUpInStore = true;
@@ -543,7 +543,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
             var shippingOption =
                 details.Customer.GetUserFieldFromEntity<ShippingOption>(SystemCustomerFieldNames.SelectedShippingOption,
-                    _workContext.CurrentStore.Id);
+                    _workContextAccessor.WorkContext.CurrentStore.Id);
             if (shippingOption != null)
             {
                 details.ShippingMethodName = shippingOption.Name;
@@ -573,8 +573,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //payment 
         var paymentMethodSystemName =
-            _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPaymentMethod,
-                _workContext.CurrentStore.Id);
+            _workContextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPaymentMethod,
+                _workContextAccessor.WorkContext.CurrentStore.Id);
         details.PaymentMethodSystemName = paymentMethodSystemName;
         var paymentAdditionalFee =
             await _paymentService.GetAdditionalHandlingFee(details.Cart, paymentMethodSystemName);
@@ -644,7 +644,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         var itemWeight = await GetShoppingCartItemWeight(sc);
         var warehouseId = !string.IsNullOrEmpty(sc.WarehouseId)
             ? sc.WarehouseId
-            : _workContext.CurrentStore.DefaultWarehouseId;
+            : _workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId;
         if (!product.UseMultipleWarehouses && string.IsNullOrEmpty(warehouseId))
             if (!string.IsNullOrEmpty(product.WarehouseId))
                 warehouseId = product.WarehouseId;
@@ -741,7 +741,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 SenderEmail = giftVoucherSenderEmail,
                 Message = giftVoucherMessage,
                 IsRecipientNotified = false,
-                StoreId = _orderSettings.GiftVouchers_Assign_StoreId ? _workContext.CurrentStore.Id : string.Empty
+                StoreId = _orderSettings.GiftVouchers_Assign_StoreId ? _workContextAccessor.WorkContext.CurrentStore.Id : string.Empty
             };
             await _giftVoucherService.InsertGiftVoucher(gc);
         }
