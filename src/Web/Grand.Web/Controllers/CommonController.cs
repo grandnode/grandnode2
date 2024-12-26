@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
+﻿using Grand.Business.Common.Services.Stores;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -12,6 +13,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Attributes;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Customers;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
@@ -238,8 +240,8 @@ public class CommonController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> SetStore(
         [FromServices] IStoreService storeService,
-        [FromServices] IStoreHelper storeHelper,
         [FromServices] CommonSettings commonSettings,
+        [FromServices] SecurityConfig securityConfig,
         string shortcut, string returnUrl = "")
     {
         var currentstoreShortcut = _workContextAccessor.WorkContext.CurrentStore.Shortcut;
@@ -250,7 +252,7 @@ public class CommonController : BasePublicController
                     string.Equals(x.Shortcut, shortcut, StringComparison.InvariantCultureIgnoreCase));
                 if (selectedstore != null)
                 {
-                    await storeHelper.SetStoreCookie(selectedstore.Id);
+                    SetStoreCookie(selectedstore);
 
                     //notification
                     await _mediator.Publish(new ChangeStoreEvent(_workContextAccessor.WorkContext.CurrentCustomer, selectedstore));
@@ -265,6 +267,25 @@ public class CommonController : BasePublicController
             returnUrl = Url.RouteUrl("HomePage");
 
         return Redirect(returnUrl);
+
+        void SetStoreCookie(Store store)
+        {
+            if (store == null)
+                return;
+
+            //remove current cookie
+            HttpContext.Response.Cookies.Delete(CommonHelper.StoreCookieName);
+
+            //get date of cookie expiration
+            var cookieExpiresDate = DateTime.UtcNow.AddHours(securityConfig.CookieAuthExpires);
+
+            //set new cookie value
+            var options = new CookieOptions {
+                HttpOnly = true,
+                Expires = cookieExpiresDate
+            };
+            HttpContext.Response.Cookies.Append(CommonHelper.StoreCookieName, store.Id, options);
+        }
     }
 
     [DenySystemAccount]

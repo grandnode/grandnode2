@@ -82,9 +82,6 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddSingleton<IWorkContextAccessor, WorkContextAccessor>();
         serviceCollection.AddScoped<IWorkContextSetter, WorkContextSetter>();
 
-        //helper for Settings
-        serviceCollection.AddScoped<IStoreHelper, StoreHelper>();
-
         //View factory
         serviceCollection.AddScoped<IViewFactory, ViewFactory>();
 

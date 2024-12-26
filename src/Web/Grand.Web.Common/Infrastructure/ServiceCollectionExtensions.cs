@@ -255,7 +255,7 @@ public static class ServiceCollectionExtensions
                 var type = item.GetType();
                 var storeId = "";
                 var settingService = x.GetRequiredService<ISettingService>();
-                var store = x.GetRequiredService<IStoreHelper>().StoreHost;
+                var store = x.GetRequiredService<IWorkContextAccessor>().WorkContext?.CurrentStore;
                 if (store != null)
                     storeId = store.Id;
 

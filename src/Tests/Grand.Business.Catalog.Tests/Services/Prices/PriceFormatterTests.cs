@@ -32,7 +32,6 @@ public class PriceFormatterTests
 
     private TaxSettings _taxSettings;
     private ITranslationService _translationService;
-    private IWorkContextAccessor _workContext;
     private Mock<IWorkContextAccessor> tempWorkContext;
 
     [TestInitialize]
@@ -100,7 +99,7 @@ public class PriceFormatterTests
             _translationService = tempLocalizationService.Object;
         }
 
-        _priceFormatter = new PriceFormatter(_workContext);
+        _priceFormatter = new PriceFormatter(tempWorkContext.Object);
     }
 
     [TestMethod]

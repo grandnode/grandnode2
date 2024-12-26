@@ -10,6 +10,8 @@ namespace Grand.SharedKernel.Extensions;
 /// </summary>
 public static class CommonHelper
 {
+    public const string StoreCookieName = ".Grand.Store";
+
     /// <summary>
     ///     Ensures the subscriber email or throw.
     /// </summary>
