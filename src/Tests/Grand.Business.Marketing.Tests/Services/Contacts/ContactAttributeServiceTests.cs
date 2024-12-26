@@ -21,16 +21,16 @@ public class ContactAttributeServiceTests
     private ContactAttributeService _contactAttributeService;
     private Mock<IMediator> _mediatorMock;
     private IRepository<ContactAttribute> _repository;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
         _repository = new MongoDBRepositoryTest<ContactAttribute>();
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IWorkContext>();
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
+        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
         var accessControlConfig = new AccessControlConfig();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });

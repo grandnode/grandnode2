@@ -24,7 +24,7 @@ public class AuthorizeMenuAttributeTests
     private Mock<IAdminSiteMapService> _mockAdminSiteMapService;
     private AuthorizationFilterContext _mockFilterContext;
     private Mock<IPermissionService> _mockPermissionService;
-    private Mock<IWorkContext> _mockWorkContext;
+    private Mock<IWorkContextAccessor> _mockWorkContext;
     private SecurityConfig _securityConfig;
 
     [TestInitialize]
@@ -35,7 +35,7 @@ public class AuthorizeMenuAttributeTests
         var settings = DataSettingsManager.Instance.LoadSettings();
         _mockPermissionService = new Mock<IPermissionService>();
         _mockAdminSiteMapService = new Mock<IAdminSiteMapService>();
-        _mockWorkContext = new Mock<IWorkContext>();
+        _mockWorkContext = new Mock<IWorkContextAccessor>();
         _securityConfig = new SecurityConfig();
         var filters = new List<IFilterMetadata> {
             new AuthorizeMenuAttribute()

@@ -29,7 +29,7 @@ public class CampaignServiceTests
     private IRepository<NewsLetterSubscription> _newsLetterSubscriptionRepository;
     private Mock<IQueuedEmailService> _queuedEmailServiceMock;
     private Mock<IStoreService> _storeServiceMock;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -43,7 +43,7 @@ public class CampaignServiceTests
         _queuedEmailServiceMock = new Mock<IQueuedEmailService>();
         _storeServiceMock = new Mock<IStoreService>();
         _languageServiceMock = new Mock<ILanguageService>();
-        _workContextMock = new Mock<IWorkContext>();
+        _workContextMock = new Mock<IWorkContextAccessor>();
         _campaignService = new CampaignService(_campaignRepository, _campaignHistoryRepository,
             _newsLetterSubscriptionRepository, _customerRepository,
             _emailSenderMock.Object, _queuedEmailServiceMock.Object, _storeServiceMock.Object, _mediatorMock.Object,

@@ -18,14 +18,14 @@ public class ContactAttributeParserTests
     private List<ContactAttribute> _contactAtr;
     private Mock<IContactAttributeService> _contactAttributeServiceMock;
     private ContactAttributeParser _parser;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
     private List<CustomAttribute> customAtr;
 
     [TestInitialize]
     public void Init()
     {
         _contactAttributeServiceMock = new Mock<IContactAttributeService>();
-        _workContextMock = new Mock<IWorkContext>();
+        _workContextMock = new Mock<IWorkContextAccessor>();
         var _translationServiceMock = new Mock<ITranslationService>();
         {
             _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Warning{0}");

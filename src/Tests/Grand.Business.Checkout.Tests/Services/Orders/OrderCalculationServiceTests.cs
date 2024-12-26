@@ -46,12 +46,12 @@ public class OrderCalculationServiceTests
     private Mock<ITaxService> _taxServiceMock;
     private TaxSettings _taxSettings;
 
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
-        _workContextMock = new Mock<IWorkContext>();
+        _workContextMock = new Mock<IWorkContextAccessor>();
         _pricingServiceMock = new Mock<IPricingService>();
         _taxServiceMock = new Mock<ITaxService>();
         _shippingServiceMock = new Mock<IShippingService>();
@@ -69,12 +69,12 @@ public class OrderCalculationServiceTests
         _shoppingCartSettings = new ShoppingCartSettings();
         _catalogSettings = new CatalogSettings();
         _discountValidationService = new Mock<IDiscountValidationService>();
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
+        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
         var customer = new Customer();
         customer.Groups.Add("1");
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => customer);
-        _workContextMock.Setup(c => c.WorkingCurrency).Returns(() => new Currency());
-        _workContextMock.Setup(c => c.TaxDisplayType).Returns(() => TaxDisplayType.ExcludingTax);
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => customer);
+        _workContextMock.Setup(c => c.WorkContext.WorkingCurrency).Returns(() => new Currency());
+        _workContextMock.Setup(c => c.WorkContext.TaxDisplayType).Returns(() => TaxDisplayType.ExcludingTax);
 
         _service = new OrderCalculationService(_workContextMock.Object, _pricingServiceMock.Object,
             _taxServiceMock.Object, _shippingServiceMock.Object,

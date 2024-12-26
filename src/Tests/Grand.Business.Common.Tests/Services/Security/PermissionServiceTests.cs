@@ -18,14 +18,14 @@ public class PermissionServiceTests
     private Mock<IRepository<PermissionAction>> _permissionActionRepositoryMock;
     private Mock<IRepository<Permission>> _permissionRepositoryMock;
     private PermissionService _service;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
         _permissionRepositoryMock = new Mock<IRepository<Permission>>();
         _permissionActionRepositoryMock = new Mock<IRepository<PermissionAction>>();
-        _workContextMock = new Mock<IWorkContext>();
+        _workContextMock = new Mock<IWorkContextAccessor>();
         _groupServiceMock = new Mock<IGroupService>();
         _cacheMock = new Mock<ICacheBase>();
         _service = new PermissionService(_permissionRepositoryMock.Object, _permissionActionRepositoryMock.Object,
@@ -39,7 +39,7 @@ public class PermissionServiceTests
         var permission = new Permission { SystemName = "permistion" };
         var fakeCustomer = new Customer();
         fakeCustomer.Groups.Add("group1");
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(fakeCustomer);
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(fakeCustomer);
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>()))
             .Returns(Task.FromResult(true));
         _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
@@ -53,7 +53,7 @@ public class PermissionServiceTests
         Permission permission = null;
         var fakeCustomer = new Customer();
         fakeCustomer.Groups.Add("group1");
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(fakeCustomer);
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(fakeCustomer);
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>()))
             .Returns(Task.FromResult(true));
         _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))

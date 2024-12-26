@@ -22,14 +22,14 @@ public class CollectionServiceTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IRepository<Collection>> _repositoryMock;
     private CatalogSettings _settings;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<IRepository<Collection>>();
-        _workContextMock = new Mock<IWorkContext>();
+        _workContextMock = new Mock<IWorkContextAccessor>();
         _mediatorMock = new Mock<IMediator>();
         _aclMock = new Mock<IAclService>();
         _settings = new CatalogSettings();

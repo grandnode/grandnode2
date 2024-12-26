@@ -19,7 +19,7 @@ public class CheckoutAttributeServiceTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IRepository<CheckoutAttribute>> _repositoryMock;
     private ICheckoutAttributeService _service;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -27,7 +27,7 @@ public class CheckoutAttributeServiceTests
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<IRepository<CheckoutAttribute>>();
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IWorkContext>();
+        _workContextMock = new Mock<IWorkContextAccessor>();
         _service = new CheckoutAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object,
             _workContextMock.Object, new AccessControlConfig());
     }

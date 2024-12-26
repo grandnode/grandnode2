@@ -27,15 +27,15 @@ public class ProductServiceTests
     private Mock<IMediator> _mediatorMock;
     private IRepository<Product> _productRepository;
     private ProductService _productService;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void InitializeTests()
     {
         _productRepository = new MongoDBRepositoryTest<Product>();
-        _workContextMock = new Mock<IWorkContext>();
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
+        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
         _mediatorMock = new Mock<IMediator>();
 
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetProductArchByIdQuery>(), default))

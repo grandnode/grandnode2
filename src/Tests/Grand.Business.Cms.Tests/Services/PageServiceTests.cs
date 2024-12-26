@@ -25,7 +25,7 @@ public class PageServiceTests
     private PageService _pageService;
 
     private IRepository<Page> _repository;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -33,15 +33,15 @@ public class PageServiceTests
         _repository = new MongoDBRepositoryTest<Page>();
 
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IWorkContext>();
+        _workContextMock = new Mock<IWorkContextAccessor>();
 
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
         _aclService = new AclService(new AccessControlConfig());
 
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
+        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
 
         _pageService = new PageService(_repository, _workContextMock.Object, _aclService, _mediatorMock.Object,
             _cacheBase, new AccessControlConfig());

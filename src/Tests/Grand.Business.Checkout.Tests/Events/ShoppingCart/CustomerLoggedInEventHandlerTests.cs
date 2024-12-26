@@ -13,13 +13,13 @@ public class CustomerLoggedInEventHandlerTests
 {
     private CustomerLoggedInEventHandler _customerLoggedInEventHandler;
     private Mock<IShoppingCartService> _shoppingCartServiceMock;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
         _shoppingCartServiceMock = new Mock<IShoppingCartService>();
-        _workContextMock = new Mock<IWorkContext>();
+        _workContextMock = new Mock<IWorkContextAccessor>();
         _customerLoggedInEventHandler =
             new CustomerLoggedInEventHandler(_shoppingCartServiceMock.Object, _workContextMock.Object);
     }

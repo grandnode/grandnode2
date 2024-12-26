@@ -26,15 +26,15 @@ public class CategoryServiceDbTests
     private CategoryService _categoryService;
     private Mock<IMediator> _mediatorMock;
     private CatalogSettings _settings;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void InitializeTests()
     {
         _categoryRepository = new MongoDBRepositoryTest<Category>();
-        _workContextMock = new Mock<IWorkContext>();
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
+        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
         _mediatorMock = new Mock<IMediator>();
         _aclServiceMock = new AclService(new AccessControlConfig());
         _settings = new CatalogSettings();

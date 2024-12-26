@@ -44,10 +44,10 @@ public class PriceServiceTests
     private IProductService _productService;
     private ShoppingCartSettings _shoppingCartSettings;
     private Store _store;
-    private IWorkContext _workContext;
+    private IWorkContextAccessor _workContext;
     private Mock<IDiscountService> tempDiscountServiceMock;
     private Mock<IProductService> tempProductService;
-    private Mock<IWorkContext> tempWorkContext;
+    private Mock<IWorkContextAccessor> tempWorkContext;
 
     [TestInitialize]
     public void TestInitialize()
@@ -56,10 +56,10 @@ public class PriceServiceTests
         DataSettingsManager.Initialize(settingsPath);
 
         _store = new Store { Id = "1" };
-        tempWorkContext = new Mock<IWorkContext>();
+        tempWorkContext = new Mock<IWorkContextAccessor>();
         {
-            tempWorkContext.Setup(instance => instance.WorkingCurrency).Returns(_currency);
-            tempWorkContext.Setup(c => c.CurrentStore).Returns(_store);
+            tempWorkContext.Setup(instance => instance.WorkContext.WorkingCurrency).Returns(_currency);
+            tempWorkContext.Setup(c => c.WorkContext.CurrentStore).Returns(_store);
             _workContext = tempWorkContext.Object;
         }
 
@@ -282,8 +282,8 @@ public class PriceServiceTests
     public async Task Can_get_shopping_cart_item_unitPrice()
     {
         var customer001 = new Customer { Id = "98767" };
-        tempWorkContext.Setup(x => x.CurrentCustomer).Returns(customer001);
-        tempWorkContext.Setup(x => x.WorkingCurrency).Returns(_currency);
+        tempWorkContext.Setup(x => x.WorkContext.CurrentCustomer).Returns(customer001);
+        tempWorkContext.Setup(x => x.WorkContext.WorkingCurrency).Returns(_currency);
         var product001 = new Product {
             Id = "242422",
             Name = "product name 01",
@@ -329,8 +329,8 @@ public class PriceServiceTests
         tempProductService.Setup(x => x.GetProductById("242422", false)).ReturnsAsync(product001);
 
         var customer001 = new Customer { Id = "98767" };
-        tempWorkContext.Setup(x => x.CurrentCustomer).Returns(customer001);
-        tempWorkContext.Setup(x => x.WorkingCurrency).Returns(_currency);
+        tempWorkContext.Setup(x => x.WorkContext.CurrentCustomer).Returns(customer001);
+        tempWorkContext.Setup(x => x.WorkContext.WorkingCurrency).Returns(_currency);
         var shoppingCartItem = new ShoppingCartItem {
             ProductId = product001.Id, //222
             Quantity = 2
