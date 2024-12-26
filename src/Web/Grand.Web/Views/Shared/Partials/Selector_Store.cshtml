@@ -3,7 +3,7 @@
 @inject IStoreService StoreService
 @inject IWorkContextAccessor workContextAccessor
 @{
-    var availableStores = StoreService.GetAll()
+    var availableStores = (await StoreService.GetAllStores())
         .Select(x =>
         {
             //model

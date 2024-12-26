@@ -248,7 +248,7 @@ public class CommonController : BasePublicController
         if (currentstoreShortcut != shortcut)
             if (commonSettings.AllowToSelectStore)
             {
-                var selectedstore = storeService.GetAll().FirstOrDefault(x =>
+                var selectedstore = (await storeService.GetAllStores()).FirstOrDefault(x =>
                     string.Equals(x.Shortcut, shortcut, StringComparison.InvariantCultureIgnoreCase));
                 if (selectedstore != null)
                 {

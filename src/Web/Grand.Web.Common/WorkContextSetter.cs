@@ -13,6 +13,7 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
@@ -38,7 +39,6 @@ public class WorkContextSetter : IWorkContextSetter
         IStoreService storeService,
         IAclService aclService,
         IVendorService vendorService,
-        LanguageSettings languageSettings,
         TaxSettings taxSettings,
         AppConfig config)
     {
@@ -51,7 +51,6 @@ public class WorkContextSetter : IWorkContextSetter
         _storeService = storeService;
         _aclService = aclService;
         _vendorService = vendorService;
-        _languageSettings = languageSettings;
         _taxSettings = taxSettings;
         _config = config;
     }
@@ -70,7 +69,6 @@ public class WorkContextSetter : IWorkContextSetter
     private readonly IAclService _aclService;
     private readonly IVendorService _vendorService;
 
-    private readonly LanguageSettings _languageSettings;
     private readonly TaxSettings _taxSettings;
     private readonly AppConfig _config;
 
@@ -347,8 +345,7 @@ public class WorkContextSetter : IWorkContextSetter
         var customerLanguageId =
             customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId, store.Id);
 
-        if (_languageSettings.AutomaticallyDetectLanguage &&
-            language == null && string.IsNullOrEmpty(customerLanguageId))
+        if (language == null && string.IsNullOrEmpty(customerLanguageId))
             language = await GetLanguageFromRequest(allStoreLanguages, store);
 
         //check customer language 
@@ -420,10 +417,9 @@ public class WorkContextSetter : IWorkContextSetter
         return await Task.FromResult(taxDisplayType);
     }
 
-    private const string StoreCookieName = ".Grand.Store";
     private string GetStoreCookie()
     {
-        return _httpContextAccessor.HttpContext?.Request.Cookies[StoreCookieName];
+        return _httpContextAccessor.HttpContext?.Request.Cookies[CommonHelper.StoreCookieName];
     }
 
     protected async Task<Store> CurrentStore(string id = null)
@@ -433,7 +429,7 @@ public class WorkContextSetter : IWorkContextSetter
 
         var host = _httpContextAccessor.HttpContext?.Request.Host.Host;
 
-        var allStores = _storeService.GetAll();
+        var allStores = await _storeService.GetAllStores();
         var stores = allStores.Where(s => s.ContainsHostValue(host)).ToList();
         if (!stores.Any())
             return allStores.FirstOrDefault();

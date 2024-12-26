@@ -14,12 +14,6 @@ public interface IStoreService
     Task<IList<Store>> GetAllStores();
 
     /// <summary>
-    ///     Gets all stores
-    /// </summary>
-    /// <returns>Stores</returns>
-    IList<Store> GetAll();
-
-    /// <summary>
     ///     Gets a store
     /// </summary>
     /// <param name="storeId">Store identifier</param>

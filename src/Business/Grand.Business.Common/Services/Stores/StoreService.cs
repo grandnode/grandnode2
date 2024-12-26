@@ -57,18 +57,6 @@ public class StoreService : IStoreService
     }
 
     /// <summary>
-    ///     Gets all stores
-    /// </summary>
-    /// <returns>Stores</returns>
-    public virtual IList<Store> GetAll()
-    {
-        return _allStores ??= _cacheBase.Get(CacheKey.STORES_ALL_KEY, () =>
-        {
-            return _storeRepository.Table.OrderBy(x => x.DisplayOrder).ToList();
-        });
-    }
-
-    /// <summary>
     ///     Gets a store
     /// </summary>
     /// <param name="storeId">Store identifier</param>
