@@ -74,6 +74,8 @@ public class WorkContextSetter : IWorkContextSetter
     private readonly TaxSettings _taxSettings;
     private readonly AppConfig _config;
 
+    private Customer _originalCustomerIfImpersonated;
+
     #endregion
 
     #region Utilities
@@ -132,18 +134,15 @@ public class WorkContextSetter : IWorkContextSetter
         return requestLanguage;
     }
 
-    protected virtual async Task<Customer> SetImpersonatedCustomer(Customer customer)
+    protected virtual async Task<Customer> OriginalCustomerIfImpersonated(Customer customer)
     {
-        //get impersonate user if required
-        var impersonatedCustomerId =
-            customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ImpersonatedCustomerId);
+        var impersonatedCustomerId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ImpersonatedCustomerId);
         if (string.IsNullOrEmpty(impersonatedCustomerId)) return null;
         var impersonatedCustomer = await _customerService.GetCustomerById(impersonatedCustomerId);
         if (impersonatedCustomer is not { Deleted: false, Active: true }) return null;
-        //set impersonated customer
-        //_originalCustomerIfImpersonated = customer;
         return impersonatedCustomer;
     }
+
 
     #endregion
 
@@ -161,7 +160,7 @@ public class WorkContextSetter : IWorkContextSetter
         if (workContext.CurrentCustomer != null)
         {
             workContext.CurrentVendor = await CurrentVendor(workContext.CurrentCustomer);
-            workContext.OriginalCustomerIfImpersonated = await ImpersonatedCustomer(workContext.CurrentCustomer);
+            workContext.OriginalCustomerIfImpersonated = _originalCustomerIfImpersonated;
             workContext.WorkingLanguage = await WorkingLanguage(workContext.CurrentCustomer, workContext.CurrentStore);
             workContext.WorkingCurrency = await WorkingCurrency(workContext.CurrentCustomer, workContext.WorkingLanguage, workContext.CurrentStore);
             workContext.TaxDisplayType = await TaxDisplayType(workContext.CurrentCustomer, workContext.CurrentStore);
@@ -219,10 +218,12 @@ public class WorkContextSetter : IWorkContextSetter
         var customer = await _authenticationService.GetAuthenticatedCustomer();
         if (customer == null) return null;
 
-        //var impersonatedCustomer = await SetImpersonatedCustomer(customer);
-        //if (impersonatedCustomer != null)
-        //    customer = impersonatedCustomer;
-
+        var impersonatedCustomer = await ImpersonatedCustomer(customer);
+        if (impersonatedCustomer != null)
+        {
+            _originalCustomerIfImpersonated = customer;
+            return impersonatedCustomer;
+        }
         return customer;
     }
 
@@ -293,7 +294,6 @@ public class WorkContextSetter : IWorkContextSetter
     /// </summary>
     protected async Task<Customer> ImpersonatedCustomer(Customer customer)
     {
-        //get impersonate user if required
         var impersonatedCustomerId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ImpersonatedCustomerId);
         if (string.IsNullOrEmpty(impersonatedCustomerId)) return null;
         var impersonatedCustomer = await _customerService.GetCustomerById(impersonatedCustomerId);
