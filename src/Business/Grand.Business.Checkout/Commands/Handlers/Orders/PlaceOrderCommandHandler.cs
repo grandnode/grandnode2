@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Commands.Messages.Common;
 using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
@@ -11,7 +12,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
@@ -20,7 +20,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Discounts;
-using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
@@ -29,7 +28,6 @@ using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
@@ -61,7 +59,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly IProductReservationService _productReservationService;
     private readonly IProductService _productService;
     private readonly ISalesEmployeeService _salesEmployeeService;
-    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ShippingSettings _shippingSettings;
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly IShoppingCartValidator _shoppingCartValidator;
@@ -98,7 +95,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         IAuctionService auctionService,
         ICountryService countryService,
         IShoppingCartValidator shoppingCartValidator,
-        IServiceScopeFactory serviceScopeFactory,
         ShippingSettings shippingSettings,
         ShoppingCartSettings shoppingCartSettings,
         PaymentSettings paymentSettings,
@@ -132,7 +128,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _auctionService = auctionService;
         _countryService = countryService;
         _shoppingCartValidator = shoppingCartValidator;
-        _serviceScopeFactory = serviceScopeFactory;
         _shippingSettings = shippingSettings;
         _shoppingCartSettings = shoppingCartSettings;
         _paymentSettings = paymentSettings;
@@ -182,9 +177,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
                 #region Events & notes
 
-                _ = Task.Run(
-                    () => SendNotification(_serviceScopeFactory, result.PlacedOrder, _workContextAccessor.WorkContext.CurrentCustomer,
-                        _workContextAccessor.WorkContext.OriginalCustomerIfImpersonated), cancellationToken);
+                await _mediator.Send(new OrderNotificationCommand { Order = result.PlacedOrder, WorkContext = _workContextAccessor.WorkContext }, cancellationToken);
 
                 //check order status
                 await _mediator.Send(new CheckOrderStatusCommand { Order = result.PlacedOrder }, cancellationToken);
@@ -359,19 +352,19 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 switch (attributeValue.AttributeValueTypeId)
                 {
                     case AttributeValueType.Simple:
-                    {
-                        //simple attribute
-                        attributesTotalWeight += attributeValue.WeightAdjustment;
-                    }
+                        {
+                            //simple attribute
+                            attributesTotalWeight += attributeValue.WeightAdjustment;
+                        }
                         break;
                     case AttributeValueType.AssociatedToProduct:
-                    {
-                        //bundled product
-                        var associatedProduct =
-                            await _productService.GetProductById(attributeValue.AssociatedProductId);
-                        if (associatedProduct is { IsShipEnabled: true })
-                            attributesTotalWeight += associatedProduct.Weight * attributeValue.Quantity;
-                    }
+                        {
+                            //bundled product
+                            var associatedProduct =
+                                await _productService.GetProductById(attributeValue.AssociatedProductId);
+                            if (associatedProduct is { IsShipEnabled: true })
+                                attributesTotalWeight += associatedProduct.Weight * attributeValue.Quantity;
+                        }
                         break;
                 }
         }
@@ -1029,87 +1022,5 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         await _customerService.ResetCheckoutData(details.Customer, order.StoreId, true, true);
 
         return order;
-    }
-
-    /// <summary>
-    ///     Send notification order
-    /// </summary>
-    /// <param name="scopeFactory"></param>
-    /// <param name="order">Order</param>
-    /// <param name="customer"></param>
-    /// <param name="originalCustomerIfImpersonated"></param>
-    protected virtual async Task SendNotification(IServiceScopeFactory scopeFactory, Order order, Customer customer,
-        Customer originalCustomerIfImpersonated)
-    {
-        using var scope = scopeFactory.CreateScope();
-        var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
-        var messageProviderService = scope.ServiceProvider.GetRequiredService<IMessageProviderService>();
-        var orderSettings = scope.ServiceProvider.GetRequiredService<OrderSettings>();
-        var languageSettings = scope.ServiceProvider.GetRequiredService<LanguageSettings>();
-        var pdfService = scope.ServiceProvider.GetRequiredService<IPdfService>();
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        try
-        {
-            //notes, messages
-            if (originalCustomerIfImpersonated != null)
-                //this order is placed by a store administrator impersonating a customer
-                await orderService.InsertOrderNote(new OrderNote {
-                    Note =
-                        $"Order placed by a store owner ('{originalCustomerIfImpersonated.Email}'. ID = {originalCustomerIfImpersonated.Id}) impersonating the customer.",
-                    DisplayToCustomer = false,
-                    OrderId = order.Id
-                });
-            else
-                await orderService.InsertOrderNote(new OrderNote {
-                    Note = "Order placed",
-                    DisplayToCustomer = false,
-                    OrderId = order.Id
-                });
-
-            //send email notifications
-            await messageProviderService.SendOrderPlacedStoreOwnerMessage(order, customer,
-                languageSettings.DefaultAdminLanguageId);
-
-            string orderPlacedAttachmentFilePath = string.Empty, orderPlacedAttachmentFileName = string.Empty;
-            var orderPlacedAttachments = new List<string>();
-
-            try
-            {
-                orderPlacedAttachmentFilePath =
-                    orderSettings.AttachPdfInvoiceToOrderPlacedEmail && !orderSettings.AttachPdfInvoiceToBinary
-                        ? await pdfService.PrintOrderToPdf(order, order.CustomerLanguageId)
-                        : null;
-                orderPlacedAttachmentFileName =
-                    orderSettings.AttachPdfInvoiceToOrderPlacedEmail && !orderSettings.AttachPdfInvoiceToBinary
-                        ? "order.pdf"
-                        : null;
-                orderPlacedAttachments = orderSettings.AttachPdfInvoiceToOrderPlacedEmail &&
-                                         orderSettings.AttachPdfInvoiceToBinary
-                    ? [
-                        await pdfService.SaveOrderToBinary(order, order.CustomerLanguageId)
-                    ]
-                    : [];
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error - order placed attachment file {OrderOrderNumber}", order.OrderNumber);
-            }
-
-            await messageProviderService
-                .SendOrderPlacedCustomerMessage(order, customer, order.CustomerLanguageId,
-                    orderPlacedAttachmentFilePath, orderPlacedAttachmentFileName, orderPlacedAttachments);
-
-            if (order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
-            {
-                var vendors = await mediator.Send(new GetVendorsInOrderQuery { Order = order });
-                foreach (var vendor in vendors)
-                    await messageProviderService.SendOrderPlacedVendorMessage(order, customer, vendor,
-                        languageSettings.DefaultAdminLanguageId);
-            }
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Place order send notification error");
-        }
     }
 }
