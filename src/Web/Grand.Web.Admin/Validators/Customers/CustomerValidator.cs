@@ -17,7 +17,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
         IEnumerable<IValidatorConsumer<CustomerModel>> validators,
         ITranslationService translationService,
         ICountryService countryService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICustomerService customerService,
         IGroupService groupService,
         CustomerSettings customerSettings)
@@ -118,11 +118,11 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                     return "Add the customer to 'Guests' or 'Registered' customer group";
             }
 
-            if (await groupService.IsSalesManager(workContext.CurrentCustomer) &&
+            if (await groupService.IsSalesManager(workContextAccessor.WorkContext.CurrentCustomer) &&
                 (isInGuestsGroup || customerGroups.Count != 1))
                 return "Sales manager can assign role 'Registered' only";
 
-            if (!await groupService.IsAdmin(workContext.CurrentCustomer) && isAdminGroup)
+            if (!await groupService.IsAdmin(workContextAccessor.WorkContext.CurrentCustomer) && isAdminGroup)
                 return "Only administrators can assign role 'Administrators'";
 
             switch (isAdminGroup)
@@ -230,8 +230,8 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                     }
 
                     var customer = await customerService.GetCustomerById(x.Id);
-                    if (await groupService.IsSalesManager(workContext.CurrentCustomer) &&
-                        customer?.Id == workContext.CurrentCustomer.Id)
+                    if (await groupService.IsSalesManager(workContextAccessor.WorkContext.CurrentCustomer) &&
+                        customer?.Id == workContextAccessor.WorkContext.CurrentCustomer.Id)
                         context.AddFailure("You can't edit own data from admin panel");
 
                     if (customer != null && customer.Email != x.Email.ToLower())

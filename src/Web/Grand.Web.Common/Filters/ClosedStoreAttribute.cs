@@ -39,13 +39,13 @@ public class ClosedStoreAttribute : TypeFilterAttribute
 
         public CheckAccessClosedStoreFilter(bool ignoreFilter,
             IPermissionService permissionService,
-            IWorkContext workContext,
+            IWorkContextAccessor workContextAccessor,
             IPageService pageService,
             StoreInformationSettings storeInformationSettings)
         {
             _ignoreFilter = ignoreFilter;
             _permissionService = permissionService;
-            _workContext = workContext;
+            _workContextAccessor = workContextAccessor;
             _pageService = pageService;
             _storeInformationSettings = storeInformationSettings;
         }
@@ -104,7 +104,7 @@ public class ClosedStoreAttribute : TypeFilterAttribute
             {
                 //get identifiers of pages are accessible when a store is closed
                 var now = DateTime.UtcNow;
-                var allowedPageIds = (await _pageService.GetAllPages(_workContext.CurrentStore.Id))
+                var allowedPageIds = (await _pageService.GetAllPages(_workContextAccessor.WorkContext.CurrentStore.Id))
                     .Where(t => t.AccessibleWhenStoreClosed &&
                                 (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
                                 (!t.EndDateUtc.HasValue || t.EndDateUtc > now))
@@ -136,7 +136,7 @@ public class ClosedStoreAttribute : TypeFilterAttribute
 
         private readonly bool _ignoreFilter;
         private readonly IPermissionService _permissionService;
-        private readonly IWorkContext _workContext;
+        private readonly IWorkContextAccessor _workContextAccessor;
         private readonly IPageService _pageService;
         private readonly StoreInformationSettings _storeInformationSettings;
 

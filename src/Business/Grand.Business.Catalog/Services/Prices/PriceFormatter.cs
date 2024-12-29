@@ -12,15 +12,15 @@ public class PriceFormatter : IPriceFormatter
 {
     #region Fields
 
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     #endregion
 
     #region Constructors
 
-    public PriceFormatter(IWorkContext workContext)
+    public PriceFormatter(IWorkContextAccessor workContextAccessor)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     #endregion
@@ -73,7 +73,7 @@ public class PriceFormatter : IPriceFormatter
     /// <returns>Price</returns>
     public virtual string FormatPrice(double price)
     {
-        return FormatPrice(price, _workContext.WorkingCurrency);
+        return FormatPrice(price, _workContextAccessor.WorkContext.WorkingCurrency);
     }
 
     /// <summary>

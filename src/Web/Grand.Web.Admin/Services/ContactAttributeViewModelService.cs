@@ -14,14 +14,14 @@ namespace Grand.Web.Admin.Services;
 public class ContactAttributeViewModelService(
     IContactAttributeService contactAttributeService,
     IContactAttributeParser contactAttributeParser,
-    IWorkContext workContext,
+    IWorkContextAccessor workContextAccessor,
     IEnumTranslationService enumTranslationService)
     : IContactAttributeViewModelService
 {
     public virtual async Task<IEnumerable<ContactAttributeModel>> PrepareContactAttributeListModel()
     {
         var contactAttributes =
-            await contactAttributeService.GetAllContactAttributes(workContext.CurrentCustomer.StaffStoreId, true);
+            await contactAttributeService.GetAllContactAttributes(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId, true);
         return contactAttributes.Select(x =>
         {
             var attributeModel = x.ToModel();
@@ -49,7 +49,7 @@ public class ContactAttributeViewModelService(
             EnableCondition = contactAttribute.ConditionAttribute.Any(),
             SelectedAttributeId = selectedAttribute != null ? selectedAttribute.Id : "",
             ConditionAttributes =
-                (await contactAttributeService.GetAllContactAttributes(workContext.CurrentCustomer.StaffStoreId, true))
+                (await contactAttributeService.GetAllContactAttributes(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId, true))
                 //ignore this attribute and non-combinable attributes
                 .Where(x => x.Id != contactAttribute.Id && x.CanBeUsedAsCondition())
                 .Select(x =>

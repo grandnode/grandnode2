@@ -12,15 +12,15 @@ public class CollectionProductModelValidator : BaseGrandValidator<CollectionMode
 {
     public CollectionProductModelValidator(
         IEnumerable<IValidatorConsumer<CollectionModel.CollectionProductModel>> validators,
-        ITranslationService translationService, ICollectionService collectionService, IWorkContext workContext)
+        ITranslationService translationService, ICollectionService collectionService, IWorkContextAccessor workContextAccessor)
         : base(validators)
     {
-        if (!string.IsNullOrEmpty(workContext.CurrentCustomer.StaffStoreId))
+        if (!string.IsNullOrEmpty(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 var collection = await collectionService.GetCollectionById(x.CollectionId);
                 if (collection != null)
-                    if (!collection.AccessToEntityByStore(workContext.CurrentCustomer.StaffStoreId))
+                    if (!collection.AccessToEntityByStore(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                         return false;
 
                 return true;

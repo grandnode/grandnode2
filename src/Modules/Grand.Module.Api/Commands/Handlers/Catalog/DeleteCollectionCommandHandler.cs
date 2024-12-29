@@ -10,16 +10,16 @@ public class DeleteCollectionCommandHandler : IRequestHandler<DeleteCollectionCo
 {
     private readonly ICollectionService _collectionService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public DeleteCollectionCommandHandler(
         ICollectionService collectionService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _collectionService = collectionService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     public async Task<bool> Handle(DeleteCollectionCommand request, CancellationToken cancellationToken)

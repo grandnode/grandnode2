@@ -22,13 +22,13 @@ public class VendorReviewController : BaseAdminController
         IVendorService vendorService,
         ITranslationService translationService,
         IGroupService groupService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _vendorViewModelService = vendorViewModelService;
         _vendorService = vendorService;
         _translationService = translationService;
         _groupService = groupService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     #endregion
@@ -38,7 +38,7 @@ public class VendorReviewController : BaseAdminController
     private readonly IVendorViewModelService _vendorViewModelService;
     private readonly IVendorService _vendorService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
 
     #endregion Fields

@@ -17,13 +17,13 @@ public class VendorContactViewComponent : BaseViewComponent
 
     public VendorContactViewComponent(
         IVendorService vendorService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         VendorSettings vendorSettings,
         CommonSettings commonSettings,
         CaptchaSettings captchaSettings)
     {
         _vendorService = vendorService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _vendorSettings = vendorSettings;
         _commonSettings = commonSettings;
         _captchaSettings = captchaSettings;
@@ -43,12 +43,12 @@ public class VendorContactViewComponent : BaseViewComponent
             return Content("");
 
         var model = new ContactVendorModel {
-            Email = _workContext.CurrentCustomer.Email,
-            FullName = _workContext.CurrentCustomer.GetFullName(),
+            Email = _workContextAccessor.WorkContext.CurrentCustomer.Email,
+            FullName = _workContextAccessor.WorkContext.CurrentCustomer.GetFullName(),
             SubjectEnabled = _commonSettings.SubjectFieldOnContactUsForm,
             DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage,
             VendorId = vendor.Id,
-            VendorName = vendor.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
+            VendorName = vendor.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)
         };
 
         return View(model);
@@ -59,7 +59,7 @@ public class VendorContactViewComponent : BaseViewComponent
     #region Fields
 
     private readonly IVendorService _vendorService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly VendorSettings _vendorSettings;
     private readonly CommonSettings _commonSettings;
     private readonly CaptchaSettings _captchaSettings;

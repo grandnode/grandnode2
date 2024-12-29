@@ -14,12 +14,12 @@ public class LabelRequiredTagHelper : LabelTagHelper
     private const string RequiredAttributeName = "asp-required";
     private readonly ITranslationService _translationService;
 
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
-    public LabelRequiredTagHelper(IHtmlGenerator generator, IWorkContext workContext,
+    public LabelRequiredTagHelper(IHtmlGenerator generator, IWorkContextAccessor workContextAccessor,
         ITranslationService translationService) : base(generator)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _translationService = translationService;
     }
 
@@ -42,7 +42,7 @@ public class LabelRequiredTagHelper : LabelTagHelper
 
         var resourceDisplayName = For.Metadata.GetDisplayName();
 
-        var langId = _workContext.WorkingLanguage.Id;
+        var langId = _workContextAccessor.WorkContext.WorkingLanguage.Id;
 
         var resource = _translationService.GetResource(
             resourceDisplayName.ToLowerInvariant(), langId, returnEmptyIfNotFound: true);

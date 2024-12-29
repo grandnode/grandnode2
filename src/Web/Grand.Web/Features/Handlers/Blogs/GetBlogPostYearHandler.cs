@@ -13,25 +13,25 @@ public class GetBlogPostYearHandler : IRequestHandler<GetBlogPostYear, IList<Blo
 {
     private readonly IBlogService _blogService;
     private readonly ICacheBase _cacheBase;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public GetBlogPostYearHandler(IBlogService blogService, ICacheBase cacheBase,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _blogService = blogService;
         _cacheBase = cacheBase;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     public async Task<IList<BlogPostYearModel>> Handle(GetBlogPostYear request, CancellationToken cancellationToken)
     {
-        var cacheKey = string.Format(CacheKeyConst.BLOG_MONTHS_MODEL_KEY, _workContext.WorkingLanguage.Id,
-            _workContext.CurrentStore.Id);
+        var cacheKey = string.Format(CacheKeyConst.BLOG_MONTHS_MODEL_KEY, _workContextAccessor.WorkContext.WorkingLanguage.Id,
+            _workContextAccessor.WorkContext.CurrentStore.Id);
         var cachedModel = await _cacheBase.GetAsync(cacheKey, async () =>
         {
             var model = new List<BlogPostYearModel>();
 
-            var blogPosts = await _blogService.GetAllBlogPosts(_workContext.CurrentStore.Id);
+            var blogPosts = await _blogService.GetAllBlogPosts(_workContextAccessor.WorkContext.CurrentStore.Id);
             if (!blogPosts.Any()) return model;
             var months = new SortedDictionary<DateTime, int>();
 

@@ -21,7 +21,7 @@ public class OutOfStockSubscriptionController : BasePublicController
     #region Constructors
 
     public OutOfStockSubscriptionController(IProductService productService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         ITranslationService translationService,
         IOutOfStockSubscriptionService outOfStockSubscriptionService,
@@ -32,7 +32,7 @@ public class OutOfStockSubscriptionController : BasePublicController
         ShoppingCartSettings shoppingCartSettings)
     {
         _productService = productService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
         _translationService = translationService;
         _outOfStockSubscriptionService = outOfStockSubscriptionService;
@@ -48,7 +48,7 @@ public class OutOfStockSubscriptionController : BasePublicController
     #region Fields
 
     private readonly IProductService _productService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
     private readonly ITranslationService _translationService;
     private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
@@ -70,7 +70,7 @@ public class OutOfStockSubscriptionController : BasePublicController
         if (product == null)
             throw new ArgumentException("No product found with the specified id");
 
-        var customer = _workContext.CurrentCustomer;
+        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
         if (!await _groupService.IsRegistered(customer))
             return Content(_translationService.GetResource("OutOfStockSubscriptions.OnlyRegistered"));
 
@@ -79,12 +79,12 @@ public class OutOfStockSubscriptionController : BasePublicController
 
         warehouseId = _shoppingCartSettings.AllowToSelectWarehouse
             ? string.IsNullOrEmpty(warehouseId) ? "" : warehouseId
-            : string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId)
+            : string.IsNullOrEmpty(_workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId)
                 ? product.WarehouseId
-                : _workContext.CurrentStore.DefaultWarehouseId;
+                : _workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId;
 
         var subscription = await _outOfStockSubscriptionService
-            .FindSubscription(customer.Id, product.Id, null, _workContext.CurrentStore.Id,
+            .FindSubscription(customer.Id, product.Id, null, _workContextAccessor.WorkContext.CurrentStore.Id,
                 warehouseId);
 
         return Content(subscription != null
@@ -99,11 +99,11 @@ public class OutOfStockSubscriptionController : BasePublicController
         if (product == null)
             throw new ArgumentException("No product found with the specified id");
 
-        var customer = _workContext.CurrentCustomer;
+        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
         var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ? model.WarehouseId :
-            product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
-            string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId :
-            _workContext.CurrentStore.DefaultWarehouseId;
+            product.UseMultipleWarehouses ? _workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId :
+            string.IsNullOrEmpty(_workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId :
+            _workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId;
 
         if (!await _groupService.IsRegistered(customer))
             return Json(new {
@@ -118,7 +118,7 @@ public class OutOfStockSubscriptionController : BasePublicController
             _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId) <= 0)
         {
             var subscription = await _outOfStockSubscriptionService
-                .FindSubscription(customer.Id, product.Id, null, _workContext.CurrentStore.Id, warehouseId);
+                .FindSubscription(customer.Id, product.Id, null, _workContextAccessor.WorkContext.CurrentStore.Id, warehouseId);
             if (subscription != null)
             {
                 //subscription already exists
@@ -136,7 +136,7 @@ public class OutOfStockSubscriptionController : BasePublicController
             subscription = new OutOfStockSubscription {
                 CustomerId = customer.Id,
                 ProductId = product.Id,
-                StoreId = _workContext.CurrentStore.Id,
+                StoreId = _workContextAccessor.WorkContext.CurrentStore.Id,
                 WarehouseId = warehouseId
             };
             await _outOfStockSubscriptionService.InsertSubscription(subscription);
@@ -159,7 +159,7 @@ public class OutOfStockSubscriptionController : BasePublicController
         var attributes = await _mediator.Send(new GetParseProductAttributes
             { Product = product, Attributes = model.Attributes });
         var subscriptionAttributes = await _outOfStockSubscriptionService
-            .FindSubscription(customer.Id, product.Id, attributes, _workContext.CurrentStore.Id, warehouseId);
+            .FindSubscription(customer.Id, product.Id, attributes, _workContextAccessor.WorkContext.CurrentStore.Id, warehouseId);
 
         if (subscriptionAttributes != null)
         {
@@ -180,7 +180,7 @@ public class OutOfStockSubscriptionController : BasePublicController
             AttributeInfo = !attributes.Any()
                 ? ""
                 : await _productAttributeFormatter.FormatAttributes(product, attributes),
-            StoreId = _workContext.CurrentStore.Id,
+            StoreId = _workContextAccessor.WorkContext.CurrentStore.Id,
             WarehouseId = warehouseId
         };
 
@@ -204,9 +204,9 @@ public class OutOfStockSubscriptionController : BasePublicController
 
         const int pageSize = 10;
 
-        var customer = _workContext.CurrentCustomer;
+        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
         var list = await _outOfStockSubscriptionService.GetAllSubscriptionsByCustomerId(customer.Id,
-            _workContext.CurrentStore.Id, pageIndex, pageSize);
+            _workContextAccessor.WorkContext.CurrentStore.Id, pageIndex, pageSize);
 
         var model = new CustomerOutOfStockSubscriptionsModel();
 
@@ -217,11 +217,11 @@ public class OutOfStockSubscriptionController : BasePublicController
             var subscriptionModel = new CustomerOutOfStockSubscriptionsModel.OutOfStockSubscriptionModel {
                 Id = subscription.Id,
                 ProductId = product.Id,
-                ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
+                ProductName = product.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
                 AttributeDescription = !subscription.Attributes.Any()
                     ? ""
                     : await _productAttributeFormatter.FormatAttributes(product, subscription.Attributes),
-                SeName = product.GetSeName(_workContext.WorkingLanguage.Id)
+                SeName = product.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id)
             };
             model.Subscriptions.Add(subscriptionModel);
         }
@@ -237,7 +237,7 @@ public class OutOfStockSubscriptionController : BasePublicController
         foreach (var id in subscriptions)
         {
             var subscription = await _outOfStockSubscriptionService.GetSubscriptionById(id);
-            if (subscription != null && subscription.CustomerId == _workContext.CurrentCustomer.Id)
+            if (subscription != null && subscription.CustomerId == _workContextAccessor.WorkContext.CurrentCustomer.Id)
                 await _outOfStockSubscriptionService.DeleteSubscription(subscription);
         }
 

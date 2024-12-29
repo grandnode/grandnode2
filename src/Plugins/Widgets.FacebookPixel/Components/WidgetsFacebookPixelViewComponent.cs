@@ -14,16 +14,16 @@ public class WidgetsFacebookPixelViewComponent : ViewComponent
     private readonly ICookiePreference _cookiePreference;
     private readonly FacebookPixelSettings _facebookPixelSettings;
     private readonly IOrderService _orderService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public WidgetsFacebookPixelViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IOrderService orderService,
         ICookiePreference cookiePreference,
         FacebookPixelSettings facebookPixelSettings
     )
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _orderService = orderService;
         _cookiePreference = cookiePreference;
         _facebookPixelSettings = facebookPixelSettings;
@@ -33,7 +33,7 @@ public class WidgetsFacebookPixelViewComponent : ViewComponent
     {
         if (_facebookPixelSettings.AllowToDisableConsentCookie)
         {
-            var enabled = await _cookiePreference.IsEnable(_workContext.CurrentCustomer, _workContext.CurrentStore,
+            var enabled = await _cookiePreference.IsEnable(_workContextAccessor.WorkContext.CurrentCustomer, _workContextAccessor.WorkContext.CurrentStore,
                 FacebookPixelDefaults.ConsentCookieSystemName);
             if ((enabled.HasValue && !enabled.Value) ||
                 (!enabled.HasValue && !_facebookPixelSettings.ConsentDefaultState))
@@ -75,7 +75,7 @@ public class WidgetsFacebookPixelViewComponent : ViewComponent
         trackingScript = trackingScript.Replace("{QTY}", model.Quantity.ToString("N0"));
         trackingScript =
             trackingScript.Replace("{AMOUNT}", model.DecimalPrice.ToString("F2", CultureInfo.InvariantCulture));
-        trackingScript = trackingScript.Replace("{CURRENCY}", _workContext.WorkingCurrency.CurrencyCode);
+        trackingScript = trackingScript.Replace("{CURRENCY}", _workContextAccessor.WorkContext.WorkingCurrency.CurrencyCode);
         return trackingScript;
     }
 

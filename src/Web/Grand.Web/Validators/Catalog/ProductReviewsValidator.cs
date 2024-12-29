@@ -40,7 +40,7 @@ public class ProductReviewsValidator : BaseGrandValidator<ProductReviewsModel>
         IOrderService orderService,
         IProductReviewService productReviewService,
         CaptchaSettings captchaSettings, CatalogSettings catalogSettings,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
         : base(validators)
@@ -65,18 +65,18 @@ public class ProductReviewsValidator : BaseGrandValidator<ProductReviewsModel>
             if (product is not { Published: true } || !product.AllowCustomerReviews)
                 context.AddFailure("Product is disabled");
 
-            if (await groupService.IsGuest(workContext.CurrentCustomer) &&
+            if (await groupService.IsGuest(workContextAccessor.WorkContext.CurrentCustomer) &&
                 !catalogSettings.AllowAnonymousUsersToReviewProduct)
                 context.AddFailure(translationService.GetResource("Reviews.OnlyRegisteredUsersCanWriteReviews"));
 
             if (catalogSettings.ProductReviewPossibleOnlyAfterPurchasing &&
-                !(await orderService.SearchOrders(customerId: workContext.CurrentCustomer.Id, productId: x.ProductId,
+                !(await orderService.SearchOrders(customerId: workContextAccessor.WorkContext.CurrentCustomer.Id, productId: x.ProductId,
                     os: (int)OrderStatusSystem.Complete)).Any())
                 context.AddFailure(translationService.GetResource("Reviews.ProductReviewPossibleOnlyAfterPurchasing"));
 
             if (catalogSettings.ProductReviewPossibleOnlyOnce)
             {
-                var reviews = await productReviewService.GetAllProductReviews(workContext.CurrentCustomer.Id,
+                var reviews = await productReviewService.GetAllProductReviews(workContextAccessor.WorkContext.CurrentCustomer.Id,
                     productId: x.ProductId,
                     pageSize: 1);
                 if (reviews.Any())

@@ -18,14 +18,14 @@ public class WidgetsGoogleAnalyticsController : BaseAdminPluginController
     private readonly ISettingService _settingService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
-    public WidgetsGoogleAnalyticsController(IWorkContext workContext,
+    public WidgetsGoogleAnalyticsController(IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
         ISettingService settingService,
         ITranslationService translationService)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _storeService = storeService;
         _settingService = settingService;
         _translationService = translationService;
@@ -48,7 +48,7 @@ public class WidgetsGoogleAnalyticsController : BaseAdminPluginController
     public async Task<IActionResult> Configure()
     {
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _workContext);
+        var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
         var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsEcommerceSettings>(storeScope);
         var model = new ConfigurationModel {
             GoogleId = googleAnalyticsSettings.GoogleId,
@@ -70,7 +70,7 @@ public class WidgetsGoogleAnalyticsController : BaseAdminPluginController
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _workContext);
+        var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
         var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsEcommerceSettings>(storeScope);
         googleAnalyticsSettings.GoogleId = model.GoogleId;
         googleAnalyticsSettings.TrackingScript = model.TrackingScript;

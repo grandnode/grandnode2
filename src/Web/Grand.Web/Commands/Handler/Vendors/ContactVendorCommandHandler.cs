@@ -14,13 +14,13 @@ public class ContactVendorCommandHandler : IRequestHandler<ContactVendorSendComm
     private readonly CommonSettings _commonSettings;
     private readonly IMessageProviderService _messageProviderService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
-    public ContactVendorCommandHandler(IMessageProviderService messageProviderService, IWorkContext workContext,
+    public ContactVendorCommandHandler(IMessageProviderService messageProviderService, IWorkContextAccessor workContextAccessor,
         ITranslationService translationService, CommonSettings commonSettings)
     {
         _messageProviderService = messageProviderService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _translationService = translationService;
         _commonSettings = commonSettings;
     }
@@ -30,8 +30,8 @@ public class ContactVendorCommandHandler : IRequestHandler<ContactVendorSendComm
         var subject = _commonSettings.SubjectFieldOnContactUsForm ? request.Model.Subject : null;
         var body = FormatText.ConvertText(request.Model.Enquiry);
 
-        await _messageProviderService.SendContactVendorMessage(_workContext.CurrentCustomer, request.Store,
-            request.Vendor, _workContext.WorkingLanguage.Id,
+        await _messageProviderService.SendContactVendorMessage(_workContextAccessor.WorkContext.CurrentCustomer, request.Store,
+            request.Vendor, _workContextAccessor.WorkContext.WorkingLanguage.Id,
             request.Model.Email.Trim(), request.Model.FullName, subject, body, request.IpAddress);
 
         request.Model.SuccessfullySent = true;

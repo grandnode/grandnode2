@@ -28,7 +28,7 @@ public class OrderController(
     IOrderService orderService,
     IOrderStatusService orderStatusService,
     ITranslationService translationService,
-    IWorkContext workContext,
+    IWorkContextAccessor workContextAccessor,
     IPdfService pdfService,
     IGroupService groupService,
     IExportManager<Order> exportManager,
@@ -39,8 +39,8 @@ public class OrderController(
 
     protected virtual async Task<bool> CheckSalesManager(Order order)
     {
-        return await groupService.IsSalesManager(workContext.CurrentCustomer)
-               && workContext.CurrentCustomer.SeId != order.SeId;
+        return await groupService.IsSalesManager(workContextAccessor.WorkContext.CurrentCustomer)
+               && workContextAccessor.WorkContext.CurrentCustomer.SeId != order.SeId;
     }
 
     #endregion
@@ -64,7 +64,7 @@ public class OrderController(
         int? paymentStatusId = null, int? shippingStatusId = null, DateTime? startDate = null, string code = null)
     {
         var model = await orderViewModelService.PrepareOrderListModel(orderStatusId, paymentStatusId, shippingStatusId,
-            startDate, workContext.CurrentCustomer.StaffStoreId, code);
+            startDate, workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId, code);
         return View(model);
     }
 
@@ -76,8 +76,8 @@ public class OrderController(
             return Content("");
 
         var storeId = string.Empty;
-        if (await groupService.IsStaff(workContext.CurrentCustomer))
-            storeId = workContext.CurrentCustomer.StaffStoreId;
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //products
         const int productNumber = 15;
@@ -100,8 +100,8 @@ public class OrderController(
     [HttpPost]
     public async Task<IActionResult> OrderList(DataSourceRequest command, OrderListModel model)
     {
-        if (await groupService.IsStaff(workContext.CurrentCustomer))
-            model.StoreId = workContext.CurrentCustomer.StaffStoreId;
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var (orderModels, totalCount) =
             await orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
@@ -133,8 +133,8 @@ public class OrderController(
         if (order == null || await CheckSalesManager(order))
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         return RedirectToAction("Edit", "Order", new { id = order.Id });
     }
@@ -147,8 +147,8 @@ public class OrderController(
     [HttpPost]
     public async Task<IActionResult> ExportExcelAll(OrderListModel model)
     {
-        if (await groupService.IsStaff(workContext.CurrentCustomer))
-            model.StoreId = workContext.CurrentCustomer.StaffStoreId;
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //load orders
         var orders = await orderViewModelService.PrepareOrders(model);
@@ -178,8 +178,8 @@ public class OrderController(
             orders.AddRange(await orderService.GetOrdersByIds(ids));
         }
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer))
-            orders = orders.Where(x => x.StoreId == workContext.CurrentCustomer.StaffStoreId).ToList();
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+            orders = orders.Where(x => x.StoreId == workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId).ToList();
         var bytes = await exportManager.Export(orders);
         return File(bytes, "text/xls", "orders.xlsx");
     }
@@ -199,8 +199,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
         try
         {
             await mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = true });
@@ -225,8 +225,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         try
         {
@@ -253,8 +253,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         try
         {
@@ -295,8 +295,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var model = new OrderModel();
         await orderViewModelService.PrepareOrderDetailsModel(model, order);
@@ -330,7 +330,7 @@ public class OrderController(
         ICollection<string> selectedIds,
         [FromServices] IShipmentService shipmentService)
     {
-        if (await groupService.IsStaff(workContext.CurrentCustomer))
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
             return RedirectToAction("List", "Order");
 
         if (selectedIds != null)
@@ -354,8 +354,8 @@ public class OrderController(
     public async Task<IActionResult> PdfInvoice(string orderId)
     {
         var order = await orderService.GetOrderById(orderId);
-        if ((await groupService.IsStaff(workContext.CurrentCustomer) &&
-             order.StoreId != workContext.CurrentCustomer.StaffStoreId) ||
+        if ((await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+             order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) ||
             await CheckSalesManager(order)) return RedirectToAction("List");
 
         var orders = new List<Order> {
@@ -364,7 +364,7 @@ public class OrderController(
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await pdfService.PrintOrdersToPdf(stream, orders, workContext.WorkingLanguage.Id);
+            await pdfService.PrintOrdersToPdf(stream, orders, workContextAccessor.WorkContext.WorkingLanguage.Id);
             bytes = stream.ToArray();
         }
 
@@ -377,13 +377,13 @@ public class OrderController(
     {
         //load orders
         var orders = await orderViewModelService.PrepareOrders(model);
-        if (await groupService.IsStaff(workContext.CurrentCustomer))
-            orders = orders.Where(x => x.StoreId == workContext.CurrentCustomer.StaffStoreId).ToList();
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+            orders = orders.Where(x => x.StoreId == workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId).ToList();
 
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await pdfService.PrintOrdersToPdf(stream, orders, workContext.WorkingLanguage.Id, model.VendorId);
+            await pdfService.PrintOrdersToPdf(stream, orders, workContextAccessor.WorkContext.WorkingLanguage.Id, model.VendorId);
             bytes = stream.ToArray();
         }
 
@@ -404,8 +404,8 @@ public class OrderController(
             orders.AddRange(await orderService.GetOrdersByIds(ids));
         }
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer))
-            orders = orders.Where(x => x.StoreId == workContext.CurrentCustomer.StaffStoreId).ToList();
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+            orders = orders.Where(x => x.StoreId == workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId).ToList();
 
         //ensure that we at least one order selected
         if (orders.Count == 0)
@@ -417,7 +417,7 @@ public class OrderController(
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await pdfService.PrintOrdersToPdf(stream, orders, workContext.WorkingLanguage.Id);
+            await pdfService.PrintOrdersToPdf(stream, orders, workContextAccessor.WorkContext.WorkingLanguage.Id);
             bytes = stream.ToArray();
         }
 
@@ -433,8 +433,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId)
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("Edit", "Order", new { id });
 
         order.OrderSubtotalInclTax = model.OrderSubtotalInclTaxValue;
@@ -471,8 +471,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId)
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("Edit", "Order", new { id });
 
         order.ShippingMethod = model.ShippingMethod;
@@ -500,8 +500,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId)
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("Edit", "Order", new { id });
 
         order.UserFields = model.UserFields;
@@ -525,8 +525,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId)
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("Edit", "Order", new { id });
         if (order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
         {
@@ -591,8 +591,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId)
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("Edit", "Order", new { id });
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
@@ -618,8 +618,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId)
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("Edit", "Order", new { id });
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
@@ -648,8 +648,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId)
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("Edit", "Order", new { id });
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
@@ -676,8 +676,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId)
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("Edit", "Order", new { id });
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
@@ -704,8 +704,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId)
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("Edit", "Order", new { id });
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
@@ -734,8 +734,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId)
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("Edit", "Order", new { id = order.Id });
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId);
@@ -761,8 +761,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId)
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("Edit", "Order", new { id = model.OrderId });
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId);
@@ -801,7 +801,7 @@ public class OrderController(
             categoryIds.Add(model.SearchCategoryId);
 
         var storeId = string.Empty;
-        if (await groupService.IsStaff(workContext.CurrentCustomer)) storeId = workContext.CurrentCustomer.StaffStoreId;
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer)) storeId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var gridModel = new DataSourceResult();
         var products = (await productService.SearchProducts(categoryIds: categoryIds,
@@ -835,8 +835,8 @@ public class OrderController(
         if (order == null || await CheckSalesManager(order))
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var model = await orderViewModelService.PrepareAddProductToOrderModel(order, productId);
         return View(model);
@@ -850,8 +850,8 @@ public class OrderController(
         if (order == null || await CheckSalesManager(order))
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var warnings = await orderViewModelService.AddProductToOrderDetails(model);
         if (!warnings.Any())
@@ -878,8 +878,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var address = new Address();
         switch (billingAddress)
@@ -917,8 +917,8 @@ public class OrderController(
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var address = new Address();
         switch (model.BillingAddress)
@@ -964,8 +964,8 @@ public class OrderController(
         if (order == null || await CheckSalesManager(order))
             throw new ArgumentException("No order found with the specified id");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return Content("");
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Content("");
         //order notes
         var orderNoteModels = await orderViewModelService.PrepareOrderNotes(order);
         var gridModel = new DataSourceResult {
@@ -983,8 +983,8 @@ public class OrderController(
         if (order == null || await CheckSalesManager(order))
             return Json(new { Result = false });
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
         await orderViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message);
 
         return Json(new { Result = true });
@@ -998,8 +998,8 @@ public class OrderController(
         if (order == null || await CheckSalesManager(order))
             throw new ArgumentException("No order found with the specified id");
 
-        if (await groupService.IsStaff(workContext.CurrentCustomer) &&
-            order.StoreId != workContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
 
         await orderViewModelService.DeleteOrderNote(order, id);
 

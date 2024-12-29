@@ -10,10 +10,10 @@ public class AdminWidgetViewComponent : BaseAdminViewComponent
 {
     #region Constructors
 
-    public AdminWidgetViewComponent(IWidgetService widgetService, IWorkContext workContext)
+    public AdminWidgetViewComponent(IWidgetService widgetService, IWorkContextAccessor workContextAccessor)
     {
         _widgetService = widgetService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     #endregion
@@ -24,8 +24,8 @@ public class AdminWidgetViewComponent : BaseAdminViewComponent
     {
         var model = new List<AdminWidgetModel>();
 
-        var widgets = await _widgetService.LoadActiveWidgetsByWidgetZone(widgetZone, _workContext.CurrentStore.Id,
-            _workContext.CurrentCustomer);
+        var widgets = await _widgetService.LoadActiveWidgetsByWidgetZone(widgetZone, _workContextAccessor.WorkContext.CurrentStore.Id,
+            _workContextAccessor.WorkContext.CurrentCustomer);
         foreach (var item in widgets)
         {
             var viewComponentName = await item.GetPublicViewComponentName(widgetZone);
@@ -50,7 +50,7 @@ public class AdminWidgetViewComponent : BaseAdminViewComponent
     #region Fields
 
     private readonly IWidgetService _widgetService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     #endregion
 }

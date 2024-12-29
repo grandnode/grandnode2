@@ -15,27 +15,27 @@ public class GetBlogPostTagListHandler : IRequestHandler<GetBlogPostTagList, Blo
 
     private readonly BlogSettings _blogSettings;
     private readonly ICacheBase _cacheBase;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
-    public GetBlogPostTagListHandler(IBlogService blogService, ICacheBase cacheBase, IWorkContext workContext,
+    public GetBlogPostTagListHandler(IBlogService blogService, ICacheBase cacheBase, IWorkContextAccessor workContextAccessor,
         BlogSettings blogSettings)
     {
         _blogService = blogService;
         _cacheBase = cacheBase;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _blogSettings = blogSettings;
     }
 
     public async Task<BlogPostTagListModel> Handle(GetBlogPostTagList request, CancellationToken cancellationToken)
     {
-        var cacheKey = string.Format(CacheKeyConst.BLOG_TAGS_MODEL_KEY, _workContext.WorkingLanguage.Id,
-            _workContext.CurrentStore.Id);
+        var cacheKey = string.Format(CacheKeyConst.BLOG_TAGS_MODEL_KEY, _workContextAccessor.WorkContext.WorkingLanguage.Id,
+            _workContextAccessor.WorkContext.CurrentStore.Id);
         var cachedModel = await _cacheBase.GetAsync(cacheKey, async () =>
         {
             var model = new BlogPostTagListModel();
 
             //get tags
-            var tags = await _blogService.GetAllBlogPostTags(_workContext.CurrentStore.Id);
+            var tags = await _blogService.GetAllBlogPostTags(_workContextAccessor.WorkContext.CurrentStore.Id);
             tags = tags.OrderByDescending(x => x.BlogPostCount)
                 .Take(_blogSettings.NumberOfTags)
                 .ToList();

@@ -19,14 +19,14 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
     private readonly IContactAttributeParser _contactAttributeParser;
     private readonly IContactAttributeService _contactAttributeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public ContactUsValidator(
         IEnumerable<IValidatorConsumer<ContactUsModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         IContactAttributeParser contactAttributeParser,
         IContactAttributeService contactAttributeService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService, CommonSettings commonSettings,
         CaptchaSettings captchaSettings,
         IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator)
@@ -35,7 +35,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
         _contactAttributeParser = contactAttributeParser;
         _contactAttributeService = contactAttributeService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
 
         RuleFor(x => x.Email).NotEmpty().WithMessage(translationService.GetResource("ContactUs.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
@@ -60,7 +60,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
         {
             var contactAttributeWarnings = await GetContactAttributesWarnings(
                 x.Attributes.Select(z => new CustomAttribute { Key = z.Key, Value = z.Value }).ToList(),
-                workContext.CurrentStore.Id);
+                workContextAccessor.WorkContext.CurrentStore.Id);
             if (contactAttributeWarnings.Any())
                 foreach (var item in contactAttributeWarnings)
                     context.AddFailure(item);
@@ -99,10 +99,10 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
             //if not found
             if (!found)
                 warnings.Add(
-                    !string.IsNullOrEmpty(a2.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id))
-                        ? a2.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id)
+                    !string.IsNullOrEmpty(a2.GetTranslation(a => a.TextPrompt, _workContextAccessor.WorkContext.WorkingLanguage.Id))
+                        ? a2.GetTranslation(a => a.TextPrompt, _workContextAccessor.WorkContext.WorkingLanguage.Id)
                         : string.Format(_translationService.GetResource("ContactUs.SelectAttribute"),
-                            a2.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id)));
+                            a2.GetTranslation(a => a.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)));
         }
 
         //now validation rules
@@ -124,7 +124,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
                         if (ca.ValidationMinLength.Value > enteredTextLength)
                             warnings.Add(string.Format(
                                 _translationService.GetResource("ContactUs.TextboxMinimumLength"),
-                                ca.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id),
+                                ca.GetTranslation(a => a.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
                                 ca.ValidationMinLength.Value));
                     }
                 }
@@ -143,7 +143,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
 
                 if (ca.ValidationMaxLength.Value < enteredTextLength)
                     warnings.Add(string.Format(_translationService.GetResource("ContactUs.TextboxMaximumLength"),
-                        ca.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id),
+                        ca.GetTranslation(a => a.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
                         ca.ValidationMaxLength.Value));
             }
         }

@@ -12,7 +12,7 @@ public interface IEnumTranslationService
     string GetTranslationEnum<T>(T enumValue) where T : struct;
 }
 
-public class EnumTranslationService(ITranslationService translationService, IWorkContext workContext) : IEnumTranslationService
+public class EnumTranslationService(ITranslationService translationService, IWorkContextAccessor workContextAccessor) : IEnumTranslationService
 {
     public SelectList ToSelectList<TEnum>(TEnum enumObj, bool markCurrentAsSelected = true, int[] valuesToExclude = null)
         where TEnum : struct
@@ -41,7 +41,7 @@ public class EnumTranslationService(ITranslationService translationService, IWor
 
         //Translation value
         var resourceName = $"Enums.{typeof(T)}.{enumValue.ToString()}";
-        var result = translationService.GetResource(resourceName, workContext.WorkingLanguage.Id, "", true);
+        var result = translationService.GetResource(resourceName, workContextAccessor.WorkContext.WorkingLanguage.Id, "", true);
 
         //set default value if required
         if (string.IsNullOrEmpty(result))

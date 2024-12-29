@@ -23,7 +23,7 @@ public class SpecificationAttributeController : BaseAdminController
         ISpecificationAttributeService specificationAttributeService,
         ILanguageService languageService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IProductService productService,
         SeoSettings seoSettings)
@@ -31,7 +31,7 @@ public class SpecificationAttributeController : BaseAdminController
         _specificationAttributeService = specificationAttributeService;
         _languageService = languageService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
         _productService = productService;
         _seoSettings = seoSettings;
@@ -54,8 +54,8 @@ public class SpecificationAttributeController : BaseAdminController
         var searchStoreId = string.Empty;
 
         //limit for store manager
-        if (!string.IsNullOrEmpty(_workContext.CurrentCustomer.StaffStoreId))
-            searchStoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (!string.IsNullOrEmpty(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            searchStoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var specificationProducts = new List<SpecificationAttributeModel.UsedByProductModel>();
         var total = 0;
@@ -103,7 +103,7 @@ public class SpecificationAttributeController : BaseAdminController
     private readonly IProductService _productService;
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
     private readonly SeoSettings _seoSettings;
 
@@ -160,8 +160,8 @@ public class SpecificationAttributeController : BaseAdminController
                     ? specificationAttribute.Name
                     : specificationAttribute.SeName, _seoSettings.ConvertNonWesternChars,
                 _seoSettings.AllowUnicodeCharsInUrls, _seoSettings.SeoCharConversion);
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-                model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
+            if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+                model.Stores = [_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             await _specificationAttributeService.InsertSpecificationAttribute(specificationAttribute);
 
             Success(_translationService.GetResource("Admin.Catalog.Attributes.SpecificationAttributes.Added"));
@@ -211,8 +211,8 @@ public class SpecificationAttributeController : BaseAdminController
                     ? specificationAttribute.Name
                     : specificationAttribute.SeName, _seoSettings.ConvertNonWesternChars,
                 _seoSettings.AllowUnicodeCharsInUrls, _seoSettings.SeoCharConversion);
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-                model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
+            if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+                model.Stores = [_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             await _specificationAttributeService.UpdateSpecificationAttribute(specificationAttribute);
 
             Success(_translationService.GetResource("Admin.Catalog.Attributes.SpecificationAttributes.Updated"));

@@ -39,13 +39,13 @@ public class SearchController : BaseAdminController
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public SearchController(IProductService productService, ICategoryService categoryService,
         IBrandService brandService, ICollectionService collectionService,
         IPageService pageService, INewsService newsService, IBlogService blogService, ICustomerService customerService,
         IOrderService orderService,
-        AdminSearchSettings adminSearchSettings, ITranslationService translationService, IWorkContext workContext,
+        AdminSearchSettings adminSearchSettings, ITranslationService translationService, IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IStoreService storeService, IVendorService vendorService)
     {
@@ -60,7 +60,7 @@ public class SearchController : BaseAdminController
         _orderService = orderService;
         _adminSearchSettings = adminSearchSettings;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
         _storeService = storeService;
         _vendorService = vendorService;
@@ -72,7 +72,7 @@ public class SearchController : BaseAdminController
         if (string.IsNullOrEmpty(searchTerm))
             return Json("error");
 
-        if (!await _groupService.IsAdmin(_workContext.CurrentCustomer)) return Json("Access Denied");
+        if (!await _groupService.IsAdmin(_workContextAccessor.WorkContext.CurrentCustomer)) return Json("Access Denied");
         //object = actual result, int = display order for sorting
         var result = new List<Tuple<object, int>>();
 
@@ -94,7 +94,7 @@ public class SearchController : BaseAdminController
             {
                 var categories = await _categoryService.GetAllCategories(categoryName: searchTerm,
                     pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden:
-                    await _groupService.IsAdmin(_workContext.CurrentCustomer));
+                    await _groupService.IsAdmin(_workContextAccessor.WorkContext.CurrentCustomer));
                 foreach (var category in categories)
                     result.Add(new Tuple<object, int>(new {
                         title = category.Name,
@@ -247,7 +247,7 @@ public class SearchController : BaseAdminController
             return model;
         }
 
-        var storeId = _workContext.CurrentCustomer.StaffStoreId;
+        var storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var categories = await _categoryService.GetAllCategories(
             storeId: storeId,
@@ -286,7 +286,7 @@ public class SearchController : BaseAdminController
             return model;
         }
 
-        var storeId = _workContext.CurrentCustomer.StaffStoreId;
+        var storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var collections = await _collectionService.GetAllCollections(
             storeId: storeId,
@@ -363,7 +363,7 @@ public class SearchController : BaseAdminController
         }
 
         var groups = await _storeService.GetAllStores();
-        var storeId = _workContext.CurrentCustomer.StaffStoreId;
+        var storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         if (!string.IsNullOrEmpty(storeId))
             groups = groups.Where(x => x.Id == storeId).ToList();
 

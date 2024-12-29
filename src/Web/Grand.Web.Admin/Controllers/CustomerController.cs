@@ -41,7 +41,7 @@ public class CustomerController : BaseAdminController
         ICustomerViewModelService customerViewModelService,
         ICustomerManagerService customerManagerService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IExportManager<Customer> exportManager,
         ICustomerAttributeParser customerAttributeParser,
@@ -59,7 +59,7 @@ public class CustomerController : BaseAdminController
         _customerViewModelService = customerViewModelService;
         _customerManagerService = customerManagerService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
         _exportManager = exportManager;
         _customerAttributeParser = customerAttributeParser;
@@ -143,8 +143,8 @@ public class CustomerController : BaseAdminController
 
     protected virtual async Task<bool> CheckSalesManager(Customer customer)
     {
-        return await _groupService.IsSalesManager(_workContext.CurrentCustomer)
-               && _workContext.CurrentCustomer.SeId != customer.SeId;
+        return await _groupService.IsSalesManager(_workContextAccessor.WorkContext.CurrentCustomer)
+               && _workContextAccessor.WorkContext.CurrentCustomer.SeId != customer.SeId;
     }
 
     #region Message contact form
@@ -192,7 +192,7 @@ public class CustomerController : BaseAdminController
     private readonly ICustomerViewModelService _customerViewModelService;
     private readonly ICustomerManagerService _customerManagerService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IExportManager<Customer> _exportManager;
     private readonly ICustomerAttributeParser _customerAttributeParser;
     private readonly ICustomerAttributeService _customerAttributeService;
@@ -387,7 +387,7 @@ public class CustomerController : BaseAdminController
             //No customer found with the specified id
             return RedirectToAction("List");
 
-        if (customer.Id == _workContext.CurrentCustomer.Id)
+        if (customer.Id == _workContextAccessor.WorkContext.CurrentCustomer.Id)
         {
             Error(_translationService.GetResource("Admin.Customers.Customers.NoSelfDelete"));
             return RedirectToAction("List");
@@ -435,13 +435,13 @@ public class CustomerController : BaseAdminController
             return RedirectToAction("Edit", customer.Id);
         }
 
-        if (!await _groupService.IsAdmin(_workContext.CurrentCustomer) && await _groupService.IsAdmin(customer))
+        if (!await _groupService.IsAdmin(_workContextAccessor.WorkContext.CurrentCustomer) && await _groupService.IsAdmin(customer))
         {
             Error("A non-admin user cannot impersonate as an administrator");
             return RedirectToAction("Edit", customer.Id);
         }
 
-        await _customerService.UpdateUserField(_workContext.CurrentCustomer,
+        await _customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer,
             SystemCustomerFieldNames.ImpersonatedCustomerId, customer.Id);
 
         return RedirectToAction("Index", "Home", new { area = "" });
@@ -456,8 +456,8 @@ public class CustomerController : BaseAdminController
             //No customer found with the specified id
             return RedirectToAction("List");
 
-        await _messageProviderService.SendCustomerWelcomeMessage(customer, _workContext.CurrentStore,
-            _workContext.WorkingLanguage.Id);
+        await _messageProviderService.SendCustomerWelcomeMessage(customer, _workContextAccessor.WorkContext.CurrentStore,
+            _workContextAccessor.WorkContext.WorkingLanguage.Id);
 
         Success(_translationService.GetResource("Admin.Customers.Customers.SendWelcomeMessage.Success"));
 
@@ -476,8 +476,8 @@ public class CustomerController : BaseAdminController
         //email validation message
         await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.AccountActivationToken,
             Guid.NewGuid().ToString());
-        await _messageProviderService.SendCustomerEmailValidationMessage(customer, _workContext.CurrentStore,
-            _workContext.WorkingLanguage.Id);
+        await _messageProviderService.SendCustomerEmailValidationMessage(customer, _workContextAccessor.WorkContext.CurrentStore,
+            _workContextAccessor.WorkContext.WorkingLanguage.Id);
 
         Success(_translationService.GetResource("Admin.Customers.Customers.ReSendActivationMessage.Success"));
 
@@ -696,8 +696,8 @@ public class CustomerController : BaseAdminController
         var model = new OrderListModel {
             CustomerId = customerId
         };
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var (orderModels, totalCount) =
             await orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
@@ -723,8 +723,8 @@ public class CustomerController : BaseAdminController
         if (order == null)
             throw new ArgumentException("No order found with the specified id");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return Json(new DataSourceResult {
                 Data = null,
                 Total = 0
@@ -968,7 +968,7 @@ public class CustomerController : BaseAdminController
     public async Task<IActionResult> ExportExcelAll(CustomerListModel model)
     {
         var salesEmployeeId =
-            await _groupService.IsSalesManager(_workContext.CurrentCustomer) ? _workContext.CurrentCustomer.SeId : "";
+            await _groupService.IsSalesManager(_workContextAccessor.WorkContext.CurrentCustomer) ? _workContextAccessor.WorkContext.CurrentCustomer.SeId : "";
 
         var customers = await _customerService.GetAllCustomers(
             customerGroupIds: model.SearchCustomerGroupIds.ToArray(),

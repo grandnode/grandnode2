@@ -17,18 +17,18 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
     private readonly INewsletterCategoryService _newsletterCategoryService;
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
 
     public SubscribeNewsletterHandler(INewsLetterSubscriptionService newsLetterSubscriptionService,
         ITranslationService translationService,
-        IMessageProviderService messageProviderService, IWorkContext workContext,
+        IMessageProviderService messageProviderService, IWorkContextAccessor workContextAccessor,
         INewsletterCategoryService newsletterCategoryService)
     {
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _translationService = translationService;
         _messageProviderService = messageProviderService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _newsletterCategoryService = newsletterCategoryService;
     }
 
@@ -48,21 +48,21 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
 
             var subscription =
                 await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreId(email,
-                    _workContext.CurrentStore.Id);
+                    _workContextAccessor.WorkContext.CurrentStore.Id);
             if (subscription != null)
             {
                 if (request.Subscribe)
                 {
                     if (!subscription.Active)
                         await _messageProviderService.SendNewsLetterSubscriptionActivationMessage(subscription,
-                            _workContext.WorkingLanguage.Id);
+                            _workContextAccessor.WorkContext.WorkingLanguage.Id);
                     model.Result = _translationService.GetResource("Newsletter.SubscribeEmailSent");
                 }
                 else
                 {
                     if (subscription.Active)
                         await _messageProviderService.SendNewsLetterSubscriptionDeactivationMessage(subscription,
-                            _workContext.WorkingLanguage.Id);
+                            _workContextAccessor.WorkContext.WorkingLanguage.Id);
                     model.Result = _translationService.GetResource("Newsletter.UnsubscribeEmailSent");
                 }
             }
@@ -71,14 +71,14 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
                 subscription = new NewsLetterSubscription {
                     NewsLetterSubscriptionGuid = Guid.NewGuid(),
                     Email = email,
-                    CustomerId = _workContext.CurrentCustomer.Id,
+                    CustomerId = _workContextAccessor.WorkContext.CurrentCustomer.Id,
                     Active = false,
-                    StoreId = _workContext.CurrentStore.Id
+                    StoreId = _workContextAccessor.WorkContext.CurrentStore.Id
                 };
                 await _newsLetterSubscriptionService.InsertNewsLetterSubscription(subscription);
 
                 await _messageProviderService.SendNewsLetterSubscriptionActivationMessage(subscription,
-                    _workContext.WorkingLanguage.Id);
+                    _workContextAccessor.WorkContext.WorkingLanguage.Id);
 
                 model.Result = _translationService.GetResource("Newsletter.SubscribeEmailSent");
                 var modelCategory = await PrepareNewsletterCategory(subscription.Id);
@@ -100,12 +100,12 @@ public class SubscribeNewsletterHandler : IRequestHandler<SubscribeNewsletterCom
         var model = new NewsletterCategoryModel {
             NewsletterEmailId = id
         };
-        var categories = await _newsletterCategoryService.GetNewsletterCategoriesByStore(_workContext.CurrentStore.Id);
+        var categories = await _newsletterCategoryService.GetNewsletterCategoriesByStore(_workContextAccessor.WorkContext.CurrentStore.Id);
         foreach (var item in categories)
             model.NewsletterCategories.Add(new NewsletterSimpleCategory {
                 Id = item.Id,
-                Name = item.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                Description = item.GetTranslation(x => x.Description, _workContext.WorkingLanguage.Id),
+                Name = item.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                Description = item.GetTranslation(x => x.Description, _workContextAccessor.WorkContext.WorkingLanguage.Id),
                 Selected = item.Selected
             });
         return model;

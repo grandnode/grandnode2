@@ -20,12 +20,12 @@ public class VendorReviewController : BaseVendorController
         IVendorReviewViewModelService vendorReviewViewModelService,
         IVendorService vendorService,
         ITranslationService translationService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _vendorReviewViewModelService = vendorReviewViewModelService;
         _vendorService = vendorService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     #endregion
@@ -35,7 +35,7 @@ public class VendorReviewController : BaseVendorController
     private readonly IVendorReviewViewModelService _vendorReviewViewModelService;
     private readonly IVendorService _vendorService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     #endregion Fields
 
@@ -73,7 +73,7 @@ public class VendorReviewController : BaseVendorController
     {
         var vendorReview = await _vendorService.GetVendorReviewById(id);
 
-        if (vendorReview == null || vendorReview.VendorId != _workContext.CurrentVendor.Id)
+        if (vendorReview == null || vendorReview.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
             //No vendor review found with the specified id
             return RedirectToAction("List");
 
@@ -88,7 +88,7 @@ public class VendorReviewController : BaseVendorController
     public async Task<IActionResult> Edit(VendorReviewModel model, bool continueEditing)
     {
         var vendorReview = await _vendorService.GetVendorReviewById(model.Id);
-        if (vendorReview == null || vendorReview.VendorId != _workContext.CurrentVendor.Id)
+        if (vendorReview == null || vendorReview.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
             //No vendor review found with the specified id
             return RedirectToAction("List");
 
@@ -112,7 +112,7 @@ public class VendorReviewController : BaseVendorController
     public async Task<IActionResult> Delete(string id)
     {
         var vendorReview = await _vendorService.GetVendorReviewById(id);
-        if (vendorReview == null || vendorReview.VendorId != _workContext.CurrentVendor.Id)
+        if (vendorReview == null || vendorReview.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
             //No vendor review found with the specified id
             return RedirectToAction("List");
 

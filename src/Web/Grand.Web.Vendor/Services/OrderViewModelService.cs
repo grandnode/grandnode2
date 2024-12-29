@@ -38,7 +38,7 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IDateTimeService _dateTimeService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly ICurrencyService _currencyService;
     private readonly IPaymentService _paymentService;
     private readonly ICountryService _countryService;
@@ -67,7 +67,7 @@ public class OrderViewModelService : IOrderViewModelService
         IDateTimeService dateTimeService,
         IPriceFormatter priceFormatter,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICurrencyService currencyService,
         IPaymentService paymentService,
         ICountryService countryService,
@@ -91,7 +91,7 @@ public class OrderViewModelService : IOrderViewModelService
         _dateTimeService = dateTimeService;
         _priceFormatter = priceFormatter;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _currencyService = currencyService;
         _paymentService = paymentService;
         _countryService = countryService;
@@ -216,7 +216,7 @@ public class OrderViewModelService : IOrderViewModelService
 
         //load orders
         var orders = await _orderService.SearchOrders(
-            vendorId: _workContext.CurrentVendor.Id,
+            vendorId: _workContextAccessor.WorkContext.CurrentVendor.Id,
             customerId: model.CustomerId,
             productId: model.ProductId,
             warehouseId: model.WarehouseId,
@@ -321,7 +321,7 @@ public class OrderViewModelService : IOrderViewModelService
 
         model.BillingAddress = await order.BillingAddress.ToModel(_countryService);
         model.BillingAddress.FormattedCustomAddressAttributes =
-            await _addressAttributeParser.FormatAttributes(_workContext.WorkingLanguage,
+            await _addressAttributeParser.FormatAttributes(_workContextAccessor.WorkContext.WorkingLanguage,
                 order.BillingAddress.Attributes);
         model.BillingAddress.NameEnabled = _addressSettings.NameEnabled;
         model.BillingAddress.FirstNameEnabled = true;
@@ -361,7 +361,7 @@ public class OrderViewModelService : IOrderViewModelService
                 {
                     model.ShippingAddress = await order.ShippingAddress.ToModel(_countryService);
                     model.ShippingAddress.FormattedCustomAddressAttributes =
-                        await _addressAttributeParser.FormatAttributes(_workContext.WorkingLanguage,
+                        await _addressAttributeParser.FormatAttributes(_workContextAccessor.WorkContext.WorkingLanguage,
                             order.ShippingAddress.Attributes);
                     model.ShippingAddress.NameEnabled = _addressSettings.NameEnabled;
                     model.ShippingAddress.FirstNameEnabled = true;
@@ -429,7 +429,7 @@ public class OrderViewModelService : IOrderViewModelService
         model.CheckoutAttributeInfo = order.CheckoutAttributeDescription;
         var hasDownloadableItems = false;
         var products = order.OrderItems
-            .Where(orderItem => orderItem.VendorId == _workContext.CurrentVendor.Id)
+            .Where(orderItem => orderItem.VendorId == _workContextAccessor.WorkContext.CurrentVendor.Id)
             .ToList();
 
         foreach (var orderItem in products)
@@ -553,7 +553,7 @@ public class OrderViewModelService : IOrderViewModelService
 
         //load orders
         var orders = await _orderService.SearchOrders(
-            vendorId: _workContext.CurrentVendor.Id,
+            vendorId: _workContextAccessor.WorkContext.CurrentVendor.Id,
             productId: model.ProductId,
             warehouseId: model.WarehouseId,
             paymentMethodSystemName: model.PaymentMethodSystemName,

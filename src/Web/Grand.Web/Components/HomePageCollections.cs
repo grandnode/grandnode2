@@ -9,22 +9,22 @@ namespace Grand.Web.Components;
 public class HomePageCollectionsViewComponent : BaseViewComponent
 {
     private readonly IMediator _mediator;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public HomePageCollectionsViewComponent(
         IMediator mediator,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _mediator = mediator;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
         var model = await _mediator.Send(new GetHomepageCollections {
-            Customer = _workContext.CurrentCustomer,
-            Language = _workContext.WorkingLanguage,
-            Store = _workContext.CurrentStore
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Language = _workContextAccessor.WorkContext.WorkingLanguage,
+            Store = _workContextAccessor.WorkContext.CurrentStore
         });
 
         return !model.Any() ? Content("") : View(model);

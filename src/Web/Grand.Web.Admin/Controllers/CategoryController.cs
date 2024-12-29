@@ -30,7 +30,7 @@ public class CategoryController : BaseAdminController
         ICategoryViewModelService categoryViewModelService,
         ILanguageService languageService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IPictureViewModelService pictureViewModelService)
     {
@@ -38,7 +38,7 @@ public class CategoryController : BaseAdminController
         _categoryViewModelService = categoryViewModelService;
         _languageService = languageService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
         _pictureViewModelService = pictureViewModelService;
     }
@@ -50,8 +50,8 @@ public class CategoryController : BaseAdminController
     protected async Task<(bool allow, string message)> CheckAccessToCategory(Category category)
     {
         if (category == null) return (false, "Category not exists");
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            if (!(!category.LimitedToStores || (category.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) &&
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            if (!(!category.LimitedToStores || (category.Stores.Contains(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
                                                 category.LimitedToStores)))
                 return (false, "This is not your category");
         return (true, null);
@@ -65,7 +65,7 @@ public class CategoryController : BaseAdminController
     private readonly ICategoryViewModelService _categoryViewModelService;
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
     private readonly IPictureViewModelService _pictureViewModelService;
 
@@ -80,7 +80,7 @@ public class CategoryController : BaseAdminController
 
     public async Task<IActionResult> List()
     {
-        var model = await _categoryViewModelService.PrepareCategoryListModel(_workContext.CurrentCustomer.StaffStoreId);
+        var model = await _categoryViewModelService.PrepareCategoryListModel(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
         return View(model);
     }
 
@@ -88,8 +88,8 @@ public class CategoryController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, CategoryListModel model)
     {
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            model.SearchStoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            model.SearchStoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var categories =
             await _categoryViewModelService.PrepareCategoryListModel(model, command.Page, command.PageSize);
@@ -107,7 +107,7 @@ public class CategoryController : BaseAdminController
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> Create()
     {
-        var model = await _categoryViewModelService.PrepareCategoryModel(_workContext.CurrentCustomer.StaffStoreId);
+        var model = await _categoryViewModelService.PrepareCategoryModel(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
         //locales
         await AddLocales(_languageService, model.Locales);
 
@@ -121,8 +121,8 @@ public class CategoryController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-                model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
+            if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+                model.Stores = [_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
             var category = await _categoryViewModelService.InsertCategoryModel(model);
             Success(_translationService.GetResource("Admin.Catalog.Categories.Added"));
@@ -131,7 +131,7 @@ public class CategoryController : BaseAdminController
 
         //If we got this far, something failed, redisplay form
         model = await _categoryViewModelService.PrepareCategoryModel(model, null,
-            _workContext.CurrentCustomer.StaffStoreId);
+            _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
 
         return View(model);
     }
@@ -144,17 +144,17 @@ public class CategoryController : BaseAdminController
             //No category found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
         {
             if (!category.LimitedToStores || (category.LimitedToStores &&
-                                              category.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) &&
+                                              category.Stores.Contains(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
                                               category.Stores.Count > 1))
             {
                 Warning(_translationService.GetResource("Admin.Catalog.Categories.Permissions"));
             }
             else
             {
-                if (!category.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
+                if (!category.AccessToEntityByStore(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                     return RedirectToAction("List");
             }
         }
@@ -173,7 +173,7 @@ public class CategoryController : BaseAdminController
             locale.Flag = category.GetTranslation(x => x.Flag, languageId, false);
         });
         model = await _categoryViewModelService.PrepareCategoryModel(model, category,
-            _workContext.CurrentCustomer.StaffStoreId);
+            _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
 
         return View(model);
     }
@@ -188,14 +188,14 @@ public class CategoryController : BaseAdminController
             //No category found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            if (!category.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            if (!category.AccessToEntityByStore(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = category.Id });
 
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-                model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
+            if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+                model.Stores = [_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
             category = await _categoryViewModelService.UpdateCategoryModel(category, model);
 
@@ -213,7 +213,7 @@ public class CategoryController : BaseAdminController
 
         //If we got this far, something failed, redisplay form
         model = await _categoryViewModelService.PrepareCategoryModel(model, category,
-            _workContext.CurrentCustomer.StaffStoreId);
+            _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
 
         return View(model);
     }
@@ -227,8 +227,8 @@ public class CategoryController : BaseAdminController
             //No category found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            if (!category.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            if (!category.AccessToEntityByStore(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = category.Id });
 
         if (ModelState.IsValid)
@@ -298,7 +298,7 @@ public class CategoryController : BaseAdminController
         try
         {
             var bytes = await exportManager.Export(await _categoryService.GetAllCategories(showHidden: true,
-                storeId: _workContext.CurrentCustomer.StaffStoreId));
+                storeId: _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId));
             return File(bytes, "text/xls", "categories.xlsx");
         }
         catch (Exception exc)
@@ -385,7 +385,7 @@ public class CategoryController : BaseAdminController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> ProductAddPopup(string categoryId)
     {
-        var model = await _categoryViewModelService.PrepareAddCategoryProductModel(_workContext.CurrentCustomer
+        var model = await _categoryViewModelService.PrepareAddCategoryProductModel(_workContextAccessor.WorkContext.CurrentCustomer
             .StaffStoreId);
         model.CategoryId = categoryId;
         return View(model);
@@ -397,8 +397,8 @@ public class CategoryController : BaseAdminController
         CategoryModel.AddCategoryProductModel model)
     {
         var gridModel = new DataSourceResult();
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            model.SearchStoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            model.SearchStoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var products = await _categoryViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         gridModel.Data = products.products.ToList();
         gridModel.Total = products.totalCount;

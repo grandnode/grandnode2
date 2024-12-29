@@ -25,14 +25,14 @@ public class CustomerGroupController : BaseAdminController
         IGroupService groupService,
         ITranslationService translationService,
         IPermissionService permissionService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICustomerGroupProductService customerGroupProductService)
     {
         _customerGroupViewModelService = customerGroupViewModelService;
         _groupService = groupService;
         _translationService = translationService;
         _permissionService = permissionService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _customerGroupProductService = customerGroupProductService;
     }
 
@@ -44,7 +44,7 @@ public class CustomerGroupController : BaseAdminController
     private readonly IGroupService _groupService;
     private readonly ITranslationService _translationService;
     private readonly IPermissionService _permissionService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly ICustomerGroupProductService _customerGroupProductService;
 
     #endregion
@@ -263,7 +263,7 @@ public class CustomerGroupController : BaseAdminController
         foreach (var pr in permissionRecords)
             model.Add(new CustomerGroupPermissionModel {
                 Id = pr.Id,
-                Name = _translationService.GetResource(pr.GetTranslationPermissionName(), _workContext.WorkingLanguage.Id),
+                Name = _translationService.GetResource(pr.GetTranslationPermissionName(), _workContextAccessor.WorkContext.WorkingLanguage.Id),
                 SystemName = pr.SystemName,
                 Actions = pr.Actions.ToList(),
                 Access = pr.CustomerGroups.Contains(customerGroupId)

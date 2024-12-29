@@ -9,12 +9,12 @@ namespace Grand.Web.Components;
 public class GetCoordinateViewComponent : BaseViewComponent
 {
     private readonly CustomerSettings _customerSettings;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
-    public GetCoordinateViewComponent(CustomerSettings customerSettings, IWorkContext workContext)
+    public GetCoordinateViewComponent(CustomerSettings customerSettings, IWorkContextAccessor workContextAccessor)
     {
         _customerSettings = customerSettings;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     public IViewComponentResult Invoke()
@@ -22,12 +22,12 @@ public class GetCoordinateViewComponent : BaseViewComponent
         if (!_customerSettings.GeoEnabled)
             return Content("");
 
-        if (_workContext.CurrentCustomer.Coordinates == null)
+        if (_workContextAccessor.WorkContext.CurrentCustomer.Coordinates == null)
             return View(new LocationModel());
 
         var model = new LocationModel {
-            Longitude = _workContext.CurrentCustomer.Coordinates.X,
-            Latitude = _workContext.CurrentCustomer.Coordinates.Y
+            Longitude = _workContextAccessor.WorkContext.CurrentCustomer.Coordinates.X,
+            Latitude = _workContextAccessor.WorkContext.CurrentCustomer.Coordinates.Y
         };
         return View(model);
     }

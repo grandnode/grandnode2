@@ -27,13 +27,13 @@ public class CampaignController : BaseAdminController
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public CampaignController(ICampaignService campaignService, ICampaignViewModelService campaignViewModelService,
         IEmailAccountService emailAccountService,
         INewsLetterSubscriptionService newsLetterSubscriptionService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
         EmailAccountSettings emailAccountSettings)
     {
@@ -43,7 +43,7 @@ public class CampaignController : BaseAdminController
         _emailAccountSettings = emailAccountSettings;
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _storeService = storeService;
     }
 
@@ -206,7 +206,7 @@ public class CampaignController : BaseAdminController
 
             var subscription =
                 await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreId(model.TestEmail,
-                    _workContext.CurrentStore.Id);
+                    _workContextAccessor.WorkContext.CurrentStore.Id);
             if (subscription != null)
             {
                 //there's a subscription. use it

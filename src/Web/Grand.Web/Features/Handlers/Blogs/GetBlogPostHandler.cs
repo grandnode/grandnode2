@@ -27,11 +27,11 @@ public class GetBlogPostHandler : IRequestHandler<GetBlogPost, BlogPostModel>
     private readonly MediaSettings _mediaSettings;
     private readonly IPictureService _pictureService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public GetBlogPostHandler(
         IBlogService blogService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPictureService pictureService,
         ITranslationService translationService,
         IDateTimeService dateTimeService,
@@ -41,7 +41,7 @@ public class GetBlogPostHandler : IRequestHandler<GetBlogPost, BlogPostModel>
         CustomerSettings customerSettings)
     {
         _blogService = blogService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _pictureService = pictureService;
         _translationService = translationService;
         _dateTimeService = dateTimeService;
@@ -59,13 +59,13 @@ public class GetBlogPostHandler : IRequestHandler<GetBlogPost, BlogPostModel>
 
         var model = new BlogPostModel {
             Id = request.BlogPost.Id,
-            MetaTitle = request.BlogPost.GetTranslation(x => x.MetaTitle, _workContext.WorkingLanguage.Id),
-            MetaDescription = request.BlogPost.GetTranslation(x => x.MetaDescription, _workContext.WorkingLanguage.Id),
-            MetaKeywords = request.BlogPost.GetTranslation(x => x.MetaKeywords, _workContext.WorkingLanguage.Id),
-            SeName = request.BlogPost.GetSeName(_workContext.WorkingLanguage.Id),
-            Title = request.BlogPost.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id),
-            Body = request.BlogPost.GetTranslation(x => x.Body, _workContext.WorkingLanguage.Id),
-            BodyOverview = request.BlogPost.GetTranslation(x => x.BodyOverview, _workContext.WorkingLanguage.Id),
+            MetaTitle = request.BlogPost.GetTranslation(x => x.MetaTitle, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+            MetaDescription = request.BlogPost.GetTranslation(x => x.MetaDescription, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+            MetaKeywords = request.BlogPost.GetTranslation(x => x.MetaKeywords, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+            SeName = request.BlogPost.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id),
+            Title = request.BlogPost.GetTranslation(x => x.Title, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+            Body = request.BlogPost.GetTranslation(x => x.Body, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+            BodyOverview = request.BlogPost.GetTranslation(x => x.BodyOverview, _workContextAccessor.WorkContext.WorkingLanguage.Id),
             AllowComments = request.BlogPost.AllowComments,
             CreatedOn = _dateTimeService.ConvertToUserTime(
                 request.BlogPost.StartDateUtc ?? request.BlogPost.CreatedOnUtc, DateTimeKind.Utc),
@@ -105,15 +105,15 @@ public class GetBlogPostHandler : IRequestHandler<GetBlogPost, BlogPostModel>
                 Title =
                     picture != null &&
                     !string.IsNullOrEmpty(
-                        picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))
-                        ? picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id)
+                        picture.GetTranslation(x => x.TitleAttribute, _workContextAccessor.WorkContext.WorkingLanguage.Id))
+                        ? picture.GetTranslation(x => x.TitleAttribute, _workContextAccessor.WorkContext.WorkingLanguage.Id)
                         : string.Format(_translationService.GetResource("Media.Blog.ImageLinkTitleFormat"),
                             blogPost.Title),
                 //"alt" attribute
                 AlternateText =
                     picture != null &&
-                    !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))
-                        ? picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id)
+                    !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContextAccessor.WorkContext.WorkingLanguage.Id))
+                        ? picture.GetTranslation(x => x.AltAttribute, _workContextAccessor.WorkContext.WorkingLanguage.Id)
                         : string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"),
                             blogPost.Title)
             };

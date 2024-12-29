@@ -1,10 +1,10 @@
 ﻿@inject IUrlHelperFactory UrlHelperFactory
 @inject IActionContextAccessor ActionContextAccessor
-@inject IWorkContext WorkContext
+@inject IWorkContextAccessor WorkContextAccessor
 @{
     Layout = "_ConfigurePlugin";
     var urlHelper = UrlHelperFactory.GetUrlHelper(ActionContextAccessor.ActionContext!);
-    var webhookUrl = WorkContext.CurrentHost.Url.TrimEnd('/') + urlHelper.RouteUrl(StripeCheckoutDefaults.WebHook);
+    var webhookUrl = WorkContextAccessor.WorkContext.CurrentHost.Url.TrimEnd('/') + urlHelper.RouteUrl(StripeCheckoutDefaults.WebHook);
 }
 @using Grand.Infrastructure
 @using Microsoft.AspNetCore.Mvc.Infrastructure

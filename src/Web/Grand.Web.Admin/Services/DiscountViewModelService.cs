@@ -35,7 +35,7 @@ public class DiscountViewModelService : IDiscountViewModelService
         ICurrencyService currencyService,
         ICategoryService categoryService,
         IProductService productService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICollectionService collectionService,
         IBrandService brandService,
         IStoreService storeService,
@@ -52,7 +52,7 @@ public class DiscountViewModelService : IDiscountViewModelService
         _currencyService = currencyService;
         _categoryService = categoryService;
         _productService = productService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _collectionService = collectionService;
         _brandService = brandService;
         _storeService = storeService;
@@ -74,7 +74,7 @@ public class DiscountViewModelService : IDiscountViewModelService
     private readonly ICurrencyService _currencyService;
     private readonly ICategoryService _categoryService;
     private readonly IProductService _productService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IBrandService _brandService;
     private readonly ICollectionService _collectionService;
     private readonly IStoreService _storeService;
@@ -105,7 +105,7 @@ public class DiscountViewModelService : IDiscountViewModelService
         if (model.SearchDiscountTypeId > 0)
             discountType = (DiscountType)model.SearchDiscountTypeId;
         var discounts = await _discountService.GetDiscountsQuery(discountType,
-            _workContext.CurrentCustomer.StaffStoreId,
+            _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId,
             null,
             model.SearchDiscountCouponCode,
             model.SearchDiscountName);
@@ -251,7 +251,7 @@ public class DiscountViewModelService : IDiscountViewModelService
         ArgumentNullException.ThrowIfNull(discountRequirementRule);
         ArgumentNullException.ThrowIfNull(discount);
 
-        var storeLocation = _workContext.CurrentHost.Url.TrimEnd('/');
+        var storeLocation = _workContextAccessor.WorkContext.CurrentHost.Url.TrimEnd('/');
 
         var url =
             $"{storeLocation}/{discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId)}";

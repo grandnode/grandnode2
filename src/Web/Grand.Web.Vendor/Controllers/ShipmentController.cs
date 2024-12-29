@@ -27,7 +27,7 @@ public class ShipmentController : BaseVendorController
         IShipmentViewModelService shipmentViewModelService,
         IOrderService orderService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPdfService pdfService,
         IShipmentService shipmentService,
         IDateTimeService dateTimeService,
@@ -36,7 +36,7 @@ public class ShipmentController : BaseVendorController
         _shipmentViewModelService = shipmentViewModelService;
         _orderService = orderService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _pdfService = pdfService;
         _shipmentService = shipmentService;
         _dateTimeService = dateTimeService;
@@ -48,7 +48,7 @@ public class ShipmentController : BaseVendorController
     private readonly IShipmentViewModelService _shipmentViewModelService;
     private readonly IOrderService _orderService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IPdfService _pdfService;
     private readonly IShipmentService _shipmentService;
     private readonly IDateTimeService _dateTimeService;
@@ -85,14 +85,14 @@ public class ShipmentController : BaseVendorController
     public async Task<IActionResult> ShipmentsByOrder(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
-        if (order == null || order.Deleted || !_workContext.HasAccessToOrder(order))
+        if (order == null || order.Deleted || !_workContextAccessor.WorkContext.HasAccessToOrder(order))
             throw new ArgumentException("No order found with the specified id");
 
         //shipments
         var shipmentModels = new List<ShipmentModel>();
         var shipments = (await _shipmentService.GetShipmentsByOrder(orderId))
             //a vendor should have access only to his products
-            .Where(s => _workContext.HasAccessToShipment(s))
+            .Where(s => _workContextAccessor.WorkContext.HasAccessToShipment(s))
             .OrderBy(s => s.CreatedOnUtc)
             .ToList();
 
@@ -111,7 +111,7 @@ public class ShipmentController : BaseVendorController
     public async Task<IActionResult> ShipmentsItemsByShipmentId(string shipmentId)
     {
         var shipment = await _shipmentService.GetShipmentById(shipmentId);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             throw new ArgumentException("No shipment found with the specified id");
 
         //shipments
@@ -128,7 +128,7 @@ public class ShipmentController : BaseVendorController
     public async Task<IActionResult> AddShipment(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
-        if (order == null || order.Deleted || !_workContext.HasAccessToOrder(order))
+        if (order == null || order.Deleted || !_workContextAccessor.WorkContext.HasAccessToOrder(order))
             //No order found with the specified id
             return RedirectToAction("List");
 
@@ -145,12 +145,12 @@ public class ShipmentController : BaseVendorController
             return RedirectToAction("AddShipment", new { orderId = model.OrderId });
 
         var order = await _orderService.GetOrderById(model.OrderId);
-        if (order == null || order.Deleted || !_workContext.HasAccessToOrder(order))
+        if (order == null || order.Deleted || !_workContextAccessor.WorkContext.HasAccessToOrder(order))
             //No order found with the specified id
             return RedirectToAction("List");
 
         //a vendor should have access only to his products
-        var orderItems = order.OrderItems.Where(_workContext.HasAccessToOrderItem).ToList();
+        var orderItems = order.OrderItems.Where(_workContextAccessor.WorkContext.HasAccessToOrderItem).ToList();
 
         var (shipment, totalWeight) =
             await _shipmentViewModelService.PrepareShipment(order, orderItems.ToList(), model);
@@ -187,7 +187,7 @@ public class ShipmentController : BaseVendorController
     public async Task<IActionResult> ShipmentDetails(string id)
     {
         var shipment = await _shipmentService.GetShipmentById(id);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             //No shipment found with the specified id
             return RedirectToAction("List");
 
@@ -200,7 +200,7 @@ public class ShipmentController : BaseVendorController
     public async Task<IActionResult> DeleteShipment(string id)
     {
         var shipment = await _shipmentService.GetShipmentById(id);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             //No shipment found with the specified id
             return RedirectToAction("List");
 
@@ -225,7 +225,7 @@ public class ShipmentController : BaseVendorController
             return RedirectToAction("ShipmentDetails", new { id = model.Id });
 
         var shipment = await _shipmentService.GetShipmentById(model.Id);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             //No shipment found with the specified id
             return RedirectToAction("List");
 
@@ -243,7 +243,7 @@ public class ShipmentController : BaseVendorController
             return RedirectToAction("ShipmentDetails", new { id = model.Id });
 
         var shipment = await _shipmentService.GetShipmentById(model.Id);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             //No shipment found with the specified id
             return RedirectToAction("List");
 
@@ -258,7 +258,7 @@ public class ShipmentController : BaseVendorController
     public async Task<IActionResult> SetAsShipped(string id)
     {
         var shipment = await _shipmentService.GetShipmentById(id);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             //No shipment found with the specified id
             return RedirectToAction("List");
 
@@ -283,7 +283,7 @@ public class ShipmentController : BaseVendorController
             return RedirectToAction("ShipmentDetails", new { id = model.Id });
 
         var shipment = await _shipmentService.GetShipmentById(model.Id);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             //No shipment found with the specified id
             return RedirectToAction("List");
 
@@ -308,7 +308,7 @@ public class ShipmentController : BaseVendorController
     public async Task<IActionResult> SetAsDelivered(string id)
     {
         var shipment = await _shipmentService.GetShipmentById(id);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             //No shipment found with the specified id
             return RedirectToAction("List");
 
@@ -334,7 +334,7 @@ public class ShipmentController : BaseVendorController
             return RedirectToAction("ShipmentDetails", new { id = model.Id });
 
         var shipment = await _shipmentService.GetShipmentById(model.Id);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             //No shipment found with the specified id
             return RedirectToAction("List");
 
@@ -358,7 +358,7 @@ public class ShipmentController : BaseVendorController
     public async Task<IActionResult> PdfPackagingSlip(string shipmentId)
     {
         var shipment = await _shipmentService.GetShipmentById(shipmentId);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             //no shipment found with the specified id
             return RedirectToAction("List");
 
@@ -369,7 +369,7 @@ public class ShipmentController : BaseVendorController
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await _pdfService.PrintPackagingSlipsToPdf(stream, shipments, _workContext.WorkingLanguage.Id);
+            await _pdfService.PrintPackagingSlipsToPdf(stream, shipments, _workContextAccessor.WorkContext.WorkingLanguage.Id);
             bytes = stream.ToArray();
         }
 
@@ -394,7 +394,7 @@ public class ShipmentController : BaseVendorController
         using (var stream = new MemoryStream())
         {
             await _pdfService.PrintPackagingSlipsToPdf(stream, shipments.shipments.ToList(),
-                _workContext.WorkingLanguage.Id);
+                _workContextAccessor.WorkContext.WorkingLanguage.Id);
             bytes = stream.ToArray();
         }
 
@@ -418,7 +418,7 @@ public class ShipmentController : BaseVendorController
         //a vendor should have access only to his shipments
         var shipmentsAccess =
             (from item in shipments
-                where _workContext.HasAccessToShipment(item)
+                where _workContextAccessor.WorkContext.HasAccessToShipment(item)
                 select item).ToList();
 
         //ensure that we at least one shipment selected
@@ -431,7 +431,7 @@ public class ShipmentController : BaseVendorController
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await _pdfService.PrintPackagingSlipsToPdf(stream, shipmentsAccess, _workContext.WorkingLanguage.Id);
+            await _pdfService.PrintPackagingSlipsToPdf(stream, shipmentsAccess, _workContextAccessor.WorkContext.WorkingLanguage.Id);
             bytes = stream.ToArray();
         }
 
@@ -448,7 +448,7 @@ public class ShipmentController : BaseVendorController
 
         //a vendor should have access only to his shipments
         shipmentsAccess.AddRange(from item in shipments
-            where _workContext.HasAccessToShipment(item)
+            where _workContextAccessor.WorkContext.HasAccessToShipment(item)
             select item);
 
         foreach (var shipment in shipmentsAccess)
@@ -475,7 +475,7 @@ public class ShipmentController : BaseVendorController
         //a vendor should have access only to his shipments
         shipmentsAccess.AddRange(
             from item in shipments
-            where _workContext.HasAccessToShipment(item)
+            where _workContextAccessor.WorkContext.HasAccessToShipment(item)
             select item);
 
         foreach (var shipment in shipmentsAccess)
@@ -498,7 +498,7 @@ public class ShipmentController : BaseVendorController
     public async Task<IActionResult> ShipmentNotesSelect(string shipmentId)
     {
         var shipment = await _shipmentService.GetShipmentById(shipmentId);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             throw new ArgumentException("No shipment found with the specified id");
 
         //shipment notes
@@ -515,7 +515,7 @@ public class ShipmentController : BaseVendorController
         string message)
     {
         var shipment = await _shipmentService.GetShipmentById(shipmentId);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             return Json(new { Result = false });
 
         await _shipmentViewModelService.InsertShipmentNote(shipment, displayToCustomer, message);
@@ -528,7 +528,7 @@ public class ShipmentController : BaseVendorController
     public async Task<IActionResult> ShipmentNoteDelete(string id, string shipmentId)
     {
         var shipment = await _shipmentService.GetShipmentById(shipmentId);
-        if (shipment == null || !_workContext.HasAccessToShipment(shipment))
+        if (shipment == null || !_workContextAccessor.WorkContext.HasAccessToShipment(shipment))
             throw new ArgumentException("No shipment found with the specified id");
 
         await _shipmentViewModelService.DeleteShipmentNote(shipment, id);

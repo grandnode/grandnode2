@@ -41,7 +41,7 @@ public class CategoryImportDataObjectTests
 
     private IRepository<Category> _repository;
     private Mock<ISlugService> _slugServiceMock;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
     private ISeNameService _seNameService;
     [TestInitialize]
     public void Init()
@@ -54,9 +54,9 @@ public class CategoryImportDataObjectTests
         _categoryLayoutServiceMock = new Mock<ICategoryLayoutService>();
         _slugServiceMock = new Mock<ISlugService>();
         _languageServiceMock = new Mock<ILanguageService>();
-        _workContextMock = new Mock<IWorkContext>();
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
+        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
 
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,

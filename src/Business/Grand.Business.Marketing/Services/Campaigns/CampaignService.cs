@@ -24,7 +24,7 @@ public class CampaignService(
     IStoreService storeService,
     IMediator mediator,
     ILanguageService languageService,
-    IWorkContext workContext)
+    IWorkContextAccessor workContextAccessor)
     : ICampaignService
 {
     /// <summary>
@@ -252,10 +252,10 @@ public class CampaignService(
                         (await storeService.GetAllStores()).FirstOrDefault();
 
             builder.AddStoreTokens(store, language, emailAccount)
-                .AddNewsLetterSubscriptionTokens(subscription, store, workContext.CurrentHost);
+                .AddNewsLetterSubscriptionTokens(subscription, store, workContextAccessor.WorkContext.CurrentHost);
 
             if (customer != null)
-                builder.AddCustomerTokens(customer, store, workContext.CurrentHost, language)
+                builder.AddCustomerTokens(customer, store, workContextAccessor.WorkContext.CurrentHost, language)
                     .AddShoppingCartTokens(customer, store, language);
 
             var email = new QueuedEmail();
@@ -309,7 +309,7 @@ public class CampaignService(
         builder.AddStoreTokens(store, language, emailAccount);
         var customer = customerRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant());
         if (customer != null)
-            builder.AddCustomerTokens(customer, store, workContext.CurrentHost, language)
+            builder.AddCustomerTokens(customer, store, workContextAccessor.WorkContext.CurrentHost, language)
                 .AddShoppingCartTokens(customer, store, language);
 
         var liquidObject = await builder.BuildAsync();

@@ -24,7 +24,7 @@ public class NewsController : BasePublicController
     #region Constructors
 
     public NewsController(INewsService newsService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService,
         IAclService aclService,
         IPermissionService permissionService,
@@ -32,7 +32,7 @@ public class NewsController : BasePublicController
         NewsSettings newsSettings)
     {
         _newsService = newsService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _translationService = translationService;
         _aclService = aclService;
         _permissionService = permissionService;
@@ -45,7 +45,7 @@ public class NewsController : BasePublicController
     #region Fields
 
     private readonly INewsService _newsService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly ITranslationService _translationService;
     private readonly IAclService _aclService;
     private readonly IPermissionService _permissionService;
@@ -79,7 +79,7 @@ public class NewsController : BasePublicController
             (newsItem.StartDateUtc.HasValue && newsItem.StartDateUtc.Value >= DateTime.UtcNow) ||
             (newsItem.EndDateUtc.HasValue && newsItem.EndDateUtc.Value <= DateTime.UtcNow) ||
             //Store acl
-            !_aclService.Authorize(newsItem, _workContext.CurrentStore.Id))
+            !_aclService.Authorize(newsItem, _workContextAccessor.WorkContext.CurrentStore.Id))
             return RedirectToRoute("HomePage");
 
         var model = await _mediator.Send(new GetNewsItem { NewsItem = newsItem });
@@ -123,7 +123,7 @@ public class NewsController : BasePublicController
                     newsComment.CommentTitle,
                     CreatedOn = HttpContext.RequestServices.GetService<IDateTimeService>()
                         .ConvertToUserTime(newsComment.CreatedOnUtc, DateTimeKind.Utc),
-                    CustomerName = _workContext.CurrentCustomer.FormatUserName(HttpContext.RequestServices
+                    CustomerName = _workContextAccessor.WorkContext.CurrentCustomer.FormatUserName(HttpContext.RequestServices
                         .GetService<CustomerSettings>().CustomerNameFormat)
                 }
             });

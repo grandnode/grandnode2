@@ -28,14 +28,14 @@ public class ProductService : IProductService
     /// </summary>
     public ProductService(ICacheBase cacheBase,
         IRepository<Product> productRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         IAclService aclService
     )
     {
         _cacheBase = cacheBase;
         _productRepository = productRepository;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _mediator = mediator;
         _aclService = aclService;
     }
@@ -46,7 +46,7 @@ public class ProductService : IProductService
 
     private readonly IRepository<Product> _productRepository;
     private readonly ICacheBase _cacheBase;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IAclService _aclService;
     private readonly IMediator _mediator;
 
@@ -130,8 +130,8 @@ public class ProductService : IProductService
         foreach (var id in productIds)
         {
             var product = await GetProductById(id);
-            if (product != null && (showHidden || (_aclService.Authorize(product, _workContext.CurrentCustomer) &&
-                                                   _aclService.Authorize(product, _workContext.CurrentStore.Id) &&
+            if (product != null && (showHidden || (_aclService.Authorize(product, _workContextAccessor.WorkContext.CurrentCustomer) &&
+                                                   _aclService.Authorize(product, _workContextAccessor.WorkContext.CurrentStore.Id) &&
                                                    product.IsAvailable())))
                 products.Add(product);
         }
@@ -524,7 +524,7 @@ public class ProductService : IProductService
             bool? overridePublished = null)
     {
         var model = await _mediator.Send(new GetSearchProductsQuery {
-            Customer = _workContext.CurrentCustomer,
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
             LoadFilterableSpecificationAttributeOptionIds = loadFilterableSpecificationAttributeOptionIds,
             PageIndex = pageIndex,
             PageSize = pageSize,
@@ -608,7 +608,7 @@ public class ProductService : IProductService
 
         //ACL mapping
         if (!showHidden)
-            products = products.Where(x => _aclService.Authorize(x, _workContext.CurrentCustomer)).ToList();
+            products = products.Where(x => _aclService.Authorize(x, _workContextAccessor.WorkContext.CurrentCustomer)).ToList();
         //Store acl
         if (!showHidden && !string.IsNullOrEmpty(storeId))
             products = products.Where(x => _aclService.Authorize(x, storeId)).ToList();
@@ -895,8 +895,8 @@ public class ProductService : IProductService
                 var productToAdd = await GetProductById(crossSell);
                 //validate product
                 if (productToAdd is not { Published: true }
-                    || !_aclService.Authorize(productToAdd, _workContext.CurrentCustomer) ||
-                    !_aclService.Authorize(productToAdd, _workContext.CurrentStore.Id)
+                    || !_aclService.Authorize(productToAdd, _workContextAccessor.WorkContext.CurrentCustomer) ||
+                    !_aclService.Authorize(productToAdd, _workContextAccessor.WorkContext.CurrentStore.Id)
                     || !productToAdd.IsAvailable())
                     continue;
 

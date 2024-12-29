@@ -26,14 +26,14 @@ public class MerchandiseReturnController : BaseAdminController
         ITranslationService translationService,
         IMerchandiseReturnService merchandiseReturnService,
         IOrderService orderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService)
     {
         _merchandiseReturnViewModelService = merchandiseReturnViewModelService;
         _translationService = translationService;
         _merchandiseReturnService = merchandiseReturnService;
         _orderService = orderService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
     }
 
@@ -45,7 +45,7 @@ public class MerchandiseReturnController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly IOrderService _orderService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
 
     #endregion Fields
@@ -68,8 +68,8 @@ public class MerchandiseReturnController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, MerchandiseReturnListModel model)
     {
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var merchandiseReturnModels =
             await _merchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, command.Page,
                 command.PageSize);
@@ -96,8 +96,8 @@ public class MerchandiseReturnController : BaseAdminController
             //not found
             return RedirectToAction("List", "MerchandiseReturn");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            merchandiseReturn.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            merchandiseReturn.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "MerchandiseReturn");
 
         return RedirectToAction("Edit", "MerchandiseReturn", new { id = merchandiseReturn.Id });
@@ -111,8 +111,8 @@ public class MerchandiseReturnController : BaseAdminController
         if (merchandiseReturn == null)
             return ErrorForKendoGridJson("Merchandise return not found");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            merchandiseReturn.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            merchandiseReturn.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return ErrorForKendoGridJson("Merchandise return is not your");
         var items = await _merchandiseReturnViewModelService.PrepareMerchandiseReturnItemModel(merchandiseReturnId);
         var gridModel = new DataSourceResult {
@@ -132,8 +132,8 @@ public class MerchandiseReturnController : BaseAdminController
             //No merchandise return found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            merchandiseReturn.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            merchandiseReturn.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "MerchandiseReturn");
         var model = new MerchandiseReturnModel();
         await _merchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
@@ -154,8 +154,8 @@ public class MerchandiseReturnController : BaseAdminController
             //No merchandise return found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            merchandiseReturn.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            merchandiseReturn.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "MerchandiseReturn");
 
         if (ModelState.IsValid)
@@ -190,8 +190,8 @@ public class MerchandiseReturnController : BaseAdminController
             //No merchandise return found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            merchandiseReturn.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            merchandiseReturn.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "MerchandiseReturn");
         if (ModelState.IsValid)
         {
@@ -216,8 +216,8 @@ public class MerchandiseReturnController : BaseAdminController
         if (merchandiseReturn == null)
             throw new ArgumentException("No merchandise return found with the specified id");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            merchandiseReturn.StoreId != _workContext.CurrentCustomer.StaffStoreId) return Content("");
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            merchandiseReturn.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Content("");
         //merchandise return notes
         var merchandiseReturnNoteModels =
             await _merchandiseReturnViewModelService.PrepareMerchandiseReturnNotes(merchandiseReturn);
@@ -240,8 +240,8 @@ public class MerchandiseReturnController : BaseAdminController
         if (order == null)
             return Json(new { Result = false });
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            merchandiseReturn.StoreId != _workContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            merchandiseReturn.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
         await _merchandiseReturnViewModelService.InsertMerchandiseReturnNote(merchandiseReturn, order, downloadId,
             displayToCustomer, message);
 
@@ -256,8 +256,8 @@ public class MerchandiseReturnController : BaseAdminController
         if (merchandiseReturn == null)
             throw new ArgumentException("No merchandise return found with the specified id");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            merchandiseReturn.StoreId != _workContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            merchandiseReturn.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
 
         await _merchandiseReturnViewModelService.DeleteMerchandiseReturnNote(merchandiseReturn, id);
 

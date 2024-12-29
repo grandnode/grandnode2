@@ -52,7 +52,7 @@ public class ProductViewModelService(
     ITranslationService translationService,
     IProductLayoutService productLayoutService,
     ISpecificationAttributeService specificationAttributeService,
-    IWorkContext workContext,
+    IWorkContextAccessor workContextAccessor,
     IGroupService groupService,
     IWarehouseService warehouseService,
     IDeliveryDateService deliveryDateService,
@@ -142,7 +142,7 @@ public class ProductViewModelService(
 
     public virtual async Task PrepareTierPriceModel(ProductModel.TierPriceModel model)
     {
-        var storeId = workContext.CurrentCustomer.StaffStoreId;
+        var storeId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         if (string.IsNullOrEmpty(storeId))
             model.AvailableStores.Add(new SelectListItem
@@ -404,7 +404,7 @@ public class ProductViewModelService(
 
         //discounts
         model.AvailableDiscounts = (await discountService
-                .GetDiscountsQuery(DiscountType.AssignedToSkus, workContext.CurrentCustomer.StaffStoreId))
+                .GetDiscountsQuery(DiscountType.AssignedToSkus, workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             .Select(d => d.ToModel(dateTimeService))
             .ToList();
         if (!excludeProperties && product != null) model.SelectedDiscountIds = product.AppliedDiscounts.ToArray();
@@ -526,7 +526,7 @@ public class ProductViewModelService(
     {
         var model = new ProductListModel();
 
-        var storeId = workContext.CurrentCustomer.StaffStoreId;
+        var storeId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //stores
         model.AvailableStores.Add(new SelectListItem
@@ -576,8 +576,8 @@ public class ProductViewModelService(
         ProductListModel model, int pageIndex, int pageSize)
     {
         //limit for store manager
-        if (!string.IsNullOrEmpty(workContext.CurrentCustomer.StaffStoreId))
-            model.SearchStoreId = workContext.CurrentCustomer.StaffStoreId;
+        if (!string.IsNullOrEmpty(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            model.SearchStoreId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var categoryIds = new List<string>();
         if (!string.IsNullOrEmpty(model.SearchCategoryId))
@@ -651,7 +651,7 @@ public class ProductViewModelService(
     public virtual async Task<IList<Product>> PrepareProducts(ProductListModel model)
     {
         //limit for store manager
-        model.SearchStoreId = workContext.CurrentCustomer.StaffStoreId;
+        model.SearchStoreId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var categoryIds = new List<string>();
         if (!string.IsNullOrEmpty(model.SearchCategoryId))
@@ -694,8 +694,8 @@ public class ProductViewModelService(
     public virtual async Task<Product> InsertProductModel(ProductModel model)
     {
         //a staff should have access only to his products
-        if (await groupService.IsStaff(workContext.CurrentCustomer))
-            model.Stores = [workContext.CurrentCustomer.StaffStoreId];
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+            model.Stores = [workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
         //product
         var product = model.ToEntity(dateTimeService);
@@ -703,7 +703,7 @@ public class ProductViewModelService(
         //discounts
         var allDiscounts =
             await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus,
-                workContext.CurrentCustomer.StaffStoreId);
+                workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
         foreach (var discount in allDiscounts)
             if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
             {
@@ -734,8 +734,8 @@ public class ProductViewModelService(
     public virtual async Task<Product> UpdateProductModel(Product product, ProductModel model)
     {
         //a staff should have access only to his products
-        if (await groupService.IsStaff(workContext.CurrentCustomer))
-            model.Stores = [workContext.CurrentCustomer.StaffStoreId];
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+            model.Stores = [workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
         var prevStockQuantity = stockQuantityService.GetTotalStockQuantity(product, total: true);
         var prevMultiWarehouseStock = product.ProductWarehouseInventory.Select(i => new ProductWarehouseInventory
@@ -753,7 +753,7 @@ public class ProductViewModelService(
         //discounts
         var allDiscounts =
             await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus,
-                workContext.CurrentCustomer.StaffStoreId);
+                workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
         foreach (var discount in allDiscounts)
             if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
             {
@@ -832,8 +832,8 @@ public class ProductViewModelService(
         for (var i = 0; i < products.Count; i++)
         {
             var product = products[i];
-            if (await groupService.IsStaff(workContext.CurrentCustomer))
-                if (!(product.LimitedToStores && product.Stores.Contains(workContext.CurrentCustomer.StaffStoreId) &&
+            if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+                if (!(product.LimitedToStores && product.Stores.Contains(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
                       product.Stores.Count == 1))
                     continue;
             await DeleteProduct(product);
@@ -850,7 +850,7 @@ public class ProductViewModelService(
         ProductModel.AddProductModel model, int pageIndex, int pageSize)
     {
         //limit for store manager
-        model.SearchStoreId = workContext.CurrentCustomer.StaffStoreId;
+        model.SearchStoreId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var products = await productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
             model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
@@ -1239,9 +1239,9 @@ public class ProductViewModelService(
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "0" });
 
         // avaible stores
-        if (await groupService.IsStaff(workContext.CurrentCustomer))
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
         {
-            storeId = workContext.CurrentCustomer.StaffStoreId;
+            storeId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
             var store = (await storeService.GetAllStores()).FirstOrDefault(x => x.Id == storeId);
             if (store != null)
                 model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
@@ -1262,8 +1262,8 @@ public class ProductViewModelService(
         PrepareBulkEditProductModel(BulkEditListModel model, int pageIndex, int pageSize)
     {
         var storeId = model.SearchStoreId;
-        if (await groupService.IsStaff(workContext.CurrentCustomer))
-            storeId = workContext.CurrentCustomer.StaffStoreId;
+        if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var searchCategoryIds = new List<string>();
         if (!string.IsNullOrEmpty(model.SearchCategoryId))
@@ -1305,8 +1305,8 @@ public class ProductViewModelService(
             if (product != null)
             {
                 //a staff can have access only to his products
-                if (await groupService.IsStaff(workContext.CurrentCustomer))
-                    if (!product.AccessToEntityByStore(workContext.CurrentCustomer.StaffStoreId))
+                if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+                    if (!product.AccessToEntityByStore(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                         continue;
 
                 var prevStockQuantity = stockQuantityService.GetTotalStockQuantity(product, total: true);
@@ -1340,8 +1340,8 @@ public class ProductViewModelService(
             var product = await productService.GetProductById(pModel.Id, true);
             if (product != null)
             {
-                if (await groupService.IsStaff(workContext.CurrentCustomer))
-                    if (!product.AccessToEntityByStore(workContext.CurrentCustomer.StaffStoreId))
+                if (await groupService.IsStaff(workContextAccessor.WorkContext.CurrentCustomer))
+                    if (!product.AccessToEntityByStore(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                         continue;
 
                 await productService.DeleteProduct(product);
@@ -1351,7 +1351,7 @@ public class ProductViewModelService(
 
     public virtual async Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product)
     {
-        var storeId = workContext.CurrentCustomer.StaffStoreId;
+        var storeId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var items = new List<ProductModel.TierPriceModel>();
         foreach (var x in product.TierPrices
@@ -1940,7 +1940,7 @@ public class ProductViewModelService(
         foreach (var x in product.ProductAttributeCombinations)
         {
             var attributes = await productAttributeFormatter.FormatAttributes(product, x.Attributes,
-                workContext.CurrentCustomer, "<br />", true, true, true, false, true, true);
+                workContextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false, true, true);
             var pacModel = new ProductModel.ProductAttributeCombinationModel {
                 Id = x.Id,
                 ProductId = product.Id,
@@ -1991,7 +1991,7 @@ public class ProductViewModelService(
                 model.WarehouseInventoryModels = wim;
                 model.ProductId = product.Id;
                 model.Attributes = await productAttributeFormatter.FormatAttributes(product, combination.Attributes,
-                    workContext.CurrentCustomer, "<br />", true, true, true, false);
+                    workContextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false);
                 if (model.UseMultipleWarehouses)
                     foreach (var _winv in combination.WarehouseInventory)
                     {
@@ -2610,7 +2610,7 @@ public class ProductViewModelService(
     {
         var model = new T();
 
-        var storeId = workContext.CurrentCustomer.StaffStoreId;
+        var storeId = workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //stores
         model.AvailableStores.Add(new SelectListItem

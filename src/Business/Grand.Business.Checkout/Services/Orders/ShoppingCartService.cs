@@ -22,14 +22,14 @@ public class ShoppingCartService : IShoppingCartService
     #region Ctor
 
     public ShoppingCartService(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IProductService productService,
         ICustomerService customerService,
         IMediator mediator,
         IShoppingCartValidator shoppingCartValidator,
         ShoppingCartSettings shoppingCartSettings)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _productService = productService;
         _customerService = customerService;
         _mediator = mediator;
@@ -41,7 +41,7 @@ public class ShoppingCartService : IShoppingCartService
 
     #region Fields
 
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IProductService _productService;
     private readonly ICustomerService _customerService;
     private readonly IMediator _mediator;
@@ -62,7 +62,7 @@ public class ShoppingCartService : IShoppingCartService
         params ShoppingCartType[] shoppingCartType)
     {
         var model = new List<ShoppingCartItem>();
-        var cart = _workContext.CurrentCustomer.ShoppingCartItems.ToList();
+        var cart = _workContextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.ToList();
 
         if (!string.IsNullOrEmpty(storeId))
             cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, storeId).ToList();
@@ -431,9 +431,9 @@ public class ShoppingCartService : IShoppingCartService
         }
 
         //move selected checkout attributes
-        var checkoutAttributes = fromCustomer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, _workContext.CurrentStore.Id);
+        var checkoutAttributes = fromCustomer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, _workContextAccessor.WorkContext.CurrentStore.Id);
         await _customerService.UpdateUserField(toCustomer, SystemCustomerFieldNames.CheckoutAttributes, checkoutAttributes,
-            _workContext.CurrentStore.Id);
+            _workContextAccessor.WorkContext.CurrentStore.Id);
     }
 
     #endregion

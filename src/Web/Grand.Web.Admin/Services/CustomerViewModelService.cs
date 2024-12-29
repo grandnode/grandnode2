@@ -69,7 +69,7 @@ public class CustomerViewModelService : ICustomerViewModelService
     private readonly TaxSettings _taxSettings;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
     
     public CustomerViewModelService(
@@ -81,7 +81,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         ITranslationService translationService,
         ILoyaltyPointsService loyaltyPointsService,
         ICountryService countryService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IVendorService vendorService,
         IStoreService storeService,
         ICustomerAttributeParser customerAttributeParser,
@@ -115,7 +115,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         _customerSettings = customerSettings;
         _commonSettings = commonSettings;
         _enumTranslationService = enumTranslationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _vendorService = vendorService;
         _addressSettings = addressSettings;
         _storeService = storeService;
@@ -154,7 +154,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         CustomerListModel model,
         string[] searchCustomerGroupIds, string[] searchCustomerTagIds, int pageIndex, int pageSize)
     {
-        var salesEmployeeId = _workContext.CurrentCustomer.SeId;
+        var salesEmployeeId = _workContextAccessor.WorkContext.CurrentCustomer.SeId;
 
         var customers = await _customerService.GetAllCustomers(
             customerGroupIds: searchCustomerGroupIds,
@@ -262,7 +262,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         }
         else
         {
-            model.SeId = _workContext.CurrentCustomer.SeId;
+            model.SeId = _workContextAccessor.WorkContext.CurrentCustomer.SeId;
         }
 
         model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
@@ -333,7 +333,7 @@ public class CustomerViewModelService : ICustomerViewModelService
                 model.LoyaltyPointsAvailableStores.Add(new SelectListItem {
                     Text = store.Shortcut,
                     Value = store.Id,
-                    Selected = store.Id == _workContext.CurrentStore.Id
+                    Selected = store.Id == _workContextAccessor.WorkContext.CurrentStore.Id
                 });
 
             //external authentication records
@@ -384,7 +384,7 @@ public class CustomerViewModelService : ICustomerViewModelService
             IsTaxExempt = model.IsTaxExempt,
             FreeShipping = model.FreeShipping,
             Active = model.Active,
-            StoreId = _workContext.CurrentStore.Id,
+            StoreId = _workContextAccessor.WorkContext.CurrentStore.Id,
             OwnerId = ownerId,
             Attributes = model.Attributes,
             LastActivityDateUtc = DateTime.UtcNow
@@ -648,7 +648,7 @@ public class CustomerViewModelService : ICustomerViewModelService
     {
         var customers = new List<Customer>();
         customers.AddRange(await _customerService.GetCustomersByIds(selectedIds.ToArray()));
-        foreach (var customer in customers.Where(customer => customer.Id != _workContext.CurrentCustomer.Id))
+        foreach (var customer in customers.Where(customer => customer.Id != _workContextAccessor.WorkContext.CurrentCustomer.Id))
             await _customerService.DeleteCustomer(customer);
     }
 
@@ -731,7 +731,7 @@ public class CustomerViewModelService : ICustomerViewModelService
             if (_addressSettings.CountryEnabled && !string.IsNullOrEmpty(model.CountryName))
                 addressHtmlSb.AppendFormat("{0}", WebUtility.HtmlEncode(model.CountryName));
             var customAttributesFormatted =
-                await _addressAttributeParser.FormatAttributes(_workContext.WorkingLanguage, x.Attributes);
+                await _addressAttributeParser.FormatAttributes(_workContextAccessor.WorkContext.WorkingLanguage, x.Attributes);
             if (!string.IsNullOrEmpty(customAttributesFormatted))
                 //already encoded
                 addressHtmlSb.AppendFormat("<br />{0}", customAttributesFormatted);
@@ -1138,8 +1138,8 @@ public class CustomerViewModelService : ICustomerViewModelService
             var messageProviderService = _httpContextAccessor.HttpContext!.RequestServices
                 .GetRequiredService<IMessageProviderService>();
             await messageProviderService.SendNewCustomerNoteMessage(customerNote,
-                await _customerService.GetCustomerById(customerId), _workContext.CurrentStore,
-                _workContext.WorkingLanguage.Id);
+                await _customerService.GetCustomerById(customerId), _workContextAccessor.WorkContext.CurrentStore,
+                _workContextAccessor.WorkContext.WorkingLanguage.Id);
         }
 
         return customerNote;

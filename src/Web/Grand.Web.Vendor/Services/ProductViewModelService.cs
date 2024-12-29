@@ -61,7 +61,7 @@ public class ProductViewModelService : IProductViewModelService
     private readonly TaxSettings _taxSettings;
     private readonly ITranslationService _translationService;
     private readonly IWarehouseService _warehouseService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly ISeNameService _seNameService;
     private readonly IEnumTranslationService _enumTranslationService;
 
@@ -80,7 +80,7 @@ public class ProductViewModelService : IProductViewModelService
         ITranslationService translationService,
         IProductLayoutService productLayoutService,
         ISpecificationAttributeService specificationAttributeService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IWarehouseService warehouseService,
         IDeliveryDateService deliveryDateService,
         ITaxCategoryService taxCategoryService,
@@ -112,7 +112,7 @@ public class ProductViewModelService : IProductViewModelService
         _translationService = translationService;
         _productLayoutService = productLayoutService;
         _specificationAttributeService = specificationAttributeService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _warehouseService = warehouseService;
         _deliveryDateService = deliveryDateService;
         _taxCategoryService = taxCategoryService;
@@ -613,7 +613,7 @@ public class ProductViewModelService : IProductViewModelService
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
-            vendorId: _workContext.CurrentVendor.Id,
+            vendorId: _workContextAccessor.WorkContext.CurrentVendor.Id,
             warehouseId: model.SearchWarehouseId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
@@ -674,7 +674,7 @@ public class ProductViewModelService : IProductViewModelService
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
-            vendorId: _workContext.CurrentVendor.Id,
+            vendorId: _workContextAccessor.WorkContext.CurrentVendor.Id,
             warehouseId: model.SearchWarehouseId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
@@ -689,7 +689,7 @@ public class ProductViewModelService : IProductViewModelService
     {
         //product
         var product = model.ToEntity(_dateTimeService);
-        product.VendorId = _workContext.CurrentVendor?.Id;
+        product.VendorId = _workContextAccessor.WorkContext.CurrentVendor?.Id;
 
         product.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
         product.SeName = await _seNameService.ValidateSeName(product, model.SeName, product.Name, true);
@@ -750,7 +750,7 @@ public class ProductViewModelService : IProductViewModelService
         {
             var product = products[i];
             //a vendor should have access only to his products
-            if (product.VendorId != _workContext.CurrentVendor.Id)
+            if (product.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
                 continue;
 
             await DeleteProduct(product);
@@ -767,7 +767,7 @@ public class ProductViewModelService : IProductViewModelService
         ProductModel.AddProductModel model, int pageIndex, int pageSize)
     {
         var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
-            model.SearchCollectionId, string.Empty, _workContext.CurrentVendor.Id, model.SearchProductTypeId,
+            model.SearchCollectionId, string.Empty, _workContextAccessor.WorkContext.CurrentVendor.Id, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);
         return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
     }
@@ -898,7 +898,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product == null || product.VendorId != _workContext.CurrentVendor.Id) continue;
+            if (product == null || product.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id) continue;
 
             var existingRelatedProducts = productId1.RelatedProducts;
             if (model.ProductId == id) continue;
@@ -943,7 +943,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product != null && productId1.VendorId == _workContext.CurrentVendor.Id)
+            if (product != null && productId1.VendorId == _workContextAccessor.WorkContext.CurrentVendor.Id)
             {
                 var existingSimilarProducts = productId1.SimilarProducts;
                 if (model.ProductId != id)
@@ -991,7 +991,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product != null && productId1.VendorId == _workContext.CurrentVendor.Id)
+            if (product != null && productId1.VendorId == _workContextAccessor.WorkContext.CurrentVendor.Id)
             {
                 var existingBundleProducts = productId1.BundleProducts;
                 if (model.ProductId != id)
@@ -1038,7 +1038,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product != null && product.VendorId == _workContext.CurrentVendor.Id &&
+            if (product != null && product.VendorId == _workContextAccessor.WorkContext.CurrentVendor.Id &&
                 crossSellProduct.CrossSellProduct.All(x => x != id))
                 if (model.ProductId != id)
                     await _productService.InsertCrossSellProduct(
@@ -1064,7 +1064,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product != null && product.VendorId == _workContext.CurrentVendor.Id)
+            if (product != null && product.VendorId == _workContextAccessor.WorkContext.CurrentVendor.Id)
                 if (mainproduct.RecommendedProduct.All(x => x != id))
                     if (model.ProductId != id)
                         await _productService.InsertRecommendedProduct(model.ProductId, id);
@@ -1081,7 +1081,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product == null || product.VendorId != _workContext.CurrentVendor.Id) continue;
+            if (product == null || product.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id) continue;
             product.ParentGroupedProductId = model.ProductId;
             await _productService.UpdateAssociatedProduct(product);
         }
@@ -1152,7 +1152,7 @@ public class ProductViewModelService : IProductViewModelService
         var products = (await _productService.SearchProducts(categoryIds: searchCategoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
-            vendorId: _workContext.CurrentVendor.Id,
+            vendorId: _workContextAccessor.WorkContext.CurrentVendor.Id,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
             pageIndex: pageIndex - 1,
@@ -1182,7 +1182,7 @@ public class ProductViewModelService : IProductViewModelService
         {
             //update
             var product = await _productService.GetProductById(pModel.Id, true);
-            if (product == null || product.VendorId != _workContext.CurrentVendor.Id) continue;
+            if (product == null || product.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id) continue;
 
             var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product, total: true);
 
@@ -1212,7 +1212,7 @@ public class ProductViewModelService : IProductViewModelService
         {
             //delete
             var product = await _productService.GetProductById(pModel.Id, true);
-            if (product == null || product.VendorId != _workContext.CurrentVendor.Id) continue;
+            if (product == null || product.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id) continue;
 
             await _productService.DeleteProduct(product);
         }
@@ -1780,7 +1780,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var x in product.ProductAttributeCombinations)
         {
             var attributes = await _productAttributeFormatter.FormatAttributes(product, x.Attributes,
-                _workContext.CurrentCustomer, "<br />", true, true, true, false, true, true);
+                _workContextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false, true, true);
             var pacModel = new ProductModel.ProductAttributeCombinationModel {
                 Id = x.Id,
                 ProductId = product.Id,
@@ -1831,7 +1831,7 @@ public class ProductViewModelService : IProductViewModelService
                 model.WarehouseInventoryModels = wim;
                 model.ProductId = product.Id;
                 model.Attributes = await _productAttributeFormatter.FormatAttributes(product,
-                    combination.Attributes, _workContext.CurrentCustomer, "<br />", true, true, true, false);
+                    combination.Attributes, _workContextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false);
                 if (model.UseMultipleWarehouses)
                     foreach (var winv in combination.WarehouseInventory)
                     {

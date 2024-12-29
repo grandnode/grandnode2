@@ -12,27 +12,27 @@ public class EstimateShippingViewComponent : BaseViewComponent
 {
     private readonly IMediator _mediator;
     private readonly IShoppingCartService _shoppingCartService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public EstimateShippingViewComponent(IMediator mediator, IShoppingCartService shoppingCartService,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _mediator = mediator;
         _shoppingCartService = shoppingCartService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id,
+        var cart = await _shoppingCartService.GetShoppingCart(_workContextAccessor.WorkContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart);
 
         var model = await _mediator.Send(new GetEstimateShipping {
             Cart = cart,
-            Currency = _workContext.WorkingCurrency,
-            Customer = _workContext.CurrentCustomer,
-            Language = _workContext.WorkingLanguage,
-            Store = _workContext.CurrentStore
+            Currency = _workContextAccessor.WorkContext.WorkingCurrency,
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Language = _workContextAccessor.WorkContext.WorkingLanguage,
+            Store = _workContextAccessor.WorkContext.CurrentStore
         });
         return !model.Enabled ? Content("") : View(model);
     }

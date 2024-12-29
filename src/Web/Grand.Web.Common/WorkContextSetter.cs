@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -12,6 +13,7 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
@@ -23,21 +25,20 @@ namespace Grand.Web.Common;
 /// <summary>
 ///     Represents work context for web application / current customer / store / language / currency
 /// </summary>
-public class WorkContext : IWorkContext, IWorkContextSetter
+public class WorkContextSetter : IWorkContextSetter
 {
     #region Ctor
 
-    public WorkContext(
+    public WorkContextSetter(
         IHttpContextAccessor httpContextAccessor,
         IGrandAuthenticationService authenticationService,
         ICurrencyService currencyService,
         ICustomerService customerService,
         IGroupService groupService,
         ILanguageService languageService,
-        IStoreHelper storeHelper,
+        IStoreService storeService,
         IAclService aclService,
         IVendorService vendorService,
-        LanguageSettings languageSettings,
         TaxSettings taxSettings,
         AppConfig config)
     {
@@ -47,10 +48,9 @@ public class WorkContext : IWorkContext, IWorkContextSetter
         _customerService = customerService;
         _groupService = groupService;
         _languageService = languageService;
-        _storeHelper = storeHelper;
+        _storeService = storeService;
         _aclService = aclService;
         _vendorService = vendorService;
-        _languageSettings = languageSettings;
         _taxSettings = taxSettings;
         _config = config;
     }
@@ -65,21 +65,14 @@ public class WorkContext : IWorkContext, IWorkContextSetter
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
     private readonly ILanguageService _languageService;
-    private readonly IStoreHelper _storeHelper;
+    private readonly IStoreService _storeService;
     private readonly IAclService _aclService;
     private readonly IVendorService _vendorService;
 
-    private readonly LanguageSettings _languageSettings;
     private readonly TaxSettings _taxSettings;
     private readonly AppConfig _config;
 
-    private Customer _cachedCustomer;
     private Customer _originalCustomerIfImpersonated;
-    private Vendor _cachedVendor;
-    private Language _cachedLanguage;
-    private Currency _cachedCurrency;
-
-    private TaxDisplayType _cachedTaxDisplayType;
 
     #endregion
 
@@ -89,7 +82,7 @@ public class WorkContext : IWorkContext, IWorkContextSetter
     ///     Get language from the requested page URL
     /// </summary>
     /// <returns>The found language</returns>
-    protected virtual async Task<Language> GetLanguageFromUrl(IList<Language> languages)
+    protected virtual async Task<Language> GetLanguageFromUrl(IList<Language> languages, Store store)
     {
         if (_httpContextAccessor.HttpContext?.Request == null)
             return await Task.FromResult<Language>(null);
@@ -98,15 +91,15 @@ public class WorkContext : IWorkContext, IWorkContextSetter
         if (string.IsNullOrEmpty(path))
             return await Task.FromResult<Language>(null);
 
-        var firstSegment = path.Split(['/'], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ??
-                           string.Empty;
+        var firstSegment = path.Split(['/'], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? string.Empty;
+
         if (string.IsNullOrEmpty(firstSegment))
             return await Task.FromResult<Language>(null);
 
         var language = languages.FirstOrDefault(urlLanguage =>
             urlLanguage.UniqueSeoCode.Equals(firstSegment, StringComparison.OrdinalIgnoreCase));
 
-        if (language is not { Published: true } || !_aclService.Authorize(language, CurrentStore.Id))
+        if (language is not { Published: true } || !_aclService.Authorize(language, store.Id))
             return await Task.FromResult<Language>(null);
 
         return language;
@@ -116,7 +109,7 @@ public class WorkContext : IWorkContext, IWorkContextSetter
     ///     Get language from the request
     /// </summary>
     /// <returns>The found language</returns>
-    protected virtual async Task<Language> GetLanguageFromRequest(IList<Language> languages)
+    protected virtual async Task<Language> GetLanguageFromRequest(IList<Language> languages, Store store)
     {
         if (_httpContextAccessor.HttpContext?.Request == null)
             return await Task.FromResult<Language>(null);
@@ -133,63 +126,74 @@ public class WorkContext : IWorkContext, IWorkContextSetter
 
         //check language availability
         if (requestLanguage is not { Published: true } ||
-            !_aclService.Authorize(requestLanguage, CurrentStore.Id))
+            !_aclService.Authorize(requestLanguage, store.Id))
             return await Task.FromResult<Language>(null);
 
         return requestLanguage;
     }
 
-    protected virtual async Task<Customer> SetImpersonatedCustomer(Customer customer)
+    protected virtual async Task<Customer> OriginalCustomerIfImpersonated(Customer customer)
     {
-        //get impersonate user if required
-        var impersonatedCustomerId =
-            customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ImpersonatedCustomerId);
+        var impersonatedCustomerId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ImpersonatedCustomerId);
         if (string.IsNullOrEmpty(impersonatedCustomerId)) return null;
         var impersonatedCustomer = await _customerService.GetCustomerById(impersonatedCustomerId);
         if (impersonatedCustomer is not { Deleted: false, Active: true }) return null;
-        //set impersonated customer
-        _originalCustomerIfImpersonated = customer;
         return impersonatedCustomer;
     }
+
 
     #endregion
 
     #region Properties
 
-    /// <summary>
-    ///     Gets the current customer
-    /// </summary>
-    public virtual Customer CurrentCustomer => _cachedCustomer;
+    public virtual async Task<IWorkContext> InitializeWorkContext(string storeId = null)
+    {
+        var currentStore = await CurrentStore(storeId);
+        var workContext = new CurrentWorkContext {
+            CurrentStore = currentStore,
+            CurrentHost = CurrentHost(currentStore),
+            CurrentCustomer = await CurrentCustomer(currentStore)
+        };
+
+        if (workContext.CurrentCustomer != null)
+        {
+            workContext.CurrentVendor = await CurrentVendor(workContext.CurrentCustomer);
+            workContext.OriginalCustomerIfImpersonated = _originalCustomerIfImpersonated;
+            workContext.WorkingLanguage = await WorkingLanguage(workContext.CurrentCustomer, workContext.CurrentStore);
+            workContext.WorkingCurrency = await WorkingCurrency(workContext.CurrentCustomer, workContext.WorkingLanguage, workContext.CurrentStore);
+            workContext.TaxDisplayType = await TaxDisplayType(workContext.CurrentCustomer, workContext.CurrentStore);
+        }
+        return workContext;
+    }
 
     /// <summary>
     ///     Set the current customer by Middleware
     /// </summary>
     /// <returns></returns>
-    public virtual async Task<Customer> SetCurrentCustomer()
+    protected async Task<Customer> CurrentCustomer(Store store)
     {
         var customer = await GetBackgroundTaskCustomer();
-        if (customer != null) return _cachedCustomer = customer;
+        if (customer != null) return customer;
 
         customer = await GetAuthenticatedCustomer();
-        if (customer != null) return _cachedCustomer = customer;
+        if (customer != null) return customer;
 
         customer = await GetGuestCustomer();
-        if (customer != null) return _cachedCustomer = customer;
+        if (customer != null) return customer;
 
         customer = await GetApiUserCustomer();
-        if (customer != null) return _cachedCustomer = customer;
+        if (customer != null) return customer;
 
         customer = await GetSearchEngineCustomer();
-        if (customer != null) return _cachedCustomer = customer;
+        if (customer != null) return customer;
 
         customer = await GetAllowAnonymousCustomer();
-        if (customer != null) return _cachedCustomer = customer;
+        if (customer != null) return customer;
 
         //create guest if not exists
-        customer = await CreateCustomerGuest();
+        customer = await CreateCustomerGuest(store);
 
-        //cache the found customer
-        return _cachedCustomer = customer;
+        return customer;
     }
 
     private async Task<Customer> GetBackgroundTaskCustomer()
@@ -212,10 +216,12 @@ public class WorkContext : IWorkContext, IWorkContextSetter
         var customer = await _authenticationService.GetAuthenticatedCustomer();
         if (customer == null) return null;
 
-        var impersonatedCustomer = await SetImpersonatedCustomer(customer);
+        var impersonatedCustomer = await ImpersonatedCustomer(customer);
         if (impersonatedCustomer != null)
-            customer = impersonatedCustomer;
-
+        {
+            _originalCustomerIfImpersonated = customer;
+            return impersonatedCustomer;
+        }
         return customer;
     }
 
@@ -247,26 +253,28 @@ public class WorkContext : IWorkContext, IWorkContextSetter
         return null;
     }
 
-    private async Task<Customer> CreateCustomerGuest()
+    private async Task<Customer> CreateCustomerGuest(Store store)
     {
         var userFields = new List<UserField>();
 
-        if (!string.IsNullOrEmpty(CurrentStore.DefaultCurrencyId))
+        if (!string.IsNullOrEmpty(store.DefaultCurrencyId))
             userFields.Add(new UserField {
-                Key = SystemCustomerFieldNames.CurrencyId, Value = CurrentStore.DefaultCurrencyId,
-                StoreId = CurrentStore.Id
+                Key = SystemCustomerFieldNames.CurrencyId,
+                Value = store.DefaultCurrencyId,
+                StoreId = store.Id
             });
 
-        if (!string.IsNullOrEmpty(CurrentStore.DefaultLanguageId))
+        if (!string.IsNullOrEmpty(store.DefaultLanguageId))
             userFields.Add(new UserField {
-                Key = SystemCustomerFieldNames.LanguageId, Value = CurrentStore.DefaultLanguageId,
-                StoreId = CurrentStore.Id
+                Key = SystemCustomerFieldNames.LanguageId,
+                Value = store.DefaultLanguageId,
+                StoreId = store.Id
             });
 
         var customer = new Customer {
             CustomerGuid = Guid.NewGuid(),
             Active = true,
-            StoreId = CurrentStore.Id,
+            StoreId = store.Id,
             LastActivityDateUtc = DateTime.UtcNow,
             LastIpAddress = _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
             UserFields = userFields
@@ -280,32 +288,22 @@ public class WorkContext : IWorkContext, IWorkContextSetter
     }
 
     /// <summary>
-    ///     Set the current customer
+    /// Get Impersonated customer
     /// </summary>
-    /// <returns></returns>
-    public virtual async Task<Customer> SetCurrentCustomer(Customer customer)
+    protected async Task<Customer> ImpersonatedCustomer(Customer customer)
     {
-        if (customer == null || customer.Deleted || !customer.Active)
-            //if the current customer is null/not active then set background task customer
-            customer = await _customerService.GetCustomerBySystemName(SystemCustomerNames.BackgroundTask);
-
-        return _cachedCustomer = customer ?? throw new Exception("No customer could be loaded");
+        var impersonatedCustomerId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ImpersonatedCustomerId);
+        if (string.IsNullOrEmpty(impersonatedCustomerId)) return null;
+        var impersonatedCustomer = await _customerService.GetCustomerById(impersonatedCustomerId);
+        if (impersonatedCustomer is not { Deleted: false, Active: true }) return null;
+        return impersonatedCustomer;
     }
 
-    /// <summary>
-    ///     Gets the original customer
-    /// </summary>
-    public virtual Customer OriginalCustomerIfImpersonated => _originalCustomerIfImpersonated;
-
-    /// <summary>
-    ///     Gets the current vendor
-    /// </summary>
-    public virtual Vendor CurrentVendor => _cachedVendor;
 
     /// <summary>
     ///     Set the current vendor (logged-in manager)
     /// </summary>
-    public virtual async Task<Vendor> SetCurrentVendor(Customer customer)
+    protected async Task<Vendor> CurrentVendor(Customer customer)
     {
         if (customer == null)
             return await Task.FromResult<Vendor>(null);
@@ -321,20 +319,15 @@ public class WorkContext : IWorkContext, IWorkContextSetter
             return await Task.FromResult<Vendor>(null);
 
         //cache the found vendor
-        return _cachedVendor = vendor;
+        return vendor;
     }
-
-    /// <summary>
-    ///     Gets or sets current user working language
-    /// </summary>
-    public virtual Language WorkingLanguage => _cachedLanguage;
 
     /// <summary>
     ///     Set current user working language by Middleware
     /// </summary>
     /// <param name="customer"></param>
     /// <returns></returns>
-    public virtual async Task<Language> SetWorkingLanguage(Customer customer)
+    protected async Task<Language> WorkingLanguage(Customer customer, Store store)
     {
         Language language = null;
 
@@ -343,18 +336,17 @@ public class WorkContext : IWorkContext, IWorkContextSetter
         var allStoreLanguages = await _languageService.GetAllLanguages(adminAreaUrl ?? false);
 
         if (allStoreLanguages.Count == 1)
-            return _cachedLanguage = allStoreLanguages.FirstOrDefault();
+            return allStoreLanguages.FirstOrDefault();
 
         if (_config.SeoFriendlyUrlsForLanguagesEnabled)
-            language = await GetLanguageFromUrl(allStoreLanguages);
+            language = await GetLanguageFromUrl(allStoreLanguages, store);
 
         //get current lang identifier
         var customerLanguageId =
-            customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId, CurrentStore.Id);
+            customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId, store.Id);
 
-        if (_languageSettings.AutomaticallyDetectLanguage &&
-            language == null && string.IsNullOrEmpty(customerLanguageId))
-            language = await GetLanguageFromRequest(allStoreLanguages);
+        if (language == null && string.IsNullOrEmpty(customerLanguageId))
+            language = await GetLanguageFromRequest(allStoreLanguages, store);
 
         //check customer language 
         var customerLanguage = (language ??
@@ -362,21 +354,17 @@ public class WorkContext : IWorkContext, IWorkContextSetter
                                     ? allStoreLanguages.FirstOrDefault(lang => lang.Id == customerLanguageId)
                                     : allStoreLanguages.FirstOrDefault(lang =>
                                         //if the language for the current store not exist, then use the first
-                                        lang.Id == CurrentStore.DefaultLanguageId))) ??
+                                        lang.Id == store.DefaultLanguageId))) ??
                                allStoreLanguages.FirstOrDefault();
 
-        return _cachedLanguage = customerLanguage ?? throw new Exception("No language could be loaded");
+        return customerLanguage ?? throw new Exception("No language could be loaded");
     }
 
-    /// <summary>
-    ///     Get current user working currency
-    /// </summary>
-    public virtual Currency WorkingCurrency => _cachedCurrency;
 
     /// <summary>
     ///     Set current user working currency by Middleware
     /// </summary>
-    public virtual async Task<Currency> SetWorkingCurrency(Customer customer)
+    protected async Task<Currency> WorkingCurrency(Customer customer, Language language, Store store)
     {
         //return store currency when we're you are in admin panel
         var adminAreaUrl =
@@ -386,44 +374,38 @@ public class WorkContext : IWorkContext, IWorkContextSetter
             var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency();
             if (primaryStoreCurrency != null)
             {
-                _cachedCurrency = primaryStoreCurrency;
                 return primaryStoreCurrency;
             }
         }
 
-        var allStoreCurrencies = await _currencyService.GetAllCurrencies(storeId: CurrentStore?.Id);
+        var allStoreCurrencies = await _currencyService.GetAllCurrencies(storeId: store.Id);
 
         if (allStoreCurrencies.Count == 1)
-            return _cachedCurrency = allStoreCurrencies.FirstOrDefault();
+            return allStoreCurrencies.FirstOrDefault();
 
         var customerCurrencyId =
-            customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CurrencyId, CurrentStore?.Id);
+            customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CurrencyId, store.Id);
 
         var customerCurrency = (allStoreCurrencies.FirstOrDefault(currency => currency.Id == customerCurrencyId) ??
-                                (!string.IsNullOrEmpty(CurrentStore?.DefaultCurrencyId)
+                                (!string.IsNullOrEmpty(store.DefaultCurrencyId)
                                     ? allStoreCurrencies.FirstOrDefault(currency =>
-                                        currency.Id == CurrentStore.DefaultCurrencyId)
+                                        currency.Id == store.DefaultCurrencyId)
                                     : allStoreCurrencies.FirstOrDefault(currency =>
-                                        currency.Id == WorkingLanguage.DefaultCurrencyId))) ??
+                                        currency.Id == language.DefaultCurrencyId))) ??
                                allStoreCurrencies.FirstOrDefault();
 
 
-        return _cachedCurrency = customerCurrency ?? throw new Exception("No currency could be loaded");
+        return customerCurrency ?? throw new Exception("No currency could be loaded");
     }
 
-    /// <summary>
-    ///     Gets or sets current tax display type
-    /// </summary>
-    public virtual TaxDisplayType TaxDisplayType => _cachedTaxDisplayType;
-
-    public virtual async Task<TaxDisplayType> SetTaxDisplayType(Customer customer)
+    protected async Task<TaxDisplayType> TaxDisplayType(Customer customer, Store store)
     {
         TaxDisplayType taxDisplayType;
 
         if (_taxSettings.AllowCustomersToSelectTaxDisplayType && customer != null)
         {
             var taxDisplayTypeId =
-                customer.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.TaxDisplayTypeId, CurrentStore.Id);
+                customer.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.TaxDisplayTypeId, store.Id);
             taxDisplayType = (TaxDisplayType)taxDisplayTypeId;
         }
         else
@@ -432,21 +414,86 @@ public class WorkContext : IWorkContext, IWorkContextSetter
             taxDisplayType = _taxSettings.TaxDisplayType;
         }
 
-        //cache the value
-        _cachedTaxDisplayType = taxDisplayType;
-
-        return await Task.FromResult(_cachedTaxDisplayType);
+        return await Task.FromResult(taxDisplayType);
     }
 
-    /// <summary>
-    ///     Gets the current store
-    /// </summary>
-    public virtual Store CurrentStore => _storeHelper.StoreHost;
+    private string GetStoreCookie()
+    {
+        return _httpContextAccessor.HttpContext?.Request.Cookies[CommonHelper.StoreCookieName];
+    }
+
+    protected async Task<Store> CurrentStore(string id = null)
+    {
+        if (!string.IsNullOrEmpty(id))
+            return await _storeService.GetStoreById(id);
+
+        var host = _httpContextAccessor.HttpContext?.Request.Host.Host;
+
+        var allStores = await _storeService.GetAllStores();
+        var stores = allStores.Where(s => s.ContainsHostValue(host)).ToList();
+        if (!stores.Any())
+            return allStores.FirstOrDefault();
+        else
+            switch (stores.Count)
+            {
+                case 1:
+                    return stores.FirstOrDefault();
+                case > 1:
+                    {
+                        var cookie = GetStoreCookie();
+                        if (!string.IsNullOrEmpty(cookie))
+                        {
+                            var storeCookie = stores.FirstOrDefault(x => x.Id == cookie);
+                            return storeCookie ?? stores.FirstOrDefault();
+                        }
+                        else
+                        {
+                            return stores.FirstOrDefault();
+                        }
+                    }
+            }
+
+        throw new Exception("No store could be loaded");
+    }
 
     /// <summary>
     ///     Gets the current domain host
     /// </summary>
-    public virtual DomainHost CurrentHost => _storeHelper.DomainHost;
+    protected DomainHost CurrentHost(Store store)
+    {
+        //try to determine the current HOST header
+        var host = _httpContextAccessor.HttpContext?.Request.GetTypedHeaders().Host.ToString();
+        if (store != null)
+            return store.HostValue(host) ?? new DomainHost {
+                Id = int.MinValue.ToString(),
+                Url = store.SslEnabled ? store.SecureUrl : store.Url,
+                HostName = "temporary-store"
+            };
+
+        return new DomainHost {
+            Id = int.MinValue.ToString(),
+            Url = host,
+            HostName = "temporary"
+        };
+    }
+
+    private class CurrentWorkContext : IWorkContext
+    {
+        public Customer CurrentCustomer { get; set; }
+
+        public Customer OriginalCustomerIfImpersonated { get; set; }
+
+        public Vendor CurrentVendor { get; set; }
+
+        public Language WorkingLanguage { get; set; }
+
+        public Currency WorkingCurrency { get; set; }
+
+        public TaxDisplayType TaxDisplayType { get; set; }
+
+        public Store CurrentStore { get; set; }
+        public DomainHost CurrentHost { get; set; }
+    }
 
     #endregion
 }

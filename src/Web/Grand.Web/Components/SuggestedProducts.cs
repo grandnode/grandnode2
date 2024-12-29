@@ -13,11 +13,11 @@ public class SuggestedProductsViewComponent : BaseViewComponent
     #region Constructors
 
     public SuggestedProductsViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         CatalogSettings catalogSettings)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
     }
@@ -32,7 +32,7 @@ public class SuggestedProductsViewComponent : BaseViewComponent
             return Content("");
 
         var products = await _mediator.Send(new GetSuggestedProductsQuery {
-            CustomerTagIds = _workContext.CurrentCustomer.CustomerTags.ToArray(),
+            CustomerTagIds = _workContextAccessor.WorkContext.CurrentCustomer.CustomerTags.ToArray(),
             ProductsNumber = _catalogSettings.SuggestedProductsNumber
         });
 
@@ -54,7 +54,7 @@ public class SuggestedProductsViewComponent : BaseViewComponent
 
     #region Fields
 
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IMediator _mediator;
     private readonly CatalogSettings _catalogSettings;
 

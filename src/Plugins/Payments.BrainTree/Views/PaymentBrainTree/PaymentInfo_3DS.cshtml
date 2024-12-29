@@ -3,7 +3,7 @@
 @{
     Layout = "";
 }
-@inject IWorkContext _workContext
+@inject IWorkContextAccessor _workContextAccessor
 
 <style type="text/css">
     .braintree-input {
@@ -115,15 +115,15 @@
                 amount: '@ViewBag.OrderTotal',
                 nonce: payload.nonce,
                 challengeRequested: true,
-                email: '@_workContext.CurrentCustomer.BillingAddress?.Email',
+                email: '@_workContextAccessor.WorkContext.CurrentCustomer.BillingAddress?.Email',
                 billingAddress: {
-                    givenName: '@_workContext.CurrentCustomer.BillingAddress?.FirstName',
-                    surname: '@_workContext.CurrentCustomer.BillingAddress?.LastName',
-                    phoneNumber: '@_workContext.CurrentCustomer.BillingAddress?.PhoneNumber',
-                    streetAddress: '@_workContext.CurrentCustomer.BillingAddress?.Address1',
-                    extendedAddress: '@_workContext.CurrentCustomer.BillingAddress?.Address2',
-                    locality: '@_workContext.CurrentCustomer.BillingAddress?.City',
-                    postalCode: '@_workContext.CurrentCustomer.BillingAddress?.ZipPostalCode',
+                    givenName: '@_workContextAccessor.WorkContext.CurrentCustomer.BillingAddress?.FirstName',
+                    surname: '@_workContextAccessor.WorkContext.CurrentCustomer.BillingAddress?.LastName',
+                    phoneNumber: '@_workContextAccessor.WorkContext.CurrentCustomer.BillingAddress?.PhoneNumber',
+                    streetAddress: '@_workContextAccessor.WorkContext.CurrentCustomer.BillingAddress?.Address1',
+                    extendedAddress: '@_workContextAccessor.WorkContext.CurrentCustomer.BillingAddress?.Address2',
+                    locality: '@_workContextAccessor.WorkContext.CurrentCustomer.BillingAddress?.City',
+                    postalCode: '@_workContextAccessor.WorkContext.CurrentCustomer.BillingAddress?.ZipPostalCode',
                 },
                 onLookupComplete: function (data, next) {
                     // use `data` here, then call `next()`

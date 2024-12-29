@@ -1,5 +1,5 @@
 ﻿@model VendorReviewModel
-@inject IWorkContext workContext
+@inject IWorkContextAccessor workContextAccessor
 @Html.ValidationSummary(false)
 <input asp-for="Id" type="hidden"/>
 <div class="form-horizontal">

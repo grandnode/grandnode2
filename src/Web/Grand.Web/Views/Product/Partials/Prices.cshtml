@@ -1,6 +1,6 @@
 ﻿@using System.Globalization
 @model ProductDetailsModel.ProductPriceModel
-@inject IWorkContext workContext
+@inject IWorkContextAccessor workContextAccessor
 
 <div class="prices d-flex justify-content-center align-items-start row px-3 flex-column" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
     @if (Model.EnteredPrice)
@@ -13,7 +13,7 @@
             <b-button v-b-modal.modal-1>@Loc["Products.CallForPrice"]</b-button>
             <b-modal id="modal-1" hide-footer title="@Loc["Products.CallForPrice"]">
                 <p class="my-4">
-                    <span>@Loc["Products.CallForPrice"]:</span><a href="tel:@workContext.CurrentStore.CompanyPhoneNumber"> @workContext.CurrentStore.CompanyPhoneNumber</a>
+                    <span>@Loc["Products.CallForPrice"]:</span><a href="tel:@workContextAccessor.WorkContext.CurrentStore.CompanyPhoneNumber"> @workContextAccessor.WorkContext.CurrentStore.CompanyPhoneNumber</a>
                 </p>
             </b-modal>
         </div>

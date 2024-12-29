@@ -27,7 +27,7 @@ public class PaymentTransactionController : BaseAdminController
         ITranslationService translationService,
         IPaymentTransactionService paymentTransactionService,
         IOrderService orderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IDateTimeService dateTimeService,
         IMediator mediator,
@@ -36,7 +36,7 @@ public class PaymentTransactionController : BaseAdminController
         _translationService = translationService;
         _paymentTransactionService = paymentTransactionService;
         _orderService = orderService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
         _dateTimeService = dateTimeService;
         _mediator = mediator;
@@ -50,7 +50,7 @@ public class PaymentTransactionController : BaseAdminController
     private readonly IPaymentTransactionService _paymentTransactionService;
     private readonly IOrderService _orderService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IMediator _mediator;
@@ -82,8 +82,8 @@ public class PaymentTransactionController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, PaymentTransactionListModel model)
     {
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         DateTime? startDateValue = model.StartDate == null
             ? null
             : _dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
@@ -161,8 +161,8 @@ public class PaymentTransactionController : BaseAdminController
             //not found
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         return RedirectToAction("Edit", "PaymentTransaction", new { id = paymentTransaction.Id });
@@ -177,8 +177,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
@@ -236,8 +236,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         try
@@ -265,8 +265,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         try
@@ -290,8 +290,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         try
@@ -318,8 +318,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         try
@@ -343,8 +343,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         try
@@ -371,8 +371,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         try
@@ -395,8 +395,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         var model = new PaymentTransactionModel {
@@ -416,8 +416,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         try
@@ -466,8 +466,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         var model = new PaymentTransactionModel {
@@ -487,8 +487,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "PaymentTransaction");
 
         try
@@ -523,8 +523,8 @@ public class PaymentTransactionController : BaseAdminController
         if (paymentTransaction == null)
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            paymentTransaction.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            paymentTransaction.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List", "MerchandiseReturn");
         if (ModelState.IsValid)
         {

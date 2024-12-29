@@ -28,7 +28,7 @@ public class PricingService : IPricingService
 {
     #region Ctor
 
-    public PricingService(IWorkContext workContext,
+    public PricingService(IWorkContextAccessor workContextAccessor,
         IDiscountService discountService,
         ICategoryService categoryService,
         IBrandService brandService,
@@ -40,7 +40,7 @@ public class PricingService : IPricingService
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _discountService = discountService;
         _categoryService = categoryService;
         _brandService = brandService;
@@ -70,7 +70,7 @@ public class PricingService : IPricingService
 
     #region Fields
 
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IDiscountService _discountService;
     private readonly ICategoryService _categoryService;
     private readonly IBrandService _brandService;
@@ -529,9 +529,9 @@ public class PricingService : IPricingService
         ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
         return await GetUnitPrice(product,
-            _workContext.CurrentCustomer,
-            _workContext.CurrentStore,
-            _workContext.WorkingCurrency,
+            _workContextAccessor.WorkContext.CurrentCustomer,
+            _workContextAccessor.WorkContext.CurrentStore,
+            _workContextAccessor.WorkContext.WorkingCurrency,
             shoppingCartItem.ShoppingCartTypeId,
             shoppingCartItem.Quantity,
             shoppingCartItem.Attributes,
@@ -772,7 +772,7 @@ public class PricingService : IPricingService
                 if (adjustment > 0)
                     adjustment =
                         await _currencyService.ConvertFromPrimaryStoreCurrency(adjustment,
-                            _workContext.WorkingCurrency);
+                            _workContextAccessor.WorkContext.WorkingCurrency);
             }
                 break;
             case AttributeValueType.AssociatedToProduct:
@@ -781,9 +781,9 @@ public class PricingService : IPricingService
                 var associatedProduct = await _productService.GetProductById(value.AssociatedProductId);
                 if (associatedProduct != null)
                     adjustment = (await GetFinalPrice(associatedProduct,
-                        _workContext.CurrentCustomer,
-                        _workContext.CurrentStore,
-                        _workContext.WorkingCurrency,
+                        _workContextAccessor.WorkContext.CurrentCustomer,
+                        _workContextAccessor.WorkContext.CurrentStore,
+                        _workContextAccessor.WorkContext.WorkingCurrency,
                         value.PriceAdjustment)).finalPrice * value.Quantity;
             }
                 break;

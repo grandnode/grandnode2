@@ -20,12 +20,12 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
 
     private readonly IShippingMethodService _shippingMethodService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
 
     public FixedRateShippingProvider(
         IShippingMethodService shippingMethodService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ISettingService settingService,
         ICurrencyService currencyService,
         ITranslationService translationService,
@@ -33,7 +33,7 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
     )
     {
         _shippingMethodService = shippingMethodService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _settingService = settingService;
         _currencyService = currencyService;
         _translationService = translationService;
@@ -68,10 +68,10 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
         foreach (var shippingMethod in shippingMethods)
         {
             var shippingOption = new ShippingOption {
-                Name = shippingMethod.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                Description = shippingMethod.GetTranslation(x => x.Description, _workContext.WorkingLanguage.Id),
+                Name = shippingMethod.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                Description = shippingMethod.GetTranslation(x => x.Description, _workContextAccessor.WorkContext.WorkingLanguage.Id),
                 Rate = await _currencyService.ConvertFromPrimaryStoreCurrency(GetRate(shippingMethod.Id),
-                    _workContext.WorkingCurrency)
+                    _workContextAccessor.WorkContext.WorkingCurrency)
             };
             response.ShippingOptions.Add(shippingOption);
         }

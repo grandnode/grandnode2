@@ -13,12 +13,12 @@ namespace Grand.Web.Admin.Controllers;
 public class DownloadController : BaseAdminController
 {
     private readonly IDownloadService _downloadService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
-    public DownloadController(IDownloadService downloadService, IWorkContext workContext)
+    public DownloadController(IDownloadService downloadService, IWorkContextAccessor workContextAccessor)
     {
         _downloadService = downloadService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     public async Task<IActionResult> DownloadFile(Guid downloadGuid)
@@ -98,7 +98,7 @@ public class DownloadController : BaseAdminController
 
         var download = new Download {
             DownloadGuid = Guid.NewGuid(),
-            CustomerId = _workContext.CurrentCustomer.Id,
+            CustomerId = _workContextAccessor.WorkContext.CurrentCustomer.Id,
             UseDownloadUrl = false,
             DownloadUrl = "",
             DownloadBinary = fileBinary,

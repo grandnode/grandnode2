@@ -20,7 +20,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     private readonly IRepository<KnowledgebaseArticle> _knowledgebaseArticleRepository;
     private readonly IRepository<KnowledgebaseCategory> _knowledgebaseCategoryRepository;
     private readonly IMediator _mediator;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     /// <summary>
     ///     Ctor
@@ -30,14 +30,14 @@ public class KnowledgebaseService : IKnowledgebaseService
         IRepository<KnowledgebaseArticle> knowledgebaseArticleRepository,
         IRepository<KnowledgebaseArticleComment> articleCommentRepository,
         IMediator mediator,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICacheBase cacheBase, AccessControlConfig accessControlConfig)
     {
         _knowledgebaseCategoryRepository = knowledgebaseCategoryRepository;
         _knowledgebaseArticleRepository = knowledgebaseArticleRepository;
         _articleCommentRepository = articleCommentRepository;
         _mediator = mediator;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _cacheBase = cacheBase;
         _accessControlConfig = accessControlConfig;
     }
@@ -92,8 +92,8 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task<KnowledgebaseCategory> GetPublicKnowledgebaseCategory(string id)
     {
         var key = string.Format(CacheKey.KNOWLEDGEBASE_CATEGORY_BY_ID, id,
-            _workContext.CurrentCustomer.GetCustomerGroupIds(),
-            _workContext.CurrentStore.Id);
+            _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds(),
+            _workContextAccessor.WorkContext.CurrentStore.Id);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from p in _knowledgebaseCategoryRepository.Table
@@ -105,7 +105,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             if (!_accessControlConfig.IgnoreAcl)
             {
                 //Limited to customer groups rules
-                var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -114,7 +114,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             if (!_accessControlConfig.IgnoreStoreLimitations)
                 //Store acl
                 query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                    where !p.LimitedToStores || p.Stores.Contains(_workContextAccessor.WorkContext.CurrentStore.Id)
                     select p;
 
             var toReturn = await Task.FromResult(query.FirstOrDefault());
@@ -168,7 +168,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             select p;
         if (!_accessControlConfig.IgnoreAcl)
         {
-            var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+            var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
             query = from p in query
                 where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                 select p;
@@ -240,8 +240,8 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task<List<KnowledgebaseCategory>> GetPublicKnowledgebaseCategories()
     {
         var key = string.Format(CacheKey.KNOWLEDGEBASE_CATEGORIES,
-            string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
-            _workContext.CurrentStore.Id);
+            string.Join(",", _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _workContextAccessor.WorkContext.CurrentStore.Id);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from p in _knowledgebaseCategoryRepository.Table
@@ -251,7 +251,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             if (!_accessControlConfig.IgnoreAcl)
             {
-                var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -260,7 +260,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             if (!_accessControlConfig.IgnoreStoreLimitations)
                 //Store acl
                 query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                    where !p.LimitedToStores || p.Stores.Contains(_workContextAccessor.WorkContext.CurrentStore.Id)
                     select p;
             query = query.OrderBy(x => x.DisplayOrder);
             return await Task.FromResult(query.ToList());
@@ -273,8 +273,8 @@ public class KnowledgebaseService : IKnowledgebaseService
     /// <returns>List of public knowledge base articles</returns>
     public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles()
     {
-        var key = string.Format(CacheKey.ARTICLES, string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
-            _workContext.CurrentStore.Id);
+        var key = string.Format(CacheKey.ARTICLES, string.Join(",", _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _workContextAccessor.WorkContext.CurrentStore.Id);
 
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -285,7 +285,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             if (!_accessControlConfig.IgnoreAcl)
             {
-                var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -294,7 +294,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             if (!_accessControlConfig.IgnoreStoreLimitations)
                 //Store acl
                 query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                    where !p.LimitedToStores || p.Stores.Contains(_workContextAccessor.WorkContext.CurrentStore.Id)
                     select p;
 
             query = query.OrderBy(x => x.DisplayOrder);
@@ -309,8 +309,8 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task<KnowledgebaseArticle> GetPublicKnowledgebaseArticle(string id)
     {
         var key = string.Format(CacheKey.ARTICLE_BY_ID, id,
-            string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
-            _workContext.CurrentStore.Id);
+            string.Join(",", _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _workContextAccessor.WorkContext.CurrentStore.Id);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from p in _knowledgebaseArticleRepository.Table
@@ -321,7 +321,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             if (!_accessControlConfig.IgnoreAcl)
             {
-                var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -330,7 +330,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             if (!_accessControlConfig.IgnoreStoreLimitations)
                 //Store acl
                 query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                    where !p.LimitedToStores || p.Stores.Contains(_workContextAccessor.WorkContext.CurrentStore.Id)
                     select p;
 
             return await Task.FromResult(query.FirstOrDefault());
@@ -344,8 +344,8 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticlesByCategory(string categoryId)
     {
         var key = string.Format(CacheKey.ARTICLES_BY_CATEGORY_ID, categoryId,
-            string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
-            _workContext.CurrentStore.Id);
+            string.Join(",", _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _workContextAccessor.WorkContext.CurrentStore.Id);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from p in _knowledgebaseArticleRepository.Table
@@ -356,7 +356,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             if (!_accessControlConfig.IgnoreAcl)
             {
-                var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -365,7 +365,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             if (!_accessControlConfig.IgnoreStoreLimitations)
                 //Store acl
                 query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                    where !p.LimitedToStores || p.Stores.Contains(_workContextAccessor.WorkContext.CurrentStore.Id)
                     select p;
             query = query.OrderBy(x => x.DisplayOrder);
             return await Task.FromResult(query.ToList());
@@ -379,8 +379,8 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticlesByKeyword(string keyword)
     {
         var key = string.Format(CacheKey.ARTICLES_BY_KEYWORD, keyword,
-            string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
-            _workContext.CurrentStore.Id);
+            string.Join(",", _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _workContextAccessor.WorkContext.CurrentStore.Id);
 
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -395,7 +395,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             if (!_accessControlConfig.IgnoreAcl)
             {
-                var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -404,7 +404,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             if (!_accessControlConfig.IgnoreStoreLimitations)
                 //Store acl
                 query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                    where !p.LimitedToStores || p.Stores.Contains(_workContextAccessor.WorkContext.CurrentStore.Id)
                     select p;
             query = query.OrderBy(x => x.DisplayOrder);
             return await Task.FromResult(query.ToList());
@@ -418,8 +418,8 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task<List<KnowledgebaseCategory>> GetPublicKnowledgebaseCategoriesByKeyword(string keyword)
     {
         var key = string.Format(CacheKey.KNOWLEDGEBASE_CATEGORIES_BY_KEYWORD, keyword,
-            string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
-            _workContext.CurrentStore.Id);
+            string.Join(",", _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _workContextAccessor.WorkContext.CurrentStore.Id);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from p in _knowledgebaseCategoryRepository.Table
@@ -433,7 +433,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             if (!_accessControlConfig.IgnoreAcl)
             {
-                var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -442,7 +442,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             if (!_accessControlConfig.IgnoreStoreLimitations)
                 //Store acl
                 query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                    where !p.LimitedToStores || p.Stores.Contains(_workContextAccessor.WorkContext.CurrentStore.Id)
                     select p;
             query = query.OrderBy(x => x.DisplayOrder);
             return await Task.FromResult(query.ToList());
@@ -456,8 +456,8 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task<List<KnowledgebaseArticle>> GetHomepageKnowledgebaseArticles()
     {
         var key = string.Format(CacheKey.HOMEPAGE_ARTICLES,
-            string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
-            _workContext.CurrentStore.Id);
+            string.Join(",", _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _workContextAccessor.WorkContext.CurrentStore.Id);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from p in _knowledgebaseArticleRepository.Table
@@ -468,7 +468,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             if (!_accessControlConfig.IgnoreAcl)
             {
-                var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -477,7 +477,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             if (!_accessControlConfig.IgnoreStoreLimitations)
                 //Store acl
                 query = from p in query
-                    where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                    where !p.LimitedToStores || p.Stores.Contains(_workContextAccessor.WorkContext.CurrentStore.Id)
                     select p;
             query = query.OrderBy(x => x.DisplayOrder);
             return await Task.FromResult(query.ToList());

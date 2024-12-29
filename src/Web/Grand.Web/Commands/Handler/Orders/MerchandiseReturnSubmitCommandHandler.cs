@@ -18,17 +18,17 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
     private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly IMessageProviderService _messageProviderService;
     private readonly IProductService _productService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
 
-    public MerchandiseReturnSubmitCommandHandler(IWorkContext workContext,
+    public MerchandiseReturnSubmitCommandHandler(IWorkContextAccessor workContextAccessor,
         IProductService productService,
         IMerchandiseReturnService merchandiseReturnService,
         IMessageProviderService messageProviderService,
         IGroupService groupService,
         LanguageSettings languageSettings)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _productService = productService;
         _merchandiseReturnService = merchandiseReturnService;
         _messageProviderService = messageProviderService;
@@ -40,12 +40,12 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
         MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
     {
         var rr = new MerchandiseReturn {
-            StoreId = _workContext.CurrentStore.Id,
+            StoreId = _workContextAccessor.WorkContext.CurrentStore.Id,
             OrderId = request.Order.Id,
-            CustomerId = _workContext.CurrentCustomer.Id,
-            OwnerId = await _groupService.IsOwner(_workContext.CurrentCustomer)
-                ? _workContext.CurrentCustomer.Id
-                : _workContext.CurrentCustomer.OwnerId,
+            CustomerId = _workContextAccessor.WorkContext.CurrentCustomer.Id,
+            OwnerId = await _groupService.IsOwner(_workContextAccessor.WorkContext.CurrentCustomer)
+                ? _workContextAccessor.WorkContext.CurrentCustomer.Id
+                : _workContextAccessor.WorkContext.CurrentCustomer.OwnerId,
             SeId = request.Order.SeId,
             CustomerComments = request.Model.Comments,
             StaffNotes = string.Empty,
@@ -71,10 +71,10 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
             var rra = await _merchandiseReturnService.GetMerchandiseReturnActionById(rraId);
             rr.MerchandiseReturnItems.Add(new MerchandiseReturnItem {
                 RequestedAction = rra != null
-                    ? rra.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
+                    ? rra.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)
                     : "not available",
                 ReasonForReturn = rrr != null
-                    ? rrr.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
+                    ? rrr.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)
                     : "not available",
                 Quantity = quantity.Value,
                 OrderItemId = orderItem.Id

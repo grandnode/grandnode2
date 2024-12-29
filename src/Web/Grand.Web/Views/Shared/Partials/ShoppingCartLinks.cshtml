@@ -1,7 +1,7 @@
 ﻿@using Grand.Business.Core.Interfaces.Checkout.Orders
 @using Grand.Business.Core.Interfaces.Common.Security
 @using Grand.Domain.Permissions
-@inject IWorkContext workContext
+@inject IWorkContextAccessor workContextAccessor
 @inject IPermissionService permissionService
 @inject IShoppingCartService shoppingCartService
 @inject ShoppingCartSettings shoppingCartSettings
@@ -20,14 +20,14 @@
     var miniShoppingCartEnabled = shoppingCartSettings.MiniShoppingCartEnabled;
 
     var shoppingCartItems =
-        workContext.CurrentCustomer.ShoppingCartItems.Any()
-            ? (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, shoppingCartTypes.ToArray()))
+        workContextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.Any()
+            ? (await shoppingCartService.GetShoppingCart(workContextAccessor.WorkContext.CurrentStore.Id, shoppingCartTypes.ToArray()))
             .Sum(x => x.Quantity)
             : 0;
 
 
-    var wishlistItems = workContext.CurrentCustomer.ShoppingCartItems.Any()
-        ? (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, ShoppingCartType.Wishlist))
+    var wishlistItems = workContextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.Any()
+        ? (await shoppingCartService.GetShoppingCart(workContextAccessor.WorkContext.CurrentStore.Id, ShoppingCartType.Wishlist))
         .Sum(x => x.Quantity)
         : 0;
 }

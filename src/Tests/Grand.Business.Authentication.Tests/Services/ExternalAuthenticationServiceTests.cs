@@ -25,7 +25,7 @@ public class ExternalAuthenticationServiceTests
     private ExternalAuthenticationService _externalAuthenticationService;
     private Mock<IGroupService> _groupServiceMock;
     private Mock<IMediator> _mediatorMock;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -36,7 +36,9 @@ public class ExternalAuthenticationServiceTests
         _customerManagerServiceMock = new Mock<ICustomerManagerService>();
         _mediatorMock = new Mock<IMediator>();
         _externalAuthenticationRecordRepository = new MongoDBRepositoryTest<ExternalAuthentication>();
-        _workContextMock = new Mock<IWorkContext>();
+        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock.Setup(s => s.WorkContext.CurrentCustomer).Returns(new Customer());
+
         _externalAuthenticationProviders = new List<IExternalAuthenticationProvider>
             { new ExternalAuthenticationProviderTest() };
 

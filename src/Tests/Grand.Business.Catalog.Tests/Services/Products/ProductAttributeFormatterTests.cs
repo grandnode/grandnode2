@@ -30,14 +30,14 @@ public class ProductAttributeFormatterTests
     private Mock<IProductService> _productServiceMock;
     private Mock<ITaxService> _taxServiceMock;
     private Mock<ITranslationService> _translationServiceMock;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void InitializeTests()
     {
-        _workContextMock = new Mock<IWorkContext>();
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
+        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
         _productAttributeServiceMock = new Mock<IProductAttributeService>();
         _productAttributeServiceMock.Setup(x => x.GetProductAttributeById(It.IsAny<string>()))
             .Returns(Task.FromResult(new ProductAttribute { Name = "test" }));

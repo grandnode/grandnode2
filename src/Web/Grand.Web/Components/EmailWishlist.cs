@@ -16,17 +16,17 @@ public class EmailWishlistViewComponent : BaseViewComponent
     private readonly IPermissionService _permissionService;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly ShoppingCartSettings _shoppingCartSettings;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public EmailWishlistViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IShoppingCartService shoppingCartService,
         IPermissionService permissionService,
         ShoppingCartSettings shoppingCartSettings,
         CaptchaSettings captchaSettings
     )
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _shoppingCartService = shoppingCartService;
         _permissionService = permissionService;
         _shoppingCartSettings = shoppingCartSettings;
@@ -39,13 +39,13 @@ public class EmailWishlistViewComponent : BaseViewComponent
             !_shoppingCartSettings.EmailWishlistEnabled)
             return Content("");
 
-        var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
+        var cart = await _shoppingCartService.GetShoppingCart(_workContextAccessor.WorkContext.CurrentStore.Id, ShoppingCartType.Wishlist);
 
         if (!cart.Any())
             return Content("");
 
         var model = new WishlistEmailAFriendModel {
-            YourEmailAddress = _workContext.CurrentCustomer.Email,
+            YourEmailAddress = _workContextAccessor.WorkContext.CurrentCustomer.Email,
             DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailWishlistToFriendPage
         };
         return View(model);

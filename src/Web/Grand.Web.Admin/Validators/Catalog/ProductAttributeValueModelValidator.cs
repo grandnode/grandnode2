@@ -13,7 +13,7 @@ public class ProductAttributeValueModelValidator : BaseGrandValidator<ProductMod
 {
     public ProductAttributeValueModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.ProductAttributeValueModel>> validators,
-        ITranslationService translationService, IProductService productService, IWorkContext workContext)
+        ITranslationService translationService, IProductService productService, IWorkContextAccessor workContextAccessor)
         : base(validators)
     {
         RuleFor(x => x.Name)
@@ -28,12 +28,12 @@ public class ProductAttributeValueModelValidator : BaseGrandValidator<ProductMod
                 "Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Quantity.GreaterThanOrEqualTo1"))
             .When(x => x.AttributeValueTypeId == AttributeValueType.AssociatedToProduct);
 
-        if (!string.IsNullOrEmpty(workContext.CurrentCustomer.StaffStoreId))
+        if (!string.IsNullOrEmpty(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 var product = await productService.GetProductById(x.ProductId);
                 if (product != null)
-                    if (!product.AccessToEntityByStore(workContext.CurrentCustomer.StaffStoreId))
+                    if (!product.AccessToEntityByStore(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                         return false;
 
                 return true;

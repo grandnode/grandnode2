@@ -17,15 +17,15 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
     private readonly IContactAttributeParser _contactAttributeParser;
     private readonly IMessageProviderService _messageProviderService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
-    public ContactUsSendCommandHandler(IWorkContext workContext,
+    public ContactUsSendCommandHandler(IWorkContextAccessor workContextAccessor,
         IContactAttributeParser contactAttributeParser,
         ITranslationService translationService,
         IMessageProviderService messageProviderService,
         CommonSettings commonSettings)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _contactAttributeParser = contactAttributeParser;
         _translationService = translationService;
         _messageProviderService = messageProviderService;
@@ -39,9 +39,9 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
 
         request.Model.ContactAttribute = attributes;
         request.Model.ContactAttributeInfo =
-            await _contactAttributeParser.FormatAttributes(_workContext.WorkingLanguage, attributes,
-                _workContext.CurrentCustomer);
-        request.Model = await SendContactUs(request, _workContext.CurrentStore);
+            await _contactAttributeParser.FormatAttributes(_workContextAccessor.WorkContext.WorkingLanguage, attributes,
+                _workContextAccessor.WorkContext.CurrentCustomer);
+        request.Model = await SendContactUs(request, _workContextAccessor.WorkContext.CurrentStore);
 
         return request.Model;
     }
@@ -52,7 +52,7 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
         var body = FormatText.ConvertText(request.Model.Enquiry);
 
         await _messageProviderService.SendContactUsMessage
-        (_workContext.CurrentCustomer, store, _workContext.WorkingLanguage.Id, request.Model.Email.Trim(),
+        (_workContextAccessor.WorkContext.CurrentCustomer, store, _workContextAccessor.WorkContext.WorkingLanguage.Id, request.Model.Email.Trim(),
             request.Model.FullName, subject,
             body, request.Model.ContactAttributeInfo, request.Model.ContactAttribute, request.IpAddress);
 

@@ -19,14 +19,14 @@ public class WidgetsFacebookPixelController : BaseAdminPluginController
     private readonly ISettingService _settingService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
-    public WidgetsFacebookPixelController(IWorkContext workContext,
+    public WidgetsFacebookPixelController(IWorkContextAccessor workContextAccessor,
         IStoreService storeService,
         ISettingService settingService,
         ITranslationService translationService)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _storeService = storeService;
         _settingService = settingService;
         _translationService = translationService;
@@ -50,7 +50,7 @@ public class WidgetsFacebookPixelController : BaseAdminPluginController
     public async Task<IActionResult> Configure()
     {
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _workContext);
+        var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
         var facebookPixelSettings = _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
         var model = new ConfigurationModel {
             PixelId = facebookPixelSettings.PixelId,
@@ -71,7 +71,7 @@ public class WidgetsFacebookPixelController : BaseAdminPluginController
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _workContext);
+        var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
         var facebookPixelSettings = _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
         facebookPixelSettings.PixelId = model.PixelId;
         facebookPixelSettings.PixelScript = model.PixelScript;

@@ -6,12 +6,12 @@
 @inject IOrderService _orderService
 @inject IProductService _productService
 @inject ICountryService _countryService
-@inject IWorkContext _workContext
+@inject IWorkContextAccessor _workContextAccessor
 @inject ITranslationService _translationService
 
 @{
-    var companyName = _workContext.CurrentStore.CompanyName;
-    var limitbyVendor = _workContext.CurrentVendor != null;
+    var companyName = _workContextAccessor.WorkContext.CurrentStore.CompanyName;
+    var limitbyVendor = _workContextAccessor.WorkContext.CurrentVendor != null;
 }
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -118,7 +118,7 @@
             @foreach (var item in shipment.ShipmentItems)
             {
                 var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
-                if (orderItem != null && (orderItem.VendorId == _workContext.CurrentVendor?.Id || !limitbyVendor))
+                if (orderItem != null && (orderItem.VendorId == _workContextAccessor.WorkContext.CurrentVendor?.Id || !limitbyVendor))
                 {
                     <tr>
                         <td colspan="2">

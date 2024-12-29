@@ -21,13 +21,13 @@ public class ProductReviewController : BaseAdminController
         IProductReviewViewModelService productReviewViewModelService,
         IProductReviewService productReviewService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService)
     {
         _productReviewViewModelService = productReviewViewModelService;
         _productReviewService = productReviewService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
     }
 
@@ -38,7 +38,7 @@ public class ProductReviewController : BaseAdminController
     private readonly IProductReviewViewModelService _productReviewViewModelService;
     private readonly IProductReviewService _productReviewService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
 
     #endregion Fields
@@ -53,7 +53,7 @@ public class ProductReviewController : BaseAdminController
 
     public async Task<IActionResult> List()
     {
-        var model = await _productReviewViewModelService.PrepareProductReviewListModel(_workContext.CurrentCustomer
+        var model = await _productReviewViewModelService.PrepareProductReviewListModel(_workContextAccessor.WorkContext.CurrentCustomer
             .StaffStoreId);
         return View(model);
     }
@@ -63,8 +63,8 @@ public class ProductReviewController : BaseAdminController
     public async Task<IActionResult> List(DataSourceRequest command, ProductReviewListModel model)
     {
         //limit for store manager
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            model.SearchStoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            model.SearchStoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var (productReviewModels, totalCount) =
             await _productReviewViewModelService.PrepareProductReviewsModel(model, command.Page, command.PageSize);
@@ -86,8 +86,8 @@ public class ProductReviewController : BaseAdminController
             //No product review found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            productReview.StoreId != _workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            productReview.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var model = new ProductReviewModel();
         await _productReviewViewModelService.PrepareProductReviewModel(model, productReview, false, false);
@@ -104,8 +104,8 @@ public class ProductReviewController : BaseAdminController
             //No product review found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            productReview.StoreId != _workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            productReview.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         if (ModelState.IsValid)
         {
@@ -131,8 +131,8 @@ public class ProductReviewController : BaseAdminController
             //No product review found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            productReview.StoreId != _workContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            productReview.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         if (ModelState.IsValid)
         {
@@ -151,7 +151,7 @@ public class ProductReviewController : BaseAdminController
     {
         if (selectedIds != null)
             await _productReviewViewModelService.ApproveSelected(selectedIds.ToList(),
-                _workContext.CurrentCustomer.StaffStoreId);
+                _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
 
         return Json(new { Result = true });
     }
@@ -162,7 +162,7 @@ public class ProductReviewController : BaseAdminController
     {
         if (selectedIds != null)
             await _productReviewViewModelService.DisapproveSelected(selectedIds.ToList(),
-                _workContext.CurrentCustomer.StaffStoreId);
+                _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
 
         return Json(new { Result = true });
     }
@@ -176,8 +176,8 @@ public class ProductReviewController : BaseAdminController
             return Content("");
 
         var storeId = string.Empty;
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //products
         const int productNumber = 15;

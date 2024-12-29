@@ -16,16 +16,16 @@ public class GetPageBlockHandler : IRequestHandler<GetPageBlock, PageModel>
     private readonly IAclService _aclService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IPageService _pageService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public GetPageBlockHandler(
         IPageService pageService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IAclService aclService,
         IDateTimeService dateTimeService)
     {
         _pageService = pageService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _aclService = aclService;
         _dateTimeService = dateTimeService;
     }
@@ -34,7 +34,7 @@ public class GetPageBlockHandler : IRequestHandler<GetPageBlock, PageModel>
     {
         //load by store
         var page = string.IsNullOrEmpty(request.PageId)
-            ? await _pageService.GetPageBySystemName(request.SystemName, _workContext.CurrentStore.Id)
+            ? await _pageService.GetPageBySystemName(request.SystemName, _workContextAccessor.WorkContext.CurrentStore.Id)
             : await _pageService.GetPageById(request.PageId);
 
         if (page is not { Published: true })
@@ -45,9 +45,9 @@ public class GetPageBlockHandler : IRequestHandler<GetPageBlock, PageModel>
             return null;
 
         //ACL (access control list)
-        return !_aclService.Authorize(page, _workContext.CurrentCustomer)
+        return !_aclService.Authorize(page, _workContextAccessor.WorkContext.CurrentCustomer)
             ? null
-            : ToModel(page, _workContext.WorkingLanguage, request.Password);
+            : ToModel(page, _workContextAccessor.WorkContext.WorkingLanguage, request.Password);
     }
     
     private PageModel ToModel(Page entity, Language language,

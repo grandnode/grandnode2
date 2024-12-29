@@ -25,14 +25,14 @@ public class GetHomePageNewsItemsHandler : IRequestHandler<GetHomePageNewsItems,
     private readonly NewsSettings _newsSettings;
     private readonly IPictureService _pictureService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
-    public GetHomePageNewsItemsHandler(ICacheBase cacheBase, IWorkContext workContext,
+    public GetHomePageNewsItemsHandler(ICacheBase cacheBase, IWorkContextAccessor workContextAccessor,
         INewsService newsService, IDateTimeService dateTimeService, IPictureService pictureService,
         ITranslationService translationService, NewsSettings newsSettings, MediaSettings mediaSettings)
     {
         _cacheBase = cacheBase;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _newsService = newsService;
         _dateTimeService = dateTimeService;
         _pictureService = pictureService;
@@ -43,12 +43,12 @@ public class GetHomePageNewsItemsHandler : IRequestHandler<GetHomePageNewsItems,
 
     public async Task<HomePageNewsItemsModel> Handle(GetHomePageNewsItems request, CancellationToken cancellationToken)
     {
-        var cacheKey = string.Format(CacheKeyConst.HOMEPAGE_NEWSMODEL_KEY, _workContext.WorkingLanguage.Id,
-            _workContext.CurrentStore.Id);
+        var cacheKey = string.Format(CacheKeyConst.HOMEPAGE_NEWSMODEL_KEY, _workContextAccessor.WorkContext.WorkingLanguage.Id,
+            _workContextAccessor.WorkContext.CurrentStore.Id);
         var model = await _cacheBase.GetAsync(cacheKey, async () =>
         {
             var newsItems =
-                await _newsService.GetAllNews(_workContext.CurrentStore.Id, 0, _newsSettings.MainPageNewsCount);
+                await _newsService.GetAllNews(_workContextAccessor.WorkContext.CurrentStore.Id, 0, _newsSettings.MainPageNewsCount);
             var hpnitemodel = new HomePageNewsItemsModel();
             foreach (var item in newsItems)
             {
@@ -66,10 +66,10 @@ public class GetHomePageNewsItemsHandler : IRequestHandler<GetHomePageNewsItems,
     {
         var model = new HomePageNewsItemsModel.NewsItemModel {
             Id = newsItem.Id,
-            SeName = newsItem.GetSeName(_workContext.WorkingLanguage.Id),
-            Title = newsItem.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id),
-            Short = newsItem.GetTranslation(x => x.Short, _workContext.WorkingLanguage.Id),
-            Full = newsItem.GetTranslation(x => x.Full, _workContext.WorkingLanguage.Id),
+            SeName = newsItem.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id),
+            Title = newsItem.GetTranslation(x => x.Title, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+            Short = newsItem.GetTranslation(x => x.Short, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+            Full = newsItem.GetTranslation(x => x.Full, _workContextAccessor.WorkContext.WorkingLanguage.Id),
             CreatedOn = _dateTimeService.ConvertToUserTime(newsItem.StartDateUtc ?? newsItem.CreatedOnUtc,
                 DateTimeKind.Utc)
         };

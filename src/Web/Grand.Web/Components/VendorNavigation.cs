@@ -11,14 +11,14 @@ public class VendorNavigationViewComponent : BaseViewComponent
 {
     private readonly IMediator _mediator;
     private readonly VendorSettings _vendorSettings;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public VendorNavigationViewComponent(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         VendorSettings vendorSettings)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _mediator = mediator;
         _vendorSettings = vendorSettings;
     }
@@ -29,7 +29,7 @@ public class VendorNavigationViewComponent : BaseViewComponent
             return Content("");
 
         var model = await _mediator.Send(new GetVendorNavigation {
-            Language = _workContext.WorkingLanguage
+            Language = _workContextAccessor.WorkContext.WorkingLanguage
         });
 
         return !model.Vendors.Any() ? Content("") : View(model);

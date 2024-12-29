@@ -103,7 +103,7 @@ public class CashOnDeliveryPaymentProvider : IPaymentProvider
 
         if (!(result > 0)) return result;
         var currencyService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ICurrencyService>();
-        var workContext = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IWorkContext>();
+        var workContext = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IWorkContextAccessor>().WorkContext;
         result = await currencyService.ConvertFromPrimaryStoreCurrency(result, workContext.WorkingCurrency);
 
         //return result;

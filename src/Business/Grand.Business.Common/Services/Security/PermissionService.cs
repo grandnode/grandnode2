@@ -27,13 +27,13 @@ public class PermissionService : IPermissionService
     public PermissionService(
         IRepository<Permission> permissionRepository,
         IRepository<PermissionAction> permissionActionRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         ICacheBase cacheBase)
     {
         _permissionRepository = permissionRepository;
         _permissionActionRepository = permissionActionRepository;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
         _cacheBase = cacheBase;
     }
@@ -69,7 +69,7 @@ public class PermissionService : IPermissionService
 
     private readonly IRepository<Permission> _permissionRepository;
     private readonly IRepository<PermissionAction> _permissionActionRepository;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
     private readonly ICacheBase _cacheBase;
 
@@ -162,7 +162,7 @@ public class PermissionService : IPermissionService
     /// <returns>true - authorized; otherwise, false</returns>
     public virtual async Task<bool> Authorize(Permission permission)
     {
-        return await Authorize(permission, _workContext.CurrentCustomer);
+        return await Authorize(permission, _workContextAccessor.WorkContext.CurrentCustomer);
     }
 
     /// <summary>
@@ -189,7 +189,7 @@ public class PermissionService : IPermissionService
     /// <returns>true - authorized; otherwise, false</returns>
     public virtual async Task<bool> Authorize(string permissionSystemName)
     {
-        return await Authorize(permissionSystemName, _workContext.CurrentCustomer);
+        return await Authorize(permissionSystemName, _workContextAccessor.WorkContext.CurrentCustomer);
     }
 
     /// <summary>
@@ -267,7 +267,7 @@ public class PermissionService : IPermissionService
         if (!await Authorize(permissionSystemName))
             return false;
 
-        var customerGroups = await _groupService.GetAllByIds(_workContext.CurrentCustomer.Groups.ToArray());
+        var customerGroups = await _groupService.GetAllByIds(_workContextAccessor.WorkContext.CurrentCustomer.Groups.ToArray());
         foreach (var group in customerGroups)
         {
             if (!await Authorize(permissionSystemName, group))

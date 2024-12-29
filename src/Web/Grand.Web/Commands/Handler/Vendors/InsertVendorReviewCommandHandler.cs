@@ -16,15 +16,15 @@ public class InsertVendorReviewCommandHandler : IRequestHandler<InsertVendorRevi
     private readonly IMessageProviderService _messageProviderService;
     private readonly IVendorService _vendorService;
     private readonly VendorSettings _vendorSettings;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
 
-    public InsertVendorReviewCommandHandler(IVendorService vendorService, IWorkContext workContext,
+    public InsertVendorReviewCommandHandler(IVendorService vendorService, IWorkContextAccessor workContextAccessor,
         ICustomerService customerService, IMessageProviderService messageProviderService,
         LanguageSettings languageSettings, VendorSettings vendorSettings)
     {
         _vendorService = vendorService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _customerService = customerService;
         _messageProviderService = messageProviderService;
         _languageSettings = languageSettings;
@@ -41,7 +41,7 @@ public class InsertVendorReviewCommandHandler : IRequestHandler<InsertVendorRevi
 
         var vendorReview = new VendorReview {
             VendorId = request.Vendor.Id,
-            CustomerId = _workContext.CurrentCustomer.Id,
+            CustomerId = _workContextAccessor.WorkContext.CurrentCustomer.Id,
             Title = request.Model.AddVendorReview.Title,
             ReviewText = request.Model.AddVendorReview.ReviewText,
             Rating = rating,
@@ -51,8 +51,8 @@ public class InsertVendorReviewCommandHandler : IRequestHandler<InsertVendorRevi
         };
         await _vendorService.InsertVendorReview(vendorReview);
 
-        if (!_workContext.CurrentCustomer.HasContributions)
-            await _customerService.UpdateContributions(_workContext.CurrentCustomer);
+        if (!_workContextAccessor.WorkContext.CurrentCustomer.HasContributions)
+            await _customerService.UpdateContributions(_workContextAccessor.WorkContext.CurrentCustomer);
 
         //update vendor totals
         await _vendorService.UpdateVendorReviewTotals(request.Vendor);

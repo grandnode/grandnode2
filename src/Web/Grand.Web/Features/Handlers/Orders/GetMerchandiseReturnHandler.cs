@@ -29,10 +29,10 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
     private readonly IProductService _productService;
     private readonly IShipmentService _shipmentService;
     private readonly IVendorService _vendorService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public GetMerchandiseReturnHandler(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMerchandiseReturnService merchandiseReturnService,
         IShipmentService shipmentService,
         IProductService productService,
@@ -44,7 +44,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
         OrderSettings orderSettings,
         ICurrencyService currencyService)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _merchandiseReturnService = merchandiseReturnService;
         _shipmentService = shipmentService;
         _productService = productService;
@@ -87,7 +87,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
         foreach (var rrr in await _merchandiseReturnService.GetAllMerchandiseReturnReasons())
             reasons.Add(new MerchandiseReturnModel.MerchandiseReturnReasonModel {
                 Id = rrr.Id,
-                Name = rrr.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
+                Name = rrr.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)
             });
         return reasons;
     }
@@ -98,7 +98,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
         foreach (var rra in await _merchandiseReturnService.GetAllMerchandiseReturnActions())
             actions.Add(new MerchandiseReturnModel.MerchandiseReturnActionModel {
                 Id = rra.Id,
-                Name = rra.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
+                Name = rra.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)
             });
         return actions;
     }
@@ -123,8 +123,8 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
             var orderItemModel = new MerchandiseReturnModel.OrderItemModel {
                 Id = orderItem.Id,
                 ProductId = orderItem.ProductId,
-                ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
-                ProductSeName = product.GetSeName(_workContext.WorkingLanguage.Id),
+                ProductName = product.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                ProductSeName = product.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id),
                 AttributeInfo = orderItem.AttributeDescription,
                 VendorId = orderItem.VendorId,
                 VendorName = string.IsNullOrEmpty(orderItem.VendorId)
@@ -147,7 +147,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
     {
         //existing addresses
         var addresses = new List<Address>();
-        foreach (var item in _workContext.CurrentCustomer.Addresses)
+        foreach (var item in _workContextAccessor.WorkContext.CurrentCustomer.Addresses)
         {
             if (string.IsNullOrEmpty(item.CountryId))
             {
@@ -181,7 +181,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
             ExcludeProperties = false,
             LoadCountries = () => countries,
             PrePopulateWithCustomerFields = true,
-            Customer = _workContext.CurrentCustomer
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer
         });
     }
 }

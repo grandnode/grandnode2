@@ -15,10 +15,10 @@ public class StoreScopeViewComponent : BaseAdminViewComponent
 {
     #region Constructors
 
-    public StoreScopeViewComponent(IStoreService storeService, IWorkContext workContext, IGroupService groupService)
+    public StoreScopeViewComponent(IStoreService storeService, IWorkContextAccessor workContextAccessor, IGroupService groupService)
     {
         _storeService = storeService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
     }
 
@@ -32,8 +32,8 @@ public class StoreScopeViewComponent : BaseAdminViewComponent
         if (allStores.Count < 2)
             return Content("");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            allStores = allStores.Where(x => x.Id == _workContext.CurrentCustomer.StaffStoreId).ToList();
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            allStores = allStores.Where(x => x.Id == _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId).ToList();
 
         var model = new StoreScopeModel();
         foreach (var s in allStores)
@@ -56,7 +56,7 @@ public class StoreScopeViewComponent : BaseAdminViewComponent
             return stores.FirstOrDefault()!.Id;
 
         var storeId =
-            _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames
+            _workContextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames
                 .AdminAreaStoreScopeConfiguration);
         var store = await _storeService.GetStoreById(storeId);
 
@@ -68,7 +68,7 @@ public class StoreScopeViewComponent : BaseAdminViewComponent
     #region Fields
 
     private readonly IStoreService _storeService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
 
     #endregion

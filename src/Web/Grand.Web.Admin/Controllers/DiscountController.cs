@@ -33,7 +33,7 @@ public class DiscountController : BaseAdminController
         IDiscountViewModelService discountViewModelService,
         IDiscountService discountService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IDateTimeService dateTimeService,
         IGroupService groupService,
         IDiscountProviderLoader discountProviderLoader,
@@ -42,7 +42,7 @@ public class DiscountController : BaseAdminController
         _discountViewModelService = discountViewModelService;
         _discountService = discountService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _dateTimeService = dateTimeService;
         _groupService = groupService;
         _discountProviderLoader = discountProviderLoader;
@@ -56,7 +56,7 @@ public class DiscountController : BaseAdminController
     private readonly IDiscountViewModelService _discountViewModelService;
     private readonly IDiscountService _discountService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IDateTimeService _dateTimeService;
     private readonly IGroupService _groupService;
     private readonly IDiscountProviderLoader _discountProviderLoader;
@@ -110,8 +110,8 @@ public class DiscountController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-                model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
+            if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+                model.Stores = [_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
             var discount = await _discountViewModelService.InsertDiscountModel(model);
             Success(_translationService.GetResource("admin.marketing.discounts.Added"));
@@ -133,17 +133,17 @@ public class DiscountController : BaseAdminController
             //No discount found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
         {
             if (!discount.LimitedToStores || (discount.LimitedToStores &&
-                                              discount.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) &&
+                                              discount.Stores.Contains(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
                                               discount.Stores.Count > 1))
             {
                 Warning(_translationService.GetResource("admin.marketing.discounts.Permissions"));
             }
             else
             {
-                if (!discount.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
+                if (!discount.AccessToEntityByStore(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                     return RedirectToAction("List");
             }
         }
@@ -164,14 +164,14 @@ public class DiscountController : BaseAdminController
             //No discount found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            if (!discount.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            if (!discount.AccessToEntityByStore(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = discount.Id });
 
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-                model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
+            if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+                model.Stores = [_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
             discount = await _discountViewModelService.UpdateDiscountModel(discount, model);
             Success(_translationService.GetResource("admin.marketing.discounts.Updated"));
@@ -201,8 +201,8 @@ public class DiscountController : BaseAdminController
             //No discount found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            if (!discount.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            if (!discount.AccessToEntityByStore(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = discount.Id });
 
         var usageHistory = await _mediator.Send(new GetDiscountUsageHistoryQuery { DiscountId = discount.Id });
@@ -603,7 +603,7 @@ public class DiscountController : BaseAdminController
         DiscountModel.AddBrandToDiscountModel model, [FromServices] IBrandService brandService)
     {
         var brands = await brandService.GetAllBrands(model.SearchBrandName,
-            _workContext.CurrentCustomer.StaffStoreId, command.Page - 1, command.PageSize, true);
+            _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId, command.Page - 1, command.PageSize, true);
 
         var gridModel = new DataSourceResult {
             Data = brands.Select(x => x.ToModel()),

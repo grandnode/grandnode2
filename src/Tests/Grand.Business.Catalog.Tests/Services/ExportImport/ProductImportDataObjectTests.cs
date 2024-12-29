@@ -59,7 +59,7 @@ public class ProductImportDataObjectTests
     private Mock<ISlugService> _slugServiceMock;
     private Mock<ITaxCategoryService> _taxServiceMock;
     private Mock<IWarehouseService> _warehouseServiceMock;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
     private ISeNameService _seNameService;
     [TestInitialize]
     public void Init()
@@ -82,9 +82,9 @@ public class ProductImportDataObjectTests
         _productCategoryServiceMock = new Mock<IProductCategoryService>();
         _productCollectionServiceMock = new Mock<IProductCollectionService>();
 
-        _workContextMock = new Mock<IWorkContext>();
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
+        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
 
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,

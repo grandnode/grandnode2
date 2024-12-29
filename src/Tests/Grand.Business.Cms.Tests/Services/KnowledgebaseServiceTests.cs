@@ -25,7 +25,7 @@ public class KnowledgebaseServiceTests
     private IRepository<KnowledgebaseArticleComment> _repositoryKnowledgebaseArticleComment;
 
     private IRepository<KnowledgebaseCategory> _repositoryKnowledgebaseCategory;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -35,10 +35,10 @@ public class KnowledgebaseServiceTests
         _repositoryKnowledgebaseArticleComment = new MongoDBRepositoryTest<KnowledgebaseArticleComment>();
 
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IWorkContext>();
+        _workContextMock = new Mock<IWorkContextAccessor>();
 
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
+        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
 
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });

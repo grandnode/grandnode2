@@ -24,7 +24,7 @@ public class ProductAttributeController : BaseAdminController
         IProductAttributeService productAttributeService,
         ILanguageService languageService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         SeoSettings seoSettings)
     {
@@ -32,7 +32,7 @@ public class ProductAttributeController : BaseAdminController
         _productAttributeService = productAttributeService;
         _languageService = languageService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
         _seoSettings = seoSettings;
     }
@@ -45,7 +45,7 @@ public class ProductAttributeController : BaseAdminController
     private readonly IProductAttributeService _productAttributeService;
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
     private readonly SeoSettings _seoSettings;
 
@@ -102,8 +102,8 @@ public class ProductAttributeController : BaseAdminController
                 string.IsNullOrEmpty(productAttribute.SeName) ? productAttribute.Name : productAttribute.SeName,
                 _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
                 _seoSettings.SeoCharConversion);
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-                model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
+            if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+                model.Stores = [_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
             await _productAttributeService.InsertProductAttribute(productAttribute);
 
@@ -154,8 +154,8 @@ public class ProductAttributeController : BaseAdminController
                 string.IsNullOrEmpty(productAttribute.SeName) ? productAttribute.Name : productAttribute.SeName,
                 _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
                 _seoSettings.SeoCharConversion);
-            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-                model.Stores = [_workContext.CurrentCustomer.StaffStoreId];
+            if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+                model.Stores = [_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             await _productAttributeService.UpdateProductAttribute(productAttribute);
 
             Success(_translationService.GetResource("Admin.Catalog.Attributes.ProductAttributes.Updated"));

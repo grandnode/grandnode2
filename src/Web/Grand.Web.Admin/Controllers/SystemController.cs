@@ -32,7 +32,7 @@ public class SystemController : BaseAdminController
         ICurrencyService currencyService,
         IMeasureService measureService,
         IDateTimeService dateTimeService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ITranslationService translationService,
         IHostApplicationLifetime applicationLifetime,
         IWebHostEnvironment webHostEnvironment,
@@ -48,7 +48,7 @@ public class SystemController : BaseAdminController
         _currencySettings = currencySettings;
         _measureSettings = measureSettings;
         _dateTimeService = dateTimeService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _translationService = translationService;
         _applicationLifetime = applicationLifetime;
         _webHostEnvironment = webHostEnvironment;
@@ -66,7 +66,7 @@ public class SystemController : BaseAdminController
     private readonly ICurrencyService _currencyService;
     private readonly IMeasureService _measureService;
     private readonly IDateTimeService _dateTimeService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly ITranslationService _translationService;
     private readonly IHostApplicationLifetime _applicationLifetime;
     private readonly IWebHostEnvironment _webHostEnvironment;
@@ -120,7 +120,7 @@ public class SystemController : BaseAdminController
             });
 
         //current host
-        var currenthostName = _workContext.CurrentHost.HostName;
+        var currenthostName = _workContextAccessor.WorkContext.CurrentHost.HostName;
         if (!string.IsNullOrEmpty(currenthostName) &&
             currenthostName.Equals(HttpContext.Request.Host.Value, StringComparison.OrdinalIgnoreCase))
             model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
@@ -261,7 +261,7 @@ public class SystemController : BaseAdminController
 
     public async Task<IActionResult> ClearCache(string returnUrl, [FromServices] ICacheBase cacheBase)
     {
-        _logger.LogInformation($"Clear cache has been done by the user: {_workContext.CurrentCustomer.Email}");
+        _logger.LogInformation($"Clear cache has been done by the user: {_workContextAccessor.WorkContext.CurrentCustomer.Email}");
 
         await cacheBase.Clear();
 
@@ -277,7 +277,7 @@ public class SystemController : BaseAdminController
 
     public IActionResult RestartApplication(string returnUrl = "")
     {
-        _logger.LogInformation($"The application has been restarted by the user {_workContext.CurrentCustomer.Email}");
+        _logger.LogInformation($"The application has been restarted by the user {_workContextAccessor.WorkContext.CurrentCustomer.Email}");
 
         //stop application
         _applicationLifetime.StopApplication();

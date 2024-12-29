@@ -22,13 +22,13 @@ public class GetNewsItemListHandler : IRequestHandler<GetNewsItemList, NewsItemL
     private readonly NewsSettings _newsSettings;
     private readonly IPictureService _pictureService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
-    public GetNewsItemListHandler(IWorkContext workContext,
+    public GetNewsItemListHandler(IWorkContextAccessor workContextAccessor,
         INewsService newsService, IDateTimeService dateTimeService, IPictureService pictureService,
         ITranslationService translationService, NewsSettings newsSettings, MediaSettings mediaSettings)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _newsService = newsService;
         _dateTimeService = dateTimeService;
         _pictureService = pictureService;
@@ -40,13 +40,13 @@ public class GetNewsItemListHandler : IRequestHandler<GetNewsItemList, NewsItemL
     public async Task<NewsItemListModel> Handle(GetNewsItemList request, CancellationToken cancellationToken)
     {
         var model = new NewsItemListModel {
-            WorkingLanguageId = _workContext.WorkingLanguage.Id
+            WorkingLanguageId = _workContextAccessor.WorkContext.WorkingLanguage.Id
         };
 
         if (request.Command.PageSize <= 0) request.Command.PageSize = _newsSettings.NewsArchivePageSize;
         if (request.Command.PageNumber <= 0) request.Command.PageNumber = 1;
 
-        var newsItems = await _newsService.GetAllNews(_workContext.CurrentStore.Id,
+        var newsItems = await _newsService.GetAllNews(_workContextAccessor.WorkContext.CurrentStore.Id,
             request.Command.PageNumber - 1, request.Command.PageSize);
         model.PagingFilteringContext.LoadPagedList(newsItems);
         foreach (var item in newsItems)
@@ -62,10 +62,10 @@ public class GetNewsItemListHandler : IRequestHandler<GetNewsItemList, NewsItemL
     {
         var model = new NewsItemListModel.NewsItemModel {
             Id = newsItem.Id,
-            SeName = newsItem.GetSeName(_workContext.WorkingLanguage.Id),
-            Title = newsItem.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id),
-            Short = newsItem.GetTranslation(x => x.Short, _workContext.WorkingLanguage.Id),
-            Full = newsItem.GetTranslation(x => x.Full, _workContext.WorkingLanguage.Id),
+            SeName = newsItem.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id),
+            Title = newsItem.GetTranslation(x => x.Title, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+            Short = newsItem.GetTranslation(x => x.Short, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+            Full = newsItem.GetTranslation(x => x.Full, _workContextAccessor.WorkContext.WorkingLanguage.Id),
             CreatedOn = _dateTimeService.ConvertToUserTime(newsItem.StartDateUtc ?? newsItem.CreatedOnUtc,
                 DateTimeKind.Utc)
         };

@@ -19,7 +19,7 @@ public class ProductEmailAFriendValidator : BaseGrandValidator<ProductEmailAFrie
         IEnumerable<IValidatorConsumer<ProductEmailAFriendModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         CaptchaSettings captchaSettings, CatalogSettings catalogSettings,
-        IWorkContext workContext, IGroupService groupService, IProductService productService,
+        IWorkContextAccessor workContextAccessor, IGroupService groupService, IProductService productService,
         IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
         : base(validators)
@@ -46,7 +46,7 @@ public class ProductEmailAFriendValidator : BaseGrandValidator<ProductEmailAFrie
             if (product is not { Published: true } || !catalogSettings.EmailAFriendEnabled)
                 context.AddFailure("Product is disabled");
 
-            if (await groupService.IsGuest(workContext.CurrentCustomer) &&
+            if (await groupService.IsGuest(workContextAccessor.WorkContext.CurrentCustomer) &&
                 !catalogSettings.AllowAnonymousUsersToEmailAFriend)
                 context.AddFailure(translationService.GetResource("Products.EmailAFriend.OnlyRegisteredUsers"));
         });

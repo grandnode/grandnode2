@@ -1,16 +1,16 @@
 ﻿@using Grand.Business.Core.Extensions
 @using Grand.Business.Core.Interfaces.Common.Stores
 @inject IStoreService StoreService
-@inject IWorkContext WorkContext
+@inject IWorkContextAccessor workContextAccessor
 @{
-    var availableStores = StoreService.GetAll()
+    var availableStores = (await StoreService.GetAllStores())
         .Select(x =>
         {
             //model
             var storeModel = new StoreModel
             {
                 Id = x.Id,
-                Name = x.GetTranslation(y => y.Name, WorkContext.WorkingLanguage.Id),
+                        Name = x.GetTranslation(y => y.Name, workContextAccessor.WorkContext.WorkingLanguage.Id),
                 Shortcut = x.Shortcut
             };
             return storeModel;
@@ -20,10 +20,10 @@
     {
         var returnUrl = Context?.Request?.GetEncodedPathAndQuery();
 
-        <b-dropdown class="mr-2" text="@availableStores.FirstOrDefault(x => x.Id == WorkContext.CurrentStore.Id)?.Name">
+        <b-dropdown class="mr-2" text="@availableStores.FirstOrDefault(x => x.Id == workContextAccessor.WorkContext.CurrentStore.Id)?.Name">
             @foreach (var store in availableStores)
             {
-                var className = store.Id == WorkContext.CurrentStore.Id ? "active" : "";
+                var className = store.Id == workContextAccessor.WorkContext.CurrentStore.Id ? "active" : "";
                 <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeStore", new { shortcut = store.Shortcut, returnUrl })">
                     @store.Name
                 </b-dropdown-item>

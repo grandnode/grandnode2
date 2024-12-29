@@ -29,7 +29,7 @@ public class TaxServiceTests
     private TaxSettings _taxSettings;
     private IVatService _vatService;
 
-    private IWorkContext _workContext;
+    private IWorkContextAccessor _workContext;
 
     [TestInitialize]
     public void TestInitialize()

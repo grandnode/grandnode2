@@ -32,16 +32,13 @@ public class WorkContextMiddleware
     /// <param name="context">HTTP context</param>
     /// <param name="workContext">workContext</param>
     /// <returns>Task</returns>
-    public async Task InvokeAsync(HttpContext context, IWorkContextSetter workContext)
+    public async Task InvokeAsync(HttpContext context, IWorkContextSetter workContextSetter, IWorkContextAccessor workContextAccessor)
     {
         if (context?.Request == null) return;
 
         //set current context
-        var customer = await workContext.SetCurrentCustomer();
-        await workContext.SetCurrentVendor(customer);
-        _ = await workContext.SetWorkingLanguage(customer);
-        await workContext.SetWorkingCurrency(customer);
-        await workContext.SetTaxDisplayType(customer);
+        var workContext = await workContextSetter.InitializeWorkContext();
+        workContextAccessor.WorkContext = workContext;
 
         //call the next middleware in the request pipeline
         await _next(context);

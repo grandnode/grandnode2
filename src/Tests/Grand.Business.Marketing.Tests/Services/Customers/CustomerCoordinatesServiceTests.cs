@@ -18,17 +18,17 @@ public class CustomerCoordinatesServiceTests
     private CustomerCoordinatesService _customerCoordinatesService;
     private Mock<IMediator> _mediatorMock;
     private IRepository<Customer> _repository;
-    private Mock<IWorkContext> _workContextMock;
+    private Mock<IWorkContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
         _repository = new MongoDBRepositoryTest<Customer>();
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IWorkContext>();
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "" });
         _customer = new Customer();
-        _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => _customer);
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => _customer);
 
         _customerCoordinatesService =
             new CustomerCoordinatesService(_repository, _workContextMock.Object, _mediatorMock.Object);
@@ -80,8 +80,8 @@ public class CustomerCoordinatesServiceTests
         //Act
         await _customerCoordinatesService.SaveGeoCoordinate(1, 2);
         //Assert
-        Assert.AreEqual(1, _workContextMock.Object.CurrentCustomer.Coordinates.X);
-        Assert.AreEqual(2, _workContextMock.Object.CurrentCustomer.Coordinates.Y);
+        Assert.AreEqual(1, _workContextMock.Object.WorkContext.CurrentCustomer.Coordinates.X);
+        Assert.AreEqual(2, _workContextMock.Object.WorkContext.CurrentCustomer.Coordinates.Y);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<CustomerCoordinatesEvent>(), default), Times.Once);
     }
 }

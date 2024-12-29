@@ -22,15 +22,15 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     private readonly ICurrencyService _currencyService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly ITaxService _taxService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
-    public CheckoutAttributeFormatter(IWorkContext workContext,
+    public CheckoutAttributeFormatter(IWorkContextAccessor workContextAccessor,
         ICheckoutAttributeParser checkoutAttributeParser,
         ICurrencyService currencyService,
         ITaxService taxService,
         IPriceFormatter priceFormatter)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _checkoutAttributeParser = checkoutAttributeParser;
         _currencyService = currencyService;
         _taxService = taxService;
@@ -76,7 +76,7 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                         case AttributeControlType.MultilineTextbox:
                         {
                             //multiline text box
-                            var attributeName = attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id);
+                            var attributeName = attribute.GetTranslation(a => a.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id);
                             //encode (if required)
                             if (htmlEncode)
                                 attributeName = WebUtility.HtmlEncode(attributeName);
@@ -91,14 +91,14 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                             {
                                 var attributeText = string.Empty;
                                 var attributeName =
-                                    attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id);
+                                    attribute.GetTranslation(a => a.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id);
                                 if (allowHyperlinks)
                                 {
                                     //hyperlinks are allowed
                                     var downloadLink =
-                                        $"{_workContext.CurrentHost.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
+                                        $"{_workContextAccessor.WorkContext.CurrentHost.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
                                     attributeText =
-                                        $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id)}</a>";
+                                        $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, _workContextAccessor.WorkContext.WorkingLanguage.Id)}</a>";
                                 }
 
                                 formattedAttribute = $"{attributeName}: {attributeText}";
@@ -110,7 +110,7 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                         {
                             //other attributes (text box, datepicker)
                             formattedAttribute =
-                                $"{attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id)}: {valueStr}";
+                                $"{attribute.GetTranslation(a => a.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)}: {valueStr}";
                             //encode (if required)
                             if (htmlEncode)
                                 formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
@@ -124,7 +124,7 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                     if (attributeValue != null)
                     {
                         formattedAttribute =
-                            $"{attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id)}: {attributeValue.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id)}";
+                            $"{attribute.GetTranslation(a => a.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)}: {attributeValue.GetTranslation(a => a.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)}";
                         if (renderPrices)
                         {
                             var priceAdjustmentBase =
@@ -132,7 +132,7 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                                 .checkoutPrice;
                             var priceAdjustment =
                                 await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase,
-                                    _workContext.WorkingCurrency);
+                                    _workContextAccessor.WorkContext.WorkingCurrency);
                             if (priceAdjustmentBase > 0)
                             {
                                 var priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustment);

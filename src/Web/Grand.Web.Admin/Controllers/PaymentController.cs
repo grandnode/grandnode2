@@ -30,7 +30,7 @@ public class PaymentController : BaseAdminController
         IShippingMethodService shippingMethodService,
         ITranslationService translationService,
         IServiceProvider serviceProvider,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _paymentService = paymentService;
         _settingService = settingService;
@@ -38,7 +38,7 @@ public class PaymentController : BaseAdminController
         _shippingMethodService = shippingMethodService;
         _translationService = translationService;
         _serviceProvider = serviceProvider;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     #endregion
@@ -51,7 +51,7 @@ public class PaymentController : BaseAdminController
     private readonly IShippingMethodService _shippingMethodService;
     private readonly ITranslationService _translationService;
     private readonly IServiceProvider _serviceProvider;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     #endregion
 
@@ -83,7 +83,7 @@ public class PaymentController : BaseAdminController
                 if (plugin != null)
                 {
                     tmp.ConfigurationUrl = plugin.ConfigurationUrl();
-                    tmp.LogoUrl = pluginInfo.GetLogoUrl(_workContext.CurrentHost.Url);
+                    tmp.LogoUrl = pluginInfo.GetLogoUrl(_workContextAccessor.WorkContext.CurrentHost.Url);
                 }
             }
 

@@ -25,7 +25,7 @@ public class HomeController : BaseAdminController
         ITranslationService translationService,
         IStoreService storeService,
         ICustomerService customerService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IOrderReportService orderReportService,
         IProductsReportService productsReportService,
@@ -36,7 +36,7 @@ public class HomeController : BaseAdminController
         _translationService = translationService;
         _storeService = storeService;
         _customerService = customerService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
         _orderReportService = orderReportService;
         _productsReportService = productsReportService;
@@ -54,8 +54,8 @@ public class HomeController : BaseAdminController
         var model = new DashboardActivityModel();
 
         var storeId = string.Empty;
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         model.OrdersPending =
             (await _orderReportService.GetOrderAverageReportLine(storeId, os: (int)OrderStatusSystem.Pending))
@@ -86,7 +86,7 @@ public class HomeController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly IStoreService _storeService;
     private readonly ICustomerService _customerService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
     private readonly IOrderReportService _orderReportService;
     private readonly IProductsReportService _productsReportService;
@@ -121,8 +121,8 @@ public class HomeController : BaseAdminController
     {
         var language = await languageService.GetLanguageById(langid);
         if (language != null)
-            await _customerService.UpdateUserField(_workContext.CurrentCustomer, SystemCustomerFieldNames.LanguageId,
-                language.Id, _workContext.CurrentStore.Id);
+            await _customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.LanguageId,
+                language.Id, _workContextAccessor.WorkContext.CurrentStore.Id);
 
         //home page
         if (string.IsNullOrEmpty(returnUrl))
@@ -138,15 +138,15 @@ public class HomeController : BaseAdminController
         if (storeid != null)
             storeid = storeid.Trim();
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
             returnUrl = Url.Action("Index", "Home", new { area = Constants.AreaAdmin });
 
         var store = await _storeService.GetStoreById(storeid);
         if (store != null || storeid == "")
-            await _customerService.UpdateUserField(_workContext.CurrentCustomer,
+            await _customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer,
                 SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration, storeid);
         else
-            await _customerService.UpdateUserField(_workContext.CurrentCustomer,
+            await _customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer,
                 SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration, "");
 
         //home page
@@ -199,7 +199,7 @@ public class HomeController : BaseAdminController
 
     public async Task<IActionResult> AccessDenied()
     {
-        var currentCustomer = _workContext.CurrentCustomer;
+        var currentCustomer = _workContextAccessor.WorkContext.CurrentCustomer;
         if (currentCustomer == null || await _groupService.IsGuest(currentCustomer))
         {
             _logger.LogInformation("Access denied to anonymous request");

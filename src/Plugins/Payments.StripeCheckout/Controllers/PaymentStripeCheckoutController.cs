@@ -19,17 +19,17 @@ public class PaymentStripeCheckoutController : BasePaymentController
     private readonly IPaymentTransactionService _paymentTransactionService;
     private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
     private readonly IStripeCheckoutService _stripeCheckoutService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public PaymentStripeCheckoutController(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IOrderService orderService,
         ILogger<PaymentStripeCheckoutController> logger,
         IPaymentTransactionService paymentTransactionService,
         PaymentSettings paymentSettings,
         StripeCheckoutPaymentSettings stripeCheckoutPaymentSettings, IStripeCheckoutService stripeCheckoutService)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _orderService = orderService;
         _logger = logger;
         _paymentTransactionService = paymentTransactionService;
@@ -56,7 +56,7 @@ public class PaymentStripeCheckoutController : BasePaymentController
     public async Task<IActionResult> CancelOrder(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
-        if (order != null && order.CustomerId == _workContext.CurrentCustomer.Id)
+        if (order != null && order.CustomerId == _workContextAccessor.WorkContext.CurrentCustomer.Id)
             return RedirectToRoute("OrderDetails", new { orderId = order.Id });
 
         return RedirectToRoute("HomePage");

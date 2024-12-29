@@ -30,7 +30,7 @@ public class OrderController : BasePublicController
     #region Constructors
 
     public OrderController(IOrderService orderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPaymentService paymentService,
         IPaymentTransactionService paymentTransactionService,
         ITranslationService translationService,
@@ -39,7 +39,7 @@ public class OrderController : BasePublicController
         OrderSettings orderSettings)
     {
         _orderService = orderService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _paymentService = paymentService;
         _paymentTransactionService = paymentTransactionService;
         _translationService = translationService;
@@ -53,7 +53,7 @@ public class OrderController : BasePublicController
     #region Fields
 
     private readonly IOrderService _orderService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IPaymentService _paymentService;
     private readonly IPaymentTransactionService _paymentTransactionService;
     private readonly ITranslationService _translationService;
@@ -71,9 +71,9 @@ public class OrderController : BasePublicController
     public virtual async Task<IActionResult> CustomerOrders(OrderPagingModel command)
     {
         var model = await _mediator.Send(new GetCustomerOrderList {
-            Customer = _workContext.CurrentCustomer,
-            Language = _workContext.WorkingLanguage,
-            Store = _workContext.CurrentStore,
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Language = _workContextAccessor.WorkContext.WorkingLanguage,
+            Store = _workContextAccessor.WorkContext.CurrentStore,
             Command = command
         });
         return View(model);
@@ -84,11 +84,11 @@ public class OrderController : BasePublicController
     public virtual async Task<IActionResult> Details(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_workContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_workContextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
         var model = await _mediator.Send(new GetOrderDetails
-            { Order = order, Language = _workContext.WorkingLanguage });
+            { Order = order, Language = _workContextAccessor.WorkContext.WorkingLanguage });
 
         return View(model);
     }
@@ -98,7 +98,7 @@ public class OrderController : BasePublicController
     public virtual async Task<IActionResult> CancelOrder(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_workContext.CurrentCustomer, _groupService)
+        if (!await order.Access(_workContextAccessor.WorkContext.CurrentCustomer, _groupService)
             || order.PaymentStatusId != PaymentStatus.Pending
             || (order.ShippingStatusId != ShippingStatus.ShippingNotRequired &&
                 order.ShippingStatusId != ShippingStatus.Pending)
@@ -117,14 +117,14 @@ public class OrderController : BasePublicController
     public virtual async Task<IActionResult> GetPdfInvoice(string orderId, [FromServices] IPdfService pdfService)
     {
         var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_workContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_workContextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
         var orders = new List<Order> { order };
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id);
+            await pdfService.PrintOrdersToPdf(stream, orders, _workContextAccessor.WorkContext.WorkingLanguage.Id);
             bytes = stream.ToArray();
         }
 
@@ -142,11 +142,11 @@ public class OrderController : BasePublicController
         if (!ModelState.IsValid) return View("AddOrderNote", model);
 
         var order = await _orderService.GetOrderById(model.OrderId);
-        if (!await order.Access(_workContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_workContextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
         await _mediator.Send(new InsertOrderNoteCommand
-            { Order = order, OrderNote = model, Language = _workContext.WorkingLanguage });
+            { Order = order, OrderNote = model, Language = _workContextAccessor.WorkContext.WorkingLanguage });
 
         //notification
         await _mediator.Publish(new OrderNoteEvent(order, model));
@@ -160,7 +160,7 @@ public class OrderController : BasePublicController
     public virtual async Task<IActionResult> ReOrder(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_workContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_workContextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
         var warnings = await _mediator.Send(new ReOrderCommand { Order = order });
@@ -176,7 +176,7 @@ public class OrderController : BasePublicController
     public virtual async Task<IActionResult> RePostPayment(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_workContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_workContextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
         var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
@@ -201,12 +201,12 @@ public class OrderController : BasePublicController
             return Challenge();
 
         var order = await _orderService.GetOrderById(shipment.OrderId);
-        if (!await order.Access(_workContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_workContextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
         var model = await _mediator.Send(new GetShipmentDetails {
-            Customer = _workContext.CurrentCustomer,
-            Language = _workContext.WorkingLanguage,
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Language = _workContextAccessor.WorkContext.WorkingLanguage,
             Order = order,
             Shipment = shipment
         });
@@ -224,9 +224,9 @@ public class OrderController : BasePublicController
             return RedirectToRoute("CustomerInfo");
 
         var model = await _mediator.Send(new GetCustomerLoyaltyPoints {
-            Customer = _workContext.CurrentCustomer,
-            Store = _workContext.CurrentStore,
-            Currency = _workContext.WorkingCurrency
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Store = _workContextAccessor.WorkContext.CurrentStore,
+            Currency = _workContextAccessor.WorkContext.WorkingCurrency
         });
         return View(model);
     }

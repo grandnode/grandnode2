@@ -12,10 +12,10 @@ public class CategoryFeaturedProductsViewComponent : BaseViewComponent
 
     public CategoryFeaturedProductsViewComponent(
         IMediator mediator,
-        IWorkContext workContext)
+        IWorkContextAccessor workContextAccessor)
     {
         _mediator = mediator;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
     }
 
     #endregion
@@ -25,9 +25,9 @@ public class CategoryFeaturedProductsViewComponent : BaseViewComponent
     public async Task<IViewComponentResult> InvokeAsync()
     {
         var model = await _mediator.Send(new GetCategoryFeaturedProducts {
-            Customer = _workContext.CurrentCustomer,
-            Language = _workContext.WorkingLanguage,
-            Store = _workContext.CurrentStore
+            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Language = _workContextAccessor.WorkContext.WorkingLanguage,
+            Store = _workContextAccessor.WorkContext.CurrentStore
         });
 
         return !model.Any() ? Content("") : View(model);
@@ -38,7 +38,7 @@ public class CategoryFeaturedProductsViewComponent : BaseViewComponent
     #region Fields
 
     private readonly IMediator _mediator;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     #endregion
 }

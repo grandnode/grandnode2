@@ -23,13 +23,13 @@ public class OrderController : BaseVendorController
         IOrderViewModelService orderViewModelService,
         IOrderService orderService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPdfService pdfService)
     {
         _orderViewModelService = orderViewModelService;
         _orderService = orderService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _pdfService = pdfService;
     }
 
@@ -40,7 +40,7 @@ public class OrderController : BaseVendorController
     private readonly IOrderViewModelService _orderViewModelService;
     private readonly IOrderService _orderService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IPdfService _pdfService;
 
     #endregion
@@ -71,7 +71,7 @@ public class OrderController : BaseVendorController
         //products
         const int productNumber = 15;
         var products = (await productService.SearchProducts(
-            vendorId: _workContext.CurrentVendor.Id,
+            vendorId: _workContextAccessor.WorkContext.CurrentVendor.Id,
             keywords: term,
             pageSize: productNumber,
             showHidden: true)).products;
@@ -133,7 +133,7 @@ public class OrderController : BaseVendorController
     public async Task<IActionResult> Edit(string id)
     {
         var order = await _orderService.GetOrderById(id);
-        if (order == null || order.Deleted || !_workContext.HasAccessToOrder(order))
+        if (order == null || order.Deleted || !_workContextAccessor.WorkContext.HasAccessToOrder(order))
             //No order found with the specified id
             return RedirectToAction("List");
 
@@ -147,7 +147,7 @@ public class OrderController : BaseVendorController
     {
         var order = await _orderService.GetOrderById(orderId);
         //No order found with the specified id
-        if (order == null || order.Deleted || !_workContext.HasAccessToOrder(order)) return RedirectToAction("List");
+        if (order == null || order.Deleted || !_workContextAccessor.WorkContext.HasAccessToOrder(order)) return RedirectToAction("List");
 
         var orders = new List<Order> {
             order
@@ -155,8 +155,8 @@ public class OrderController : BaseVendorController
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id,
-                _workContext.CurrentVendor.Id);
+            await _pdfService.PrintOrdersToPdf(stream, orders, _workContextAccessor.WorkContext.WorkingLanguage.Id,
+                _workContextAccessor.WorkContext.CurrentVendor.Id);
             bytes = stream.ToArray();
         }
 
@@ -172,8 +172,8 @@ public class OrderController : BaseVendorController
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id,
-                _workContext.CurrentVendor.Id);
+            await _pdfService.PrintOrdersToPdf(stream, orders, _workContextAccessor.WorkContext.WorkingLanguage.Id,
+                _workContextAccessor.WorkContext.CurrentVendor.Id);
             bytes = stream.ToArray();
         }
 
@@ -195,7 +195,7 @@ public class OrderController : BaseVendorController
         }
 
         //a vendor should have access only to his products
-        orders = orders.Where(_workContext.HasAccessToOrder).ToList();
+        orders = orders.Where(_workContextAccessor.WorkContext.HasAccessToOrder).ToList();
 
         //ensure that we at least one order selected
         if (orders.Count == 0)
@@ -207,8 +207,8 @@ public class OrderController : BaseVendorController
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await _pdfService.PrintOrdersToPdf(stream, orders, _workContext.WorkingLanguage.Id,
-                _workContext.CurrentVendor.Id);
+            await _pdfService.PrintOrdersToPdf(stream, orders, _workContextAccessor.WorkContext.WorkingLanguage.Id,
+                _workContextAccessor.WorkContext.CurrentVendor.Id);
             bytes = stream.ToArray();
         }
 

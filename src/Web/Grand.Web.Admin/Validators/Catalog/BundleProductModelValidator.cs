@@ -12,15 +12,15 @@ public class BundleProductModelValidator : BaseGrandValidator<ProductModel.Bundl
 {
     public BundleProductModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.BundleProductModel>> validators,
-        ITranslationService translationService, IProductService productService, IWorkContext workContext)
+        ITranslationService translationService, IProductService productService, IWorkContextAccessor workContextAccessor)
         : base(validators)
     {
-        if (!string.IsNullOrEmpty(workContext.CurrentCustomer.StaffStoreId))
+        if (!string.IsNullOrEmpty(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 var product = await productService.GetProductById(x.ProductBundleId);
                 if (product != null)
-                    if (!product.AccessToEntityByStore(workContext.CurrentCustomer.StaffStoreId))
+                    if (!product.AccessToEntityByStore(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                         return false;
 
                 return true;

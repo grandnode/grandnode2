@@ -23,7 +23,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
     public ShippingPointRateProvider(
         IShippingPointService shippingPointService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICustomerService customerService,
         ICountryService countryService,
         ICurrencyService currencyService,
@@ -32,7 +32,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
     {
         _shippingPointService = shippingPointService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _customerService = customerService;
         _countryService = countryService;
         _currencyService = currencyService;
@@ -45,7 +45,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
 
     private readonly IShippingPointService _shippingPointService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly ICustomerService _customerService;
     private readonly ICountryService _countryService;
     private readonly ICurrencyService _currencyService;
@@ -110,25 +110,25 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
             return new List<string> { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
 
         //override price 
-        var offeredShippingOptions = _workContext.CurrentCustomer.GetUserFieldFromEntity<List<ShippingOption>>(SystemCustomerFieldNames.OfferedShippingOptions, _workContext.CurrentStore.Id);
+        var offeredShippingOptions = _workContextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<List<ShippingOption>>(SystemCustomerFieldNames.OfferedShippingOptions, _workContextAccessor.WorkContext.CurrentStore.Id);
         offeredShippingOptions.Find(x => x.Name == shippingMethodName).Rate =
             await _currencyService.ConvertFromPrimaryStoreCurrency(chosenShippingOption.PickupFee,
-                _workContext.WorkingCurrency);
+                _workContextAccessor.WorkContext.WorkingCurrency);
 
         await _customerService.UpdateUserField(
-            _workContext.CurrentCustomer,
+            _workContextAccessor.WorkContext.CurrentCustomer,
             SystemCustomerFieldNames.OfferedShippingOptions,
             offeredShippingOptions,
-            _workContext.CurrentStore.Id);
+            _workContextAccessor.WorkContext.CurrentStore.Id);
 
         var forCustomer =
             $"<strong>{_translationService.GetResource("Shipping.ShippingPoint.Fields.ShippingPointName")}:</strong> {chosenShippingOption.ShippingPointName}<br><strong>{_translationService.GetResource("Shipping.ShippingPoint.Fields.Description")}:</strong> {chosenShippingOption.Description}<br>";
 
         await _customerService.UpdateUserField(
-            _workContext.CurrentCustomer,
+            _workContextAccessor.WorkContext.CurrentCustomer,
             SystemCustomerFieldNames.ShippingOptionAttributeDescription,
             forCustomer,
-            _workContext.CurrentStore.Id);
+            _workContextAccessor.WorkContext.CurrentStore.Id);
 
         var serializedObject = new ShippingPointSerializable {
             Id = chosenShippingOption.Id,
@@ -152,10 +152,10 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
             serializedAttribute = stringBuilder.ToString();
         }
 
-        await _customerService.UpdateUserField(_workContext.CurrentCustomer,
+        await _customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer,
             SystemCustomerFieldNames.ShippingOptionAttribute,
             serializedAttribute,
-            _workContext.CurrentStore.Id);
+            _workContextAccessor.WorkContext.CurrentStore.Id);
 
         return new List<string>();
     }

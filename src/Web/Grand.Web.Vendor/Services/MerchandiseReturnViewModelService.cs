@@ -27,7 +27,7 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
     #region Fields
 
     private readonly IOrderService _orderService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IProductService _productService;
     private readonly IDateTimeService _dateTimeService;
     private readonly ICustomerService _customerService;
@@ -49,7 +49,7 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
 
     public MerchandiseReturnViewModelService(
         IOrderService orderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IProductService productService,
         ICustomerService customerService,
         IDateTimeService dateTimeService,
@@ -66,7 +66,7 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
         IEnumTranslationService enumTranslationService)
     {
         _orderService = orderService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _productService = productService;
         _customerService = customerService;
         _dateTimeService = dateTimeService;
@@ -154,7 +154,7 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
 
         var merchandiseReturns = await _merchandiseReturnService.SearchMerchandiseReturns(
             customerId: customerId,
-            vendorId: _workContext.CurrentVendor.Id,
+            vendorId: _workContextAccessor.WorkContext.CurrentVendor.Id,
             rs: model.SearchMerchandiseReturnStatusId >= 0
                 ? (MerchandiseReturnStatus?)model.SearchMerchandiseReturnStatusId
                 : null,

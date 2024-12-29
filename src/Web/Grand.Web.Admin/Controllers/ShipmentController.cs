@@ -26,7 +26,7 @@ public class ShipmentController : BaseAdminController
         IShipmentViewModelService shipmentViewModelService,
         IOrderService orderService,
         ITranslationService translationService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IGroupService groupService,
         IPdfService pdfService,
         IShipmentService shipmentService,
@@ -36,7 +36,7 @@ public class ShipmentController : BaseAdminController
         _shipmentViewModelService = shipmentViewModelService;
         _orderService = orderService;
         _translationService = translationService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _groupService = groupService;
         _pdfService = pdfService;
         _shipmentService = shipmentService;
@@ -49,7 +49,7 @@ public class ShipmentController : BaseAdminController
     private readonly IShipmentViewModelService _shipmentViewModelService;
     private readonly IOrderService _orderService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IGroupService _groupService;
     private readonly IPdfService _pdfService;
     private readonly IShipmentService _shipmentService;
@@ -70,8 +70,8 @@ public class ShipmentController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> ShipmentListSelect(DataSourceRequest command, ShipmentListModel model)
     {
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var shipments = await _shipmentViewModelService.PrepareShipments(model, command.Page, command.PageSize);
         var items = new List<ShipmentModel>();
@@ -93,8 +93,8 @@ public class ShipmentController : BaseAdminController
         if (order == null)
             throw new ArgumentException("No order found with the specified id");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return Content("");
 
         //shipments
@@ -124,8 +124,8 @@ public class ShipmentController : BaseAdminController
         if (order == null)
             throw new ArgumentException("No order found with the specified id");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return Content("");
 
         //shipments
@@ -146,8 +146,8 @@ public class ShipmentController : BaseAdminController
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var model = await _shipmentViewModelService.PrepareShipmentModel(order);
@@ -165,8 +165,8 @@ public class ShipmentController : BaseAdminController
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            order.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var orderItems = order.OrderItems;
@@ -215,8 +215,8 @@ public class ShipmentController : BaseAdminController
             //No shipment found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var orderId = shipment.OrderId;
@@ -238,8 +238,8 @@ public class ShipmentController : BaseAdminController
             //No shipment found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var orderId = shipment.OrderId;
@@ -272,8 +272,8 @@ public class ShipmentController : BaseAdminController
             //No shipment found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var order = await _orderService.GetOrderById(shipment.OrderId);
@@ -296,8 +296,8 @@ public class ShipmentController : BaseAdminController
             //No shipment found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var order = await _orderService.GetOrderById(shipment.OrderId);
@@ -320,8 +320,8 @@ public class ShipmentController : BaseAdminController
             //No shipment found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var order = await _orderService.GetOrderById(shipment.OrderId);
@@ -350,8 +350,8 @@ public class ShipmentController : BaseAdminController
             //No shipment found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var order = await _orderService.GetOrderById(shipment.OrderId);
@@ -383,8 +383,8 @@ public class ShipmentController : BaseAdminController
             //No shipment found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var order = await _orderService.GetOrderById(shipment.OrderId);
@@ -415,8 +415,8 @@ public class ShipmentController : BaseAdminController
             //No shipment found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var order = await _orderService.GetOrderById(shipment.OrderId);
@@ -449,8 +449,8 @@ public class ShipmentController : BaseAdminController
             //No order found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
 
         shipment.UserFields = model.UserFields;
@@ -470,8 +470,8 @@ public class ShipmentController : BaseAdminController
             //no shipment found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var order = await _orderService.GetOrderById(shipment.OrderId);
@@ -486,7 +486,7 @@ public class ShipmentController : BaseAdminController
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await _pdfService.PrintPackagingSlipsToPdf(stream, shipments, _workContext.WorkingLanguage.Id);
+            await _pdfService.PrintPackagingSlipsToPdf(stream, shipments, _workContextAccessor.WorkContext.WorkingLanguage.Id);
             bytes = stream.ToArray();
         }
 
@@ -497,8 +497,8 @@ public class ShipmentController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> PdfPackagingSlipAll(ShipmentListModel model)
     {
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //load shipments
         var shipments = await _shipmentViewModelService.PrepareShipments(model, 1, 100);
@@ -514,7 +514,7 @@ public class ShipmentController : BaseAdminController
         using (var stream = new MemoryStream())
         {
             await _pdfService.PrintPackagingSlipsToPdf(stream, shipments.shipments.ToList(),
-                _workContext.WorkingLanguage.Id);
+                _workContextAccessor.WorkContext.WorkingLanguage.Id);
             bytes = stream.ToArray();
         }
 
@@ -537,8 +537,8 @@ public class ShipmentController : BaseAdminController
         }
 
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         shipments_access = shipments.Where(x => x.StoreId == storeId || string.IsNullOrEmpty(storeId)).ToList();
         //ensure that we at least one shipment selected
@@ -551,7 +551,7 @@ public class ShipmentController : BaseAdminController
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await _pdfService.PrintPackagingSlipsToPdf(stream, shipments_access, _workContext.WorkingLanguage.Id);
+            await _pdfService.PrintPackagingSlipsToPdf(stream, shipments_access, _workContextAccessor.WorkContext.WorkingLanguage.Id);
             bytes = stream.ToArray();
         }
 
@@ -567,8 +567,8 @@ public class ShipmentController : BaseAdminController
         if (selectedIds != null) shipments.AddRange(await _shipmentService.GetShipmentsByIds(selectedIds.ToArray()));
 
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         shipments_access = shipments.Where(x => x.StoreId == storeId || string.IsNullOrEmpty(storeId)).ToList();
         foreach (var shipment in shipments_access)
@@ -593,8 +593,8 @@ public class ShipmentController : BaseAdminController
         if (selectedIds != null) shipments.AddRange(await _shipmentService.GetShipmentsByIds(selectedIds.ToArray()));
 
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         shipments_access = shipments.Where(x => x.StoreId == storeId || string.IsNullOrEmpty(storeId)).ToList();
         foreach (var shipment in shipments_access)
             try
@@ -619,8 +619,8 @@ public class ShipmentController : BaseAdminController
         if (shipment == null)
             throw new ArgumentException("No shipment found with the specified id");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return Content("");
 
         //shipment notes
@@ -640,8 +640,8 @@ public class ShipmentController : BaseAdminController
         if (shipment == null)
             return Json(new { Result = false });
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return Json(new { Result = false });
 
         await _shipmentViewModelService.InsertShipmentNote(shipment, downloadId, displayToCustomer, message);
@@ -657,8 +657,8 @@ public class ShipmentController : BaseAdminController
         if (shipment == null)
             throw new ArgumentException("No shipment found with the specified id");
 
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer) &&
-            shipment.StoreId != _workContext.CurrentCustomer.StaffStoreId)
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer) &&
+            shipment.StoreId != _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return Json(new { Result = false });
 
         await _shipmentViewModelService.DeleteShipmentNote(shipment, id);

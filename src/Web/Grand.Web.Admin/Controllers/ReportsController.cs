@@ -52,7 +52,7 @@ public class ReportsController : BaseAdminController
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
     public ReportsController(IOrderService orderService,
         IOrderReportService orderReportService,
@@ -60,7 +60,7 @@ public class ReportsController : BaseAdminController
         ICustomerReportService customerReportService,
         ICustomerReportViewModelService customerReportViewModelService,
         IPermissionService permissionService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IPriceFormatter priceFormatter,
         IProductService productService,
         IProductAttributeFormatter productAttributeFormatter,
@@ -82,7 +82,7 @@ public class ReportsController : BaseAdminController
         _customerReportService = customerReportService;
         _customerReportViewModelService = customerReportViewModelService;
         _permissionService = permissionService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _priceFormatter = priceFormatter;
         _productService = productService;
         _productAttributeFormatter = productAttributeFormatter;
@@ -104,8 +104,8 @@ public class ReportsController : BaseAdminController
         int pageSize, int orderBy)
     {
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var items = await _orderReportService.BestSellersReport(
             storeId,
@@ -140,7 +140,7 @@ public class ReportsController : BaseAdminController
     {
         var report = new List<OrderPeriodReportLineModel>();
         var reportperiod7days =
-            await _orderReportService.GetOrderPeriodReport(7, _workContext.CurrentCustomer.StaffStoreId);
+            await _orderReportService.GetOrderPeriodReport(7, _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
         report.Add(new OrderPeriodReportLineModel {
             Period = _translationService.GetResource("Admin.Reports.Period.7days"),
             Count = reportperiod7days.Count,
@@ -148,7 +148,7 @@ public class ReportsController : BaseAdminController
         });
 
         var reportperiod14days =
-            await _orderReportService.GetOrderPeriodReport(14, _workContext.CurrentCustomer.StaffStoreId);
+            await _orderReportService.GetOrderPeriodReport(14, _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
         report.Add(new OrderPeriodReportLineModel {
             Period = _translationService.GetResource("Admin.Reports.Period.14days"),
             Count = reportperiod14days.Count,
@@ -156,7 +156,7 @@ public class ReportsController : BaseAdminController
         });
 
         var reportperiodmonth =
-            await _orderReportService.GetOrderPeriodReport(30, _workContext.CurrentCustomer.StaffStoreId);
+            await _orderReportService.GetOrderPeriodReport(30, _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
         report.Add(new OrderPeriodReportLineModel {
             Period = _translationService.GetResource("Admin.Reports.Period.month"),
             Count = reportperiodmonth.Count,
@@ -164,7 +164,7 @@ public class ReportsController : BaseAdminController
         });
 
         var reportperiodyear =
-            await _orderReportService.GetOrderPeriodReport(365, _workContext.CurrentCustomer.StaffStoreId);
+            await _orderReportService.GetOrderPeriodReport(365, _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
         report.Add(new OrderPeriodReportLineModel {
             Period = _translationService.GetResource("Admin.Reports.Period.year"),
             Count = reportperiodyear.Count,
@@ -204,8 +204,8 @@ public class ReportsController : BaseAdminController
         var model = new BestsellersReportModel();
 
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //stores
         model.AvailableStores.Add(new SelectListItem
@@ -245,8 +245,8 @@ public class ReportsController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> BestsellersReportList(DataSourceRequest command, BestsellersReportModel model)
     {
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         DateTime? startDateValue = model.StartDate == null
             ? null
@@ -319,8 +319,8 @@ public class ReportsController : BaseAdminController
             return Content("");
 
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var model = await _orderReportService.GetOrderByTimeReport(storeId, startDate, endDate);
         var gridModel = new DataSourceResult {
@@ -347,8 +347,8 @@ public class ReportsController : BaseAdminController
             : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var items = await _orderReportService.ProductsNeverSold(storeId, "",
             startDateValue, endDateValue,
@@ -372,8 +372,8 @@ public class ReportsController : BaseAdminController
             return Content("");
 
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var report = new List<OrderAverageReportLineSummary> {
             await _orderReportService.OrderAverageReport(storeId, (int)OrderStatusSystem.Pending),
@@ -413,8 +413,8 @@ public class ReportsController : BaseAdminController
         if (!await _permissionService.Authorize(StandardPermission.ManageOrders))
             return Content("");
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //load orders
         var orders = await _orderService.SearchOrders(
@@ -459,8 +459,8 @@ public class ReportsController : BaseAdminController
             return Content("");
 
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
 
         var model = new List<OrderIncompleteReportLineModel>();
@@ -543,8 +543,8 @@ public class ReportsController : BaseAdminController
         var paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
 
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var items = await _orderReportService.GetCountryReport(
             storeId,
@@ -600,8 +600,8 @@ public class ReportsController : BaseAdminController
     public async Task<IActionResult> LowStockReportList(DataSourceRequest command)
     {
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var lowStockProducts = await _productsReportService.LowStockProducts(storeId: storeId);
 
@@ -627,7 +627,7 @@ public class ReportsController : BaseAdminController
                 Id = product.Id,
                 Name = product.Name,
                 Attributes = await _productAttributeFormatter.FormatAttributes(product, combination.Attributes,
-                    _workContext.CurrentCustomer, "<br />", true, true, true, false),
+                    _workContextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false),
                 ManageInventoryMethod = _enumTranslationService.GetTranslationEnum(product.ManageInventoryMethodId),
                 StockQuantity = combination.StockQuantity,
                 Published = product.Published
@@ -660,8 +660,8 @@ public class ReportsController : BaseAdminController
     public async Task<IActionResult> ReportBestCustomersByOrderTotalList(DataSourceRequest command,
         BestCustomersReportModel model)
     {
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var (bestCustomerReportLineModels, totalCount) =
             await _customerReportViewModelService.PrepareBestCustomerReportLineModel(model, 1, command.Page,
@@ -677,8 +677,8 @@ public class ReportsController : BaseAdminController
     public async Task<IActionResult> ReportBestCustomersByNumberOfOrdersList(DataSourceRequest command,
         BestCustomersReportModel model)
     {
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var (bestCustomerReportLineModels, totalCount) =
             await _customerReportViewModelService.PrepareBestCustomerReportLineModel(model, 2, command.Page,
@@ -694,8 +694,8 @@ public class ReportsController : BaseAdminController
     public async Task<IActionResult> ReportRegisteredCustomersList(DataSourceRequest command)
     {
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var model = await _customerReportViewModelService.GetReportRegisteredCustomersModel(storeId);
         var gridModel = new DataSourceResult {
@@ -711,8 +711,8 @@ public class ReportsController : BaseAdminController
         DateTime? endDate)
     {
         var storeId = "";
-        if (await _groupService.IsStaff(_workContext.CurrentCustomer))
-            storeId = _workContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
+            storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var model = await _customerReportService.GetCustomerByTimeReport(storeId, startDate, endDate);
         var gridModel = new DataSourceResult {

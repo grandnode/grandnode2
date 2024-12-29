@@ -25,13 +25,13 @@ public class CollectionService : ICollectionService
     /// </summary>
     public CollectionService(ICacheBase cacheBase,
         IRepository<Collection> collectionRepository,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         IMediator mediator,
         IAclService aclService, AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _collectionRepository = collectionRepository;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _mediator = mediator;
         _aclService = aclService;
         _accessControlConfig = accessControlConfig;
@@ -42,7 +42,7 @@ public class CollectionService : ICollectionService
     #region Fields
 
     private readonly IRepository<Collection> _collectionRepository;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
     private readonly IAclService _aclService;
@@ -81,7 +81,7 @@ public class CollectionService : ICollectionService
             if (!showHidden && !_accessControlConfig.IgnoreAcl)
             {
                 //Limited to customer groups rules
-                var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -112,8 +112,8 @@ public class CollectionService : ICollectionService
         var collections = await Task.FromResult(query.ToList());
         if (!showHidden)
             collections = collections
-                .Where(c => _aclService.Authorize(c, _workContext.CurrentCustomer) &&
-                            _aclService.Authorize(c, _workContext.CurrentStore.Id))
+                .Where(c => _aclService.Authorize(c, _workContextAccessor.WorkContext.CurrentCustomer) &&
+                            _aclService.Authorize(c, _workContextAccessor.WorkContext.CurrentStore.Id))
                 .ToList();
         return collections;
     }

@@ -14,14 +14,14 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
     private readonly IEnumerable<ISMSVerificationService> _smsVerificationService;
     private readonly TwoFactorAuthenticator _twoFactorAuthentication;
     private readonly ICustomerService _customerService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
 
     public TwoFactorAuthenticationService(
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         ICustomerService customerService,
         IEnumerable<ISMSVerificationService> smsVerificationService)
     {
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _customerService = customerService;
         _smsVerificationService = smsVerificationService;
         _twoFactorAuthentication = new TwoFactorAuthenticator();
@@ -62,7 +62,7 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
         switch (twoFactorAuthenticationType)
         {
             case TwoFactorAuthenticationType.AppVerification:
-                var setupInfo = _twoFactorAuthentication.GenerateSetupCode(_workContext.CurrentStore.CompanyName,
+                var setupInfo = _twoFactorAuthentication.GenerateSetupCode(_workContextAccessor.WorkContext.CurrentStore.CompanyName,
                     customer.Email, secretKey, false);
                 model.CustomValues.Add("QrCodeImageUrl", setupInfo.QrCodeSetupImageUrl);
                 model.CustomValues.Add("ManualEntryQrCode", setupInfo.ManualEntryKey);

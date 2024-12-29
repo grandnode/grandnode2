@@ -19,13 +19,13 @@ public class GoogleAuthenticationEventConsumer : INotificationHandler<Registered
     public GoogleAuthenticationEventConsumer(
         ICustomerService customerService,
         IMessageProviderService messageProviderService,
-        IWorkContext workContext,
+        IWorkContextAccessor workContextAccessor,
         CustomerSettings customerSettings
     )
     {
         _customerService = customerService;
         _messageProviderService = messageProviderService;
-        _workContext = workContext;
+        _workContextAccessor = workContextAccessor;
         _customerSettings = customerSettings;
     }
 
@@ -57,11 +57,11 @@ public class GoogleAuthenticationEventConsumer : INotificationHandler<Registered
         //notifications for admin
         if (_customerSettings.NotifyNewCustomerRegistration)
             await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer,
-                _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
+                _workContextAccessor.WorkContext.CurrentStore, _workContextAccessor.WorkContext.WorkingLanguage.Id);
 
         //send welcome message 
-        await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, _workContext.CurrentStore,
-            _workContext.WorkingLanguage.Id);
+        await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, _workContextAccessor.WorkContext.CurrentStore,
+            _workContextAccessor.WorkContext.WorkingLanguage.Id);
     }
 
     #endregion
@@ -70,7 +70,7 @@ public class GoogleAuthenticationEventConsumer : INotificationHandler<Registered
 
     private readonly ICustomerService _customerService;
     private readonly IMessageProviderService _messageProviderService;
-    private readonly IWorkContext _workContext;
+    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly CustomerSettings _customerSettings;
 
     #endregion
