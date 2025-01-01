@@ -5,17 +5,16 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Directory;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Constants;
+using Grand.Module.Api.Attributes;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Currency")]
+[Route($"{Configurations.RestRoutePrefix}/Currency")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class CurrencyController : BaseODataController
+public class CurrencyController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -43,7 +42,7 @@ public class CurrencyController : BaseODataController
 
     [SwaggerOperation("Get entities from Currency", OperationId = "GetCurrencies")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()

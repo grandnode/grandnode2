@@ -5,53 +5,50 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Constants;
+using Grand.Module.Api.Attributes;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/CategoryLayout")]
+[Route($"{Configurations.RestRoutePrefix}/BrandLayout")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class CategoryLayoutController : BaseODataController
+public class BrandLayoutController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
 
-    public CategoryLayoutController(
-        IMediator mediator,
-        IPermissionService permissionService)
+    public BrandLayoutController(IMediator mediator, IPermissionService permissionService)
     {
         _mediator = mediator;
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from CategoryLayout by key", OperationId = "GetCategoryLayoutById")]
+    [SwaggerOperation("Get entity from BrandLayout by key", OperationId = "GetBrandLayoutById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Get([FromRoute] string key)
+    public async Task<IActionResult> Get(string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
 
-        var layout = await _mediator.Send(new GetGenericQuery<LayoutDto, CategoryLayout>(key));
+        var layout = await _mediator.Send(new GetGenericQuery<LayoutDto, BrandLayout>(key));
         if (!layout.Any()) return NotFound();
 
         return Ok(layout.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from CategoryLayout", OperationId = "GetCategoryLayout")]
+    [SwaggerOperation("Get entities from BrandLayout", OperationId = "GetBrandLayouts")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
 
-        return Ok(await _mediator.Send(new GetGenericQuery<LayoutDto, CategoryLayout>()));
+        return Ok(await _mediator.Send(new GetGenericQuery<LayoutDto, BrandLayout>()));
     }
 }

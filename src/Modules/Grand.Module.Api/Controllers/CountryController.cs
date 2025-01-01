@@ -5,17 +5,16 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Directory;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Constants;
+using Grand.Module.Api.Attributes;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Country")]
+[Route($"{Configurations.RestRoutePrefix}/Country")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class CountryController : BaseODataController
+public class CountryController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -44,7 +43,7 @@ public class CountryController : BaseODataController
 
     [SwaggerOperation("Get entities from Country", OperationId = "GetCountries")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()

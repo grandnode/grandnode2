@@ -5,28 +5,27 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Constants;
+using Grand.Module.Api.Attributes;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/PickupPoint")]
+[Route($"{Configurations.RestRoutePrefix}/DeliveryDate")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class PickupPointController : BaseODataController
+public class DeliveryDateController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
 
-    public PickupPointController(IMediator mediator, IPermissionService permissionService)
+    public DeliveryDateController(IMediator mediator, IPermissionService permissionService)
     {
         _mediator = mediator;
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from PickupPoint by key", OperationId = "GetPickupPointById")]
+    [SwaggerOperation("Get entity from Delivery Date by key", OperationId = "GetDeliveryDateById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -35,21 +34,21 @@ public class PickupPointController : BaseODataController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
 
-        var points = await _mediator.Send(new GetGenericQuery<PickupPointDto, PickupPoint>(key));
-        if (!points.Any()) return NotFound();
+        var deliverydate = await _mediator.Send(new GetGenericQuery<DeliveryDateDto, DeliveryDate>(key));
+        if (!deliverydate.Any()) return NotFound();
 
-        return Ok(points.FirstOrDefault());
+        return Ok(deliverydate.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from PickupPoint", OperationId = "GetPickupPoints")]
+    [SwaggerOperation("Get entities from Delivery Date", OperationId = "GetDeliveryDates")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
 
-        return Ok(await _mediator.Send(new GetGenericQuery<PickupPointDto, PickupPoint>()));
+        return Ok(await _mediator.Send(new GetGenericQuery<DeliveryDateDto, DeliveryDate>()));
     }
 }

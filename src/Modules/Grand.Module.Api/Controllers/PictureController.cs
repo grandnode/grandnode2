@@ -10,11 +10,11 @@ using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Constants;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Picture")]
+[Route($"{Configurations.RestRoutePrefix}/Picture")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class PictureController : BaseODataController
+public class PictureController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;

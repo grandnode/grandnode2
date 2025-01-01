@@ -1,32 +1,31 @@
-﻿using Grand.Module.Api.DTOs.Common;
-using Grand.Module.Api.Queries.Models.Common;
-using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Permissions;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
+using Grand.Domain.Permissions;
+using Grand.Module.Api.Constants;
+using Grand.Module.Api.DTOs.Common;
+using Grand.Module.Api.Attributes;
+using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using Grand.Module.Api.Constants;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/CollectionLayout")]
+[Route($"{Configurations.RestRoutePrefix}/ProductLayout")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class CollectionLayoutController : BaseODataController
+public class ProductLayoutController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
 
-    public CollectionLayoutController(IMediator mediator, IPermissionService permissionService)
+    public ProductLayoutController(IMediator mediator, IPermissionService permissionService)
     {
         _mediator = mediator;
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from CollectionLayout by key", OperationId = "GetCollectionLayoutById")]
+    [SwaggerOperation("Get entity from ProductLayout by key", OperationId = "GetProductLayoutById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -35,21 +34,20 @@ public class CollectionLayoutController : BaseODataController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
 
-        var layout = await _mediator.Send(new GetGenericQuery<LayoutDto, CollectionLayout>(key));
+        var layout = await _mediator.Send(new GetGenericQuery<LayoutDto, ProductLayout>(key));
         if (!layout.Any()) return NotFound();
 
         return Ok(layout.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from CollectionLayout", OperationId = "GetCollectionLayouts")]
+    [SwaggerOperation("Get entities from ProductTemplate", OperationId = "GetProductTemplates")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();
-
-        return Ok(await _mediator.Send(new GetGenericQuery<LayoutDto, CollectionLayout>()));
+        return Ok(await _mediator.Send(new GetGenericQuery<LayoutDto, ProductLayout>()));
     }
 }

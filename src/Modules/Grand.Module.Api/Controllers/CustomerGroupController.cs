@@ -7,17 +7,16 @@ using Grand.Domain.Customers;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Constants;
+using Grand.Module.Api.Attributes;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/CustomerGroup")]
+[Route($"{Configurations.RestRoutePrefix}/CustomerGroup")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class CustomerGroupController : BaseODataController
+public class CustomerGroupController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -45,7 +44,7 @@ public class CustomerGroupController : BaseODataController
 
     [SwaggerOperation("Get entities from CustomerGroup", OperationId = "GetCustomerGroups")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()

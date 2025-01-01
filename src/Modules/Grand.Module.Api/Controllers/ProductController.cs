@@ -1,23 +1,22 @@
-﻿using Grand.Module.Api.Commands.Models.Catalog;
-using Grand.Module.Api.DTOs.Catalog;
-using Grand.Module.Api.Queries.Models.Common;
-using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Permissions;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
+using Grand.Domain.Permissions;
+using Grand.Module.Api.Commands.Models.Catalog;
+using Grand.Module.Api.Constants;
+using Grand.Module.Api.DTOs.Catalog;
+using Grand.Module.Api.Attributes;
+using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using Grand.Module.Api.Constants;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Product")]
+[Route($"{Configurations.RestRoutePrefix}/Product")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class ProductController : BaseODataController
+public class ProductController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -47,7 +46,7 @@ public class ProductController : BaseODataController
 
     [SwaggerOperation("Get entities from Product", OperationId = "GetProducts")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()
@@ -122,7 +121,7 @@ public class ProductController : BaseODataController
         return Ok();
     }
 
-    //odata/Product/id/UpdateStock
+    //api/Product/id/UpdateStock
     //body: { "WarehouseId": "", "Stock": 10 }
     [SwaggerOperation("Invoke action UpdateStock", OperationId = "UpdateStock")]
     [HttpPost("/{key}/UpdateStock")]
@@ -139,8 +138,7 @@ public class ProductController : BaseODataController
 
         if (model == null) return BadRequest();
 
-        await _mediator.Send(new UpdateProductStockCommand
-            { Product = product.FirstOrDefault(), WarehouseId = model.WarehouseId, Stock = model.Stock });
+        await _mediator.Send(new UpdateProductStockCommand { Product = product.FirstOrDefault(), WarehouseId = model.WarehouseId, Stock = model.Stock });
 
         return Ok(true);
     }
@@ -169,8 +167,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductCategoryCommand
-                { Product = product.FirstOrDefault(), Model = productCategory });
+            var result = await _mediator.Send(new AddProductCategoryCommand { Product = product.FirstOrDefault(), Model = productCategory });
             return Ok(result);
         }
 
@@ -199,8 +196,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductCategoryCommand
-                { Product = product.FirstOrDefault(), Model = productCategory });
+            var result = await _mediator.Send(new UpdateProductCategoryCommand { Product = product.FirstOrDefault(), Model = productCategory });
             return Ok(result);
         }
 
@@ -231,8 +227,7 @@ public class ProductController : BaseODataController
 
             if (ModelState.IsValid)
             {
-                _ = await _mediator.Send(new DeleteProductCategoryCommand
-                    { Product = product.FirstOrDefault(), CategoryId = categoryId });
+                _ = await _mediator.Send(new DeleteProductCategoryCommand { Product = product.FirstOrDefault(), CategoryId = categoryId });
                 return Ok(true);
             }
 
@@ -268,8 +263,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductCollectionCommand
-                { Product = product.FirstOrDefault(), Model = productCollection });
+            var result = await _mediator.Send(new AddProductCollectionCommand { Product = product.FirstOrDefault(), Model = productCollection });
             return Ok(result);
         }
 
@@ -298,8 +292,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductCollectionCommand
-                { Product = product.FirstOrDefault(), Model = productCollection });
+            var result = await _mediator.Send(new UpdateProductCollectionCommand { Product = product.FirstOrDefault(), Model = productCollection });
             return Ok(result);
         }
 
@@ -330,8 +323,7 @@ public class ProductController : BaseODataController
 
             if (ModelState.IsValid)
             {
-                await _mediator.Send(new DeleteProductCollectionCommand
-                    { Product = product.FirstOrDefault(), CollectionId = collectionId });
+                await _mediator.Send(new DeleteProductCollectionCommand { Product = product.FirstOrDefault(), CollectionId = collectionId });
                 return Ok(true);
             }
 
@@ -366,8 +358,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductPictureCommand
-                { Product = product.FirstOrDefault(), Model = productPicture });
+            var result = await _mediator.Send(new AddProductPictureCommand { Product = product.FirstOrDefault(), Model = productPicture });
             return Ok(result);
         }
 
@@ -395,8 +386,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductPictureCommand
-                { Product = product.FirstOrDefault(), Model = productPicture });
+            var result = await _mediator.Send(new UpdateProductPictureCommand { Product = product.FirstOrDefault(), Model = productPicture });
             return Ok(result);
         }
 
@@ -427,8 +417,7 @@ public class ProductController : BaseODataController
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new DeleteProductPictureCommand
-                    { Product = product.FirstOrDefault(), PictureId = pictureId });
+                var result = await _mediator.Send(new DeleteProductPictureCommand { Product = product.FirstOrDefault(), PictureId = pictureId });
                 return Ok(result);
             }
 
@@ -464,8 +453,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductSpecificationCommand
-                { Product = product.FirstOrDefault(), Model = productSpecification });
+            var result = await _mediator.Send(new AddProductSpecificationCommand { Product = product.FirstOrDefault(), Model = productSpecification });
             return Ok(result);
         }
 
@@ -494,8 +482,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductSpecificationCommand
-                { Product = product.FirstOrDefault(), Model = productSpecification });
+            var result = await _mediator.Send(new UpdateProductSpecificationCommand { Product = product.FirstOrDefault(), Model = productSpecification });
             return Ok(result);
         }
 
@@ -527,8 +514,7 @@ public class ProductController : BaseODataController
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new DeleteProductSpecificationCommand
-                    { Product = product.FirstOrDefault(), Id = specificationId });
+                var result = await _mediator.Send(new DeleteProductSpecificationCommand { Product = product.FirstOrDefault(), Id = specificationId });
                 return Ok(result);
             }
 
@@ -563,8 +549,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductTierPriceCommand
-                { Product = product.FirstOrDefault(), Model = productTierPrice });
+            var result = await _mediator.Send(new AddProductTierPriceCommand { Product = product.FirstOrDefault(), Model = productTierPrice });
             return Ok(result);
         }
 
@@ -592,8 +577,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductTierPriceCommand
-                { Product = product.FirstOrDefault(), Model = productTierPrice });
+            var result = await _mediator.Send(new UpdateProductTierPriceCommand { Product = product.FirstOrDefault(), Model = productTierPrice });
             return Ok(result);
         }
 
@@ -624,8 +608,7 @@ public class ProductController : BaseODataController
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new DeleteProductTierPriceCommand
-                    { Product = product.FirstOrDefault(), Id = tierPriceId });
+                var result = await _mediator.Send(new DeleteProductTierPriceCommand { Product = product.FirstOrDefault(), Id = tierPriceId });
                 return Ok(result);
             }
 
@@ -661,8 +644,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductAttributeMappingCommand
-                { Product = product.FirstOrDefault(), Model = productAttributeMapping });
+            var result = await _mediator.Send(new AddProductAttributeMappingCommand { Product = product.FirstOrDefault(), Model = productAttributeMapping });
             return Ok(result);
         }
 
@@ -691,8 +673,7 @@ public class ProductController : BaseODataController
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductAttributeMappingCommand
-                { Product = product.FirstOrDefault(), Model = productAttributeMapping });
+            var result = await _mediator.Send(new UpdateProductAttributeMappingCommand { Product = product.FirstOrDefault(), Model = productAttributeMapping });
             return Ok(result);
         }
 
@@ -723,8 +704,7 @@ public class ProductController : BaseODataController
 
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var result = await _mediator.Send(new DeleteProductAttributeMappingCommand
-            { Product = product.FirstOrDefault(), Model = pam });
+        var result = await _mediator.Send(new DeleteProductAttributeMappingCommand { Product = product.FirstOrDefault(), Model = pam });
         return Ok(result);
     }
 

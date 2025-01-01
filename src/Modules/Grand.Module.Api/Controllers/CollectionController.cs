@@ -4,20 +4,19 @@ using Grand.Domain.Permissions;
 using Grand.Module.Api.Commands.Models.Catalog;
 using Grand.Module.Api.Constants;
 using Grand.Module.Api.DTOs.Catalog;
+using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Collection")]
+[Route($"{Configurations.RestRoutePrefix}/Collection")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class CollectionController : BaseODataController
+public class CollectionController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -45,7 +44,7 @@ public class CollectionController : BaseODataController
 
     [SwaggerOperation("Get entities from Collection", OperationId = "GetCollections")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()

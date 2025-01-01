@@ -5,17 +5,16 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Constants;
+using Grand.Module.Api.Attributes;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Store")]
+[Route($"{Configurations.RestRoutePrefix}/Store")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class StoreController : BaseODataController
+public class StoreController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -43,7 +42,7 @@ public class StoreController : BaseODataController
 
     [SwaggerOperation("Get entities from Store", OperationId = "GetStores")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()

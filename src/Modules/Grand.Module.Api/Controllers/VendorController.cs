@@ -5,17 +5,16 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Vendors;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Constants;
+using Grand.Module.Api.Attributes;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Vendor")]
+[Route($"{Configurations.RestRoutePrefix}/Vendor")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class VendorController : BaseODataController
+public class VendorController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -43,7 +42,7 @@ public class VendorController : BaseODataController
 
     [SwaggerOperation("Get entities from Vendor", OperationId = "GetVendors")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()

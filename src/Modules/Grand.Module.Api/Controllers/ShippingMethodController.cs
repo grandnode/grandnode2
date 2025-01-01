@@ -1,32 +1,31 @@
-﻿using Grand.Module.Api.DTOs.Shipping;
-using Grand.Module.Api.Queries.Models.Common;
-using Grand.Business.Core.Interfaces.Common.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
+using Grand.Module.Api.Constants;
+using Grand.Module.Api.DTOs.Shipping;
+using Grand.Module.Api.Attributes;
+using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using Grand.Module.Api.Constants;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Warehouse")]
+[Route($"{Configurations.RestRoutePrefix}/ShippingMethod")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class WarehouseController : BaseODataController
+public class ShippingMethodController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
 
-    public WarehouseController(IMediator mediator, IPermissionService permissionService)
+    public ShippingMethodController(IMediator mediator, IPermissionService permissionService)
     {
         _mediator = mediator;
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from Warehouse by key", OperationId = "GetWarehouseById")]
+    [SwaggerOperation("Get entity from ShippingMethod by key", OperationId = "GetShippingMethodById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -35,21 +34,21 @@ public class WarehouseController : BaseODataController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
 
-        var warehouse = await _mediator.Send(new GetGenericQuery<WarehouseDto, Warehouse>(key));
-        if (!warehouse.Any()) return NotFound();
+        var shipping = await _mediator.Send(new GetGenericQuery<ShippingMethodDto, ShippingMethod>(key));
+        if (!shipping.Any()) return NotFound();
 
-        return Ok(warehouse.FirstOrDefault());
+        return Ok(shipping.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from Warehouse", OperationId = "GetWarehouses")]
+    [SwaggerOperation("Get entities from ShippingMethod", OperationId = "GetShippingMethods")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();
 
-        return Ok(await _mediator.Send(new GetGenericQuery<WarehouseDto, Warehouse>()));
+        return Ok(await _mediator.Send(new GetGenericQuery<ShippingMethodDto, ShippingMethod>()));
     }
 }

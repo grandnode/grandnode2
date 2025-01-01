@@ -12,11 +12,11 @@ using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Constants;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Customer")]
+[Route($"{Configurations.RestRoutePrefix}/Customer")]
 [ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class CustomerController : BaseODataController
+public class CustomerController : BaseApiController
 {
     private readonly ICustomerManagerService _customerManagerService;
 
@@ -94,7 +94,7 @@ public class CustomerController : BaseODataController
         return Ok();
     }
 
-    //odata/Customer/email/AddAddress
+    //api/Customer/email/AddAddress
     [SwaggerOperation("Invoke action AddAddress", OperationId = "AddAddress")]
     [HttpPost("/{email}/AddAddress")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
@@ -112,7 +112,7 @@ public class CustomerController : BaseODataController
         return Ok(address);
     }
 
-    //odata/Customer/email/UpdateAddress
+    //api/Customer/email/UpdateAddress
     [SwaggerOperation("Invoke action UpdateAddress", OperationId = "UpdateAddress")]
     [HttpPost("/{email}/UpdateAddress")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
@@ -131,7 +131,7 @@ public class CustomerController : BaseODataController
         return Ok(address);
     }
 
-    //odata/Customer/email/DeleteAddress
+    //api/Customer/email/DeleteAddress
     //body: { "addressId": "xxx" }
     [SwaggerOperation("Invoke action DeleteAddress", OperationId = "DeleteAddress")]
     [HttpPost("/{email}/DeleteAddress")]
@@ -155,7 +155,7 @@ public class CustomerController : BaseODataController
         return Ok(true);
     }
 
-    //odata/Customer/email/SetPassword
+    //api/Customer/email/SetPassword
     //body: { "password": "123456" }
     [SwaggerOperation("Invoke action SetPassword", OperationId = "SetPassword")]
     [HttpPost("/{email}/SetPassword")]
