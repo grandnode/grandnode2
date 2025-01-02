@@ -45,16 +45,6 @@ public class AddParamOperationFilter : IOperationFilter
             }
         });
         operation.Parameters.Add(new OpenApiParameter {
-            Name = "$count",
-            AllowReserved = true,
-            In = ParameterLocation.Query,
-            Description = "Include count of items",
-            Required = false,
-            Schema = new OpenApiSchema {
-                Type = "boolean"
-            }
-        });
-        operation.Parameters.Add(new OpenApiParameter {
             Name = "$orderby",
             AllowReserved = true,
             In = ParameterLocation.Query,

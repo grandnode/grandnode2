@@ -2,22 +2,19 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
 using Grand.Module.Api.Commands.Models.Catalog;
-using Grand.Module.Api.Constants;
 using Grand.Module.Api.DTOs.Catalog;
+using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
+using Microsoft.AspNetCore.Http;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Collection")]
-[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class CollectionController : BaseODataController
+public class CollectionController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -31,7 +28,7 @@ public class CollectionController : BaseODataController
     [SwaggerOperation("Get entity from Collection by key", OperationId = "GetCollectionById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
@@ -45,9 +42,9 @@ public class CollectionController : BaseODataController
 
     [SwaggerOperation("Get entities from Collection", OperationId = "GetCollections")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CollectionDto>))]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
@@ -58,7 +55,7 @@ public class CollectionController : BaseODataController
     [SwaggerOperation("Add new entity to Collection", OperationId = "InsertCollection")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Post([FromBody] CollectionDto model)
     {
@@ -69,16 +66,16 @@ public class CollectionController : BaseODataController
     }
 
     [SwaggerOperation("Update entity in Collection", OperationId = "UpdateCollection")]
-    [HttpPut]
+    [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Put([FromBody] CollectionDto model)
+    public async Task<IActionResult> Put([FromRoute] string key, [FromBody] CollectionDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 
-        var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(model.Id));
+        var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
         if (!collection.Any()) return NotFound();
 
         model = await _mediator.Send(new UpdateCollectionCommand { Model = model });
@@ -108,11 +105,11 @@ public class CollectionController : BaseODataController
     }
 
     [SwaggerOperation("Delete entity in Collection", OperationId = "DeleteCollection")]
-    [HttpDelete]
+    [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Delete(string key)
+    public async Task<IActionResult> Delete([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
 

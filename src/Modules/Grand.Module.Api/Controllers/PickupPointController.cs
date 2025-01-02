@@ -5,17 +5,14 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using Grand.Module.Api.Constants;
+using Grand.Module.Api.Attributes;
+using Microsoft.AspNetCore.Http;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/PickupPoint")]
-[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class PickupPointController : BaseODataController
+public class PickupPointController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -29,7 +26,7 @@ public class PickupPointController : BaseODataController
     [SwaggerOperation("Get entity from PickupPoint by key", OperationId = "GetPickupPointById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PickupPointDto))]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
@@ -43,9 +40,9 @@ public class PickupPointController : BaseODataController
 
     [SwaggerOperation("Get entities from PickupPoint", OperationId = "GetPickupPoints")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<PickupPointDto>))]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();

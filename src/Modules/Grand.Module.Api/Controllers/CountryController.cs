@@ -5,17 +5,14 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Directory;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using Grand.Module.Api.Constants;
+using Grand.Module.Api.Attributes;
+using Microsoft.AspNetCore.Http;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Country")]
-[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class CountryController : BaseODataController
+public class CountryController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -29,7 +26,7 @@ public class CountryController : BaseODataController
     [SwaggerOperation("Get entity from Country by key", OperationId = "GetCountryById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CountryDto))]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
@@ -44,9 +41,9 @@ public class CountryController : BaseODataController
 
     [SwaggerOperation("Get entities from Country", OperationId = "GetCountries")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CountryDto>))]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Countries)) return Forbid();

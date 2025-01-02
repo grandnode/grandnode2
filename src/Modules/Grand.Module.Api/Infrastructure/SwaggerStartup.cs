@@ -5,7 +5,6 @@ using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.OData;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,8 +18,6 @@ public class SwaggerStartup : IStartupApplication
     {
         var backendApiConfig = application.Services.GetService<BackendAPIConfig>();
         var frontApiConfig = application.Services.GetService<FrontendAPIConfig>();
-        if (backendApiConfig.Enabled)
-            application.UseODataQueryRequest();
 
         if (webHostEnvironment.IsDevelopment() && (backendApiConfig.Enabled || frontApiConfig.Enabled))
         {
@@ -84,7 +81,6 @@ public class SwaggerStartup : IStartupApplication
                     }
                 });
                 c.OperationFilter<AddParamOperationFilter>();
-                c.DocumentFilter<SwaggerODataControllerDocumentFilter>();
                 c.EnableAnnotations();
                 c.SchemaFilter<EnumSchemaFilter>();
                 c.SchemaFilter<IgnoreFieldFilter>();

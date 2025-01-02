@@ -1,12 +1,4 @@
-﻿using Grand.Module.Api.Constants;
-using Grand.Module.Api.DTOs.Catalog;
-using Grand.Module.Api.DTOs.Common;
-using Grand.Module.Api.DTOs.Customers;
-using Grand.Module.Api.DTOs.Shipping;
-using Grand.Module.Api.Infrastructure.DependencyManagement;
-using Grand.Module.Api.Queries.Handlers.Common;
-using Grand.Module.Api.Queries.Models.Common;
-using Grand.Domain.Catalog;
+﻿using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
@@ -16,22 +8,28 @@ using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.TypeSearch;
+using Grand.Module.Api.ApiExplorer;
+using Grand.Module.Api.Attributes;
+using Grand.Module.Api.DTOs.Catalog;
+using Grand.Module.Api.DTOs.Common;
+using Grand.Module.Api.DTOs.Customers;
+using Grand.Module.Api.DTOs.Shipping;
+using Grand.Module.Api.Queries.Handlers.Common;
+using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.AspNetCore.OData;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Microsoft.OData.Edm;
-using Microsoft.OData.ModelBuilder;
 
 namespace Grand.Module.Api.Infrastructure;
 
-public class ODataStartup : IStartupApplication
+public class ApiStartup : IStartupApplication
 {
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
@@ -43,20 +41,17 @@ public class ODataStartup : IStartupApplication
         var apiConfig = services.BuildServiceProvider().GetService<BackendAPIConfig>();
         if (apiConfig.Enabled)
         {
+            //Swagger - api description provider
+            services.TryAddEnumerable(ServiceDescriptor.Transient<IApiDescriptionProvider, MetadataApiDescriptionProvider>());
+
             //register RequestHandler
             RegisterRequestHandler(services);
 
-            //Add OData
+            //Add JsonPatchInputFormatter
             services.AddControllers(options =>
             {
                 options.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
-            }).AddOData(opt =>
-            {
-                opt.EnableQueryFeatures(Configurations.MaxLimit);
-                opt.AddRouteComponents(Configurations.ODataRoutePrefix, GetEdmModel(apiConfig));
-                opt.Select().Filter().OrderBy().Expand().Count().SetMaxTop(Configurations.MaxLimit);
             });
-
             services.AddScoped<ModelValidationAttribute>();
         }
     }
@@ -78,33 +73,6 @@ public class ODataStartup : IStartupApplication
             .InputFormatters
             .OfType<NewtonsoftJsonPatchInputFormatter>()
             .First();
-    }
-
-
-    private IEdmModel GetEdmModel(BackendAPIConfig apiConfig)
-    {
-        var builder = new ODataConventionModelBuilder {
-            Namespace = Configurations.ODataModelBuilderNamespace
-        };
-        RegisterDependencies(builder, apiConfig);
-        return builder.GetEdmModel();
-    }
-
-    private void RegisterDependencies(ODataConventionModelBuilder builder, BackendAPIConfig apiConfig)
-    {
-        var typeFinder = new TypeSearcher();
-
-        //find dependency provided by other assemblies
-        var dependencyInject = typeFinder.ClassesOfType<IDependencyEdmModel>();
-
-        //create and sort instances of dependency inject
-        var instances = dependencyInject
-            .Select(di => (IDependencyEdmModel)Activator.CreateInstance(di))
-            .OrderBy(di => di!.Order);
-
-        //register all provided dependencies
-        foreach (var dependencyRegistrar in instances)
-            dependencyRegistrar!.Register(builder, apiConfig);
     }
 
     private void RegisterRequestHandler(IServiceCollection services)

@@ -7,17 +7,14 @@ using Grand.Domain.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using Grand.Module.Api.Constants;
+using Grand.Module.Api.Attributes;
+using Microsoft.AspNetCore.Http;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/Category")]
-[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class CategoryController : BaseODataController
+public class CategoryController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -33,7 +30,7 @@ public class CategoryController : BaseODataController
     [SwaggerOperation("Get entity from Category by key", OperationId = "GetCategoryById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
@@ -47,9 +44,9 @@ public class CategoryController : BaseODataController
 
     [SwaggerOperation("Get entities from Category", OperationId = "GetCategories")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CategoryDto>))]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
@@ -60,7 +57,7 @@ public class CategoryController : BaseODataController
     [SwaggerOperation("Add new entity to Category", OperationId = "InsertCategory")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Post([FromBody] CategoryDto model)
     {
@@ -71,16 +68,16 @@ public class CategoryController : BaseODataController
     }
 
     [SwaggerOperation("Update entity in Category", OperationId = "UpdateCategory")]
-    [HttpPut]
+    [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Put([FromBody] CategoryDto model)
+    public async Task<IActionResult> Put([FromRoute] string key, [FromBody] CategoryDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
 
-        var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(model.Id));
+        var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
         if (!category.Any()) return NotFound();
 
         model = await _mediator.Send(new UpdateCategoryCommand { Model = model });
@@ -110,11 +107,11 @@ public class CategoryController : BaseODataController
     }
 
     [SwaggerOperation("Delete entity from Category", OperationId = "DeleteCategory")]
-    [HttpDelete]
+    [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Delete(string key)
+    public async Task<IActionResult> Delete([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
 

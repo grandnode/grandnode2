@@ -5,17 +5,14 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using Grand.Module.Api.Constants;
+using Grand.Module.Api.Attributes;
+using Microsoft.AspNetCore.Http;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/CategoryLayout")]
-[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class CategoryLayoutController : BaseODataController
+public class CategoryLayoutController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -31,7 +28,7 @@ public class CategoryLayoutController : BaseODataController
     [SwaggerOperation("Get entity from CategoryLayout by key", OperationId = "GetCategoryLayoutById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LayoutDto))]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
@@ -45,9 +42,9 @@ public class CategoryLayoutController : BaseODataController
 
     [SwaggerOperation("Get entities from CategoryLayout", OperationId = "GetCategoryLayout")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<LayoutDto>))]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();

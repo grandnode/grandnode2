@@ -1,21 +1,18 @@
-﻿using Grand.Module.Api.DTOs.Shipping;
-using Grand.Module.Api.Queries.Models.Common;
-using Grand.Business.Core.Interfaces.Common.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
+using Grand.Module.Api.DTOs.Shipping;
+using Grand.Module.Api.Attributes;
+using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using MongoDB.AspNetCore.OData;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using Grand.Module.Api.Constants;
+using Microsoft.AspNetCore.Http;
 
-namespace Grand.Module.Api.Controllers.OData;
+namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.ODataRoutePrefix}/ShippingMethod")]
-[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
-public class ShippingMethodController : BaseODataController
+public class ShippingMethodController : BaseApiController
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
@@ -29,7 +26,7 @@ public class ShippingMethodController : BaseODataController
     [SwaggerOperation("Get entity from ShippingMethod by key", OperationId = "GetShippingMethodById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ShippingMethodDto))]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
@@ -43,9 +40,9 @@ public class ShippingMethodController : BaseODataController
 
     [SwaggerOperation("Get entities from ShippingMethod", OperationId = "GetShippingMethods")]
     [HttpGet]
-    [MongoEnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+    [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ShippingMethodDto>))]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings)) return Forbid();

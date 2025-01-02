@@ -38,13 +38,12 @@
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
     <PackageVersion Include="Microsoft.AspNetCore.JsonPatch" Version="9.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.1.1" />
-    <PackageVersion Include="MongoDB.AspNetCore.OData" Version="1.1.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.0" />
     <PackageVersion Include="Braintree" Version="5.28.0" />
+    <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.5.1" />
     <PackageVersion Include="System.Xml.XPath.XmlDocument" Version="4.7.0" />
     <PackageVersion Include="Stripe.net" Version="47.1.0" />
     <PackageVersion Include="elFinder.Net.AspNetCore" Version="1.5.0" />
