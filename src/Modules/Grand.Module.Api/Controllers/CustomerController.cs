@@ -10,12 +10,10 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using Grand.Module.Api.Constants;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.RestRoutePrefix}/Customer")]
-[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class CustomerController : BaseApiController
 {
     private readonly ICustomerManagerService _customerManagerService;
@@ -39,7 +37,7 @@ public class CustomerController : BaseApiController
     [SwaggerOperation("Get entity from Customer by email", OperationId = "GetCustomerByEmail")]
     [HttpGet]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get([FromRoute] string email)
     {
@@ -54,7 +52,7 @@ public class CustomerController : BaseApiController
     [SwaggerOperation("Add new entity to Customer", OperationId = "InsertCustomer")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Post([FromBody] CustomerDto model)
     {
@@ -65,20 +63,24 @@ public class CustomerController : BaseApiController
     }
 
     [SwaggerOperation("Update entity in Customer", OperationId = "UpdateCustomer")]
-    [HttpPut]
+    [HttpPut("{email}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> Put([FromBody] CustomerDto model)
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    public async Task<IActionResult> Put([FromRoute] string email, [FromBody] CustomerDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
+
+        var customer = await _mediator.Send(new GetCustomerQuery { Email = email });
+        if (customer == null) return NotFound();
 
         model = await _mediator.Send(new UpdateCustomerCommand { Model = model });
         return Ok(model);
     }
 
     [SwaggerOperation("Delete entity from Customer", OperationId = "DeleteCustomer")]
-    [HttpDelete]
+    [HttpDelete("{email}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -96,9 +98,9 @@ public class CustomerController : BaseApiController
 
     //api/Customer/email/AddAddress
     [SwaggerOperation("Invoke action AddAddress", OperationId = "AddAddress")]
-    [HttpPost("/{email}/AddAddress")]
+    [HttpPost("{email}/AddAddress")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AddressDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> AddAddress([FromRoute] string email, [FromBody] AddressDto address)
@@ -114,9 +116,9 @@ public class CustomerController : BaseApiController
 
     //api/Customer/email/UpdateAddress
     [SwaggerOperation("Invoke action UpdateAddress", OperationId = "UpdateAddress")]
-    [HttpPost("/{email}/UpdateAddress")]
+    [HttpPost("{email}/UpdateAddress")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AddressDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> UpdateAddress([FromRoute] string email, [FromBody] AddressDto address)
@@ -134,7 +136,7 @@ public class CustomerController : BaseApiController
     //api/Customer/email/DeleteAddress
     //body: { "addressId": "xxx" }
     [SwaggerOperation("Invoke action DeleteAddress", OperationId = "DeleteAddress")]
-    [HttpPost("/{email}/DeleteAddress")]
+    [HttpPost("{email}/DeleteAddress")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -158,7 +160,7 @@ public class CustomerController : BaseApiController
     //api/Customer/email/SetPassword
     //body: { "password": "123456" }
     [SwaggerOperation("Invoke action SetPassword", OperationId = "SetPassword")]
-    [HttpPost("/{email}/SetPassword")]
+    [HttpPost("{email}/SetPassword")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -169,8 +171,7 @@ public class CustomerController : BaseApiController
 
         if (model == null || string.IsNullOrEmpty(model.Password)) return NotFound();
 
-        var changePassRequest =
-            new ChangePasswordRequest(email, _customerSettings.DefaultPasswordFormat, model.Password);
+        var changePassRequest = new ChangePasswordRequest(email, _customerSettings.DefaultPasswordFormat, model.Password);
         await _customerManagerService.ChangePassword(changePassRequest);
 
         return Ok(true);

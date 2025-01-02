@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -28,7 +29,7 @@ public class ProductLayoutController : BaseApiController
     [SwaggerOperation("Get entity from ProductLayout by key", OperationId = "GetProductLayoutById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LayoutDto))]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
@@ -44,7 +45,7 @@ public class ProductLayoutController : BaseApiController
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<LayoutDto>))]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Maintenance)) return Forbid();

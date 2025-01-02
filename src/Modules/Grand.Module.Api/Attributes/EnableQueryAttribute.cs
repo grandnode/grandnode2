@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.Http;
+using Grand.Module.Api.Constants;
 
 namespace Grand.Module.Api.Attributes;
 
@@ -35,13 +36,12 @@ public class EnableQueryAttribute : ActionFilterAttribute
             queryable = queryable.Skip(skip);
 
         if (query.TryGetValue("$top", out var topValue) && int.TryParse(topValue, out var top))
-            queryable = queryable.Take(top);
-
-        if (query.TryGetValue("$count", out var countValue) && bool.TryParse(countValue, out var includeCount) && includeCount)
         {
-            var totalCount = queryable.Count();
-            response?.Headers?.Append("X-Total-Count", totalCount.ToString());
+            top = Math.Min(top, Configurations.MaxLimit);
+            queryable = queryable.Take(top);
         }
+        else
+            queryable = queryable.Take(Configurations.MaxLimit);
 
         return queryable;
     }

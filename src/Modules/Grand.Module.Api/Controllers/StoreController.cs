@@ -7,13 +7,11 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using Grand.Module.Api.Constants;
 using Grand.Module.Api.Attributes;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.RestRoutePrefix}/Store")]
-[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class StoreController : BaseApiController
 {
     private readonly IMediator _mediator;
@@ -28,7 +26,7 @@ public class StoreController : BaseApiController
     [SwaggerOperation("Get entity from Store by key", OperationId = "GetStoreById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StoreDto))]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
@@ -44,7 +42,7 @@ public class StoreController : BaseApiController
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<StoreDto>))]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Stores)) return Forbid();

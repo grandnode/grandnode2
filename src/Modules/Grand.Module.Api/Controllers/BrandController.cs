@@ -9,14 +9,11 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using Grand.Module.Api.Constants;
 using Microsoft.AspNetCore.Http;
 using Grand.Module.Api.Attributes;
 
 namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.RestRoutePrefix}/Brand")]
-[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class BrandController : BaseApiController
 {
     private readonly IMediator _mediator;
@@ -44,7 +41,7 @@ public class BrandController : BaseApiController
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
     public async Task<IActionResult> GetById([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
@@ -58,7 +55,7 @@ public class BrandController : BaseApiController
     [SwaggerOperation("Add new entity to Brand", OperationId = "InsertBrand")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Post([FromBody] BrandDto model)
     {
@@ -71,7 +68,7 @@ public class BrandController : BaseApiController
     [SwaggerOperation("Update entity in Brand", OperationId = "UpdateBrand")]
     [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Put([FromRoute] string key, [FromBody] BrandDto model)

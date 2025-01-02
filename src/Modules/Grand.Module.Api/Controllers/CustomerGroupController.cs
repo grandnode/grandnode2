@@ -11,11 +11,11 @@ using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Constants;
 using Grand.Module.Api.Attributes;
+using Grand.Module.Api.DTOs.Common;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.RestRoutePrefix}/CustomerGroup")]
-[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class CustomerGroupController : BaseApiController
 {
     private readonly IMediator _mediator;
@@ -30,7 +30,7 @@ public class CustomerGroupController : BaseApiController
     [SwaggerOperation("Get entity from CustomerGroup by key", OperationId = "GetCustomerGroupById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerGroupDto))]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
@@ -46,7 +46,7 @@ public class CustomerGroupController : BaseApiController
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CustomerGroupDto>))]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
@@ -57,7 +57,7 @@ public class CustomerGroupController : BaseApiController
     [SwaggerOperation("Add new entity to CustomerGroup", OperationId = "InsertCustomerGroup")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerGroupDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Post([FromBody] CustomerGroupDto model)
     {
@@ -68,16 +68,16 @@ public class CustomerGroupController : BaseApiController
     }
 
     [SwaggerOperation("Update entity in CustomerGroup", OperationId = "UpdateCustomerGroup")]
-    [HttpPut]
+    [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerGroupDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Put([FromBody] CustomerGroupDto model)
+    public async Task<IActionResult> Put([FromRoute] string key, [FromBody] CustomerGroupDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-        var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(model.Id));
+        var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(key));
         if (!customerGroup.Any()) return NotFound();
 
         if (!model.IsSystem)
@@ -117,11 +117,11 @@ public class CustomerGroupController : BaseApiController
     }
 
     [SwaggerOperation("Delete entity in CustomerGroup", OperationId = "DeleteCustomerGroup")]
-    [HttpDelete]
+    [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Delete(string key)
+    public async Task<IActionResult> Delete([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 

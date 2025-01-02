@@ -11,11 +11,12 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
+using Grand.Module.Api.DTOs.Shipping;
+using Microsoft.AspNetCore.Http;
+using Grand.Module.Api.DTOs.Common;
 
 namespace Grand.Module.Api.Controllers;
 
-[Route($"{Configurations.RestRoutePrefix}/Product")]
-[ApiExplorerSettings(IgnoreApi = false, GroupName = "v1")]
 public class ProductController : BaseApiController
 {
     private readonly IMediator _mediator;
@@ -32,7 +33,7 @@ public class ProductController : BaseApiController
     [SwaggerOperation("Get entity from Product by key", OperationId = "GetProductById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
@@ -48,7 +49,7 @@ public class ProductController : BaseApiController
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductDto>))]
     public async Task<IActionResult> Get()
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
@@ -59,7 +60,7 @@ public class ProductController : BaseApiController
     [SwaggerOperation("Add new entity to Product", OperationId = "InsertProduct")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public async Task<IActionResult> Post([FromBody] ProductDto model)
     {
@@ -70,20 +71,24 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Update entity in Product", OperationId = "UpdateProduct")]
-    [HttpPut]
+    [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
+    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> Put([FromBody] ProductDto model)
+    public async Task<IActionResult> Put([FromRoute] string key, [FromBody] ProductDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
+
+        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
+        if (!product.Any()) return NotFound();
 
         await _mediator.Send(new UpdateProductCommand { Model = model });
         return Ok();
     }
 
     [SwaggerOperation("Partially update entity in Product", OperationId = "PartiallyUpdateProduct")]
-    [HttpPatch]
+    [HttpPatch("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -105,7 +110,7 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Delete entity in Product", OperationId = "DeleteProduct")]
-    [HttpDelete]
+    [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -124,7 +129,7 @@ public class ProductController : BaseApiController
     //api/Product/id/UpdateStock
     //body: { "WarehouseId": "", "Stock": 10 }
     [SwaggerOperation("Invoke action UpdateStock", OperationId = "UpdateStock")]
-    [HttpPost("/{key}/UpdateStock")]
+    [HttpPost("{key}/UpdateStock")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -146,13 +151,12 @@ public class ProductController : BaseApiController
     #region Product category
 
     [SwaggerOperation("Invoke action CreateProductCategory", OperationId = "CreateProductCategory")]
-    [HttpPost("/{key}/CreateProductCategory")]
+    [HttpPost("{key}/CreateProductCategory")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> CreateProductCategory([FromRoute] string key,
-        [FromBody] ProductCategoryDto productCategory)
+    public async Task<IActionResult> CreateProductCategory([FromRoute] string key, [FromBody] ProductCategoryDto productCategory)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -175,13 +179,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action UpdateProductCategory", OperationId = "UpdateProductCategory")]
-    [HttpPost("/{key}/UpdateProductCategory")]
+    [HttpPost("{key}/UpdateProductCategory")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> UpdateProductCategory([FromRoute] string key,
-        [FromBody] ProductCategoryDto productCategory)
+    public async Task<IActionResult> UpdateProductCategory([FromRoute] string key, [FromBody] ProductCategoryDto productCategory)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -204,13 +207,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action DeleteProductCategory", OperationId = "DeleteProductCategory")]
-    [HttpPost("/{key}/DeleteProductCategory")]
+    [HttpPost("{key}/DeleteProductCategory")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> DeleteProductCategory([FromRoute] string key,
-        [FromBody] ProductCategoryDeleteDto model)
+    public async Task<IActionResult> DeleteProductCategory([FromRoute] string key, [FromBody] ProductCategoryDeleteDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -242,13 +244,12 @@ public class ProductController : BaseApiController
     #region Product collection
 
     [SwaggerOperation("Invoke action CreateProductCollection", OperationId = "CreateProductCollection")]
-    [HttpPost("/{key}/CreateProductCollection")]
+    [HttpPost("{key}/CreateProductCollection")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> CreateProductCollection([FromRoute] string key,
-        [FromBody] ProductCollectionDto productCollection)
+    public async Task<IActionResult> CreateProductCollection([FromRoute] string key, [FromBody] ProductCollectionDto productCollection)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -257,8 +258,7 @@ public class ProductController : BaseApiController
         var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
         if (!product.Any()) return NotFound();
 
-        var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x =>
-            x.CollectionId == productCollection.CollectionId);
+        var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x => x.CollectionId == productCollection.CollectionId);
         if (pm != null) return BadRequest("Product collection mapping found with the specified CollectionId");
 
         if (ModelState.IsValid)
@@ -271,13 +271,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action UpdateProductCollection", OperationId = "UpdateProductCollection")]
-    [HttpPost("/{key}/UpdateProductCollection")]
+    [HttpPost("{key}/UpdateProductCollection")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> UpdateProductCollection([FromRoute] string key,
-        [FromBody] ProductCollectionDto productCollection)
+    public async Task<IActionResult> UpdateProductCollection([FromRoute] string key, [FromBody] ProductCollectionDto productCollection)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -300,13 +299,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action DeleteProductCollection", OperationId = "DeleteProductCollection")]
-    [HttpPost("/{key}/DeleteProductCollection")]
+    [HttpPost("{key}/DeleteProductCollection")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> DeleteProductCollection([FromRoute] string key,
-        [FromBody] ProductCollectionDeleteDto model)
+    public async Task<IActionResult> DeleteProductCollection([FromRoute] string key, [FromBody] ProductCollectionDeleteDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -338,13 +336,12 @@ public class ProductController : BaseApiController
     #region Product picture
 
     [SwaggerOperation("Invoke action CreateProductPicture", OperationId = "CreateProductPicture")]
-    [HttpPost("/{key}/CreateProductPicture")]
+    [HttpPost("{key}/CreateProductPicture")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> CreateProductPicture([FromRoute] string key,
-        [FromBody] ProductPictureDto productPicture)
+    public async Task<IActionResult> CreateProductPicture([FromRoute] string key, [FromBody] ProductPictureDto productPicture)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -366,13 +363,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action UpdateProductPicture", OperationId = "UpdateProductPicture")]
-    [HttpPost("/{key}/UpdateProductPicture")]
+    [HttpPost("{key}/UpdateProductPicture")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> UpdateProductPicture([FromRoute] string key,
-        [FromBody] ProductPictureDto productPicture)
+    public async Task<IActionResult> UpdateProductPicture([FromRoute] string key, [FromBody] ProductPictureDto productPicture)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -394,13 +390,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action DeleteProductPicture", OperationId = "DeleteProductPicture")]
-    [HttpPost("/{key}/DeleteProductPicture")]
+    [HttpPost("{key}/DeleteProductPicture")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> DeleteProductPicture([FromRoute] string key,
-        [FromBody] ProductPictureDeleteDto model)
+    public async Task<IActionResult> DeleteProductPicture([FromRoute] string key, [FromBody] ProductPictureDeleteDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -432,13 +427,12 @@ public class ProductController : BaseApiController
     #region Product specification
 
     [SwaggerOperation("Invoke action CreateProductSpecification", OperationId = "CreateProductSpecification")]
-    [HttpPost("/{key}/CreateProductSpecification")]
+    [HttpPost("{key}/CreateProductSpecification")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> CreateProductSpecification([FromRoute] string key,
-        [FromBody] ProductSpecificationAttributeDto productSpecification)
+    public async Task<IActionResult> CreateProductSpecification([FromRoute] string key, [FromBody] ProductSpecificationAttributeDto productSpecification)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -461,13 +455,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action UpdateProductSpecification", OperationId = "UpdateProductSpecification")]
-    [HttpPost("/{key}/UpdateProductSpecification")]
+    [HttpPost("{key}/UpdateProductSpecification")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> UpdateProductSpecification([FromRoute] string key,
-        [FromBody] ProductSpecificationAttributeDto productSpecification)
+    public async Task<IActionResult> UpdateProductSpecification([FromRoute] string key, [FromBody] ProductSpecificationAttributeDto productSpecification)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -490,13 +483,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action DeleteProductSpecification", OperationId = "DeleteProductSpecification")]
-    [HttpPost("/{key}/DeleteProductSpecification")]
+    [HttpPost("{key}/DeleteProductSpecification")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> DeleteProductSpecification([FromRoute] string key,
-        [FromBody] ProductSpecificationAttributeDeleteDto model)
+    public async Task<IActionResult> DeleteProductSpecification([FromRoute] string key, [FromBody] ProductSpecificationAttributeDeleteDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -529,13 +521,12 @@ public class ProductController : BaseApiController
     #region Product tierprice
 
     [SwaggerOperation("Invoke action CreateProductTierPrice", OperationId = "CreateProductTierPrice")]
-    [HttpPost("/{key}/CreateProductTierPrice")]
+    [HttpPost("{key}/CreateProductTierPrice")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> CreateProductTierPrice([FromRoute] string key,
-        [FromBody] ProductTierPriceDto productTierPrice)
+    public async Task<IActionResult> CreateProductTierPrice([FromRoute] string key, [FromBody] ProductTierPriceDto productTierPrice)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -557,13 +548,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action UpdateProductTierPrice", OperationId = "UpdateProductTierPrice")]
-    [HttpPost("/{key}/UpdateProductTierPrice")]
+    [HttpPost("{key}/UpdateProductTierPrice")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> UpdateProductTierPrice([FromRoute] string key,
-        [FromBody] ProductTierPriceDto productTierPrice)
+    public async Task<IActionResult> UpdateProductTierPrice([FromRoute] string key, [FromBody] ProductTierPriceDto productTierPrice)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -585,13 +575,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action DeleteProductTierPrice", OperationId = "DeleteProductTierPrice")]
-    [HttpPost("/{key}/DeleteProductTierPrice")]
+    [HttpPost("{key}/DeleteProductTierPrice")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> DeleteProductTierPrice([FromRoute] string key,
-        [FromBody] ProductTierPriceDeleteDto model)
+    public async Task<IActionResult> DeleteProductTierPrice([FromRoute] string key, [FromBody] ProductTierPriceDeleteDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -623,13 +612,12 @@ public class ProductController : BaseApiController
     #region Product attribute mapping
 
     [SwaggerOperation("Invoke action CreateProductAttributeMapping", OperationId = "CreateProductAttributeMapping")]
-    [HttpPost("/{key}/CreateProductAttributeMapping")]
+    [HttpPost("{key}/CreateProductAttributeMapping")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> CreateProductAttributeMapping([FromRoute] string key,
-        [FromBody] ProductAttributeMappingDto productAttributeMapping)
+    public async Task<IActionResult> CreateProductAttributeMapping([FromRoute] string key, [FromBody] ProductAttributeMappingDto productAttributeMapping)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -652,13 +640,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action UpdateProductAttributeMapping", OperationId = "UpdateProductAttributeMapping")]
-    [HttpPost("/{key}/UpdateProductAttributeMapping")]
+    [HttpPost("{key}/UpdateProductAttributeMapping")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> UpdateProductAttributeMapping([FromRoute] string key,
-        [FromBody] ProductAttributeMappingDto productAttributeMapping)
+    public async Task<IActionResult> UpdateProductAttributeMapping([FromRoute] string key, [FromBody] ProductAttributeMappingDto productAttributeMapping)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
@@ -681,13 +668,12 @@ public class ProductController : BaseApiController
     }
 
     [SwaggerOperation("Invoke action DeleteProductAttributeMapping", OperationId = "DeleteProductAttributeMapping")]
-    [HttpPost("/{key}/DeleteProductAttributeMapping")]
+    [HttpPost("{key}/DeleteProductAttributeMapping")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> DeleteProductAttributeMapping([FromRoute] string key,
-        [FromBody] ProductAttributeMappingDeleteDto model)
+    public async Task<IActionResult> DeleteProductAttributeMapping([FromRoute] string key, [FromBody] ProductAttributeMappingDeleteDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
