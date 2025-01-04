@@ -39,6 +39,8 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.JsonPatch" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Scalar.AspNetCore" />
         <PackageReference Include="Swashbuckle.AspNetCore" />
         <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
         <PackageReference Include="System.Linq.Dynamic.Core" />

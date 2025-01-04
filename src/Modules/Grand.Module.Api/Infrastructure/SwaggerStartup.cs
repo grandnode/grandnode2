@@ -1,4 +1,4 @@
-﻿using Grand.Module.Api.Extensions;
+﻿/*using Grand.Module.Api.Extensions;
 using Grand.Module.Api.Infrastructure.Filters;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
@@ -106,4 +106,4 @@ public class SwaggerStartup : IStartupApplication
             Url = new Uri("https://github.com/grandnode/grandnode2/blob/main/LICENSE")
         };
     }
-}
+}*/
