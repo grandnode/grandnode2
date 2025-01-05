@@ -93,8 +93,8 @@ namespace Grand.Module.Api.Infrastructure.Extensions
             {
                 operation.Parameters ??= [];
 
-                var antiforgeryToken = context.Description.ActionDescriptor.EndpointMetadata.OfType<AutoValidateAntiforgeryTokenAttribute>();
-                if (antiforgeryToken != null)
+                var antiforgeryToken = context.Description.ActionDescriptor.EndpointMetadata.OfType<AutoValidateAntiforgeryTokenAttribute>().Any();
+                if (antiforgeryToken)
                     operation.Parameters.Add(new OpenApiParameter {
                         Name = "X-CSRF-TOKEN",
                         In = ParameterLocation.Header,
