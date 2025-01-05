@@ -11,15 +11,15 @@ using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Module.Api.Controllers;
 
 [ApiExplorerSettings(GroupName = "v2")]
 [ApiController]
 [Route("[controller]/[action]")]
-[SwaggerTag("Create token")]
+[Tags("Create token")]
 public class TokenWebController : ControllerBase
 {
     private readonly IAntiforgery _antiforgery;

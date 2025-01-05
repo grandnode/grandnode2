@@ -1,5 +1,7 @@
+using DotLiquid;
 using Grand.Module.Api.Attributes;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
 
@@ -11,7 +13,7 @@ namespace Grand.Module.Api.Infrastructure.Extensions
         {
             options.AddOperationTransformer((operation, context, cancellationToken) =>
             {
-                if (context.Description.ActionDescriptor.EndpointMetadata.OfType<IAuthorizeData>().Any())
+                /*if (context.Description.ActionDescriptor.EndpointMetadata.OfType<IAuthorizeData>().Any())
                 {
                     operation.Security = new List<OpenApiSecurityRequirement>
                     {
@@ -20,7 +22,7 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                             [new OpenApiSecurityScheme { Scheme = "Bearer" }] = new List<string>()
                         }
                     };
-                }
+                }*/
                 var enableQuery = context.Description.ActionDescriptor?.FilterDescriptors.Where(x => x.Filter.GetType() == typeof(EnableQueryAttribute)).FirstOrDefault();
                 if (enableQuery != null)
                 {
@@ -85,7 +87,26 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                 return Task.CompletedTask;
             });
         }
+        public static void AddCsrfTokenTransformer(this OpenApiOptions options)
+        {
+            options.AddOperationTransformer((operation, context, cancellationToken) =>
+            {
+                operation.Parameters ??= [];
 
+                var antiforgeryToken = context.Description.ActionDescriptor.EndpointMetadata.OfType<AutoValidateAntiforgeryTokenAttribute>();
+                if (antiforgeryToken != null)
+                    operation.Parameters.Add(new OpenApiParameter {
+                        Name = "X-CSRF-TOKEN",
+                        In = ParameterLocation.Header,
+                        Required = true,
+                        Schema = new OpenApiSchema {
+                            Type = "string",
+                            Description = "Antiforgery token"
+                        }
+                    });
+                return Task.CompletedTask;
+            });
+        }
         public static void AddContactDocumentTransformer(this OpenApiOptions options, string name)
         {
             options.AddDocumentTransformer((document, context, cancellationToken) =>

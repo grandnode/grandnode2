@@ -55,6 +55,7 @@ public class OpenApiStartup : IStartupApplication
                     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
                     options.AddSchemaTransformer<EnumSchemaTransformer>();
                     options.AddSchemaTransformer<IgnoreFieldSchemaTransformer>();
+                    options.AddCsrfTokenTransformer();
                 });
             }
         }
