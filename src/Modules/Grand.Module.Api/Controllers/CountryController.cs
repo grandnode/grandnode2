@@ -5,10 +5,10 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Directory;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Attributes;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -23,7 +23,8 @@ public class CountryController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from Country by key", OperationId = "GetCountryById")]
+    [EndpointDescription("Get entity from Country by key")]
+    [EndpointName("GetCountryById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CountryDto))]
@@ -39,7 +40,8 @@ public class CountryController : BaseApiController
         return Ok(country.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from Country", OperationId = "GetCountries")]
+    [EndpointDescription("Get entities from Country")]
+    [EndpointName("GetCountries")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]

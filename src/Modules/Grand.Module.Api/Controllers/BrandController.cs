@@ -7,7 +7,6 @@ using Grand.Domain.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Grand.Module.Api.Attributes;
@@ -39,7 +38,8 @@ public class BrandController : BaseApiController
         return Ok(await _mediator.Send(new GetGenericQuery<BrandDto, Brand>()));
     }
 
-    [SwaggerOperation("Get entity from Brand by key", OperationId = "GetBrandById")]
+    [EndpointDescription("Get entity from Brand by key")]
+    [EndpointName("GetBrandById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
@@ -54,7 +54,8 @@ public class BrandController : BaseApiController
         return Ok(brand.FirstOrDefault());
     }
 
-    [SwaggerOperation("Add new entity to Brand", OperationId = "InsertBrand")]
+    [EndpointDescription("Add new entity to Brand")]
+    [EndpointName("InsertBrand")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
@@ -67,7 +68,8 @@ public class BrandController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Update entity in Brand", OperationId = "UpdateBrand")]
+    [EndpointDescription("Update entity in Brand")]
+    [EndpointName("UpdateBrand")]
     [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
@@ -84,7 +86,8 @@ public class BrandController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Partially update entity in Brand", OperationId = "PartiallyUpdateBrand")]
+    [EndpointDescription("Partially update entity in Brand")]
+    [EndpointName("PartiallyUpdateBrand")]
     [HttpPatch("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -113,7 +116,8 @@ public class BrandController : BaseApiController
         return Ok();
     }
 
-    [SwaggerOperation("Delete entity in Brand", OperationId = "DeleteBrand")]
+    [EndpointDescription("Delete entity in Brand")]
+    [EndpointName("DeleteBrand")]
     [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]

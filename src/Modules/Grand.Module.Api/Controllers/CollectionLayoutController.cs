@@ -1,14 +1,14 @@
-﻿using Grand.Module.Api.DTOs.Common;
-using Grand.Module.Api.Queries.Models.Common;
-using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Permissions;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
-using System.Net;
+using Grand.Domain.Permissions;
 using Grand.Module.Api.Attributes;
+using Grand.Module.Api.DTOs.Common;
+using Grand.Module.Api.Queries.Models.Common;
+using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Net;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -23,7 +23,8 @@ public class CollectionLayoutController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from CollectionLayout by key", OperationId = "GetCollectionLayoutById")]
+    [EndpointDescription("Get entity from CollectionLayout by key")]
+    [EndpointName("GetCollectionLayoutById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LayoutDto))]
@@ -38,7 +39,8 @@ public class CollectionLayoutController : BaseApiController
         return Ok(layout.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from CollectionLayout", OperationId = "GetCollectionLayouts")]
+    [EndpointDescription("Get entities from CollectionLayout")]
+    [EndpointName("GetCollectionLayouts")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]

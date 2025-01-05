@@ -1,14 +1,14 @@
-﻿using Grand.Module.Api.Commands.Models.Common;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Domain.Media;
+using Grand.Domain.Permissions;
+using Grand.Module.Api.Commands.Models.Common;
 using Grand.Module.Api.DTOs.Common;
 using Grand.Module.Api.Queries.Models.Common;
-using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Permissions;
-using Grand.Domain.Media;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
-using System.Net;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Net;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -23,7 +23,8 @@ public class PictureController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entities from Picture by key", OperationId = "GetPictureById")]
+    [EndpointDescription("Get entities from Picture by key")]
+    [EndpointName("GetPictureById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PictureDto))]
@@ -38,7 +39,8 @@ public class PictureController : BaseApiController
         return Ok(picture.FirstOrDefault());
     }
 
-    [SwaggerOperation("Add new entity in Picture", OperationId = "InsertPicture")]
+    [EndpointDescription("Add new entity in Picture")]
+    [EndpointName("InsertPicture")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -51,7 +53,8 @@ public class PictureController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Update entity in Picture", OperationId = "UpdatePicture")]
+    [EndpointDescription("Update entity in Picture")]
+    [EndpointName("UpdatePicture")]
     [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -68,7 +71,8 @@ public class PictureController : BaseApiController
         return Ok(result);
     }
 
-    [SwaggerOperation("Delete entity in Picture", OperationId = "DeletePicture")]
+    [EndpointDescription("Delete entity in Picture")]
+    [EndpointName("DeletePicture")]
     [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]

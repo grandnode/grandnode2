@@ -1,16 +1,16 @@
-﻿using Grand.Module.Api.Commands.Models.Customers;
-using Grand.Module.Api.DTOs.Customers;
-using Grand.Module.Api.Queries.Models.Customers;
-using Grand.Business.Core.Interfaces.Common.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Domain.Permissions;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
+using Grand.Domain.Permissions;
+using Grand.Module.Api.Commands.Models.Customers;
+using Grand.Module.Api.DTOs.Customers;
+using Grand.Module.Api.Queries.Models.Customers;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
-using System.Net;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Net;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -34,7 +34,8 @@ public class CustomerController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from Customer by email", OperationId = "GetCustomerByEmail")]
+    [EndpointDescription("Get entity from Customer by email")]
+    [EndpointName("GetCustomerByEmail")]
     [HttpGet]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
@@ -49,7 +50,8 @@ public class CustomerController : BaseApiController
         return Ok(customer);
     }
 
-    [SwaggerOperation("Add new entity to Customer", OperationId = "InsertCustomer")]
+    [EndpointDescription("Add new entity to Customer")]
+    [EndpointName("InsertCustomer")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
@@ -62,7 +64,8 @@ public class CustomerController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Update entity in Customer", OperationId = "UpdateCustomer")]
+    [EndpointDescription("Update entity in Customer")]
+    [EndpointName("UpdateCustomer")]
     [HttpPut("{email}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
@@ -79,7 +82,8 @@ public class CustomerController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Delete entity from Customer", OperationId = "DeleteCustomer")]
+    [EndpointDescription("Delete entity from Customer")]
+    [EndpointName("DeleteCustomer")]
     [HttpDelete("{email}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -97,7 +101,8 @@ public class CustomerController : BaseApiController
     }
 
     //api/Customer/email/AddAddress
-    [SwaggerOperation("Invoke action AddAddress", OperationId = "AddAddress")]
+    [EndpointDescription("Invoke action AddAddress")]
+    [EndpointName("AddAddress")]
     [HttpPost("{email}/AddAddress")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AddressDto))]
@@ -115,7 +120,8 @@ public class CustomerController : BaseApiController
     }
 
     //api/Customer/email/UpdateAddress
-    [SwaggerOperation("Invoke action UpdateAddress", OperationId = "UpdateAddress")]
+    [EndpointDescription("Invoke action UpdateAddress")]
+    [EndpointName("UpdateAddress")]
     [HttpPost("{email}/UpdateAddress")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AddressDto))]
@@ -135,7 +141,8 @@ public class CustomerController : BaseApiController
 
     //api/Customer/email/DeleteAddress
     //body: { "addressId": "xxx" }
-    [SwaggerOperation("Invoke action DeleteAddress", OperationId = "DeleteAddress")]
+    [EndpointDescription("Invoke action DeleteAddress")]
+    [EndpointName("DeleteAddress")]
     [HttpPost("{email}/DeleteAddress")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -159,7 +166,8 @@ public class CustomerController : BaseApiController
 
     //api/Customer/email/SetPassword
     //body: { "password": "123456" }
-    [SwaggerOperation("Invoke action SetPassword", OperationId = "SetPassword")]
+    [EndpointDescription("Invoke action SetPassword")]
+    [EndpointName("SetPassword")]
     [HttpPost("{email}/SetPassword")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]

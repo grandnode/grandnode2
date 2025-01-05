@@ -7,10 +7,10 @@ using Grand.Domain.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Attributes;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -27,7 +27,8 @@ public class CategoryController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from Category by key", OperationId = "GetCategoryById")]
+    [EndpointDescription("Get entity from Category by key")]
+    [EndpointName("GetCategoryById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
@@ -42,7 +43,8 @@ public class CategoryController : BaseApiController
         return Ok(category.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from Category", OperationId = "GetCategories")]
+    [EndpointDescription("Get entities from Category")]
+    [EndpointName("GetCategories")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
@@ -54,7 +56,8 @@ public class CategoryController : BaseApiController
         return Ok(await _mediator.Send(new GetGenericQuery<CategoryDto, Category>()));
     }
 
-    [SwaggerOperation("Add new entity to Category", OperationId = "InsertCategory")]
+    [EndpointDescription("Add new entity to Category")]
+    [EndpointName("InsertCategory")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
@@ -67,7 +70,8 @@ public class CategoryController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Update entity in Category", OperationId = "UpdateCategory")]
+    [EndpointDescription("Update entity in Category")]
+    [EndpointName("UpdateCategory")]
     [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
@@ -84,7 +88,8 @@ public class CategoryController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Update entity in Category (delta)", OperationId = "UpdateCategoryPatch")]
+    [EndpointDescription("Update entity in Category (delta)")]
+    [EndpointName("UpdateCategoryPatch")]
     [HttpPatch("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -106,7 +111,8 @@ public class CategoryController : BaseApiController
         return Ok();
     }
 
-    [SwaggerOperation("Delete entity from Category", OperationId = "DeleteCategory")]
+    [EndpointDescription("Delete entity from Category")]
+    [EndpointName("DeleteCategory")]
     [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]

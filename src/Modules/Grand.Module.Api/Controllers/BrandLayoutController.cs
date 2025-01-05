@@ -5,10 +5,10 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Grand.Module.Api.Attributes;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -23,7 +23,8 @@ public class BrandLayoutController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from BrandLayout by key", OperationId = "GetBrandLayoutById")]
+    [EndpointDescription("Get entity from BrandLayout by key")]
+    [EndpointName("GetBrandLayoutById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LayoutDto))]
@@ -38,7 +39,8 @@ public class BrandLayoutController : BaseApiController
         return Ok(layout.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from BrandLayout", OperationId = "GetBrandLayouts")]
+    [EndpointDescription("Get entities from BrandLayout")]
+    [EndpointName("GetBrandLayouts")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]

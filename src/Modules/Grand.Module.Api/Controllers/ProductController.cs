@@ -1,19 +1,16 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
-using Grand.Module.Api.Commands.Models.Catalog;
-using Grand.Module.Api.Constants;
-using Grand.Module.Api.DTOs.Catalog;
 using Grand.Module.Api.Attributes;
+using Grand.Module.Api.Commands.Models.Catalog;
+using Grand.Module.Api.DTOs.Catalog;
 using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Routing;
 using System.Net;
-using Grand.Module.Api.DTOs.Shipping;
-using Microsoft.AspNetCore.Http;
-using Grand.Module.Api.DTOs.Common;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -30,7 +27,8 @@ public class ProductController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from Product by key", OperationId = "GetProductById")]
+    [EndpointDescription("Get entity from Product by key")]
+    [EndpointName("GetProductById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
@@ -45,7 +43,8 @@ public class ProductController : BaseApiController
         return Ok(product.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from Product", OperationId = "GetProducts")]
+    [EndpointDescription("Get entities from Product")]
+    [EndpointName("GetProducts")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
@@ -57,7 +56,8 @@ public class ProductController : BaseApiController
         return Ok(await _mediator.Send(new GetGenericQuery<ProductDto, Product>()));
     }
 
-    [SwaggerOperation("Add new entity to Product", OperationId = "InsertProduct")]
+    [EndpointDescription("Add new entity to Product")]
+    [EndpointName("InsertProduct")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
@@ -70,7 +70,8 @@ public class ProductController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Update entity in Product", OperationId = "UpdateProduct")]
+    [EndpointDescription("Update entity in Product")]
+    [EndpointName("UpdateProduct")]
     [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
@@ -87,7 +88,8 @@ public class ProductController : BaseApiController
         return Ok();
     }
 
-    [SwaggerOperation("Partially update entity in Product", OperationId = "PartiallyUpdateProduct")]
+    [EndpointDescription("Partially update entity in Product")]
+    [EndpointName("PartiallyUpdateProduct")]
     [HttpPatch("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -109,7 +111,8 @@ public class ProductController : BaseApiController
         return Ok();
     }
 
-    [SwaggerOperation("Delete entity in Product", OperationId = "DeleteProduct")]
+    [EndpointDescription("Delete entity in Product")]
+    [EndpointName("DeleteProduct")]
     [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -128,7 +131,8 @@ public class ProductController : BaseApiController
 
     //api/Product/id/UpdateStock
     //body: { "WarehouseId": "", "Stock": 10 }
-    [SwaggerOperation("Invoke action UpdateStock", OperationId = "UpdateStock")]
+    [EndpointDescription("Invoke action UpdateStock")]
+    [EndpointName("UpdateStock")]
     [HttpPost("{key}/UpdateStock")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -150,7 +154,8 @@ public class ProductController : BaseApiController
 
     #region Product category
 
-    [SwaggerOperation("Invoke action CreateProductCategory", OperationId = "CreateProductCategory")]
+    [EndpointDescription("Invoke action CreateProductCategory")]
+    [EndpointName("CreateProductCategory")]
     [HttpPost("{key}/CreateProductCategory")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -178,7 +183,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action UpdateProductCategory", OperationId = "UpdateProductCategory")]
+    [EndpointDescription("Invoke action UpdateProductCategory")]
+    [EndpointName("UpdateProductCategory")]
     [HttpPost("{key}/UpdateProductCategory")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -206,7 +212,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action DeleteProductCategory", OperationId = "DeleteProductCategory")]
+    [EndpointDescription("Invoke action DeleteProductCategory")]
+    [EndpointName("DeleteProductCategory")]
     [HttpPost("{key}/DeleteProductCategory")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -243,7 +250,8 @@ public class ProductController : BaseApiController
 
     #region Product collection
 
-    [SwaggerOperation("Invoke action CreateProductCollection", OperationId = "CreateProductCollection")]
+    [EndpointDescription("Invoke action CreateProductCollection")]
+    [EndpointName("CreateProductCollection")]
     [HttpPost("{key}/CreateProductCollection")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -270,7 +278,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action UpdateProductCollection", OperationId = "UpdateProductCollection")]
+    [EndpointDescription("Invoke action UpdateProductCollection")]
+    [EndpointName("UpdateProductCollection")]
     [HttpPost("{key}/UpdateProductCollection")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -298,7 +307,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action DeleteProductCollection", OperationId = "DeleteProductCollection")]
+    [EndpointDescription("Invoke action DeleteProductCollection")]
+    [EndpointName("DeleteProductCollection")]
     [HttpPost("{key}/DeleteProductCollection")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -335,7 +345,8 @@ public class ProductController : BaseApiController
 
     #region Product picture
 
-    [SwaggerOperation("Invoke action CreateProductPicture", OperationId = "CreateProductPicture")]
+    [EndpointDescription("Invoke action CreateProductPicture")]
+    [EndpointName("CreateProductPicture")]
     [HttpPost("{key}/CreateProductPicture")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -362,7 +373,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action UpdateProductPicture", OperationId = "UpdateProductPicture")]
+    [EndpointDescription("Invoke action UpdateProductPicture")]
+    [EndpointName("UpdateProductPicture")]
     [HttpPost("{key}/UpdateProductPicture")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -389,7 +401,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action DeleteProductPicture", OperationId = "DeleteProductPicture")]
+    [EndpointDescription("Invoke action DeleteProductPicture")]
+    [EndpointName("DeleteProductPicture")]
     [HttpPost("{key}/DeleteProductPicture")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -426,7 +439,8 @@ public class ProductController : BaseApiController
 
     #region Product specification
 
-    [SwaggerOperation("Invoke action CreateProductSpecification", OperationId = "CreateProductSpecification")]
+    [EndpointDescription("Invoke action CreateProductSpecification")]
+    [EndpointName("CreateProductSpecification")]
     [HttpPost("{key}/CreateProductSpecification")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -454,7 +468,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action UpdateProductSpecification", OperationId = "UpdateProductSpecification")]
+    [EndpointDescription("Invoke action UpdateProductSpecification")]
+    [EndpointName("UpdateProductSpecification")]
     [HttpPost("{key}/UpdateProductSpecification")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -482,7 +497,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action DeleteProductSpecification", OperationId = "DeleteProductSpecification")]
+    [EndpointDescription("Invoke action DeleteProductSpecification")]
+    [EndpointName("DeleteProductSpecification")]
     [HttpPost("{key}/DeleteProductSpecification")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -520,7 +536,8 @@ public class ProductController : BaseApiController
 
     #region Product tierprice
 
-    [SwaggerOperation("Invoke action CreateProductTierPrice", OperationId = "CreateProductTierPrice")]
+    [EndpointDescription("Invoke action CreateProductTierPrice")]
+    [EndpointName("CreateProductTierPrice")]
     [HttpPost("{key}/CreateProductTierPrice")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -547,7 +564,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action UpdateProductTierPrice", OperationId = "UpdateProductTierPrice")]
+    [EndpointDescription("Invoke action UpdateProductTierPrice")]
+    [EndpointName("UpdateProductTierPrice")]
     [HttpPost("{key}/UpdateProductTierPrice")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -574,7 +592,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action DeleteProductTierPrice", OperationId = "DeleteProductTierPrice")]
+    [EndpointDescription("Invoke action DeleteProductTierPrice")]
+    [EndpointName("DeleteProductTierPrice")]
     [HttpPost("{key}/DeleteProductTierPrice")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -611,7 +630,8 @@ public class ProductController : BaseApiController
 
     #region Product attribute mapping
 
-    [SwaggerOperation("Invoke action CreateProductAttributeMapping", OperationId = "CreateProductAttributeMapping")]
+    [EndpointDescription("Invoke action CreateProductAttributeMapping")]
+    [EndpointName("CreateProductAttributeMapping")]
     [HttpPost("{key}/CreateProductAttributeMapping")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -639,7 +659,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action UpdateProductAttributeMapping", OperationId = "UpdateProductAttributeMapping")]
+    [EndpointDescription("Invoke action UpdateProductAttributeMapping")]
+    [EndpointName("UpdateProductAttributeMapping")]
     [HttpPost("{key}/UpdateProductAttributeMapping")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -667,7 +688,8 @@ public class ProductController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Invoke action DeleteProductAttributeMapping", OperationId = "DeleteProductAttributeMapping")]
+    [EndpointDescription("Invoke action DeleteProductAttributeMapping")]
+    [EndpointName("DeleteProductAttributeMapping")]
     [HttpPost("{key}/DeleteProductAttributeMapping")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]

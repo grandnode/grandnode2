@@ -1,16 +1,16 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
+using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Commands.Models.Catalog;
 using Grand.Module.Api.DTOs.Catalog;
-using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Routing;
 using System.Net;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -25,7 +25,8 @@ public class SpecificationAttributeController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from SpecificationAttribute by key", OperationId = "GetSpecificationAttributeById")]
+    [EndpointDescription("Get entity from SpecificationAttribute by key")]
+    [EndpointName("GetSpecificationAttributeById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SpecificationAttributeDto))]
@@ -40,7 +41,8 @@ public class SpecificationAttributeController : BaseApiController
         return Ok(specificationAttribute.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from SpecificationAttribute", OperationId = "GetSpecificationAttributes")]
+    [EndpointDescription("Get entities from SpecificationAttribute")]
+    [EndpointName("GetSpecificationAttributes")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
@@ -52,7 +54,8 @@ public class SpecificationAttributeController : BaseApiController
         return Ok(await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>()));
     }
 
-    [SwaggerOperation("Add new entity to SpecificationAttribute", OperationId = "InsertSpecificationAttribute")]
+    [EndpointDescription("Add new entity to SpecificationAttribute")]
+    [EndpointName("InsertSpecificationAttribute")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SpecificationAttributeDto))]
@@ -65,7 +68,8 @@ public class SpecificationAttributeController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Update entity in SpecificationAttribute", OperationId = "UpdateSpecificationAttribute")]
+    [EndpointDescription("Update entity in SpecificationAttribute")]
+    [EndpointName("UpdateSpecificationAttribute")]
     [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SpecificationAttributeDto))]
@@ -80,7 +84,8 @@ public class SpecificationAttributeController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Partially update entity in SpecificationAttribute", OperationId = "PartiallyUpdateSpecificationAttribute")]
+    [EndpointDescription("Partially update entity in SpecificationAttribute")]
+    [EndpointName("PartiallyUpdateSpecificationAttribute")]
     [HttpPatch("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -102,7 +107,8 @@ public class SpecificationAttributeController : BaseApiController
         return Ok();
     }
 
-    [SwaggerOperation("Delete entity in SpecificationAttribute", OperationId = "DeleteSpecificationAttribute")]
+    [EndpointDescription("Delete entity in SpecificationAttribute")]
+    [EndpointName("DeleteSpecificationAttribute")]
     [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]

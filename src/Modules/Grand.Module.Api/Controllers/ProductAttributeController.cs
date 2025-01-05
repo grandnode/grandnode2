@@ -1,19 +1,16 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
-using Grand.Module.Api.Commands.Models.Catalog;
-using Grand.Module.Api.Constants;
-using Grand.Module.Api.DTOs.Catalog;
 using Grand.Module.Api.Attributes;
+using Grand.Module.Api.Commands.Models.Catalog;
+using Grand.Module.Api.DTOs.Catalog;
 using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Routing;
 using System.Net;
-using Grand.Module.Api.DTOs.Shipping;
-using Microsoft.AspNetCore.Http;
-using Grand.Module.Api.DTOs.Common;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -30,7 +27,8 @@ public class ProductAttributeController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from ProductAttribute by key", OperationId = "GetProductAttributeById")]
+    [EndpointDescription("Get entity from ProductAttribute by key")]
+    [EndpointName("GetProductAttributeById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductAttributeDto))]
@@ -45,7 +43,8 @@ public class ProductAttributeController : BaseApiController
         return Ok(productAttribute.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from ProductAttribute", OperationId = "GetProductAttributes")]
+    [EndpointDescription("Get entities from ProductAttribute")]
+    [EndpointName("GetProductAttributes")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
@@ -57,7 +56,8 @@ public class ProductAttributeController : BaseApiController
         return Ok(await _mediator.Send(new GetGenericQuery<ProductAttributeDto, ProductAttribute>()));
     }
 
-    [SwaggerOperation("Add new entity to ProductAttribute", OperationId = "InsertProductAttribute")]
+    [EndpointDescription("Add new entity to ProductAttribute")]
+    [EndpointName("InsertProductAttribute")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductAttributeDto))]
@@ -70,7 +70,8 @@ public class ProductAttributeController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Update entity in ProductAttribute", OperationId = "UpdateProductAttribute")]
+    [EndpointDescription("Update entity in ProductAttribute")]
+    [EndpointName("UpdateProductAttribute")]
     [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductAttributeDto))]
@@ -87,7 +88,8 @@ public class ProductAttributeController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Partially update entity in ProductAttribute", OperationId = "PartiallyUpdateProductAttribute")]
+    [EndpointDescription("Partially update entity in ProductAttribute")]
+    [EndpointName("PartiallyUpdateProductAttribute")]
     [HttpPatch("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductAttributeDto))]
@@ -109,7 +111,8 @@ public class ProductAttributeController : BaseApiController
         return Ok(pa);
     }
 
-    [SwaggerOperation("Delete entity from ProductAttribute", OperationId = "DeleteProductAttribute")]
+    [EndpointDescription("Delete entity from ProductAttribute")]
+    [EndpointName("DeleteProductAttribute")]
     [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]

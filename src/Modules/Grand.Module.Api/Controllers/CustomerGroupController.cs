@@ -1,18 +1,16 @@
-﻿using Grand.Module.Api.Commands.Models.Customers;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Domain.Customers;
+using Grand.Domain.Permissions;
+using Grand.Module.Api.Attributes;
+using Grand.Module.Api.Commands.Models.Customers;
 using Grand.Module.Api.DTOs.Customers;
 using Grand.Module.Api.Queries.Models.Common;
-using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Domain.Permissions;
-using Grand.Domain.Customers;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Routing;
 using System.Net;
-using Grand.Module.Api.Constants;
-using Grand.Module.Api.Attributes;
-using Grand.Module.Api.DTOs.Common;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -27,7 +25,8 @@ public class CustomerGroupController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from CustomerGroup by key", OperationId = "GetCustomerGroupById")]
+    [EndpointDescription("Get entity from CustomerGroup by key")]
+    [EndpointName("GetCustomerGroupById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerGroupDto))]
@@ -42,7 +41,8 @@ public class CustomerGroupController : BaseApiController
         return Ok(customerGroup.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from CustomerGroup", OperationId = "GetCustomerGroups")]
+    [EndpointDescription("Get entities from CustomerGroup")]
+    [EndpointName("GetCustomerGroups")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
@@ -54,7 +54,8 @@ public class CustomerGroupController : BaseApiController
         return Ok(await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>()));
     }
 
-    [SwaggerOperation("Add new entity to CustomerGroup", OperationId = "InsertCustomerGroup")]
+    [EndpointDescription("Add new entity to CustomerGroup")]
+    [EndpointName("InsertCustomerGroup")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerGroupDto))]
@@ -67,7 +68,8 @@ public class CustomerGroupController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Update entity in CustomerGroup", OperationId = "UpdateCustomerGroup")]
+    [EndpointDescription("Update entity in CustomerGroup")]
+    [EndpointName("UpdateCustomerGroup")]
     [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerGroupDto))]
@@ -89,7 +91,8 @@ public class CustomerGroupController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Partially update entity in CustomerGroup", OperationId = "PartiallyUpdateCustomerGroup")]
+    [EndpointDescription("Partially update entity in CustomerGroup")]
+    [EndpointName("PartiallyUpdateCustomerGroup")]
     [HttpPatch("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -116,7 +119,8 @@ public class CustomerGroupController : BaseApiController
         return BadRequest(ModelState);
     }
 
-    [SwaggerOperation("Delete entity in CustomerGroup", OperationId = "DeleteCustomerGroup")]
+    [EndpointDescription("Delete entity in CustomerGroup")]
+    [EndpointName("DeleteCustomerGroup")]
     [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]

@@ -1,14 +1,14 @@
-﻿using Grand.Module.Api.DTOs.Shipping;
-using Grand.Module.Api.Queries.Models.Common;
-using Grand.Business.Core.Interfaces.Common.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
-using System.Net;
 using Grand.Module.Api.Attributes;
+using Grand.Module.Api.DTOs.Shipping;
+using Grand.Module.Api.Queries.Models.Common;
+using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Net;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -23,7 +23,8 @@ public class WarehouseController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from Warehouse by key", OperationId = "GetWarehouseById")]
+    [EndpointDescription("Get entity from Warehouse by key")]
+    [EndpointName("GetWarehouseById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(WarehouseDto))]
@@ -38,7 +39,8 @@ public class WarehouseController : BaseApiController
         return Ok(warehouse.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from Warehouse", OperationId = "GetWarehouses")]
+    [EndpointDescription("Get entities from Warehouse")]
+    [EndpointName("GetWarehouses")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]

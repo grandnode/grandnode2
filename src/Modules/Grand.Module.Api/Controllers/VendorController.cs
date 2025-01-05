@@ -1,14 +1,14 @@
-﻿using Grand.Module.Api.DTOs.Customers;
-using Grand.Module.Api.Queries.Models.Common;
-using Grand.Business.Core.Interfaces.Common.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Vendors;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
-using System.Net;
 using Grand.Module.Api.Attributes;
+using Grand.Module.Api.DTOs.Customers;
+using Grand.Module.Api.Queries.Models.Common;
+using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Net;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -23,7 +23,8 @@ public class VendorController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from Vendor by key", OperationId = "GetVendorById")]
+    [EndpointDescription("Get entity from Vendor by key")]
+    [EndpointName("GetVendorById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VendorDto))]
@@ -38,7 +39,8 @@ public class VendorController : BaseApiController
         return Ok(vendor.FirstOrDefault());
     }
 
-    [SwaggerOperation("Get entities from Vendor", OperationId = "GetVendors")]
+    [EndpointDescription("Get entities from Vendor")]
+    [EndpointName("GetVendors")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]

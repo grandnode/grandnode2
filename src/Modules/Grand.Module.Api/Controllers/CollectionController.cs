@@ -1,16 +1,16 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
+using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Commands.Models.Catalog;
 using Grand.Module.Api.DTOs.Catalog;
-using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Routing;
 using System.Net;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -25,7 +25,8 @@ public class CollectionController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entity from Collection by key", OperationId = "GetCollectionById")]
+    [EndpointDescription("Get entity from Collection by key")]
+    [EndpointName("GetCollectionById")]
     [HttpGet("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
@@ -40,7 +41,8 @@ public class CollectionController : BaseApiController
         return Ok(collection);
     }
 
-    [SwaggerOperation("Get entities from Collection", OperationId = "GetCollections")]
+    [EndpointDescription("Get entities from Collection")]
+    [EndpointName("GetCollections")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
@@ -52,7 +54,8 @@ public class CollectionController : BaseApiController
         return Ok(await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>()));
     }
 
-    [SwaggerOperation("Add new entity to Collection", OperationId = "InsertCollection")]
+    [EndpointDescription("Add new entity to Collection")]
+    [EndpointName("InsertCollection")]
     [HttpPost]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
@@ -65,7 +68,8 @@ public class CollectionController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Update entity in Collection", OperationId = "UpdateCollection")]
+    [EndpointDescription("Update entity in Collection")]
+    [EndpointName("UpdateCollection")]
     [HttpPut("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
@@ -82,7 +86,8 @@ public class CollectionController : BaseApiController
         return Ok(model);
     }
 
-    [SwaggerOperation("Partially update entity in Collection", OperationId = "PartiallyUpdateCollection")]
+    [EndpointDescription("Partially update entity in Collection")]
+    [EndpointName("PartiallyUpdateCollection")]
     [HttpPatch("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -104,7 +109,8 @@ public class CollectionController : BaseApiController
         return Ok();
     }
 
-    [SwaggerOperation("Delete entity in Collection", OperationId = "DeleteCollection")]
+    [EndpointDescription("Delete entity in Collection")]
+    [EndpointName("DeleteCollection")]
     [HttpDelete("{key}")]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
