@@ -11,6 +11,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Grand.Module.Api.Attributes;
+using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -25,7 +26,8 @@ public class BrandController : BaseApiController
         _permissionService = permissionService;
     }
 
-    [SwaggerOperation("Get entities from Brand", OperationId = "GetBrands")]
+    [EndpointDescription("Get entities from Brand")]
+    [EndpointName("GetBrands")]
     [HttpGet]
     [EnableQuery]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]

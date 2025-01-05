@@ -1,4 +1,6 @@
-﻿//https://github.com/dotnet/aspnetcore/blob/main/src/Mvc/Mvc.ApiExplorer/src/ApiParameterContext.cs
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+//https://github.com/dotnet/aspnetcore/blob/main/src/Mvc/Mvc.ApiExplorer/src/ApiParameterContext.cs
 
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -7,7 +9,7 @@ using Microsoft.AspNetCore.Routing.Template;
 
 namespace Grand.Module.Api.ApiExplorer;
 
-public class ApiParameterContext
+internal sealed class ApiParameterContext
 {
     public ApiParameterContext(
         IModelMetadataProvider metadataProvider,

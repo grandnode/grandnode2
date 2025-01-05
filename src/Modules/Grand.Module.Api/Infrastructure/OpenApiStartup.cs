@@ -1,15 +1,12 @@
 ﻿using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Module.Api.ApiExplorer;
 using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Infrastructure.Extensions;
 using Grand.Module.Api.Infrastructure.Transformers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Scalar.AspNetCore;
 
@@ -22,7 +19,11 @@ public class OpenApiStartup : IStartupApplication
         application.MapOpenApi();
         if (application.Environment.IsDevelopment())
         {
-            application.MapScalarApiReference();
+            application.MapScalarApiReference(options =>
+            {
+                options.WithTitle("OpenApi Playground");
+                options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);   
+            });
         }
     }
 
@@ -36,13 +37,24 @@ public class OpenApiStartup : IStartupApplication
         {
             if (backendApiConfig.Enabled)
             {
-                services.AddOpenApi(options =>
+                services.AddOpenApi("v1", options =>
                 {
                     options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
-                    options.AddContactDocumentTransformer();
+                    options.AddContactDocumentTransformer("Grandnode Backend API");
                     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
                     options.AddSchemaTransformer<EnumSchemaTransformer>();
                     options.AddOperationTransformer();
+                });
+            }
+            if (frontApiConfig.Enabled)
+            {
+                services.AddOpenApi("v2", options =>
+                {
+                    options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
+                    options.AddContactDocumentTransformer("Grandnode Frontend API");
+                    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+                    options.AddSchemaTransformer<EnumSchemaTransformer>();
+                    options.AddSchemaTransformer<IgnoreFieldSchemaTransformer>();
                 });
             }
         }
@@ -50,9 +62,6 @@ public class OpenApiStartup : IStartupApplication
         var apiConfig = services.BuildServiceProvider().GetService<BackendAPIConfig>();
         if (apiConfig.Enabled)
         {
-            //Swagger - api description provider
-            services.TryAddEnumerable(ServiceDescriptor.Transient<IApiDescriptionProvider, MetadataApiDescriptionProvider>());
-
             //register RequestHandler
             services.RegisterRequestHandler();
 
@@ -64,10 +73,6 @@ public class OpenApiStartup : IStartupApplication
             services.AddScoped<ModelValidationAttribute>();
         }
     }
-
-
     public int Priority => 505;
     public bool BeforeConfigure => false;
-
-
 }

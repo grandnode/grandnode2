@@ -86,12 +86,12 @@ namespace Grand.Module.Api.Infrastructure.Extensions
             });
         }
 
-        public static void AddContactDocumentTransformer(this OpenApiOptions options)
+        public static void AddContactDocumentTransformer(this OpenApiOptions options, string name)
         {
             options.AddDocumentTransformer((document, context, cancellationToken) =>
             {
                 document.Info.Contact = new OpenApiContact {
-                    Name = "Grandnode",
+                    Name = name,
                     Email = "support@grandnode.com",
                     Url = new Uri("https://grandnode.com")
                 };
