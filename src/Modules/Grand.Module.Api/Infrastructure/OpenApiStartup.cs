@@ -1,12 +1,15 @@
 ﻿using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.Module.Api.ApiExplorer;
 using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Infrastructure.Extensions;
 using Grand.Module.Api.Infrastructure.Transformers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Scalar.AspNetCore;
 
@@ -37,31 +40,15 @@ public class OpenApiStartup : IStartupApplication
         {
             if (backendApiConfig.Enabled)
             {
-                services.AddOpenApi("v1", options =>
-                {
-                    options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
-                    options.AddContactDocumentTransformer("Grandnode Backend API");
-                    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
-                    options.AddSchemaTransformer<EnumSchemaTransformer>();
-                    options.AddOperationTransformer();
-                });
+                ConfigureBackendApi(services);
             }
             if (frontApiConfig.Enabled)
             {
-                services.AddOpenApi("v2", options =>
-                {
-                    options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
-                    options.AddContactDocumentTransformer("Grandnode Frontend API");
-                    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
-                    options.AddSchemaTransformer<EnumSchemaTransformer>();
-                    options.AddSchemaTransformer<IgnoreFieldSchemaTransformer>();
-                    options.AddCsrfTokenTransformer();
-                });
+                ConfigureFrontendApi(services);
             }
         }
 
-        var apiConfig = services.BuildServiceProvider().GetService<BackendAPIConfig>();
-        if (apiConfig.Enabled)
+        if (backendApiConfig.Enabled)
         {
             //register RequestHandler
             services.RegisterRequestHandler();
@@ -76,4 +63,32 @@ public class OpenApiStartup : IStartupApplication
     }
     public int Priority => 505;
     public bool BeforeConfigure => false;
+
+    private void ConfigureBackendApi(IServiceCollection services)
+    {
+        services.AddOpenApi("v1", options =>
+        {
+            options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
+            options.AddContactDocumentTransformer("Grandnode Backend API");
+            options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+            options.AddSchemaTransformer<EnumSchemaTransformer>();
+            options.AddOperationTransformer();
+        });
+    }
+
+    private void ConfigureFrontendApi(IServiceCollection services)
+    {
+        services.AddOpenApi("v2", options =>
+        {
+            options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
+            options.AddContactDocumentTransformer("Grandnode Frontend API");
+            options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+            options.AddSchemaTransformer<EnumSchemaTransformer>();
+            options.AddSchemaTransformer<IgnoreFieldSchemaTransformer>();
+            options.AddCsrfTokenTransformer();
+        });
+
+        //api description provider
+        services.TryAddEnumerable(ServiceDescriptor.Transient<IApiDescriptionProvider, MetadataApiDescriptionProvider>());
+    }
 }
