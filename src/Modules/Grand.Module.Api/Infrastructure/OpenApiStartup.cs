@@ -4,6 +4,7 @@ using Grand.Module.Api.ApiExplorer;
 using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Infrastructure.Extensions;
 using Grand.Module.Api.Infrastructure.Transformers;
+using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -66,10 +67,10 @@ public class OpenApiStartup : IStartupApplication
 
     private void ConfigureBackendApi(IServiceCollection services)
     {
-        services.AddOpenApi("v1", options =>
+        services.AddOpenApi(ApiConstants.ApiGroupNameV1, options =>
         {
             options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
-            options.AddContactDocumentTransformer("Grandnode Backend API");
+            options.AddContactDocumentTransformer("Grandnode Backend API", ApiConstants.ApiGroupNameV1);
             options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
             options.AddSchemaTransformer<EnumSchemaTransformer>();
             options.AddOperationTransformer();
@@ -78,10 +79,10 @@ public class OpenApiStartup : IStartupApplication
 
     private void ConfigureFrontendApi(IServiceCollection services)
     {
-        services.AddOpenApi("v2", options =>
+        services.AddOpenApi(ApiConstants.ApiGroupNameV2, options =>
         {
             options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0;
-            options.AddContactDocumentTransformer("Grandnode Frontend API");
+            options.AddContactDocumentTransformer("Grandnode Frontend API", ApiConstants.ApiGroupNameV2);
             options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
             options.AddSchemaTransformer<EnumSchemaTransformer>();
             options.AddSchemaTransformer<IgnoreFieldSchemaTransformer>();

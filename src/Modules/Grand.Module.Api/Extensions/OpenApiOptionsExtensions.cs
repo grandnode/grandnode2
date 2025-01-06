@@ -11,16 +11,6 @@ namespace Grand.Module.Api.Infrastructure.Extensions
         {
             options.AddOperationTransformer((operation, context, cancellationToken) =>
             {
-                /*if (context.Description.ActionDescriptor.EndpointMetadata.OfType<IAuthorizeData>().Any())
-                {
-                    operation.Security = new List<OpenApiSecurityRequirement>
-                    {
-                        new OpenApiSecurityRequirement
-                        {
-                            [new OpenApiSecurityScheme { Scheme = "Bearer" }] = new List<string>()
-                        }
-                    };
-                }*/
                 var enableQuery = context.Description.ActionDescriptor?.FilterDescriptors.Where(x => x.Filter.GetType() == typeof(EnableQueryAttribute)).FirstOrDefault();
                 if (enableQuery != null)
                 {
@@ -105,19 +95,25 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                 return Task.CompletedTask;
             });
         }
-        public static void AddContactDocumentTransformer(this OpenApiOptions options, string name)
+        public static void AddContactDocumentTransformer(this OpenApiOptions options, string name, string version)
         {
             options.AddDocumentTransformer((document, context, cancellationToken) =>
             {
-                document.Info.Contact = new OpenApiContact {
-                    Name = name,
-                    Email = "support@grandnode.com",
-                    Url = new Uri("https://grandnode.com")
+                document.Info = new OpenApiInfo {
+                    Description = "Grandnode API",
+                    Title = name,
+                    Version = version,
+                    Contact = new OpenApiContact {
+                        Name = name,
+                        Email = "support@grandnode.com",
+                        Url = new Uri("https://grandnode.com")
+                    },
+                    License = new OpenApiLicense {
+                        Name = "GNU General Public License v3.0",
+                        Url = new Uri("https://github.com/grandnode/grandnode2/blob/main/LICENSE")
+                    }
                 };
-                document.Info.License = new OpenApiLicense {
-                    Name = "GNU General Public License v3.0",
-                    Url = new Uri("https://github.com/grandnode/grandnode2/blob/main/LICENSE")
-                };
+
                 return Task.CompletedTask;
             });
         }
