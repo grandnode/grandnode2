@@ -175,20 +175,22 @@ public class WorkContextSetter : IWorkContextSetter
         var customer = await GetBackgroundTaskCustomer();
         if (customer != null) return customer;
 
-        customer = await GetAuthenticatedCustomer();
-        if (customer != null) return customer;
-
-        customer = await GetGuestCustomer();
-        if (customer != null) return customer;
-
-        customer = await GetApiUserCustomer();
-        if (customer != null) return customer;
-
         customer = await GetSearchEngineCustomer();
         if (customer != null) return customer;
 
         customer = await GetAllowAnonymousCustomer();
         if (customer != null) return customer;
+
+        customer = await GetGuestCustomer();
+        if (customer != null) return customer;
+
+        customer = await GetAuthenticatedCustomer();
+        if (customer != null) return customer;
+
+        customer = await GetApiUserCustomer();
+        if (customer != null) return customer;
+
+        
 
         //create guest if not exists
         customer = await CreateCustomerGuest(store);
