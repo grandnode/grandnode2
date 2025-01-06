@@ -10,6 +10,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
@@ -25,6 +26,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Controllers;
 
 [DenySystemAccount]
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class OrderController : BasePublicController
 {
     #region Constructors

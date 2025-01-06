@@ -29,6 +29,7 @@ using System.Net;
 
 namespace Grand.Web.Controllers;
 
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class CommonController : BasePublicController
 {
     #region Constructors

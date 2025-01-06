@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.Common;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;
 
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class CountryController : BasePublicController
 {
     #region Constructors

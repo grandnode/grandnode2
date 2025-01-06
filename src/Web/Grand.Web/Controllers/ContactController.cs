@@ -6,6 +6,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Commands.Models.Contact;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
@@ -18,6 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;
 
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class ContactController : BasePublicController
 {
     #region Constructors

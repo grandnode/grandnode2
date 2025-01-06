@@ -9,6 +9,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,7 @@ using OperatingSystem = Grand.Infrastructure.OperatingSystem;
 namespace Grand.Web.Controllers;
 
 [DenySystemAccount]
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class DownloadController : BasePublicController
 {
     private readonly CustomerSettings _customerSettings;

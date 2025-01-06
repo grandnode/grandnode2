@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Customers;
@@ -8,9 +7,9 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
-using Grand.Domain.Seo;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
+using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Vendors;
 using Grand.Web.Common.Controllers;
@@ -22,10 +21,10 @@ using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Vendors;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Controllers;
 
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class VendorController : BasePublicController
 {
     #region Constructors
@@ -210,7 +209,9 @@ public class VendorController : BasePublicController
         if (ModelState.IsValid)
         {
             model = await _mediator.Send(new ContactVendorSendCommand {
-                Model = model, Vendor = vendor, Store = _workContextAccessor.WorkContext.CurrentStore,
+                Model = model,
+                Vendor = vendor,
+                Store = _workContextAccessor.WorkContext.CurrentStore,
                 IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
             });
             return Json(model);

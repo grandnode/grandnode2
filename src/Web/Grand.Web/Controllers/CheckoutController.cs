@@ -16,6 +16,7 @@ using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Extensions;
@@ -30,6 +31,7 @@ using Microsoft.Extensions.Logging;
 namespace Grand.Web.Controllers;
 
 [DenySystemAccount]
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class CheckoutController : BasePublicController
 {
     #region Constructors

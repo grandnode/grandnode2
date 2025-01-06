@@ -23,9 +23,11 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Grand.SharedKernel.Attributes;
 
 namespace Grand.Web.Controllers;
 
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class ProductController : BasePublicController
 {
     #region Constructors

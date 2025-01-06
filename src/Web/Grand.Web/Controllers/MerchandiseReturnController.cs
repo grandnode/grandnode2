@@ -5,6 +5,7 @@ using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
@@ -20,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Grand.Web.Controllers;
 
 [DenySystemAccount]
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class MerchandiseReturnController : BasePublicController
 {
     #region Constructors

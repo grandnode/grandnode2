@@ -18,9 +18,11 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
+using Grand.SharedKernel.Attributes;
 
 namespace Grand.Web.Controllers;
 
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class KnowledgebaseController : BasePublicController
 {
     private readonly IAclService _aclService;
