@@ -175,23 +175,21 @@ public class WorkContextSetter : IWorkContextSetter
         var customer = await GetBackgroundTaskCustomer();
         if (customer != null) return customer;
 
-        customer = await GetSearchEngineCustomer();
+        customer = await GetAllowAnonymousCustomer();
         if (customer != null) return customer;
 
-        customer = await GetAllowAnonymousCustomer();
+        customer = await GetCookieAuthenticatedCustomer();
         if (customer != null) return customer;
 
         customer = await GetGuestCustomer();
         if (customer != null) return customer;
 
-        customer = await GetAuthenticatedCustomer();
+        customer = await GetSearchEngineCustomer();
         if (customer != null) return customer;
 
         customer = await GetApiUserCustomer();
         if (customer != null) return customer;
-
         
-
         //create guest if not exists
         customer = await CreateCustomerGuest(store);
 
@@ -213,7 +211,7 @@ public class WorkContextSetter : IWorkContextSetter
         return await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
     }
 
-    private async Task<Customer> GetAuthenticatedCustomer()
+    private async Task<Customer> GetCookieAuthenticatedCustomer()
     {
         var customer = await _authenticationService.GetAuthenticatedCustomer();
         if (customer == null) return null;
@@ -229,8 +227,7 @@ public class WorkContextSetter : IWorkContextSetter
 
     private async Task<Customer> GetApiUserCustomer()
     {
-        var apiAuthenticationService =
-            _httpContextAccessor.HttpContext.RequestServices.GetService<IApiAuthenticationService>();
+        var apiAuthenticationService = _httpContextAccessor.HttpContext.RequestServices.GetService<IApiAuthenticationService>();
         return await apiAuthenticationService.GetAuthenticatedCustomer();
     }
 

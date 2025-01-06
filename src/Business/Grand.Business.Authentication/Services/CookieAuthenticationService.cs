@@ -55,7 +55,6 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     private readonly IGroupService _groupService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly SecurityConfig _securityConfig;
-    private Customer _cachedCustomer;
 
     #endregion
 
@@ -112,12 +111,8 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         {
             _httpContextAccessor.HttpContext.Response.Cookies.Delete(CustomerCookieName);
 
-            await _httpContextAccessor.HttpContext.SignInAsync(
-                GrandCookieAuthenticationDefaults.AuthenticationScheme, userPrincipal, authenticationProperties);
+            await _httpContextAccessor.HttpContext.SignInAsync(GrandCookieAuthenticationDefaults.AuthenticationScheme, userPrincipal, authenticationProperties);
         }
-
-        //cache authenticated customer
-        _cachedCustomer = customer;
     }
 
     /// <summary>
@@ -125,9 +120,6 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// </summary>
     public virtual async Task SignOut()
     {
-        //Firstly reset cached customer
-        _cachedCustomer = null;
-
         //and then sign out customer from the present scheme of authentication
         if (_httpContextAccessor.HttpContext != null)
         {
@@ -145,15 +137,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// <returns>Customer</returns>
     public virtual async Task<Customer> GetAuthenticatedCustomer()
     {
-        //check if there is a cached customer
-        if (_cachedCustomer != null)
-            return _cachedCustomer;
-
-        //get the authenticated user identity
-        if (_httpContextAccessor.HttpContext == null) return _cachedCustomer;
-        var authenticateResult =
-            await _httpContextAccessor.HttpContext.AuthenticateAsync(GrandCookieAuthenticationDefaults
-                .AuthenticationScheme);
+        var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(GrandCookieAuthenticationDefaults.AuthenticationScheme);
         if (!authenticateResult.Succeeded)
             return null;
 
@@ -195,10 +179,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         if (customer is not { Active: true } || customer.Deleted || !await _groupService.IsRegistered(customer))
             return null;
 
-        //Cache the authenticated customer
-        _cachedCustomer = customer;
-
-        return _cachedCustomer;
+        return customer;
     }
 
     /// <summary>
