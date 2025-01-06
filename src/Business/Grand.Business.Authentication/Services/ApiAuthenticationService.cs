@@ -35,7 +35,7 @@ public class ApiAuthenticationService : IApiAuthenticationService
             return null;
 
         if (_httpContextAccessor.HttpContext.Request.Path.Value != null
-            && !_httpContextAccessor.HttpContext.Request.Path.Value.StartsWith("/odata"))
+            && !_httpContextAccessor.HttpContext.Request.Path.Value.StartsWith("/api"))
         {
             customer = await ApiCustomer();
             return customer;
