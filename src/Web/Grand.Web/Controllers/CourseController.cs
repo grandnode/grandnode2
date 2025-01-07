@@ -12,9 +12,11 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Features.Models.Courses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Grand.SharedKernel.Attributes;
 
 namespace Grand.Web.Controllers;
 
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class CourseController : BasePublicController
 {
     private readonly IAclService _aclService;

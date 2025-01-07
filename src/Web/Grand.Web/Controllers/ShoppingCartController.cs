@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;
 
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class ShoppingCartController : BasePublicController
 {
     #region Constructors

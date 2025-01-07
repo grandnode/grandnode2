@@ -15,7 +15,7 @@ public class CultureSettingMiddleware
 
     public async Task InvokeAsync(HttpContext context, IWorkContextAccessor workContextAccessor)
     {
-        if (workContextAccessor.WorkContext.WorkingLanguage != null)
+        if (workContextAccessor.WorkContext?.WorkingLanguage != null)
         {
             var culture = new CultureInfo(workContextAccessor.WorkContext.WorkingLanguage.LanguageCulture);
 

@@ -4,9 +4,10 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Checkout;
-using Grand.Domain.Permissions;
 using Grand.Domain.Orders;
+using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
@@ -19,6 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;
 
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class WishlistController : BasePublicController
 {
     #region Constructors
@@ -138,7 +140,8 @@ public class WishlistController : BasePublicController
             warnings = ModelState.Values.SelectMany(x => x.Errors.Select(x => x.ErrorMessage)).ToList();
         }
 
-        return Json(new {
+        return Json(new
+        {
             success = !warnings.Any(),
             warnings = string.Join(", ", warnings),
             totalproducts =

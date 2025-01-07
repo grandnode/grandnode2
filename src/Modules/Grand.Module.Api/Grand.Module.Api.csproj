@@ -39,18 +39,8 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.JsonPatch" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
-        <PackageReference Include="Microsoft.AspNetCore.OData" />
-        <PackageReference Include="MongoDB.AspNetCore.OData" >
-            <ExcludeAssets>runtime</ExcludeAssets>
-            <IncludeAssets>compile</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Swashbuckle.AspNetCore" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Scalar.AspNetCore" />
+        <PackageReference Include="System.Linq.Dynamic.Core" />
     </ItemGroup>
-    <Target Name="CopyMongoDBODataDLL" AfterTargets="Build">
-        <ItemGroup>
-            <MongoDBODataFiles Include="$(NuGetPackageRoot)mongodb.aspnetcore.odata\1.1.0\lib\net5.0\MongoDB.AspNetCore.OData.dll" />
-        </ItemGroup>
-        <Copy SourceFiles="@(MongoDBODataFiles)" DestinationFolder="$(OutDir)" />
-    </Target>
 </Project>

@@ -9,7 +9,6 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
-using Grand.Domain.Customers;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Vendors;
@@ -21,9 +20,12 @@ using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Vendors;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Grand.SharedKernel.Attributes;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Controllers;
 
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class CatalogController : BasePublicController
 {
     #region Constructors
@@ -89,6 +91,7 @@ public class CatalogController : BasePublicController
 
     #region Categories
 
+    [ProducesResponseType(typeof(CategoryModel), StatusCodes.Status200OK)]
     [HttpGet]
     public virtual async Task<IActionResult> Category(string categoryId, CatalogPagingFilteringModel command)
     {
@@ -319,8 +322,7 @@ public class CatalogController : BasePublicController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
-    public virtual async Task<IActionResult> VendorReviews(
-        VendorReviewsModel model)
+    public virtual async Task<IActionResult> VendorReviews(VendorReviewsModel model)
     {
         var vendor = await _vendorService.GetVendorById(model.VendorId);
         if (vendor is not { Active: true } || !vendor.AllowCustomerReviews)
