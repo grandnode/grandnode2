@@ -70,15 +70,13 @@ public class SpecificationAttributeController : BaseApiController
 
     [EndpointDescription("Update entity in SpecificationAttribute")]
     [EndpointName("UpdateSpecificationAttribute")]
-    [HttpPut("{key}")]
+    [HttpPut]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SpecificationAttributeDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> Put([FromRoute] string key, [FromBody] SpecificationAttributeDto model)
+    public async Task<IActionResult> Put([FromBody] SpecificationAttributeDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes)) return Forbid();
-        var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(key));
-        if (!specification.Any()) return NotFound();
 
         model = await _mediator.Send(new UpdateSpecificationAttributeCommand { Model = model });
         return Ok(model);

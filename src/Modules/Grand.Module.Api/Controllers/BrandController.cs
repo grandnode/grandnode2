@@ -70,17 +70,13 @@ public class BrandController : BaseApiController
 
     [EndpointDescription("Update entity in Brand")]
     [EndpointName("UpdateBrand")]
-    [HttpPut("{key}")]
+    [HttpPut]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Put([FromRoute] string key, [FromBody] BrandDto model)
+    public async Task<IActionResult> Put([FromBody] BrandDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
-
-        var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key));
-        if (!brand.Any()) return NotFound();
 
         model = await _mediator.Send(new UpdateBrandCommand { Model = model });
         return Ok(model);

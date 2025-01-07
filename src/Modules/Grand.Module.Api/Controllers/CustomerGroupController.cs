@@ -70,17 +70,13 @@ public class CustomerGroupController : BaseApiController
 
     [EndpointDescription("Update entity in CustomerGroup")]
     [EndpointName("UpdateCustomerGroup")]
-    [HttpPut("{key}")]
+    [HttpPut]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerGroupDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Put([FromRoute] string key, [FromBody] CustomerGroupDto model)
+    public async Task<IActionResult> Put([FromBody] CustomerGroupDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
-
-        var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(key));
-        if (!customerGroup.Any()) return NotFound();
 
         if (!model.IsSystem)
         {

@@ -72,17 +72,13 @@ public class CategoryController : BaseApiController
 
     [EndpointDescription("Update entity in Category")]
     [EndpointName("UpdateCategory")]
-    [HttpPut("{key}")]
+    [HttpPut]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Put([FromRoute] string key, [FromBody] CategoryDto model)
+    public async Task<IActionResult> Put([FromBody] CategoryDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Categories)) return Forbid();
-
-        var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
-        if (!category.Any()) return NotFound();
 
         model = await _mediator.Send(new UpdateCategoryCommand { Model = model });
         return Ok(model);

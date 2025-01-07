@@ -66,17 +66,13 @@ public class CustomerController : BaseApiController
 
     [EndpointDescription("Update entity in Customer")]
     [EndpointName("UpdateCustomer")]
-    [HttpPut("{email}")]
+    [HttpPut]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Put([FromRoute] string email, [FromBody] CustomerDto model)
+    public async Task<IActionResult> Put([FromBody] CustomerDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
-
-        var customer = await _mediator.Send(new GetCustomerQuery { Email = email });
-        if (customer == null) return NotFound();
 
         model = await _mediator.Send(new UpdateCustomerCommand { Model = model });
         return Ok(model);

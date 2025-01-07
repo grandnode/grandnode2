@@ -55,17 +55,13 @@ public class PictureController : BaseApiController
 
     [EndpointDescription("Update entity in Picture")]
     [EndpointName("UpdatePicture")]
-    [HttpPut("{key}")]
+    [HttpPut]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Put([FromRoute] string key, [FromBody] PictureDto model)
+    public async Task<IActionResult> Put([FromBody] PictureDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
-
-        var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Picture>(key));
-        if (picture == null || !picture.Any()) return NotFound();
 
         var result = await _mediator.Send(new UpdatePictureCommand { Model = model });
         return Ok(result);

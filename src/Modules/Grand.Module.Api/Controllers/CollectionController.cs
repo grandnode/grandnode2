@@ -70,17 +70,13 @@ public class CollectionController : BaseApiController
 
     [EndpointDescription("Update entity in Collection")]
     [EndpointName("UpdateCollection")]
-    [HttpPut("{key}")]
+    [HttpPut]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
-    public async Task<IActionResult> Put([FromRoute] string key, [FromBody] CollectionDto model)
+    public async Task<IActionResult> Put([FromBody] CollectionDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
-
-        var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
-        if (!collection.Any()) return NotFound();
 
         model = await _mediator.Send(new UpdateCollectionCommand { Model = model });
         return Ok(model);

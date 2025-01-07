@@ -72,17 +72,13 @@ public class ProductController : BaseApiController
 
     [EndpointDescription("Update entity in Product")]
     [EndpointName("UpdateProduct")]
-    [HttpPut("{key}")]
+    [HttpPut]
     [ProducesResponseType((int)HttpStatusCode.Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    public async Task<IActionResult> Put([FromRoute] string key, [FromBody] ProductDto model)
+    public async Task<IActionResult> Put([FromBody] ProductDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
-
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
 
         await _mediator.Send(new UpdateProductCommand { Model = model });
         return Ok();
