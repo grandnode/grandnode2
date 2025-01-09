@@ -1,6 +1,7 @@
 using Grand.Module.Api.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
 namespace Grand.Module.Api.Infrastructure.Extensions
@@ -45,7 +46,8 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                         Name = "$orderby",
                         AllowReserved = true,
                         In = ParameterLocation.Query,
-                        Description = "Order items by property values",
+                        Description = "Order items by property values (LINQ notation)",
+                        Example = new OpenApiString("Name, DisplayOrder"),
                         Required = false,
                         Schema = new OpenApiSchema {
                             Type = "string"
@@ -55,7 +57,8 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                         Name = "$filter",
                         AllowReserved = true,
                         In = ParameterLocation.Query,
-                        Description = "Filter items by property values",
+                        Description = "Filter items by property values (LINQ notation) ",
+                        Example = new OpenApiString("Name == \"John\""),
                         Required = false,
                         Schema = new OpenApiSchema {
                             Type = "string"
@@ -65,7 +68,8 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                         Name = "$select",
                         AllowReserved = true,
                         In = ParameterLocation.Query,
-                        Description = "Select specific properties from the model",
+                        Description = "Select specific properties from the model (LINQ notation)",
+                        Example = new OpenApiString("Id, Name"),
                         Required = false,
                         Schema = new OpenApiSchema {
                             Type = "string"
@@ -98,7 +102,7 @@ namespace Grand.Module.Api.Infrastructure.Extensions
         public static void AddContactDocumentTransformer(this OpenApiOptions options, string name, string version)
         {
             options.AddDocumentTransformer((document, context, cancellationToken) =>
-            {
+            {                
                 document.Info = new OpenApiInfo {
                     Description = "Grandnode API",
                     Title = name,
@@ -114,6 +118,14 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                     }
                 };
 
+                return Task.CompletedTask;
+            });
+        }
+        public static void AddClearServerDocumentTransformer(this OpenApiOptions options)
+        {
+            options.AddDocumentTransformer((document, context, cancellationToken) =>
+            {
+                document.Servers.Clear();
                 return Task.CompletedTask;
             });
         }

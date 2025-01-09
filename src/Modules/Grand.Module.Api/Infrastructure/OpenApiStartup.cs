@@ -74,6 +74,7 @@ public class OpenApiStartup : IStartupApplication
             options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
             options.AddSchemaTransformer<EnumSchemaTransformer>();
             options.AddOperationTransformer();
+            options.AddClearServerDocumentTransformer();
         });
     }
 
@@ -87,6 +88,7 @@ public class OpenApiStartup : IStartupApplication
             options.AddSchemaTransformer<EnumSchemaTransformer>();
             options.AddSchemaTransformer<IgnoreFieldSchemaTransformer>();
             options.AddCsrfTokenTransformer();
+            options.AddClearServerDocumentTransformer();
         });
 
         //api description provider
