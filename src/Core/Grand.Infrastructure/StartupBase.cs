@@ -36,11 +36,18 @@ public static class StartupBase
     /// </summary>
     private static void InitDatabase(IServiceCollection services, IConfiguration configuration)
     {
-        var dbConfig = services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
-        if (!string.IsNullOrEmpty(dbConfig.ConnectionString))
+        var connectionString = configuration["ConnectionStrings:Mongodb"];
+        var providerString = configuration["ConnectionStrings:Provider"];
+        var providerInt = 0;
+        if (!string.IsNullOrEmpty(providerString))
+        {
+            _ = int.TryParse(providerString, out providerInt);
+        }
+
+        if (!string.IsNullOrEmpty(connectionString))
             DataSettingsManager.Instance.LoadDataSettings(new DataSettings {
-                ConnectionString = dbConfig.ConnectionString,
-                DbProvider = (DbProvider)dbConfig.DbProvider
+                ConnectionString = connectionString,
+                DbProvider = (DbProvider)providerInt,
             });
     }
 

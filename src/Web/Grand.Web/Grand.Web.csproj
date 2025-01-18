@@ -16,6 +16,7 @@
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	</PropertyGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\..\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj" />
 		<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj" />
 		<ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
 		<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />

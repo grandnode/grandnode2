@@ -1,10 +1,12 @@
-﻿using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Startup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using StartupBase = Grand.Infrastructure.StartupBase;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 
 builder.Host.UseDefaultServiceProvider((_, options) =>
 {

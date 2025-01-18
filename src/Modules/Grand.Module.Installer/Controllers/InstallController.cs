@@ -2,13 +2,13 @@
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
-using Grand.Module.Installer.Filters;
 using Grand.Module.Installer.Interfaces;
 using Grand.Module.Installer.Models;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,7 +16,6 @@ using MongoDB.Driver;
 
 namespace Grand.Module.Installer.Controllers;
 
-[DatabaseConfigured]
 public class InstallController : Controller
 {
 
@@ -25,6 +24,7 @@ public class InstallController : Controller
     private readonly ICacheBase _cacheBase;
     private readonly IHostApplicationLifetime _applicationLifetime;
     private readonly DatabaseConfig _dbConfig;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<InstallController> _logger;
 
     /// <summary>
@@ -40,11 +40,13 @@ public class InstallController : Controller
         ICacheBase cacheBase,
         IHostApplicationLifetime applicationLifetime,
         DatabaseConfig dbConfig,
+        IConfiguration configuration,
         ILogger<InstallController> logger)
     {
         _cacheBase = cacheBase;
         _applicationLifetime = applicationLifetime;
         _dbConfig = dbConfig;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -70,9 +72,10 @@ public class InstallController : Controller
         model ??= new InstallModel {
             AdminEmail = "admin@yourstore.com",
             InstallSampleData = false,
-            DatabaseConnectionString = "",
             AdminPassword = "",
-            ConfirmPassword = ""
+            ConfirmPassword = "",
+            DatabaseConnectionString = _configuration["ConnectionStrings:Mongodb"],
+            ConnectionInfo = !string.IsNullOrEmpty(_configuration["ConnectionStrings:Mongodb"]),
         };
 
         model.AvailableProviders = Enum.GetValues(typeof(DbProvider)).Cast<DbProvider>().Select(v => new SelectListItem {
