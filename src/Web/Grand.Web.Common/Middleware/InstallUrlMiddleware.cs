@@ -6,7 +6,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.FeatureManagement;
 
 namespace Grand.Web.Common.Middleware;
 
@@ -16,6 +15,7 @@ public class InstallUrlMiddleware
 
     private readonly RequestDelegate _next;
     private readonly ICacheBase _cacheBase;
+    private const string InstallUrl = "/install";
 
     #endregion
 
@@ -39,32 +39,14 @@ public class InstallUrlMiddleware
     public async Task InvokeAsync(HttpContext context)
     {
         var databaseIsInstalled = DataSettingsManager.DatabaseIsInstalled();
-        const string installUrl = "/install";
-        //whether database is installed
-        var version = _cacheBase.Get(CacheKey.GRAND_NODE_VERSION, () =>
-        {
-            if (databaseIsInstalled)
-                return context.RequestServices.GetRequiredService<IRepository<GrandNodeVersion>>().Table.FirstOrDefault();
-
-            return null;
-        }, int.MaxValue);
+        var version = GetDatabaseVersion(context);
 
         if (version == null)
         {
-            var featureManager = context.RequestServices.GetRequiredService<IFeatureManager>();
-            var isInstallerModuleEnabled = await featureManager.IsEnabledAsync("Grand.Module.Installer");
-            if (!isInstallerModuleEnabled)
-            {
-                // Return a response indicating the installer module is not enabled
-                context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                await context.Response.WriteAsync("The installation module is not enabled.");
-                return;
-            }
-
-            if (!context.Request.GetEncodedPathAndQuery().StartsWith(installUrl, StringComparison.OrdinalIgnoreCase))
+            if (!IsInstallUrl(context.Request))
             {
                 //redirect
-                context.Response.Redirect(installUrl);
+                context.Response.Redirect(InstallUrl);
                 return;
             }
         }
@@ -76,7 +58,7 @@ public class InstallUrlMiddleware
                                                   $"Supported version: {GrandVersion.SupportedDBVersion} , your version: {version.DataBaseVersion}");
                 return;
             }
-            if (context.Request.GetEncodedPathAndQuery().StartsWith(installUrl, StringComparison.OrdinalIgnoreCase))
+            if (IsInstallUrl(context.Request))
             {
                 //redirect
                 context.Response.Redirect("/");
@@ -86,6 +68,19 @@ public class InstallUrlMiddleware
 
         //call the next middleware in the request pipeline
         await _next(context);
+    }
+    private GrandNodeVersion? GetDatabaseVersion(HttpContext context)
+    {
+        return _cacheBase.Get(CacheKey.GRAND_NODE_VERSION, () =>
+        {
+            var repository = context.RequestServices.GetRequiredService<IRepository<GrandNodeVersion>>();
+            return repository.Table.FirstOrDefault();
+        }, int.MaxValue);
+    }
+
+    private bool IsInstallUrl(HttpRequest request)
+    {
+        return request.GetEncodedPathAndQuery().StartsWith(InstallUrl, StringComparison.OrdinalIgnoreCase);
     }
 
     #endregion
