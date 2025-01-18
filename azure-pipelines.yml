@@ -14,12 +14,15 @@ steps:
   inputs:
     version: '9.0.x'
 
-- task: UseDotNet@2
-  displayName: 'Install .NET Aspire workload'
+#- script: dotnet tool install -g Aspire
+#  displayName: 'Install Aspire globally'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Install Aspire globally'
   inputs:
     command: custom
-    custom: workload install aspire
-    version: '9.0.x'
+    custom: 'tool'
+    arguments: 'install -g Aspire'
 
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet >=6.3.0-0'
