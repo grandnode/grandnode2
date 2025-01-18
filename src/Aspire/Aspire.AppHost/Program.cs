@@ -10,7 +10,6 @@ var mongodb = mongo.AddDatabase("Mongodb");
 builder
     .AddProject<Projects.Grand_Web>("grand-web")
     .WithHttpEndpoint(80)
-    .WithEnvironment("", "")
     .WithReference(mongodb)
     .WaitFor(mongodb);
 
