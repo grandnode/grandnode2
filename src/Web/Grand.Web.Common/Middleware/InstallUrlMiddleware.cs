@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Grand.Data;
+﻿using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
@@ -18,7 +16,6 @@ public class InstallUrlMiddleware
 
     private readonly RequestDelegate _next;
     private readonly ICacheBase _cacheBase;
-    private const string InstallUrl = "/install";
 
     #endregion
 
@@ -34,68 +31,61 @@ public class InstallUrlMiddleware
 
     #region Methods
 
+    /// <summary>
+    ///     Invoke middleware actions
+    /// </summary>
+    /// <param name="context">HTTP context</param>
+    /// <returns>Task</returns>
     public async Task InvokeAsync(HttpContext context)
     {
-        if (!DataSettingsManager.DatabaseIsInstalled())
+        var databaseIsInstalled = DataSettingsManager.DatabaseIsInstalled();
+        const string installUrl = "/install";
+        //whether database is installed
+        var version = _cacheBase.Get(CacheKey.GRAND_NODE_VERSION, () =>
         {
-            await HandleInstallationAsync(context);
-            return;
-        }
+            if (databaseIsInstalled)
+                return context.RequestServices.GetRequiredService<IRepository<GrandNodeVersion>>().Table.FirstOrDefault();
 
-        var version = GetDatabaseVersion(context);
+            return null;
+        }, int.MaxValue);
 
         if (version == null)
         {
-            await HandleInstallationAsync(context);
-            return;
-        }
+            var featureManager = context.RequestServices.GetRequiredService<IFeatureManager>();
+            var isInstallerModuleEnabled = await featureManager.IsEnabledAsync("Grand.Module.Installer");
+            if (!isInstallerModuleEnabled)
+            {
+                // Return a response indicating the installer module is not enabled
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                await context.Response.WriteAsync("The installation module is not enabled.");
+                return;
+            }
 
-        if (!version.DataBaseVersion.Equals(GrandVersion.SupportedDBVersion))
+            if (!context.Request.GetEncodedPathAndQuery().StartsWith(installUrl, StringComparison.OrdinalIgnoreCase))
+            {
+                //redirect
+                context.Response.Redirect(installUrl);
+                return;
+            }
+        }
+        else
         {
-            await context.Response.WriteAsync($"The database version is not supported in this software version. Supported version: {GrandVersion.SupportedDBVersion}, your version: {version.DataBaseVersion}");
-            return;
+            if (!version.DataBaseVersion.Equals(GrandVersion.SupportedDBVersion))
+            {
+                await context.Response.WriteAsync("The database version is not supported in this software version. " +
+                                                  $"Supported version: {GrandVersion.SupportedDBVersion} , your version: {version.DataBaseVersion}");
+                return;
+            }
+            if (context.Request.GetEncodedPathAndQuery().StartsWith(installUrl, StringComparison.OrdinalIgnoreCase))
+            {
+                //redirect
+                context.Response.Redirect("/");
+                return;
+            }
         }
 
-        if (IsInstallUrl(context.Request))
-        {
-            context.Response.Redirect("/");
-            return;
-        }
-
-        // Call the next middleware in the pipeline
+        //call the next middleware in the request pipeline
         await _next(context);
-    }
-
-    private async Task HandleInstallationAsync(HttpContext context)
-    {
-        var featureManager = context.RequestServices.GetRequiredService<IFeatureManager>();
-        var isInstallerModuleEnabled = await featureManager.IsEnabledAsync("Grand.Module.Installer");
-
-        if (!isInstallerModuleEnabled)
-        {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            await context.Response.WriteAsync("The installation module is not enabled.");
-            return;
-        }
-
-        if (!IsInstallUrl(context.Request))
-        {
-            context.Response.Redirect(InstallUrl);
-        }
-    }
-
-    private GrandNodeVersion? GetDatabaseVersion(HttpContext context)
-    {
-        return _cacheBase.Get(CacheKey.GRAND_NODE_VERSION, () =>
-        {
-            var repository = context.RequestServices.GetRequiredService<IRepository<GrandNodeVersion>>();
-            return repository.Table.FirstOrDefault();
-        }, int.MaxValue);
-    }
-
-    private bool IsInstallUrl(HttpRequest request)
-    {
-        return request.GetEncodedPathAndQuery().StartsWith(InstallUrl, StringComparison.OrdinalIgnoreCase);
     }
 
     #endregion
