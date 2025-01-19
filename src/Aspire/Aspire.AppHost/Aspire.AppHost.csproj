@@ -17,6 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Web\Grand.Web.Admin\Grand.Web.Admin.csproj" />
+    <ProjectReference Include="..\..\Web\Grand.Web.Vendor\Grand.Web.Vendor.csproj" />
     <ProjectReference Include="..\..\Web\Grand.Web\Grand.Web.csproj" />
   </ItemGroup>
 
