@@ -5,6 +5,8 @@ using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 builder.Host.UseDefaultServiceProvider((_, options) =>
 {
     options.ValidateScopes = false;
