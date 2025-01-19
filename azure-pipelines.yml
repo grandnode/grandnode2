@@ -14,6 +14,13 @@ steps:
   inputs:
     version: '9.0.x'
 
+ - task: Bash@3
+    displayName: Install .NET Aspire workload
+    inputs:
+      targetType: 'inline'
+      script: |
+        dotnet workload install aspire
+
 - name: Install .NET Aspire workload
   run: dotnet workload install aspire
 
