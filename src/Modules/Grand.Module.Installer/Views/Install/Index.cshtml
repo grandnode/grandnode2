@@ -116,6 +116,17 @@
                         @Html.DropDownList("DataProvider", Model.AvailableProviders, new { @class = "custom-select", onchange = "DataProviderChange(this.value);" })
                     </div>
                 </div>
+                @if (Model.SkipConnection)
+                {
+                    <div class="card">
+                        <h3 class="card-header">
+                        @LocalizedService.GetResource(Model.SelectedLanguage, "Collation")
+                        </h3>
+                        <div class="card-body">
+                            @Html.DropDownList("Collation", Model.AvailableCollation, new { @class = "custom-select" })
+                        </div>                    
+                    </div>
+                }
                 @if (!Model.DisableSampleDataOption)
                 {
                     <div nowrap="nowrap" align="left">

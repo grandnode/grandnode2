@@ -11,7 +11,7 @@ public class DatabaseFactoryContext : IDatabaseFactoryContext
     public IDatabaseContext GetDatabaseContext(string? connectionString = null, DbProvider? dbProvider = null)
     {
         var dataSettings = string.IsNullOrEmpty(connectionString) ? DataSettingsManager.Instance.LoadSettings(true) : 
-            new DataSettings() { ConnectionString = connectionString, DbProvider = dbProvider!.Value };
+            new DataSettings() { ConnectionString = connectionString, DbProvider = dbProvider.HasValue ? dbProvider.Value : DbProvider.MongoDB };
         if (dataSettings != null && !string.IsNullOrEmpty(dataSettings.ConnectionString))
         {
             if (dataSettings.DbProvider != DbProvider.LiteDB)
