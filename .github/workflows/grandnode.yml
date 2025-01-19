@@ -20,6 +20,8 @@ jobs:
         dotnet-version: 9.0.x
     - name: Create mongoDB Docker container      
       run: sudo docker run -d -p 27017:27017 mongo:latest
+    - name: Install .NET Aspire workload
+      run: dotnet workload install aspire        
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build sln

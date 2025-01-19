@@ -137,6 +137,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.Module.Api", "src\Mod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.Module.ScheduledTasks", "src\Modules\Grand.Module.ScheduledTasks\Grand.Module.ScheduledTasks.csproj", "{136F1E35-8B20-465C-8D42-30A5A0D0DA1F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.AppHost", "src\Aspire\Aspire.AppHost\Aspire.AppHost.csproj", "{FFA85947-690E-496B-B21E-DB1800F0DCA9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.ServiceDefaults", "src\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj", "{591950E4-6377-4ECA-A386-8BD3FFE302F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -363,6 +367,14 @@ Global
 		{136F1E35-8B20-465C-8D42-30A5A0D0DA1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{136F1E35-8B20-465C-8D42-30A5A0D0DA1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{136F1E35-8B20-465C-8D42-30A5A0D0DA1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFA85947-690E-496B-B21E-DB1800F0DCA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFA85947-690E-496B-B21E-DB1800F0DCA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFA85947-690E-496B-B21E-DB1800F0DCA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFA85947-690E-496B-B21E-DB1800F0DCA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{591950E4-6377-4ECA-A386-8BD3FFE302F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{591950E4-6377-4ECA-A386-8BD3FFE302F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{591950E4-6377-4ECA-A386-8BD3FFE302F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{591950E4-6377-4ECA-A386-8BD3FFE302F1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

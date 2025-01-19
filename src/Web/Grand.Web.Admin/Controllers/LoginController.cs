@@ -104,7 +104,7 @@ public class LoginController : BaseController
         //raise event       
         await _mediator.Publish(new CustomerLoggedInEvent(customer));
 
-        return RedirectToRoute("AdminIndex", new RouteValueDictionary());
+        return RedirectToRoute("AdminIndex");
     }
 
     public async Task<IActionResult> TwoFactorAuthorization(

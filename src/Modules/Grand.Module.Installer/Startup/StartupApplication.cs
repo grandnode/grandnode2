@@ -1,5 +1,4 @@
-﻿using Grand.Data;
-using Grand.Infrastructure;
+﻿using Grand.Infrastructure;
 using Grand.Module.Installer.Interfaces;
 using Grand.Module.Installer.Services;
 using Microsoft.AspNetCore.Builder;
@@ -25,13 +24,8 @@ public class StartupApplication : IStartupApplication
 
     private void RegisterInstallService(IServiceCollection serviceCollection)
     {
-        var databaseInstalled = DataSettingsManager.DatabaseIsInstalled();
-        if (!databaseInstalled)
-        {
-            //installation service
-            serviceCollection.AddScoped<IInstallationLocalizedService, InstallationLocalizedService>();
-            serviceCollection.AddScoped<IInstallationService, InstallationService>();
-            serviceCollection.AddTransient<IDatabaseFactoryContext, DatabaseFactoryContext>();
-        }
+        serviceCollection.AddScoped<IInstallationLocalizedService, InstallationLocalizedService>();
+        serviceCollection.AddScoped<IInstallationService, InstallationService>();
+        serviceCollection.AddTransient<IDatabaseFactoryContext, DatabaseFactoryContext>();
     }
 }

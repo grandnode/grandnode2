@@ -10,7 +10,7 @@ public class WorkContextMiddleware
 
     private readonly RequestDelegate _next;
 
-    private readonly List<string> skipRoutePattern = ["/scalar/{documentName}", "/openapi/{documentName}.json"];
+    private readonly List<string> skipRoutePattern = ["/scalar/{documentName}", "/openapi/{documentName}.json", "install"];
 
     #endregion
 

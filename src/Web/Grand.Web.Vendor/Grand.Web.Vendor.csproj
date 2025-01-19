@@ -4,9 +4,9 @@
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
         <ServerGarbageCollection>false</ServerGarbageCollection>
         <EnableDefaultContentItems>false</EnableDefaultContentItems>
-        <UseAppHost>false</UseAppHost>
+		<UseAppHost>false</UseAppHost>
         <!--Set GenerateRuntimeConfigurationFiles as true when Vendor panel is supposed to works independent-->
-        <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+		<GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
     </PropertyGroup>
     <ItemGroup>
         <Content Include="Areas\**" CopyToPublishDirectory="Never" />

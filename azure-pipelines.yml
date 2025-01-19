@@ -1,18 +1,3 @@
-# ASP.NET Core
-
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
-trigger:
-- main
-
-pool:
-  vmImage: ubuntu-latest
-
-variables:
-  buildConfiguration: 'Release'
-
 resources:
   containers:
   - container: mongo
@@ -25,9 +10,14 @@ services:
 
 steps:
 - task: UseDotNet@2
-  displayName: 'Install .NET Core SDK 8'
+  displayName: 'Install .NET Core SDK 9'
   inputs:
     version: '9.0.x'
+
+- task: Install .NET Aspire workload
+  inputs: 
+      inlineScript: |
+          dotnet workload install aspire
 
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet >=6.3.0-0'
@@ -37,7 +27,7 @@ steps:
 
 - task: NuGetCommand@2
   inputs:
-    command: 'restore'
+    command: 'restore'  
     restoreSolution: '**/*.sln'
     feedsToUse: 'select'
 
@@ -70,6 +60,3 @@ steps:
     zipAfterPublish: True
 
 - task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(Build.ArtifactStagingDirectory)' 
-    artifactName: 'grandnode'

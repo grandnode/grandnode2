@@ -34,6 +34,7 @@ using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Security.Cryptography;
 
@@ -1006,8 +1007,9 @@ public partial class InstallationService : IInstallationService
 
         try
         {
+            var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
             var dataSettings = DataSettingsManager.Instance.LoadSettings(true);
-            var dbContext = _serviceProvider.GetRequiredService<IDatabaseFactoryContext>().GetDatabaseContext();
+            var dbContext = _serviceProvider.GetRequiredService<IDatabaseFactoryContext>().GetDatabaseContext(configuration[SettingsConstants.ConnectionStrings]);
             if (dataSettings.DbProvider != DbProvider.LiteDB)
             {
                 var typeSearcher = _serviceProvider.GetRequiredService<ITypeSearcher>();
@@ -1016,10 +1018,9 @@ public partial class InstallationService : IInstallationService
                 foreach (var item in q!.GetTypes())
                     if (item.BaseType != null && item.IsClass && item.BaseType == typeof(BaseEntity))
                         await dbContext.CreateTable(item.Name, local);
-            }
 
-            if (dataSettings.DbProvider != DbProvider.LiteDB)
                 await CreateIndexes(dbContext, dataSettings);
+            }
         }
         catch (Exception ex)
         {

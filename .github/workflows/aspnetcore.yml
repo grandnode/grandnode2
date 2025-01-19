@@ -13,6 +13,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
+    - name: Install .NET Aspire workload
+      run: dotnet workload install aspire        
     - name: Restore
       run: dotnet restore ./GrandNode.sln
     - name: Build with dotnet

@@ -2,13 +2,13 @@
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
-using Grand.Module.Installer.Filters;
 using Grand.Module.Installer.Interfaces;
 using Grand.Module.Installer.Models;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,7 +16,6 @@ using MongoDB.Driver;
 
 namespace Grand.Module.Installer.Controllers;
 
-[DatabaseConfigured]
 public class InstallController : Controller
 {
 
@@ -25,6 +24,7 @@ public class InstallController : Controller
     private readonly ICacheBase _cacheBase;
     private readonly IHostApplicationLifetime _applicationLifetime;
     private readonly DatabaseConfig _dbConfig;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<InstallController> _logger;
 
     /// <summary>
@@ -40,11 +40,13 @@ public class InstallController : Controller
         ICacheBase cacheBase,
         IHostApplicationLifetime applicationLifetime,
         DatabaseConfig dbConfig,
+        IConfiguration configuration,
         ILogger<InstallController> logger)
     {
         _cacheBase = cacheBase;
         _applicationLifetime = applicationLifetime;
         _dbConfig = dbConfig;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -70,10 +72,14 @@ public class InstallController : Controller
         model ??= new InstallModel {
             AdminEmail = "admin@yourstore.com",
             InstallSampleData = false,
-            DatabaseConnectionString = "",
             AdminPassword = "",
             ConfirmPassword = ""
         };
+
+        if (!string.IsNullOrEmpty(_configuration[SettingsConstants.ConnectionStrings]))
+        {
+            model.SkipConnection = true;
+        }
 
         model.AvailableProviders = Enum.GetValues(typeof(DbProvider)).Cast<DbProvider>().Select(v => new SelectListItem {
             Text = v.ToString(),
@@ -192,7 +198,7 @@ public class InstallController : Controller
         else if (string.IsNullOrEmpty(connectionString))
             ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "ConnectionStringRequired"));
     }
-
+    
     [HttpPost]
     public virtual async Task<IActionResult> Index(InstallModel model)
     {
@@ -205,9 +211,11 @@ public class InstallController : Controller
         if (model.DatabaseConnectionString != null)
             model.DatabaseConnectionString = model.DatabaseConnectionString.Trim();
 
-        var connectionString = BuildConnectionString(locService, model);
+        var connectionString = !string.IsNullOrEmpty(_configuration[SettingsConstants.ConnectionStrings]) ?
+            _configuration[SettingsConstants.ConnectionStrings]:
+            BuildConnectionString(locService, model);            
 
-        await CheckConnectionString(locService, connectionString, model);
+        await CheckConnectionString(locService, connectionString!, model);
 
         if (!ModelState.IsValid) return View(PrepareModel(model));
         try
@@ -217,9 +225,11 @@ public class InstallController : Controller
                 ConnectionString = connectionString,
                 DbProvider = model.DataProvider
             };
-
-            await DataSettingsManager.Instance.SaveSettings(settings);
-            DataSettingsManager.Instance.LoadSettings(true);
+            if (string.IsNullOrEmpty(_configuration[SettingsConstants.ConnectionStrings]))
+            {
+                await DataSettingsManager.Instance.SaveSettings(settings);
+                DataSettingsManager.Instance.LoadSettings(true);
+            }
 
             var installationService = HttpContext.RequestServices.GetRequiredService<IInstallationService>();
             await installationService.InstallData(
