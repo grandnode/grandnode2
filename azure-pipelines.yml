@@ -14,10 +14,8 @@ steps:
   inputs:
     version: '9.0.x'
 
-- task: Bash@3
-  inputs: 
-      inlineScript: |
-          dotnet workload install aspire
+- name: Install .NET Aspire workload
+  run: dotnet workload install aspire
 
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet >=6.3.0-0'
