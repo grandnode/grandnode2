@@ -8,16 +8,21 @@ resources:
 services:
   mongo: mongo
 
+variables:
+  buildConfiguration: 'Release'
+  
 steps:
 - task: UseDotNet@2
   displayName: 'Install .NET Core SDK 9'
   inputs:
     version: '9.0.x'
 
-- task: Install .NET Aspire workload
-  inputs: 
-      inlineScript: |
-          dotnet workload install aspire
+- task: Bash@3
+  displayName: Install .NET Aspire workload
+  inputs:
+    targetType: 'inline'
+    script: |
+      dotnet workload install aspire
 
 - task: NuGetToolInstaller@1
   displayName: 'Install NuGet >=6.3.0-0'

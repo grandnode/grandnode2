@@ -1,25 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
+	<Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <IsAspireHost>true</IsAspireHost>
-    <UserSecretsId>bdc1e5b4-4475-44fc-851c-dd576ac2c123</UserSecretsId>
-  </PropertyGroup>
-
-  <ItemGroup>
-	  <PackageReference Include="Aspire.Hosting.AppHost" />
-	  <PackageReference Include="Aspire.Hosting.MongoDB" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Web\Grand.Web.Admin\Grand.Web.Admin.csproj" />
-    <ProjectReference Include="..\..\Web\Grand.Web.Vendor\Grand.Web.Vendor.csproj" />
-    <ProjectReference Include="..\..\Web\Grand.Web\Grand.Web.csproj" />
-  </ItemGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsAspireHost>true</IsAspireHost>
+		<UserSecretsId>bdc1e5b4-4475-44fc-851c-dd576ac2c123</UserSecretsId>
+	</PropertyGroup>
+	<PropertyGroup>
+		<SkipAddAspireDefaultReferences>true</SkipAddAspireDefaultReferences>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Aspire.Hosting.AppHost" />
+		<PackageReference Include="Aspire.Hosting.MongoDB" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Aspire.Dashboard.Sdk.$(NETCoreSdkRuntimeIdentifier)" />
+		<PackageReference Include="Aspire.Hosting.Orchestration.$(NETCoreSdkRuntimeIdentifier)" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Web\Grand.Web.Admin\Grand.Web.Admin.csproj" />
+		<ProjectReference Include="..\..\Web\Grand.Web.Vendor\Grand.Web.Vendor.csproj" />
+		<ProjectReference Include="..\..\Web\Grand.Web\Grand.Web.csproj" />
+	</ItemGroup>
 
 </Project>
