@@ -20,6 +20,7 @@ public class InstallModel : BaseModel
 
     public string? DatabaseConnectionString { get; set; }
     public DbProvider DataProvider { get; set; }
+    public bool SkipConnection { get; set; }
     public bool ConnectionInfo { get; set; }
     public string? MongoDBServerName { get; set; }
     public string? MongoDBDatabaseName { get; set; }

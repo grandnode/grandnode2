@@ -36,8 +36,8 @@ public static class StartupBase
     /// </summary>
     private static void InitDatabase(IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration["ConnectionStrings:Mongodb"];
-        var providerString = configuration["ConnectionStrings:Provider"];
+        var connectionString = configuration[SettingsConstants.ConnectionStrings];
+        var providerString = configuration[SettingsConstants.ConnectionStringsProvider];
         var providerInt = 0;
         if (!string.IsNullOrEmpty(providerString))
         {

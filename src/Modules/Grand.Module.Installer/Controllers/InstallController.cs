@@ -73,10 +73,13 @@ public class InstallController : Controller
             AdminEmail = "admin@yourstore.com",
             InstallSampleData = false,
             AdminPassword = "",
-            ConfirmPassword = "",
-            DatabaseConnectionString = _configuration["ConnectionStrings:Mongodb"],
-            ConnectionInfo = !string.IsNullOrEmpty(_configuration["ConnectionStrings:Mongodb"]),
+            ConfirmPassword = ""
         };
+
+        if (!string.IsNullOrEmpty(_configuration[SettingsConstants.ConnectionStrings]))
+        {
+            model.SkipConnection = true;
+        }
 
         model.AvailableProviders = Enum.GetValues(typeof(DbProvider)).Cast<DbProvider>().Select(v => new SelectListItem {
             Text = v.ToString(),
@@ -195,7 +198,7 @@ public class InstallController : Controller
         else if (string.IsNullOrEmpty(connectionString))
             ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "ConnectionStringRequired"));
     }
-
+    
     [HttpPost]
     public virtual async Task<IActionResult> Index(InstallModel model)
     {
@@ -208,9 +211,11 @@ public class InstallController : Controller
         if (model.DatabaseConnectionString != null)
             model.DatabaseConnectionString = model.DatabaseConnectionString.Trim();
 
-        var connectionString = BuildConnectionString(locService, model);
+        var connectionString = !string.IsNullOrEmpty(_configuration[SettingsConstants.ConnectionStrings]) ?
+            _configuration[SettingsConstants.ConnectionStrings]:
+            BuildConnectionString(locService, model);            
 
-        await CheckConnectionString(locService, connectionString, model);
+        await CheckConnectionString(locService, connectionString!, model);
 
         if (!ModelState.IsValid) return View(PrepareModel(model));
         try
@@ -220,9 +225,11 @@ public class InstallController : Controller
                 ConnectionString = connectionString,
                 DbProvider = model.DataProvider
             };
-
-            await DataSettingsManager.Instance.SaveSettings(settings);
-            DataSettingsManager.Instance.LoadSettings(true);
+            if (string.IsNullOrEmpty(_configuration[SettingsConstants.ConnectionStrings]))
+            {
+                await DataSettingsManager.Instance.SaveSettings(settings);
+                DataSettingsManager.Instance.LoadSettings(true);
+            }
 
             var installationService = HttpContext.RequestServices.GetRequiredService<IInstallationService>();
             await installationService.InstallData(
