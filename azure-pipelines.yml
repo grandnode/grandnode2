@@ -14,7 +14,7 @@ steps:
   inputs:
     version: '9.0.x'
 
-- task: Install .NET Aspire workload
+- task: Bash@3
   inputs: 
       inlineScript: |
           dotnet workload install aspire
