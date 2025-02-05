@@ -4,7 +4,6 @@ using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Message;
-using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Caching.Redis;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
@@ -69,11 +68,6 @@ public class StartupApplication : IStartupApplication
             serviceCollection.AddSingleton<ICacheBase, RedisMessageCacheManager>();
             return;
         }
-
-        var rabbit = new RabbitConfig();
-        configuration.GetSection("Rabbit").Bind(rabbit);
-        if (rabbit.RabbitCachePubSubEnabled && rabbit.RabbitEnabled)
-            serviceCollection.AddSingleton<ICacheBase, RabbitMqMessageCacheManager>();
     }
 
     private void RegisterContextService(IServiceCollection serviceCollection)

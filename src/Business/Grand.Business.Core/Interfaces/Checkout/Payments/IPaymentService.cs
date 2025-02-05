@@ -35,7 +35,7 @@ public interface IPaymentService
     /// <param name="customer">Customer</param>
     /// <param name="filterByCountryId">Specified country</param>
     /// <returns>Payment providers</returns>
-    IList<IPaymentProvider> LoadAllPaymentMethods(Customer customer = null, string storeId = "",
+    Task<IList<IPaymentProvider>> LoadAllPaymentMethods(Customer customer = null, string storeId = "",
         string filterByCountryId = "");
 
     /// <summary>
@@ -43,14 +43,14 @@ public interface IPaymentService
     /// </summary>
     /// <param name="paymentMethod">Payment method</param>
     /// <returns>A list of country identifiers</returns>
-    IList<string> GetRestrictedCountryIds(IPaymentProvider paymentMethod);
+    Task<IList<string>> GetRestrictedCountryIds(IPaymentProvider paymentMethod);
 
     /// <summary>
     ///     Gets a list of shipping identifiers in which a certain payment method is now allowed
     /// </summary>
     /// <param name="paymentMethod">Payment method</param>
     /// <returns>A list of role identifiers</returns>
-    IList<string> GetRestrictedShippingIds(IPaymentProvider paymentMethod);
+    Task<IList<string>> GetRestrictedShippingIds(IPaymentProvider paymentMethod);
 
     /// <summary>
     ///     Saves a list of country identifiers in which a certain payment method is now allowed

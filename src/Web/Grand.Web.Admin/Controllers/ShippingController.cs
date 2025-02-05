@@ -155,7 +155,7 @@ public class ShippingController : BaseAdminController
     {
         var storeScope = await GetActiveStore();
 
-        var _shippingProviderSettings = _settingService.LoadSetting<ShippingProviderSettings>(storeScope);
+        var _shippingProviderSettings = await _settingService.LoadSetting<ShippingProviderSettings>(storeScope);
         var shippingProvidersModel = new List<ShippingRateComputationMethodModel>();
         var shippingProviders = _shippingService.LoadAllShippingRateCalculationProviders();
         foreach (var shippingProvider in shippingProviders)
@@ -179,7 +179,7 @@ public class ShippingController : BaseAdminController
     {
         var storeScope = await GetActiveStore();
 
-        var _shippingProviderSettings = _settingService.LoadSetting<ShippingProviderSettings>(storeScope);
+        var _shippingProviderSettings = await _settingService.LoadSetting<ShippingProviderSettings>(storeScope);
 
         var srcm = _shippingService.LoadShippingRateCalculationProviderBySystemName(model.SystemName);
         if (srcm.IsShippingRateMethodActive(_shippingProviderSettings))
@@ -315,7 +315,7 @@ public class ShippingController : BaseAdminController
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var shippingSettings = _settingService.LoadSetting<ShippingSettings>(storeScope);
+        var shippingSettings = await _settingService.LoadSetting<ShippingSettings>(storeScope);
         var model = shippingSettings.ToModel();
         model.ActiveStore = storeScope;
 
@@ -356,7 +356,7 @@ public class ShippingController : BaseAdminController
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var shippingSettings = _settingService.LoadSetting<ShippingSettings>(storeScope);
+        var shippingSettings = await _settingService.LoadSetting<ShippingSettings>(storeScope);
         shippingSettings = model.ToEntity(shippingSettings);
 
         await _settingService.SaveSetting(shippingSettings, storeScope);

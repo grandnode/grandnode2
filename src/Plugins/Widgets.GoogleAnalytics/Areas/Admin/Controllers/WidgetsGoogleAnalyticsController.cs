@@ -49,7 +49,7 @@ public class WidgetsGoogleAnalyticsController : BaseAdminPluginController
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
-        var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsEcommerceSettings>(storeScope);
+        var googleAnalyticsSettings = await _settingService.LoadSetting<GoogleAnalyticsEcommerceSettings>(storeScope);
         var model = new ConfigurationModel {
             GoogleId = googleAnalyticsSettings.GoogleId,
             TrackingScript = googleAnalyticsSettings.TrackingScript,
@@ -71,7 +71,7 @@ public class WidgetsGoogleAnalyticsController : BaseAdminPluginController
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
-        var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsEcommerceSettings>(storeScope);
+        var googleAnalyticsSettings = await _settingService.LoadSetting<GoogleAnalyticsEcommerceSettings>(storeScope);
         googleAnalyticsSettings.GoogleId = model.GoogleId;
         googleAnalyticsSettings.TrackingScript = model.TrackingScript;
         googleAnalyticsSettings.EcommerceScript = model.EcommerceScript;

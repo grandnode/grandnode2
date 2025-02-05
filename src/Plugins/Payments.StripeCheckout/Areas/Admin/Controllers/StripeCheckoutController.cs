@@ -59,7 +59,7 @@ public class StripeCheckoutController : BasePaymentController
 
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var stripeCheckoutPaymentSettings = _settingService.LoadSetting<StripeCheckoutPaymentSettings>(storeScope);
+        var stripeCheckoutPaymentSettings = await _settingService.LoadSetting<StripeCheckoutPaymentSettings>(storeScope);
 
         var model = new ConfigurationModel {
             ApiKey = stripeCheckoutPaymentSettings.ApiKey,
@@ -84,7 +84,7 @@ public class StripeCheckoutController : BasePaymentController
 
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var stripeCheckoutPaymentSettings = _settingService.LoadSetting<StripeCheckoutPaymentSettings>(storeScope);
+        var stripeCheckoutPaymentSettings = await _settingService.LoadSetting<StripeCheckoutPaymentSettings>(storeScope);
 
         //save settings
         stripeCheckoutPaymentSettings.ApiKey = model.ApiKey;

@@ -75,8 +75,8 @@ public class TaxController : BaseAdminController
     public async Task<IActionResult> Providers(DataSourceRequest command)
     {
         var storeScope = await GetActiveStore();
-        _settingService.LoadSetting<TaxSettings>(storeScope);
-        var taxProviderSettings = _settingService.LoadSetting<TaxProviderSettings>();
+        await _settingService.LoadSetting<TaxSettings>(storeScope);
+        var taxProviderSettings = await _settingService.LoadSetting<TaxProviderSettings>();
 
         var taxProviders = _taxService.LoadAllTaxProviders()
             .ToList();
@@ -106,7 +106,7 @@ public class TaxController : BaseAdminController
 
     public async Task<IActionResult> MarkAsPrimaryProvider(string systemName)
     {
-        var taxProviderettings = _settingService.LoadSetting<TaxProviderSettings>();
+        var taxProviderettings = await _settingService.LoadSetting<TaxProviderSettings>();
 
         if (string.IsNullOrEmpty(systemName)) return RedirectToAction("Providers");
         var taxProvider = _taxService.LoadTaxProviderBySystemName(systemName);
@@ -130,7 +130,7 @@ public class TaxController : BaseAdminController
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var taxSettings = _settingService.LoadSetting<TaxSettings>(storeScope);
+        var taxSettings = await _settingService.LoadSetting<TaxSettings>(storeScope);
         var model = taxSettings.ToModel();
 
         model.ActiveStore = storeScope;
@@ -186,7 +186,7 @@ public class TaxController : BaseAdminController
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var taxSettings = _settingService.LoadSetting<TaxSettings>(storeScope);
+        var taxSettings = await _settingService.LoadSetting<TaxSettings>(storeScope);
         taxSettings = model.ToEntity(taxSettings);
 
         await _settingService.SaveSetting(taxSettings, storeScope);

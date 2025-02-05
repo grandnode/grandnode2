@@ -119,21 +119,21 @@ public class SettingService : ISettingService
     /// <param name="defaultValue">Default value</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>Setting value</returns>
-    public virtual T GetSettingByKey<T>(string key, T defaultValue = default, string storeId = "")
+    public virtual async Task<T> GetSettingByKey<T>(string key, T defaultValue = default, string storeId = "")
     {
         if (string.IsNullOrEmpty(key))
             return defaultValue;
 
         var keyCache = string.Format(CacheKey.SETTINGS_BY_KEY, key, storeId);
-        return _cacheBase.Get(keyCache, () =>
+        return await _cacheBase.GetAsync<T>(keyCache, () =>
         {
             var settings = GetSettingsByName(key);
             key = key.Trim().ToLowerInvariant();
-            if (!settings.Any()) return defaultValue;
+            if (!settings.Any()) return Task.FromResult(defaultValue);
 
             var setting = settings.FirstOrDefault(x => x.StoreId == storeId) ??
                           settings.FirstOrDefault(x => string.IsNullOrEmpty(x.StoreId));
-            return setting != null ? JsonSerializer.Deserialize<T>(setting.Metadata) : defaultValue;
+            return setting != null ? Task.FromResult(JsonSerializer.Deserialize<T>(setting.Metadata)) : Task.FromResult(defaultValue);
         });
     }
 
@@ -186,9 +186,10 @@ public class SettingService : ISettingService
     /// </summary>
     /// <typeparam name="T">Type</typeparam>
     /// <param name="storeId">Store identifier for which settings should be loaded</param>
-    public virtual T LoadSetting<T>(string storeId = "") where T : ISettings, new()
+    public virtual async Task<T> LoadSetting<T>(string storeId = "") where T : ISettings, new()
     {
-        return (T)LoadSetting(typeof(T), storeId);
+        var result = await LoadSetting(typeof(T), storeId);
+        return (T)result;
     }
 
     /// <summary>
@@ -196,20 +197,21 @@ public class SettingService : ISettingService
     /// </summary>
     /// <param name="type">Type</param>
     /// <param name="storeId">Store identifier for which settings should be loaded</param>
-    public virtual ISettings LoadSetting(Type type, string storeId = "")
+    public virtual async Task<ISettings> LoadSetting(Type type, string storeId = "")
     {
         var key = string.Format(CacheKey.SETTINGS_BY_KEY, type.Name, storeId);
-        return _cacheBase.Get(key, () =>
+        return await _cacheBase.GetAsync(key, () =>
         {
             var settings = GetSettingsByName(type.Name);
-            if (!settings.Any()) return Activator.CreateInstance(type) as ISettings;
+            if (!settings.Any()) return Task.FromResult(Activator.CreateInstance(type) as ISettings);
             var setting = settings.FirstOrDefault(x => x.StoreId == storeId);
 
             if (setting == null && !string.IsNullOrEmpty(storeId))
                 setting = settings.FirstOrDefault(x => string.IsNullOrEmpty(x.StoreId));
 
-            if (setting != null) return JsonSerializer.Deserialize(setting.Metadata, type) as ISettings;
-            return Activator.CreateInstance(type) as ISettings;
+            if (setting != null) 
+                return Task.FromResult(JsonSerializer.Deserialize(setting.Metadata, type) as ISettings);
+            return Task.FromResult(Activator.CreateInstance(type) as ISettings);
         });
     }
 
