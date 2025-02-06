@@ -67,8 +67,7 @@ public class ShippingFixedRateController : BaseShippingController
             Rate = model.Rate
         };
 
-        await _settingService.SetSetting(
-            $"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}", rate);
+        await _settingService.SetSetting($"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}", rate);
 
         return new JsonResult("");
     }

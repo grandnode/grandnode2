@@ -59,15 +59,14 @@ public class SettingService : ISettingService
     /// </summary>
     /// <param name="setting">Setting</param>
     /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
-    public virtual async Task InsertSetting(Setting setting, bool clearCache = true)
+    public virtual async Task InsertSetting(Setting setting)
     {
         ArgumentNullException.ThrowIfNull(setting);
 
         await _settingRepository.InsertAsync(setting);
 
         //cache
-        if (clearCache)
-            await _cacheBase.Clear();
+        await _cacheBase.Clear();
     }
 
     /// <summary>
@@ -75,15 +74,14 @@ public class SettingService : ISettingService
     /// </summary>
     /// <param name="setting">Setting</param>
     /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
-    public virtual async Task UpdateSetting(Setting setting, bool clearCache = true)
+    public virtual async Task UpdateSetting(Setting setting)
     {
         ArgumentNullException.ThrowIfNull(setting);
 
         await _settingRepository.UpdateAsync(setting);
 
         //cache
-        if (clearCache)
-            await _cacheBase.Clear();
+        await _cacheBase.Clear();
     }
 
     /// <summary>
@@ -145,7 +143,7 @@ public class SettingService : ISettingService
     /// <param name="value">Value</param>
     /// <param name="storeId">Store identifier</param>
     /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
-    public virtual async Task SetSetting<T>(string key, T value, string storeId = "", bool clearCache = true)
+    public virtual async Task SetSetting<T>(string key, T value, string storeId = "")
     {
         ArgumentNullException.ThrowIfNull(key);
 
@@ -157,7 +155,7 @@ public class SettingService : ISettingService
         {
             //update
             setting.Metadata = JsonSerializer.Serialize(value);
-            await UpdateSetting(setting, clearCache);
+            await UpdateSetting(setting);
         }
         else
         {
@@ -168,7 +166,7 @@ public class SettingService : ISettingService
                 Metadata = metadata,
                 StoreId = storeId
             };
-            await InsertSetting(setting, clearCache);
+            await InsertSetting(setting);
         }
     }
 
@@ -241,9 +239,6 @@ public class SettingService : ISettingService
             };
             await InsertSetting(setting);
         }
-
-        //and now clear cache
-        await ClearCache();
     }
 
     /// <summary>

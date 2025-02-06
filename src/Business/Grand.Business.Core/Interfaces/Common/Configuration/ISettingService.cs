@@ -11,16 +11,14 @@ public interface ISettingService
     ///     Adds a setting
     /// </summary>
     /// <param name="setting">Setting</param>
-    /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
-    Task InsertSetting(Setting setting, bool clearCache = true);
+    Task InsertSetting(Setting setting);
 
     /// <summary>
     ///     Update setting
     /// </summary>
     /// <param name="setting"></param>
-    /// <param name="clearCache"></param>
     /// <returns></returns>
-    Task UpdateSetting(Setting setting, bool clearCache = true);
+    Task UpdateSetting(Setting setting);
 
     /// <summary>
     ///     Deletes a setting
@@ -52,8 +50,7 @@ public interface ISettingService
     /// <param name="key">Key</param>
     /// <param name="value">Value</param>
     /// <param name="storeId">Store identifier</param>
-    /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
-    Task SetSetting<T>(string key, T value, string storeId = "", bool clearCache = true);
+    Task SetSetting<T>(string key, T value, string storeId = "");
 
     /// <summary>
     ///     Gets all settings

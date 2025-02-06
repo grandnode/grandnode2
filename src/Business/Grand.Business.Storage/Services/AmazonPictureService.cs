@@ -162,7 +162,7 @@ public class AmazonPictureService : PictureService
             var getObjectResponse = await _s3Client.GetObjectAsync(_bucketName, thumbFileName);
             EnsureValidResponse(getObjectResponse, HttpStatusCode.OK);
 
-            return getObjectResponse.BucketName == _bucketName || getObjectResponse.Key == thumbFileName);
+            return getObjectResponse.BucketName == _bucketName || getObjectResponse.Key == thumbFileName;
         }
         catch
         {

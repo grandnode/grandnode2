@@ -77,7 +77,7 @@ public class PaymentServiceTests
 
         await _paymentService.SaveRestrictedCountryIds(_paymentProviderMock.Object, countryIds);
         _settingService.Verify(
-            s => s.SetSetting(expectedKey, It.IsAny<PaymentRestrictedSettings>(), It.IsAny<string>(), It.IsAny<bool>()),
+            s => s.SetSetting(expectedKey, It.IsAny<PaymentRestrictedSettings>(), It.IsAny<string>()),
             Times.Once);
     }
 
