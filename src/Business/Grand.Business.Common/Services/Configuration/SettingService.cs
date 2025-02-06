@@ -184,10 +184,9 @@ public class SettingService : ISettingService
     /// </summary>
     /// <typeparam name="T">Type</typeparam>
     /// <param name="storeId">Store identifier for which settings should be loaded</param>
-    public virtual async Task<T> LoadSetting<T>(string storeId = "") where T : ISettings, new()
+    public virtual Task<T> LoadSetting<T>(string storeId = "") where T : ISettings, new()
     {
-        var result = await LoadSetting(typeof(T), storeId);
-        return (T)result;
+        return Task.FromResult((T)LoadSetting(typeof(T), storeId));
     }
 
     /// <summary>
@@ -195,21 +194,22 @@ public class SettingService : ISettingService
     /// </summary>
     /// <param name="type">Type</param>
     /// <param name="storeId">Store identifier for which settings should be loaded</param>
-    public virtual async Task<ISettings> LoadSetting(Type type, string storeId = "")
+    public virtual ISettings LoadSetting(Type type, string storeId = "")
     {
         var key = string.Format(CacheKey.SETTINGS_BY_KEY, type.Name, storeId);
-        return await _cacheBase.GetAsync(key, () =>
+        return _cacheBase.Get(key, () =>
         {
             var settings = GetSettingsByName(type.Name);
-            if (!settings.Any()) return Task.FromResult(Activator.CreateInstance(type) as ISettings);
+            if (!settings.Any()) return Activator.CreateInstance(type) as ISettings;
             var setting = settings.FirstOrDefault(x => x.StoreId == storeId);
 
             if (setting == null && !string.IsNullOrEmpty(storeId))
                 setting = settings.FirstOrDefault(x => string.IsNullOrEmpty(x.StoreId));
 
             if (setting != null) 
-                return Task.FromResult(JsonSerializer.Deserialize(setting.Metadata, type) as ISettings);
-            return Task.FromResult(Activator.CreateInstance(type) as ISettings);
+                return JsonSerializer.Deserialize(setting.Metadata, type) as ISettings;
+
+            return Activator.CreateInstance(type) as ISettings;
         });
     }
 

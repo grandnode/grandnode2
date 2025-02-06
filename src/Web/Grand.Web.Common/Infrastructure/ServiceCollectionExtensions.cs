@@ -9,7 +9,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
-using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.View;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -259,7 +258,7 @@ public static class ServiceCollectionExtensions
                 if (store != null)
                     storeId = store.Id;
 
-                return settingService.LoadSetting(type, storeId).ConfigureAwait(false).GetAwaiter().GetResult();
+                return settingService.LoadSetting(type, storeId);
             });
     }
 

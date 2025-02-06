@@ -71,7 +71,7 @@ public interface ISettingService
     /// <param name="type"></param>
     /// <param name="storeId"></param>
     /// <returns></returns>
-    Task<ISettings> LoadSetting(Type type, string storeId = "");
+    ISettings LoadSetting(Type type, string storeId = "");
 
     /// <summary>
     ///     Save settings object
