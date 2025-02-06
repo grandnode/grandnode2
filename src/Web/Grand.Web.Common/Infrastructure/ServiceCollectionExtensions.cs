@@ -259,7 +259,7 @@ public static class ServiceCollectionExtensions
                 if (store != null)
                     storeId = store.Id;
 
-                return settingService.LoadSetting(type, storeId);
+                return settingService.LoadSetting(type, storeId).ConfigureAwait(false).GetAwaiter().GetResult();
             });
     }
 
