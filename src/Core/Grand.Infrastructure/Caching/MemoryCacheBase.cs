@@ -122,24 +122,6 @@ public class MemoryCacheBase : ICacheBase
         return Task.CompletedTask;
     }
 
-    ~MemoryCacheBase()
-    {
-        Dispose(false);
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (_disposed) return;
-        if (disposing) _cache.Dispose();
-        _disposed = true;
-    }
-
     #endregion
 
     #region Utilities
