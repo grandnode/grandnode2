@@ -239,7 +239,7 @@ public class OrderViewModelService : IOrderViewModelService
         //payment methods
         model.AvailablePaymentMethods.Add(new SelectListItem
             { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var pm in _paymentService.LoadAllPaymentMethods())
+        foreach (var pm in await _paymentService.LoadAllPaymentMethods())
             model.AvailablePaymentMethods.Add(new SelectListItem { Text = pm.FriendlyName, Value = pm.SystemName });
 
         //billing countries

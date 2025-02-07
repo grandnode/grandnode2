@@ -67,10 +67,10 @@ public class PaymentController : BaseAdminController
     {
         var storeScope = await GetActiveStore();
 
-        var _paymentSettings = _settingService.LoadSetting<PaymentSettings>(storeScope);
+        var _paymentSettings = await _settingService.LoadSetting<PaymentSettings>(storeScope);
 
         var paymentMethodsModel = new List<PaymentMethodModel>();
-        var paymentMethods = _paymentService.LoadAllPaymentMethods();
+        var paymentMethods = await _paymentService.LoadAllPaymentMethods();
         foreach (var paymentMethod in paymentMethods)
         {
             var tmp = await paymentMethod.ToModel();
@@ -103,7 +103,7 @@ public class PaymentController : BaseAdminController
     public async Task<IActionResult> MethodUpdate(PaymentMethodModel model)
     {
         var storeScope = await GetActiveStore();
-        var _paymentSettings = _settingService.LoadSetting<PaymentSettings>(storeScope);
+        var _paymentSettings = await _settingService.LoadSetting<PaymentSettings>(storeScope);
 
         var pm = _paymentService.LoadPaymentMethodBySystemName(model.SystemName);
         if (pm.IsPaymentMethodActive(_paymentSettings))
@@ -147,7 +147,7 @@ public class PaymentController : BaseAdminController
     public async Task<IActionResult> MethodRestrictions()
     {
         var model = new PaymentMethodRestrictionModel();
-        var paymentMethods = _paymentService.LoadAllPaymentMethods();
+        var paymentMethods = await _paymentService.LoadAllPaymentMethods();
         var countries = await _countryService.GetAllCountries(showHidden: true);
         var shippings = await _shippingMethodService.GetAllShippingMethods();
 
@@ -161,7 +161,7 @@ public class PaymentController : BaseAdminController
 
         foreach (var pm in paymentMethods)
         {
-            var restictedCountries = _paymentService.GetRestrictedCountryIds(pm);
+            var restictedCountries = await _paymentService.GetRestrictedCountryIds(pm);
             foreach (var c in countries)
             {
                 var resticted = restictedCountries.Contains(c.Id);
@@ -170,7 +170,7 @@ public class PaymentController : BaseAdminController
                 model.Resticted[pm.SystemName][c.Id] = resticted;
             }
 
-            var restictedShipping = _paymentService.GetRestrictedShippingIds(pm);
+            var restictedShipping = await _paymentService.GetRestrictedShippingIds(pm);
             foreach (var s in shippings)
             {
                 var resticted = restictedShipping.Contains(s.Name);
@@ -188,7 +188,7 @@ public class PaymentController : BaseAdminController
     [RequestFormLimits(ValueCountLimit = 2048)]
     public async Task<IActionResult> MethodRestrictionsSave(IDictionary<string, string[]> model)
     {
-        var paymentMethods = _paymentService.LoadAllPaymentMethods();
+        var paymentMethods = await _paymentService.LoadAllPaymentMethods();
         var countries = await _countryService.GetAllCountries(showHidden: true);
         var shippings = await _shippingMethodService.GetAllShippingMethods();
 
@@ -230,7 +230,7 @@ public class PaymentController : BaseAdminController
     {
         var storeScope = await GetActiveStore();
 
-        var paymentSettings = _settingService.LoadSetting<PaymentSettings>(storeScope);
+        var paymentSettings = await _settingService.LoadSetting<PaymentSettings>(storeScope);
         var model = paymentSettings.ToModel();
 
         return View(model);
@@ -241,7 +241,7 @@ public class PaymentController : BaseAdminController
     {
         var storeScope = await GetActiveStore();
 
-        var paymentSettings = _settingService.LoadSetting<PaymentSettings>(storeScope);
+        var paymentSettings = await _settingService.LoadSetting<PaymentSettings>(storeScope);
         paymentSettings = model.ToEntity(paymentSettings);
 
         await _settingService.SaveSetting(paymentSettings, storeScope);

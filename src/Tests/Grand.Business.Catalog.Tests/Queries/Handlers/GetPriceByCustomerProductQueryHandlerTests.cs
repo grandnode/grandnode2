@@ -30,7 +30,7 @@ public class GetPriceByCustomerProductQueryHandlerTests
     public async Task HandleTest()
     {
         await handler.Handle(new GetPriceByCustomerProductQuery(), CancellationToken.None);
-        _casheManagerMock.Verify(c => c.Get(It.IsAny<string>(), It.IsAny<Func<(CustomerProductPrice, bool)>>()),
+        _casheManagerMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<CustomerProductPrice>>>()),
             Times.Once);
     }
 }

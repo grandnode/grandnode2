@@ -19,10 +19,9 @@ public class PaymentCashOnDeliveryController : BasePaymentController
         _settingService = settingService;
     }
 
-    public IActionResult PaymentInfo()
+    public async Task<IActionResult> PaymentInfo()
     {
-        var cashOnDeliveryPaymentSettings =
-            _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(_workContextAccessor.WorkContext.CurrentStore.Id);
+        var cashOnDeliveryPaymentSettings = await _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(_workContextAccessor.WorkContext.CurrentStore.Id);
 
         var model = new PaymentInfoModel {
             DescriptionText = cashOnDeliveryPaymentSettings.DescriptionText

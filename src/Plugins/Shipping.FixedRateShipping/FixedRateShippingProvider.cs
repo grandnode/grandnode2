@@ -70,7 +70,7 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
             var shippingOption = new ShippingOption {
                 Name = shippingMethod.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
                 Description = shippingMethod.GetTranslation(x => x.Description, _workContextAccessor.WorkContext.WorkingLanguage.Id),
-                Rate = await _currencyService.ConvertFromPrimaryStoreCurrency(GetRate(shippingMethod.Id),
+                Rate = await _currencyService.ConvertFromPrimaryStoreCurrency(await GetRate(shippingMethod.Id),
                     _workContextAccessor.WorkContext.WorkingCurrency)
             };
             response.ShippingOptions.Add(shippingOption);
@@ -98,7 +98,7 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
         var rates = new List<double>();
         foreach (var shippingMethod in shippingMethods)
         {
-            var rate = GetRate(shippingMethod.Id);
+            var rate = await GetRate(shippingMethod.Id);
             if (!rates.Contains(rate))
                 rates.Add(rate);
         }
@@ -138,10 +138,10 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
 
     #region Utilities
 
-    private double GetRate(string shippingMethodId)
+    private async Task<double> GetRate(string shippingMethodId)
     {
         var key = $"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}";
-        var rate = _settingService.GetSettingByKey<FixedShippingRate>(key)?.Rate;
+        var rate = (await _settingService.GetSettingByKey<FixedShippingRate>(key))?.Rate;
         return rate ?? 0;
     }
 

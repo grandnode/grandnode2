@@ -35,7 +35,7 @@ public class TaxFixedRateController : BaseAdminPluginController
             taxRateModels.Add(new FixedTaxRateModel {
                 TaxCategoryId = taxCategory.Id,
                 TaxCategoryName = taxCategory.Name,
-                Rate = GetTaxRate(taxCategory.Id)
+                Rate = await GetTaxRate(taxCategory.Id)
             });
 
         var gridModel = new DataSourceResult {
@@ -58,10 +58,9 @@ public class TaxFixedRateController : BaseAdminPluginController
     }
 
     [NonAction]
-    private double GetTaxRate(string taxCategoryId)
+    private async Task<double> GetTaxRate(string taxCategoryId)
     {
-        var rate = _settingService.GetSettingByKey<FixedTaxRate>(
-            $"Tax.TaxProvider.FixedRate.TaxCategoryId{taxCategoryId}")?.Rate;
+        var rate = (await _settingService.GetSettingByKey<FixedTaxRate>($"Tax.TaxProvider.FixedRate.TaxCategoryId{taxCategoryId}"))?.Rate;
         return rate ?? 0;
     }
 }

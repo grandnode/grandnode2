@@ -41,7 +41,7 @@ public class InstallUrlMiddleware
     public async Task InvokeAsync(HttpContext context)
     {
         var databaseIsInstalled = DataSettingsManager.DatabaseIsInstalled();
-        var version = GetDatabaseVersion(context, databaseIsInstalled);
+        var version = await GetDatabaseVersion(context, databaseIsInstalled);
 
         if (version == null)
         {
@@ -71,14 +71,15 @@ public class InstallUrlMiddleware
         //call the next middleware in the request pipeline
         await _next(context);
     }
-    private GrandNodeVersion? GetDatabaseVersion(HttpContext context, bool databaseIsInstalled)
+    private Task<GrandNodeVersion?> GetDatabaseVersion(HttpContext context, bool databaseIsInstalled)
     {
-        return _cacheBase.Get(CacheKey.GRAND_NODE_VERSION, () =>
+        return _cacheBase.GetAsync(CacheKey.GRAND_NODE_VERSION, () =>
         {
-            if (databaseIsInstalled)
-                return context.RequestServices.GetRequiredService<IRepository<GrandNodeVersion>>().Table.FirstOrDefault();
+            if (databaseIsInstalled) 
+                return Task.FromResult(context.RequestServices.GetRequiredService<IRepository<GrandNodeVersion>>().Table.FirstOrDefault());
 
-            return null;
+            return Task.FromResult<GrandNodeVersion?>(null);
+
         }, int.MaxValue);
     }
 

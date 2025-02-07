@@ -44,7 +44,7 @@ public class ShippingFixedRateController : BaseShippingController
             rateModels.Add(new FixedShippingRateModel {
                 ShippingMethodId = shippingMethod.Id,
                 ShippingMethodName = shippingMethod.Name,
-                Rate = GetShippingRate(shippingMethod.Id)
+                Rate = await GetShippingRate(shippingMethod.Id)
             });
 
         var gridModel = new DataSourceResult {
@@ -67,17 +67,15 @@ public class ShippingFixedRateController : BaseShippingController
             Rate = model.Rate
         };
 
-        await _settingService.SetSetting(
-            $"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}", rate);
+        await _settingService.SetSetting($"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}", rate);
 
         return new JsonResult("");
     }
 
     [NonAction]
-    private double GetShippingRate(string shippingMethodId)
+    private async Task<double> GetShippingRate(string shippingMethodId)
     {
-        var rate = _settingService.GetSettingByKey<FixedShippingRate>(
-            $"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}")?.Rate;
+        var rate = (await _settingService.GetSettingByKey<FixedShippingRate>($"ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{shippingMethodId}"))?.Rate;
         return rate ?? 0;
     }
 }

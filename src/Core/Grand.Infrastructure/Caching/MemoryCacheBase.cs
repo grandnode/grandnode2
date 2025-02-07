@@ -29,7 +29,6 @@ public class MemoryCacheBase : ICacheBase
     private readonly IMediator _mediator;
     private readonly CacheConfig _cacheConfig;
 
-    private bool _disposed;
     private static CancellationTokenSource _resetCacheToken = new();
 
     protected readonly ConcurrentDictionary<string, SemaphoreSlim> CacheEntries = new();
@@ -37,6 +36,32 @@ public class MemoryCacheBase : ICacheBase
     #endregion
 
     #region Methods
+
+    public virtual T Get<T>(string key, Func<T> acquire)
+    {
+        return Get(key, acquire, _cacheConfig.DefaultCacheTimeMinutes);
+    }
+
+    public virtual T Get<T>(string key, Func<T> acquire, int cacheTime)
+    {
+        if (_cache.TryGetValue(key, out T cacheEntry)) return cacheEntry;
+        var semaphore = CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
+        semaphore.Wait();
+        try
+        {
+            if (!_cache.TryGetValue(key, out cacheEntry))
+            {
+                cacheEntry = acquire();
+                _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
+            }
+        }
+        finally
+        {
+            semaphore.Release();
+        }
+
+        return cacheEntry;
+    }
 
     public virtual Task<T> GetAsync<T>(string key, Func<Task<T>> acquire)
     {
@@ -85,32 +110,6 @@ public class MemoryCacheBase : ICacheBase
         }
     }
 
-    public virtual T Get<T>(string key, Func<T> acquire)
-    {
-        return Get(key, acquire, _cacheConfig.DefaultCacheTimeMinutes);
-    }
-
-    public virtual T Get<T>(string key, Func<T> acquire, int cacheTime)
-    {
-        if (_cache.TryGetValue(key, out T cacheEntry)) return cacheEntry;
-        var semaphore = CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
-        semaphore.Wait();
-        try
-        {
-            if (!_cache.TryGetValue(key, out cacheEntry))
-            {
-                cacheEntry = acquire();
-                _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
-            }
-        }
-        finally
-        {
-            semaphore.Release();
-        }
-
-        return cacheEntry;
-    }
-
     public virtual Task RemoveAsync(string key, bool publisher = true)
     {
         _cache.Remove(key);
@@ -146,24 +145,6 @@ public class MemoryCacheBase : ICacheBase
         _resetCacheToken = new CancellationTokenSource();
 
         return Task.CompletedTask;
-    }
-
-    ~MemoryCacheBase()
-    {
-        Dispose(false);
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (_disposed) return;
-        if (disposing) _cache.Dispose();
-        _disposed = true;
     }
 
     #endregion

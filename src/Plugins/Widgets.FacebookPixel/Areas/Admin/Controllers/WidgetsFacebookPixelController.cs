@@ -51,7 +51,7 @@ public class WidgetsFacebookPixelController : BaseAdminPluginController
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
-        var facebookPixelSettings = _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
+        var facebookPixelSettings = await _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
         var model = new ConfigurationModel {
             PixelId = facebookPixelSettings.PixelId,
             PixelScript = facebookPixelSettings.PixelScript,
@@ -72,7 +72,7 @@ public class WidgetsFacebookPixelController : BaseAdminPluginController
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
-        var facebookPixelSettings = _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
+        var facebookPixelSettings = await _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
         facebookPixelSettings.PixelId = model.PixelId;
         facebookPixelSettings.PixelScript = model.PixelScript;
         facebookPixelSettings.AddToCartScript = model.AddToCartScript;

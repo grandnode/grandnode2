@@ -70,9 +70,9 @@ public class SettingController(
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var blogSettings = settingService.LoadSetting<BlogSettings>(storeScope);
-        var newsSettings = settingService.LoadSetting<NewsSettings>(storeScope);
-        var knowledgebaseSettings = settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
+        var blogSettings = await settingService.LoadSetting<BlogSettings>(storeScope);
+        var newsSettings = await settingService.LoadSetting<NewsSettings>(storeScope);
+        var knowledgebaseSettings = await settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
         var model = new ContentSettingsModel {
             BlogSettings = blogSettings.ToModel(),
             NewsSettings = newsSettings.ToModel(),
@@ -88,17 +88,17 @@ public class SettingController(
     {
         var storeScope = await GetActiveStore();
         //blog
-        var blogSettings = settingService.LoadSetting<BlogSettings>(storeScope);
+        var blogSettings = await settingService.LoadSetting<BlogSettings>(storeScope);
         blogSettings = model.BlogSettings.ToEntity(blogSettings);
         await settingService.SaveSetting(blogSettings, storeScope);
 
         //news
-        var newsSettings = settingService.LoadSetting<NewsSettings>(storeScope);
+        var newsSettings = await settingService.LoadSetting<NewsSettings>(storeScope);
         newsSettings = model.NewsSettings.ToEntity(newsSettings);
         await settingService.SaveSetting(newsSettings, storeScope);
 
         //knowledgebase
-        var knowledgeBaseSettings = settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
+        var knowledgeBaseSettings = await settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
         knowledgeBaseSettings = model.KnowledgebaseSettings.ToEntity(knowledgeBaseSettings);
         await settingService.SaveSetting(knowledgeBaseSettings, storeScope);
 
@@ -116,7 +116,7 @@ public class SettingController(
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var vendorSettings = settingService.LoadSetting<VendorSettings>(storeScope);
+        var vendorSettings = await settingService.LoadSetting<VendorSettings>(storeScope);
         var model = vendorSettings.ToModel();
 
         model.ActiveStore = storeScope;
@@ -129,7 +129,7 @@ public class SettingController(
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var vendorSettings = settingService.LoadSetting<VendorSettings>(storeScope);
+        var vendorSettings = await settingService.LoadSetting<VendorSettings>(storeScope);
         vendorSettings = model.ToEntity(vendorSettings);
 
         await settingService.SaveSetting(vendorSettings, storeScope);
@@ -145,7 +145,7 @@ public class SettingController(
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var catalogSettings = settingService.LoadSetting<CatalogSettings>(storeScope);
+        var catalogSettings = await settingService.LoadSetting<CatalogSettings>(storeScope);
         var model = catalogSettings.ToModel();
         model.ActiveStore = storeScope;
         return View(model);
@@ -156,7 +156,7 @@ public class SettingController(
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var catalogSettings = settingService.LoadSetting<CatalogSettings>(storeScope);
+        var catalogSettings = await settingService.LoadSetting<CatalogSettings>(storeScope);
         catalogSettings = model.ToEntity(catalogSettings);
 
         await settingService.SaveSetting(catalogSettings, storeScope);
@@ -178,7 +178,7 @@ public class SettingController(
     public async Task<IActionResult> SortOptionsList(DataSourceRequest command)
     {
         var storeScope = await GetActiveStore();
-        var catalogSettings = settingService.LoadSetting<CatalogSettings>(storeScope);
+        var catalogSettings = await settingService.LoadSetting<CatalogSettings>(storeScope);
         var model = new List<SortOptionModel>();
         foreach (int option in Enum.GetValues(typeof(ProductSortingEnum)))
             model.Add(new SortOptionModel {
@@ -200,7 +200,7 @@ public class SettingController(
     public async Task<IActionResult> SortOptionUpdate(SortOptionModel model)
     {
         var storeScope = await GetActiveStore();
-        var catalogSettings = settingService.LoadSetting<CatalogSettings>(storeScope);
+        var catalogSettings = await settingService.LoadSetting<CatalogSettings>(storeScope);
 
         catalogSettings.ProductSortingEnumDisplayOrder[model.Id] = model.DisplayOrder;
         switch (model.IsActive)
@@ -226,9 +226,9 @@ public class SettingController(
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var loyaltyPointsSettings = settingService.LoadSetting<LoyaltyPointsSettings>(storeScope);
-        var orderSettings = settingService.LoadSetting<OrderSettings>(storeScope);
-        var shoppingCartSettings = settingService.LoadSetting<ShoppingCartSettings>(storeScope);
+        var loyaltyPointsSettings = await settingService.LoadSetting<LoyaltyPointsSettings>(storeScope);
+        var orderSettings = await settingService.LoadSetting<OrderSettings>(storeScope);
+        var shoppingCartSettings = await settingService.LoadSetting<ShoppingCartSettings>(storeScope);
 
         var model = new SalesSettingsModel {
             LoyaltyPointsSettings = loyaltyPointsSettings.ToModel(),
@@ -237,7 +237,7 @@ public class SettingController(
             ActiveStore = storeScope
         };
 
-        var currencySettings = settingService.LoadSetting<CurrencySettings>();
+        var currencySettings = await settingService.LoadSetting<CurrencySettings>();
         var currency = await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId);
 
         //loyal
@@ -266,15 +266,15 @@ public class SettingController(
 
         if (ModelState.IsValid)
         {
-            var loyaltyPointsSettings = settingService.LoadSetting<LoyaltyPointsSettings>(storeScope);
+            var loyaltyPointsSettings = await settingService.LoadSetting<LoyaltyPointsSettings>(storeScope);
             loyaltyPointsSettings = model.LoyaltyPointsSettings.ToEntity(loyaltyPointsSettings);
             await settingService.SaveSetting(loyaltyPointsSettings, storeScope);
 
-            var shoppingCartSettings = settingService.LoadSetting<ShoppingCartSettings>(storeScope);
+            var shoppingCartSettings = await settingService.LoadSetting<ShoppingCartSettings>(storeScope);
             shoppingCartSettings = model.ShoppingCartSettings.ToEntity(shoppingCartSettings);
             await settingService.SaveSetting(shoppingCartSettings, storeScope);
 
-            var orderSettings = settingService.LoadSetting<OrderSettings>(storeScope);
+            var orderSettings = await settingService.LoadSetting<OrderSettings>(storeScope);
             orderSettings = model.OrderSettings.ToEntity(orderSettings);
 
             await settingService.SaveSetting(orderSettings, storeScope);
@@ -529,7 +529,7 @@ public class SettingController(
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var mediaSettings = settingService.LoadSetting<MediaSettings>(storeScope);
+        var mediaSettings = await settingService.LoadSetting<MediaSettings>(storeScope);
         var model = mediaSettings.ToModel();
         model.ActiveStore = storeScope;
 
@@ -542,7 +542,7 @@ public class SettingController(
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
 
-        var mediaSettings = settingService.LoadSetting<MediaSettings>(storeScope);
+        var mediaSettings = await settingService.LoadSetting<MediaSettings>(storeScope);
         mediaSettings = model.ToEntity(mediaSettings);
 
         await settingService.SaveSetting(mediaSettings, storeScope);
@@ -559,8 +559,8 @@ public class SettingController(
     public async Task<IActionResult> Customer()
     {
         var storeScope = await GetActiveStore();
-        var customerSettings = settingService.LoadSetting<CustomerSettings>(storeScope);
-        var addressSettings = settingService.LoadSetting<AddressSettings>(storeScope);
+        var customerSettings = await settingService.LoadSetting<CustomerSettings>(storeScope);
+        var addressSettings = await settingService.LoadSetting<AddressSettings>(storeScope);
 
         //merge settings
         var model = new CustomerSettingsModel {
@@ -575,8 +575,8 @@ public class SettingController(
     public async Task<IActionResult> Customer(CustomerSettingsModel model)
     {
         var storeScope = await GetActiveStore();
-        var customerSettings = settingService.LoadSetting<CustomerSettings>(storeScope);
-        var addressSettings = settingService.LoadSetting<AddressSettings>(storeScope);
+        var customerSettings = await settingService.LoadSetting<CustomerSettings>(storeScope);
+        var addressSettings = await settingService.LoadSetting<AddressSettings>(storeScope);
 
         customerSettings = model.CustomerSettings.ToEntity(customerSettings);
         await settingService.SaveSetting(customerSettings, storeScope);
@@ -601,7 +601,7 @@ public class SettingController(
         var storeScope = await GetActiveStore();
         model.ActiveStore = storeScope;
         //datettime settings
-        var dateTimeSettings = settingService.LoadSetting<DateTimeSettings>(storeScope);
+        var dateTimeSettings = await settingService.LoadSetting<DateTimeSettings>(storeScope);
         model.DateTimeSettings.DefaultStoreTimeZoneId = dateTimeSettings.DefaultStoreTimeZoneId;
         var iswindows = OperatingSystem.IsWindows();
         foreach (var timeZone in dateTimeService.GetSystemTimeZones())
@@ -616,7 +616,7 @@ public class SettingController(
         }
 
         //store information
-        var storeInformationSettings = settingService.LoadSetting<StoreInformationSettings>(storeScope);
+        var storeInformationSettings = await settingService.LoadSetting<StoreInformationSettings>(storeScope);
         model.StoreInformationSettings = storeInformationSettings.ToModel();
 
         model.StoreInformationSettings.AvailableStoreThemes =
@@ -631,17 +631,17 @@ public class SettingController(
                 }).ToList();
 
         //common
-        var commonSettings = settingService.LoadSetting<CommonSettings>(storeScope);
+        var commonSettings = await settingService.LoadSetting<CommonSettings>(storeScope);
         model.CommonSettings = commonSettings.ToModel();
 
         //seo settings
-        var seoSettings = settingService.LoadSetting<SeoSettings>(storeScope);
+        var seoSettings = await settingService.LoadSetting<SeoSettings>(storeScope);
         model.SeoSettings = seoSettings.ToModel();
 
         //security settings
-        var securitySettings = settingService.LoadSetting<SecuritySettings>(storeScope);
+        var securitySettings = await settingService.LoadSetting<SecuritySettings>(storeScope);
         //captcha settings
-        var captchaSettings = settingService.LoadSetting<CaptchaSettings>(storeScope);
+        var captchaSettings = await settingService.LoadSetting<CaptchaSettings>(storeScope);
         model.SecuritySettings = captchaSettings.ToModel();
 
         if (securitySettings.AdminAreaAllowedIpAddresses != null)
@@ -655,11 +655,11 @@ public class SettingController(
         model.SecuritySettings.AvailableReCaptchaVersions = enumTranslationService.ToSelectList(GoogleReCaptchaVersion.V2, false).ToList();
 
         //PDF settings
-        var pdfSettings = settingService.LoadSetting<PdfSettings>(storeScope);
+        var pdfSettings = await settingService.LoadSetting<PdfSettings>(storeScope);
         model.PdfSettings = pdfSettings.ToModel();
 
         //display menu settings
-        var displayMenuItemSettings = settingService.LoadSetting<MenuItemSettings>(storeScope);
+        var displayMenuItemSettings = await settingService.LoadSetting<MenuItemSettings>(storeScope);
         model.DisplayMenuSettings = displayMenuItemSettings.ToModel();
 
         return View(model);
@@ -672,27 +672,27 @@ public class SettingController(
         var storeScope = await GetActiveStore();
 
         //store information settings
-        var storeInformationSettings = settingService.LoadSetting<StoreInformationSettings>(storeScope);
+        var storeInformationSettings = await settingService.LoadSetting<StoreInformationSettings>(storeScope);
         storeInformationSettings = model.StoreInformationSettings.ToEntity(storeInformationSettings);
         await settingService.SaveSetting(storeInformationSettings, storeScope);
 
         //datetime settings
-        var dateTimeSettings = settingService.LoadSetting<DateTimeSettings>(storeScope);
+        var dateTimeSettings = await settingService.LoadSetting<DateTimeSettings>(storeScope);
         dateTimeSettings.DefaultStoreTimeZoneId = model.DateTimeSettings.DefaultStoreTimeZoneId;
         await settingService.SaveSetting(dateTimeSettings, storeScope);
 
         //common settings
-        var commonSettings = settingService.LoadSetting<CommonSettings>(storeScope);
+        var commonSettings = await settingService.LoadSetting<CommonSettings>(storeScope);
         commonSettings = model.CommonSettings.ToEntity(commonSettings);
         await settingService.SaveSetting(commonSettings, storeScope);
 
         //seo settings
-        var seoSettings = settingService.LoadSetting<SeoSettings>(storeScope);
+        var seoSettings = await settingService.LoadSetting<SeoSettings>(storeScope);
         seoSettings = model.SeoSettings.ToEntity(seoSettings);
         await settingService.SaveSetting(seoSettings, storeScope);
 
         //security settings
-        var securitySettings = settingService.LoadSetting<SecuritySettings>(storeScope);
+        var securitySettings = await settingService.LoadSetting<SecuritySettings>(storeScope);
 
         securitySettings.AdminAreaAllowedIpAddresses ??= [];
         securitySettings.AdminAreaAllowedIpAddresses.Clear();
@@ -705,7 +705,7 @@ public class SettingController(
         await settingService.SaveSetting(securitySettings);
 
         //captcha settings
-        var captchaSettings = settingService.LoadSetting<CaptchaSettings>(storeScope);
+        var captchaSettings = await settingService.LoadSetting<CaptchaSettings>(storeScope);
         captchaSettings = model.SecuritySettings.ToEntity(captchaSettings);
         await settingService.SaveSetting(captchaSettings);
         if (captchaSettings.Enabled &&
@@ -715,12 +715,12 @@ public class SettingController(
             Error("Captcha is enabled but the appropriate keys are not entered");
 
         //PDF settings
-        var pdfSettings = settingService.LoadSetting<PdfSettings>(storeScope);
+        var pdfSettings = await settingService.LoadSetting<PdfSettings>(storeScope);
         pdfSettings = model.PdfSettings.ToEntity(pdfSettings);
         await settingService.SaveSetting(pdfSettings, storeScope);
 
         //menu item settings
-        var displayMenuItemSettings = settingService.LoadSetting<MenuItemSettings>(storeScope);
+        var displayMenuItemSettings = await settingService.LoadSetting<MenuItemSettings>(storeScope);
         displayMenuItemSettings = model.DisplayMenuSettings.ToEntity(displayMenuItemSettings);
         await settingService.SaveSetting(displayMenuItemSettings, storeScope);
 
@@ -738,7 +738,7 @@ public class SettingController(
     public async Task<IActionResult> PushNotifications()
     {
         var storeScope = await GetActiveStore();
-        var settings = settingService.LoadSetting<PushNotificationsSettings>(storeScope);
+        var settings = await settingService.LoadSetting<PushNotificationsSettings>(storeScope);
         var model = settings.ToModel();
 
         return View(model);
@@ -748,7 +748,7 @@ public class SettingController(
     public async Task<IActionResult> PushNotifications(PushNotificationsSettingsModel model, [FromServices] IConfiguration configuration, [FromServices] IWebHostEnvironment webHostEnvironment)
     {
         var storeScope = await GetActiveStore();
-        var settings = settingService.LoadSetting<PushNotificationsSettings>(storeScope);
+        var settings = await settingService.LoadSetting<PushNotificationsSettings>(storeScope);
         settings = model.ToEntity(settings);
 
         await settingService.SaveSetting(settings);
@@ -810,9 +810,9 @@ public class SettingController(
         return lines;
     }
     
-    public IActionResult AdminSearch()
+    public async Task<IActionResult> AdminSearch()
     {
-        var settings = settingService.LoadSetting<AdminSearchSettings>();
+        var settings = await settingService.LoadSetting<AdminSearchSettings>();
         var model = settings.ToModel();
         return View(model);
     }
@@ -820,7 +820,7 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> AdminSearch(AdminSearchSettingsModel model)
     {
-        var settings = settingService.LoadSetting<AdminSearchSettings>();
+        var settings = await settingService.LoadSetting<AdminSearchSettings>();
         settings = model.ToEntity(settings);
         await settingService.SaveSetting(settings);
 
@@ -828,14 +828,14 @@ public class SettingController(
         await ClearCache();
 
         Success(translationService.GetResource("Admin.Configuration.Updated"));
-        return AdminSearch();
+        return await AdminSearch();
     }
 
     #region System settings
 
     public async Task<IActionResult> SystemSetting()
     {
-        var settings = settingService.LoadSetting<SystemSettings>();
+        var settings = await settingService.LoadSetting<SystemSettings>();
 
         var model = new SystemSettingsModel {
             //order ident
@@ -846,24 +846,24 @@ public class SettingController(
         };
 
         //storage settings
-        var storagesettings = settingService.LoadSetting<StorageSettings>();
+        var storagesettings = await settingService.LoadSetting<StorageSettings>();
         model.PicturesStoredIntoDatabase = storagesettings.PictureStoreInDb;
 
         //area admin settings
-        var adminsettings = settingService.LoadSetting<AdminAreaSettings>();
+        var adminsettings = await settingService.LoadSetting<AdminAreaSettings>();
         model.DefaultGridPageSize = adminsettings.DefaultGridPageSize;
         model.GridPageSizes = adminsettings.GridPageSizes;
         model.UseIsoDateTimeConverterInJson = adminsettings.UseIsoDateTimeConverterInJson;
         model.HideStoreColumn = adminsettings.HideStoreColumn;
 
         //language settings 
-        var langsettings = settingService.LoadSetting<LanguageSettings>();
+        var langsettings = await settingService.LoadSetting<LanguageSettings>();
         model.IgnoreRtlPropertyForAdminArea = langsettings.IgnoreRtlPropertyForAdminArea;
         model.AutomaticallyDetectLanguage = langsettings.AutomaticallyDetectLanguage;
         model.DefaultAdminLanguageId = langsettings.DefaultAdminLanguageId;
 
         //others
-        var docsettings = settingService.LoadSetting<DocumentSettings>();
+        var docsettings = await settingService.LoadSetting<DocumentSettings>();
         model.DocumentPageSizeSettings = docsettings.PageSize;
 
         return View(model);
@@ -873,7 +873,7 @@ public class SettingController(
     public async Task<IActionResult> SystemSetting(SystemSettingsModel model)
     {
         //system 
-        var settings = settingService.LoadSetting<SystemSettings>();
+        var settings = await settingService.LoadSetting<SystemSettings>();
         settings.DaysToCancelUnpaidOrder = model.DaysToCancelUnpaidOrder;
         settings.DeleteGuestTaskOlderThanMinutes = model.DeleteGuestTaskOlderThanMinutes;
         await settingService.SaveSetting(settings);
@@ -882,7 +882,7 @@ public class SettingController(
         if (model.OrderIdent is > 0) await mediator.Send(new MaxOrderNumberCommand { OrderNumber = model.OrderIdent });
 
         //admin area
-        var adminAreaSettings = settingService.LoadSetting<AdminAreaSettings>();
+        var adminAreaSettings = await settingService.LoadSetting<AdminAreaSettings>();
         adminAreaSettings.DefaultGridPageSize = model.DefaultGridPageSize;
         adminAreaSettings.GridPageSizes = model.GridPageSizes;
         adminAreaSettings.UseIsoDateTimeConverterInJson = model.UseIsoDateTimeConverterInJson;
@@ -890,14 +890,14 @@ public class SettingController(
         await settingService.SaveSetting(adminAreaSettings);
 
         //language settings 
-        var langsettings = settingService.LoadSetting<LanguageSettings>();
+        var langsettings = await settingService.LoadSetting<LanguageSettings>();
         langsettings.IgnoreRtlPropertyForAdminArea = model.IgnoreRtlPropertyForAdminArea;
         langsettings.AutomaticallyDetectLanguage = model.AutomaticallyDetectLanguage;
         langsettings.DefaultAdminLanguageId = model.DefaultAdminLanguageId;
         await settingService.SaveSetting(langsettings);
 
         //doc settings 
-        var docsettings = settingService.LoadSetting<DocumentSettings>();
+        var docsettings = await settingService.LoadSetting<DocumentSettings>();
         docsettings.PageSize = model.DocumentPageSizeSettings;
         await settingService.SaveSetting(docsettings);
 
@@ -912,7 +912,7 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> ChangePictureStorage()
     {
-        var storageSettings = settingService.LoadSetting<StorageSettings>();
+        var storageSettings = await settingService.LoadSetting<StorageSettings>();
         var storeIdDb = !storageSettings.PictureStoreInDb;
         storageSettings.PictureStoreInDb = storeIdDb;
 

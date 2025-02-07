@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Grand.Data;
-using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Mapper;
@@ -12,7 +11,6 @@ using Grand.Infrastructure.TypeSearch;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
-using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -163,40 +161,7 @@ public static class StartupBase
             });
         }
     }
-
-    /// <summary>
-    ///     Add Mass Transit rabbitmq message broker
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="configuration"></param>
-    /// <param name="typeSearcher"></param>
-    private static void AddMassTransitRabbitMq(IServiceCollection services, IConfiguration configuration,
-        ITypeSearcher typeSearcher)
-    {
-        var config = new RabbitConfig();
-        configuration.GetSection("Rabbit").Bind(config);
-
-        if (!config.RabbitEnabled) return;
-        services.AddMassTransit(x =>
-        {
-            x.AddConsumers(q => q != typeof(CacheMessageEventConsumer), typeSearcher.GetAssemblies().ToArray());
-
-            if (config.RabbitCachePubSubEnabled)
-                x.AddConsumer<CacheMessageEventConsumer>()
-                    .Endpoint(t => t.Name = config.RabbitCacheReceiveEndpoint);
-
-            x.UsingRabbitMq((context, cfg) =>
-            {
-                cfg.Host(config.RabbitHostName, config.RabbitVirtualHost, h =>
-                {
-                    h.Password(config.RabbitPassword);
-                    h.Username(config.RabbitUsername);
-                });
-                cfg.ConfigureEndpoints(context);
-            });
-        });
-    }
-
+   
     /// <summary>
     ///     Register application
     /// </summary>
@@ -257,7 +222,6 @@ public static class StartupBase
         services.StartupConfig<AccessControlConfig>(configuration.GetSection("AccessControl"));
         services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
         services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
-        services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
         services.StartupConfig<BackendAPIConfig>(configuration.GetSection("BackendAPI"));
         services.StartupConfig<FrontendAPIConfig>(configuration.GetSection("FrontendAPI"));
         services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
@@ -316,9 +280,6 @@ public static class StartupBase
 
         //add mediator
         AddMediator(services, typeSearcher);
-
-        //Add MassTransit
-        AddMassTransitRabbitMq(services, configuration, typeSearcher);
 
         //Register startup
         var instancesAfter = startupConfigurations

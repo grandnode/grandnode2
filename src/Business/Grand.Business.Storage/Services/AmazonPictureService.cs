@@ -155,19 +155,18 @@ public class AmazonPictureService : PictureService
     /// </summary>
     /// <param name="thumbFileName">Thumb file name</param>
     /// <returns>Result</returns>
-    private Task<bool> GeneratedThumbExists(string thumbFileName)
+    private async Task<bool> GeneratedThumbExists(string thumbFileName)
     {
         try
         {
-            var getObjectResponse = _s3Client.GetObjectAsync(_bucketName, thumbFileName).GetAwaiter().GetResult();
+            var getObjectResponse = await _s3Client.GetObjectAsync(_bucketName, thumbFileName);
             EnsureValidResponse(getObjectResponse, HttpStatusCode.OK);
 
-            return Task.FromResult(
-                getObjectResponse.BucketName == _bucketName || getObjectResponse.Key == thumbFileName);
+            return getObjectResponse.BucketName == _bucketName || getObjectResponse.Key == thumbFileName;
         }
         catch
         {
-            return Task.FromResult(false);
+            return false;
         }
     }
 

@@ -23,8 +23,6 @@
     <PackageVersion Include="DotLiquid" Version="2.3.18" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageVersion Include="GoogleAuthenticator" Version="3.2.0" />
-    <PackageVersion Include="MassTransit" Version="8.3.5" />
-    <PackageVersion Include="MassTransit.RabbitMQ" Version="8.3.5" />
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageVersion Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />

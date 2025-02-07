@@ -34,12 +34,12 @@ public class FixedRateTaxProvider : ITaxProvider
     /// </summary>
     /// <param name="calculateTaxRequest">Tax calculation request</param>
     /// <returns>Tax</returns>
-    public Task<TaxResult> GetTaxRate(TaxRequest calculateTaxRequest)
+    public async Task<TaxResult> GetTaxRate(TaxRequest calculateTaxRequest)
     {
         var result = new TaxResult {
-            TaxRate = GetTaxRate(calculateTaxRequest.TaxCategoryId)
+            TaxRate = await GetTaxRate(calculateTaxRequest.TaxCategoryId)
         };
-        return Task.FromResult(result);
+        return result;
     }
 
     /// <summary>
@@ -47,10 +47,9 @@ public class FixedRateTaxProvider : ITaxProvider
     /// </summary>
     /// <param name="taxCategoryId">The tax category identifier</param>
     /// <returns>Tax rate</returns>
-    private double GetTaxRate(string taxCategoryId)
+    private async Task<double> GetTaxRate(string taxCategoryId)
     {
-        var rate = _settingService.GetSettingByKey<FixedTaxRate>(
-            $"Tax.TaxProvider.FixedRate.TaxCategoryId{taxCategoryId}")?.Rate;
+        var rate = (await _settingService.GetSettingByKey<FixedTaxRate>($"Tax.TaxProvider.FixedRate.TaxCategoryId{taxCategoryId}"))?.Rate;
         return rate ?? 0;
     }
 }

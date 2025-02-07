@@ -54,7 +54,7 @@ public class PaymentCashOnDeliveryController : BasePaymentController
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
-        var cashOnDeliveryPaymentSettings = _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(storeScope);
+        var cashOnDeliveryPaymentSettings = await _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(storeScope);
 
         var model = new ConfigurationModel {
             DescriptionText = cashOnDeliveryPaymentSettings.DescriptionText,
@@ -79,7 +79,7 @@ public class PaymentCashOnDeliveryController : BasePaymentController
 
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
-        var cashOnDeliveryPaymentSettings = _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(storeScope);
+        var cashOnDeliveryPaymentSettings = await _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(storeScope);
 
         //save settings
         cashOnDeliveryPaymentSettings.DescriptionText = model.DescriptionText;
