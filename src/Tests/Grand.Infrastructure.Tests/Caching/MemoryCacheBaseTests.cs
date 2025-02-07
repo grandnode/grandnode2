@@ -29,6 +29,19 @@ public class MemoryCacheBaseTests
         _mediatorMock = new Mock<IMediator>();
         _service = new MemoryCacheBase(_memoryCache, _mediatorMock.Object, _config);
     }
+    [TestMethod]
+    public void GetTest()
+    {
+        var result = _service.Get("key", () => { return "test"; });
+        Assert.AreEqual(result, "test");
+    }
+
+    [TestMethod]
+    public void GetTest_CacheTimeMinutes()
+    {
+        var result = _service.Get("key", () => { return "test"; }, 1);
+        Assert.AreEqual(result, "test");
+    }
 
     [TestMethod]
     public async Task GetAsyncTest()
