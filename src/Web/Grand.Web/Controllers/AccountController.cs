@@ -20,6 +20,7 @@ using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
+using Grand.Web.Models.Common;
 using Grand.Web.Models.Customer;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -28,6 +29,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Controllers;
 
 [DenySystemAccount]
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class AccountController : BasePublicController
 {
     #region Ctor
@@ -357,6 +359,7 @@ public class AccountController : BasePublicController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     [PublicStore(true)]
+    [ProducesResponseType(typeof(PasswordRecoveryModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model)
     {
         if (!ModelState.IsValid) return View(model);
@@ -376,6 +379,7 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [PublicStore(true)]
+    [ProducesResponseType(typeof(PasswordRecoveryConfirmModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> PasswordRecoveryConfirm(string token, string email)
     {
         var customer = await _customerService.GetCustomerByEmail(email);
@@ -415,6 +419,7 @@ public class AccountController : BasePublicController
     //available even when navigation is not allowed
     [PublicStore(true)]
     [HttpGet]
+    [ProducesResponseType(typeof(RegisterModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> Register()
     {
         //check whether registration is allowed
@@ -623,6 +628,7 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    [ProducesResponseType(typeof(CustomerInfoModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> Info()
     {
         var model = await _mediator.Send(new GetInfo {
@@ -637,6 +643,7 @@ public class AccountController : BasePublicController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    [ProducesResponseType(typeof(CustomerInfoModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> Info(CustomerInfoModel model)
     {
         if (ModelState.IsValid)
@@ -710,6 +717,7 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    [ProducesResponseType(typeof(CustomerAddressListModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> Addresses()
     {
         var model = await _mediator.Send(new GetAddressList {
@@ -743,6 +751,7 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    [ProducesResponseType(typeof(CustomerAddressEditModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> AddressAdd()
     {
         var countries =
@@ -766,6 +775,7 @@ public class AccountController : BasePublicController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    [ProducesResponseType(typeof(AddressModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> AddressAdd(CustomerAddressEditModel model,
         [FromServices] AddressSettings addressSettings)
     {
@@ -803,6 +813,7 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    [ProducesResponseType(typeof(CustomerAddressEditModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> AddressEdit(string addressId)
     {
         var customer = _workContextAccessor.WorkContext.CurrentCustomer;
@@ -831,6 +842,8 @@ public class AccountController : BasePublicController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    [ProducesResponseType(typeof(CustomerAddressEditModel), StatusCodes.Status200OK)]
+
     public virtual async Task<IActionResult> AddressEdit(CustomerAddressEditModel model,
         [FromServices] AddressSettings addressSettings)
     {
