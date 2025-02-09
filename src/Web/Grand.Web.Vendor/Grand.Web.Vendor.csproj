@@ -7,7 +7,8 @@
 		<UseAppHost>false</UseAppHost>
         <!--Set GenerateRuntimeConfigurationFiles as true when Vendor panel is supposed to works independent-->
 		<GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
-    </PropertyGroup>
+		<CompressionEnabled>false</CompressionEnabled>
+	</PropertyGroup>
     <ItemGroup>
         <Content Include="Areas\**" CopyToPublishDirectory="Never" />
         <Content Include="wwwroot\**" CopyToPublishDirectory="PreserveNewest" />

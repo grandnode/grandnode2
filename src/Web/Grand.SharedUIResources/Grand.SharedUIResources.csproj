@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
     <Import Project="..\..\Build\Grand.Common.props" />
-   
+	<PropertyGroup>
+		<CompressionEnabled>false</CompressionEnabled>
+	</PropertyGroup>
     <ItemGroup>
       <Folder Include="wwwroot\" />
     </ItemGroup>

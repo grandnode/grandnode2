@@ -2,7 +2,8 @@
     <Import Project="..\..\Build\Grand.Common.props" />
     <PropertyGroup>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    </PropertyGroup>
+		<StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+	</PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <OutputPath>..\..\Web\Grand.Web\Plugins\Payments.StripeCheckout\</OutputPath>

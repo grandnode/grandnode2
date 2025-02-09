@@ -8,6 +8,7 @@
 		<UseAppHost>false</UseAppHost>
 		<!--Set GenerateRuntimeConfigurationFiles as true when Admin panel is supposed to works independent-->
 		<GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+		<CompressionEnabled>false</CompressionEnabled>
 	</PropertyGroup>	
 	<ItemGroup>
 		<Content Include="Areas\**" CopyToPublishDirectory="Never" />
