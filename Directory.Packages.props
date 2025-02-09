@@ -41,6 +41,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.1" />
     <PackageVersion Include="Braintree" Version="5.29.0" />
+    <PackageVersion Include="System.Configuration.ConfigurationManager" Version="9.0.1" />
     <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.6.0.1" />
     <PackageVersion Include="System.Xml.XPath.XmlDocument" Version="4.7.0" />
     <PackageVersion Include="Stripe.net" Version="47.3.0" />
