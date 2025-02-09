@@ -21,6 +21,7 @@ using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;
@@ -70,6 +71,7 @@ public class OrderController : BasePublicController
     //My account / Orders
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    [ProducesResponseType(typeof(OrderPagingModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> CustomerOrders(OrderPagingModel command)
     {
         var model = await _mediator.Send(new GetCustomerOrderList {
@@ -83,6 +85,7 @@ public class OrderController : BasePublicController
 
     //My account / Order details page
     [HttpGet]
+    [ProducesResponseType(typeof(OrderDetailsModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> Details(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
@@ -136,6 +139,7 @@ public class OrderController : BasePublicController
     //My account / Order details page / Add order note        
     [HttpPost]
     [AutoValidateAntiforgeryToken]
+    [ProducesResponseType(typeof(AddOrderNoteModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> AddOrderNote(AddOrderNoteModel model)
     {
         if (!_orderSettings.AllowCustomerToAddOrderNote)
@@ -195,6 +199,7 @@ public class OrderController : BasePublicController
 
     //My account / Order details page / Shipment details page
     [HttpGet]
+    [ProducesResponseType(typeof(ShipmentDetailsModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> ShipmentDetails(string shipmentId,
         [FromServices] IShipmentService shipmentService)
     {
@@ -219,6 +224,7 @@ public class OrderController : BasePublicController
     //My account / Loyalty points
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    [ProducesResponseType(typeof(CustomerLoyaltyPointsModel), StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> CustomerLoyaltyPoints(
         [FromServices] LoyaltyPointsSettings loyaltyPointsSettings)
     {

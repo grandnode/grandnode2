@@ -8,6 +8,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Extensions;
@@ -15,6 +16,7 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
@@ -22,6 +24,7 @@ using System.Globalization;
 namespace Grand.Web.Controllers;
 
 [DenySystemAccount]
+[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class ActionCartController : BasePublicController
 {
     #region CTOR
@@ -162,6 +165,7 @@ public class ActionCartController : BasePublicController
 
     #region Public methods
 
+    [ProducesResponseType(typeof(ProductCatalogCart), StatusCodes.Status200OK)]
     [HttpPost]
     public virtual async Task<IActionResult> AddProductCatalog(ProductCatalogCart model)
     {
@@ -315,6 +319,7 @@ public class ActionCartController : BasePublicController
         }
     }
 
+    [ProducesResponseType(typeof(ProductDetailsCart), StatusCodes.Status200OK)]
     [HttpPost]
     public virtual async Task<IActionResult> AddProductDetails(ProductDetailsCart model)
     {
@@ -515,6 +520,7 @@ public class ActionCartController : BasePublicController
         #endregion
     }
 
+    [ProducesResponseType(typeof(ProductDetailsCart), StatusCodes.Status200OK)]
     [HttpPost]
     public virtual async Task<IActionResult> UpdateItemCart(ProductDetailsCart model)
     {
@@ -651,7 +657,7 @@ public class ActionCartController : BasePublicController
             message = ""
         });
     }
-
+    
     [HttpGet]
     public virtual async Task<IActionResult> GetItemCart(string shoppingCartId)
     {
@@ -703,6 +709,7 @@ public class ActionCartController : BasePublicController
         });
     }
 
+    [ProducesResponseType(typeof(AddBidModel), StatusCodes.Status200OK)]
     [HttpPost]
     public virtual async Task<IActionResult> AddBid(AddBidModel model,
         [FromServices] IAuctionService auctionService)

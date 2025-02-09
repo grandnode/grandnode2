@@ -24,7 +24,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;
 
-[ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
+[ApiGroup(ApiConstants.ApiGroupNameV2)]
 public class VendorController : BasePublicController
 {
     #region Constructors
