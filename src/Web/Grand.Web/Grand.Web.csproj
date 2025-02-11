@@ -14,6 +14,7 @@
 		<DockerComposeProjectPath>..\..\..\docker-compose.dcproj</DockerComposeProjectPath>
 		<UserSecretsId>a2091e37-94a0-4446-8a5d-1d5c0835333a</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<CompressionEnabled>false</CompressionEnabled>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj" />

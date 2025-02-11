@@ -123,7 +123,7 @@ public class BrainTreePaymentProvider : IPaymentProvider
             Environment = useSandBox ? Environment.SANDBOX : Environment.PRODUCTION,
             MerchantId = merchantId,
             PublicKey = publicKey,
-            PrivateKey = privateKey
+            PrivateKey = privateKey,
         };
 
         //new transaction request
@@ -156,6 +156,7 @@ public class BrainTreePaymentProvider : IPaymentProvider
             PostalCode = customer.BillingAddress.ZipPostalCode
         };
         transactionRequest.BillingAddress = addressRequest;
+        transactionRequest.CurrencyIsoCode = paymentTransaction.CurrencyCode;
 
         //transaction options request
         var transactionOptionsRequest = new TransactionOptionsRequest {

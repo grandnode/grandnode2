@@ -2,6 +2,7 @@
 	<Import Project="..\..\Build\Grand.Common.props" />
 	<PropertyGroup>
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+		<StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

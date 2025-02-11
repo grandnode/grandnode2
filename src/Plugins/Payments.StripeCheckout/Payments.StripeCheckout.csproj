@@ -2,7 +2,8 @@
     <Import Project="..\..\Build\Grand.Common.props" />
     <PropertyGroup>
         <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    </PropertyGroup>
+		<StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+	</PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <OutputPath>..\..\Web\Grand.Web\Plugins\Payments.StripeCheckout\</OutputPath>
@@ -15,13 +16,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Stripe.net" />
+		<PackageReference Include="Stripe.net" />
     </ItemGroup>
 
     <Target Name="CopyFile" AfterTargets="AfterBuild">
         <ItemGroup>
-            <CopyFiles Include="$(NuGetPackageRoot)\stripe.net\47.3.0\lib\net8.0\*.*" />
-        </ItemGroup>
+            <CopyFiles Include="$(NuGetPackageRoot)\stripe.net\47.3.0\lib\net8.0\*.*" />			
+			<CopyFiles Include="$(NuGetPackageRoot)\newtonsoft.json\13.0.3\lib\net6.0\*.dll" />
+		</ItemGroup>
         <Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Payments.StripeCheckout\" />
     </Target>
     
