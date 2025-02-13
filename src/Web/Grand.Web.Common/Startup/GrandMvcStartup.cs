@@ -22,9 +22,6 @@ public class GrandMvcStartup : IStartupApplication
         //add healthChecks
         services.AddGrandHealthChecks();
 
-        //add ApplicationInsights
-        services.AddGrandApplicationInsights(configuration);
-
         //add and configure MVC feature
         services.AddGrandMvc(configuration);
     }

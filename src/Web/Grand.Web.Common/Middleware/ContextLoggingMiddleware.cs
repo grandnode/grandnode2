@@ -1,6 +1,6 @@
 ﻿using Grand.Infrastructure;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Http;
+using System.Diagnostics;
 
 namespace Grand.Web.Common.Middleware;
 
@@ -20,15 +20,15 @@ public class ContextLoggingMiddleware
     public async Task InvokeAsync(HttpContext context, IWorkContextAccessor workContextAccessor)
     {
         var workContext = workContextAccessor.WorkContext;
-        var requestTelemetry = context.Features.Get<RequestTelemetry>();
-        if (requestTelemetry != null)
-        {
-            requestTelemetry.Properties.TryAdd(CustomerPropertyName, workContext?.CurrentCustomer?.Email);
-            requestTelemetry.Properties.TryAdd(StorePropertyName, workContext?.CurrentStore?.Name);
-            requestTelemetry.Properties.TryAdd(CurrencyPropertyName, workContext?.WorkingCurrency?.Name);
-            requestTelemetry.Properties.TryAdd(LanguagePropertyName, workContext?.WorkingLanguage?.Name);
-        }
 
+        Activity activity = Activity.Current;
+        if (activity != null)
+        {
+            activity.AddTag(CustomerPropertyName, workContext?.CurrentCustomer?.Email);
+            activity.AddTag(StorePropertyName, workContext?.CurrentStore?.Name);
+            activity.AddTag(CurrencyPropertyName, workContext?.WorkingCurrency?.Name);
+            activity.AddTag(LanguagePropertyName, workContext?.WorkingLanguage?.Name);
+        }
         await _next(context);
     }
 }
