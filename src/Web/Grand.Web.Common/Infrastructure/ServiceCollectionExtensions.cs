@@ -17,7 +17,6 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.WebEncoders;
 using StackExchange.Redis;
 using System.Text.Encodings.Web;
@@ -266,31 +265,6 @@ public static class ServiceCollectionExtensions
     {
         var hcBuilder = services.AddHealthChecks();
         hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
-    }
-
-    public static void AddGrandApplicationInsights(this IServiceCollection services, IConfiguration configuration)
-    {
-        var applicationInsights = new ApplicationInsightsConfig();
-        configuration.GetSection("ApplicationInsights").Bind(applicationInsights);
-        if (!string.IsNullOrEmpty(applicationInsights.ConnectionString))
-        {
-            services.AddApplicationInsightsTelemetry();
-            services.AddServiceProfiler();
-            services.AddLogging(builder =>
-            {
-                builder.AddApplicationInsights(
-                    config =>
-                    {
-                        config.ConnectionString = applicationInsights.ConnectionString;
-                    },
-                    options =>
-                    {
-                        options.IncludeScopes = false;
-                        options.TrackExceptionsAsExceptionTelemetry = false;
-                    }
-                );
-            });
-        }
     }
 
     /// <summary>

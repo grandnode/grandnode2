@@ -3,6 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.2.0" />
     <PackageVersion Include="MaxMind.GeoIP2" Version="5.2.0" />
     <PackageVersion Include="ExcelMapper" Version="5.2.598" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
@@ -23,7 +24,6 @@
     <PackageVersion Include="DotLiquid" Version="2.3.18" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageVersion Include="GoogleAuthenticator" Version="3.2.0" />
-    <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageVersion Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.1" />
@@ -52,7 +52,6 @@
     <PackageVersion Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.3.0" />
     <PackageVersion Include="Azure.Identity" Version="1.13.2" />
     <PackageVersion Include="Flurl.Http" Version="4.0.2" />
-    <PackageVersion Include="Microsoft.ApplicationInsights.Profiler.AspNetCore" Version="2.7.2" />
     <PackageVersion Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="9.0.1" />
     <PackageVersion Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.24.0" />
     <PackageVersion Include="Wangkanai.Detection" Version="8.14.0" />
