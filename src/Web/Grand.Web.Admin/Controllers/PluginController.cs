@@ -34,6 +34,8 @@ public class PluginController(
 {
     #region Utilities
 
+    private string PluginsPath = Path.Combine(webHostEnvironment.ContentRootPath, CommonPath.Plugins);
+
     [NonAction]
     protected virtual PluginModel PreparePluginModel(PluginInfo PluginInfo)
     {
@@ -65,18 +67,9 @@ public class PluginController(
 
         foreach (var directory in Directory.GetDirectories(path)) DeleteDirectory(directory);
 
-        try
-        {
+        if (Directory.Exists(path) && path.StartsWith(PluginsPath, StringComparison.Ordinal))
             Directory.Delete(path, true);
-        }
-        catch (IOException)
-        {
-            Directory.Delete(path, true);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            Directory.Delete(path, true);
-        }
+
     }
 
     protected byte[] ToByteArray(Stream stream)
@@ -225,12 +218,7 @@ public class PluginController(
                 //No plugin found with the specified id
                 return RedirectToAction("List");
 
-            var pluginsPath = "Plugins";
-
-            foreach (var folder in Directory.GetDirectories(pluginsPath))
-                if (Path.GetFileName(folder) != "bin" && Directory.GetFiles(folder).Select(x => Path.GetFileName(x))
-                        .Contains(pluginInfo.PluginFileName))
-                    DeleteDirectory(folder);
+            DeleteDirectory(pluginInfo.OriginalAssemblyFile.DirectoryName);
 
             //uninstall plugin
             Success(translationService.GetResource("Admin.Plugins.Removed"));
@@ -302,8 +290,7 @@ public class PluginController(
         finally
         {
             // Delete temporary file
-            if (Directory.Exists(tempDirectory))
-                DeleteDirectory(tempDirectory);
+            DeleteDirectory(tempDirectory);
         }
 
         logger.LogInformation("The plugin has been uploaded by the user {CurrentCustomerEmail}",
@@ -392,8 +379,7 @@ public class PluginController(
 
         try
         {
-            if (Directory.Exists(pathToUpload))
-                DeleteDirectory(pathToUpload);
+            DeleteDirectory(pathToUpload);
         }
         catch { }
 
