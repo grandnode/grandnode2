@@ -690,7 +690,7 @@
         padding-right: 0;
     }
     .home-page.toggled .product-box-slide {
-        padding-left: calc((100% - 1165x) / 2);
+        padding-left: calc((100% - 1165px) / 2);
         padding-right: calc((100% - 1165px) / 2);
     }
 }
