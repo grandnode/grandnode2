@@ -2455,7 +2455,10 @@ public class ProductController : BaseVendorController
                 (iterator.DayOfWeek == DayOfWeek.Sunday && !model.Sunday))
                 continue;
 
-            for (var i = 0; i < model.Quantity; i++)
+            const int MaxQuantity = 100;
+            var quantity = Math.Min(model.Quantity, MaxQuantity);
+
+            for (var i = 0; i < quantity; i++)
             {
                 dates.Add(iterator);
                 try
