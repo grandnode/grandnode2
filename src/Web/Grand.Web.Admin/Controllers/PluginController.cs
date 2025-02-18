@@ -281,11 +281,14 @@ public class PluginController(
             if (!Path.GetExtension(zippedFile.FileName).Equals(".zip", StringComparison.InvariantCultureIgnoreCase))
                 throw new Exception("Only zip archives are supported");
 
-            //ensure that temp directory is created
+            // Ensure that temp directory is created
             Directory.CreateDirectory(new DirectoryInfo(tempDirectory).FullName);
 
-            //copy original archive to the temp directory
-            zipFilePath = Path.Combine(tempDirectory, zippedFile.FileName);
+            // Generate a unique file name for the uploaded file
+            var uniqueFileName = Guid.NewGuid().ToString() + ".zip";
+            zipFilePath = Path.Combine(tempDirectory, uniqueFileName);
+
+            // Copy original archive to the temp directory
             using (var fileStream = new FileStream(zipFilePath, FileMode.Create))
             {
                 zippedFile.CopyTo(fileStream);
@@ -298,8 +301,8 @@ public class PluginController(
         }
         finally
         {
-            //delete temporary file
-            if(Directory.Exists(tempDirectory))
+            // Delete temporary file
+            if (Directory.Exists(tempDirectory))
                 DeleteDirectory(tempDirectory);
         }
 
