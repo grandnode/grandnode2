@@ -34,7 +34,7 @@ public class PluginController(
 {
     #region Utilities
 
-    private string PluginsPath = Path.Combine(webHostEnvironment.ContentRootPath, CommonPath.Plugins);
+    private readonly string PluginsPath = Path.Combine(webHostEnvironment.ContentRootPath, CommonPath.Plugins);
 
     [NonAction]
     protected virtual PluginModel PreparePluginModel(PluginInfo PluginInfo)
