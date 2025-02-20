@@ -373,7 +373,7 @@ var Reservation = {
     },
 
     daysToMark: function daysToMark(date) {
-        for (var i = 0; i < Reservation.availableDates.length; i++) {
+        for (let i = 0; i < Reservation.availableDates.length; i++) {
             var splitResults = Reservation.availableDates[i].Date.split("-");
             var year = splitResults[0];
             var month = splitResults[1];
@@ -387,7 +387,7 @@ var Reservation = {
     },
 
     daysToMarkTo: function daysToMark(date) {
-        for (var i = 0; i < Reservation.availableDatesTo.length; i++) {
+        for (let i = 0; i < Reservation.availableDatesTo.length; i++) {
             var splitResults = Reservation.availableDatesTo[i].Date.split("-");
             var year = splitResults[0];
             var month = splitResults[1];
@@ -402,7 +402,7 @@ var Reservation = {
     },
 
     daysToMarkFrom: function daysToMark(date) {
-        for (var i = 0; i < Reservation.availableDatesFrom.length; i++) {
+        for (let i = 0; i < Reservation.availableDatesFrom.length; i++) {
             var splitResults = Reservation.availableDatesFrom[i].Date.split("-");
             var year = splitResults[0];
             var month = splitResults[1];
