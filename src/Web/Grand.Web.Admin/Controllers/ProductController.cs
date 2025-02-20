@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
+using Grand.Web.Common.Helpers;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -2584,10 +2585,7 @@ public class ProductController : BaseAdminController
                 (iterator.DayOfWeek == DayOfWeek.Sunday && !model.Sunday))
                 continue;
 
-            const int MaxQuantity = 100; 
-            var quantity = Math.Min(model.Quantity, MaxQuantity);
-
-            for (var i = 0; i < quantity; i++)
+            for (var i = 0; i < model.Quantity.MaxQuantity(); i++)
             {
                 dates.Add(iterator);
                 try

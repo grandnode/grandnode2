@@ -22,6 +22,7 @@ using Grand.Web.Vendor.Models.Orders;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
+using Grand.Web.Common.Helpers;
 
 namespace Grand.Web.Vendor.Controllers;
 
@@ -2455,10 +2456,7 @@ public class ProductController : BaseVendorController
                 (iterator.DayOfWeek == DayOfWeek.Sunday && !model.Sunday))
                 continue;
 
-            const int MaxQuantity = 100;
-            var quantity = Math.Min(model.Quantity, MaxQuantity);
-
-            for (var i = 0; i < quantity; i++)
+            for (var i = 0; i < model.Quantity.MaxQuantity(); i++)
             {
                 dates.Add(iterator);
                 try
