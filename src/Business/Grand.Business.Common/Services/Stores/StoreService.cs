@@ -124,10 +124,10 @@ public class StoreService : IStoreService
     {
         var allStores = await GetAllStores();
         var stores = allStores.Where(s => s.ContainsHostValue(host)).ToList();
-        if (!stores.Any())
+        if (stores.Count == 0)
             return allStores.FirstOrDefault();
 
-        return stores.FirstOrDefault();
+        return stores[0];
     }
     #endregion
 }
