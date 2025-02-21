@@ -64,7 +64,6 @@ public class DownloadController : BaseAdminController
         return Json(new { downloadId = download.Id, success = true });
     }
 
-    [DisableRequestSizeLimit]
     [HttpPost]
     //do not validate request token (XSRF)
     [IgnoreAntiforgeryToken]
