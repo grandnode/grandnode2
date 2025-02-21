@@ -5,10 +5,10 @@ using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Data;
 using Grand.Domain.Configuration;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.View;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -120,7 +120,7 @@ public static class ServiceCollectionExtensions
         else
         {
             var securityConfig = new SecurityConfig();
-            configuration.GetSection("Security").Bind(securityConfig);            
+            configuration.GetSection("Security").Bind(securityConfig);
             var keyPersistenceLocation = string.IsNullOrEmpty(securityConfig.KeyPersistenceLocation)
                 ? "/App_Data/DataProtectionKeys" : securityConfig.KeyPersistenceLocation;
             var dataProtectionKeysFolder = new DirectoryInfo(keyPersistenceLocation);
@@ -253,9 +253,10 @@ public static class ServiceCollectionExtensions
                 var type = item.GetType();
                 var storeId = "";
                 var settingService = x.GetRequiredService<ISettingService>();
-                var store = x.GetRequiredService<IWorkContextAccessor>().WorkContext?.CurrentStore;
+                var httpContextAccessor = x.GetRequiredService<IHttpContextAccessor>();
+                var store = httpContextAccessor.HttpContext?.Items[CommonHelper.StoreIdItemContext];
                 if (store != null)
-                    storeId = store.Id;
+                    storeId = store.ToString();
 
                 return settingService.LoadSetting(type, storeId);
             });

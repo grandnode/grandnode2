@@ -203,10 +203,10 @@ public class SettingService : ISettingService
             if (!settings.Any()) return Activator.CreateInstance(type) as ISettings;
             var setting = settings.FirstOrDefault(x => x.StoreId == storeId);
 
-            if (setting == null && !string.IsNullOrEmpty(storeId))
-                setting = settings.FirstOrDefault(x => string.IsNullOrEmpty(x.StoreId));
+            if (setting == null)
+                setting = settings.OrderByDescending(z => z.StoreId).FirstOrDefault();
 
-            if (setting != null) 
+            if (setting != null)
                 return JsonSerializer.Deserialize(setting.Metadata, type) as ISettings;
 
             return Activator.CreateInstance(type) as ISettings;

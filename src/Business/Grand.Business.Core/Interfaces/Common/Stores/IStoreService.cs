@@ -37,4 +37,11 @@ public interface IStoreService
     /// </summary>
     /// <param name="store">Store</param>
     Task DeleteStore(Store store);
+
+    /// <summary>
+    /// Get store by host
+    /// </summary>
+    /// <param name="host"></param>
+    /// <returns></returns>
+    Task<Store> GetStoreByHost(string host);
 }

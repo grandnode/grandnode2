@@ -38,8 +38,6 @@ public class StoreService : IStoreService
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
 
-    private List<Store> _allStores;
-
     #endregion
 
     #region Methods
@@ -50,7 +48,7 @@ public class StoreService : IStoreService
     /// <returns>Stores</returns>
     public virtual async Task<IList<Store>> GetAllStores()
     {
-        return _allStores ??= await _cacheBase.GetAsync(CacheKey.STORES_ALL_KEY, async () =>
+        return await _cacheBase.GetAsync(CacheKey.STORES_ALL_KEY, async () =>
         {
             return await Task.FromResult(_storeRepository.Table.OrderBy(x => x.DisplayOrder).ToList());
         });
@@ -122,5 +120,14 @@ public class StoreService : IStoreService
         await _mediator.EntityDeleted(store);
     }
 
+    public async Task<Store> GetStoreByHost(string host)
+    {
+        var allStores = await GetAllStores();
+        var stores = allStores.Where(s => s.ContainsHostValue(host)).ToList();
+        if (!stores.Any())
+            return allStores.FirstOrDefault();
+
+        return stores.FirstOrDefault();
+    }
     #endregion
 }

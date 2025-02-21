@@ -13,11 +13,12 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.SharedKernel.Extensions;
+using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
+using Grand.Business.Core.Extensions;
 using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common;
@@ -189,7 +190,7 @@ public class WorkContextSetter : IWorkContextSetter
 
         customer = await GetApiUserCustomer();
         if (customer != null) return customer;
-        
+
         //create guest if not exists
         customer = await CreateCustomerGuest(store);
 
@@ -416,43 +417,13 @@ public class WorkContextSetter : IWorkContextSetter
         return await Task.FromResult(taxDisplayType);
     }
 
-    private string GetStoreCookie()
-    {
-        return _httpContextAccessor.HttpContext?.Request.Cookies[CommonHelper.StoreCookieName];
-    }
 
     protected async Task<Store> CurrentStore(string id = null)
     {
         if (!string.IsNullOrEmpty(id))
             return await _storeService.GetStoreById(id);
 
-        var host = _httpContextAccessor.HttpContext?.Request.Host.Host;
-
-        var allStores = await _storeService.GetAllStores();
-        var stores = allStores.Where(s => s.ContainsHostValue(host)).ToList();
-        if (!stores.Any())
-            return allStores.FirstOrDefault();
-        else
-            switch (stores.Count)
-            {
-                case 1:
-                    return stores.FirstOrDefault();
-                case > 1:
-                    {
-                        var cookie = GetStoreCookie();
-                        if (!string.IsNullOrEmpty(cookie))
-                        {
-                            var storeCookie = stores.FirstOrDefault(x => x.Id == cookie);
-                            return storeCookie ?? stores.FirstOrDefault();
-                        }
-                        else
-                        {
-                            return stores.FirstOrDefault();
-                        }
-                    }
-            }
-
-        throw new Exception("No store could be loaded");
+        return await _storeService.GetStoreByHostOrStoreId(_httpContextAccessor.HttpContext?.Request.Host.Host, _httpContextAccessor.HttpContext?.GetStoreCookie());
     }
 
     /// <summary>

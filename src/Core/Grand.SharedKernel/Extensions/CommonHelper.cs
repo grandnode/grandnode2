@@ -12,6 +12,8 @@ public static class CommonHelper
 {
     public const string StoreCookieName = ".Grand.Store";
 
+    public const string StoreIdItemContext = "storeId";
+
     /// <summary>
     ///     Ensures the subscriber email or throw.
     /// </summary>
