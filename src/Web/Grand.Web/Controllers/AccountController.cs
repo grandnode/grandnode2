@@ -940,9 +940,10 @@ public class AccountController : BasePublicController
             _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
 
         await _customerManagerService.ChangePassword(changePasswordRequest);
+        var customer = await _customerService.GetCustomerById(_workContextAccessor.WorkContext.CurrentCustomer.Id);
 
         //sign in
-        await _authenticationService.SignIn(_workContextAccessor.WorkContext.CurrentCustomer, true);
+        await _authenticationService.SignIn(customer, true);
 
         model.Result = _translationService.GetResource("Account.ChangePassword.Success");
         return View(model);
