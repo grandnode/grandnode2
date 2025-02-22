@@ -41,7 +41,7 @@ public class CollectionImportDataObjectTests
 
     private IRepository<Collection> _repository;
     private Mock<ISlugService> _slugServiceMock;
-    private Mock<IWorkContextAccessor> _workContextMock;
+    private Mock<IContextAccessor> _workContextMock;
     private ISeNameService _seNameService;
     [TestInitialize]
     public void Init()
@@ -54,8 +54,8 @@ public class CollectionImportDataObjectTests
         _collectionLayoutServiceMock = new Mock<ICollectionLayoutService>();
         _slugServiceMock = new Mock<ISlugService>();
         _languageServiceMock = new Mock<ILanguageService>();
-        _workContextMock = new Mock<IWorkContextAccessor>();
-        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock = new Mock<IContextAccessor>();
+        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
         _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
 
         _mediatorMock = new Mock<IMediator>();

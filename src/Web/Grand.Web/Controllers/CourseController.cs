@@ -28,12 +28,12 @@ public class CourseController : BasePublicController
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public CourseController(
         IPermissionService permissionService,
         IAclService aclService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IGroupService groupService,
         ITranslationService translationService,
         ICourseService courseService,
@@ -44,7 +44,7 @@ public class CourseController : BasePublicController
     {
         _permissionService = permissionService;
         _aclService = aclService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _groupService = groupService;
         _translationService = translationService;
         _courseService = courseService;
@@ -72,13 +72,13 @@ public class CourseController : BasePublicController
         //ACL (access control list)
         return _aclService.Authorize(course, customer) &&
                //Store access
-               _aclService.Authorize(course, _workContextAccessor.WorkContext.CurrentStore.Id);
+               _aclService.Authorize(course, _contextAccessor.StoreContext.CurrentStore.Id);
     }
 
     [HttpGet]
     public virtual async Task<IActionResult> Details(string courseId)
     {
-        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
         var course = await _courseService.GetById(courseId);
         if (course == null)
@@ -95,8 +95,8 @@ public class CourseController : BasePublicController
         //model
         var model = await _mediator.Send(new GetCourse {
             Course = course,
-            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Language = _contextAccessor.WorkContext.WorkingLanguage
         });
 
         return View(model);
@@ -105,7 +105,7 @@ public class CourseController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> Lesson(string id)
     {
-        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
         var lesson = await _courseLessonService.GetById(id);
         if (lesson == null)
@@ -126,8 +126,8 @@ public class CourseController : BasePublicController
         //model
         var model = await _mediator.Send(new GetLesson {
             Course = course,
-            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
             Lesson = lesson
         });
 
@@ -137,7 +137,7 @@ public class CourseController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> DownloadFile(string id)
     {
-        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
         var lesson = await _courseLessonService.GetById(id);
         if (lesson == null || string.IsNullOrEmpty(lesson.AttachmentId))
@@ -173,7 +173,7 @@ public class CourseController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> VideoFile(string id)
     {
-        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
         var lesson = await _courseLessonService.GetById(id);
         if (lesson == null || string.IsNullOrEmpty(lesson.VideoFile))
@@ -209,7 +209,7 @@ public class CourseController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> Approved(string id)
     {
-        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
         var lesson = await _courseLessonService.GetById(id);
         if (lesson == null)
@@ -223,7 +223,7 @@ public class CourseController : BasePublicController
             return Json(new { result = false });
 
         await _mediator.Send(new CourseLessonApprovedCommand
-            { Course = course, Lesson = lesson, Customer = _workContextAccessor.WorkContext.CurrentCustomer });
+            { Course = course, Lesson = lesson, Customer = _contextAccessor.WorkContext.CurrentCustomer });
 
         return Json(new { result = true });
     }

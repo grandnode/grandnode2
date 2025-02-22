@@ -25,7 +25,7 @@ public class PluginController(
     ITranslationService translationService,
     ILogger<PluginController> logger,
     IHostApplicationLifetime applicationLifetime,
-    IWorkContextAccessor workContextAccessor,
+    IContextAccessor contextAccessor,
     IServiceProvider serviceProvider,
     IEnumTranslationService enumTranslationService,
     IWebHostEnvironment webHostEnvironment,
@@ -41,7 +41,7 @@ public class PluginController(
     {
         var pluginModel = PluginInfo.ToModel();
         //logo
-        pluginModel.LogoUrl = PluginInfo.GetLogoUrl(workContextAccessor.WorkContext.CurrentHost.Url);
+        pluginModel.LogoUrl = PluginInfo.GetLogoUrl(contextAccessor.StoreContext.CurrentHost.Url);
 
         //configuration URLs
         if (PluginInfo.Installed)
@@ -155,7 +155,7 @@ public class PluginController(
             Success(translationService.GetResource("Admin.Plugins.Installed"));
 
             logger.LogInformation("The plugin has been installed by the user {CurrentCustomerEmail}",
-                workContextAccessor.WorkContext.CurrentCustomer.Email);
+                contextAccessor.WorkContext.CurrentCustomer.Email);
 
             //stop application
             applicationLifetime.StopApplication();
@@ -189,7 +189,7 @@ public class PluginController(
             Success(translationService.GetResource("Admin.Plugins.Uninstalled"));
 
             logger.LogInformation("The plugin has been uninstalled by the user {CurrentCustomerEmail}",
-                workContextAccessor.WorkContext.CurrentCustomer.Email);
+                contextAccessor.WorkContext.CurrentCustomer.Email);
 
             //stop application
             applicationLifetime.StopApplication();
@@ -224,7 +224,7 @@ public class PluginController(
             Success(translationService.GetResource("Admin.Plugins.Removed"));
 
             logger.LogInformation("The plugin has been removed by the user {CurrentCustomerEmail}",
-                workContextAccessor.WorkContext.CurrentCustomer.Email);
+                contextAccessor.WorkContext.CurrentCustomer.Email);
 
             //stop application
             applicationLifetime.StopApplication();
@@ -240,7 +240,7 @@ public class PluginController(
     public IActionResult ReloadList()
     {
         logger.LogInformation("Reload list of plugins by the user {CurrentCustomerEmail}",
-            workContextAccessor.WorkContext.CurrentCustomer.Email);
+            contextAccessor.WorkContext.CurrentCustomer.Email);
 
         //stop application
         applicationLifetime.StopApplication();
@@ -294,7 +294,7 @@ public class PluginController(
         }
 
         logger.LogInformation("The plugin has been uploaded by the user {CurrentCustomerEmail}",
-            workContextAccessor.WorkContext.CurrentCustomer.Email);
+            contextAccessor.WorkContext.CurrentCustomer.Email);
 
         //stop application
         applicationLifetime.StopApplication();

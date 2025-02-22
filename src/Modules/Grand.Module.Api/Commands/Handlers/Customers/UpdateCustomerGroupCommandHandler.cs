@@ -12,16 +12,16 @@ public class UpdateCustomerGroupCommandHandler : IRequestHandler<UpdateCustomerG
 {
     private readonly IGroupService _groupService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public UpdateCustomerGroupCommandHandler(
         IGroupService groupService,
         ITranslationService translationService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _groupService = groupService;
         _translationService = translationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<CustomerGroupDto> Handle(UpdateCustomerGroupCommand request, CancellationToken cancellationToken)

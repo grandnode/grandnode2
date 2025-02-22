@@ -12,15 +12,15 @@ public class SimilarProductModelValidator : BaseGrandValidator<ProductModel.Simi
 {
     public SimilarProductModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.SimilarProductModel>> validators,
-        ITranslationService translationService, IProductService productService, IWorkContextAccessor workContextAccessor)
+        ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
         : base(validators)
     {
-        if (!string.IsNullOrEmpty(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+        if (!string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 var product = await productService.GetProductById(x.ProductId1);
                 if (product != null)
-                    if (!product.AccessToEntityByStore(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                    if (!product.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                         return false;
 
                 return true;

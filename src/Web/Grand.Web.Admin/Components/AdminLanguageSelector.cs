@@ -10,24 +10,24 @@ namespace Grand.Web.Admin.Components;
 public class AdminLanguageSelectorViewComponent : BaseAdminViewComponent
 {
     private readonly ILanguageService _languageService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public AdminLanguageSelectorViewComponent(
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ILanguageService languageService)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _languageService = languageService;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
         var model = new LanguageSelectorModel {
-            CurrentLanguage = _workContextAccessor.WorkContext.WorkingLanguage.ToModel(),
+            CurrentLanguage = _contextAccessor.WorkContext.WorkingLanguage.ToModel(),
             AvailableLanguages = (await _languageService
                     .GetAllLanguages(
                         true,
-                        _workContextAccessor.WorkContext.CurrentStore.Id))
+                        _contextAccessor.StoreContext.CurrentStore.Id))
                 .Select(x => x.ToModel())
                 .ToList()
         };

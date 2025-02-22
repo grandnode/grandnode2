@@ -20,12 +20,12 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
 
     private readonly IShippingMethodService _shippingMethodService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
 
     public FixedRateShippingProvider(
         IShippingMethodService shippingMethodService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ISettingService settingService,
         ICurrencyService currencyService,
         ITranslationService translationService,
@@ -33,7 +33,7 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
     )
     {
         _shippingMethodService = shippingMethodService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _settingService = settingService;
         _currencyService = currencyService;
         _translationService = translationService;
@@ -68,10 +68,10 @@ public class FixedRateShippingProvider : IShippingRateCalculationProvider
         foreach (var shippingMethod in shippingMethods)
         {
             var shippingOption = new ShippingOption {
-                Name = shippingMethod.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
-                Description = shippingMethod.GetTranslation(x => x.Description, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                Name = shippingMethod.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
+                Description = shippingMethod.GetTranslation(x => x.Description, _contextAccessor.WorkContext.WorkingLanguage.Id),
                 Rate = await _currencyService.ConvertFromPrimaryStoreCurrency(await GetRate(shippingMethod.Id),
-                    _workContextAccessor.WorkContext.WorkingCurrency)
+                    _contextAccessor.WorkContext.WorkingCurrency)
             };
             response.ShippingOptions.Add(shippingOption);
         }

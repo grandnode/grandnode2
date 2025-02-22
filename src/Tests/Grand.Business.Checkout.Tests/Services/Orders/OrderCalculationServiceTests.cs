@@ -46,12 +46,12 @@ public class OrderCalculationServiceTests
     private Mock<ITaxService> _taxServiceMock;
     private TaxSettings _taxSettings;
 
-    private Mock<IWorkContextAccessor> _workContextMock;
+    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
-        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock = new Mock<IContextAccessor>();
         _pricingServiceMock = new Mock<IPricingService>();
         _taxServiceMock = new Mock<ITaxService>();
         _shippingServiceMock = new Mock<IShippingService>();
@@ -69,7 +69,7 @@ public class OrderCalculationServiceTests
         _shoppingCartSettings = new ShoppingCartSettings();
         _catalogSettings = new CatalogSettings();
         _discountValidationService = new Mock<IDiscountValidationService>();
-        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
+        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
         var customer = new Customer();
         customer.Groups.Add("1");
         _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => customer);

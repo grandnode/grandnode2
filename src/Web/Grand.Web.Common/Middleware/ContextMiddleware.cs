@@ -6,10 +6,13 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Grand.Business.Core.Extensions;
 using Grand.SharedKernel.Extensions;
+using Grand.Domain.Tasks;
+using Scryber;
+using DotLiquid.Util;
 
 namespace Grand.Web.Common.Middleware;
 
-public class WorkContextMiddleware
+public class ContextMiddleware
 {
     #region Fields
 
@@ -25,7 +28,7 @@ public class WorkContextMiddleware
     ///     Ctor
     /// </summary>
     /// <param name="next">Next</param>
-    public WorkContextMiddleware(RequestDelegate next)
+    public ContextMiddleware(RequestDelegate next)
     {
         _next = next;
     }
@@ -40,7 +43,7 @@ public class WorkContextMiddleware
     /// <param name="context">HTTP context</param>
     /// <param name="workContext">workContext</param>
     /// <returns>Task</returns>
-    public async Task InvokeAsync(HttpContext context, IWorkContextAccessor workContextAccessor)
+    public async Task InvokeAsync(HttpContext context, IContextAccessor contextAccessor)
     {
         if (context?.Request == null) return;
         
@@ -55,13 +58,11 @@ public class WorkContextMiddleware
             }
         }
 
-        // Set current context
-        var storeService = context.RequestServices.GetRequiredService<IStoreService>();
-        var currentStore = await storeService.GetStoreByHostOrStoreId(context.Request.Host.Host, context.GetStoreCookie());
-        context.Items[CommonHelper.StoreIdItemContext] = currentStore.Id;
+        var storeContext = context.RequestServices.GetRequiredService<IStoreContextSetter>();
+        contextAccessor.StoreContext = await storeContext.InitializeStoreContext();
 
         var workContextSetter = context.RequestServices.GetRequiredService<IWorkContextSetter>();
-        workContextAccessor.WorkContext = await workContextSetter.InitializeWorkContext(currentStore.Id);
+        contextAccessor.WorkContext = await workContextSetter.InitializeWorkContext(contextAccessor.StoreContext.CurrentStore.Id);
 
         //call the next middleware in the request pipeline
         await _next(context);

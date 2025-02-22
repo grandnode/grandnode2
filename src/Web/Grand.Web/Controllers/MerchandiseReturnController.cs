@@ -29,7 +29,7 @@ public class MerchandiseReturnController : BasePublicController
     public MerchandiseReturnController(
         IMerchandiseReturnService merchandiseReturnService,
         IOrderService orderService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IGroupService groupService,
         ITranslationService translationService,
         IMediator mediator,
@@ -38,7 +38,7 @@ public class MerchandiseReturnController : BasePublicController
     {
         _merchandiseReturnService = merchandiseReturnService;
         _orderService = orderService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _groupService = groupService;
         _translationService = translationService;
         _mediator = mediator;
@@ -52,7 +52,7 @@ public class MerchandiseReturnController : BasePublicController
 
     private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly IOrderService _orderService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
     private readonly ITranslationService _translationService;
     private readonly IMediator _mediator;
@@ -67,11 +67,11 @@ public class MerchandiseReturnController : BasePublicController
     {
         var countryService = HttpContext.RequestServices.GetRequiredService<ICountryService>();
         var countries =
-            await countryService.GetAllCountries(_workContextAccessor.WorkContext.WorkingLanguage.Id, _workContextAccessor.WorkContext.CurrentStore.Id);
+            await countryService.GetAllCountries(_contextAccessor.WorkContext.WorkingLanguage.Id, _contextAccessor.StoreContext.CurrentStore.Id);
         addressModel = await _mediator.Send(new GetAddressModel {
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
-            Store = _workContextAccessor.WorkContext.CurrentStore,
-            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Model = addressModel,
             Address = address,
             ExcludeProperties = true,
@@ -87,13 +87,13 @@ public class MerchandiseReturnController : BasePublicController
 
         if (!string.IsNullOrEmpty(model.PickupAddressId))
         {
-            address = _workContextAccessor.WorkContext.CurrentCustomer.Addresses.FirstOrDefault(a => a.Id == model.PickupAddressId);
+            address = _contextAccessor.WorkContext.CurrentCustomer.Addresses.FirstOrDefault(a => a.Id == model.PickupAddressId);
         }
         else
         {
             var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes
                 { SelectedAttributes = model.MerchandiseReturnNewAddress.SelectedAttributes });
-            address = model.MerchandiseReturnNewAddress.ToEntity(_workContextAccessor.WorkContext.CurrentCustomer, _addressSettings);
+            address = model.MerchandiseReturnNewAddress.ToEntity(_contextAccessor.WorkContext.CurrentCustomer, _addressSettings);
             model.NewAddressPreselected = true;
             address.Attributes = customAttributes;
         }
@@ -108,13 +108,13 @@ public class MerchandiseReturnController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> CustomerMerchandiseReturns()
     {
-        if (!await _groupService.IsRegistered(_workContextAccessor.WorkContext.CurrentCustomer))
+        if (!await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer))
             return Challenge();
 
         var model = await _mediator.Send(new GetMerchandiseReturns {
-            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
-            Store = _workContextAccessor.WorkContext.CurrentStore,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            Language = _contextAccessor.WorkContext.WorkingLanguage
         });
 
         return View(model);
@@ -124,7 +124,7 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturn(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_workContextAccessor.WorkContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
         if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
@@ -132,8 +132,8 @@ public class MerchandiseReturnController : BasePublicController
 
         var model = await _mediator.Send(new GetMerchandiseReturn {
             Order = order,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
-            Store = _workContextAccessor.WorkContext.CurrentStore
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Store = _contextAccessor.StoreContext.CurrentStore
         });
         return View(model);
     }
@@ -143,7 +143,7 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturn(MerchandiseReturnModel model)
     {
         var order = await _orderService.GetOrderById(model.OrderId);
-        if (!await order.Access(_workContextAccessor.WorkContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
         if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
@@ -166,8 +166,8 @@ public class MerchandiseReturnController : BasePublicController
 
         var returnModel = await _mediator.Send(new GetMerchandiseReturn {
             Order = order,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
-            Store = _workContextAccessor.WorkContext.CurrentStore
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Store = _contextAccessor.StoreContext.CurrentStore
         });
         returnModel.Error = string.Join(", ",
             ModelState.Keys.SelectMany(k => ModelState[k]!.Errors).Select(m => m.ErrorMessage).ToArray());
@@ -185,16 +185,16 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturnDetails(string merchandiseReturnId)
     {
         var rr = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
-        if (!await rr.Access(_workContextAccessor.WorkContext.CurrentCustomer, _groupService))
+        if (!await rr.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
         var order = await _orderService.GetOrderById(rr.OrderId);
-        if (!await order.Access(_workContextAccessor.WorkContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
             return Challenge();
 
         var model = await _mediator.Send(new GetMerchandiseReturnDetails {
             Order = order,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
             MerchandiseReturn = rr
         });
 

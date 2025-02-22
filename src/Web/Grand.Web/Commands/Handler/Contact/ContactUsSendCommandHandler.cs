@@ -17,15 +17,15 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
     private readonly IContactAttributeParser _contactAttributeParser;
     private readonly IMessageProviderService _messageProviderService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
-    public ContactUsSendCommandHandler(IWorkContextAccessor workContextAccessor,
+    public ContactUsSendCommandHandler(IContextAccessor contextAccessor,
         IContactAttributeParser contactAttributeParser,
         ITranslationService translationService,
         IMessageProviderService messageProviderService,
         CommonSettings commonSettings)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _contactAttributeParser = contactAttributeParser;
         _translationService = translationService;
         _messageProviderService = messageProviderService;
@@ -39,9 +39,9 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
 
         request.Model.ContactAttribute = attributes;
         request.Model.ContactAttributeInfo =
-            await _contactAttributeParser.FormatAttributes(_workContextAccessor.WorkContext.WorkingLanguage, attributes,
-                _workContextAccessor.WorkContext.CurrentCustomer);
-        request.Model = await SendContactUs(request, _workContextAccessor.WorkContext.CurrentStore);
+            await _contactAttributeParser.FormatAttributes(_contextAccessor.WorkContext.WorkingLanguage, attributes,
+                _contextAccessor.WorkContext.CurrentCustomer);
+        request.Model = await SendContactUs(request, _contextAccessor.StoreContext.CurrentStore);
 
         return request.Model;
     }
@@ -52,7 +52,7 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
         var body = FormatText.ConvertText(request.Model.Enquiry);
 
         await _messageProviderService.SendContactUsMessage
-        (_workContextAccessor.WorkContext.CurrentCustomer, store, _workContextAccessor.WorkContext.WorkingLanguage.Id, request.Model.Email.Trim(),
+        (_contextAccessor.WorkContext.CurrentCustomer, store, _contextAccessor.WorkContext.WorkingLanguage.Id, request.Model.Email.Trim(),
             request.Model.FullName, subject,
             body, request.Model.ContactAttributeInfo, request.Model.ContactAttribute, request.IpAddress);
 

@@ -24,12 +24,12 @@ public class BrandService : IBrandService
     /// </summary>
     public BrandService(ICacheBase cacheBase,
         IRepository<Brand> brandRepository,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IMediator mediator, AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _brandRepository = brandRepository;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _mediator = mediator;
         _accessControlConfig = accessControlConfig;
     }
@@ -39,7 +39,7 @@ public class BrandService : IBrandService
     #region Fields
 
     private readonly IRepository<Brand> _brandRepository;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
     private readonly AccessControlConfig _accessControlConfig;
@@ -77,7 +77,7 @@ public class BrandService : IBrandService
             if (!showHidden && !_accessControlConfig.IgnoreAcl)
             {
                 //Limited to customer groups rules
-                var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;

@@ -9,12 +9,12 @@ namespace Grand.Web.Admin.Components;
 public class LatestOrderViewComponent : BaseAdminViewComponent
 {
     private readonly IPermissionService _permissionService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
-    public LatestOrderViewComponent(IPermissionService permissionService, IWorkContextAccessor workContextAccessor)
+    public LatestOrderViewComponent(IPermissionService permissionService, IContextAccessor contextAccessor)
     {
         _permissionService = permissionService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()

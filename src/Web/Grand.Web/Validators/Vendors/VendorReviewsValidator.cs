@@ -22,9 +22,9 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
         IEnumerable<IValidatorConsumer<VendorReviewsModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         IMediator mediator,
-        IGroupService groupService, IWorkContextAccessor workContextAccessor, IVendorService vendorService,
+        IGroupService groupService, IContextAccessor contextAccessor, IVendorService vendorService,
         CaptchaSettings captchaSettings, VendorSettings vendorSettings,
-        IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
+        IHttpContextAccessor httpcontextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
         : base(validators)
     {
@@ -44,13 +44,13 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
                 context.AddFailure(
                     translationService.GetResource("VendorReviews.VendorNotActiveOrAllowCustomerReviewsDisabled"));
 
-            if (await groupService.IsGuest(workContextAccessor.WorkContext.CurrentCustomer) &&
+            if (await groupService.IsGuest(contextAccessor.WorkContext.CurrentCustomer) &&
                 !vendorSettings.AllowAnonymousUsersToReviewVendor)
                 context.AddFailure(translationService.GetResource("VendorReviews.OnlyRegisteredUsersCanWriteReviews"));
             //allow reviews only by customer that bought something from this vendor
             if (vendorSettings.VendorReviewPossibleOnlyAfterPurchasing &&
                 !(await mediator.Send(new GetOrderQuery {
-                    CustomerId = workContextAccessor.WorkContext.CurrentCustomer.Id,
+                    CustomerId = contextAccessor.WorkContext.CurrentCustomer.Id,
                     VendorId = x.VendorId,
                     Os = (int)OrderStatusSystem.Complete,
                     PageSize = 1
@@ -61,7 +61,7 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
 
             if (vendorSettings.VendorReviewPossibleOnlyOnce)
                 if ((await vendorService.GetAllVendorReviews(
-                        workContextAccessor.WorkContext.CurrentCustomer.Id,
+                        contextAccessor.WorkContext.CurrentCustomer.Id,
                         null,
                         vendorId: vendor.Id,
                         pageSize: 1)).Any())
@@ -71,7 +71,7 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
         {
             RuleFor(x => x.Captcha).NotNull().WithMessage(translationService.GetResource("Account.Captcha.Required"));
             RuleFor(x => x.Captcha)
-                .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
+                .SetValidator(new CaptchaValidator(validatorsCaptcha, httpcontextAccessor, googleReCaptchaValidator));
         }
     }
 }

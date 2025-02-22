@@ -24,10 +24,10 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
         ITranslationService translationService,
         ICountryService countryService,
         CustomerSettings customerSettings, CaptchaSettings captchaSettings,
-        IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
+        IHttpContextAccessor httpcontextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
         IMediator mediator, ICustomerAttributeParser customerAttributeParser,
         ICustomerService customerService,
-        IGroupService groupService, IWorkContextAccessor workContextAccessor
+        IGroupService groupService, IContextAccessor contextAccessor
     )
         : base(validators)
     {
@@ -125,7 +125,7 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
         {
             RuleFor(x => x.Captcha).NotNull().WithMessage(translationService.GetResource("Account.Captcha.Required"));
             RuleFor(x => x.Captcha)
-                .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
+                .SetValidator(new CaptchaValidator(validatorsCaptcha, httpcontextAccessor, googleReCaptchaValidator));
         }
 
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
@@ -135,7 +135,7 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
             var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
             foreach (var error in customerAttributeWarnings) context.AddFailure(error);
 
-            if (await groupService.IsRegistered(workContextAccessor.WorkContext.CurrentCustomer))
+            if (await groupService.IsRegistered(contextAccessor.WorkContext.CurrentCustomer))
             {
                 context.AddFailure("Current customer is already registered");
                 return;

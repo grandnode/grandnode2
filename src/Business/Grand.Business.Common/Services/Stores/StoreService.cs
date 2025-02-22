@@ -1,3 +1,5 @@
+#nullable enable
+
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Data;
 using Grand.Domain.Stores;
@@ -120,14 +122,14 @@ public class StoreService : IStoreService
         await _mediator.EntityDeleted(store);
     }
 
-    public async Task<Store> GetStoreByHost(string host)
+    public async Task<Store?> GetStoreByHost(string host)
     {
         var allStores = await GetAllStores();
         var stores = allStores.Where(s => s.ContainsHostValue(host)).ToList();
-        if (stores.Count == 0)
-            return allStores.FirstOrDefault();
+        if (stores.Count > 0)
+            return stores[0];
 
-        return stores[0];
+        return null;
     }
     #endregion
 }

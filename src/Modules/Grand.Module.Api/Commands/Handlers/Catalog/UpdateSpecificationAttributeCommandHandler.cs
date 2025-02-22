@@ -14,16 +14,16 @@ public class
 {
     private readonly ISpecificationAttributeService _specificationAttributeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public UpdateSpecificationAttributeCommandHandler(
         ISpecificationAttributeService specificationAttributeService,
         ITranslationService translationService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _specificationAttributeService = specificationAttributeService;
         _translationService = translationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<SpecificationAttributeDto> Handle(UpdateSpecificationAttributeCommand request,

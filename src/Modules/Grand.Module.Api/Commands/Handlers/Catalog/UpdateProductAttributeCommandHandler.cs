@@ -12,16 +12,16 @@ public class UpdateProductAttributeCommandHandler : IRequestHandler<UpdateProduc
 {
     private readonly IProductAttributeService _productAttributeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public UpdateProductAttributeCommandHandler(
         IProductAttributeService productAttributeService,
         ITranslationService translationService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _productAttributeService = productAttributeService;
         _translationService = translationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<ProductAttributeDto> Handle(UpdateProductAttributeCommand request,

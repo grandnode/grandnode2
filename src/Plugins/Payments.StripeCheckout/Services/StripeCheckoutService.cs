@@ -15,16 +15,16 @@ public class StripeCheckoutService : IStripeCheckoutService
     private readonly IMediator _mediator;
     private readonly IPaymentTransactionService _paymentTransactionService;
     private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public StripeCheckoutService(
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         StripeCheckoutPaymentSettings stripeCheckoutPaymentSettings,
         ILogger<StripeCheckoutService> logger,
         IMediator mediator,
         IPaymentTransactionService paymentTransactionService)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _stripeCheckoutPaymentSettings = stripeCheckoutPaymentSettings;
         _logger = logger;
         _mediator = mediator;
@@ -95,7 +95,7 @@ public class StripeCheckoutService : IStripeCheckoutService
     {
         StripeConfiguration.ApiKey = _stripeCheckoutPaymentSettings.ApiKey;
 
-        var storeLocation = _workContextAccessor.WorkContext.CurrentHost.Url.TrimEnd('/');
+        var storeLocation = _contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/');
 
         var options = new SessionCreateOptions {
             LineItems = [

@@ -10,16 +10,16 @@ public class DeleteCustomerCommandHandler : IRequestHandler<DeleteCustomerComman
 {
     private readonly ICustomerService _customerService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public DeleteCustomerCommandHandler(
         ICustomerService customerService,
         ITranslationService translationService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _customerService = customerService;
         _translationService = translationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<bool> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)

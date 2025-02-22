@@ -24,12 +24,12 @@ public class MerchandiseReturnController : BaseVendorController
         IMerchandiseReturnViewModelService merchandiseReturnViewModelService,
         ITranslationService translationService,
         IMerchandiseReturnService merchandiseReturnService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _merchandiseReturnViewModelService = merchandiseReturnViewModelService;
         _translationService = translationService;
         _merchandiseReturnService = merchandiseReturnService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -39,7 +39,7 @@ public class MerchandiseReturnController : BaseVendorController
     private readonly IMerchandiseReturnViewModelService _merchandiseReturnViewModelService;
     private readonly ITranslationService _translationService;
     private readonly IMerchandiseReturnService _merchandiseReturnService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion Fields
 
@@ -77,7 +77,7 @@ public class MerchandiseReturnController : BaseVendorController
     public async Task<IActionResult> GoToId(MerchandiseReturnListModel model)
     {
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(model.GoDirectlyToId);
-        if (merchandiseReturn == null || merchandiseReturn.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
+        if (merchandiseReturn == null || merchandiseReturn.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
             //not found
             return RedirectToAction("List", "MerchandiseReturn");
 
@@ -89,7 +89,7 @@ public class MerchandiseReturnController : BaseVendorController
     public async Task<IActionResult> ProductsForMerchandiseReturn(string merchandiseReturnId)
     {
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
-        if (merchandiseReturn == null || merchandiseReturn.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
+        if (merchandiseReturn == null || merchandiseReturn.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
             return ErrorForKendoGridJson("Merchandise return not found");
 
         var items = await _merchandiseReturnViewModelService.PrepareMerchandiseReturnItemModel(merchandiseReturnId);
@@ -106,7 +106,7 @@ public class MerchandiseReturnController : BaseVendorController
     public async Task<IActionResult> Edit(string id)
     {
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(id);
-        if (merchandiseReturn == null || merchandiseReturn.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
+        if (merchandiseReturn == null || merchandiseReturn.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
             //No merchandise return found with the specified id
             return RedirectToAction("List");
 
@@ -125,7 +125,7 @@ public class MerchandiseReturnController : BaseVendorController
     )
     {
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(model.Id);
-        if (merchandiseReturn == null || merchandiseReturn.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
+        if (merchandiseReturn == null || merchandiseReturn.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
             //No merchandise return found with the specified id
             return RedirectToAction("List");
 
@@ -157,7 +157,7 @@ public class MerchandiseReturnController : BaseVendorController
     public async Task<IActionResult> Delete(string id)
     {
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(id);
-        if (merchandiseReturn == null || merchandiseReturn.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
+        if (merchandiseReturn == null || merchandiseReturn.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
             //No merchandise return found with the specified id
             return RedirectToAction("List");
 
@@ -181,7 +181,7 @@ public class MerchandiseReturnController : BaseVendorController
     public async Task<IActionResult> MerchandiseReturnNotesSelect(string merchandiseReturnId)
     {
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
-        if (merchandiseReturn == null || merchandiseReturn.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
+        if (merchandiseReturn == null || merchandiseReturn.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
             throw new ArgumentException("No merchandise return found with the specified id");
 
         //merchandise return notes
@@ -199,7 +199,7 @@ public class MerchandiseReturnController : BaseVendorController
         string message)
     {
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
-        if (merchandiseReturn == null || merchandiseReturn.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
+        if (merchandiseReturn == null || merchandiseReturn.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
             return Json(new { Result = false });
 
         await _merchandiseReturnViewModelService.InsertMerchandiseReturnNote(merchandiseReturn, displayToCustomer,
@@ -213,7 +213,7 @@ public class MerchandiseReturnController : BaseVendorController
     public async Task<IActionResult> MerchandiseReturnNoteDelete(string id, string merchandiseReturnId)
     {
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
-        if (merchandiseReturn == null || merchandiseReturn.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
+        if (merchandiseReturn == null || merchandiseReturn.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
             throw new ArgumentException("No merchandise return found with the specified id");
 
         await _merchandiseReturnViewModelService.DeleteMerchandiseReturnNote(merchandiseReturn, id);

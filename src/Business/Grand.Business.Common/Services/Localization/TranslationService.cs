@@ -24,11 +24,11 @@ public class TranslationService : ITranslationService
     /// <param name="trRepository">Translate resource repository</param>
     /// <param name="mediator">Mediator</param>
     public TranslationService(
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IRepository<TranslationResource> trRepository,
         IMediator mediator)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _translationRepository = trRepository;
         _mediator = mediator;
     }
@@ -40,7 +40,7 @@ public class TranslationService : ITranslationService
     private static readonly ConcurrentDictionary<string, IDictionary<string, string>> _cachedResources = new();
 
     private readonly IRepository<TranslationResource> _translationRepository;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IMediator _mediator;
 
     #endregion
@@ -143,7 +143,7 @@ public class TranslationService : ITranslationService
     /// <returns>A string representing the requested resource string.</returns>
     public virtual string GetResource(string name)
     {
-        return _workContextAccessor.WorkContext.WorkingLanguage != null ? GetResource(name, _workContextAccessor.WorkContext.WorkingLanguage.Id) : "";
+        return _contextAccessor.WorkContext.WorkingLanguage != null ? GetResource(name, _contextAccessor.WorkContext.WorkingLanguage.Id) : "";
     }
 
     /// <summary>
@@ -249,7 +249,7 @@ public class TranslationService : ITranslationService
                     Name = item.Name.ToLowerInvariant(),
                     Value = item.Value,
                     Area = areaEnum,
-                    CreatedBy = _workContextAccessor.WorkContext.CurrentCustomer.Email
+                    CreatedBy = _contextAccessor.WorkContext.CurrentCustomer.Email
                 });
             }
         }

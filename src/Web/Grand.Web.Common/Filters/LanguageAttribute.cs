@@ -34,10 +34,10 @@ public class LanguageAttribute : TypeFilterAttribute
         #region Ctor
 
         public LanguageSeoCodeFilter(
-            IWorkContextAccessor workContextAccessor, ILanguageService languageService,
+            IContextAccessor contextAccessor, ILanguageService languageService,
             AppConfig config)
         {
-            _workContextAccessor = workContextAccessor;
+            _contextAccessor = contextAccessor;
             _languageService = languageService;
             _config = config;
         }
@@ -46,7 +46,7 @@ public class LanguageAttribute : TypeFilterAttribute
 
         #region Fields
 
-        private readonly IWorkContextAccessor _workContextAccessor;
+        private readonly IContextAccessor _contextAccessor;
         private readonly ILanguageService _languageService;
         private readonly AppConfig _config;
 
@@ -96,7 +96,7 @@ public class LanguageAttribute : TypeFilterAttribute
                 return;
             }
 
-            pageUrl = AddLanguageSeo(pageUrl, _workContextAccessor.WorkContext.WorkingLanguage);
+            pageUrl = AddLanguageSeo(pageUrl, _contextAccessor.WorkContext.WorkingLanguage);
             context.Result = new RedirectResult(pageUrl, false);
         }
 

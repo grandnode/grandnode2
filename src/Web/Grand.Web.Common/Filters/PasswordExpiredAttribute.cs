@@ -30,9 +30,9 @@ public class PasswordExpiredAttribute : TypeFilterAttribute
     {
         #region Ctor
 
-        public PasswordFilter(IWorkContextAccessor workContextAccessor, IMediator mediator)
+        public PasswordFilter(IContextAccessor contextAccessor, IMediator mediator)
         {
-            _workContextAccessor = workContextAccessor;
+            _contextAccessor = contextAccessor;
             _mediator = mediator;
         }
 
@@ -67,7 +67,7 @@ public class PasswordExpiredAttribute : TypeFilterAttribute
             {
                 //check password expiration
                 var passwordIsExpired = await _mediator.Send(new GetPasswordIsExpiredQuery
-                    { Customer = _workContextAccessor.WorkContext.CurrentCustomer });
+                    { Customer = _contextAccessor.WorkContext.CurrentCustomer });
                 if (passwordIsExpired)
                     //redirect to ChangePassword page if expires
                     context.Result = new RedirectToRouteResult("CustomerChangePassword", new RouteValueDictionary());
@@ -78,7 +78,7 @@ public class PasswordExpiredAttribute : TypeFilterAttribute
 
         #region Fields
 
-        private readonly IWorkContextAccessor _workContextAccessor;
+        private readonly IContextAccessor _contextAccessor;
         private readonly IMediator _mediator;
 
         #endregion

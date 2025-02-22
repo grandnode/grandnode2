@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Data;
 using Grand.Domain.Configuration;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
@@ -253,10 +254,9 @@ public static class ServiceCollectionExtensions
                 var type = item.GetType();
                 var storeId = "";
                 var settingService = x.GetRequiredService<ISettingService>();
-                var httpContextAccessor = x.GetRequiredService<IHttpContextAccessor>();
-                var store = httpContextAccessor.HttpContext?.Items[CommonHelper.StoreIdItemContext];
-                if (store != null)
-                    storeId = store.ToString();
+                var contextAccessor = x.GetRequiredService<IContextAccessor>();
+                if (contextAccessor.StoreContext != null)
+                    storeId = contextAccessor.StoreContext.CurrentStore.Id;
 
                 return settingService.LoadSetting(type, storeId);
             });

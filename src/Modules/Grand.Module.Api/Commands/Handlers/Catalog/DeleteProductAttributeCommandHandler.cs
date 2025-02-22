@@ -10,16 +10,16 @@ public class DeleteProductAttributeCommandHandler : IRequestHandler<DeleteProduc
 {
     private readonly IProductAttributeService _productAttributeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public DeleteProductAttributeCommandHandler(
         IProductAttributeService productAttributeService,
         ITranslationService translationService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _productAttributeService = productAttributeService;
         _translationService = translationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<bool> Handle(DeleteProductAttributeCommand request, CancellationToken cancellationToken)

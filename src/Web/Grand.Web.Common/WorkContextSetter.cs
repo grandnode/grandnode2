@@ -13,12 +13,10 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
-using Grand.Business.Core.Extensions;
 using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common;
@@ -150,19 +148,16 @@ public class WorkContextSetter : IWorkContextSetter
     public virtual async Task<IWorkContext> InitializeWorkContext(string storeId = null)
     {
         var currentStore = await CurrentStore(storeId);
-        var workContext = new CurrentWorkContext {
-            CurrentStore = currentStore,
-            CurrentHost = CurrentHost(currentStore),
+        var workContext = new CurrentWorkContext {            
             CurrentCustomer = await CurrentCustomer(currentStore)
         };
-
         if (workContext.CurrentCustomer != null)
         {
             workContext.CurrentVendor = await CurrentVendor(workContext.CurrentCustomer);
             workContext.OriginalCustomerIfImpersonated = _originalCustomerIfImpersonated;
-            workContext.WorkingLanguage = await WorkingLanguage(workContext.CurrentCustomer, workContext.CurrentStore);
-            workContext.WorkingCurrency = await WorkingCurrency(workContext.CurrentCustomer, workContext.WorkingLanguage, workContext.CurrentStore);
-            workContext.TaxDisplayType = await TaxDisplayType(workContext.CurrentCustomer, workContext.CurrentStore);
+            workContext.WorkingLanguage = await WorkingLanguage(workContext.CurrentCustomer, currentStore);
+            workContext.WorkingCurrency = await WorkingCurrency(workContext.CurrentCustomer, workContext.WorkingLanguage, currentStore);
+            workContext.TaxDisplayType = await TaxDisplayType(workContext.CurrentCustomer, currentStore);
         }
         return workContext;
     }
@@ -423,28 +418,7 @@ public class WorkContextSetter : IWorkContextSetter
         if (!string.IsNullOrEmpty(id))
             return await _storeService.GetStoreById(id);
 
-        return await _storeService.GetStoreByHostOrStoreId(_httpContextAccessor.HttpContext?.Request.Host.Host, _httpContextAccessor.HttpContext?.GetStoreCookie());
-    }
-
-    /// <summary>
-    ///     Gets the current domain host
-    /// </summary>
-    protected DomainHost CurrentHost(Store store)
-    {
-        //try to determine the current HOST header
-        var host = _httpContextAccessor.HttpContext?.Request.GetTypedHeaders().Host.ToString();
-        if (store != null)
-            return store.HostValue(host) ?? new DomainHost {
-                Id = int.MinValue.ToString(),
-                Url = store.SslEnabled ? store.SecureUrl : store.Url,
-                HostName = "temporary-store"
-            };
-
-        return new DomainHost {
-            Id = int.MinValue.ToString(),
-            Url = host,
-            HostName = "temporary"
-        };
+        return (await _storeService.GetAllStores()).FirstOrDefault();
     }
 
     private class CurrentWorkContext : IWorkContext
@@ -460,9 +434,6 @@ public class WorkContextSetter : IWorkContextSetter
         public Currency WorkingCurrency { get; set; }
 
         public TaxDisplayType TaxDisplayType { get; set; }
-
-        public Store CurrentStore { get; set; }
-        public DomainHost CurrentHost { get; set; }
     }
 
     #endregion

@@ -29,13 +29,13 @@ public class DownloadController : BasePublicController
     private readonly IOrderService _orderService;
     private readonly IProductService _productService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public DownloadController(IDownloadService downloadService,
         IProductService productService,
         IOrderService orderService,
         IMerchandiseReturnService merchandiseReturnService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ITranslationService translationService,
         CustomerSettings customerSettings)
     {
@@ -43,7 +43,7 @@ public class DownloadController : BasePublicController
         _productService = productService;
         _orderService = orderService;
         _merchandiseReturnService = merchandiseReturnService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _translationService = translationService;
         _customerSettings = customerSettings;
     }
@@ -90,10 +90,10 @@ public class DownloadController : BasePublicController
 
         if (_customerSettings.DownloadableProductsValidateUser)
         {
-            if (_workContextAccessor.WorkContext.CurrentCustomer == null)
+            if (_contextAccessor.WorkContext.CurrentCustomer == null)
                 return Challenge();
 
-            if (order.CustomerId != _workContextAccessor.WorkContext.CurrentCustomer.Id && order.OwnerId != _workContextAccessor.WorkContext.CurrentCustomer.Id)
+            if (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id && order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
                 return Content("This is not your order");
         }
 
@@ -194,7 +194,7 @@ public class DownloadController : BasePublicController
             return Content("Downloads are not allowed");
 
         if (_customerSettings.DownloadableProductsValidateUser)
-            if (order.CustomerId != _workContextAccessor.WorkContext.CurrentCustomer.Id && order.OwnerId != _workContextAccessor.WorkContext.CurrentCustomer.Id)
+            if (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id && order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
                 return Challenge();
 
         var download = await _downloadService.GetDownloadById(!string.IsNullOrEmpty(orderItem.LicenseDownloadId)
@@ -226,7 +226,7 @@ public class DownloadController : BasePublicController
         if (download == null)
             return Content("Download is not available any more.");
 
-        if (_workContextAccessor.WorkContext.CurrentCustomer == null || download.CustomerId != _workContextAccessor.WorkContext.CurrentCustomer.Id)
+        if (_contextAccessor.WorkContext.CurrentCustomer == null || download.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
             return Challenge();
 
         if (download.UseDownloadUrl)
@@ -256,8 +256,8 @@ public class DownloadController : BasePublicController
         if (order == null)
             return InvokeHttp404();
 
-        if (_workContextAccessor.WorkContext.CurrentCustomer == null || (order.CustomerId != _workContextAccessor.WorkContext.CurrentCustomer.Id &&
-                                                     order.OwnerId != _workContextAccessor.WorkContext.CurrentCustomer.Id))
+        if (_contextAccessor.WorkContext.CurrentCustomer == null || (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id &&
+                                                     order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id))
             return Challenge();
 
         var download = await _downloadService.GetDownloadById(orderNote.DownloadId);
@@ -296,8 +296,8 @@ public class DownloadController : BasePublicController
         if (order == null)
             return InvokeHttp404();
 
-        if (_workContextAccessor.WorkContext.CurrentCustomer == null || (order.CustomerId != _workContextAccessor.WorkContext.CurrentCustomer.Id &&
-                                                     order.OwnerId != _workContextAccessor.WorkContext.CurrentCustomer.Id))
+        if (_contextAccessor.WorkContext.CurrentCustomer == null || (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id &&
+                                                     order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id))
             return Challenge();
 
         var download = await _downloadService.GetDownloadById(shipmentNote.DownloadId);
@@ -331,7 +331,7 @@ public class DownloadController : BasePublicController
         if (customerNote == null)
             return InvokeHttp404();
 
-        if (_workContextAccessor.WorkContext.CurrentCustomer == null || customerNote.CustomerId != _workContextAccessor.WorkContext.CurrentCustomer.Id)
+        if (_contextAccessor.WorkContext.CurrentCustomer == null || customerNote.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
             return Challenge();
 
         var download = await _downloadService.GetDownloadById(customerNote.DownloadId);
@@ -366,7 +366,7 @@ public class DownloadController : BasePublicController
         if (merchandiseReturn == null)
             return InvokeHttp404();
 
-        if (_workContextAccessor.WorkContext.CurrentCustomer == null || merchandiseReturn.CustomerId != _workContextAccessor.WorkContext.CurrentCustomer.Id)
+        if (_contextAccessor.WorkContext.CurrentCustomer == null || merchandiseReturn.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
             return Challenge();
 
         var download = await _downloadService.GetDownloadById(merchandiseReturnNote.DownloadId);
@@ -400,7 +400,7 @@ public class DownloadController : BasePublicController
         if (document is not { Published: true })
             return InvokeHttp404();
 
-        if (_workContextAccessor.WorkContext.CurrentCustomer == null || document.CustomerId != _workContextAccessor.WorkContext.CurrentCustomer.Id)
+        if (_contextAccessor.WorkContext.CurrentCustomer == null || document.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
             return Challenge();
 
         var download = await _downloadService.GetDownloadById(document.DownloadId);

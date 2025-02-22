@@ -25,12 +25,12 @@ public class HasAllProductsController : BaseAdminPluginController
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
     
     public HasAllProductsController(IDiscountService discountService,
         IPermissionService permissionService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ITranslationService translationService,
         IStoreService storeService,
         IVendorService vendorService,
@@ -39,7 +39,7 @@ public class HasAllProductsController : BaseAdminPluginController
     {
         _discountService = discountService;
         _permissionService = permissionService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _translationService = translationService;
         _storeService = storeService;
         _vendorService = vendorService;
@@ -123,7 +123,7 @@ public class HasAllProductsController : BaseAdminPluginController
 
         var model = new RequirementAllProductsModel.AddProductModel {
             //a vendor should have access only to his products
-            IsLoggedInAsVendor = _workContextAccessor.WorkContext.CurrentVendor != null
+            IsLoggedInAsVendor = _contextAccessor.WorkContext.CurrentVendor != null
         };
 
         //stores
@@ -159,7 +159,7 @@ public class HasAllProductsController : BaseAdminPluginController
             return Content("Access denied");
 
         //a vendor should have access only to his products
-        if (_workContextAccessor.WorkContext.CurrentVendor != null) model.SearchVendorId = _workContextAccessor.WorkContext.CurrentVendor.Id;
+        if (_contextAccessor.WorkContext.CurrentVendor != null) model.SearchVendorId = _contextAccessor.WorkContext.CurrentVendor.Id;
         var searchCategoryIds = new List<string>();
         if (!string.IsNullOrEmpty(model.SearchCategoryId))
             searchCategoryIds.Add(model.SearchCategoryId);

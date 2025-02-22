@@ -23,6 +23,7 @@ public class RobotsTxtServiceTests
     private IRepository<RobotsTxt> _repository;
     private RobotsTxtService _robotsTxtService;
     private Mock<IWorkContext> _workContextMock;
+    private Mock<IStoreContext> _storeContextMock;
 
     [TestInitialize]
     public void Init()
@@ -31,11 +32,11 @@ public class RobotsTxtServiceTests
 
         _mediatorMock = new Mock<IMediator>();
         _workContextMock = new Mock<IWorkContext>();
-
+        _storeContextMock = new Mock<IStoreContext>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
+        _storeContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
         _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
 
         _robotsTxtService = new RobotsTxtService(_repository, _mediatorMock.Object, _cacheBase);

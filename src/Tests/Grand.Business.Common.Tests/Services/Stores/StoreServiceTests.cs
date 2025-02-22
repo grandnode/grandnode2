@@ -93,7 +93,7 @@ public class StoreServiceTests
     }
 
     [TestMethod]
-    public async Task GetStoreByHost_NoMatchingHost_ReturnsFirstStore()
+    public async Task GetStoreByHost_NoMatchingHost_ReturnsNullStore()
     {
         // Arrange
         var store1 = new Store { Url = "http://store1.com" };
@@ -117,6 +117,6 @@ public class StoreServiceTests
         var result = await _service.GetStoreByHost("nonexisting.com");
 
         // Assert - returns first store
-        Assert.AreEqual(store1, result);
+        Assert.AreEqual(null, result);
     }
 }

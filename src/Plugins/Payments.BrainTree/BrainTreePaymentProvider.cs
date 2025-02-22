@@ -242,7 +242,7 @@ public class BrainTreePaymentProvider : IPaymentProvider
 
         if (!(result > 0)) return await Task.FromResult(result);
         var currencyService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ICurrencyService>();
-        var workContext = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IWorkContextAccessor>().WorkContext;
+        var workContext = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IContextAccessor>().WorkContext;
         result = await currencyService.ConvertFromPrimaryStoreCurrency(result, workContext.WorkingCurrency);
 
         //return result;

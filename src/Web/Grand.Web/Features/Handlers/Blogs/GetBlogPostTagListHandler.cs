@@ -15,27 +15,27 @@ public class GetBlogPostTagListHandler : IRequestHandler<GetBlogPostTagList, Blo
 
     private readonly BlogSettings _blogSettings;
     private readonly ICacheBase _cacheBase;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
-    public GetBlogPostTagListHandler(IBlogService blogService, ICacheBase cacheBase, IWorkContextAccessor workContextAccessor,
+    public GetBlogPostTagListHandler(IBlogService blogService, ICacheBase cacheBase, IContextAccessor contextAccessor,
         BlogSettings blogSettings)
     {
         _blogService = blogService;
         _cacheBase = cacheBase;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _blogSettings = blogSettings;
     }
 
     public async Task<BlogPostTagListModel> Handle(GetBlogPostTagList request, CancellationToken cancellationToken)
     {
-        var cacheKey = string.Format(CacheKeyConst.BLOG_TAGS_MODEL_KEY, _workContextAccessor.WorkContext.WorkingLanguage.Id,
-            _workContextAccessor.WorkContext.CurrentStore.Id);
+        var cacheKey = string.Format(CacheKeyConst.BLOG_TAGS_MODEL_KEY, _contextAccessor.WorkContext.WorkingLanguage.Id,
+            _contextAccessor.StoreContext.CurrentStore.Id);
         var cachedModel = await _cacheBase.GetAsync(cacheKey, async () =>
         {
             var model = new BlogPostTagListModel();
 
             //get tags
-            var tags = await _blogService.GetAllBlogPostTags(_workContextAccessor.WorkContext.CurrentStore.Id);
+            var tags = await _blogService.GetAllBlogPostTags(_contextAccessor.StoreContext.CurrentStore.Id);
             tags = tags.OrderByDescending(x => x.BlogPostCount)
                 .Take(_blogSettings.NumberOfTags)
                 .ToList();

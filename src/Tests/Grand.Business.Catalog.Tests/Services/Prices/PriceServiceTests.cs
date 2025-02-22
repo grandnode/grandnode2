@@ -44,10 +44,10 @@ public class PriceServiceTests
     private IProductService _productService;
     private ShoppingCartSettings _shoppingCartSettings;
     private Store _store;
-    private IWorkContextAccessor _workContext;
+    private IContextAccessor _workContext;
     private Mock<IDiscountService> tempDiscountServiceMock;
     private Mock<IProductService> tempProductService;
-    private Mock<IWorkContextAccessor> tempWorkContext;
+    private Mock<IContextAccessor> tempWorkContext;
 
     [TestInitialize]
     public void TestInitialize()
@@ -56,10 +56,10 @@ public class PriceServiceTests
         DataSettingsManager.Initialize(settingsPath);
 
         _store = new Store { Id = "1" };
-        tempWorkContext = new Mock<IWorkContextAccessor>();
+        tempWorkContext = new Mock<IContextAccessor>();
         {
             tempWorkContext.Setup(instance => instance.WorkContext.WorkingCurrency).Returns(_currency);
-            tempWorkContext.Setup(c => c.WorkContext.CurrentStore).Returns(_store);
+            tempWorkContext.Setup(c => c.StoreContext.CurrentStore).Returns(_store);
             _workContext = tempWorkContext.Object;
         }
 

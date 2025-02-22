@@ -20,13 +20,13 @@ public class OnlineCustomerController : BaseAdminController
         IDateTimeService dateTimeService,
         CustomerSettings customerSettings,
         ITranslationService translationService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _customerService = customerService;
         _dateTimeService = dateTimeService;
         _customerSettings = customerSettings;
         _translationService = translationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -37,7 +37,7 @@ public class OnlineCustomerController : BaseAdminController
     private readonly IDateTimeService _dateTimeService;
     private readonly CustomerSettings _customerSettings;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 
@@ -54,7 +54,7 @@ public class OnlineCustomerController : BaseAdminController
     {
         var customers = await _customerService.GetOnlineCustomers(
             DateTime.UtcNow.AddMinutes(-_customerSettings.OnlineCustomerMinutes),
-            null, _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId, _workContextAccessor.WorkContext.CurrentCustomer.SeId, command.Page - 1,
+            null, _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, _contextAccessor.WorkContext.CurrentCustomer.SeId, command.Page - 1,
             command.PageSize);
         var items = new List<OnlineCustomerModel>();
         foreach (var x in customers)

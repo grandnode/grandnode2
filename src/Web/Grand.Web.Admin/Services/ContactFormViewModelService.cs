@@ -19,19 +19,19 @@ public class ContactFormViewModelService : IContactFormViewModelService
     private readonly IEmailAccountService _emailAccountService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public ContactFormViewModelService(IContactUsService contactUsService,
         IDateTimeService dateTimeService,
         ITranslationService translationService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IStoreService storeService,
         IEmailAccountService emailAccountService)
     {
         _contactUsService = contactUsService;
         _dateTimeService = dateTimeService;
         _translationService = translationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _storeService = storeService;
         _emailAccountService = emailAccountService;
     }

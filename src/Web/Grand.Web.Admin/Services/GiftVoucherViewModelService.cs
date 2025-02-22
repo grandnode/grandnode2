@@ -26,7 +26,7 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
         ICurrencyService currencyService,
         LanguageSettings languageSettings,
         ITranslationService translationService, ILanguageService languageService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IStoreService storeService)
     {
         _giftVoucherService = giftVoucherService;

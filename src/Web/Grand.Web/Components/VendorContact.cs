@@ -17,13 +17,13 @@ public class VendorContactViewComponent : BaseViewComponent
 
     public VendorContactViewComponent(
         IVendorService vendorService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         VendorSettings vendorSettings,
         CommonSettings commonSettings,
         CaptchaSettings captchaSettings)
     {
         _vendorService = vendorService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _vendorSettings = vendorSettings;
         _commonSettings = commonSettings;
         _captchaSettings = captchaSettings;
@@ -43,12 +43,12 @@ public class VendorContactViewComponent : BaseViewComponent
             return Content("");
 
         var model = new ContactVendorModel {
-            Email = _workContextAccessor.WorkContext.CurrentCustomer.Email,
-            FullName = _workContextAccessor.WorkContext.CurrentCustomer.GetFullName(),
+            Email = _contextAccessor.WorkContext.CurrentCustomer.Email,
+            FullName = _contextAccessor.WorkContext.CurrentCustomer.GetFullName(),
             SubjectEnabled = _commonSettings.SubjectFieldOnContactUsForm,
             DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage,
             VendorId = vendor.Id,
-            VendorName = vendor.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)
+            VendorName = vendor.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
         };
 
         return View(model);
@@ -59,7 +59,7 @@ public class VendorContactViewComponent : BaseViewComponent
     #region Fields
 
     private readonly IVendorService _vendorService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly VendorSettings _vendorSettings;
     private readonly CommonSettings _commonSettings;
     private readonly CaptchaSettings _captchaSettings;

@@ -17,11 +17,13 @@ public class AffiliateExtensionsTests
     private readonly string _expectedFormat = _fakeStoreUrl + "?{0}={1}";
     private Mock<IAffiliateService> _affiliateServiceMock;
     private Mock<IWorkContext> _workContextMock;
+    private Mock<IStoreContext> _storeContextMock;
 
     [TestInitialize]
     public void TestInitialize()
     {
         _workContextMock = new Mock<IWorkContext>();
+        _storeContextMock = new Mock<IStoreContext>();
         _affiliateServiceMock = new Mock<IAffiliateService>();
     }
 
@@ -84,7 +86,7 @@ public class AffiliateExtensionsTests
         var affiliate = new Affiliate {
             Id = id
         };
-        _workContextMock.Setup(c => c.CurrentStore).Returns(new Store { Url = _fakeStoreUrl });
+        _storeContextMock.Setup(c => c.CurrentStore).Returns(new Store { Url = _fakeStoreUrl });
         Assert.AreEqual(string.Format(_expectedFormat, "affiliateid", id), affiliate.GenerateUrl("http://localhost/"));
         //_webHelperMock.Verify(c => c.ModifyQueryString(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
@@ -96,7 +98,7 @@ public class AffiliateExtensionsTests
         var affiliate = new Affiliate {
             FriendlyUrlName = friendlyUrl
         };
-        _workContextMock.Setup(c => c.CurrentStore).Returns(new Store { Url = _fakeStoreUrl });
+        _storeContextMock.Setup(c => c.CurrentStore).Returns(new Store { Url = _fakeStoreUrl });
         Assert.AreEqual(string.Format(_expectedFormat, "affiliate", friendlyUrl),
             affiliate.GenerateUrl("http://localhost/"));
     }

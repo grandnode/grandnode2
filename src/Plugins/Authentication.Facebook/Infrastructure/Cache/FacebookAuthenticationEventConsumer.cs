@@ -19,12 +19,12 @@ public class FacebookAuthenticationEventConsumer : INotificationHandler<Register
     public FacebookAuthenticationEventConsumer(
         ICustomerService customerService,
         IMessageProviderService messageProviderService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         CustomerSettings customerSettings)
     {
         _customerService = customerService;
         _messageProviderService = messageProviderService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _customerSettings = customerSettings;
     }
 
@@ -56,11 +56,11 @@ public class FacebookAuthenticationEventConsumer : INotificationHandler<Register
         //notifications for admin
         if (_customerSettings.NotifyNewCustomerRegistration)
             await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer,
-                _workContextAccessor.WorkContext.CurrentStore, _workContextAccessor.WorkContext.WorkingLanguage.Id);
+                _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingLanguage.Id);
 
         //send welcome message 
-        await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, _workContextAccessor.WorkContext.CurrentStore,
-            _workContextAccessor.WorkContext.WorkingLanguage.Id);
+        await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, _contextAccessor.StoreContext.CurrentStore,
+            _contextAccessor.WorkContext.WorkingLanguage.Id);
     }
 
     #endregion
@@ -69,7 +69,7 @@ public class FacebookAuthenticationEventConsumer : INotificationHandler<Register
 
     private readonly ICustomerService _customerService;
     private readonly IMessageProviderService _messageProviderService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly CustomerSettings _customerSettings;
 
     #endregion

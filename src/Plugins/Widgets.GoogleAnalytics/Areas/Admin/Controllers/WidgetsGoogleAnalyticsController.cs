@@ -18,14 +18,14 @@ public class WidgetsGoogleAnalyticsController : BaseAdminPluginController
     private readonly ISettingService _settingService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
-    public WidgetsGoogleAnalyticsController(IWorkContextAccessor workContextAccessor,
+    public WidgetsGoogleAnalyticsController(IContextAccessor contextAccessor,
         IStoreService storeService,
         ISettingService settingService,
         ITranslationService translationService)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _storeService = storeService;
         _settingService = settingService;
         _translationService = translationService;
@@ -48,7 +48,7 @@ public class WidgetsGoogleAnalyticsController : BaseAdminPluginController
     public async Task<IActionResult> Configure()
     {
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
+        var storeScope = await GetActiveStore(_storeService, _contextAccessor.WorkContext);
         var googleAnalyticsSettings = await _settingService.LoadSetting<GoogleAnalyticsEcommerceSettings>(storeScope);
         var model = new ConfigurationModel {
             GoogleId = googleAnalyticsSettings.GoogleId,
@@ -70,7 +70,7 @@ public class WidgetsGoogleAnalyticsController : BaseAdminPluginController
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
+        var storeScope = await GetActiveStore(_storeService, _contextAccessor.WorkContext);
         var googleAnalyticsSettings = await _settingService.LoadSetting<GoogleAnalyticsEcommerceSettings>(storeScope);
         googleAnalyticsSettings.GoogleId = model.GoogleId;
         googleAnalyticsSettings.TrackingScript = model.TrackingScript;

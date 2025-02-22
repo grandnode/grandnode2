@@ -10,16 +10,16 @@ public class DeleteBrandCommandHandler : IRequestHandler<DeleteBrandCommand, boo
 {
     private readonly IBrandService _brandService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public DeleteBrandCommandHandler(
         IBrandService brandService,
         ITranslationService translationService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _brandService = brandService;
         _translationService = translationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<bool> Handle(DeleteBrandCommand request, CancellationToken cancellationToken)

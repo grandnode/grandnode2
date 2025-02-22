@@ -31,7 +31,7 @@ public class ActionCartController : BasePublicController
 
     public ActionCartController(IProductService productService,
         IShoppingCartService shoppingCartService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IGroupService groupService,
         ITranslationService translationService,
         ICurrencyService currencyService,
@@ -41,7 +41,7 @@ public class ActionCartController : BasePublicController
     {
         _productService = productService;
         _shoppingCartService = shoppingCartService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _groupService = groupService;
         _translationService = translationService;
         _currencyService = currencyService;
@@ -56,7 +56,7 @@ public class ActionCartController : BasePublicController
 
     private readonly IProductService _productService;
     private readonly IShoppingCartService _shoppingCartService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
     private readonly ITranslationService _translationService;
     private readonly ICurrencyService _currencyService;
@@ -73,7 +73,7 @@ public class ActionCartController : BasePublicController
         //we can't add grouped products 
         if (product.ProductTypeId == ProductType.GroupedProduct)
             return Json(new {
-                redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id) })
+                redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) })
             });
 
         switch (cartType)
@@ -83,13 +83,13 @@ public class ActionCartController : BasePublicController
                 //we cannot add to the cart such products from category pages
                 return Json(new {
                     redirect = Url.RouteUrl("Product",
-                        new { SeName = product.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id) })
+                        new { SeName = product.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) })
                 });
             case ShoppingCartType.ShoppingCart when product.EnteredPrice:
                 //cannot be added to the cart (requires a customer to enter price)
                 return Json(new {
                     redirect = Url.RouteUrl("Product",
-                        new { SeName = product.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id) })
+                        new { SeName = product.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) })
                 });
         }
 
@@ -97,13 +97,13 @@ public class ActionCartController : BasePublicController
         if (cartType == ShoppingCartType.ShoppingCart && allowedQuantities.Length > 0)
             //cannot be added to the cart (requires a customer to select a quantity from drop down list)
             return Json(new {
-                redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id) })
+                redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) })
             });
 
         if (cartType != ShoppingCartType.Wishlist && product.ProductAttributeMappings.Any())
             //product has some attributes
             return Json(new {
-                redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id) })
+                redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) })
             });
 
         return null;
@@ -111,9 +111,9 @@ public class ActionCartController : BasePublicController
 
     private string GetWarehouse(Product product)
     {
-        return product.UseMultipleWarehouses ? _workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId :
-            string.IsNullOrEmpty(_workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId :
-            _workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId;
+        return product.UseMultipleWarehouses ? _contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId :
+            string.IsNullOrEmpty(_contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId :
+            _contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId;
     }
 
     private IActionResult ReturnFailMessage(Product product, ShoppingCartType shoppingCartTypeId)
@@ -156,7 +156,7 @@ public class ActionCartController : BasePublicController
         if (double.TryParse(model.CustomerEnteredPrice, out var customerEnteredPrice))
             customerEnteredPriceConverted =
                 await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice,
-                    _workContextAccessor.WorkContext.WorkingCurrency);
+                    _contextAccessor.WorkContext.WorkingCurrency);
 
         return customerEnteredPriceConverted;
     }
@@ -181,11 +181,11 @@ public class ActionCartController : BasePublicController
         if (redirect != null)
             return redirect;
 
-        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
         var warehouseId = GetWarehouse(product);
 
-        var cart = await _shoppingCartService.GetShoppingCart(_workContextAccessor.WorkContext.CurrentStore.Id, model.ShoppingCartTypeId);
+        var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id, model.ShoppingCartTypeId);
 
         if (model.ShoppingCartTypeId != ShoppingCartType.Wishlist)
         {
@@ -198,7 +198,7 @@ public class ActionCartController : BasePublicController
             var addToCartWarnings = await _shoppingCartValidator
                 .GetShoppingCartItemWarnings(customer, new ShoppingCartItem {
                     ShoppingCartTypeId = model.ShoppingCartTypeId,
-                    StoreId = _workContextAccessor.WorkContext.CurrentStore.Id,
+                    StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
                     WarehouseId = warehouseId,
                     Quantity = quantityToValidate
                 }, product, new ShoppingCartValidatorOptions {
@@ -209,7 +209,7 @@ public class ActionCartController : BasePublicController
                 //cannot be added to the cart
                 return Json(new {
                     redirect = Url.RouteUrl("Product",
-                        new { SeName = product.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id) })
+                        new { SeName = product.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) })
                 });
         }
 
@@ -217,7 +217,7 @@ public class ActionCartController : BasePublicController
         var addToCart = await _shoppingCartService.AddToCart(customer,
             product.Id,
             model.ShoppingCartTypeId,
-            _workContextAccessor.WorkContext.CurrentStore.Id,
+            _contextAccessor.StoreContext.CurrentStore.Id,
             warehouseId,
             quantity: model.Quantity,
             validator: new ShoppingCartValidatorOptions {
@@ -231,7 +231,7 @@ public class ActionCartController : BasePublicController
         if (addToCart.warnings.Any())
             //cannot be added to the cart
             return Json(new {
-                redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id) })
+                redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) })
             });
 
         var addtoCartModel = await _mediator.Send(new GetAddToCart {
@@ -240,10 +240,10 @@ public class ActionCartController : BasePublicController
             ShoppingCartItem = addToCart.shoppingCartItem,
             Quantity = model.Quantity,
             CartType = model.ShoppingCartTypeId,
-            Currency = _workContextAccessor.WorkContext.WorkingCurrency,
-            Store = _workContextAccessor.WorkContext.CurrentStore,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
-            TaxDisplayType = _workContextAccessor.WorkContext.TaxDisplayType
+            Currency = _contextAccessor.WorkContext.WorkingCurrency,
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
         });
 
         //added to the cart/wishlist
@@ -258,7 +258,7 @@ public class ActionCartController : BasePublicController
                     });
 
                 //display notification message and update appropriate blocks
-                var qty = (await _shoppingCartService.GetShoppingCart(_workContextAccessor.WorkContext.CurrentStore.Id,
+                var qty = (await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
                     ShoppingCartType.Wishlist)).Sum(x => x.Quantity);
                 var updatetopwishlistsectionhtml =
                     string.Format(_translationService.GetResource("Wishlist.HeaderQuantity"), qty);
@@ -292,17 +292,17 @@ public class ActionCartController : BasePublicController
 
                 var updatetopcartsectionhtml = string.Format(
                     _translationService.GetResource("ShoppingCart.HeaderQuantity"),
-                    (await _shoppingCartService.GetShoppingCart(_workContextAccessor.WorkContext.CurrentStore.Id,
+                    (await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
                         shoppingCartTypes.ToArray()))
                     .Sum(x => x.Quantity));
 
                 var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled
                     ? await _mediator.Send(new GetMiniShoppingCart {
-                        Customer = _workContextAccessor.WorkContext.CurrentCustomer,
-                        Currency = _workContextAccessor.WorkContext.WorkingCurrency,
-                        Language = _workContextAccessor.WorkContext.WorkingLanguage,
-                        TaxDisplayType = _workContextAccessor.WorkContext.TaxDisplayType,
-                        Store = _workContextAccessor.WorkContext.CurrentStore
+                        Customer = _contextAccessor.WorkContext.CurrentCustomer,
+                        Currency = _contextAccessor.WorkContext.WorkingCurrency,
+                        Language = _contextAccessor.WorkContext.WorkingLanguage,
+                        TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
+                        Store = _contextAccessor.StoreContext.CurrentStore
                     })
                     : null;
 
@@ -396,14 +396,14 @@ public class ActionCartController : BasePublicController
         //save item
         var addToCartWarnings = new List<string>();
         var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ? model.WarehouseId :
-            product.UseMultipleWarehouses ? _workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId :
-            string.IsNullOrEmpty(_workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId :
-            _workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId;
+            product.UseMultipleWarehouses ? _contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId :
+            string.IsNullOrEmpty(_contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId :
+            _contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId;
 
 
         //add to the cart
-        var (warnings, shoppingCartItem) = await _shoppingCartService.AddToCart(_workContextAccessor.WorkContext.CurrentCustomer,
-            product.Id, model.ShoppingCartTypeId, _workContextAccessor.WorkContext.CurrentStore.Id, warehouseId,
+        var (warnings, shoppingCartItem) = await _shoppingCartService.AddToCart(_contextAccessor.WorkContext.CurrentCustomer,
+            product.Id, model.ShoppingCartTypeId, _contextAccessor.StoreContext.CurrentStore.Id, warehouseId,
             attributes, customerEnteredPriceConverted,
             rentalStartDate, rentalEndDate, model.EnteredQuantity, true, model.Reservation, parameter, duration,
             new ShoppingCartValidatorOptions {
@@ -426,16 +426,16 @@ public class ActionCartController : BasePublicController
 
         var addtoCartModel = await _mediator.Send(new GetAddToCart {
             Product = product,
-            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
             ShoppingCartItem = shoppingCartItem,
             Quantity = model.EnteredQuantity,
             CartType = model.ShoppingCartTypeId,
             CustomerEnteredPrice = customerEnteredPriceConverted,
             Attributes = attributes,
-            Currency = _workContextAccessor.WorkContext.WorkingCurrency,
-            Store = _workContextAccessor.WorkContext.CurrentStore,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
-            TaxDisplayType = _workContextAccessor.WorkContext.TaxDisplayType,
+            Currency = _contextAccessor.WorkContext.WorkingCurrency,
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
             Duration = duration,
             Parameter = parameter,
             ReservationId = model.Reservation,
@@ -455,7 +455,7 @@ public class ActionCartController : BasePublicController
                     });
 
                 //display notification message and update appropriate blocks
-                var qty = (await _shoppingCartService.GetShoppingCart(_workContextAccessor.WorkContext.CurrentStore.Id,
+                var qty = (await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
                     ShoppingCartType.Wishlist)).Sum(x => x.Quantity);
                 var updatetopwishlistsectionhtml =
                     string.Format(_translationService.GetResource("Wishlist.HeaderQuantity"), qty);
@@ -489,17 +489,17 @@ public class ActionCartController : BasePublicController
 
                 var updatetopcartsectionhtml = string.Format(
                     _translationService.GetResource("ShoppingCart.HeaderQuantity"),
-                    (await _shoppingCartService.GetShoppingCart(_workContextAccessor.WorkContext.CurrentStore.Id,
+                    (await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
                         shoppingCartTypes.ToArray()))
                     .Sum(x => x.Quantity));
 
                 var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled
                     ? await _mediator.Send(new GetMiniShoppingCart {
-                        Customer = _workContextAccessor.WorkContext.CurrentCustomer,
-                        Currency = _workContextAccessor.WorkContext.WorkingCurrency,
-                        Language = _workContextAccessor.WorkContext.WorkingLanguage,
-                        TaxDisplayType = _workContextAccessor.WorkContext.TaxDisplayType,
-                        Store = _workContextAccessor.WorkContext.CurrentStore
+                        Customer = _contextAccessor.WorkContext.CurrentCustomer,
+                        Currency = _contextAccessor.WorkContext.WorkingCurrency,
+                        Language = _contextAccessor.WorkContext.WorkingLanguage,
+                        TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
+                        Store = _contextAccessor.StoreContext.CurrentStore
                     })
                     : null;
 
@@ -524,7 +524,7 @@ public class ActionCartController : BasePublicController
     [HttpPost]
     public virtual async Task<IActionResult> UpdateItemCart(ProductDetailsCart model)
     {
-        var cart = _workContextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.FirstOrDefault(sci =>
+        var cart = _contextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.FirstOrDefault(sci =>
             sci.Id == model.ShoppingCartItemId);
         if (cart == null)
             return Json(new {
@@ -574,7 +574,7 @@ public class ActionCartController : BasePublicController
             if (double.TryParse(model.CustomerEnteredPrice, out var customerEnteredPrice))
                 customerEnteredPriceConverted =
                     await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice,
-                        _workContextAccessor.WorkContext.WorkingCurrency);
+                        _contextAccessor.WorkContext.WorkingCurrency);
 
         #endregion
 
@@ -641,7 +641,7 @@ public class ActionCartController : BasePublicController
         var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ? model.WarehouseId : cart.WarehouseId;
 
         //update existing item
-        addToCartWarnings.AddRange(await _shoppingCartService.UpdateShoppingCartItem(_workContextAccessor.WorkContext.CurrentCustomer,
+        addToCartWarnings.AddRange(await _shoppingCartService.UpdateShoppingCartItem(_contextAccessor.WorkContext.CurrentCustomer,
             cart.Id, warehouseId, attributes, customerEnteredPriceConverted,
             rentalStartDate, rentalEndDate, model.EnteredQuantity));
 
@@ -661,7 +661,7 @@ public class ActionCartController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> GetItemCart(string shoppingCartId)
     {
-        var cart = _workContextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.FirstOrDefault(sci => sci.Id == shoppingCartId);
+        var cart = _contextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.FirstOrDefault(sci => sci.Id == shoppingCartId);
         if (cart == null)
             return Json(new {
                 success = false,
@@ -693,13 +693,13 @@ public class ActionCartController : BasePublicController
                     redirect = Url.RouteUrl("HomePage")
                 });
             return Json(new {
-                redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id) })
+                redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) })
             });
         }
 
         //prepare the model
         var model = await _mediator.Send(new GetProductDetailsPage {
-            Store = _workContextAccessor.WorkContext.CurrentStore,
+            Store = _contextAccessor.StoreContext.CurrentStore,
             Product = product,
             UpdateCartItem = cart
         });
@@ -714,7 +714,7 @@ public class ActionCartController : BasePublicController
     public virtual async Task<IActionResult> AddBid(AddBidModel model,
         [FromServices] IAuctionService auctionService)
     {
-        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
         if (!await _groupService.IsRegistered(customer))
             return Json(new {
                 success = false,
@@ -745,7 +745,7 @@ public class ActionCartController : BasePublicController
 
         var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse
             ? model.WarehouseId
-            : _workContextAccessor.WorkContext.CurrentStore.DefaultWarehouseId;
+            : _contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId;
 
         var shoppingCartItem = new ShoppingCartItem {
             Attributes = new List<CustomAttribute>(),
@@ -753,7 +753,7 @@ public class ActionCartController : BasePublicController
             ProductId = product.Id,
             WarehouseId = warehouseId,
             ShoppingCartTypeId = ShoppingCartType.Auctions,
-            StoreId = _workContextAccessor.WorkContext.CurrentStore.Id,
+            StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
             EnteredPrice = bid,
             Quantity = 1
         };
@@ -773,7 +773,7 @@ public class ActionCartController : BasePublicController
         }
 
         //insert new bid
-        await auctionService.NewBid(customer, product, _workContextAccessor.WorkContext.CurrentStore, _workContextAccessor.WorkContext.WorkingLanguage,
+        await auctionService.NewBid(customer, product, _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingLanguage,
             warehouseId, bid);
 
         var addtoCartModel = await _mediator.Send(new GetAddToCart {
@@ -781,10 +781,10 @@ public class ActionCartController : BasePublicController
             Customer = customer,
             Quantity = 1,
             CartType = ShoppingCartType.Auctions,
-            Currency = _workContextAccessor.WorkContext.WorkingCurrency,
-            Store = _workContextAccessor.WorkContext.CurrentStore,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
-            TaxDisplayType = _workContextAccessor.WorkContext.TaxDisplayType
+            Currency = _contextAccessor.WorkContext.WorkingCurrency,
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
         });
 
         return Json(new {

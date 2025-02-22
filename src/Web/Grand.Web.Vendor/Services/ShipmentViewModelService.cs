@@ -32,11 +32,11 @@ public class ShipmentViewModelService : IShipmentViewModelService
     private readonly IStockQuantityService _stockQuantityService;
     private readonly ITranslationService _translationService;
     private readonly IWarehouseService _warehouseService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public ShipmentViewModelService(
         IOrderService orderService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IGroupService groupService,
         IProductService productService,
         IShipmentService shipmentService,
@@ -51,7 +51,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
         ShippingProviderSettings shippingProviderSettings)
     {
         _orderService = orderService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _groupService = groupService;
         _productService = productService;
         _shipmentService = shipmentService;
@@ -104,7 +104,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
                 if (orderItem == null)
                     continue;
 
-                if (orderItem.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id)
+                if (orderItem.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
                     continue;
 
                 //quantities
@@ -261,7 +261,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
 
         //load shipments
         var shipments = await _shipmentService.GetAllShipments(
-            vendorId: _workContextAccessor.WorkContext.CurrentVendor.Id,
+            vendorId: _contextAccessor.WorkContext.CurrentVendor.Id,
             warehouseId: model.WarehouseId,
             shippingCity: model.City,
             trackingNumber: model.TrackingNumber,
@@ -301,8 +301,8 @@ public class ShipmentViewModelService : IShipmentViewModelService
 
         var orderItems = order.OrderItems;
         //a vendor should have access only to his products
-        if (_workContextAccessor.WorkContext.CurrentVendor != null && !await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
-            orderItems = orderItems.Where(_workContextAccessor.WorkContext.HasAccessToOrderItem).ToList();
+        if (_contextAccessor.WorkContext.CurrentVendor != null && !await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+            orderItems = orderItems.Where(_contextAccessor.WorkContext.HasAccessToOrderItem).ToList();
 
         foreach (var orderItem in orderItems)
         {
@@ -498,7 +498,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
             DeliveryDateUtc = null,
             AdminComment = model.AdminComment,
             StoreId = order.StoreId,
-            VendorId = _workContextAccessor.WorkContext.CurrentVendor.Id
+            VendorId = _contextAccessor.WorkContext.CurrentVendor.Id
         };
         double? totalWeight = null;
         foreach (var orderItem in orderItems)

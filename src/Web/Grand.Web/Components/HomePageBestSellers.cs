@@ -19,14 +19,14 @@ public class HomePageBestSellersViewComponent : BaseViewComponent
     public HomePageBestSellersViewComponent(
         IOrderReportService orderReportService,
         ICacheBase cacheBase,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IProductService productService,
         IMediator mediator,
         CatalogSettings catalogSettings)
     {
         _orderReportService = orderReportService;
         _cacheBase = cacheBase;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _productService = productService;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
@@ -50,11 +50,11 @@ public class HomePageBestSellersViewComponent : BaseViewComponent
                 ? -_catalogSettings.PeriodBestsellers
                 : -12);
             var report = await _cacheBase.GetAsync(
-                string.Format(CacheKeyConst.HOMEPAGE_BESTSELLERS_IDS_KEY, _workContextAccessor.WorkContext.CurrentStore.Id), async () =>
+                string.Format(CacheKeyConst.HOMEPAGE_BESTSELLERS_IDS_KEY, _contextAccessor.StoreContext.CurrentStore.Id), async () =>
                     await _orderReportService.BestSellersReport(
                         createdFromUtc: fromdate,
                         ps: PaymentStatus.Paid,
-                        storeId: _workContextAccessor.WorkContext.CurrentStore.Id,
+                        storeId: _contextAccessor.StoreContext.CurrentStore.Id,
                         pageSize: _catalogSettings.NumberOfBestsellersOnHomepage));
 
             productIds = report.Select(x => x.ProductId).ToList();
@@ -85,7 +85,7 @@ public class HomePageBestSellersViewComponent : BaseViewComponent
 
     private readonly IOrderReportService _orderReportService;
     private readonly ICacheBase _cacheBase;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IProductService _productService;
     private readonly IMediator _mediator;
 

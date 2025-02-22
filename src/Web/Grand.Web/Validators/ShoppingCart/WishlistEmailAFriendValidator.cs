@@ -17,9 +17,9 @@ public class WishlistEmailAFriendValidator : BaseGrandValidator<WishlistEmailAFr
     public WishlistEmailAFriendValidator(
         IEnumerable<IValidatorConsumer<WishlistEmailAFriendModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
-        IWorkContextAccessor workContextAccessor, IGroupService groupService,
+        IContextAccessor contextAccessor, IGroupService groupService,
         CaptchaSettings captchaSettings, ShoppingCartSettings shoppingCartSettings,
-        IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
+        IHttpContextAccessor httpcontextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
         : base(validators)
     {
@@ -37,13 +37,13 @@ public class WishlistEmailAFriendValidator : BaseGrandValidator<WishlistEmailAFr
             RuleFor(x => x.Captcha).NotNull()
                 .WithMessage(translationService.GetResource("Account.Captcha.Required"));
             RuleFor(x => x.Captcha)
-                .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
+                .SetValidator(new CaptchaValidator(validatorsCaptcha, httpcontextAccessor, googleReCaptchaValidator));
         }
 
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             //check whether the current customer is guest and ia allowed to email wishlist
-            if (await groupService.IsGuest(workContextAccessor.WorkContext.CurrentCustomer) &&
+            if (await groupService.IsGuest(contextAccessor.WorkContext.CurrentCustomer) &&
                 !shoppingCartSettings.AllowAnonymousUsersToEmailWishlist)
                 context.AddFailure(translationService.GetResource("Wishlist.EmailAFriend.OnlyRegisteredUsers"));
         });

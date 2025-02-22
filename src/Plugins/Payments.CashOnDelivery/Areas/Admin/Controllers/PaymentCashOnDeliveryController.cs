@@ -21,15 +21,15 @@ public class PaymentCashOnDeliveryController : BasePaymentController
     private readonly ISettingService _settingService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
 
-    public PaymentCashOnDeliveryController(IWorkContextAccessor workContextAccessor,
+    public PaymentCashOnDeliveryController(IContextAccessor contextAccessor,
         IStoreService storeService,
         ISettingService settingService,
         ITranslationService translationService)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _storeService = storeService;
         _settingService = settingService;
         _translationService = translationService;
@@ -53,7 +53,7 @@ public class PaymentCashOnDeliveryController : BasePaymentController
     public async Task<IActionResult> Configure()
     {
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
+        var storeScope = await GetActiveStore(_storeService, _contextAccessor.WorkContext);
         var cashOnDeliveryPaymentSettings = await _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(storeScope);
 
         var model = new ConfigurationModel {
@@ -78,7 +78,7 @@ public class PaymentCashOnDeliveryController : BasePaymentController
             return await Configure();
 
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
+        var storeScope = await GetActiveStore(_storeService, _contextAccessor.WorkContext);
         var cashOnDeliveryPaymentSettings = await _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(storeScope);
 
         //save settings

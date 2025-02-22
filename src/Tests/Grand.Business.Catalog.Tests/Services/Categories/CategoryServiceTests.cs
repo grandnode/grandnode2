@@ -28,7 +28,7 @@ public class CategoryServiceTests
     private ProductCategoryService _productCategoryService;
     private Mock<MongoRepository<Product>> _productRepositoryMock;
     private CatalogSettings _settings;
-    private Mock<IWorkContextAccessor> _workContextMock;
+    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -38,7 +38,7 @@ public class CategoryServiceTests
         _casheManagerMock = new Mock<ICacheBase>();
         _categoryRepositoryMock = new Mock<IRepository<Category>>();
         _productRepositoryMock = new Mock<MongoRepository<Product>>(Mock.Of<IAuditInfoProvider>());
-        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock = new Mock<IContextAccessor>();
         _mediatorMock = new Mock<IMediator>();
         _aclServiceMock = new Mock<IAclService>();
         _settings = new CatalogSettings();
@@ -98,7 +98,8 @@ public class CategoryServiceTests
     {
         var allCategory = GetMockCategoryList();
         var category = new Category { Id = "6", ParentCategoryId = "3", Published = true };
-        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer { Id = "" });
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
         var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
@@ -112,7 +113,8 @@ public class CategoryServiceTests
     {
         var allCategory = GetMockCategoryList();
         var category = new Category { Id = "6", ParentCategoryId = "1", Published = true };
-        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer { Id = "" });
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
         var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);

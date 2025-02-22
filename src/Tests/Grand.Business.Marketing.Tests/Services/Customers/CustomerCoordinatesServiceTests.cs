@@ -18,15 +18,15 @@ public class CustomerCoordinatesServiceTests
     private CustomerCoordinatesService _customerCoordinatesService;
     private Mock<IMediator> _mediatorMock;
     private IRepository<Customer> _repository;
-    private Mock<IWorkContextAccessor> _workContextMock;
+    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
         _repository = new MongoDBRepositoryTest<Customer>();
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IWorkContextAccessor>();
-        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "" });
+        _workContextMock = new Mock<IContextAccessor>();
+        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "" });
         _customer = new Customer();
         _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => _customer);
 

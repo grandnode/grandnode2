@@ -37,11 +37,11 @@ public class AuthorizeVendorAttribute : TypeFilterAttribute
     {
         #region Ctor
 
-        public AuthorizeVendorFilter(bool ignoreFilter, IWorkContextAccessor workContextAccessor, IGroupService groupService,
+        public AuthorizeVendorFilter(bool ignoreFilter, IContextAccessor contextAccessor, IGroupService groupService,
             IPermissionService permissionService)
         {
             _ignoreFilter = ignoreFilter;
-            _workContextAccessor = workContextAccessor;
+            _contextAccessor = contextAccessor;
             _groupService = groupService;
             _permissionService = permissionService;
         }
@@ -76,7 +76,7 @@ public class AuthorizeVendorAttribute : TypeFilterAttribute
                 context.Result = new RedirectToRouteResult("VendorLogin", new RouteValueDictionary());
 
             //ensure that this user has active vendor record associated
-            if (!await _groupService.IsVendor(_workContextAccessor.WorkContext.CurrentCustomer) || _workContextAccessor.WorkContext.CurrentVendor == null)
+            if (!await _groupService.IsVendor(_contextAccessor.WorkContext.CurrentCustomer) || _contextAccessor.WorkContext.CurrentVendor == null)
                 context.Result = new RedirectToRouteResult("VendorLogin", new RouteValueDictionary());
         }
 
@@ -86,7 +86,7 @@ public class AuthorizeVendorAttribute : TypeFilterAttribute
 
         private readonly bool _ignoreFilter;
         private readonly IPermissionService _permissionService;
-        private readonly IWorkContextAccessor _workContextAccessor;
+        private readonly IContextAccessor _contextAccessor;
         private readonly IGroupService _groupService;
 
         #endregion

@@ -20,13 +20,13 @@ public class PageService : IPageService
     #region Ctor
 
     public PageService(IRepository<Page> pageRepository,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IAclService aclService,
         IMediator mediator,
         ICacheBase cacheBase, AccessControlConfig accessControlConfig)
     {
         _pageRepository = pageRepository;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _aclService = aclService;
         _mediator = mediator;
         _cacheBase = cacheBase;
@@ -38,7 +38,7 @@ public class PageService : IPageService
     #region Fields
 
     private readonly IRepository<Page> _pageRepository;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IAclService _aclService;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
@@ -105,7 +105,7 @@ public class PageService : IPageService
             {
                 if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
                 {
-                    var allowedCustomerGroupsIds = _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+                    var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
                         where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                         select p;

@@ -12,16 +12,16 @@ public class AddProductAttributeCommandHandler : IRequestHandler<AddProductAttri
 {
     private readonly IProductAttributeService _productAttributeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public AddProductAttributeCommandHandler(
         IProductAttributeService productAttributeService,
         ITranslationService translationService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _productAttributeService = productAttributeService;
         _translationService = translationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<ProductAttributeDto> Handle(AddProductAttributeCommand request,

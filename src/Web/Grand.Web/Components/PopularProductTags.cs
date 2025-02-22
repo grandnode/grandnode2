@@ -9,19 +9,19 @@ namespace Grand.Web.Components;
 public class PopularProductTagsViewComponent : BaseViewComponent
 {
     private readonly IMediator _mediator;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
-    public PopularProductTagsViewComponent(IMediator mediator, IWorkContextAccessor workContextAccessor)
+    public PopularProductTagsViewComponent(IMediator mediator, IContextAccessor contextAccessor)
     {
         _mediator = mediator;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
         var model = await _mediator.Send(new GetPopularProductTags {
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
-            Store = _workContextAccessor.WorkContext.CurrentStore
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Store = _contextAccessor.StoreContext.CurrentStore
         });
         return !model.Tags.Any() ? Content("") : View(model);
     }

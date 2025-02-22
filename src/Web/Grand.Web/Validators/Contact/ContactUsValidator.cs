@@ -19,23 +19,23 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
     private readonly IContactAttributeParser _contactAttributeParser;
     private readonly IContactAttributeService _contactAttributeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public ContactUsValidator(
         IEnumerable<IValidatorConsumer<ContactUsModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         IContactAttributeParser contactAttributeParser,
         IContactAttributeService contactAttributeService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ITranslationService translationService, CommonSettings commonSettings,
         CaptchaSettings captchaSettings,
-        IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator)
+        IHttpContextAccessor httpcontextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator)
         : base(validators)
     {
         _contactAttributeParser = contactAttributeParser;
         _contactAttributeService = contactAttributeService;
         _translationService = translationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
 
         RuleFor(x => x.Email).NotEmpty().WithMessage(translationService.GetResource("ContactUs.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
@@ -53,14 +53,14 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
             RuleFor(x => x.Captcha).NotNull()
                 .WithMessage(translationService.GetResource("Account.Captcha.Required"));
             RuleFor(x => x.Captcha)
-                .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
+                .SetValidator(new CaptchaValidator(validatorsCaptcha, httpcontextAccessor, googleReCaptchaValidator));
         }
 
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             var contactAttributeWarnings = await GetContactAttributesWarnings(
                 x.Attributes.Select(z => new CustomAttribute { Key = z.Key, Value = z.Value }).ToList(),
-                workContextAccessor.WorkContext.CurrentStore.Id);
+                contextAccessor.StoreContext.CurrentStore.Id);
             if (contactAttributeWarnings.Any())
                 foreach (var item in contactAttributeWarnings)
                     context.AddFailure(item);
@@ -99,10 +99,10 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
             //if not found
             if (!found)
                 warnings.Add(
-                    !string.IsNullOrEmpty(a2.GetTranslation(a => a.TextPrompt, _workContextAccessor.WorkContext.WorkingLanguage.Id))
-                        ? a2.GetTranslation(a => a.TextPrompt, _workContextAccessor.WorkContext.WorkingLanguage.Id)
+                    !string.IsNullOrEmpty(a2.GetTranslation(a => a.TextPrompt, _contextAccessor.WorkContext.WorkingLanguage.Id))
+                        ? a2.GetTranslation(a => a.TextPrompt, _contextAccessor.WorkContext.WorkingLanguage.Id)
                         : string.Format(_translationService.GetResource("ContactUs.SelectAttribute"),
-                            a2.GetTranslation(a => a.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)));
+                            a2.GetTranslation(a => a.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)));
         }
 
         //now validation rules
@@ -124,7 +124,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
                         if (ca.ValidationMinLength.Value > enteredTextLength)
                             warnings.Add(string.Format(
                                 _translationService.GetResource("ContactUs.TextboxMinimumLength"),
-                                ca.GetTranslation(a => a.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                                ca.GetTranslation(a => a.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
                                 ca.ValidationMinLength.Value));
                     }
                 }
@@ -143,7 +143,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
 
                 if (ca.ValidationMaxLength.Value < enteredTextLength)
                     warnings.Add(string.Format(_translationService.GetResource("ContactUs.TextboxMaximumLength"),
-                        ca.GetTranslation(a => a.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                        ca.GetTranslation(a => a.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
                         ca.ValidationMaxLength.Value));
             }
         }

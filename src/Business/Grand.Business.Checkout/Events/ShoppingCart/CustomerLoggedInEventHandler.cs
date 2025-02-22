@@ -8,17 +8,17 @@ namespace Grand.Business.Checkout.Events.ShoppingCart;
 public class CustomerLoggedInEventHandler : INotificationHandler<CustomerLoggedInEvent>
 {
     private readonly IShoppingCartService _shoppingCartService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
-    public CustomerLoggedInEventHandler(IShoppingCartService shoppingCartService, IWorkContextAccessor workContextAccessor)
+    public CustomerLoggedInEventHandler(IShoppingCartService shoppingCartService, IContextAccessor contextAccessor)
     {
         _shoppingCartService = shoppingCartService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task Handle(CustomerLoggedInEvent notification, CancellationToken cancellationToken)
     {
         //migrate shopping cart
-        await _shoppingCartService.MigrateShoppingCart(_workContextAccessor.WorkContext.CurrentCustomer, notification.Customer, true);
+        await _shoppingCartService.MigrateShoppingCart(_contextAccessor.WorkContext.CurrentCustomer, notification.Customer, true);
     }
 }

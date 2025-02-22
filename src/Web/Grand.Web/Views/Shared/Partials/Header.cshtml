@@ -1,8 +1,8 @@
-﻿@inject IWorkContextAccessor workContextAccessor
+﻿@inject IContextAccessor contextAccessor
 @inject StoreInformationSettings StoreInformationSettings
 @inject CommonSettings CommonSettings
 @{
-    var supportRtl = workContextAccessor.WorkContext.WorkingLanguage.Rtl;
+    var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl;
 }
 <div class="header-nav">
     <nav class="navbar navbar-light navbar-expand">

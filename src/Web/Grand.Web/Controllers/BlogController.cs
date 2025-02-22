@@ -29,14 +29,14 @@ public class BlogController : BasePublicController
         IMediator mediator,
         IBlogService blogService,
         ITranslationService translationService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         BlogSettings blogSettings)
     {
         _mediator = mediator;
         _blogService = blogService;
         _translationService = translationService;
         _blogSettings = blogSettings;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -46,7 +46,7 @@ public class BlogController : BasePublicController
     private readonly IMediator _mediator;
     private readonly IBlogService _blogService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly BlogSettings _blogSettings;
 
     #endregion
@@ -124,7 +124,7 @@ public class BlogController : BasePublicController
             return RedirectToRoute("HomePage");
 
         //Store acl
-        if (!aclService.Authorize(blogPost, _workContextAccessor.WorkContext.CurrentStore.Id))
+        if (!aclService.Authorize(blogPost, _contextAccessor.StoreContext.CurrentStore.Id))
             return InvokeHttp404();
 
         var model = await _mediator.Send(new GetBlogPost { BlogPost = blogPost });
@@ -152,7 +152,7 @@ public class BlogController : BasePublicController
                 success = false
             });
 
-        if (!aclService.Authorize(blogPost, _workContextAccessor.WorkContext.CurrentStore.Id))
+        if (!aclService.Authorize(blogPost, _contextAccessor.StoreContext.CurrentStore.Id))
             return Json(new {
                 success = false
             });
@@ -171,7 +171,7 @@ public class BlogController : BasePublicController
                     blogComment.CommentText,
                     CreatedOn = HttpContext.RequestServices.GetService<IDateTimeService>()
                         .ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
-                    CustomerName = _workContextAccessor.WorkContext.CurrentCustomer.FormatUserName(HttpContext.RequestServices
+                    CustomerName = _contextAccessor.WorkContext.CurrentCustomer.FormatUserName(HttpContext.RequestServices
                         .GetService<CustomerSettings>().CustomerNameFormat)
                 }
             });

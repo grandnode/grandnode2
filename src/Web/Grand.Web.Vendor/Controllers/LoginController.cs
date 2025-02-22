@@ -28,7 +28,7 @@ public class LoginController : BaseController
     private readonly IMediator _mediator;
     private readonly IMessageProviderService _messageProviderService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public LoginController(
         CustomerSettings customerSettings,
@@ -38,7 +38,7 @@ public class LoginController : BaseController
         ICustomerService customerService,
         IGrandAuthenticationService authenticationService,
         IMessageProviderService messageProviderService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IMediator mediator)
     {
         _customerSettings = customerSettings;
@@ -48,7 +48,7 @@ public class LoginController : BaseController
         _customerService = customerService;
         _authenticationService = authenticationService;
         _messageProviderService = messageProviderService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _mediator = mediator;
     }
 
@@ -128,11 +128,11 @@ public class LoginController : BaseController
 
         if (_customerSettings.TwoFactorAuthenticationType != TwoFactorAuthenticationType.AppVerification)
         {
-            await twoFactorAuthenticationService.GenerateCodeSetup("", customer, _workContextAccessor.WorkContext.WorkingLanguage,
+            await twoFactorAuthenticationService.GenerateCodeSetup("", customer, _contextAccessor.WorkContext.WorkingLanguage,
                 _customerSettings.TwoFactorAuthenticationType);
             if (_customerSettings.TwoFactorAuthenticationType == TwoFactorAuthenticationType.EmailVerification)
                 await _messageProviderService.SendCustomerEmailTokenValidationMessage(customer,
-                    _workContextAccessor.WorkContext.CurrentStore, _workContextAccessor.WorkContext.WorkingLanguage.Id);
+                    _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingLanguage.Id);
         }
 
         return View();

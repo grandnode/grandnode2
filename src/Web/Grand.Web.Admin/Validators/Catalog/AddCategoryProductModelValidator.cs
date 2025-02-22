@@ -12,15 +12,15 @@ public class AddCategoryProductModelValidator : BaseGrandValidator<CategoryModel
 {
     public AddCategoryProductModelValidator(
         IEnumerable<IValidatorConsumer<CategoryModel.AddCategoryProductModel>> validators,
-        ITranslationService translationService, ICategoryService categoryService, IWorkContextAccessor workContextAccessor)
+        ITranslationService translationService, ICategoryService categoryService, IContextAccessor contextAccessor)
         : base(validators)
     {
-        if (!string.IsNullOrEmpty(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+        if (!string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 var category = await categoryService.GetCategoryById(x.CategoryId);
                 if (category != null)
-                    if (!category.AccessToEntityByStore(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                    if (!category.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                         return false;
 
                 return true;

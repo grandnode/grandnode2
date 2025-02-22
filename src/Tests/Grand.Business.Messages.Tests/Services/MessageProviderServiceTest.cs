@@ -32,7 +32,7 @@ public class MessageProviderServiceTest
     private Mock<IMessageTokenProvider> _messageTokenProviderMock;
     private Product _product;
     private Mock<IQueuedEmailService> _queuedEmailServiceMock;
-    private Mock<IWorkContextAccessor> _workContextAccessorMock;
+    private Mock<IContextAccessor> _contextAccessorMock;
     private Mock<IStoreService> _storeServiceMock;
 
     [TestInitialize]
@@ -62,8 +62,8 @@ public class MessageProviderServiceTest
             .Returns(Task.FromResult(new Store { Url = "https://localhost:44350/" }));
         _storeServiceMock.Setup(x => x.GetAllStores()).Returns(Task.FromResult(new List<Store>() as IList<Store>));
 
-        _workContextAccessorMock = new Mock<IWorkContextAccessor>();
-        _workContextAccessorMock.Setup(x => x.WorkContext.CurrentHost).Returns(new DomainHost { Url = "https://localhost:44350/" });
+        _contextAccessorMock = new Mock<IContextAccessor>();
+        _contextAccessorMock.Setup(x => x.StoreContext.CurrentHost).Returns(new DomainHost { Url = "https://localhost:44350/" });
         _mediatorMock = new Mock<IMediator>();
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetCustomerByIdQuery>(), default))
             .Returns(Task.FromResult(new Customer { Email = "sdfsdf@mail.com" }));
@@ -72,7 +72,7 @@ public class MessageProviderServiceTest
         _commonSetting = new Mock<CommonSettings>();
 
         _messageService = new MessageProviderService(
-            _workContextAccessorMock.Object,
+            _contextAccessorMock.Object,
             _messageTemplateServiceMock.Object,
             _queuedEmailServiceMock.Object,
             _languageServiceMock.Object,

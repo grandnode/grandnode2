@@ -9,23 +9,23 @@ namespace Grand.Web.Components;
 public class CustomerNavigationViewComponent : BaseViewComponent
 {
     private readonly IMediator _mediator;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public CustomerNavigationViewComponent(IMediator mediator,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _mediator = mediator;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<IViewComponentResult> InvokeAsync(int selectedTabId = 0)
     {
         var model = await _mediator.Send(new GetNavigation {
-            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
             SelectedTabId = selectedTabId,
-            Store = _workContextAccessor.WorkContext.CurrentStore,
-            Vendor = _workContextAccessor.WorkContext.CurrentVendor
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            Vendor = _contextAccessor.WorkContext.CurrentVendor
         });
         return View(model);
     }

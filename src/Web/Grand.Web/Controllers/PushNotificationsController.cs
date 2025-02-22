@@ -10,11 +10,11 @@ namespace Grand.Web.Controllers;
 public class PushNotificationsController : BasePublicController
 {
     private readonly IPushNotificationsService _pushNotificationsService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
-    public PushNotificationsController(IWorkContextAccessor workContextAccessor, IPushNotificationsService pushNotificationsService)
+    public PushNotificationsController(IContextAccessor contextAccessor, IPushNotificationsService pushNotificationsService)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _pushNotificationsService = pushNotificationsService;
     }
 
@@ -24,12 +24,12 @@ public class PushNotificationsController : BasePublicController
     {
         if (success)
         {
-            var toUpdate = await _pushNotificationsService.GetPushReceiverByCustomerId(_workContextAccessor.WorkContext.CurrentCustomer.Id);
+            var toUpdate = await _pushNotificationsService.GetPushReceiverByCustomerId(_contextAccessor.WorkContext.CurrentCustomer.Id);
 
             if (toUpdate == null)
             {
                 await _pushNotificationsService.InsertPushReceiver(new PushRegistration {
-                    CustomerId = _workContextAccessor.WorkContext.CurrentCustomer.Id,
+                    CustomerId = _contextAccessor.WorkContext.CurrentCustomer.Id,
                     Token = value,
                     RegisteredOn = DateTime.UtcNow,
                     Allowed = true
@@ -46,12 +46,12 @@ public class PushNotificationsController : BasePublicController
         else
         {
             if (value != "Permission denied") return new JsonResult("");
-            var toUpdate = await _pushNotificationsService.GetPushReceiverByCustomerId(_workContextAccessor.WorkContext.CurrentCustomer.Id);
+            var toUpdate = await _pushNotificationsService.GetPushReceiverByCustomerId(_contextAccessor.WorkContext.CurrentCustomer.Id);
 
             if (toUpdate == null)
             {
                 await _pushNotificationsService.InsertPushReceiver(new PushRegistration {
-                    CustomerId = _workContextAccessor.WorkContext.CurrentCustomer.Id,
+                    CustomerId = _contextAccessor.WorkContext.CurrentCustomer.Id,
                     Token = "[DENIED]",
                     RegisteredOn = DateTime.UtcNow,
                     Allowed = false

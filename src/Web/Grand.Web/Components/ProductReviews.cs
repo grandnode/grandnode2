@@ -15,11 +15,11 @@ public class ProductReviewsViewComponent : BaseViewComponent
     public ProductReviewsViewComponent(
         IProductService productService,
         IMediator mediator,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         CatalogSettings catalogSettings)
     {
         _productService = productService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
     }
@@ -35,10 +35,10 @@ public class ProductReviewsViewComponent : BaseViewComponent
             return Content("");
 
         var model = await _mediator.Send(new GetProductReviews {
-            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
             Product = product,
-            Store = _workContextAccessor.WorkContext.CurrentStore,
+            Store = _contextAccessor.StoreContext.CurrentStore,
             Size = _catalogSettings.NumberOfReview
         });
 
@@ -51,7 +51,7 @@ public class ProductReviewsViewComponent : BaseViewComponent
 
     private readonly IProductService _productService;
     private readonly IMediator _mediator;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly CatalogSettings _catalogSettings;
 
     #endregion

@@ -73,8 +73,9 @@ public class StartupApplication : IStartupApplication
     private void RegisterContextService(IServiceCollection serviceCollection)
     {
         //work context
-        serviceCollection.AddSingleton<IWorkContextAccessor, WorkContextAccessor>();
+        serviceCollection.AddSingleton<IContextAccessor, contextAccessor>();
         serviceCollection.AddScoped<IWorkContextSetter, WorkContextSetter>();
+        serviceCollection.AddScoped<IStoreContextSetter, StoreContextSetter>();
 
         //View factory
         serviceCollection.AddScoped<IViewFactory, ViewFactory>();

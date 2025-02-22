@@ -17,15 +17,15 @@ namespace Grand.Business.Marketing.Services.Contacts;
 public class ContactAttributeParser : IContactAttributeParser
 {
     private readonly IContactAttributeService _contactAttributeService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public ContactAttributeParser(
         IContactAttributeService contactAttributeService,
-        IWorkContextAccessor workContextAccessor
+        IContextAccessor contextAccessor
     )
     {
         _contactAttributeService = contactAttributeService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     /// <summary>
@@ -213,7 +213,7 @@ public class ContactAttributeParser : IContactAttributeParser
                                 if (allowHyperlinks)
                                 {
                                     var downloadLink =
-                                        $"{_workContextAccessor.WorkContext.CurrentHost.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
+                                        $"{_contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
                                     attributeText =
                                         $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, language.Id)}</a>";
                                 }

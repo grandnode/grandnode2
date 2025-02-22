@@ -40,8 +40,8 @@ public class ProductReviewsValidator : BaseGrandValidator<ProductReviewsModel>
         IOrderService orderService,
         IProductReviewService productReviewService,
         CaptchaSettings captchaSettings, CatalogSettings catalogSettings,
-        IWorkContextAccessor workContextAccessor,
-        IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
+        IContextAccessor contextAccessor,
+        IHttpContextAccessor httpcontextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
         : base(validators)
     {
@@ -56,7 +56,7 @@ public class ProductReviewsValidator : BaseGrandValidator<ProductReviewsModel>
         {
             RuleFor(x => x.Captcha).NotNull().WithMessage(translationService.GetResource("Account.Captcha.Required"));
             RuleFor(x => x.Captcha)
-                .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
+                .SetValidator(new CaptchaValidator(validatorsCaptcha, httpcontextAccessor, googleReCaptchaValidator));
         }
 
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
@@ -65,18 +65,18 @@ public class ProductReviewsValidator : BaseGrandValidator<ProductReviewsModel>
             if (product is not { Published: true } || !product.AllowCustomerReviews)
                 context.AddFailure("Product is disabled");
 
-            if (await groupService.IsGuest(workContextAccessor.WorkContext.CurrentCustomer) &&
+            if (await groupService.IsGuest(contextAccessor.WorkContext.CurrentCustomer) &&
                 !catalogSettings.AllowAnonymousUsersToReviewProduct)
                 context.AddFailure(translationService.GetResource("Reviews.OnlyRegisteredUsersCanWriteReviews"));
 
             if (catalogSettings.ProductReviewPossibleOnlyAfterPurchasing &&
-                !(await orderService.SearchOrders(customerId: workContextAccessor.WorkContext.CurrentCustomer.Id, productId: x.ProductId,
+                !(await orderService.SearchOrders(customerId: contextAccessor.WorkContext.CurrentCustomer.Id, productId: x.ProductId,
                     os: (int)OrderStatusSystem.Complete)).Any())
                 context.AddFailure(translationService.GetResource("Reviews.ProductReviewPossibleOnlyAfterPurchasing"));
 
             if (catalogSettings.ProductReviewPossibleOnlyOnce)
             {
-                var reviews = await productReviewService.GetAllProductReviews(workContextAccessor.WorkContext.CurrentCustomer.Id,
+                var reviews = await productReviewService.GetAllProductReviews(contextAccessor.WorkContext.CurrentCustomer.Id,
                     productId: x.ProductId,
                     pageSize: 1);
                 if (reviews.Any())

@@ -9,11 +9,11 @@ namespace Widgets.Slider.Services;
 public class SliderService : ISliderService
 {
     public SliderService(IRepository<PictureSlider> repositoryPictureSlider,
-        IWorkContextAccessor workContextAccessor, IAclService aclService,
+        IContextAccessor contextAccessor, IAclService aclService,
         ICacheBase cacheManager)
     {
         _repositoryPictureSlider = repositoryPictureSlider;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _aclService = aclService;
         _cacheBase = cacheManager;
     }
@@ -48,7 +48,7 @@ public class SliderService : ISliderService
     /// <returns>Picture Sliders</returns>
     public virtual async Task<IList<PictureSlider>> GetPictureSliders(SliderType sliderType, string objectEntry = "")
     {
-        var cacheKey = string.Format(SLIDERS_MODEL_KEY, _workContextAccessor.WorkContext.CurrentStore.Id, sliderType.ToString(),
+        var cacheKey = string.Format(SLIDERS_MODEL_KEY, _contextAccessor.StoreContext.CurrentStore.Id, sliderType.ToString(),
             objectEntry);
         return await _cacheBase.GetAsync(cacheKey, async () =>
         {
@@ -60,7 +60,7 @@ public class SliderService : ISliderService
                 query = query.Where(x => x.ObjectEntry == objectEntry);
 
             var items = query.ToList();
-            return await Task.FromResult(items.Where(c => _aclService.Authorize(c, _workContextAccessor.WorkContext.CurrentStore.Id))
+            return await Task.FromResult(items.Where(c => _aclService.Authorize(c, _contextAccessor.StoreContext.CurrentStore.Id))
                 .ToList());
         });
     }
@@ -122,7 +122,7 @@ public class SliderService : ISliderService
 
     private readonly IRepository<PictureSlider> _repositoryPictureSlider;
     private readonly IAclService _aclService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly ICacheBase _cacheBase;
 
     /// <summary>

@@ -14,7 +14,7 @@ public class UpdateProductStockCommandHandler : IRequestHandler<UpdateProductSto
     private readonly IProductService _productService;
     private readonly IStockQuantityService _stockQuantityService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public UpdateProductStockCommandHandler(
         IProductService productService,
@@ -22,14 +22,14 @@ public class UpdateProductStockCommandHandler : IRequestHandler<UpdateProductSto
         IStockQuantityService stockQuantityService,
         ITranslationService translationService,
         IOutOfStockSubscriptionService outOfStockSubscriptionService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _productService = productService;
         _inventoryManageService = inventoryManageService;
         _stockQuantityService = stockQuantityService;
         _translationService = translationService;
         _outOfStockSubscriptionService = outOfStockSubscriptionService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<bool> Handle(UpdateProductStockCommand request, CancellationToken cancellationToken)

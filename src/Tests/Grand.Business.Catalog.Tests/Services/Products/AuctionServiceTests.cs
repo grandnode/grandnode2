@@ -9,7 +9,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -25,6 +24,7 @@ public class AuctionServiceTests
     private IRepository<Product> _productrepository;
     private IRepository<Bid> _repository;
     private Mock<IWorkContext> _workContextMock;
+    private Mock<IStoreContext> _storeContextMock;
 
     [TestInitialize]
     public void InitializeTests()
@@ -32,7 +32,8 @@ public class AuctionServiceTests
         _repository = new MongoDBRepositoryTest<Bid>();
         _productrepository = new MongoDBRepositoryTest<Product>();
         _workContextMock = new Mock<IWorkContext>();
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
+        _storeContextMock = new Mock<IStoreContext>();
+        _storeContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
         _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,

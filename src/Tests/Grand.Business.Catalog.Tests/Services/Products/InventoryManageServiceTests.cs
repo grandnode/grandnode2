@@ -29,6 +29,7 @@ public class InventoryManageServiceTests
     private StockQuantityService _stockQuantityService;
     private Mock<ITranslationService> _translationService;
     private Mock<IWorkContext> _workContextMock;
+    private Mock<IStoreContext> _storeContextMock;
 
     [TestInitialize]
     public void Init()
@@ -36,8 +37,9 @@ public class InventoryManageServiceTests
         _repository = new MongoDBRepositoryTest<Product>();
         _repositoryInventoryJournal = new MongoDBRepositoryTest<InventoryJournal>();
         _workContextMock = new Mock<IWorkContext>();
+        _storeContextMock = new Mock<IStoreContext>();
         _translationService = new Mock<ITranslationService>();
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
+        _storeContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
         _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
         _mediatorMock = new Mock<IMediator>();
         _settings = new CatalogSettings();

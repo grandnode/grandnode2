@@ -12,15 +12,15 @@ public class TierPriceModelValidator : BaseGrandValidator<ProductModel.TierPrice
 {
     public TierPriceModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.TierPriceModel>> validators,
-        ITranslationService translationService, IProductService productService, IWorkContextAccessor workContextAccessor)
+        ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
         : base(validators)
     {
-        if (!string.IsNullOrEmpty(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+        if (!string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 var product = await productService.GetProductById(x.ProductId);
                 if (product != null)
-                    if (!product.AccessToEntityByStore(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                    if (!product.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                         return false;
 
                 return true;
@@ -32,15 +32,15 @@ public class TierPriceDeleteModelValidator : BaseGrandValidator<ProductModel.Tie
 {
     public TierPriceDeleteModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.TierPriceDeleteModel>> validators,
-        ITranslationService translationService, IProductService productService, IWorkContextAccessor workContextAccessor)
+        ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
         : base(validators)
     {
-        if (!string.IsNullOrEmpty(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+        if (!string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             RuleFor(x => x).MustAsync(async (x, _, _) =>
             {
                 var product = await productService.GetProductById(x.ProductId);
                 if (product != null)
-                    if (!product.AccessToEntityByStore(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                    if (!product.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                         return false;
 
                 return true;

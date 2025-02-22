@@ -9,20 +9,20 @@ namespace Grand.Web.Components;
 public class ExternalMethodsViewComponent : BaseViewComponent
 {
     private readonly IExternalAuthenticationService _externalAuthenticationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public ExternalMethodsViewComponent(
         IExternalAuthenticationService externalAuthenticationService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _externalAuthenticationService = externalAuthenticationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
         var models = _externalAuthenticationService
-            .LoadActiveAuthenticationProviders(_workContextAccessor.WorkContext.CurrentCustomer, _workContextAccessor.WorkContext.CurrentStore);
+            .LoadActiveAuthenticationProviders(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
 
         var model = new List<ExternalAuthenticationMethodModel>();
         foreach (var item in models)
