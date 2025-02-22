@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Messages;
@@ -19,19 +18,16 @@ public class ContactFormViewModelService : IContactFormViewModelService
     private readonly IEmailAccountService _emailAccountService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
 
     public ContactFormViewModelService(IContactUsService contactUsService,
         IDateTimeService dateTimeService,
         ITranslationService translationService,
-        IContextAccessor contextAccessor,
         IStoreService storeService,
         IEmailAccountService emailAccountService)
     {
         _contactUsService = contactUsService;
         _dateTimeService = dateTimeService;
         _translationService = translationService;
-        _contextAccessor = contextAccessor;
         _storeService = storeService;
         _emailAccountService = emailAccountService;
     }
@@ -40,8 +36,7 @@ public class ContactFormViewModelService : IContactFormViewModelService
     {
         var model = new ContactFormListModel();
         //stores
-        model.AvailableStores.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
+        model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
         foreach (var s in await _storeService.GetAllStores())
             model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 

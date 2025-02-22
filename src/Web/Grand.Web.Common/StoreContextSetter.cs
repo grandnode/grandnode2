@@ -81,7 +81,7 @@ public class StoreContextSetter : IStoreContextSetter
             HostName = "temporary"
         };
     }
-    private class CurrentStoreContext : IStoreContext
+    private sealed class CurrentStoreContext : IStoreContext
     {
         public Store CurrentStore { get; set; }
 

@@ -1,7 +1,5 @@
-﻿using Grand.Module.Api.Commands.Models.Customers;
-using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Infrastructure;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Module.Api.Commands.Models.Customers;
 using MediatR;
 
 namespace Grand.Module.Api.Commands.Handlers.Customers;
@@ -9,17 +7,10 @@ namespace Grand.Module.Api.Commands.Handlers.Customers;
 public class DeleteCustomerGroupCommandHandler : IRequestHandler<DeleteCustomerGroupCommand, bool>
 {
     private readonly IGroupService _groupService;
-    private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
 
-    public DeleteCustomerGroupCommandHandler(
-        IGroupService groupService,
-        ITranslationService translationService,
-        IContextAccessor contextAccessor)
+    public DeleteCustomerGroupCommandHandler(IGroupService groupService)
     {
         _groupService = groupService;
-        _translationService = translationService;
-        _contextAccessor = contextAccessor;
     }
 
     public async Task<bool> Handle(DeleteCustomerGroupCommand request, CancellationToken cancellationToken)

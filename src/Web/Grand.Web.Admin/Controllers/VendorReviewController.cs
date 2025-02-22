@@ -1,8 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Vendors;
 using Grand.Web.Common.DataSource;
@@ -20,15 +18,11 @@ public class VendorReviewController : BaseAdminController
     public VendorReviewController(
         IVendorViewModelService vendorViewModelService,
         IVendorService vendorService,
-        ITranslationService translationService,
-        IGroupService groupService,
-        IContextAccessor contextAccessor)
+        ITranslationService translationService)
     {
         _vendorViewModelService = vendorViewModelService;
         _vendorService = vendorService;
         _translationService = translationService;
-        _groupService = groupService;
-        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -38,8 +32,6 @@ public class VendorReviewController : BaseAdminController
     private readonly IVendorViewModelService _vendorViewModelService;
     private readonly IVendorService _vendorService;
     private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
-    private readonly IGroupService _groupService;
 
     #endregion Fields
 
@@ -159,10 +151,11 @@ public class VendorReviewController : BaseAdminController
             keywords: term);
 
         var result = (from p in vendors
-                select new {
-                    label = p.Name,
-                    vendorid = p.Id
-                })
+                      select new
+                      {
+                          label = p.Name,
+                          vendorid = p.Id
+                      })
             .ToList();
         return Json(result);
     }

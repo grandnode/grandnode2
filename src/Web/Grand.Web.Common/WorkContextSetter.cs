@@ -26,6 +26,24 @@ namespace Grand.Web.Common;
 /// </summary>
 public class WorkContextSetter : IWorkContextSetter
 {
+    #region Fields
+
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IGrandAuthenticationService _authenticationService;
+    private readonly ICurrencyService _currencyService;
+    private readonly ICustomerService _customerService;
+    private readonly IGroupService _groupService;
+    private readonly ILanguageService _languageService;
+    private readonly IStoreService _storeService;
+    private readonly IAclService _aclService;
+    private readonly IVendorService _vendorService;
+
+    private readonly TaxSettings _taxSettings;
+    private readonly AppConfig _config;
+
+    private Customer _originalCustomerIfImpersonated;
+
+    #endregion
     #region Ctor
 
     public WorkContextSetter(
@@ -53,25 +71,6 @@ public class WorkContextSetter : IWorkContextSetter
         _taxSettings = taxSettings;
         _config = config;
     }
-
-    #endregion
-
-    #region Fields
-
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IGrandAuthenticationService _authenticationService;
-    private readonly ICurrencyService _currencyService;
-    private readonly ICustomerService _customerService;
-    private readonly IGroupService _groupService;
-    private readonly ILanguageService _languageService;
-    private readonly IStoreService _storeService;
-    private readonly IAclService _aclService;
-    private readonly IVendorService _vendorService;
-
-    private readonly TaxSettings _taxSettings;
-    private readonly AppConfig _config;
-
-    private Customer _originalCustomerIfImpersonated;
 
     #endregion
 
@@ -421,7 +420,7 @@ public class WorkContextSetter : IWorkContextSetter
         return (await _storeService.GetAllStores()).FirstOrDefault();
     }
 
-    private class CurrentWorkContext : IWorkContext
+    private sealed class CurrentWorkContext : IWorkContext
     {
         public Customer CurrentCustomer { get; set; }
 

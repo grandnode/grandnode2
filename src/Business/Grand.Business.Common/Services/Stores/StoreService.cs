@@ -121,15 +121,16 @@ public class StoreService : IStoreService
         //event notification
         await _mediator.EntityDeleted(store);
     }
-
+    /// <summary>
+    /// Get store by host
+    /// </summary>
+    /// <param name="host"></param>
+    /// <returns></returns>
     public async Task<Store?> GetStoreByHost(string host)
     {
         var allStores = await GetAllStores();
-        var stores = allStores.Where(s => s.ContainsHostValue(host)).ToList();
-        if (stores.Count > 0)
-            return stores[0];
-
-        return null;
+        return allStores.FirstOrDefault(s => s.ContainsHostValue(host));
     }
+
     #endregion
 }

@@ -1,7 +1,5 @@
-﻿using Grand.Module.Api.Commands.Models.Catalog;
-using Grand.Business.Core.Interfaces.Catalog.Brands;
-using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Infrastructure;
+﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Module.Api.Commands.Models.Catalog;
 using MediatR;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;
@@ -9,17 +7,11 @@ namespace Grand.Module.Api.Commands.Handlers.Catalog;
 public class DeleteBrandCommandHandler : IRequestHandler<DeleteBrandCommand, bool>
 {
     private readonly IBrandService _brandService;
-    private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
 
     public DeleteBrandCommandHandler(
-        IBrandService brandService,
-        ITranslationService translationService,
-        IContextAccessor contextAccessor)
+        IBrandService brandService)
     {
         _brandService = brandService;
-        _translationService = translationService;
-        _contextAccessor = contextAccessor;
     }
 
     public async Task<bool> Handle(DeleteBrandCommand request, CancellationToken cancellationToken)
