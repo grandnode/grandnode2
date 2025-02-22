@@ -2,7 +2,7 @@
 
 namespace Grand.Web.Common;
 
-public class contextAccessor : IContextAccessor
+public class ContextAccessor : IContextAccessor
 {
     private static readonly AsyncLocal<IWorkContext> _asyncLocalWorkContext = new();
     private static readonly AsyncLocal<IStoreContext> _asyncLocalStoreContext = new();
