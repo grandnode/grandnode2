@@ -181,7 +181,7 @@ public class CategoryService : ICategoryService
                 if (!_accessControlConfig.IgnoreStoreLimitations)
                     //Limited to stores rules
                     query = from p in query
-                        where !p.LimitedToStores || p.Stores.Contains(storeId)
+                        where !p.LimitedToStores || p.Stores.Contains(CurrentStore.Id)
                         select p;
             }
 
