@@ -8,6 +8,7 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -34,11 +35,9 @@ public class PictureController : BaseAdminController
 
     [HttpPost]
     [IgnoreAntiforgeryToken]
-    public virtual async Task<IActionResult> AsyncUpload(Reference reference = Reference.None, string objectId = "")
+    public virtual async Task<IActionResult> AsyncUpload(IFormFile file, Reference reference = Reference.None, string objectId = "")
     {
-        var form = await HttpContext.Request.ReadFormAsync();
-        var httpPostedFile = form.Files.FirstOrDefault();
-        if (httpPostedFile == null)
+        if (file == null)
             return Json(new {
                 success = false,
                 message = "No file uploaded",
@@ -51,14 +50,12 @@ public class PictureController : BaseAdminController
                 downloadGuid = Guid.Empty
             });
 
-        var qqFileNameParameter = "qqfilename";
-        var fileName = httpPostedFile.FileName;
-        if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
-            fileName = form[qqFileNameParameter].ToString();
+        var fileName = file.FileName;
+
         //remove path (passed in IE)
         fileName = Path.GetFileName(fileName);
 
-        var contentType = httpPostedFile.ContentType;
+        var contentType = file.ContentType;
 
         var fileExtension = Path.GetExtension(fileName);
         if (!string.IsNullOrEmpty(fileExtension))
@@ -73,7 +70,7 @@ public class PictureController : BaseAdminController
         if (string.IsNullOrEmpty(contentType))
             _ = new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
 
-        var fileBinary = httpPostedFile.GetDownloadBits();
+        var fileBinary = file.GetDownloadBits();
         var picture =
             await _pictureService.InsertPicture(fileBinary, contentType, null, reference: reference,
                 objectId: objectId);

@@ -26,7 +26,7 @@ else
 }
 <br/>
 <div id="@clientId"></div>
-<script type="text/template" id="@(clientId)-qq-template">
+<script type="text/template" id="@(clientId)-qq-template" >
     <div class="qq-uploader-selector qq-uploader">
         <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
             <span>@Loc["Common.FileUploader.DropFiles"]</span>
@@ -67,8 +67,9 @@ else
                 params: {
                     Reference: '@ViewData["Reference"]',
                     ObjectId: '@ViewData["ObjectId"]'
-                }
-            },
+                },
+                inputName: "file"
+            },            
             template: "@(clientId)-qq-template",
             multiple: false,
             validation: {
