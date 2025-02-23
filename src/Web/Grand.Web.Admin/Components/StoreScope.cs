@@ -1,11 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Domain.Common;
-using Grand.Domain.Customers;
-using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Models.Settings;
 using Grand.Web.Common.Components;
+using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,10 +11,25 @@ namespace Grand.Web.Admin.Components;
 
 public class StoreScopeViewComponent : BaseAdminViewComponent
 {
+
+    #region Fields
+
+    private readonly IStoreService _storeService;
+    private readonly IContextAccessor _contextAccessor;
+    private readonly IGroupService _groupService;
+    private readonly IAdminStoreService _adminStoreService;
+
+    #endregion
+
     #region Constructors
 
-    public StoreScopeViewComponent(IStoreService storeService, IContextAccessor contextAccessor, IGroupService groupService)
+    public StoreScopeViewComponent(
+        IStoreService storeService,
+        IAdminStoreService adminStoreService,
+        IGroupService groupService,
+        IContextAccessor contextAccessor)
     {
+        _adminStoreService = adminStoreService;
         _storeService = storeService;
         _contextAccessor = contextAccessor;
         _groupService = groupService;
@@ -41,35 +54,9 @@ public class StoreScopeViewComponent : BaseAdminViewComponent
                 Id = s.Id,
                 Name = s.Shortcut
             });
-        model.StoreId = await GetActiveStore(allStores);
+
+        model.StoreId = await _adminStoreService.GetActiveStore();
         return View(model);
     }
-
-    #endregion
-
-    #region Methods
-
-    private async Task<string> GetActiveStore(ICollection<Store> stores)
-    {
-        //ensure that we have 2 (or more) stores
-        if (stores.Count < 2)
-            return stores.FirstOrDefault()!.Id;
-
-        var storeId =
-            _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames
-                .AdminAreaStoreScopeConfiguration);
-        var store = await _storeService.GetStoreById(storeId);
-
-        return store != null ? store.Id : "";
-    }
-
-    #endregion
-
-    #region Fields
-
-    private readonly IStoreService _storeService;
-    private readonly IContextAccessor _contextAccessor;
-    private readonly IGroupService _groupService;
-
     #endregion
 }

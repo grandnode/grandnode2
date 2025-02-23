@@ -1,12 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Permissions;
-using Grand.Domain.Common;
-using Grand.Domain.Customers;
-using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Widgets.FacebookPixel.Models;
@@ -17,40 +14,23 @@ namespace Widgets.FacebookPixel.Areas.Admin.Controllers;
 public class WidgetsFacebookPixelController : BaseAdminPluginController
 {
     private readonly ISettingService _settingService;
-    private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
-
-    public WidgetsFacebookPixelController(IContextAccessor contextAccessor,
-        IStoreService storeService,
+    private readonly IAdminStoreService _adminStoreService;
+    public WidgetsFacebookPixelController(
         ISettingService settingService,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IAdminStoreService adminStoreService)
     {
-        _contextAccessor = contextAccessor;
-        _storeService = storeService;
         _settingService = settingService;
         _translationService = translationService;
-    }
-
-    protected virtual async Task<string> GetActiveStore(IStoreService storeService, IWorkContext workContext)
-    {
-        var stores = await storeService.GetAllStores();
-        if (stores.Count < 2)
-            return stores.FirstOrDefault()!.Id;
-
-        var storeId =
-            workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames
-                .AdminAreaStoreScopeConfiguration);
-        var store = await storeService.GetStoreById(storeId);
-
-        return store != null ? store.Id : "";
+        _adminStoreService = adminStoreService;
     }
 
     [AuthorizeAdmin]
     public async Task<IActionResult> Configure()
     {
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _contextAccessor.WorkContext);
+        var storeScope = await _adminStoreService.GetActiveStore();
         var facebookPixelSettings = await _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
         var model = new ConfigurationModel {
             PixelId = facebookPixelSettings.PixelId,
@@ -71,7 +51,7 @@ public class WidgetsFacebookPixelController : BaseAdminPluginController
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _contextAccessor.WorkContext);
+        var storeScope = await _adminStoreService.GetActiveStore();
         var facebookPixelSettings = await _settingService.LoadSetting<FacebookPixelSettings>(storeScope);
         facebookPixelSettings.PixelId = model.PixelId;
         facebookPixelSettings.PixelScript = model.PixelScript;

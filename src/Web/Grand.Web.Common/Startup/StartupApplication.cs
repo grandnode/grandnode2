@@ -7,6 +7,7 @@ using Grand.Infrastructure.Caching.Message;
 using Grand.Infrastructure.Caching.Redis;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
+using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Menu;
 using Grand.Web.Common.Middleware;
@@ -76,7 +77,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddSingleton<IContextAccessor, ContextAccessor>();
         serviceCollection.AddScoped<IWorkContextSetter, WorkContextSetter>();
         serviceCollection.AddScoped<IStoreContextSetter, StoreContextSetter>();
-
+        serviceCollection.AddScoped<IAdminStoreService, AdminStoreService>();
         //View factory
         serviceCollection.AddScoped<IViewFactory, ViewFactory>();
 
