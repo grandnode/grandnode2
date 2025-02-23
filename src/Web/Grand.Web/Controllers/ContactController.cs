@@ -7,6 +7,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Attributes;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Contact;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
@@ -136,22 +137,13 @@ public class ContactController : BasePublicController
                 downloadGuid = Guid.Empty
             });
 
-        var fileName = file.FileName;
-
-        fileName = Path.GetFileName(fileName);
-
+        var fileName = Path.GetFileName(file.FileName);
         var contentType = file.ContentType;
-
         var fileExtension = Path.GetExtension(fileName);
-        if (!string.IsNullOrEmpty(fileExtension))
-            fileExtension = fileExtension.ToLowerInvariant();
-
         if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
         {
-            var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.ToLowerInvariant()
-                .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .ToList();
-            if (!allowedFileExtensions.Contains(fileExtension.ToLowerInvariant()))
+            var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            if (!allowedFileExtensions.IsAllowedMediaFileType(fileExtension))
                 return Json(new
                 {
                     success = false,

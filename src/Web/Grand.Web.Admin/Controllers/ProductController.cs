@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
 using Grand.Web.Common.Helpers;
+using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -1156,13 +1157,10 @@ public class ProductController : BaseAdminController
             var fileName = file.FileName;
             var contentType = file.ContentType;
             var fileExtension = Path.GetExtension(fileName);
-            if (!string.IsNullOrEmpty(fileExtension))
-                fileExtension = fileExtension.ToLowerInvariant();
-
             if (string.IsNullOrEmpty(contentType))
                 _ = new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
 
-            if (FileExtensions.GetAllowedMediaFileTypes(mediaSettings.AllowedFileTypes).Contains(fileExtension))
+            if (FileExtensions.GetAllowedMediaFileTypes(mediaSettings.AllowedFileTypes).IsAllowedMediaFileType(fileExtension))
             {
                 var fileBinary = file.GetDownloadBits();
                 //insert picture

@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
 using Grand.Web.Models.Orders;
 using Microsoft.AspNetCore.Http;
+using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Controllers;
 
@@ -407,19 +408,13 @@ public class ProductController : BasePublicController
                 downloadGuid = Guid.Empty
             });
         var fileName = file.FileName;
-
         var contentType = file.ContentType;
-
         var fileExtension = Path.GetExtension(fileName);
-        if (!string.IsNullOrEmpty(fileExtension))
-            fileExtension = fileExtension.ToLowerInvariant();
 
         if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
         {
-            var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.ToLowerInvariant()
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
-                .ToList();
-            if (!allowedFileExtensions.Contains(fileExtension.ToLowerInvariant()))
+            var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.Split([','], StringSplitOptions.RemoveEmptyEntries);
+            if (!allowedFileExtensions.IsAllowedMediaFileType(fileExtension))
                 return Json(new {
                     success = false,
                     message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),

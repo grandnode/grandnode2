@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
 using Grand.Web.Common.Helpers;
 using Microsoft.AspNetCore.Http;
+using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Vendor.Controllers;
 
@@ -1113,17 +1114,14 @@ public class ProductController : BaseVendorController
         var values = new List<(string pictureUrl, string pictureId)>();
         foreach (var file in files)
         {
-            var fileName = file.FileName;
-            fileName = Path.GetFileName(fileName);
+            var fileName = Path.GetFileName(file.FileName);
             var contentType = file.ContentType;
             var fileExtension = Path.GetExtension(fileName);
-            if (!string.IsNullOrEmpty(fileExtension))
-                fileExtension = fileExtension.ToLowerInvariant();
 
             if (string.IsNullOrEmpty(contentType))
                 _ = new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
 
-            if (FileExtensions.GetAllowedMediaFileTypes(mediaSettings.AllowedFileTypes).Contains(fileExtension))
+            if (SharedKernel.Extensions.FileExtensions.GetAllowedMediaFileTypes(mediaSettings.AllowedFileTypes).IsAllowedMediaFileType(fileExtension))
             {
                 var fileBinary = file.GetDownloadBits();
                 //insert picture

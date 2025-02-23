@@ -78,16 +78,6 @@ public class DownloadController : BaseAdminController
                 downloadGuid = Guid.Empty
             });
 
-        var fileName = file.FileName;
-
-        fileName = Path.GetFileName(fileName);
-
-        var contentType = file.ContentType;
-
-        var fileExtension = Path.GetExtension(fileName);
-        if (!string.IsNullOrEmpty(fileExtension))
-            fileExtension = fileExtension.ToLowerInvariant();
-
         var fileBinary = file.GetDownloadBits();
 
         var download = new Download {
@@ -96,9 +86,9 @@ public class DownloadController : BaseAdminController
             UseDownloadUrl = false,
             DownloadUrl = "",
             DownloadBinary = fileBinary,
-            ContentType = contentType,
-            Filename = Path.GetFileNameWithoutExtension(fileName),
-            Extension = fileExtension,
+            ContentType = file.ContentType,
+            Filename = Path.GetFileNameWithoutExtension(file.FileName),
+            Extension = Path.GetExtension(file.FileName),
             DownloadType = downloadType,
             ReferenceId = referenceId
         };

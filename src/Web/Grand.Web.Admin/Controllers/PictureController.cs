@@ -3,12 +3,12 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Permissions;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.Http;
+using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -50,18 +50,9 @@ public class PictureController : BaseAdminController
                 downloadGuid = Guid.Empty
             });
 
-        var fileName = file.FileName;
-
-        //remove path (passed in IE)
-        fileName = Path.GetFileName(fileName);
-
+        var fileName = Path.GetFileName(file.FileName);
         var contentType = file.ContentType;
-
-        var fileExtension = Path.GetExtension(fileName);
-        if (!string.IsNullOrEmpty(fileExtension))
-            fileExtension = fileExtension.ToLowerInvariant();
-
-        if (!FileExtensions.GetAllowedMediaFileTypes(_mediaSettings.AllowedFileTypes).Contains(fileExtension))
+        if (!FileExtensions.GetAllowedMediaFileTypes(_mediaSettings.AllowedFileTypes).IsAllowedMediaFileType(Path.GetExtension(fileName)))
             return Json(new {
                 success = false,
                 pictureId = "",
@@ -96,17 +87,9 @@ public class PictureController : BaseAdminController
                 message = "No file uploaded"
             });
 
-
-        var fileName = file.FileName;
-        fileName = Path.GetFileName(fileName);
-
+        var fileName = Path.GetFileName(file.FileName);
         var contentType = file.ContentType;
-
-        var fileExtension = Path.GetExtension(fileName);
-        if (!string.IsNullOrEmpty(fileExtension))
-            fileExtension = fileExtension.ToLowerInvariant();
-
-        if (!FileExtensions.GetAllowedMediaFileTypes(_mediaSettings.AllowedFileTypes).Contains(fileExtension))
+        if (!FileExtensions.GetAllowedMediaFileTypes(_mediaSettings.AllowedFileTypes).IsAllowedMediaFileType(Path.GetExtension(fileName)))
             return Json(new {
                 success = false,
                 message = "File no allowed"
