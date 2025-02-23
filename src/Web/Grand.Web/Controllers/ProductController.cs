@@ -384,7 +384,7 @@ public class ProductController : BasePublicController
     }
 
     [HttpPost]
-    public virtual async Task<IActionResult> UploadFileProductAttribute(string attributeId, string productId,
+    public virtual async Task<IActionResult> UploadFileProductAttribute(string attributeId, string productId, IFormFile file,
         [FromServices] IDownloadService downloadService)
     {
         var product = await _productService.GetProductById(productId);
@@ -399,18 +399,17 @@ public class ProductController : BasePublicController
                 success = false,
                 downloadGuid = Guid.Empty
             });
-        var form = await HttpContext.Request.ReadFormAsync();
-        var httpPostedFile = form.Files.FirstOrDefault();
-        if (httpPostedFile == null)
+
+        if (file == null)
             return Json(new {
                 success = false,
                 message = "No file uploaded",
                 downloadGuid = Guid.Empty
             });
-        var fileBinary = httpPostedFile.GetDownloadBits();
-        var fileName = httpPostedFile.FileName;
+        var fileBinary = file.GetDownloadBits();
+        var fileName = file.FileName;
 
-        var contentType = httpPostedFile.ContentType;
+        var contentType = file.ContentType;
 
         var fileExtension = Path.GetExtension(fileName);
         if (!string.IsNullOrEmpty(fileExtension))

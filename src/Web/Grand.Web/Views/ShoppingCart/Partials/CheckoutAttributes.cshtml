@@ -100,7 +100,7 @@
                         var url = imagefile.getAttribute('data-url');
                         
                         let attrId = e.getAttribute("attribute");
-                        formData.append("image", qqfile.files[0]);
+                    formData.append("file", e.files[0]);
                         axios.post(url, formData, {
                             headers: {
                                 'Content-Type': 'multipart/form-data'

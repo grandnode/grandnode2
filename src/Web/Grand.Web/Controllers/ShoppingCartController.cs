@@ -170,7 +170,7 @@ public class ShoppingCartController : BasePublicController
 
     [DenySystemAccount]
     [HttpPost]
-    public virtual async Task<IActionResult> UploadFileCheckoutAttribute(string attributeId,
+    public virtual async Task<IActionResult> UploadFileCheckoutAttribute(string attributeId, IFormFile file,
         [FromServices] IDownloadService downloadService)
     {
         var attribute = await _checkoutAttributeService.GetCheckoutAttributeById(attributeId);
@@ -180,21 +180,19 @@ public class ShoppingCartController : BasePublicController
                 downloadGuid = Guid.Empty
             });
 
-        var form = await HttpContext.Request.ReadFormAsync();
-        var httpPostedFile = form.Files.FirstOrDefault();
-        if (httpPostedFile == null)
+        if (file == null)
             return Json(new {
                 success = false,
                 message = "No file uploaded",
                 downloadGuid = Guid.Empty
             });
 
-        var fileBinary = httpPostedFile.GetDownloadBits();
-        var fileName = httpPostedFile.FileName;
+        var fileBinary = file.GetDownloadBits();
+        var fileName = file.FileName;
 
         fileName = Path.GetFileName(fileName);
 
-        var contentType = httpPostedFile.ContentType;
+        var contentType = file.ContentType;
 
         var fileExtension = Path.GetExtension(fileName);
         if (!string.IsNullOrEmpty(fileExtension))
