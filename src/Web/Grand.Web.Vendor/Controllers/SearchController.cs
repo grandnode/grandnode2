@@ -27,9 +27,9 @@ public class SearchController : BaseVendorController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Category(string categoryId)
+    public async Task<IActionResult> Category(string categoryId, DataSourceRequestFilter model)
     {
-        var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
 
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Category> categories)
         {
@@ -63,9 +63,9 @@ public class SearchController : BaseVendorController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Collection(string collectionId)
+    public async Task<IActionResult> Collection(string collectionId, DataSourceRequestFilter model)
     {
-        var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
 
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Collection> collections)
         {
@@ -97,9 +97,9 @@ public class SearchController : BaseVendorController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Brand(string brandId)
+    public async Task<IActionResult> Brand(string brandId, DataSourceRequestFilter model)
     {
-        var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
 
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Brand> brands)
         {

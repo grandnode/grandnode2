@@ -221,9 +221,9 @@ public class SearchController : BaseAdminController
 
 
     [HttpGet]
-    public async Task<IActionResult> Category(string categoryId)
+    public async Task<IActionResult> Category(string categoryId, DataSourceRequestFilter model)
     {
-        var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
 
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Category> categories)
         {
@@ -260,9 +260,9 @@ public class SearchController : BaseAdminController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Collection(string collectionId)
+    public async Task<IActionResult> Collection(string collectionId, DataSourceRequestFilter model)
     {
-        var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
 
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Collection> collections)
         {
@@ -300,9 +300,9 @@ public class SearchController : BaseAdminController
     }
 
     [HttpGet]
-    public async Task<IActionResult> CustomerGroup(string[] customerGroups)
+    public async Task<IActionResult> CustomerGroup(string[] customerGroups, DataSourceRequestFilter model)
     {
-        var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
 
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<CustomerGroup> groups)
         {
@@ -374,9 +374,9 @@ public class SearchController : BaseAdminController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Vendor(string vendorId)
+    public async Task<IActionResult> Vendor(string vendorId, DataSourceRequestFilter model)
     {
-        var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
 
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Vendor> vendors)
         {
@@ -410,9 +410,9 @@ public class SearchController : BaseAdminController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Brand(string brandId)
+    public async Task<IActionResult> Brand(string brandId, DataSourceRequestFilter model)
     {
-        var value = HttpContext.Request.Query["filter[filters][0][value]"].ToString();
+        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
 
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Brand> brands)
         {
