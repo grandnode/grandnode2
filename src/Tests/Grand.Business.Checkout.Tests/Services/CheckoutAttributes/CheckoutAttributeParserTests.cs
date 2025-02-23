@@ -23,7 +23,7 @@ public class CheckoutAttributeParserTests
     private IRepository<CheckoutAttribute> _checkoutAttributeRepo;
     private ICheckoutAttributeService _checkoutAttributeService;
     private IMediator _eventPublisher;
-    private Mock<IWorkContextAccessor> _workContextMock;
+    private Mock<IContextAccessor> _workContextMock;
 
     private CheckoutAttribute ca1, ca2, ca3;
     private Mock<ICacheBase> cacheManager;
@@ -119,7 +119,7 @@ public class CheckoutAttributeParserTests
         }
 
         cacheManager = new Mock<ICacheBase>();
-        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock = new Mock<IContextAccessor>();
 
         _checkoutAttributeService = new CheckoutAttributeService(cacheManager.Object, _checkoutAttributeRepo,
             _eventPublisher, _workContextMock.Object, new AccessControlConfig());

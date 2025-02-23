@@ -11,14 +11,14 @@ public class BundleProductModelValidator : BaseGrandValidator<ProductModel.Bundl
 {
     public BundleProductModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.BundleProductModel>> validators,
-        ITranslationService translationService, IProductService productService, IWorkContextAccessor workContextAccessor)
+        ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
         : base(validators)
     {
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
             var product = await productService.GetProductById(x.ProductBundleId);
             if (product == null) return true;
-            return product.VendorId == workContextAccessor.WorkContext.CurrentVendor.Id;
+            return product.VendorId == contextAccessor.WorkContext.CurrentVendor.Id;
         }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permissions"));
     }
 }

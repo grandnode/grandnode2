@@ -34,12 +34,12 @@ public class ReportsController : BaseVendorController
     private readonly IProductsReportService _productsReportService;
     private readonly IStockQuantityService _stockQuantityService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
     public ReportsController(IOrderReportService orderReportService,
         IProductsReportService productsReportService,
         ICustomerReportService customerReportService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IPriceFormatter priceFormatter,
         IProductService productService,
         IProductAttributeFormatter productAttributeFormatter,
@@ -55,7 +55,7 @@ public class ReportsController : BaseVendorController
         _orderReportService = orderReportService;
         _productsReportService = productsReportService;
         _customerReportService = customerReportService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _priceFormatter = priceFormatter;
         _productService = productService;
         _productAttributeFormatter = productAttributeFormatter;
@@ -74,7 +74,7 @@ public class ReportsController : BaseVendorController
         int pageSize, int orderBy)
     {
         var items = await _orderReportService.BestSellersReport(
-            vendorId: _workContextAccessor.WorkContext.CurrentVendor.Id,
+            vendorId: _contextAccessor.WorkContext.CurrentVendor.Id,
             orderBy: orderBy,
             pageIndex: pageIndex,
             pageSize: pageSize,
@@ -156,7 +156,7 @@ public class ReportsController : BaseVendorController
             ps: paymentStatus,
             billingCountryId: model.BillingCountryId,
             orderBy: 2,
-            vendorId: _workContextAccessor.WorkContext.CurrentVendor.Id,
+            vendorId: _contextAccessor.WorkContext.CurrentVendor.Id,
             pageIndex: command.Page - 1,
             pageSize: command.PageSize,
             showHidden: true,
@@ -174,9 +174,9 @@ public class ReportsController : BaseVendorController
             var product = await _productService.GetProductById(x.ProductId);
             if (product != null)
                 m.ProductName = product.Name;
-            if (_workContextAccessor.WorkContext.CurrentVendor != null)
+            if (_contextAccessor.WorkContext.CurrentVendor != null)
             {
-                if (product?.VendorId == _workContextAccessor.WorkContext.CurrentVendor.Id)
+                if (product?.VendorId == _contextAccessor.WorkContext.CurrentVendor.Id)
                     result.Add(m);
             }
             else
@@ -211,7 +211,7 @@ public class ReportsController : BaseVendorController
             : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
 
-        var items = await _orderReportService.ProductsNeverSold("", _workContextAccessor.WorkContext.CurrentVendor.Id,
+        var items = await _orderReportService.ProductsNeverSold("", _contextAccessor.WorkContext.CurrentVendor.Id,
             startDateValue, endDateValue,
             command.Page - 1, command.PageSize, true);
         var gridModel = new DataSourceResult {
@@ -253,7 +253,7 @@ public class ReportsController : BaseVendorController
         var paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
 
         var items = await _orderReportService.GetCountryReport(
-            vendorId: _workContextAccessor.WorkContext.CurrentVendor.Id,
+            vendorId: _contextAccessor.WorkContext.CurrentVendor.Id,
             ps: paymentStatus,
             startTimeUtc: startDateValue,
             endTimeUtc: endDateValue);
@@ -287,7 +287,7 @@ public class ReportsController : BaseVendorController
     [HttpPost]
     public async Task<IActionResult> LowStockReportList(DataSourceRequest command)
     {
-        var lowStockProducts = await _productsReportService.LowStockProducts(_workContextAccessor.WorkContext.CurrentVendor.Id);
+        var lowStockProducts = await _productsReportService.LowStockProducts(_contextAccessor.WorkContext.CurrentVendor.Id);
 
         var models = new List<LowStockProductModel>();
         //products
@@ -311,7 +311,7 @@ public class ReportsController : BaseVendorController
                 Id = product.Id,
                 Name = product.Name,
                 Attributes = await _productAttributeFormatter.FormatAttributes(product, combination.Attributes,
-                    _workContextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false),
+                    _contextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false),
                 ManageInventoryMethod = _enumTranslationService.GetTranslationEnum(product.ManageInventoryMethodId),
                 StockQuantity = combination.StockQuantity,
                 Published = product.Published
@@ -357,7 +357,7 @@ public class ReportsController : BaseVendorController
 
         var paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
 
-        var items = _customerReportService.GetBestCustomersReport("", _workContextAccessor.WorkContext.CurrentVendor.Id, startDateValue,
+        var items = _customerReportService.GetBestCustomersReport("", _contextAccessor.WorkContext.CurrentVendor.Id, startDateValue,
             endDateValue,
             null, paymentStatus, null, 2, command.Page - 1, command.PageSize);
 

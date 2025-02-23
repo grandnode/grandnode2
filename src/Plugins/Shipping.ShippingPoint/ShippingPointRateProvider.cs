@@ -23,7 +23,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
     public ShippingPointRateProvider(
         IShippingPointService shippingPointService,
         ITranslationService translationService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ICustomerService customerService,
         ICountryService countryService,
         ICurrencyService currencyService,
@@ -32,7 +32,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
     {
         _shippingPointService = shippingPointService;
         _translationService = translationService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _customerService = customerService;
         _countryService = countryService;
         _currencyService = currencyService;
@@ -45,7 +45,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
 
     private readonly IShippingPointService _shippingPointService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly ICustomerService _customerService;
     private readonly ICountryService _countryService;
     private readonly ICurrencyService _currencyService;
@@ -110,25 +110,25 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
             return new List<string> { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
 
         //override price 
-        var offeredShippingOptions = _workContextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<List<ShippingOption>>(SystemCustomerFieldNames.OfferedShippingOptions, _workContextAccessor.WorkContext.CurrentStore.Id);
+        var offeredShippingOptions = _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<List<ShippingOption>>(SystemCustomerFieldNames.OfferedShippingOptions, _contextAccessor.StoreContext.CurrentStore.Id);
         offeredShippingOptions.Find(x => x.Name == shippingMethodName).Rate =
             await _currencyService.ConvertFromPrimaryStoreCurrency(chosenShippingOption.PickupFee,
-                _workContextAccessor.WorkContext.WorkingCurrency);
+                _contextAccessor.WorkContext.WorkingCurrency);
 
         await _customerService.UpdateUserField(
-            _workContextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.WorkContext.CurrentCustomer,
             SystemCustomerFieldNames.OfferedShippingOptions,
             offeredShippingOptions,
-            _workContextAccessor.WorkContext.CurrentStore.Id);
+            _contextAccessor.StoreContext.CurrentStore.Id);
 
         var forCustomer =
             $"<strong>{_translationService.GetResource("Shipping.ShippingPoint.Fields.ShippingPointName")}:</strong> {chosenShippingOption.ShippingPointName}<br><strong>{_translationService.GetResource("Shipping.ShippingPoint.Fields.Description")}:</strong> {chosenShippingOption.Description}<br>";
 
         await _customerService.UpdateUserField(
-            _workContextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.WorkContext.CurrentCustomer,
             SystemCustomerFieldNames.ShippingOptionAttributeDescription,
             forCustomer,
-            _workContextAccessor.WorkContext.CurrentStore.Id);
+            _contextAccessor.StoreContext.CurrentStore.Id);
 
         var serializedObject = new ShippingPointSerializable {
             Id = chosenShippingOption.Id,
@@ -152,10 +152,10 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
             serializedAttribute = stringBuilder.ToString();
         }
 
-        await _customerService.UpdateUserField(_workContextAccessor.WorkContext.CurrentCustomer,
+        await _customerService.UpdateUserField(_contextAccessor.WorkContext.CurrentCustomer,
             SystemCustomerFieldNames.ShippingOptionAttribute,
             serializedAttribute,
-            _workContextAccessor.WorkContext.CurrentStore.Id);
+            _contextAccessor.StoreContext.CurrentStore.Id);
 
         return new List<string>();
     }

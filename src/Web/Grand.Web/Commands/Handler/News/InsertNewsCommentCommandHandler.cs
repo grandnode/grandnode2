@@ -17,13 +17,13 @@ public class InsertNewsCommentCommandHandler : IRequestHandler<InsertNewsComment
     private readonly INewsService _newsService;
 
     private readonly NewsSettings _newsSettings;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
-    public InsertNewsCommentCommandHandler(IWorkContextAccessor workContextAccessor, INewsService newsService,
+    public InsertNewsCommentCommandHandler(IContextAccessor contextAccessor, INewsService newsService,
         ICustomerService customerService, IMessageProviderService messageProviderService, NewsSettings newsSettings,
         LanguageSettings languageSettings)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _newsService = newsService;
         _customerService = customerService;
         _messageProviderService = messageProviderService;
@@ -36,8 +36,8 @@ public class InsertNewsCommentCommandHandler : IRequestHandler<InsertNewsComment
     {
         var comment = new NewsComment {
             NewsItemId = request.NewsItem.Id,
-            CustomerId = _workContextAccessor.WorkContext.CurrentCustomer.Id,
-            StoreId = _workContextAccessor.WorkContext.CurrentStore.Id,
+            CustomerId = _contextAccessor.WorkContext.CurrentCustomer.Id,
+            StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
             CommentTitle = request.Model.CommentTitle,
             CommentText = request.Model.CommentText
         };
@@ -48,7 +48,7 @@ public class InsertNewsCommentCommandHandler : IRequestHandler<InsertNewsComment
 
         await _newsService.UpdateNews(request.NewsItem);
 
-        await _customerService.UpdateContributions(_workContextAccessor.WorkContext.CurrentCustomer);
+        await _customerService.UpdateContributions(_contextAccessor.WorkContext.CurrentCustomer);
 
         //notify a store owner;
         if (_newsSettings.NotifyAboutNewNewsComments)

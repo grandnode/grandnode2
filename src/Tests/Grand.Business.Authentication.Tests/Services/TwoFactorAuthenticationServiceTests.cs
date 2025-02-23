@@ -17,12 +17,12 @@ public class TwoFactorAuthenticationServiceTests
     private Mock<IEnumerable<ISMSVerificationService>> _sMsVerificationService;
     private TwoFactorAuthenticationService _twoFactorAuthenticationService;
     private Mock<ICustomerService> _customerServiceMock;
-    private Mock<IWorkContextAccessor> _workContextMock;
+    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
-        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock = new Mock<IContextAccessor>();
         _customerServiceMock = new Mock<ICustomerService>();
         _sMsVerificationService = new Mock<IEnumerable<ISMSVerificationService>>();
         _twoFactorAuthenticationService = new TwoFactorAuthenticationService(_workContextMock.Object,
@@ -33,7 +33,7 @@ public class TwoFactorAuthenticationServiceTests
     public async Task GenerateCodeSetupTest_AppVerification()
     {
         //Arrange
-        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
+        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
         _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
         //Act
         var result = await _twoFactorAuthenticationService.GenerateCodeSetup(Guid.NewGuid().ToString(),
@@ -48,7 +48,7 @@ public class TwoFactorAuthenticationServiceTests
     public async Task GenerateCodeSetupTest_Email()
     {
         //Arrange
-        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
+        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
         _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
         //Act
         var result = await _twoFactorAuthenticationService.GenerateCodeSetup(Guid.NewGuid().ToString(),

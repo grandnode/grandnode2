@@ -13,11 +13,11 @@ public class HomeController : BaseVendorController
     #region Ctor
 
     public HomeController(
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ILogger<HomeController> logger,
         IGrandAuthenticationService authenticationService)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _logger = logger;
         _authenticationService = authenticationService;
     }
@@ -26,7 +26,7 @@ public class HomeController : BaseVendorController
 
     #region Fields
 
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly ILogger<HomeController> _logger;
     private readonly IGrandAuthenticationService _authenticationService;
 
@@ -46,7 +46,7 @@ public class HomeController : BaseVendorController
 
     public IActionResult AccessDenied()
     {
-        _logger.LogInformation("Access denied to user #{CurrentCustomerEmail}", _workContextAccessor.WorkContext.CurrentCustomer.Email);
+        _logger.LogInformation("Access denied to user #{CurrentCustomerEmail}", _contextAccessor.WorkContext.CurrentCustomer.Email);
         return View();
     }
 

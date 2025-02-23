@@ -44,7 +44,7 @@ public class AuthenticationStartup : IStartupApplication
         application.UseGrandAuthentication();
 
         //set work context
-        application.UseMiddleware<WorkContextMiddleware>();
+        application.UseMiddleware<ContextMiddleware>();
         //set culture
         application.UseMiddleware<CultureSettingMiddleware>();
     }

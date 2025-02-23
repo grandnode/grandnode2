@@ -9,22 +9,22 @@ namespace Grand.Web.Components;
 public class CategoryNavigationViewComponent : BaseViewComponent
 {
     private readonly IMediator _mediator;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public CategoryNavigationViewComponent(
         IMediator mediator,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _mediator = mediator;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<IViewComponentResult> InvokeAsync(string currentCategoryId, string currentProductId)
     {
         var model = await _mediator.Send(new GetCategoryNavigation {
-            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
-            Store = _workContextAccessor.WorkContext.CurrentStore,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Store = _contextAccessor.StoreContext.CurrentStore,
             CurrentCategoryId = currentCategoryId,
             CurrentProductId = currentProductId
         });

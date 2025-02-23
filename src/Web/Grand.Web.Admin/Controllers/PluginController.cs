@@ -25,7 +25,7 @@ public class PluginController(
     ITranslationService translationService,
     ILogger<PluginController> logger,
     IHostApplicationLifetime applicationLifetime,
-    IWorkContextAccessor workContextAccessor,
+    IContextAccessor contextAccessor,
     IServiceProvider serviceProvider,
     IEnumTranslationService enumTranslationService,
     IWebHostEnvironment webHostEnvironment,
@@ -34,12 +34,14 @@ public class PluginController(
 {
     #region Utilities
 
+    private readonly string PluginsPath = Path.Combine(webHostEnvironment.ContentRootPath, CommonPath.Plugins);
+
     [NonAction]
     protected virtual PluginModel PreparePluginModel(PluginInfo PluginInfo)
     {
         var pluginModel = PluginInfo.ToModel();
         //logo
-        pluginModel.LogoUrl = PluginInfo.GetLogoUrl(workContextAccessor.WorkContext.CurrentHost.Url);
+        pluginModel.LogoUrl = PluginInfo.GetLogoUrl(contextAccessor.StoreContext.CurrentHost.Url);
 
         //configuration URLs
         if (PluginInfo.Installed)
@@ -65,18 +67,9 @@ public class PluginController(
 
         foreach (var directory in Directory.GetDirectories(path)) DeleteDirectory(directory);
 
-        try
-        {
+        if (Directory.Exists(path) && path.StartsWith(PluginsPath, StringComparison.Ordinal))
             Directory.Delete(path, true);
-        }
-        catch (IOException)
-        {
-            Directory.Delete(path, true);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            Directory.Delete(path, true);
-        }
+
     }
 
     protected byte[] ToByteArray(Stream stream)
@@ -162,7 +155,7 @@ public class PluginController(
             Success(translationService.GetResource("Admin.Plugins.Installed"));
 
             logger.LogInformation("The plugin has been installed by the user {CurrentCustomerEmail}",
-                workContextAccessor.WorkContext.CurrentCustomer.Email);
+                contextAccessor.WorkContext.CurrentCustomer.Email);
 
             //stop application
             applicationLifetime.StopApplication();
@@ -196,7 +189,7 @@ public class PluginController(
             Success(translationService.GetResource("Admin.Plugins.Uninstalled"));
 
             logger.LogInformation("The plugin has been uninstalled by the user {CurrentCustomerEmail}",
-                workContextAccessor.WorkContext.CurrentCustomer.Email);
+                contextAccessor.WorkContext.CurrentCustomer.Email);
 
             //stop application
             applicationLifetime.StopApplication();
@@ -225,18 +218,13 @@ public class PluginController(
                 //No plugin found with the specified id
                 return RedirectToAction("List");
 
-            var pluginsPath = "Plugins";
-
-            foreach (var folder in Directory.GetDirectories(pluginsPath))
-                if (Path.GetFileName(folder) != "bin" && Directory.GetFiles(folder).Select(x => Path.GetFileName(x))
-                        .Contains(pluginInfo.PluginFileName))
-                    DeleteDirectory(folder);
+            DeleteDirectory(pluginInfo.OriginalAssemblyFile.DirectoryName);
 
             //uninstall plugin
             Success(translationService.GetResource("Admin.Plugins.Removed"));
 
             logger.LogInformation("The plugin has been removed by the user {CurrentCustomerEmail}",
-                workContextAccessor.WorkContext.CurrentCustomer.Email);
+                contextAccessor.WorkContext.CurrentCustomer.Email);
 
             //stop application
             applicationLifetime.StopApplication();
@@ -252,7 +240,7 @@ public class PluginController(
     public IActionResult ReloadList()
     {
         logger.LogInformation("Reload list of plugins by the user {CurrentCustomerEmail}",
-            workContextAccessor.WorkContext.CurrentCustomer.Email);
+            contextAccessor.WorkContext.CurrentCustomer.Email);
 
         //stop application
         applicationLifetime.StopApplication();
@@ -281,11 +269,14 @@ public class PluginController(
             if (!Path.GetExtension(zippedFile.FileName).Equals(".zip", StringComparison.InvariantCultureIgnoreCase))
                 throw new Exception("Only zip archives are supported");
 
-            //ensure that temp directory is created
+            // Ensure that temp directory is created
             Directory.CreateDirectory(new DirectoryInfo(tempDirectory).FullName);
 
-            //copy original archive to the temp directory
-            zipFilePath = Path.Combine(tempDirectory, zippedFile.FileName);
+            // Generate a unique file name for the uploaded file
+            var uniqueFileName = Guid.NewGuid().ToString() + ".zip";
+            zipFilePath = Path.Combine(tempDirectory, uniqueFileName);
+
+            // Copy original archive to the temp directory
             using (var fileStream = new FileStream(zipFilePath, FileMode.Create))
             {
                 zippedFile.CopyTo(fileStream);
@@ -298,13 +289,12 @@ public class PluginController(
         }
         finally
         {
-            //delete temporary file
-            if(Directory.Exists(tempDirectory))
-                DeleteDirectory(tempDirectory);
+            // Delete temporary file
+            DeleteDirectory(tempDirectory);
         }
 
         logger.LogInformation("The plugin has been uploaded by the user {CurrentCustomerEmail}",
-            workContextAccessor.WorkContext.CurrentCustomer.Email);
+            contextAccessor.WorkContext.CurrentCustomer.Email);
 
         //stop application
         applicationLifetime.StopApplication();
@@ -389,8 +379,7 @@ public class PluginController(
 
         try
         {
-            if (Directory.Exists(pathToUpload))
-                DeleteDirectory(pathToUpload);
+            DeleteDirectory(pathToUpload);
         }
         catch { }
 

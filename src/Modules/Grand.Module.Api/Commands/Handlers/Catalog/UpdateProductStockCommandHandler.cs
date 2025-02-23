@@ -1,8 +1,6 @@
-﻿using Grand.Module.Api.Commands.Models.Catalog;
-using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
-using Grand.Infrastructure;
+using Grand.Module.Api.Commands.Models.Catalog;
 using MediatR;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;
@@ -13,23 +11,17 @@ public class UpdateProductStockCommandHandler : IRequestHandler<UpdateProductSto
     private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
     private readonly IProductService _productService;
     private readonly IStockQuantityService _stockQuantityService;
-    private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
 
     public UpdateProductStockCommandHandler(
         IProductService productService,
         IInventoryManageService inventoryManageService,
         IStockQuantityService stockQuantityService,
-        ITranslationService translationService,
-        IOutOfStockSubscriptionService outOfStockSubscriptionService,
-        IWorkContextAccessor workContextAccessor)
+        IOutOfStockSubscriptionService outOfStockSubscriptionService)
     {
         _productService = productService;
         _inventoryManageService = inventoryManageService;
         _stockQuantityService = stockQuantityService;
-        _translationService = translationService;
         _outOfStockSubscriptionService = outOfStockSubscriptionService;
-        _workContextAccessor = workContextAccessor;
     }
 
     public async Task<bool> Handle(UpdateProductStockCommand request, CancellationToken cancellationToken)
@@ -39,8 +31,10 @@ public class UpdateProductStockCommandHandler : IRequestHandler<UpdateProductSto
         {
             var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product);
             var prevMultiWarehouseStock = product.ProductWarehouseInventory.Select(i => new ProductWarehouseInventory {
-                    WarehouseId = i.WarehouseId, StockQuantity = i.StockQuantity, ReservedQuantity = i.ReservedQuantity
-                })
+                WarehouseId = i.WarehouseId,
+                StockQuantity = i.StockQuantity,
+                ReservedQuantity = i.ReservedQuantity
+            })
                 .ToList();
 
             if (string.IsNullOrEmpty(request.WarehouseId))

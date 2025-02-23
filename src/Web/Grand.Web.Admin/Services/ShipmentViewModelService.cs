@@ -33,11 +33,11 @@ public class ShipmentViewModelService : IShipmentViewModelService
     private readonly IStockQuantityService _stockQuantityService;
     private readonly ITranslationService _translationService;
     private readonly IWarehouseService _warehouseService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public ShipmentViewModelService(
         IOrderService orderService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IProductService productService,
         IShipmentService shipmentService,
         IWarehouseService warehouseService,
@@ -53,7 +53,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
         ShippingProviderSettings shippingProviderSettings)
     {
         _orderService = orderService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _productService = productService;
         _shipmentService = shipmentService;
         _warehouseService = warehouseService;
@@ -163,7 +163,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
                                     await _countryService.GetCountryByTwoLetterIsoCode(shipmentEvent.CountryCode);
                                 shipmentStatusEventModel.Country = shipmentEventCountry != null
                                     ? shipmentEventCountry.GetTranslation(x => x.Name,
-                                        _workContextAccessor.WorkContext.WorkingLanguage.Id)
+                                        _contextAccessor.WorkContext.WorkingLanguage.Id)
                                     : shipmentEvent.CountryCode;
                                 shipmentStatusEventModel.Date = shipmentEvent.Date;
                                 shipmentStatusEventModel.EventName = shipmentEvent.EventName;

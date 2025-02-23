@@ -206,7 +206,7 @@ public class SettingService : ISettingService
             if (setting == null && !string.IsNullOrEmpty(storeId))
                 setting = settings.FirstOrDefault(x => string.IsNullOrEmpty(x.StoreId));
 
-            if (setting != null) 
+            if (setting != null)
                 return JsonSerializer.Deserialize(setting.Metadata, type) as ISettings;
 
             return Activator.CreateInstance(type) as ISettings;

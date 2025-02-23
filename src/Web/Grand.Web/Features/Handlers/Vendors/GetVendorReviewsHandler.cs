@@ -20,10 +20,10 @@ public class GetVendorReviewsHandler : IRequestHandler<GetVendorReviews, VendorR
     private readonly IGroupService _groupService;
     private readonly IVendorService _vendorService;
     private readonly VendorSettings _vendorSettings;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public GetVendorReviewsHandler(
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IVendorService vendorService,
         ICustomerService customerService,
         IDateTimeService dateTimeService,
@@ -32,7 +32,7 @@ public class GetVendorReviewsHandler : IRequestHandler<GetVendorReviews, VendorR
         VendorSettings vendorSettings,
         CaptchaSettings captchaSettings)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _vendorService = vendorService;
         _customerService = customerService;
         _dateTimeService = dateTimeService;
@@ -49,8 +49,8 @@ public class GetVendorReviewsHandler : IRequestHandler<GetVendorReviews, VendorR
 
         var model = new VendorReviewsModel {
             VendorId = request.Vendor.Id,
-            VendorName = request.Vendor.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
-            VendorSeName = request.Vendor.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id)
+            VendorName = request.Vendor.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
+            VendorSeName = request.Vendor.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id)
         };
 
         var vendorReviews = await _vendorService.GetAllVendorReviews("", true, null, null, "", request.Vendor.Id, 0,
@@ -77,7 +77,7 @@ public class GetVendorReviewsHandler : IRequestHandler<GetVendorReviews, VendorR
         }
 
         model.AddVendorReview.CanCurrentCustomerLeaveReview = _vendorSettings.AllowAnonymousUsersToReviewVendor ||
-                                                              !await _groupService.IsGuest(_workContextAccessor.WorkContext.CurrentCustomer);
+                                                              !await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer);
         model.AddVendorReview.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnVendorReviewPage;
 
         return model;

@@ -111,7 +111,7 @@ public class PushNotificationsServiceTests
         await _pushNotificationsService.InsertPushReceiver(new PushRegistration { Allowed = true });
 
         //Act
-        var result = await _pushNotificationsService.GetPushReceivers();
+        var result = await _pushNotificationsService.GetAllowedPushReceivers();
 
         //Assert
         Assert.AreEqual(2, result.Count);
@@ -178,7 +178,7 @@ public class PushNotificationsServiceTests
         await _repositoryPushRegistration.InsertAsync(new PushRegistration { Allowed = true });
 
         //Act
-        var result = await _pushNotificationsService.GetPushReceivers();
+        var result = await _pushNotificationsService.GetAllowedPushReceivers();
 
         //Assert
         Assert.AreEqual(3, result.Count);

@@ -18,9 +18,9 @@ public class AddNewsCommentValidator : BaseGrandValidator<AddNewsCommentModel>
     public AddNewsCommentValidator(
         IEnumerable<IValidatorConsumer<AddNewsCommentModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
-        IWorkContextAccessor workContextAccessor, IGroupService groupService, INewsService newsService,
+        IContextAccessor contextAccessor, IGroupService groupService, INewsService newsService,
         CaptchaSettings captchaSettings, NewsSettings newsSettings,
-        IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
+        IHttpContextAccessor httpcontextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
         : base(validators)
     {
@@ -32,7 +32,7 @@ public class AddNewsCommentValidator : BaseGrandValidator<AddNewsCommentModel>
             .WithMessage(translationService.GetResource("News.Comments.CommentText.Required"));
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            if (await groupService.IsGuest(workContextAccessor.WorkContext.CurrentCustomer) &&
+            if (await groupService.IsGuest(contextAccessor.WorkContext.CurrentCustomer) &&
                 !newsSettings.AllowNotRegisteredUsersToLeaveComments)
                 context.AddFailure(translationService.GetResource("News.Comments.OnlyRegisteredUsersLeaveComments"));
             var newsItem = await newsService.GetNewsById(x.Id);
@@ -44,7 +44,7 @@ public class AddNewsCommentValidator : BaseGrandValidator<AddNewsCommentModel>
             RuleFor(x => x.Captcha).NotNull()
                 .WithMessage(translationService.GetResource("Account.Captcha.Required"));
             RuleFor(x => x.Captcha)
-                .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
+                .SetValidator(new CaptchaValidator(validatorsCaptcha, httpcontextAccessor, googleReCaptchaValidator));
         }
     }
 }

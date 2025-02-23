@@ -18,14 +18,14 @@ public class PermissionServiceTests
     private Mock<IRepository<PermissionAction>> _permissionActionRepositoryMock;
     private Mock<IRepository<Permission>> _permissionRepositoryMock;
     private PermissionService _service;
-    private Mock<IWorkContextAccessor> _workContextMock;
+    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
     {
         _permissionRepositoryMock = new Mock<IRepository<Permission>>();
         _permissionActionRepositoryMock = new Mock<IRepository<PermissionAction>>();
-        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock = new Mock<IContextAccessor>();
         _groupServiceMock = new Mock<IGroupService>();
         _cacheMock = new Mock<ICacheBase>();
         _service = new PermissionService(_permissionRepositoryMock.Object, _permissionActionRepositoryMock.Object,

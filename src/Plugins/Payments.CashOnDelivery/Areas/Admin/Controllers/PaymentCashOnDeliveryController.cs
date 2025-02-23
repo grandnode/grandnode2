@@ -1,12 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Permissions;
-using Grand.Domain.Common;
-using Grand.Domain.Customers;
-using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.CashOnDelivery.Models;
@@ -19,41 +16,23 @@ namespace Payments.CashOnDelivery.Areas.Admin.Controllers;
 public class PaymentCashOnDeliveryController : BasePaymentController
 {
     private readonly ISettingService _settingService;
-    private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IAdminStoreService _adminStoreService;
 
-
-    public PaymentCashOnDeliveryController(IWorkContextAccessor workContextAccessor,
-        IStoreService storeService,
+    public PaymentCashOnDeliveryController(
         ISettingService settingService,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IAdminStoreService adminStoreService)
     {
-        _workContextAccessor = workContextAccessor;
-        _storeService = storeService;
         _settingService = settingService;
         _translationService = translationService;
-    }
-
-
-    protected virtual async Task<string> GetActiveStore(IStoreService storeService, IWorkContext workContext)
-    {
-        var stores = await storeService.GetAllStores();
-        if (stores.Count < 2)
-            return stores.FirstOrDefault().Id;
-
-        var storeId =
-            workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames
-                .AdminAreaStoreScopeConfiguration);
-        var store = await storeService.GetStoreById(storeId);
-
-        return store != null ? store.Id : "";
+        _adminStoreService = adminStoreService;
     }
 
     public async Task<IActionResult> Configure()
     {
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
+        var storeScope = await _adminStoreService.GetActiveStore();
         var cashOnDeliveryPaymentSettings = await _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(storeScope);
 
         var model = new ConfigurationModel {
@@ -78,7 +57,7 @@ public class PaymentCashOnDeliveryController : BasePaymentController
             return await Configure();
 
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore(_storeService, _workContextAccessor.WorkContext);
+        var storeScope = await _adminStoreService.GetActiveStore();
         var cashOnDeliveryPaymentSettings = await _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(storeScope);
 
         //save settings

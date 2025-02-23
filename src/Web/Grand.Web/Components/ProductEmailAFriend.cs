@@ -15,12 +15,12 @@ public class ProductEmailAFriendViewComponent : BaseViewComponent
 
     public ProductEmailAFriendViewComponent(
         IProductService productService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         CatalogSettings catalogSettings,
         CaptchaSettings captchaSettings)
     {
         _productService = productService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _catalogSettings = catalogSettings;
         _captchaSettings = captchaSettings;
     }
@@ -37,9 +37,9 @@ public class ProductEmailAFriendViewComponent : BaseViewComponent
 
         var model = new ProductEmailAFriendModel {
             ProductId = product.Id,
-            ProductName = product.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
-            ProductSeName = product.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id),
-            YourEmailAddress = _workContextAccessor.WorkContext.CurrentCustomer.Email,
+            ProductName = product.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
+            ProductSeName = product.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id),
+            YourEmailAddress = _contextAccessor.WorkContext.CurrentCustomer.Email,
             DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage
         };
 
@@ -51,7 +51,7 @@ public class ProductEmailAFriendViewComponent : BaseViewComponent
     #region Fields
 
     private readonly IProductService _productService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly CatalogSettings _catalogSettings;
     private readonly CaptchaSettings _captchaSettings;
 

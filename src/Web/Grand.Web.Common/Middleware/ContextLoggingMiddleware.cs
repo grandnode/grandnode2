@@ -17,15 +17,15 @@ public class ContextLoggingMiddleware
         _next = next;
     }
 
-    public async Task InvokeAsync(HttpContext context, IWorkContextAccessor workContextAccessor)
+    public async Task InvokeAsync(HttpContext context, IContextAccessor contextAccessor)
     {
-        var workContext = workContextAccessor.WorkContext;
-
+        var workContext = contextAccessor.WorkContext;
+        var storeContext = contextAccessor.StoreContext;
         Activity activity = Activity.Current;
         if (activity != null)
         {
             activity.AddTag(CustomerPropertyName, workContext?.CurrentCustomer?.Email);
-            activity.AddTag(StorePropertyName, workContext?.CurrentStore?.Name);
+            activity.AddTag(StorePropertyName, storeContext?.CurrentStore?.Name);
             activity.AddTag(CurrencyPropertyName, workContext?.WorkingCurrency?.Name);
             activity.AddTag(LanguagePropertyName, workContext?.WorkingLanguage?.Name);
         }

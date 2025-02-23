@@ -12,13 +12,13 @@ public class KnowledgebaseCategories : BaseViewComponent
 {
     private readonly IKnowledgebaseService _knowledgebaseService;
     private readonly KnowledgebaseSettings _knowledgebaseSettings;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
-    public KnowledgebaseCategories(IKnowledgebaseService knowledgebaseService, IWorkContextAccessor workContextAccessor,
+    public KnowledgebaseCategories(IKnowledgebaseService knowledgebaseService, IContextAccessor contextAccessor,
         KnowledgebaseSettings knowledgebaseSettings)
     {
         _knowledgebaseService = knowledgebaseService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _knowledgebaseSettings = knowledgebaseSettings;
     }
 
@@ -34,10 +34,10 @@ public class KnowledgebaseCategories : BaseViewComponent
             if (!string.IsNullOrEmpty(category.ParentCategoryId)) continue;
             var newNode = new KnowledgebaseCategoryModel {
                 Id = category.Id,
-                Name = category.GetTranslation(y => y.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                Name = category.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
                 Children = new List<KnowledgebaseCategoryModel>(),
                 IsCurrent = model.CurrentCategoryId == category.Id,
-                SeName = category.GetTranslation(y => y.SeName, _workContextAccessor.WorkContext.WorkingLanguage.Id)
+                SeName = category.GetTranslation(y => y.SeName, _contextAccessor.WorkContext.WorkingLanguage.Id)
             };
 
             FillChildNodes(newNode, categories, model.CurrentCategoryId);
@@ -56,10 +56,10 @@ public class KnowledgebaseCategories : BaseViewComponent
         {
             var newNode = new KnowledgebaseCategoryModel {
                 Id = child.Id,
-                Name = child.GetTranslation(y => y.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                Name = child.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
                 Children = new List<KnowledgebaseCategoryModel>(),
                 IsCurrent = currentCategoryId == child.Id,
-                SeName = child.GetTranslation(y => y.SeName, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                SeName = child.GetTranslation(y => y.SeName, _contextAccessor.WorkContext.WorkingLanguage.Id),
                 Parent = parentNode
             };
 

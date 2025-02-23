@@ -63,4 +63,60 @@ public class StoreServiceTests
             .Returns(Task.FromResult(new List<Store> { new() }));
         Assert.ThrowsExceptionAsync<Exception>(async () => await _service.DeleteStore(new Store()));
     }
+
+    [TestMethod]
+    public async Task GetStoreByHost_MatchingHost_ReturnsMatchingStore()
+    {
+        // Arrange
+        var store1 = new Store { Url = "http://store1.com" };
+        store1.Domains = new List<DomainHost>
+        {
+            new DomainHost { HostName = "store1.com", Url = "http://store1.com", Primary = true }
+        };
+
+        var store2 = new Store { Url = "http://store2.com" };
+        store2.Domains = new List<DomainHost>
+        {
+            new DomainHost { HostName = "store2.com", Url = "http://store2.com", Primary = true }
+        };
+
+        var stores = new List<Store> { store1, store2 };
+
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
+            .Returns(Task.FromResult(stores));
+
+        // Act
+        var result = await _service.GetStoreByHost("store1.com");
+
+        // Assert
+        Assert.AreEqual(store1, result);
+    }
+
+    [TestMethod]
+    public async Task GetStoreByHost_NoMatchingHost_ReturnsNullStore()
+    {
+        // Arrange
+        var store1 = new Store { Url = "http://store1.com" };
+        store1.Domains = new List<DomainHost>
+        {
+            new DomainHost { HostName = "store1.com", Url = "http://store1.com", Primary = true }
+        };
+
+        var store2 = new Store { Url = "http://store2.com" };
+        store2.Domains = new List<DomainHost>
+        {
+            new DomainHost { HostName = "store2.com", Url = "http://store2.com", Primary = true }
+        };
+
+        var stores = new List<Store> { store1, store2 };
+
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
+            .Returns(Task.FromResult(stores));
+
+        // Act - host not found in any DomainHost
+        var result = await _service.GetStoreByHost("nonexisting.com");
+
+        // Assert - returns first store
+        Assert.AreEqual(null, result);
+    }
 }

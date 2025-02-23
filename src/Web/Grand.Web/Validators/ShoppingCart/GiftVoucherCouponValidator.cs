@@ -13,7 +13,7 @@ public class GiftVoucherCouponValidator : BaseGrandValidator<GiftVoucherCouponMo
 {
     public GiftVoucherCouponValidator(
         IEnumerable<IValidatorConsumer<GiftVoucherCouponModel>> validators,
-        IMediator mediator, IWorkContextAccessor workContextAccessor,
+        IMediator mediator, IContextAccessor contextAccessor,
         ITranslationService translationService)
         : base(validators)
     {
@@ -31,8 +31,8 @@ public class GiftVoucherCouponValidator : BaseGrandValidator<GiftVoucherCouponMo
                     new GetGiftVoucherQuery { Code = x.GiftVoucherCouponCode, IsGiftVoucherActivated = true }, _))
                 .FirstOrDefault();
             var isGiftVoucherValid = giftVoucher != null
-                                     && giftVoucher.IsGiftVoucherValid(workContextAccessor.WorkContext.WorkingCurrency,
-                                         workContextAccessor.WorkContext.CurrentStore);
+                                     && giftVoucher.IsGiftVoucherValid(contextAccessor.WorkContext.WorkingCurrency,
+                                         contextAccessor.StoreContext.CurrentStore);
 
             if (!isGiftVoucherValid)
                 context.AddFailure(translationService.GetResource("ShoppingCart.Code.WrongGiftVoucher"));

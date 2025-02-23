@@ -1,7 +1,6 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
-using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 
@@ -41,17 +40,6 @@ public interface IWorkContext
     ///     Get current tax display type
     /// </summary>
     TaxDisplayType TaxDisplayType { get; }
-
-    /// <summary>
-    ///     Gets or sets the current store
-    /// </summary>
-    Store CurrentStore { get; }
-
-    /// <summary>
-    ///     Gets the current host
-    /// </summary>
-    DomainHost CurrentHost { get; }
-
 }
 
 public interface IWorkContextSetter

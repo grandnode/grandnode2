@@ -18,10 +18,10 @@ public class KnowledgebaseArticleValidator : BaseGrandValidator<KnowledgebaseArt
     public KnowledgebaseArticleValidator(
         IEnumerable<IValidatorConsumer<KnowledgebaseArticleModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
-        IWorkContextAccessor workContextAccessor, IGroupService groupService,
+        IContextAccessor contextAccessor, IGroupService groupService,
         IKnowledgebaseService knowledgebaseService, KnowledgebaseSettings knowledgebaseSettings,
         CaptchaSettings captchaSettings,
-        IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
+        IHttpContextAccessor httpcontextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
         : base(validators)
     {
@@ -31,7 +31,7 @@ public class KnowledgebaseArticleValidator : BaseGrandValidator<KnowledgebaseArt
 
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            if (await groupService.IsGuest(workContextAccessor.WorkContext.CurrentCustomer) &&
+            if (await groupService.IsGuest(contextAccessor.WorkContext.CurrentCustomer) &&
                 !knowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments)
                 context.AddFailure(
                     translationService.GetResource("Knowledgebase.Article.Comments.OnlyRegisteredUsersLeaveComments"));
@@ -45,7 +45,7 @@ public class KnowledgebaseArticleValidator : BaseGrandValidator<KnowledgebaseArt
             RuleFor(x => x.Captcha).NotNull()
                 .WithMessage(translationService.GetResource("Account.Captcha.Required"));
             RuleFor(x => x.Captcha)
-                .SetValidator(new CaptchaValidator(validatorsCaptcha, contextAccessor, googleReCaptchaValidator));
+                .SetValidator(new CaptchaValidator(validatorsCaptcha, httpcontextAccessor, googleReCaptchaValidator));
         }
     }
 }

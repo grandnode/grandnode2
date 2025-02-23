@@ -22,7 +22,7 @@ public class VendorInfoController : BaseVendorController
         ITranslationService translationService,
         IVendorService vendorService,
         ILanguageService languageService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ICountryService countryService,
         VendorSettings vendorSettings, 
         ISeNameService seNameService)
@@ -30,7 +30,7 @@ public class VendorInfoController : BaseVendorController
         _translationService = translationService;
         _vendorService = vendorService;
         _languageService = languageService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _countryService = countryService;
         _vendorSettings = vendorSettings;
         _seNameService = seNameService;
@@ -40,7 +40,7 @@ public class VendorInfoController : BaseVendorController
 
     #region Fields
 
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly ILanguageService _languageService;
@@ -121,7 +121,7 @@ public class VendorInfoController : BaseVendorController
         if (!_vendorSettings.AllowVendorsToEditInfo)
             throw new Exception("Vendor can't edit info");
 
-        var vendor = await _vendorService.GetVendorById(_workContextAccessor.WorkContext.CurrentVendor.Id);
+        var vendor = await _vendorService.GetVendorById(_contextAccessor.WorkContext.CurrentVendor.Id);
         if (vendor == null || vendor.Deleted)
             throw new ArgumentNullException(nameof(vendor));
 
@@ -151,7 +151,7 @@ public class VendorInfoController : BaseVendorController
             throw new Exception("Vendor can't edit info");
 
         var vendor = await _vendorService.GetVendorById(model.Id);
-        if (vendor == null || vendor.Deleted || vendor.Id != _workContextAccessor.WorkContext.CurrentVendor.Id)
+        if (vendor == null || vendor.Deleted || vendor.Id != _contextAccessor.WorkContext.CurrentVendor.Id)
             throw new ArgumentNullException(nameof(vendor));
 
         if (ModelState.IsValid)

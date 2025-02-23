@@ -37,8 +37,8 @@ public class DiscountServiceTests
     private GetDiscountAmountProviderHandler _getDiscountAmountProviderHandler;
     private Mock<IMediator> _mediatorMock;
     private IRepository<Discount> _repository;
-    private Mock<ITranslationService> _translationServiceMock;
     private Mock<IWorkContext> _workContextMock;
+    private Mock<IStoreContext> _storeContextMock;
     private GetDiscountUsageHistoryQueryHandler handler;
 
     [TestInitialize]
@@ -48,8 +48,8 @@ public class DiscountServiceTests
         _discountCouponRepository = new MongoDBRepositoryTest<DiscountCoupon>();
         _discountUsageHistoryRepository = new MongoDBRepositoryTest<DiscountUsageHistory>();
         _workContextMock = new Mock<IWorkContext>();
-        _translationServiceMock = new Mock<ITranslationService>();
-        _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
+        _storeContextMock = new Mock<IStoreContext>();
+        _storeContextMock.Setup(c => c.CurrentStore).Returns(() => new Store { Id = "" });
         _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,

@@ -13,7 +13,6 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
@@ -27,6 +26,24 @@ namespace Grand.Web.Common;
 /// </summary>
 public class WorkContextSetter : IWorkContextSetter
 {
+    #region Fields
+
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IGrandAuthenticationService _authenticationService;
+    private readonly ICurrencyService _currencyService;
+    private readonly ICustomerService _customerService;
+    private readonly IGroupService _groupService;
+    private readonly ILanguageService _languageService;
+    private readonly IStoreService _storeService;
+    private readonly IAclService _aclService;
+    private readonly IVendorService _vendorService;
+
+    private readonly TaxSettings _taxSettings;
+    private readonly AppConfig _config;
+
+    private Customer _originalCustomerIfImpersonated;
+
+    #endregion
     #region Ctor
 
     public WorkContextSetter(
@@ -54,25 +71,6 @@ public class WorkContextSetter : IWorkContextSetter
         _taxSettings = taxSettings;
         _config = config;
     }
-
-    #endregion
-
-    #region Fields
-
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IGrandAuthenticationService _authenticationService;
-    private readonly ICurrencyService _currencyService;
-    private readonly ICustomerService _customerService;
-    private readonly IGroupService _groupService;
-    private readonly ILanguageService _languageService;
-    private readonly IStoreService _storeService;
-    private readonly IAclService _aclService;
-    private readonly IVendorService _vendorService;
-
-    private readonly TaxSettings _taxSettings;
-    private readonly AppConfig _config;
-
-    private Customer _originalCustomerIfImpersonated;
 
     #endregion
 
@@ -149,19 +147,16 @@ public class WorkContextSetter : IWorkContextSetter
     public virtual async Task<IWorkContext> InitializeWorkContext(string storeId = null)
     {
         var currentStore = await CurrentStore(storeId);
-        var workContext = new CurrentWorkContext {
-            CurrentStore = currentStore,
-            CurrentHost = CurrentHost(currentStore),
+        var workContext = new CurrentWorkContext {            
             CurrentCustomer = await CurrentCustomer(currentStore)
         };
-
         if (workContext.CurrentCustomer != null)
         {
             workContext.CurrentVendor = await CurrentVendor(workContext.CurrentCustomer);
             workContext.OriginalCustomerIfImpersonated = _originalCustomerIfImpersonated;
-            workContext.WorkingLanguage = await WorkingLanguage(workContext.CurrentCustomer, workContext.CurrentStore);
-            workContext.WorkingCurrency = await WorkingCurrency(workContext.CurrentCustomer, workContext.WorkingLanguage, workContext.CurrentStore);
-            workContext.TaxDisplayType = await TaxDisplayType(workContext.CurrentCustomer, workContext.CurrentStore);
+            workContext.WorkingLanguage = await WorkingLanguage(workContext.CurrentCustomer, currentStore);
+            workContext.WorkingCurrency = await WorkingCurrency(workContext.CurrentCustomer, workContext.WorkingLanguage, currentStore);
+            workContext.TaxDisplayType = await TaxDisplayType(workContext.CurrentCustomer, currentStore);
         }
         return workContext;
     }
@@ -189,7 +184,7 @@ public class WorkContextSetter : IWorkContextSetter
 
         customer = await GetApiUserCustomer();
         if (customer != null) return customer;
-        
+
         //create guest if not exists
         customer = await CreateCustomerGuest(store);
 
@@ -416,67 +411,16 @@ public class WorkContextSetter : IWorkContextSetter
         return await Task.FromResult(taxDisplayType);
     }
 
-    private string GetStoreCookie()
-    {
-        return _httpContextAccessor.HttpContext?.Request.Cookies[CommonHelper.StoreCookieName];
-    }
 
     protected async Task<Store> CurrentStore(string id = null)
     {
         if (!string.IsNullOrEmpty(id))
             return await _storeService.GetStoreById(id);
 
-        var host = _httpContextAccessor.HttpContext?.Request.Host.Host;
-
-        var allStores = await _storeService.GetAllStores();
-        var stores = allStores.Where(s => s.ContainsHostValue(host)).ToList();
-        if (!stores.Any())
-            return allStores.FirstOrDefault();
-        else
-            switch (stores.Count)
-            {
-                case 1:
-                    return stores.FirstOrDefault();
-                case > 1:
-                    {
-                        var cookie = GetStoreCookie();
-                        if (!string.IsNullOrEmpty(cookie))
-                        {
-                            var storeCookie = stores.FirstOrDefault(x => x.Id == cookie);
-                            return storeCookie ?? stores.FirstOrDefault();
-                        }
-                        else
-                        {
-                            return stores.FirstOrDefault();
-                        }
-                    }
-            }
-
-        throw new Exception("No store could be loaded");
+        return (await _storeService.GetAllStores()).FirstOrDefault();
     }
 
-    /// <summary>
-    ///     Gets the current domain host
-    /// </summary>
-    protected DomainHost CurrentHost(Store store)
-    {
-        //try to determine the current HOST header
-        var host = _httpContextAccessor.HttpContext?.Request.GetTypedHeaders().Host.ToString();
-        if (store != null)
-            return store.HostValue(host) ?? new DomainHost {
-                Id = int.MinValue.ToString(),
-                Url = store.SslEnabled ? store.SecureUrl : store.Url,
-                HostName = "temporary-store"
-            };
-
-        return new DomainHost {
-            Id = int.MinValue.ToString(),
-            Url = host,
-            HostName = "temporary"
-        };
-    }
-
-    private class CurrentWorkContext : IWorkContext
+    private sealed class CurrentWorkContext : IWorkContext
     {
         public Customer CurrentCustomer { get; set; }
 
@@ -489,9 +433,6 @@ public class WorkContextSetter : IWorkContextSetter
         public Currency WorkingCurrency { get; set; }
 
         public TaxDisplayType TaxDisplayType { get; set; }
-
-        public Store CurrentStore { get; set; }
-        public DomainHost CurrentHost { get; set; }
     }
 
     #endregion

@@ -30,11 +30,11 @@ public class AffiliateAttribute : TypeFilterAttribute
 
         public AffiliateFilter(IAffiliateService affiliateService,
             ICustomerService customerService,
-            IWorkContextAccessor workContextAccessor)
+            IContextAccessor contextAccessor)
         {
             _affiliateService = affiliateService;
             _customerService = customerService;
-            _workContextAccessor = workContextAccessor;
+            _contextAccessor = contextAccessor;
         }
 
         #endregion
@@ -92,13 +92,13 @@ public class AffiliateAttribute : TypeFilterAttribute
             if (affiliate is not { Active: true })
                 return;
 
-            if (affiliate.Id == _workContextAccessor.WorkContext.CurrentCustomer.AffiliateId)
+            if (affiliate.Id == _contextAccessor.WorkContext.CurrentCustomer.AffiliateId)
                 return;
 
             //update affiliate identifier
-            _workContextAccessor.WorkContext.CurrentCustomer.AffiliateId = affiliate.Id;
-            await _customerService.UpdateCustomerField(_workContextAccessor.WorkContext.CurrentCustomer.Id, x => x.AffiliateId,
-                _workContextAccessor.WorkContext.CurrentCustomer.AffiliateId);
+            _contextAccessor.WorkContext.CurrentCustomer.AffiliateId = affiliate.Id;
+            await _customerService.UpdateCustomerField(_contextAccessor.WorkContext.CurrentCustomer.Id, x => x.AffiliateId,
+                _contextAccessor.WorkContext.CurrentCustomer.AffiliateId);
         }
 
         #endregion
@@ -114,7 +114,7 @@ public class AffiliateAttribute : TypeFilterAttribute
 
         private readonly IAffiliateService _affiliateService;
         private readonly ICustomerService _customerService;
-        private readonly IWorkContextAccessor _workContextAccessor;
+        private readonly IContextAccessor _contextAccessor;
 
         #endregion
     }

@@ -13,12 +13,12 @@ namespace Grand.Web.Admin.Controllers;
 public class DownloadController : BaseAdminController
 {
     private readonly IDownloadService _downloadService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
-    public DownloadController(IDownloadService downloadService, IWorkContextAccessor workContextAccessor)
+    public DownloadController(IDownloadService downloadService, IContextAccessor contextAccessor)
     {
         _downloadService = downloadService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<IActionResult> DownloadFile(Guid downloadGuid)
@@ -64,7 +64,6 @@ public class DownloadController : BaseAdminController
         return Json(new { downloadId = download.Id, success = true });
     }
 
-    [DisableRequestSizeLimit]
     [HttpPost]
     //do not validate request token (XSRF)
     [IgnoreAntiforgeryToken]
@@ -98,7 +97,7 @@ public class DownloadController : BaseAdminController
 
         var download = new Download {
             DownloadGuid = Guid.NewGuid(),
-            CustomerId = _workContextAccessor.WorkContext.CurrentCustomer.Id,
+            CustomerId = _contextAccessor.WorkContext.CurrentCustomer.Id,
             UseDownloadUrl = false,
             DownloadUrl = "",
             DownloadBinary = fileBinary,

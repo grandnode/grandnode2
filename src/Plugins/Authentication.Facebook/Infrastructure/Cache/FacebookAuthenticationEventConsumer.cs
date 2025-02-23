@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Commands.Customers;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
+using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using MediatR;
 using System.Security.Claims;
@@ -14,17 +14,29 @@ namespace Authentication.Facebook.Infrastructure.Cache;
 /// </summary>
 public class FacebookAuthenticationEventConsumer : INotificationHandler<RegisteredByExternalMethod>
 {
+    #region Fields
+
+    private readonly ICustomerService _customerService;
+    private readonly IMessageProviderService _messageProviderService;
+    private readonly IContextAccessor _contextAccessor;
+    private readonly CustomerSettings _customerSettings;
+
+    private string WorkingLanguageId => _contextAccessor.WorkContext.WorkingLanguage.Id;
+    private Store CurrentStore => _contextAccessor.StoreContext.CurrentStore;
+
+    #endregion
+
     #region Ctor
 
     public FacebookAuthenticationEventConsumer(
         ICustomerService customerService,
         IMessageProviderService messageProviderService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         CustomerSettings customerSettings)
     {
         _customerService = customerService;
         _messageProviderService = messageProviderService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _customerSettings = customerSettings;
     }
 
@@ -55,22 +67,10 @@ public class FacebookAuthenticationEventConsumer : INotificationHandler<Register
 
         //notifications for admin
         if (_customerSettings.NotifyNewCustomerRegistration)
-            await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer,
-                _workContextAccessor.WorkContext.CurrentStore, _workContextAccessor.WorkContext.WorkingLanguage.Id);
+            await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId);
 
         //send welcome message 
-        await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, _workContextAccessor.WorkContext.CurrentStore,
-            _workContextAccessor.WorkContext.WorkingLanguage.Id);
+        await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId);
     }
-
-    #endregion
-
-    #region Fields
-
-    private readonly ICustomerService _customerService;
-    private readonly IMessageProviderService _messageProviderService;
-    private readonly IWorkContextAccessor _workContextAccessor;
-    private readonly CustomerSettings _customerSettings;
-
     #endregion
 }

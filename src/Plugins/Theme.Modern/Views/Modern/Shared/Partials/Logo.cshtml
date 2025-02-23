@@ -1,11 +1,11 @@
 ﻿@using Grand.Business.Core.Interfaces.Storage
 @inject StoreInformationSettings storeInformation
-@inject IWorkContextAccessor workContextAccessor
+@inject IContextAccessor contextAccessor
 @inject IPictureService pictureService
 @{
     var urlLogo = await pictureService.GetPictureUrl(storeInformation.LogoPictureId);
 }
 <a class="navbar-brand store-logo" target="_self" href="@Url.RouteUrl("HomePage")">
-    <img width="236" height="53" src="@urlLogo" alt="@workContextAccessor.WorkContext.CurrentStore.Name" />
+    <img width="236" height="53" src="@urlLogo" alt="@contextAccessor.StoreContext.CurrentStore.Name" />
     <span class="sr-only">@Loc["Logo"]</span>
 </a>

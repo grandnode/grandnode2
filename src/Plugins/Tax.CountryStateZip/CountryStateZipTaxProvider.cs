@@ -15,18 +15,18 @@ public class CountryStateZipTaxProvider : ITaxProvider
     private readonly CountryStateZipTaxSettings _countryStateZipTaxSettings;
     private readonly ITaxRateService _taxRateService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
 
     public CountryStateZipTaxProvider(ITranslationService translationService,
         ICacheBase cacheBase,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ITaxRateService taxRateService,
         CountryStateZipTaxSettings countryStateZipTaxSettings)
     {
         _translationService = translationService;
         _cacheBase = cacheBase;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _taxRateService = taxRateService;
         _countryStateZipTaxSettings = countryStateZipTaxSettings;
     }
@@ -74,7 +74,7 @@ public class CountryStateZipTaxProvider : ITaxProvider
             });
         });
 
-        var storeId = _workContextAccessor.WorkContext.CurrentStore.Id;
+        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
         var taxCategoryId = calculateTaxRequest.TaxCategoryId;
         var countryId = calculateTaxRequest.Address.CountryId;
         var stateProvinceId = calculateTaxRequest.Address.StateProvinceId;

@@ -26,7 +26,7 @@ public class NewsLetterSubscriptionController : BaseAdminController
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public NewsLetterSubscriptionController(INewsLetterSubscriptionService newsLetterSubscriptionService,
         INewsletterCategoryService newsletterCategoryService,
@@ -34,7 +34,7 @@ public class NewsLetterSubscriptionController : BaseAdminController
         ITranslationService translationService,
         IStoreService storeService,
         IGroupService groupService,
-        IWorkContextAccessor workContextAccessor)
+        IContextAccessor contextAccessor)
     {
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _newsletterCategoryService = newsletterCategoryService;
@@ -42,7 +42,7 @@ public class NewsLetterSubscriptionController : BaseAdminController
         _translationService = translationService;
         _storeService = storeService;
         _groupService = groupService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     [NonAction]
@@ -76,7 +76,7 @@ public class NewsLetterSubscriptionController : BaseAdminController
     {
         var model = new NewsLetterSubscriptionListModel();
 
-        var storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //stores
         model.AvailableStores.Add(new SelectListItem
@@ -123,8 +123,8 @@ public class NewsLetterSubscriptionController : BaseAdminController
                 break;
         }
 
-        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
-            model.StoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var newsletterSubscriptions = await _newsLetterSubscriptionService.GetAllNewsLetterSubscriptions(
             model.SearchEmail,
@@ -190,8 +190,8 @@ public class NewsLetterSubscriptionController : BaseAdminController
                 break;
         }
 
-        if (await _groupService.IsStaff(_workContextAccessor.WorkContext.CurrentCustomer))
-            model.StoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+            model.StoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var subscriptions = await _newsLetterSubscriptionService.GetAllNewsLetterSubscriptions(model.SearchEmail,
             model.StoreId, isActive, searchCategoryIds);
@@ -212,7 +212,7 @@ public class NewsLetterSubscriptionController : BaseAdminController
             if (importcsvfile is { Length: > 0 })
             {
                 var count = await _newsLetterSubscriptionService.ImportNewsletterSubscribersFromTxt(
-                    importcsvfile.OpenReadStream(), _workContextAccessor.WorkContext.CurrentStore.Id);
+                    importcsvfile.OpenReadStream(), _contextAccessor.StoreContext.CurrentStore.Id);
                 Success(string.Format(
                     _translationService.GetResource("admin.marketing.NewsLetterSubscriptions.ImportEmailsSuccess"),
                     count));

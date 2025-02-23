@@ -18,12 +18,12 @@ public class PermissionController : BaseAdminController
 {
     #region Constructors
 
-    public PermissionController(IWorkContextAccessor workContextAccessor,
+    public PermissionController(IContextAccessor contextAccessor,
         IPermissionService permissionService,
         IGroupService groupService,
         ITranslationService translationService)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _permissionService = permissionService;
         _groupService = groupService;
         _translationService = translationService;
@@ -33,7 +33,7 @@ public class PermissionController : BaseAdminController
 
     #region Fields
 
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IPermissionService _permissionService;
     private readonly IGroupService _groupService;
     private readonly ITranslationService _translationService;
@@ -50,7 +50,7 @@ public class PermissionController : BaseAdminController
         var customerGroups = await _groupService.GetAllCustomerGroups(showHidden: true);
         foreach (var pr in permissionRecords.OrderBy(x => x.Category))
             model.AvailablePermissions.Add(new PermissionRecordModel {
-                Name =_translationService.GetResource(pr.GetTranslationPermissionName(), _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                Name =_translationService.GetResource(pr.GetTranslationPermissionName(), _contextAccessor.WorkContext.WorkingLanguage.Id),
                 SystemName = pr.SystemName,
                 Area = pr.Area,
                 Category = pr.Category,
@@ -169,7 +169,7 @@ public class PermissionController : BaseAdminController
         if (permissionRecord != null)
         {
             model.AvailableActions = permissionRecord.Actions.ToList();
-            model.PermissionName = _translationService.GetResource(permissionRecord.GetTranslationPermissionName(), _workContextAccessor.WorkContext.WorkingLanguage.Id);
+            model.PermissionName = _translationService.GetResource(permissionRecord.GetTranslationPermissionName(), _contextAccessor.WorkContext.WorkingLanguage.Id);
         }
         else
         {

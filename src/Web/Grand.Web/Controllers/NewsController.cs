@@ -26,7 +26,7 @@ public class NewsController : BasePublicController
     #region Constructors
 
     public NewsController(INewsService newsService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ITranslationService translationService,
         IAclService aclService,
         IPermissionService permissionService,
@@ -34,7 +34,7 @@ public class NewsController : BasePublicController
         NewsSettings newsSettings)
     {
         _newsService = newsService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _translationService = translationService;
         _aclService = aclService;
         _permissionService = permissionService;
@@ -47,7 +47,7 @@ public class NewsController : BasePublicController
     #region Fields
 
     private readonly INewsService _newsService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly ITranslationService _translationService;
     private readonly IAclService _aclService;
     private readonly IPermissionService _permissionService;
@@ -81,7 +81,7 @@ public class NewsController : BasePublicController
             (newsItem.StartDateUtc.HasValue && newsItem.StartDateUtc.Value >= DateTime.UtcNow) ||
             (newsItem.EndDateUtc.HasValue && newsItem.EndDateUtc.Value <= DateTime.UtcNow) ||
             //Store acl
-            !_aclService.Authorize(newsItem, _workContextAccessor.WorkContext.CurrentStore.Id))
+            !_aclService.Authorize(newsItem, _contextAccessor.StoreContext.CurrentStore.Id))
             return RedirectToRoute("HomePage");
 
         var model = await _mediator.Send(new GetNewsItem { NewsItem = newsItem });
@@ -125,7 +125,7 @@ public class NewsController : BasePublicController
                     newsComment.CommentTitle,
                     CreatedOn = HttpContext.RequestServices.GetService<IDateTimeService>()
                         .ConvertToUserTime(newsComment.CreatedOnUtc, DateTimeKind.Utc),
-                    CustomerName = _workContextAccessor.WorkContext.CurrentCustomer.FormatUserName(HttpContext.RequestServices
+                    CustomerName = _contextAccessor.WorkContext.CurrentCustomer.FormatUserName(HttpContext.RequestServices
                         .GetService<CustomerSettings>().CustomerNameFormat)
                 }
             });

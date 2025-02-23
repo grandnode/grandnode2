@@ -1,13 +1,12 @@
 ﻿@using Grand.Domain.Localization
 @using Constants = Grand.SharedUIResources.Constants
 @inject LanguageSettings languageSettings
-@inject IWorkContextAccessor workContextAccessor
+@inject IContextAccessor contextAccessor
 <script>
     const wwwrootpath = '@(Constants.WwwRoot)';
 </script>
 @{
-    var supportRtl = workContextAccessor.WorkContext.WorkingLanguage.Rtl &&
-                     !languageSettings.IgnoreRtlPropertyForAdminArea;
+    var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl && !languageSettings.IgnoreRtlPropertyForAdminArea;
     var kendoVersion = "2021.3.914";
 
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/bootstrap/css/daterangepicker.min.css"/>

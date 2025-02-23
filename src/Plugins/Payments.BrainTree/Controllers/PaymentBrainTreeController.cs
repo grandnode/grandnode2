@@ -19,18 +19,18 @@ public class PaymentBrainTreeController : BasePaymentController
     private readonly IOrderCalculationService _orderTotalCalculationService;
     private readonly IShoppingCartService _shoppingCartService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public PaymentBrainTreeController(BrainTreePaymentSettings brainTreePaymentSettings,
         IOrderCalculationService orderTotalCalculationService,
         IShoppingCartService shoppingCartService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ITranslationService translationService)
     {
         _brainTreePaymentSettings = brainTreePaymentSettings;
         _orderTotalCalculationService = orderTotalCalculationService;
         _shoppingCartService = shoppingCartService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _translationService = translationService;
     }
 
@@ -40,7 +40,7 @@ public class PaymentBrainTreeController : BasePaymentController
 
         if (_brainTreePaymentSettings.Use3DS)
         {
-            var cart = await _shoppingCartService.GetShoppingCart(_workContextAccessor.WorkContext.CurrentStore.Id,
+            var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
                 ShoppingCartType.ShoppingCart);
 
             if (!cart.Any())

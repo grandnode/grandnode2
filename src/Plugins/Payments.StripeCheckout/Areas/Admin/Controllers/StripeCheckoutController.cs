@@ -1,13 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Permissions;
-using Grand.Domain.Common;
-using Grand.Domain.Customers;
-using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.StripeCheckout.Models;
@@ -21,35 +18,19 @@ public class StripeCheckoutController : BasePaymentController
 {
     private readonly IPermissionService _permissionService;
     private readonly ISettingService _settingService;
-    private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IAdminStoreService _adminStoreService;
 
-    public StripeCheckoutController(IWorkContextAccessor workContextAccessor,
-        IStoreService storeService,
+    public StripeCheckoutController(
         ISettingService settingService,
         ITranslationService translationService,
-        IPermissionService permissionService)
+        IPermissionService permissionService,
+        IAdminStoreService adminStoreService)
     {
-        _workContextAccessor = workContextAccessor;
-        _storeService = storeService;
+        _adminStoreService = adminStoreService;
         _settingService = settingService;
         _translationService = translationService;
         _permissionService = permissionService;
-    }
-
-    private async Task<string> GetActiveStore()
-    {
-        var stores = await _storeService.GetAllStores();
-        if (stores.Count < 2)
-            return stores.FirstOrDefault()?.Id;
-
-        var storeId =
-            _workContextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames
-                .AdminAreaStoreScopeConfiguration);
-        var store = await _storeService.GetStoreById(storeId);
-
-        return store != null ? store.Id : "";
     }
 
     public async Task<IActionResult> Configure()
@@ -58,7 +39,7 @@ public class StripeCheckoutController : BasePaymentController
             return AccessDeniedView();
 
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore();
+        var storeScope = await _adminStoreService.GetActiveStore();
         var stripeCheckoutPaymentSettings = await _settingService.LoadSetting<StripeCheckoutPaymentSettings>(storeScope);
 
         var model = new ConfigurationModel {
@@ -83,7 +64,7 @@ public class StripeCheckoutController : BasePaymentController
             return await Configure();
 
         //load settings for a chosen store scope
-        var storeScope = await GetActiveStore();
+        var storeScope = await _adminStoreService.GetActiveStore();
         var stripeCheckoutPaymentSettings = await _settingService.LoadSetting<StripeCheckoutPaymentSettings>(storeScope);
 
         //save settings

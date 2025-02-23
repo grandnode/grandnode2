@@ -662,6 +662,7 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
 
     public class ProductPriceModel : BaseEntityModel
     {
+        public string ProductId { get; set; }
         public string CurrencyCode { get; set; }
 
         public double Price { get; set; }

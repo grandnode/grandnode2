@@ -16,13 +16,13 @@ public class VendorReviewsViewComponent : BaseViewComponent
     public VendorReviewsViewComponent(
         IVendorService vendorService,
         IGroupService groupService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IMediator mediator,
         VendorSettings vendorSettings)
     {
         _vendorService = vendorService;
         _groupService = groupService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _mediator = mediator;
         _vendorSettings = vendorSettings;
     }
@@ -40,7 +40,7 @@ public class VendorReviewsViewComponent : BaseViewComponent
         var model = await _mediator.Send(new GetVendorReviews { Vendor = vendor });
 
         //only registered users can leave reviews
-        if (await _groupService.IsGuest(_workContextAccessor.WorkContext.CurrentCustomer) &&
+        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) &&
             !_vendorSettings.AllowAnonymousUsersToReviewVendor)
             model.AddVendorReview.NotAllowAnonymousUsersToReviewVendor = true;
 
@@ -55,7 +55,7 @@ public class VendorReviewsViewComponent : BaseViewComponent
 
     private readonly IVendorService _vendorService;
     private readonly IGroupService _groupService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IMediator _mediator;
     private readonly VendorSettings _vendorSettings;
 

@@ -14,7 +14,7 @@ public class ChangePasswordValidator : BaseGrandValidator<ChangePasswordModel>
 {
     public ChangePasswordValidator(
         IEnumerable<IValidatorConsumer<ChangePasswordModel>> validators,
-        ICustomerService customerService, IWorkContextAccessor workContextAccessor, IGroupService groupService,
+        ICustomerService customerService, IContextAccessor contextAccessor, IGroupService groupService,
         IEncryptionService encryptionService, ICustomerHistoryPasswordService customerHistoryPasswordService,
         ICustomerManagerService customerManagerService,
         ITranslationService translationService, CustomerSettings customerSettings)
@@ -38,7 +38,7 @@ public class ChangePasswordValidator : BaseGrandValidator<ChangePasswordModel>
 
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            var customer = await customerService.GetCustomerById(workContextAccessor.WorkContext.CurrentCustomer.Id);
+            var customer = await customerService.GetCustomerById(contextAccessor.WorkContext.CurrentCustomer.Id);
 
             switch (customer)
             {

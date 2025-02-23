@@ -18,18 +18,18 @@ public class GetCompareProductsHandler : IRequestHandler<GetCompareProducts, Com
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMediator _mediator;
     private readonly IProductService _productService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public GetCompareProductsHandler(
         IProductService productService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IAclService aclService,
         IMediator mediator,
         IHttpContextAccessor httpContextAccessor,
         CatalogSettings catalogSettings)
     {
         _productService = productService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _aclService = aclService;
         _mediator = mediator;
         _httpContextAccessor = httpContextAccessor;
@@ -54,8 +54,8 @@ public class GetCompareProductsHandler : IRequestHandler<GetCompareProducts, Com
 
         //ACL and store acl
         products = products.Where(p =>
-            _aclService.Authorize(p, _workContextAccessor.WorkContext.CurrentCustomer) &&
-            _aclService.Authorize(p, _workContextAccessor.WorkContext.CurrentStore.Id)).ToList();
+            _aclService.Authorize(p, _contextAccessor.WorkContext.CurrentCustomer) &&
+            _aclService.Authorize(p, _contextAccessor.StoreContext.CurrentStore.Id)).ToList();
         //availability dates
         products = products.Where(p => p.IsAvailable()).ToList();
 

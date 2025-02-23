@@ -1,6 +1,8 @@
 ﻿namespace Grand.Infrastructure;
 
-public interface IWorkContextAccessor
+public interface IContextAccessor
 {
     IWorkContext WorkContext { get; set; }
+
+    IStoreContext StoreContext { get; set; }
 }

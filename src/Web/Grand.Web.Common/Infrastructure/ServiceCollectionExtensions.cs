@@ -9,6 +9,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.View;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -120,7 +121,7 @@ public static class ServiceCollectionExtensions
         else
         {
             var securityConfig = new SecurityConfig();
-            configuration.GetSection("Security").Bind(securityConfig);            
+            configuration.GetSection("Security").Bind(securityConfig);
             var keyPersistenceLocation = string.IsNullOrEmpty(securityConfig.KeyPersistenceLocation)
                 ? "/App_Data/DataProtectionKeys" : securityConfig.KeyPersistenceLocation;
             var dataProtectionKeysFolder = new DirectoryInfo(keyPersistenceLocation);
@@ -253,9 +254,9 @@ public static class ServiceCollectionExtensions
                 var type = item.GetType();
                 var storeId = "";
                 var settingService = x.GetRequiredService<ISettingService>();
-                var store = x.GetRequiredService<IWorkContextAccessor>().WorkContext?.CurrentStore;
-                if (store != null)
-                    storeId = store.Id;
+                var contextAccessor = x.GetRequiredService<IContextAccessor>();
+                if (contextAccessor.StoreContext != null)
+                    storeId = contextAccessor.StoreContext.CurrentStore.Id;
 
                 return settingService.LoadSetting(type, storeId);
             });

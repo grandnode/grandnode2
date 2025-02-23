@@ -32,7 +32,7 @@ public class PriceFormatterTests
 
     private TaxSettings _taxSettings;
     private ITranslationService _translationService;
-    private Mock<IWorkContextAccessor> tempWorkContext;
+    private Mock<IContextAccessor> tempWorkContext;
 
     [TestInitialize]
     public void TestInitialize()
@@ -44,7 +44,7 @@ public class PriceFormatterTests
         _eventPublisher = eventPublisher.Object;
 
         var cacheManager = new Mock<ICacheBase>();
-        tempWorkContext = new Mock<IWorkContextAccessor>();
+        tempWorkContext = new Mock<IContextAccessor>();
 
         _currencySettings = new CurrencySettings();
         var currency01 = new Currency {

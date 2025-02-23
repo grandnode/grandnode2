@@ -31,7 +31,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         IGroupService groupService,
         IMediator mediator,
         IRepository<ExternalAuthentication> externalAuthenticationRecordRepository,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IEnumerable<IExternalAuthenticationProvider> externalAuthenticationProviders,
         CustomerSettings customerSettings,
         ExternalAuthenticationSettings externalAuthenticationSettings)
@@ -44,7 +44,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         _groupService = groupService;
         _mediator = mediator;
         _externalAuthenticationRecordRepository = externalAuthenticationRecordRepository;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _externalAuthenticationProviders = externalAuthenticationProviders;
     }
 
@@ -58,7 +58,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     private readonly IGroupService _groupService;
     private readonly IMediator _mediator;
     private readonly IRepository<ExternalAuthentication> _externalAuthenticationRecordRepository;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IEnumerable<IExternalAuthenticationProvider> _externalAuthenticationProviders;
     private readonly CustomerSettings _customerSettings;
     private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
@@ -130,24 +130,24 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
                 or UserRegistrationType.EmailValidation;
 
         //create registration request
-        var registrationRequest = new RegistrationRequest(_workContextAccessor.WorkContext.CurrentCustomer,
+        var registrationRequest = new RegistrationRequest(_contextAccessor.WorkContext.CurrentCustomer,
             parameters.Email, parameters.Email,
             CommonHelper.GenerateRandomDigitCode(20),
             PasswordFormat.Hashed,
-            _workContextAccessor.WorkContext.CurrentStore.Id,
+            _contextAccessor.StoreContext.CurrentStore.Id,
             approved);
 
         //whether registration request has been completed successfully
         await _customerManagerService.RegisterCustomer(registrationRequest);
 
         //allow to save other customer values by consuming this event
-        await _mediator.Publish(new RegisteredByExternalMethod(_workContextAccessor.WorkContext.CurrentCustomer, parameters));
+        await _mediator.Publish(new RegisteredByExternalMethod(_contextAccessor.WorkContext.CurrentCustomer, parameters));
 
         //raise customer registered event
-        await _mediator.Publish(new CustomerRegisteredEvent(_workContextAccessor.WorkContext.CurrentCustomer));
+        await _mediator.Publish(new CustomerRegisteredEvent(_contextAccessor.WorkContext.CurrentCustomer));
 
         //associate external account with registered user
-        await AssociateCustomer(_workContextAccessor.WorkContext.CurrentCustomer, parameters);
+        await AssociateCustomer(_contextAccessor.WorkContext.CurrentCustomer, parameters);
 
         //authenticate
         if (!approved)
@@ -155,7 +155,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
                 ? new RedirectToRouteResult("RegisterResult",
                     new { resultId = (int)UserRegistrationType.AdminApproval })
                 : Error(["Error on registration"]);
-        await _authenticationService.SignIn(_workContextAccessor.WorkContext.CurrentCustomer, false);
+        await _authenticationService.SignIn(_contextAccessor.WorkContext.CurrentCustomer, false);
 
         return new RedirectToRouteResult("RegisterResult", new { resultId = (int)UserRegistrationType.Standard });
     }
@@ -206,8 +206,8 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         return LoadAllAuthenticationProviders()
             .Where(provider =>
                 provider.IsMethodActive(_externalAuthenticationSettings) &&
-                provider.IsAuthenticateGroup(_workContextAccessor.WorkContext.CurrentCustomer) &&
-                provider.IsAuthenticateStore(_workContextAccessor.WorkContext.CurrentStore)
+                provider.IsAuthenticateGroup(_contextAccessor.WorkContext.CurrentCustomer) &&
+                provider.IsAuthenticateStore(_contextAccessor.StoreContext.CurrentStore)
             ).ToList();
     }
 
@@ -242,8 +242,8 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
 
         return authenticationMethod != null &&
                authenticationMethod.IsMethodActive(_externalAuthenticationSettings) &&
-               authenticationMethod.IsAuthenticateGroup(_workContextAccessor.WorkContext.CurrentCustomer) &&
-               authenticationMethod.IsAuthenticateStore(_workContextAccessor.WorkContext.CurrentStore);
+               authenticationMethod.IsAuthenticateGroup(_contextAccessor.WorkContext.CurrentCustomer) &&
+               authenticationMethod.IsAuthenticateStore(_contextAccessor.StoreContext.CurrentStore);
     }
 
     #endregion
@@ -264,8 +264,8 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
             return Error(["External authentication method cannot be loaded"]);
 
         //get current logged-in user
-        var currentLoggedInUser = await _groupService.IsRegistered(_workContextAccessor.WorkContext.CurrentCustomer)
-            ? _workContextAccessor.WorkContext.CurrentCustomer
+        var currentLoggedInUser = await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer)
+            ? _contextAccessor.WorkContext.CurrentCustomer
             : null;
 
         //authenticate associated user if already exists

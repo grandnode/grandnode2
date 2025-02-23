@@ -18,10 +18,10 @@ public class VendorReviewViewModelService : IVendorReviewViewModelService
     private readonly IMediator _mediator;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public VendorReviewViewModelService(
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IVendorService vendorService,
         ICustomerService customerService,
         ITranslationService translationService,
@@ -33,7 +33,7 @@ public class VendorReviewViewModelService : IVendorReviewViewModelService
         _translationService = translationService;
         _dateTimeService = dateTimeService;
         _mediator = mediator;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
     }
 
     public virtual async Task PrepareVendorReviewModel(VendorReviewModel model,
@@ -75,7 +75,7 @@ public class VendorReviewViewModelService : IVendorReviewViewModelService
             : _dateTimeService.ConvertToUtcTime(model.CreatedOnTo.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
         var vendorReviews = await _vendorService.GetAllVendorReviews("", null,
-            createdOnFromValue, createdToFromValue, model.SearchText, _workContextAccessor.WorkContext.CurrentVendor.Id, pageIndex - 1,
+            createdOnFromValue, createdToFromValue, model.SearchText, _contextAccessor.WorkContext.CurrentVendor.Id, pageIndex - 1,
             pageSize);
         var items = new List<VendorReviewModel>();
         foreach (var x in vendorReviews)
@@ -115,12 +115,12 @@ public class VendorReviewViewModelService : IVendorReviewViewModelService
         foreach (var id in selectedIds)
         {
             var vendorReview = await _vendorService.GetVendorReviewById(id);
-            if (vendorReview == null || vendorReview.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id) continue;
+            if (vendorReview == null || vendorReview.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id) continue;
 
             var previousIsApproved = vendorReview.IsApproved;
             vendorReview.IsApproved = true;
             await _vendorService.UpdateVendorReview(vendorReview);
-            await _vendorService.UpdateVendorReviewTotals(_workContextAccessor.WorkContext.CurrentVendor);
+            await _vendorService.UpdateVendorReviewTotals(_contextAccessor.WorkContext.CurrentVendor);
 
             //raise event (only if it wasn't approved before)
             if (!previousIsApproved)
@@ -133,11 +133,11 @@ public class VendorReviewViewModelService : IVendorReviewViewModelService
         foreach (var id in selectedIds)
         {
             var vendorReview = await _vendorService.GetVendorReviewById(id);
-            if (vendorReview == null || vendorReview.VendorId != _workContextAccessor.WorkContext.CurrentVendor.Id) continue;
+            if (vendorReview == null || vendorReview.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id) continue;
 
             vendorReview.IsApproved = false;
             await _vendorService.UpdateVendorReview(vendorReview);
-            await _vendorService.UpdateVendorReviewTotals(_workContextAccessor.WorkContext.CurrentVendor);
+            await _vendorService.UpdateVendorReviewTotals(_contextAccessor.WorkContext.CurrentVendor);
         }
     }
 }

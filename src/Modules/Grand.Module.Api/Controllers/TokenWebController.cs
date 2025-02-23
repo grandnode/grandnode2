@@ -27,19 +27,19 @@ public class TokenWebController : ControllerBase
     private readonly ICustomerService _customerService;
     private readonly IMediator _mediator;
     private readonly IRefreshTokenService _refreshTokenService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public TokenWebController(
         ICustomerService customerService,
         IMediator mediator,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IRefreshTokenService refreshTokenService,
         IAntiforgery antiforgery,
         FrontendAPIConfig apiConfig)
     {
         _customerService = customerService;
         _mediator = mediator;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _refreshTokenService = refreshTokenService;
         _antiforgery = antiforgery;
         _apiConfig = apiConfig;
@@ -56,7 +56,7 @@ public class TokenWebController : ControllerBase
         var customer = new Customer {
             CustomerGuid = Guid.NewGuid(),
             Active = true,
-            StoreId = _workContextAccessor.WorkContext.CurrentStore.Id,
+            StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
             LastActivityDateUtc = DateTime.UtcNow
         };
 

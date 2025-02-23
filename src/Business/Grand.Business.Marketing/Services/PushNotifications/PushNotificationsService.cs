@@ -80,7 +80,7 @@ public class PushNotificationsService : IPushNotificationsService
     /// <summary>
     ///     Gets all push receivers
     /// </summary>
-    public virtual async Task<List<PushRegistration>> GetPushReceivers()
+    public virtual async Task<List<PushRegistration>> GetAllowedPushReceivers()
     {
         return await Task.FromResult(_pushRegistrationRepository.Table.Where(x => x.Allowed).ToList());
     }
@@ -150,7 +150,7 @@ public class PushNotificationsService : IPushNotificationsService
         }
         else
         {
-            var receivers = await GetPushReceivers();
+            var receivers = await GetAllowedPushReceivers();
             if (!receivers.Any()) return (false, "Admin.PushNotifications.Error.NoReceivers");
 
             const int batchSize = 1000;

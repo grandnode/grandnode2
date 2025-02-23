@@ -33,7 +33,7 @@ public class CollectionViewModelService : ICollectionViewModelService
     private readonly ITranslationService _translationService;
     private readonly IDiscountService _discountService;
     private readonly IVendorService _vendorService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly ISeNameService _seNameService;
     private readonly IEnumTranslationService _enumTranslationService;
     
@@ -51,7 +51,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         ITranslationService translationService,
         IDiscountService discountService,
         IVendorService vendorService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ISeNameService seNameService, 
         IEnumTranslationService enumTranslationService)
     {
@@ -64,7 +64,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         _translationService = translationService;
         _discountService = discountService;
         _vendorService = vendorService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _seNameService = seNameService;
         _enumTranslationService = enumTranslationService;
     }
@@ -97,7 +97,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         ArgumentNullException.ThrowIfNull(model);
 
         model.AvailableDiscounts = (await _discountService
-                .GetDiscountsQuery(DiscountType.AssignedToCollections, _workContextAccessor.WorkContext.CurrentCustomer.Id))
+                .GetDiscountsQuery(DiscountType.AssignedToCollections, _contextAccessor.WorkContext.CurrentCustomer.Id))
             .Select(d => d.ToModel())
             .ToList();
 

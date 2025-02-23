@@ -1,10 +1,10 @@
 ﻿@model CustomerProductReviewsModel
 @inject IPageHeadBuilder pagebuilder
-@inject IWorkContextAccessor workContextAccessor
+@inject IContextAccessor contextAccessor
 @{
     Layout = "_TwoColumns";
 
-    var supportRtl = workContextAccessor.WorkContext.WorkingLanguage.Rtl;
+    var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl;
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.Account"]);

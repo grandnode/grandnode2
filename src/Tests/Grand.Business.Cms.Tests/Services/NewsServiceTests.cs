@@ -19,7 +19,7 @@ public class NewsServiceTests
     private NewsService _newsService;
 
     private IRepository<NewsItem> _repository;
-    private Mock<IWorkContextAccessor> _workContextMock;
+    private Mock<IContextAccessor> _workContextMock;
 
     [TestInitialize]
     public void Init()
@@ -27,9 +27,9 @@ public class NewsServiceTests
         _repository = new MongoDBRepositoryTest<NewsItem>();
 
         _mediatorMock = new Mock<IMediator>();
-        _workContextMock = new Mock<IWorkContextAccessor>();
+        _workContextMock = new Mock<IContextAccessor>();
 
-        _workContextMock.Setup(c => c.WorkContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
+        _workContextMock.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "", Name = "test store" });
         _workContextMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(() => new Customer());
 
         _newsService = new NewsService(_repository, _mediatorMock.Object, _workContextMock.Object,

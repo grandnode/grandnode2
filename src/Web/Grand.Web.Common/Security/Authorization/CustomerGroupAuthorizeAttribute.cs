@@ -24,7 +24,7 @@ public class CustomerGroupAuthorizeAttribute : Attribute, IAsyncAuthorizationFil
             return;
 
         var groupService = context.HttpContext.RequestServices.GetRequiredService<IGroupService>();
-        var workContext = context.HttpContext.RequestServices.GetRequiredService<IWorkContextAccessor>().WorkContext;
+        var workContext = context.HttpContext.RequestServices.GetRequiredService<IContextAccessor>().WorkContext;
 
         if (await groupService.IsInCustomerGroup(workContext.CurrentCustomer, GroupName))
             return;

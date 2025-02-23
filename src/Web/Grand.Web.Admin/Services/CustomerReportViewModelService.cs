@@ -6,10 +6,8 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
-using Grand.Infrastructure;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Customers;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -24,16 +22,14 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
     private readonly IOrderStatusService _orderStatusService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
-    
-    public CustomerReportViewModelService(IWorkContextAccessor workContextAccessor,
+
+    public CustomerReportViewModelService(
         ICustomerService customerService,
         ITranslationService translationService, ICustomerReportService customerReportService,
         IDateTimeService dateTimeService, IPriceFormatter priceFormatter,
         IOrderStatusService orderStatusService, ICurrencyService currencyService, IEnumTranslationService enumTranslationService)
     {
-        _workContextAccessor = workContextAccessor;
         _customerService = customerService;
         _translationService = translationService;
         _customerReportService = customerReportService;

@@ -39,7 +39,7 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
     private readonly IPricingService _pricingService;
     private readonly ISearchTermService _searchTermService;
     private readonly ITaxService _taxService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public GetSearchAutoCompleteHandler(
         IPictureService pictureService,
@@ -52,7 +52,7 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
         ITaxService taxService,
         IPriceFormatter priceFormatter,
         IMediator mediator,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IPermissionService permissionService,
         CatalogSettings catalogSettings,
         MediaSettings mediaSettings,
@@ -66,7 +66,7 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
         _blogService = blogService;
         _pricingService = priceCalculationService;
         _taxService = taxService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _priceFormatter = priceFormatter;
         _mediator = mediator;
         _permissionService = permissionService;
@@ -111,10 +111,10 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
         var categories = new List<string>();
         var brands = new List<string>();
 
-        var storeurl = _workContextAccessor.WorkContext.CurrentHost.Url.TrimEnd('/');
+        var storeurl = _contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/');
 
         var displayPrices =
-            await _permissionService.Authorize(StandardPermission.DisplayPrices, _workContextAccessor.WorkContext.CurrentCustomer);
+            await _permissionService.Authorize(StandardPermission.DisplayPrices, _contextAccessor.WorkContext.CurrentCustomer);
 
         foreach (var item in products)
         {
@@ -163,7 +163,7 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
             if (brand is not { Published: true }) continue;
             var allow = true;
             if (!_accessControlConfig.IgnoreAcl)
-                if (!_aclService.Authorize(brand, _workContextAccessor.WorkContext.CurrentCustomer))
+                if (!_aclService.Authorize(brand, _contextAccessor.WorkContext.CurrentCustomer))
                     allow = false;
             if (!_accessControlConfig.IgnoreStoreLimitations)
                 if (!_aclService.Authorize(brand, storeId))
@@ -188,7 +188,7 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
             if (category is not { Published: true }) continue;
             var allow = true;
             if (!_accessControlConfig.IgnoreAcl)
-                if (!_aclService.Authorize(category, _workContextAccessor.WorkContext.CurrentCustomer))
+                if (!_aclService.Authorize(category, _contextAccessor.WorkContext.CurrentCustomer))
                     allow = false;
             if (!_accessControlConfig.IgnoreStoreLimitations)
                 if (!_aclService.Authorize(category, storeId))

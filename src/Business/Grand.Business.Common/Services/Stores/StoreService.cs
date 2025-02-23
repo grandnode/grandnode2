@@ -1,3 +1,5 @@
+#nullable enable
+
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Data;
 using Grand.Domain.Stores;
@@ -38,8 +40,6 @@ public class StoreService : IStoreService
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
 
-    private List<Store> _allStores;
-
     #endregion
 
     #region Methods
@@ -50,7 +50,7 @@ public class StoreService : IStoreService
     /// <returns>Stores</returns>
     public virtual async Task<IList<Store>> GetAllStores()
     {
-        return _allStores ??= await _cacheBase.GetAsync(CacheKey.STORES_ALL_KEY, async () =>
+        return await _cacheBase.GetAsync(CacheKey.STORES_ALL_KEY, async () =>
         {
             return await Task.FromResult(_storeRepository.Table.OrderBy(x => x.DisplayOrder).ToList());
         });
@@ -120,6 +120,16 @@ public class StoreService : IStoreService
 
         //event notification
         await _mediator.EntityDeleted(store);
+    }
+    /// <summary>
+    /// Get store by host
+    /// </summary>
+    /// <param name="host"></param>
+    /// <returns></returns>
+    public async Task<Store?> GetStoreByHost(string host)
+    {
+        var allStores = await GetAllStores();
+        return allStores.FirstOrDefault(s => s.ContainsHostValue(host));
     }
 
     #endregion

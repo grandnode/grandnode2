@@ -26,8 +26,5 @@ public class CancelOrderScheduledTask : IScheduleTask
         await _orderService.CancelExpiredOrders(startCancelDate);
     }
 
-    private DateTime CalculateStartCancelDate(int daysToCancelUnpaidOrder)
-    {
-        return DateTime.UtcNow.Date.AddDays(-daysToCancelUnpaidOrder);
-    }
+    private static DateTime CalculateStartCancelDate(int daysToCancelUnpaidOrder) => DateTime.UtcNow.Date.AddDays(-daysToCancelUnpaidOrder);
 }

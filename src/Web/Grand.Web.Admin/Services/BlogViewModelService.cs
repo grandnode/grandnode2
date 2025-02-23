@@ -31,7 +31,7 @@ public class BlogViewModelService : IBlogViewModelService
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
     private readonly IVendorService _vendorService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly ISeNameService _seNameService;
     private readonly IEnumTranslationService _enumTranslationService;
     
@@ -44,7 +44,7 @@ public class BlogViewModelService : IBlogViewModelService
         ITranslationService translationService,
         IProductService productService,
         IVendorService vendorService, 
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ISeNameService seNameService, 
         IEnumTranslationService enumTranslationService)
     {
@@ -56,7 +56,7 @@ public class BlogViewModelService : IBlogViewModelService
         _translationService = translationService;
         _productService = productService;
         _vendorService = vendorService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _seNameService = seNameService;
         _enumTranslationService = enumTranslationService;
     }
@@ -64,7 +64,7 @@ public class BlogViewModelService : IBlogViewModelService
     public virtual async Task<(IEnumerable<BlogPostModel> blogPosts, int totalCount)> PrepareBlogPostsModel(
         int pageIndex, int pageSize)
     {
-        var blogPosts = await _blogService.GetAllBlogPosts(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId, null, null,
+        var blogPosts = await _blogService.GetAllBlogPosts(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, null, null,
             pageIndex - 1, pageSize, true);
         return (blogPosts.Select(x =>
         {
@@ -127,9 +127,9 @@ public class BlogViewModelService : IBlogViewModelService
         PrepareBlogPostCommentsModel(string filterByBlogPostId, int pageIndex, int pageSize)
     {
         IList<BlogComment> comments;
-        var storeId = string.IsNullOrEmpty(_workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
+        var storeId = string.IsNullOrEmpty(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             ? ""
-            : _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+            : _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         if (!string.IsNullOrEmpty(filterByBlogPostId))
         {
             //filter comments by blog
@@ -185,7 +185,7 @@ public class BlogViewModelService : IBlogViewModelService
         };
 
         //stores
-        var storeId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         model.AvailableStores.Add(new SelectListItem
             { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var s in (await _storeService.GetAllStores()).Where(x =>
@@ -209,7 +209,7 @@ public class BlogViewModelService : IBlogViewModelService
     public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(
         BlogProductModel.AddProductModel model, int pageIndex, int pageSize)
     {
-        model.SearchStoreId = _workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+        model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
             model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);

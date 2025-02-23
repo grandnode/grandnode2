@@ -37,12 +37,12 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
         #region Ctor
 
         public AuthorizeAdminFilter(bool ignoreFilter, IPermissionService permissionService,
-            SecuritySettings securitySettings, IWorkContextAccessor workContextAccessor, IGroupService groupService)
+            SecuritySettings securitySettings, IContextAccessor contextAccessor, IGroupService groupService)
         {
             _ignoreFilter = ignoreFilter;
             _permissionService = permissionService;
             _securitySettings = securitySettings;
-            _workContextAccessor = workContextAccessor;
+            _contextAccessor = contextAccessor;
             _groupService = groupService;
         }
 
@@ -78,8 +78,8 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
                     filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
 
                 //whether current customer is vendor
-                if (await _groupService.IsVendor(_workContextAccessor.WorkContext.CurrentCustomer) ||
-                    _workContextAccessor.WorkContext.CurrentVendor is not null)
+                if (await _groupService.IsVendor(_contextAccessor.WorkContext.CurrentCustomer) ||
+                    _contextAccessor.WorkContext.CurrentVendor is not null)
                     filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
 
                 //get allowed IP addresses
@@ -102,7 +102,7 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
 
         private readonly bool _ignoreFilter;
         private readonly IPermissionService _permissionService;
-        private readonly IWorkContextAccessor _workContextAccessor;
+        private readonly IContextAccessor _contextAccessor;
         private readonly IGroupService _groupService;
 
         private readonly SecuritySettings _securitySettings;

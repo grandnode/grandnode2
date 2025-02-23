@@ -12,23 +12,23 @@ public class GetStatesProvinceHandler : IRequestHandler<GetStatesProvince, IList
 {
     private readonly ICountryService _countryService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
-    public GetStatesProvinceHandler(ICountryService countryService, IWorkContextAccessor workContextAccessor,
+    public GetStatesProvinceHandler(ICountryService countryService, IContextAccessor contextAccessor,
         ITranslationService translationService)
     {
         _countryService = countryService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _translationService = translationService;
     }
 
     public async Task<IList<StateProvinceModel>> Handle(GetStatesProvince request, CancellationToken cancellationToken)
     {
         var states =
-            await _countryService.GetStateProvincesByCountryId(request.CountryId, _workContextAccessor.WorkContext.WorkingLanguage.Id);
+            await _countryService.GetStateProvincesByCountryId(request.CountryId, _contextAccessor.WorkContext.WorkingLanguage.Id);
         var model = (from s in states
             select new StateProvinceModel
-                { id = s.Id, name = s.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id) }).ToList();
+                { id = s.Id, name = s.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id) }).ToList();
         if (request.AddSelectStateItem)
             model.Insert(0,
                 new StateProvinceModel { id = "", name = _translationService.GetResource("Address.SelectState") });

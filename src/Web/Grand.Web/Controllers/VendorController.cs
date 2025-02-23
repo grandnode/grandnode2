@@ -30,7 +30,7 @@ public class VendorController : BasePublicController
     #region Constructors
 
     public VendorController(
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ITranslationService translationService,
         ICustomerService customerService,
         IMessageProviderService messageProviderService,
@@ -44,7 +44,7 @@ public class VendorController : BasePublicController
         CaptchaSettings captchaSettings,
         CommonSettings commonSettings)
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _translationService = translationService;
         _customerService = customerService;
         _messageProviderService = messageProviderService;
@@ -74,7 +74,7 @@ public class VendorController : BasePublicController
 
     #region Fields
 
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
     private readonly ITranslationService _translationService;
     private readonly ICustomerService _customerService;
     private readonly IMessageProviderService _messageProviderService;
@@ -100,7 +100,7 @@ public class VendorController : BasePublicController
             return RedirectToRoute("HomePage");
 
         var model = new ApplyVendorModel();
-        if (!string.IsNullOrEmpty(_workContextAccessor.WorkContext.CurrentCustomer.VendorId))
+        if (!string.IsNullOrEmpty(_contextAccessor.WorkContext.CurrentCustomer.VendorId))
         {
             //already applied for vendor account
             model.DisableFormInput = true;
@@ -109,17 +109,17 @@ public class VendorController : BasePublicController
         }
 
         model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnApplyVendorPage;
-        model.Email = _workContextAccessor.WorkContext.CurrentCustomer.Email;
+        model.Email = _contextAccessor.WorkContext.CurrentCustomer.Email;
         model.TermsOfServiceEnabled = _vendorSettings.TermsOfServiceEnabled;
         model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
         var countries =
-            await _countryService.GetAllCountries(_workContextAccessor.WorkContext.WorkingLanguage.Id, _workContextAccessor.WorkContext.CurrentStore.Id);
+            await _countryService.GetAllCountries(_contextAccessor.WorkContext.WorkingLanguage.Id, _contextAccessor.StoreContext.CurrentStore.Id);
         model.Address = await _mediator.Send(new GetVendorAddress {
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
             Address = null,
             ExcludeProperties = false,
             PrePopulateWithCustomerFields = true,
-            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
             LoadCountries = () => countries
         });
 
@@ -163,13 +163,13 @@ public class VendorController : BasePublicController
             //associate to the current customer
             //but a store owner will have to manually activate this vendor
             //if he wants to grant access to admin area
-            _workContextAccessor.WorkContext.CurrentCustomer.VendorId = vendor.Id;
-            await _customerService.UpdateCustomerField(_workContextAccessor.WorkContext.CurrentCustomer.Id, x => x.VendorId,
-                _workContextAccessor.WorkContext.CurrentCustomer.VendorId);
+            _contextAccessor.WorkContext.CurrentCustomer.VendorId = vendor.Id;
+            await _customerService.UpdateCustomerField(_contextAccessor.WorkContext.CurrentCustomer.Id, x => x.VendorId,
+                _contextAccessor.WorkContext.CurrentCustomer.VendorId);
 
             //notify store owner here (email)
-            await _messageProviderService.SendNewVendorAccountApplyStoreOwnerMessage(_workContextAccessor.WorkContext.CurrentCustomer,
-                vendor, _workContextAccessor.WorkContext.CurrentStore, _languageSettings.DefaultAdminLanguageId);
+            await _messageProviderService.SendNewVendorAccountApplyStoreOwnerMessage(_contextAccessor.WorkContext.CurrentCustomer,
+                vendor, _contextAccessor.StoreContext.CurrentStore, _languageSettings.DefaultAdminLanguageId);
 
             model.DisableFormInput = true;
             model.Result = _translationService.GetResource("Vendors.ApplyAccount.Submitted");
@@ -181,14 +181,14 @@ public class VendorController : BasePublicController
         model.TermsOfServiceEnabled = _vendorSettings.TermsOfServiceEnabled;
         model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
         var countries =
-            await _countryService.GetAllCountries(_workContextAccessor.WorkContext.WorkingLanguage.Id, _workContextAccessor.WorkContext.CurrentStore.Id);
+            await _countryService.GetAllCountries(_contextAccessor.WorkContext.WorkingLanguage.Id, _contextAccessor.StoreContext.CurrentStore.Id);
         model.Address = await _mediator.Send(new GetVendorAddress {
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
             Address = null,
             Model = model.Address,
             ExcludeProperties = false,
             PrePopulateWithCustomerFields = true,
-            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
             LoadCountries = () => countries
         });
         return View(model);
@@ -211,7 +211,7 @@ public class VendorController : BasePublicController
             model = await _mediator.Send(new ContactVendorSendCommand {
                 Model = model,
                 Vendor = vendor,
-                Store = _workContextAccessor.WorkContext.CurrentStore,
+                Store = _contextAccessor.StoreContext.CurrentStore,
                 IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
             });
             return Json(model);

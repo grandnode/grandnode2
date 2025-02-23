@@ -14,16 +14,16 @@ public class WidgetsFacebookPixelViewComponent : ViewComponent
     private readonly ICookiePreference _cookiePreference;
     private readonly FacebookPixelSettings _facebookPixelSettings;
     private readonly IOrderService _orderService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public WidgetsFacebookPixelViewComponent(
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IOrderService orderService,
         ICookiePreference cookiePreference,
         FacebookPixelSettings facebookPixelSettings
     )
     {
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _orderService = orderService;
         _cookiePreference = cookiePreference;
         _facebookPixelSettings = facebookPixelSettings;
@@ -33,7 +33,7 @@ public class WidgetsFacebookPixelViewComponent : ViewComponent
     {
         if (_facebookPixelSettings.AllowToDisableConsentCookie)
         {
-            var enabled = await _cookiePreference.IsEnable(_workContextAccessor.WorkContext.CurrentCustomer, _workContextAccessor.WorkContext.CurrentStore,
+            var enabled = await _cookiePreference.IsEnable(_contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore,
                 FacebookPixelDefaults.ConsentCookieSystemName);
             if ((enabled.HasValue && !enabled.Value) ||
                 (!enabled.HasValue && !_facebookPixelSettings.ConsentDefaultState))
@@ -75,7 +75,7 @@ public class WidgetsFacebookPixelViewComponent : ViewComponent
         trackingScript = trackingScript.Replace("{QTY}", model.Quantity.ToString("N0"));
         trackingScript =
             trackingScript.Replace("{AMOUNT}", model.DecimalPrice.ToString("F2", CultureInfo.InvariantCulture));
-        trackingScript = trackingScript.Replace("{CURRENCY}", _workContextAccessor.WorkContext.WorkingCurrency.CurrencyCode);
+        trackingScript = trackingScript.Replace("{CURRENCY}", _contextAccessor.WorkContext.WorkingCurrency.CurrencyCode);
         return trackingScript;
     }
 

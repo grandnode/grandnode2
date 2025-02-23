@@ -96,7 +96,15 @@
         </ul>
     </li>
 }
-@if (Model.DisplaySearchMenu | Model.DisplayNewProductsMenu | Model.DisplayCustomerMenu | Model.DisplayBlogMenu | Model.DisplayContactUsMenu)
+
+@functions {
+    private bool ShouldDisplayMenu()
+    {
+        return Model.DisplaySearchMenu || Model.DisplayNewProductsMenu || Model.DisplayCustomerMenu || Model.DisplayBlogMenu || Model.DisplayContactUsMenu;
+    }
+}
+
+@if (ShouldDisplayMenu())
 {
     @if (Model.NewProductsEnabled && Model.DisplayNewProductsMenu)
     {

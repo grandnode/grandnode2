@@ -36,12 +36,12 @@ public class KnowledgebaseController : BasePublicController
     private readonly IMessageProviderService _messageProviderService;
     private readonly IPermissionService _permissionService;
     private readonly ITranslationService _translationService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public KnowledgebaseController(
         KnowledgebaseSettings knowledgebaseSettings,
         IKnowledgebaseService knowledgebaseService,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         ICacheBase cacheBase,
         IAclService aclService,
         ITranslationService translationService,
@@ -54,7 +54,7 @@ public class KnowledgebaseController : BasePublicController
     {
         _knowledgebaseSettings = knowledgebaseSettings;
         _knowledgebaseService = knowledgebaseService;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _cacheBase = cacheBase;
         _aclService = aclService;
         _translationService = translationService;
@@ -90,38 +90,38 @@ public class KnowledgebaseController : BasePublicController
         var model = new KnowledgebaseHomePageModel();
         var articles = await _knowledgebaseService.GetPublicKnowledgebaseArticlesByCategory(categoryId);
         articles.ForEach(x => model.Items.Add(new KnowledgebaseItemModel {
-            Name = x.GetTranslation(y => y.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+            Name = x.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
             Id = x.Id,
-            SeName = x.GetTranslation(y => y.SeName, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+            SeName = x.GetTranslation(y => y.SeName, _contextAccessor.WorkContext.WorkingLanguage.Id),
             IsArticle = true
         }));
 
         //display "edit" (manage) link
-        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
         if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) &&
             await _permissionService.Authorize(StandardPermission.ManageKnowledgebase, customer))
             DisplayEditLink(Url.Action("EditCategory", "Knowledgebase", new { id = categoryId, area = "Admin" }));
 
         model.CurrentCategoryId = categoryId;
 
-        model.CurrentCategoryDescription = category.GetTranslation(y => y.Description, _workContextAccessor.WorkContext.WorkingLanguage.Id);
+        model.CurrentCategoryDescription = category.GetTranslation(y => y.Description, _contextAccessor.WorkContext.WorkingLanguage.Id);
         model.CurrentCategoryMetaDescription =
-            category.GetTranslation(y => y.MetaDescription, _workContextAccessor.WorkContext.WorkingLanguage.Id);
+            category.GetTranslation(y => y.MetaDescription, _contextAccessor.WorkContext.WorkingLanguage.Id);
         model.CurrentCategoryMetaKeywords =
-            category.GetTranslation(y => y.MetaKeywords, _workContextAccessor.WorkContext.WorkingLanguage.Id);
-        model.CurrentCategoryMetaTitle = category.GetTranslation(y => y.MetaTitle, _workContextAccessor.WorkContext.WorkingLanguage.Id);
-        model.CurrentCategoryName = category.GetTranslation(y => y.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id);
-        model.CurrentCategorySeName = category.GetTranslation(y => y.SeName, _workContextAccessor.WorkContext.WorkingLanguage.Id);
+            category.GetTranslation(y => y.MetaKeywords, _contextAccessor.WorkContext.WorkingLanguage.Id);
+        model.CurrentCategoryMetaTitle = category.GetTranslation(y => y.MetaTitle, _contextAccessor.WorkContext.WorkingLanguage.Id);
+        model.CurrentCategoryName = category.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id);
+        model.CurrentCategorySeName = category.GetTranslation(y => y.SeName, _contextAccessor.WorkContext.WorkingLanguage.Id);
 
         var breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY, category.Id,
-            string.Join(",", _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()), _workContextAccessor.WorkContext.CurrentStore.Id,
-            _workContextAccessor.WorkContext.WorkingLanguage.Id);
+            string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()), _contextAccessor.StoreContext.CurrentStore.Id,
+            _contextAccessor.WorkContext.WorkingLanguage.Id);
         model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
             (await GetCategoryBreadCrumb(category))
             .Select(catBr => new KnowledgebaseCategoryModel {
                 Id = catBr.Id,
-                Name = catBr.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
-                SeName = catBr.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id)
+                Name = catBr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
+                SeName = catBr.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id)
             })
             .ToList()
         );
@@ -142,9 +142,9 @@ public class KnowledgebaseController : BasePublicController
             var categories = await _knowledgebaseService.GetPublicKnowledgebaseCategoriesByKeyword(keyword);
             var allCategories = await _knowledgebaseService.GetPublicKnowledgebaseCategories();
             categories.ForEach(x => model.Items.Add(new KnowledgebaseItemModel {
-                Name = x.GetTranslation(y => y.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                Name = x.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
                 Id = x.Id,
-                SeName = x.GetTranslation(y => y.SeName, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                SeName = x.GetTranslation(y => y.SeName, _contextAccessor.WorkContext.WorkingLanguage.Id),
                 IsArticle = false,
                 FormattedBreadcrumbs = x.GetFormattedBreadCrumb(allCategories, ">")
             }));
@@ -153,14 +153,14 @@ public class KnowledgebaseController : BasePublicController
             foreach (var item in articles)
             {
                 var kbm = new KnowledgebaseItemModel {
-                    Name = item.GetTranslation(y => y.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                    Name = item.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
                     Id = item.Id,
-                    SeName = item.GetTranslation(y => y.SeName, _workContextAccessor.WorkContext.WorkingLanguage.Id),
+                    SeName = item.GetTranslation(y => y.SeName, _contextAccessor.WorkContext.WorkingLanguage.Id),
                     IsArticle = true,
                     FormattedBreadcrumbs =
                         (await _knowledgebaseService.GetPublicKnowledgebaseCategory(item.ParentCategoryId))
                         ?.GetFormattedBreadCrumb(allCategories, ">") +
-                        " > " + item.GetTranslation(y => y.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id)
+                        " > " + item.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
                 };
                 model.Items.Add(kbm);
             }
@@ -179,7 +179,7 @@ public class KnowledgebaseController : BasePublicController
         if (!_knowledgebaseSettings.Enabled)
             return RedirectToRoute("HomePage");
 
-        var customer = _workContextAccessor.WorkContext.CurrentCustomer;
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var article = await _knowledgebaseService.GetKnowledgebaseArticle(articleId);
         if (article == null)
             return RedirectToAction("List");
@@ -189,7 +189,7 @@ public class KnowledgebaseController : BasePublicController
             return InvokeHttp404();
 
         //Store acl
-        if (!_aclService.Authorize(article, _workContextAccessor.WorkContext.CurrentStore.Id))
+        if (!_aclService.Authorize(article, _contextAccessor.StoreContext.CurrentStore.Id))
             return InvokeHttp404();
 
         //display "edit" (manage) link
@@ -206,17 +206,17 @@ public class KnowledgebaseController : BasePublicController
     private async Task PrepareKnowledgebaseArticleModel(KnowledgebaseArticleModel model, KnowledgebaseArticle article,
         ICustomerService customerService)
     {
-        model.Content = article.GetTranslation(y => y.Content, _workContextAccessor.WorkContext.WorkingLanguage.Id);
-        model.Name = article.GetTranslation(y => y.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id);
+        model.Content = article.GetTranslation(y => y.Content, _contextAccessor.WorkContext.WorkingLanguage.Id);
+        model.Name = article.GetTranslation(y => y.Name, _contextAccessor.WorkContext.WorkingLanguage.Id);
         model.Id = article.Id;
         model.ParentCategoryId = article.ParentCategoryId;
-        model.SeName = article.GetTranslation(y => y.SeName, _workContextAccessor.WorkContext.WorkingLanguage.Id);
+        model.SeName = article.GetTranslation(y => y.SeName, _contextAccessor.WorkContext.WorkingLanguage.Id);
         model.AllowComments = article.AllowComments;
         model.AddNewComment.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnArticleCommentPage;
 
-        model.MetaTitle = article.GetTranslation(y => y.MetaTitle, _workContextAccessor.WorkContext.WorkingLanguage.Id);
-        model.MetaDescription = article.GetTranslation(y => y.MetaDescription, _workContextAccessor.WorkContext.WorkingLanguage.Id);
-        model.MetaKeywords = article.GetTranslation(y => y.MetaKeywords, _workContextAccessor.WorkContext.WorkingLanguage.Id);
+        model.MetaTitle = article.GetTranslation(y => y.MetaTitle, _contextAccessor.WorkContext.WorkingLanguage.Id);
+        model.MetaDescription = article.GetTranslation(y => y.MetaDescription, _contextAccessor.WorkContext.WorkingLanguage.Id);
+        model.MetaKeywords = article.GetTranslation(y => y.MetaKeywords, _contextAccessor.WorkContext.WorkingLanguage.Id);
 
         var articleComments = await _knowledgebaseService.GetArticleCommentsByArticleId(article.Id);
         foreach (var ac in articleComments)
@@ -248,15 +248,15 @@ public class KnowledgebaseController : BasePublicController
         {
             var breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY,
                 article.ParentCategoryId,
-                string.Join(",", _workContextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
-                _workContextAccessor.WorkContext.CurrentStore.Id,
-                _workContextAccessor.WorkContext.WorkingLanguage.Id);
+                string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+                _contextAccessor.StoreContext.CurrentStore.Id,
+                _contextAccessor.WorkContext.WorkingLanguage.Id);
             model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
                 (await GetCategoryBreadCrumb(category))
                 .Select(catBr => new KnowledgebaseCategoryModel {
                     Id = catBr.Id,
-                    Name = catBr.GetTranslation(x => x.Name, _workContextAccessor.WorkContext.WorkingLanguage.Id),
-                    SeName = catBr.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id)
+                    Name = catBr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
+                    SeName = catBr.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id)
                 })
                 .ToList()
             );
@@ -278,7 +278,7 @@ public class KnowledgebaseController : BasePublicController
 
         if (ModelState.IsValid)
         {
-            var customer = _workContextAccessor.WorkContext.CurrentCustomer;
+            var customer = _contextAccessor.WorkContext.CurrentCustomer;
             var comment = new KnowledgebaseArticleComment {
                 ArticleId = article.Id,
                 CustomerId = customer.Id,
@@ -299,7 +299,7 @@ public class KnowledgebaseController : BasePublicController
             TempData["Grand.knowledgebase.addarticlecomment.result"] =
                 _translationService.GetResource("Knowledgebase.Article.Comments.SuccessfullyAdded");
             return RedirectToRoute("KnowledgebaseArticle",
-                new { SeName = article.GetSeName(_workContextAccessor.WorkContext.WorkingLanguage.Id) });
+                new { SeName = article.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) });
         }
 
         //If we got this far, something failed, redisplay form
@@ -318,8 +318,8 @@ public class KnowledgebaseController : BasePublicController
 
         while (category != null && //not null                
                (showHidden || category.Published) && //published
-               (showHidden || _aclService.Authorize(category, _workContextAccessor.WorkContext.CurrentCustomer)) && //ACL
-               (showHidden || _aclService.Authorize(category, _workContextAccessor.WorkContext.CurrentStore.Id)) && //Store acl
+               (showHidden || _aclService.Authorize(category, _contextAccessor.WorkContext.CurrentCustomer)) && //ACL
+               (showHidden || _aclService.Authorize(category, _contextAccessor.StoreContext.CurrentStore.Id)) && //Store acl
                !alreadyProcessedCategoryIds.Contains(category.Id)) //prevent circular references
         {
             result.Add(category);

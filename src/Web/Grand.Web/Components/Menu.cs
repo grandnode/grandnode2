@@ -12,28 +12,28 @@ public class MenuViewComponent : BaseViewComponent
 {
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
-    private readonly IWorkContextAccessor _workContextAccessor;
+    private readonly IContextAccessor _contextAccessor;
 
     public MenuViewComponent(
         IMediator mediator,
-        IWorkContextAccessor workContextAccessor,
+        IContextAccessor contextAccessor,
         IPermissionService permissionService)
     {
         _mediator = mediator;
-        _workContextAccessor = workContextAccessor;
+        _contextAccessor = contextAccessor;
         _permissionService = permissionService;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
         if (!await _permissionService.Authorize(StandardPermission.PublicStoreAllowNavigation,
-                _workContextAccessor.WorkContext.CurrentCustomer))
+                _contextAccessor.WorkContext.CurrentCustomer))
             return Content("");
 
         var model = await _mediator.Send(new GetMenu {
-            Customer = _workContextAccessor.WorkContext.CurrentCustomer,
-            Language = _workContextAccessor.WorkContext.WorkingLanguage,
-            Store = _workContextAccessor.WorkContext.CurrentStore
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Store = _contextAccessor.StoreContext.CurrentStore
         });
 
         return View(model);

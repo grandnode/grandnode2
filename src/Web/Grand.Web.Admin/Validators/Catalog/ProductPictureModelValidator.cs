@@ -1,29 +1,26 @@
-﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Catalog;
 
 namespace Grand.Web.Admin.Validators.Catalog;
 
-public class ProductPictureModelValidator : BaseGrandValidator<ProductModel.ProductPictureModel>
+public class ProductPictureModelValidator : BaseStoreAccessValidator<ProductModel.ProductPictureModel, Product>
 {
+    private readonly IProductService _productService;
+
     public ProductPictureModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.ProductPictureModel>> validators,
-        ITranslationService translationService, IProductService productService, IWorkContextAccessor workContextAccessor)
-        : base(validators)
+        ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
+       : base(validators, translationService, contextAccessor)
     {
-        if (!string.IsNullOrEmpty(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            RuleFor(x => x).MustAsync(async (x, _, _) =>
-            {
-                var product = await productService.GetProductById(x.ProductId);
-                if (product != null)
-                    if (!product.AccessToEntityByStore(workContextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                        return false;
-
-                return true;
-            }).WithMessage(translationService.GetResource("Admin.Catalog.Products.Permissions"));
+        _productService = productService;
     }
+    protected override async Task<Product> GetEntity(ProductModel.ProductPictureModel model)
+    {
+        return await _productService.GetProductById(model.ProductId);
+    }
+    protected override string GetPermissionsResourceKey => "Admin.Catalog.Products.Permissions";
 }

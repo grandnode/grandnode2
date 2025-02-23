@@ -40,13 +40,13 @@ public class AuthorizeMenuAttribute : TypeFilterAttribute
             bool ignoreFilter,
             IPermissionService permissionService,
             IAdminSiteMapService adminSiteMapService,
-            IWorkContextAccessor workContextAccessor,
+            IContextAccessor contextAccessor,
             SecurityConfig securityConfig)
         {
             _ignoreFilter = ignoreFilter;
             _permissionService = permissionService;
             _adminSiteMapService = adminSiteMapService;
-            _workContextAccessor = workContextAccessor;
+            _contextAccessor = contextAccessor;
             _securityConfig = securityConfig;
         }
 
@@ -57,7 +57,7 @@ public class AuthorizeMenuAttribute : TypeFilterAttribute
         private readonly bool _ignoreFilter;
         private readonly IPermissionService _permissionService;
         private readonly IAdminSiteMapService _adminSiteMapService;
-        private readonly IWorkContextAccessor _workContextAccessor;
+        private readonly IContextAccessor _contextAccessor;
         private readonly SecurityConfig _securityConfig;
 
         #endregion
@@ -103,13 +103,13 @@ public class AuthorizeMenuAttribute : TypeFilterAttribute
                 if (menuSiteMap.AllPermissions)
                 {
                     if (!await menuSiteMap.PermissionNames.AllAsync(async x =>
-                            await _permissionService.Authorize(x, _workContextAccessor.WorkContext.CurrentCustomer)))
+                            await _permissionService.Authorize(x, _contextAccessor.WorkContext.CurrentCustomer)))
                         filterContext.Result = new ForbidResult();
                 }
                 else
                 {
                     if (!await menuSiteMap.PermissionNames.AnyAsync(async x =>
-                            await _permissionService.Authorize(x, _workContextAccessor.WorkContext.CurrentCustomer)))
+                            await _permissionService.Authorize(x, _contextAccessor.WorkContext.CurrentCustomer)))
                         filterContext.Result = new ForbidResult();
                 }
             }
