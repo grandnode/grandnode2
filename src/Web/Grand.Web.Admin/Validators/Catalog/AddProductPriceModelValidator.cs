@@ -7,18 +7,18 @@ using Grand.Web.Admin.Models.Catalog;
 
 namespace Grand.Web.Admin.Validators.Catalog;
 
-public class AddRelatedProductModelValidator : BaseStoreAccessValidator<ProductModel.AddRelatedProductModel, Product>
+public class AddProductPriceModelValidator : BaseStoreAccessValidator<ProductModel.ProductPriceModel, Product>
 {
     private readonly IProductService _productService;
-    public AddRelatedProductModelValidator(
-        IEnumerable<IValidatorConsumer<ProductModel.AddRelatedProductModel>> validators,
+    public AddProductPriceModelValidator(
+        IEnumerable<IValidatorConsumer<ProductModel.ProductPriceModel>> validators,
         ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
         : base(validators, translationService, contextAccessor)
     {
         _productService = productService;
     }
 
-    protected override async Task<Product> GetEntity(ProductModel.AddRelatedProductModel model)
+    protected override async Task<Product> GetEntity(ProductModel.ProductPriceModel model)
     {
         return await _productService.GetProductById(model.ProductId);
     }

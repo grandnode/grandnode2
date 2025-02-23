@@ -1,49 +1,44 @@
-﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Catalog;
 
 namespace Grand.Web.Admin.Validators.Catalog;
 
-public class TierPriceModelValidator : BaseGrandValidator<ProductModel.TierPriceModel>
+public class TierPriceModelValidator : BaseStoreAccessValidator<ProductModel.TierPriceModel, Product>
 {
+    private readonly IProductService _productService;
+
     public TierPriceModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.TierPriceModel>> validators,
         ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
-        : base(validators)
+       : base(validators, translationService, contextAccessor)
     {
-        if (!string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            RuleFor(x => x).MustAsync(async (x, _, _) =>
-            {
-                var product = await productService.GetProductById(x.ProductId);
-                if (product != null)
-                    if (!product.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                        return false;
-
-                return true;
-            }).WithMessage(translationService.GetResource("Admin.Catalog.Products.Permissions"));
+        _productService = productService;
     }
+    protected override async Task<Product> GetEntity(ProductModel.TierPriceModel model)
+    {
+        return await _productService.GetProductById(model.ProductId);
+    }
+    protected override string GetPermissionsResourceKey => "Admin.Catalog.Products.Permissions";
 }
 
-public class TierPriceDeleteModelValidator : BaseGrandValidator<ProductModel.TierPriceDeleteModel>
+public class TierPriceDeleteModelValidator : BaseStoreAccessValidator<ProductModel.TierPriceDeleteModel, Product>
 {
+    private readonly IProductService _productService;
+
     public TierPriceDeleteModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.TierPriceDeleteModel>> validators,
         ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
-        : base(validators)
+       : base(validators, translationService, contextAccessor)
     {
-        if (!string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            RuleFor(x => x).MustAsync(async (x, _, _) =>
-            {
-                var product = await productService.GetProductById(x.ProductId);
-                if (product != null)
-                    if (!product.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                        return false;
-
-                return true;
-            }).WithMessage(translationService.GetResource("Admin.Catalog.Products.Permissions"));
+        _productService = productService;
     }
+    protected override async Task<Product> GetEntity(ProductModel.TierPriceDeleteModel model)
+    {
+        return await _productService.GetProductById(model.ProductId);
+    }
+    protected override string GetPermissionsResourceKey => "Admin.Catalog.Products.Permissions";
 }

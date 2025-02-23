@@ -4,31 +4,21 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Catalog;
 
 namespace Grand.Web.Admin.Validators.Catalog;
 
-public class
-    AddProductSpecificationAttributeModelValidator : BaseGrandValidator<
-    ProductModel.AddProductSpecificationAttributeModel>
+public class AddProductSpecificationAttributeModelValidator : BaseStoreAccessValidator<ProductModel.AddProductSpecificationAttributeModel, Product>
 {
+    private readonly IProductService _productService;
     public AddProductSpecificationAttributeModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.AddProductSpecificationAttributeModel>> validators,
         ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor,
         ISpecificationAttributeService specificationAttributeService)
-        : base(validators)
+        : base(validators, translationService, contextAccessor)
     {
-        if (!string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            RuleFor(x => x).MustAsync(async (x, _, _) =>
-            {
-                var product = await productService.GetProductById(x.ProductId);
-                if (product != null)
-                    if (!product.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                        return false;
+        _productService = productService;
 
-                return true;
-            }).WithMessage(translationService.GetResource("Admin.Catalog.Products.Permissions"));
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
             if (x.AttributeTypeId == SpecificationAttributeType.Option)
@@ -56,4 +46,10 @@ public class
             return true;
         }).WithMessage(translationService.GetResource("Admin.Catalog.Products.SpecificationAttributes.Validate"));
     }
+    protected override async Task<Product> GetEntity(ProductModel.AddProductSpecificationAttributeModel model)
+    {
+        return await _productService.GetProductById(model.ProductId);
+    }
+
+    protected override string GetPermissionsResourceKey => "Admin.Catalog.Products.Permissions";
 }

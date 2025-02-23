@@ -1,29 +1,25 @@
-﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Catalog.Collections;
+﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Catalog;
 
 namespace Grand.Web.Admin.Validators.Catalog;
 
-public class AddCollectionProductModelValidator : BaseGrandValidator<CollectionModel.AddCollectionProductModel>
+public class AddCollectionProductModelValidator : BaseStoreAccessValidator<CollectionModel.AddCollectionProductModel, Collection>
 {
+    private readonly ICollectionService _collectionService;
     public AddCollectionProductModelValidator(
         IEnumerable<IValidatorConsumer<CollectionModel.AddCollectionProductModel>> validators,
         ITranslationService translationService, ICollectionService collectionService, IContextAccessor contextAccessor)
-        : base(validators)
+        : base(validators, translationService, contextAccessor)
     {
-        if (!string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            RuleFor(x => x).MustAsync(async (x, _, _) =>
-            {
-                var collection = await collectionService.GetCollectionById(x.CollectionId);
-                if (collection != null)
-                    if (!collection.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                        return false;
-
-                return true;
-            }).WithMessage(translationService.GetResource("Admin.Catalog.Products.Permissions"));
+        _collectionService = collectionService;
     }
+    protected override async Task<Collection> GetEntity(CollectionModel.AddCollectionProductModel model)
+    {
+        return await _collectionService.GetCollectionById(model.CollectionId);
+    }
+    protected override string GetPermissionsResourceKey => "Admin.Catalog.Products.Permissions";
 }

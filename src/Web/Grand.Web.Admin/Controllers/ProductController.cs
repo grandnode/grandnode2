@@ -1593,7 +1593,8 @@ public class ProductController : BaseAdminController
             items.Add(new ProductModel.ProductPriceModel {
                 Id = item.Id,
                 CurrencyCode = item.CurrencyCode,
-                Price = item.Price
+                Price = item.Price,
+                ProductId = product.Id
             });
 
         var gridModel = new DataSourceResult {
@@ -1606,9 +1607,9 @@ public class ProductController : BaseAdminController
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> ProductPriceInsert(string productId, ProductModel.ProductPriceModel model)
+    public async Task<IActionResult> ProductPriceInsert(ProductModel.ProductPriceModel model)
     {
-        var product = await _productService.GetProductById(productId);
+        var product = await _productService.GetProductById(model.ProductId);
         if (product == null)
             throw new ArgumentException("No product found with the specified id");
 
@@ -1635,9 +1636,9 @@ public class ProductController : BaseAdminController
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> ProductPriceUpdate(string productId, ProductModel.ProductPriceModel model)
+    public async Task<IActionResult> ProductPriceUpdate(ProductModel.ProductPriceModel model)
     {
-        var product = await _productService.GetProductById(productId);
+        var product = await _productService.GetProductById(model.ProductId);
         if (product == null)
             throw new ArgumentException("No product found with the specified id");
 
@@ -1653,7 +1654,7 @@ public class ProductController : BaseAdminController
             {
                 productPrice!.CurrencyCode = model.CurrencyCode;
                 productPrice.Price = model.Price;
-                productPrice.ProductId = productId;
+                productPrice.ProductId = model.ProductId;
 
                 await _productService.UpdateProductPrice(productPrice);
 
@@ -1669,9 +1670,9 @@ public class ProductController : BaseAdminController
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> ProductPriceDelete(string productId, ProductModel.ProductPriceModel model)
+    public async Task<IActionResult> ProductPriceDelete(ProductModel.ProductPriceModel model)
     {
-        var product = await _productService.GetProductById(productId);
+        var product = await _productService.GetProductById(model.ProductId);
         if (product == null)
             throw new ArgumentException("No product found with the specified id");
 
@@ -1681,7 +1682,7 @@ public class ProductController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            productPrice!.ProductId = productId;
+            productPrice!.ProductId = model.ProductId;
             await _productService.DeleteProductPrice(productPrice);
 
             return new JsonResult("");

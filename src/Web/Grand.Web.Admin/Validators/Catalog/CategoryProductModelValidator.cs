@@ -1,29 +1,26 @@
-﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Catalog;
 
 namespace Grand.Web.Admin.Validators.Catalog;
 
-public class CategoryProductModelValidator : BaseGrandValidator<CategoryModel.CategoryProductModel>
+public class CategoryProductModelValidator : BaseStoreAccessValidator<CategoryModel.CategoryProductModel, Category>
 {
+    private readonly ICategoryService _categoryService;
     public CategoryProductModelValidator(
         IEnumerable<IValidatorConsumer<CategoryModel.CategoryProductModel>> validators,
         ITranslationService translationService, ICategoryService categoryService, IContextAccessor contextAccessor)
-        : base(validators)
+        : base(validators, translationService, contextAccessor)
     {
-        if (!string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            RuleFor(x => x).MustAsync(async (x, _, _) =>
-            {
-                var category = await categoryService.GetCategoryById(x.CategoryId);
-                if (category != null)
-                    if (!category.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                        return false;
-
-                return true;
-            }).WithMessage(translationService.GetResource("Admin.Catalog.Categories.Permissions"));
+        _categoryService = categoryService;
     }
+    protected override async Task<Category> GetEntity(CategoryModel.CategoryProductModel model)
+    {
+        return await _categoryService.GetCategoryById(model.CategoryId);
+    }
+
+    protected override string GetPermissionsResourceKey => "Admin.Catalog.Categories.Permissions";
 }

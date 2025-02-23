@@ -4,18 +4,19 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Catalog;
 
 namespace Grand.Web.Admin.Validators.Catalog;
 
-public class ProductAttributeValueModelValidator : BaseGrandValidator<ProductModel.ProductAttributeValueModel>
+public class ProductAttributeValueModelValidator : BaseStoreAccessValidator<ProductModel.ProductAttributeValueModel, Product>
 {
+    private readonly IProductService _productService;
     public ProductAttributeValueModelValidator(
         IEnumerable<IValidatorConsumer<ProductModel.ProductAttributeValueModel>> validators,
         ITranslationService translationService, IProductService productService, IContextAccessor contextAccessor)
-        : base(validators)
+        : base(validators, translationService, contextAccessor)
     {
+        _productService = productService;
         RuleFor(x => x.Name)
             .NotEmpty()
             .WithMessage(
@@ -28,16 +29,6 @@ public class ProductAttributeValueModelValidator : BaseGrandValidator<ProductMod
                 "Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Quantity.GreaterThanOrEqualTo1"))
             .When(x => x.AttributeValueTypeId == AttributeValueType.AssociatedToProduct);
 
-        if (!string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            RuleFor(x => x).MustAsync(async (x, _, _) =>
-            {
-                var product = await productService.GetProductById(x.ProductId);
-                if (product != null)
-                    if (!product.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                        return false;
-
-                return true;
-            }).WithMessage(translationService.GetResource("Admin.Catalog.Products.Permissions"));
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             var product = await productService.GetProductById(x.ProductId);
@@ -46,17 +37,24 @@ public class ProductAttributeValueModelValidator : BaseGrandValidator<ProductMod
             switch (productAttributeMapping?.AttributeControlTypeId)
             {
                 case AttributeControlType.ColorSquares:
-                {
-                    //ensure valid color is chosen/entered
-                    if (string.IsNullOrEmpty(x.ColorSquaresRgb))
-                        context.AddFailure("Color is required");
-                    break;
-                }
+                    {
+                        //ensure valid color is chosen/entered
+                        if (string.IsNullOrEmpty(x.ColorSquaresRgb))
+                            context.AddFailure("Color is required");
+                        break;
+                    }
                 //ensure a picture is uploaded
                 case AttributeControlType.ImageSquares when string.IsNullOrEmpty(x.ImageSquaresPictureId):
                     context.AddFailure("Image is required");
                     break;
             }
         });
+
     }
+    protected override async Task<Product> GetEntity(ProductModel.ProductAttributeValueModel model)
+    {
+        return await _productService.GetProductById(model.ProductId);
+    }
+
+    protected override string GetPermissionsResourceKey => "Admin.Catalog.Products.Permissions";
 }
