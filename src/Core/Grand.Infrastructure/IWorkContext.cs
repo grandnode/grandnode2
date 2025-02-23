@@ -1,7 +1,6 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
-using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 
