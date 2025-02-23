@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Commands.Customers;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
+using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using MediatR;
 using System.Security.Claims;
@@ -14,6 +14,16 @@ namespace Authentication.Google.Infrastructure;
 /// </summary>
 public class GoogleAuthenticationEventConsumer : INotificationHandler<RegisteredByExternalMethod>
 {
+    #region Fields
+
+    private readonly ICustomerService _customerService;
+    private readonly IMessageProviderService _messageProviderService;
+    private readonly IContextAccessor _contextAccessor;
+    private readonly CustomerSettings _customerSettings;
+    private string WorkingLanguageId => _contextAccessor.WorkContext.WorkingLanguage.Id;
+    private Store CurrentStore => _contextAccessor.StoreContext.CurrentStore;
+
+    #endregion
     #region Ctor
 
     public GoogleAuthenticationEventConsumer(
@@ -56,22 +66,12 @@ public class GoogleAuthenticationEventConsumer : INotificationHandler<Registered
 
         //notifications for admin
         if (_customerSettings.NotifyNewCustomerRegistration)
-            await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer,
-                _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingLanguage.Id);
+            await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId);
 
         //send welcome message 
-        await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, _contextAccessor.StoreContext.CurrentStore,
-            _contextAccessor.WorkContext.WorkingLanguage.Id);
+        await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, CurrentStore, WorkingLanguageId);
     }
 
     #endregion
 
-    #region Fields
-
-    private readonly ICustomerService _customerService;
-    private readonly IMessageProviderService _messageProviderService;
-    private readonly IContextAccessor _contextAccessor;
-    private readonly CustomerSettings _customerSettings;
-
-    #endregion
 }

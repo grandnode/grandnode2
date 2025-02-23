@@ -17,13 +17,15 @@ namespace Grand.Web.Features.Handlers.Blogs;
 public class GetBlogPostListHandler : IRequestHandler<GetBlogPostList, BlogPostListModel>
 {
     private readonly IBlogService _blogService;
-
-    private readonly BlogSettings _blogSettings;
     private readonly IDateTimeService _dateTimeService;
-    private readonly MediaSettings _mediaSettings;
     private readonly IPictureService _pictureService;
     private readonly ITranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
+    private readonly MediaSettings _mediaSettings;
+    private readonly BlogSettings _blogSettings;
+
+    private string WorkingLanguageId => _contextAccessor.WorkContext.WorkingLanguage.Id;
+    private string CurrentStoreId => _contextAccessor.StoreContext.CurrentStore.Id;
 
     public GetBlogPostListHandler(
         IBlogService blogService,
@@ -52,7 +54,7 @@ public class GetBlogPostListHandler : IRequestHandler<GetBlogPostList, BlogPostL
                 Month = request.Command.Month,
                 CategorySeName = request.Command.CategorySeName
             },
-            WorkingLanguageId = _contextAccessor.WorkContext.WorkingLanguage.Id,
+            WorkingLanguageId = WorkingLanguageId,
             SearchKeyword = request.Command.SearchKeyword
         };
 
@@ -66,18 +68,18 @@ public class GetBlogPostListHandler : IRequestHandler<GetBlogPostList, BlogPostL
         if (string.IsNullOrEmpty(request.Command.CategorySeName))
         {
             if (string.IsNullOrEmpty(request.Command.Tag))
-                blogPosts = await _blogService.GetAllBlogPosts(_contextAccessor.StoreContext.CurrentStore.Id,
+                blogPosts = await _blogService.GetAllBlogPosts(CurrentStoreId,
                     dateFrom, dateTo, request.Command.PageNumber - 1, request.Command.PageSize,
                     blogPostName: model.SearchKeyword);
             else
-                blogPosts = await _blogService.GetAllBlogPostsByTag(_contextAccessor.StoreContext.CurrentStore.Id,
+                blogPosts = await _blogService.GetAllBlogPostsByTag(CurrentStoreId,
                     request.Command.Tag, request.Command.PageNumber - 1, request.Command.PageSize);
         }
         else
         {
             var categoryblog = await _blogService.GetBlogCategoryBySeName(request.Command.CategorySeName);
             var categoryId = categoryblog != null ? categoryblog.Id : "";
-            blogPosts = await _blogService.GetAllBlogPosts(_contextAccessor.StoreContext.CurrentStore.Id,
+            blogPosts = await _blogService.GetAllBlogPosts(CurrentStoreId,
                 dateFrom, dateTo, request.Command.PageNumber - 1, request.Command.PageSize, categoryId: categoryId,
                 blogPostName: model.SearchKeyword);
         }
@@ -100,13 +102,13 @@ public class GetBlogPostListHandler : IRequestHandler<GetBlogPostList, BlogPostL
         ArgumentNullException.ThrowIfNull(model);
 
         model.Id = blogPost.Id;
-        model.MetaTitle = blogPost.GetTranslation(x => x.MetaTitle, _contextAccessor.WorkContext.WorkingLanguage.Id);
-        model.MetaDescription = blogPost.GetTranslation(x => x.MetaDescription, _contextAccessor.WorkContext.WorkingLanguage.Id);
-        model.MetaKeywords = blogPost.GetTranslation(x => x.MetaKeywords, _contextAccessor.WorkContext.WorkingLanguage.Id);
-        model.SeName = blogPost.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id);
-        model.Title = blogPost.GetTranslation(x => x.Title, _contextAccessor.WorkContext.WorkingLanguage.Id);
-        model.Body = blogPost.GetTranslation(x => x.Body, _contextAccessor.WorkContext.WorkingLanguage.Id);
-        model.BodyOverview = blogPost.GetTranslation(x => x.BodyOverview, _contextAccessor.WorkContext.WorkingLanguage.Id);
+        model.MetaTitle = blogPost.GetTranslation(x => x.MetaTitle, WorkingLanguageId);
+        model.MetaDescription = blogPost.GetTranslation(x => x.MetaDescription, WorkingLanguageId);
+        model.MetaKeywords = blogPost.GetTranslation(x => x.MetaKeywords, WorkingLanguageId);
+        model.SeName = blogPost.GetSeName(WorkingLanguageId);
+        model.Title = blogPost.GetTranslation(x => x.Title, WorkingLanguageId);
+        model.Body = blogPost.GetTranslation(x => x.Body, WorkingLanguageId);
+        model.BodyOverview = blogPost.GetTranslation(x => x.BodyOverview, WorkingLanguageId);
         model.AllowComments = blogPost.AllowComments;
         model.CreatedOn =
             _dateTimeService.ConvertToUserTime(blogPost.StartDateUtc ?? blogPost.CreatedOnUtc, DateTimeKind.Utc);
@@ -134,15 +136,15 @@ public class GetBlogPostListHandler : IRequestHandler<GetBlogPostList, BlogPostL
                 Title =
                     picture != null &&
                     !string.IsNullOrEmpty(
-                        picture.GetTranslation(x => x.TitleAttribute, _contextAccessor.WorkContext.WorkingLanguage.Id))
-                        ? picture.GetTranslation(x => x.TitleAttribute, _contextAccessor.WorkContext.WorkingLanguage.Id)
+                        picture.GetTranslation(x => x.TitleAttribute, WorkingLanguageId))
+                        ? picture.GetTranslation(x => x.TitleAttribute, WorkingLanguageId)
                         : string.Format(_translationService.GetResource("Media.Blog.ImageLinkTitleFormat"),
                             blogPost.Title),
                 //"alt" attribute
                 AlternateText =
                     picture != null &&
-                    !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _contextAccessor.WorkContext.WorkingLanguage.Id))
-                        ? picture.GetTranslation(x => x.AltAttribute, _contextAccessor.WorkContext.WorkingLanguage.Id)
+                    !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, WorkingLanguageId))
+                        ? picture.GetTranslation(x => x.AltAttribute, WorkingLanguageId)
                         : string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"),
                             blogPost.Title)
             };

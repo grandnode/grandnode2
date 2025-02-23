@@ -6,8 +6,7 @@
     const wwwrootpath = '@(Constants.WwwRoot)';
 </script>
 @{
-    var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl &&
-                     !languageSettings.IgnoreRtlPropertyForAdminArea;
+    var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl && !languageSettings.IgnoreRtlPropertyForAdminArea;
     var kendoVersion = "2021.3.914";
 
     <link rel="stylesheet" type="text/css" href="@(Constants.WwwRoot)/administration/bootstrap/css/daterangepicker.min.css"/>
