@@ -275,16 +275,18 @@ public class PictureService : IPictureService
         using (var mutex = new Mutex(false, thumbFileName))
         {
             mutex.WaitOne();
-            using (var image = SKBitmap.Decode(filePath))
+            try
             {
+                using var image = SKBitmap.Decode(filePath);
                 var pictureBinary = ApplyResize(image, EncodedImageFormat(fileExtension), targetSize);
                 if (pictureBinary != null)
                     await SaveThumb(thumbFileName, pictureBinary);
             }
-
-            mutex.ReleaseMutex();
+            finally
+            {
+                mutex.ReleaseMutex();
+            }
         }
-
         var url = GetThumbUrl(thumbFileName, storeLocation);
         return url;
     }
@@ -354,8 +356,14 @@ public class PictureService : IPictureService
 
             using var mutex = new Mutex(false, thumbFileName);
             mutex.WaitOne();
-            await SaveThumb(thumbFileName, pictureBinary);
-            mutex.ReleaseMutex();
+            try
+            {
+                await SaveThumb(thumbFileName, pictureBinary);
+            }
+            finally
+            {
+                mutex.ReleaseMutex();
+            }
         }
         else
         {
@@ -372,22 +380,28 @@ public class PictureService : IPictureService
 
             using var mutex = new Mutex(false, thumbFileName);
             mutex.WaitOne();
-            if (pictureBinary != null)
-                try
+            try
+            {
+                if (pictureBinary != null)
                 {
-                    using var image = SKBitmap.Decode(pictureBinary);
-                    var resizedBinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
-                    if (resizedBinary != null)
-                        pictureBinary = resizedBinary;
+                    try
+                    {
+                        using var image = SKBitmap.Decode(pictureBinary);
+                        var resizedBinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
+                        if (resizedBinary != null)
+                            pictureBinary = resizedBinary;
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
-                catch
-                {
-                    // ignored
-                }
-
-            await SaveThumb(thumbFileName, pictureBinary);
-
-            mutex.ReleaseMutex();
+                await SaveThumb(thumbFileName, pictureBinary);
+            }
+            finally
+            {
+                mutex.ReleaseMutex();
+            }
         }
 
         return GetThumbUrl(thumbFileName, storeLocation);
