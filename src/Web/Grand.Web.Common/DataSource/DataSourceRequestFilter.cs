@@ -17,3 +17,11 @@ public class DataSourceRequestFilter
         public bool IgnoreCase { get; set; }
     }
 }
+
+public static class DataSourceRequestFilterExtensions
+{
+    public static string GetNameFilterValue(this DataSourceRequestFilter filter)
+    {
+        return filter.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
+    }
+}

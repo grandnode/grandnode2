@@ -29,8 +29,6 @@ public class SearchController : BaseVendorController
     [HttpGet]
     public async Task<IActionResult> Category(string categoryId, DataSourceRequestFilter model)
     {
-        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
-
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Category> categories)
         {
             var model = new List<SearchModel>();
@@ -54,7 +52,7 @@ public class SearchController : BaseVendorController
         }
 
         var categories = await _categoryService.GetAllCategories(
-            categoryName: value,
+            categoryName: model.GetNameFilterValue(),
             pageSize: _adminSearchSettings.CategorySizeLimit);
         var gridModel = new DataSourceResult {
             Data = await PrepareModel(categories)
@@ -65,8 +63,6 @@ public class SearchController : BaseVendorController
     [HttpGet]
     public async Task<IActionResult> Collection(string collectionId, DataSourceRequestFilter model)
     {
-        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
-
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Collection> collections)
         {
             var model = new List<SearchModel>();
@@ -87,7 +83,7 @@ public class SearchController : BaseVendorController
         }
 
         var collections = await _collectionService.GetAllCollections(
-            value,
+            model.GetNameFilterValue(),
             pageSize: _adminSearchSettings.CollectionSizeLimit);
 
         var gridModel = new DataSourceResult {
@@ -99,8 +95,6 @@ public class SearchController : BaseVendorController
     [HttpGet]
     public async Task<IActionResult> Brand(string brandId, DataSourceRequestFilter model)
     {
-        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
-
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Brand> brands)
         {
             var model = new List<SearchModel>();
@@ -121,7 +115,7 @@ public class SearchController : BaseVendorController
         }
 
         var brands = await _brandService.GetAllBrands(
-            value,
+            model.GetNameFilterValue(),
             pageSize: _adminSearchSettings.BrandSizeLimit);
         var gridModel = new DataSourceResult {
             Data = await PrepareModel(brands)

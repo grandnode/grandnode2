@@ -223,8 +223,6 @@ public class SearchController : BaseAdminController
     [HttpGet]
     public async Task<IActionResult> Category(string categoryId, DataSourceRequestFilter model)
     {
-        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
-
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Category> categories)
         {
             var model = new List<SearchModel>();
@@ -251,7 +249,7 @@ public class SearchController : BaseAdminController
 
         var categories = await _categoryService.GetAllCategories(
             storeId: storeId,
-            categoryName: value,
+            categoryName: model.GetNameFilterValue(),
             pageSize: _adminSearchSettings.CategorySizeLimit);
         var gridModel = new DataSourceResult {
             Data = await PrepareModel(categories)
@@ -262,8 +260,6 @@ public class SearchController : BaseAdminController
     [HttpGet]
     public async Task<IActionResult> Collection(string collectionId, DataSourceRequestFilter model)
     {
-        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
-
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Collection> collections)
         {
             var model = new List<SearchModel>();
@@ -290,7 +286,7 @@ public class SearchController : BaseAdminController
 
         var collections = await _collectionService.GetAllCollections(
             storeId: storeId,
-            collectionName: value,
+            collectionName: model.GetNameFilterValue(),
             pageSize: _adminSearchSettings.CollectionSizeLimit);
 
         var gridModel = new DataSourceResult {
@@ -302,8 +298,6 @@ public class SearchController : BaseAdminController
     [HttpGet]
     public async Task<IActionResult> CustomerGroup(string[] customerGroups, DataSourceRequestFilter model)
     {
-        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
-
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<CustomerGroup> groups)
         {
             var model = new List<SearchModel>();
@@ -327,7 +321,7 @@ public class SearchController : BaseAdminController
         }
 
         var groups = await _groupService.GetAllCustomerGroups(
-            value,
+            model.GetNameFilterValue(),
             pageSize: _adminSearchSettings.CustomerGroupSizeLimit);
 
         var gridModel = new DataSourceResult {
@@ -375,9 +369,7 @@ public class SearchController : BaseAdminController
 
     [HttpGet]
     public async Task<IActionResult> Vendor(string vendorId, DataSourceRequestFilter model)
-    {
-        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
-
+    {        
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Vendor> vendors)
         {
             var model = new List<SearchModel>();
@@ -401,7 +393,7 @@ public class SearchController : BaseAdminController
         }
 
         var vendors = await _vendorService.GetAllVendors(
-            value,
+            model.GetNameFilterValue(),
             pageSize: _adminSearchSettings.VendorSizeLimit, showHidden: true);
         var gridModel = new DataSourceResult {
             Data = await PrepareModel(vendors)
@@ -412,8 +404,6 @@ public class SearchController : BaseAdminController
     [HttpGet]
     public async Task<IActionResult> Brand(string brandId, DataSourceRequestFilter model)
     {
-        var value = model.Filters.FirstOrDefault(x => x.Field == "Name")?.Value;
-
         async Task<IList<SearchModel>> PrepareModel(IEnumerable<Brand> brands)
         {
             var model = new List<SearchModel>();
@@ -437,7 +427,7 @@ public class SearchController : BaseAdminController
         }
 
         var brands = await _brandService.GetAllBrands(
-            value,
+            model.GetNameFilterValue(),
             pageSize: _adminSearchSettings.BrandSizeLimit);
         var gridModel = new DataSourceResult {
             Data = await PrepareModel(brands)
