@@ -141,47 +141,58 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         if (!authenticateResult.Succeeded)
             return null;
 
-        Customer customer = null;
-        if (_customerSettings.UsernamesEnabled)
-        {
-            //get customer by username if exists
-            var usernameClaim = authenticateResult.Principal.FindFirst(claim => claim.Type == ClaimTypes.Name
-                && claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer,
-                    StringComparison.InvariantCultureIgnoreCase));
-            if (usernameClaim != null)
-                customer = await _customerService.GetCustomerByUsername(usernameClaim.Value);
-        }
-        else
-        {
-            //get customer by email
-            var emailClaim = authenticateResult.Principal.FindFirst(claim => claim.Type == ClaimTypes.Email
-                                                                             && claim.Issuer.Equals(
-                                                                                 _securityConfig.CookieClaimsIssuer,
-                                                                                 StringComparison
-                                                                                     .InvariantCultureIgnoreCase));
-            if (emailClaim != null)
-                customer = await _customerService.GetCustomerByEmail(emailClaim.Value);
-        }
-
-        if (customer != null)
-        {
-            var passwordToken = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken);
-            if (!string.IsNullOrEmpty(passwordToken))
-            {
-                var tokenClaim = authenticateResult.Principal.FindFirst(claim => claim.Type == ClaimTypes.UserData
-                    && claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer,
-                        StringComparison.InvariantCultureIgnoreCase));
-                if (tokenClaim == null || tokenClaim.Value != passwordToken) customer = null;
-            }
-        }
-
-        //Check if the found customer is available
-        if (customer is not { Active: true } || customer.Deleted || !await _groupService.IsRegistered(customer))
+        var customer = await RetrieveCustomer(authenticateResult.Principal);
+        if (customer == null || !await IsValidCustomer(customer, authenticateResult.Principal))
             return null;
 
         return customer;
     }
 
+    private async Task<Customer> RetrieveCustomer(ClaimsPrincipal principal)
+    {
+        if (_customerSettings.UsernamesEnabled)
+        {
+            var username = principal.FindFirst(claim =>
+                claim.Type == ClaimTypes.Name &&
+                claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase))
+                ?.Value;
+
+            if (!string.IsNullOrEmpty(username))
+                return await _customerService.GetCustomerByUsername(username);
+        }
+        else
+        {
+            var email = principal.FindFirst(claim =>
+                claim.Type == ClaimTypes.Email &&
+                claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase))
+                ?.Value;
+
+            if (!string.IsNullOrEmpty(email))
+                return await _customerService.GetCustomerByEmail(email);
+        }
+
+        return null;
+    }
+
+    private async Task<bool> IsValidCustomer(Customer customer, ClaimsPrincipal principal)
+    {
+        var passwordToken = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken);
+        if (!string.IsNullOrEmpty(passwordToken))
+        {
+            var tokenClaim = principal
+                .FindFirst(claim =>
+                    claim.Type == ClaimTypes.UserData &&
+                    claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase));
+
+            if (tokenClaim == null || tokenClaim.Value != passwordToken)
+                return false;
+        }
+
+        if (!customer.Active || customer.Deleted || !await _groupService.IsRegistered(customer))
+            return false;
+
+        return true;
+    }
     /// <summary>
     ///     Get customer cookie
     /// </summary>
