@@ -187,7 +187,6 @@ public class ShoppingCartController : BasePublicController
                 downloadGuid = Guid.Empty
             });
 
-        var fileBinary = file.GetDownloadBits();
         var fileName = file.FileName;
 
         fileName = Path.GetFileName(fileName);
@@ -211,6 +210,7 @@ public class ShoppingCartController : BasePublicController
                 });
         }
 
+        var fileBinary = file.GetDownloadBits();
         if (attribute.ValidationFileMaximumSize.HasValue)
         {
             //compare in bytes

@@ -136,8 +136,6 @@ public class ContactController : BasePublicController
                 downloadGuid = Guid.Empty
             });
 
-        var fileBinary = file.GetDownloadBits();
-
         var fileName = file.FileName;
 
         fileName = Path.GetFileName(fileName);
@@ -161,6 +159,8 @@ public class ContactController : BasePublicController
                     downloadGuid = Guid.Empty
                 });
         }
+
+        var fileBinary = file.GetDownloadBits();
 
         if (attribute.ValidationFileMaximumSize.HasValue)
         {

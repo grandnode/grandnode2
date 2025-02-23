@@ -406,7 +406,6 @@ public class ProductController : BasePublicController
                 message = "No file uploaded",
                 downloadGuid = Guid.Empty
             });
-        var fileBinary = file.GetDownloadBits();
         var fileName = file.FileName;
 
         var contentType = file.ContentType;
@@ -427,6 +426,7 @@ public class ProductController : BasePublicController
                     downloadGuid = Guid.Empty
                 });
         }
+        var fileBinary = file.GetDownloadBits();
 
         if (attribute.ValidationFileMaximumSize.HasValue)
         {
