@@ -5,6 +5,7 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
@@ -56,6 +57,9 @@ public class CategoryService : ICategoryService
     private readonly IAclService _aclService;
     private readonly AccessControlConfig _accessControlConfig;
 
+    private Customer CurrentCustomer => _contextAccessor.WorkContext.CurrentCustomer;
+    private Store CurrentStore => _contextAccessor.StoreContext.CurrentStore;
+
     #endregion
 
     #region Methods
@@ -91,7 +95,7 @@ public class CategoryService : ICategoryService
             if (!showHidden && !_accessControlConfig.IgnoreAcl)
             {
                 //Limited to customer group (access control list)
-                var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -124,12 +128,12 @@ public class CategoryService : ICategoryService
         switch (_accessControlConfig.IgnoreAcl)
         {
             case true when
-                string.IsNullOrEmpty(_contextAccessor.StoreContext.CurrentStore.Id) || _accessControlConfig.IgnoreStoreLimitations:
+                string.IsNullOrEmpty(CurrentStore.Id) || _accessControlConfig.IgnoreStoreLimitations:
                 return await Task.FromResult(query.ToList());
             case false:
             {
                 //Limited to customer group (access control list)
-                var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+                var allowedCustomerGroupsIds = CurrentCustomer.GetCustomerGroupIds();
                 query = from p in query
                     where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                     select p;
@@ -137,10 +141,10 @@ public class CategoryService : ICategoryService
             }
         }
 
-        if (!string.IsNullOrEmpty(_contextAccessor.StoreContext.CurrentStore.Id) && !_accessControlConfig.IgnoreStoreLimitations)
+        if (!string.IsNullOrEmpty(CurrentStore.Id) && !_accessControlConfig.IgnoreStoreLimitations)
             //Limited to stores rule
             query = from p in query
-                where !p.LimitedToStores || p.Stores.Contains(_contextAccessor.StoreContext.CurrentStore.Id)
+                where !p.LimitedToStores || p.Stores.Contains(CurrentStore.Id)
                 select p;
         return await Task.FromResult(query.ToList());
     }
@@ -155,10 +159,8 @@ public class CategoryService : ICategoryService
     public virtual async Task<IList<Category>> GetAllCategoriesByParentCategoryId(string parentCategoryId = "",
         bool showHidden = false, bool includeAllLevels = false)
     {
-        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-        var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, showHidden,
-            customer.Id, storeId, includeAllLevels);
+            CurrentCustomer.Id, CurrentStore.Id, includeAllLevels);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = _categoryRepository.Table.Where(c => c.ParentCategoryId == parentCategoryId);
@@ -170,7 +172,7 @@ public class CategoryService : ICategoryService
                 if (!_accessControlConfig.IgnoreAcl)
                 {
                     //Limited to customer groups rules
-                    var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+                    var allowedCustomerGroupsIds = CurrentCustomer.GetCustomerGroupIds();
                     query = from p in query
                         where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
                         select p;
@@ -207,8 +209,8 @@ public class CategoryService : ICategoryService
         var categories = await Task.FromResult(query.ToList());
         if (!showHidden)
             categories = categories
-                .Where(c => _aclService.Authorize(c, _contextAccessor.WorkContext.CurrentCustomer) &&
-                            _aclService.Authorize(c, _contextAccessor.StoreContext.CurrentStore.Id))
+                .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
+                            _aclService.Authorize(c, CurrentStore.Id))
                 .ToList();
 
         return categories;
@@ -228,8 +230,8 @@ public class CategoryService : ICategoryService
         var categories = await Task.FromResult(query.ToList());
         if (!showHidden)
             categories = categories
-                .Where(c => _aclService.Authorize(c, _contextAccessor.WorkContext.CurrentCustomer) &&
-                            _aclService.Authorize(c, _contextAccessor.StoreContext.CurrentStore.Id))
+                .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
+                            _aclService.Authorize(c, CurrentStore.Id))
                 .ToList();
         return categories;
     }
@@ -245,8 +247,8 @@ public class CategoryService : ICategoryService
             .OrderBy(x => x.SearchBoxDisplayOrder);
 
         var categories = (await Task.FromResult(query.ToList()))
-            .Where(c => _aclService.Authorize(c, _contextAccessor.WorkContext.CurrentCustomer) &&
-                        _aclService.Authorize(c, _contextAccessor.StoreContext.CurrentStore.Id))
+            .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
+                        _aclService.Authorize(c, CurrentStore.Id))
             .ToList();
 
         return categories;
@@ -268,8 +270,8 @@ public class CategoryService : ICategoryService
         while (category != null && //not null                
                (showHidden || category.Published) && //published
                (showHidden ||
-                _aclService.Authorize(category, _contextAccessor.WorkContext.CurrentCustomer)) && //limited to customer groups
-               (showHidden || _aclService.Authorize(category, _contextAccessor.StoreContext.CurrentStore.Id)) && //limited to store
+                _aclService.Authorize(category, CurrentCustomer)) && //limited to customer groups
+               (showHidden || _aclService.Authorize(category, CurrentStore.Id)) && //limited to store
                !alreadyProcessedCategoryIds.Contains(category.Id))
         {
             result.Add(category);
@@ -301,8 +303,8 @@ public class CategoryService : ICategoryService
         while (category != null && //not null                
                (showHidden || category.Published) && //published
                (showHidden ||
-                _aclService.Authorize(category, _contextAccessor.WorkContext.CurrentCustomer)) && //limited to customer groups
-               (showHidden || _aclService.Authorize(category, _contextAccessor.StoreContext.CurrentStore.Id)) && //limited to store
+                _aclService.Authorize(category, CurrentCustomer)) && //limited to customer groups
+               (showHidden || _aclService.Authorize(category, CurrentStore.Id)) && //limited to store
                !alreadyProcessedCategoryIds.Contains(category.Id)) //avoid circular references
         {
             result.Add(category);
