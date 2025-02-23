@@ -85,28 +85,22 @@ public class PictureController : BaseAdminController
 
     [HttpPost]
     [IgnoreAntiforgeryToken]
-    public virtual async Task<IActionResult> AsyncLogoUpload()
+    public virtual async Task<IActionResult> AsyncLogoUpload(IFormFile file)
     {
         if (!await _permissionService.Authorize(StandardPermission.ManageSettings))
             return Content("Access denied");
 
-        var form = await HttpContext.Request.ReadFormAsync();
-        var httpPostedFile = form.Files.FirstOrDefault();
-        if (httpPostedFile == null)
+        if (file == null)
             return Json(new {
                 success = false,
                 message = "No file uploaded"
             });
 
 
-        var qqFileNameParameter = "qqfilename";
-        var fileName = httpPostedFile.FileName;
-        if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
-            fileName = form[qqFileNameParameter].ToString();
-
+        var fileName = file.FileName;
         fileName = Path.GetFileName(fileName);
 
-        var contentType = httpPostedFile.ContentType;
+        var contentType = file.ContentType;
 
         var fileExtension = Path.GetExtension(fileName);
         if (!string.IsNullOrEmpty(fileExtension))
@@ -136,7 +130,7 @@ public class PictureController : BaseAdminController
                     await using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName),
                                      FileMode.OpenOrCreate))
                     {
-                        await httpPostedFile.CopyToAsync(stream);
+                        await file.CopyToAsync(stream);
                     }
 
                     return Json(new {
@@ -165,7 +159,7 @@ public class PictureController : BaseAdminController
                 await using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName),
                                  FileMode.OpenOrCreate))
                 {
-                    await httpPostedFile.CopyToAsync(stream);
+                    await file.CopyToAsync(stream);
                 }
 
                 return Json(new {
