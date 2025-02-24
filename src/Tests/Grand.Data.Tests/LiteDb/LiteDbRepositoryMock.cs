@@ -8,8 +8,8 @@ public class LiteDBRepositoryMock<T> : LiteDBRepository<T>, IRepository<T> where
 {
     public LiteDBRepositoryMock() : base(Guid.NewGuid().ToString(), new AuditInfoProvider())
     {
-        _database = new LiteDatabase(new MemoryStream());
-        _database.DropCollection(typeof(T).Name);
-        _collection = _database.GetCollection<T>(typeof(T).Name);
+        Database = new LiteDatabase(new MemoryStream());
+        Database.DropCollection(typeof(T).Name);
+        Collection = Database.GetCollection<T>(typeof(T).Name);
     }
 }

@@ -6,7 +6,7 @@ namespace Grand.Data.Mongo;
 
 public class MongoDBContext : IDatabaseContext
 {
-    protected IMongoDatabase _database;
+    private readonly IMongoDatabase _database;
 
     public MongoDBContext(IMongoDatabase mongodatabase)
     {

@@ -19,17 +19,13 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Gets the collection
     /// </summary>
-    protected ILiteCollection<T> _collection;
-
-    public ILiteCollection<T> Collection => _collection;
+    protected ILiteCollection<T> Collection { get; init; }
     
     /// <summary>
     ///     Mongo Database
     /// </summary>
-    protected LiteDatabase _database;
-
-    public LiteDatabase Database => _database;
-
+    protected LiteDatabase Database { get; init; }
+    
     #endregion
 
     #region Ctor
@@ -44,24 +40,24 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
 
         if (!string.IsNullOrEmpty(connection.ConnectionString))
         {
-            _database = new LiteDatabase(connection.ConnectionString);
-            _collection = _database.GetCollection<T>(typeof(T).Name);
+            Database = new LiteDatabase(connection.ConnectionString);
+            Collection = Database.GetCollection<T>(typeof(T).Name);
         }
     }
 
     public LiteDBRepository(string connectionString, IAuditInfoProvider auditInfoProvider)
     {
         _auditInfoProvider = auditInfoProvider;
-        _database = new LiteDatabase(connectionString);
-        _collection = _database.GetCollection<T>(typeof(T).Name);
+        Database = new LiteDatabase(connectionString);
+        Collection = Database.GetCollection<T>(typeof(T).Name);
     }
 
 
     public LiteDBRepository(LiteDatabase database, IAuditInfoProvider auditInfoProvider)
     {
-        _database = database;
+        Database = database;
         _auditInfoProvider = auditInfoProvider;
-        _collection = _database.GetCollection<T>(typeof(T).Name);
+        Collection = Database.GetCollection<T>(typeof(T).Name);
     }
 
     #endregion
@@ -75,7 +71,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns>Entity</returns>
     public virtual T GetById(string id)
     {
-        return _collection.Find(e => e.Id == id).FirstOrDefault();
+        return Collection.Find(e => e.Id == id).FirstOrDefault();
     }
 
     /// <summary>
@@ -98,7 +94,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
         var visitor = new ToLowerInvariantVisitor();
         //WORKAROUND Issue #479 - Method ToLowerInvariant() in String are not supported when convert to BsonExpression
         var modifiedExpression = (Expression<Func<T, bool>>)visitor.Visit(predicate);
-        return Task.FromResult(_collection.Find(modifiedExpression).FirstOrDefault());
+        return Task.FromResult(Collection.Find(modifiedExpression).FirstOrDefault());
     }
 
     /// <summary>
@@ -109,7 +105,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        _collection.Insert(entity);
+        Collection.Insert(entity);
         return entity;
     }
 
@@ -131,7 +127,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
-        _collection.Update(entity);
+        Collection.Update(entity);
         return entity;
     }
 
@@ -154,12 +150,12 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <param name="value">value</param>
     public virtual Task UpdateField<U>(string id, Expression<Func<T, U>> expression, U value)
     {
-        var entity = _database.GetCollection(typeof(T).Name).FindById(new BsonValue(id));
+        var entity = Database.GetCollection(typeof(T).Name).FindById(new BsonValue(id));
         var bsonValue = BsonMapper.Global.Serialize(value);
         entity[GetName(expression)] = bsonValue;
         entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
         entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
-        _database.GetCollection(typeof(T).Name).Update(entity);
+        Database.GetCollection(typeof(T).Name).Update(entity);
 
         return Task.CompletedTask;
     }
@@ -173,20 +169,20 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <param name="value">value</param>
     public virtual Task IncField<U>(string id, Expression<Func<T, U>> expression, U value)
     {
-        var entity = _database.GetCollection(typeof(T).Name).FindById(new BsonValue(id));
+        var entity = Database.GetCollection(typeof(T).Name).FindById(new BsonValue(id));
         switch (value)
         {
             case int intValue:
                 var intrawValue = Convert.ToInt32(entity[GetName(expression)].RawValue);
                 var bsonIntValue = BsonMapper.Global.Serialize(intrawValue + intValue);
                 entity[GetName(expression)] = bsonIntValue;
-                _database.GetCollection(typeof(T).Name).Update(entity);
+                Database.GetCollection(typeof(T).Name).Update(entity);
                 break;
             case long longValue:
                 var longrawValue = Convert.ToInt64(entity[GetName(expression)].RawValue);
                 var bsonLongValue = BsonMapper.Global.Serialize(longrawValue + longValue);
                 entity[GetName(expression)] = bsonLongValue;
-                _database.GetCollection(typeof(T).Name).Update(entity);
+                Database.GetCollection(typeof(T).Name).Update(entity);
                 break;
         }
 
@@ -201,7 +197,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns></returns>
     public virtual Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder)
     {
-        var entity = _collection.FindOne(filterexpression);
+        var entity = Collection.FindOne(filterexpression);
         Update(entity, updateBuilder);
         return Task.CompletedTask;
     }
@@ -214,7 +210,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns></returns>
     public virtual Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder)
     {
-        var entities = _collection.Find(filterexpression);
+        var entities = Collection.Find(filterexpression);
         foreach (var entity in entities) Update(entity, updateBuilder);
         return Task.CompletedTask;
     }
@@ -234,7 +230,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
         entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
 
-        _collection.Update(entity);
+        Collection.Update(entity);
         return Task.CompletedTask;
     }
 
@@ -248,7 +244,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns></returns>
     public virtual Task AddToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value)
     {
-        var collection = _database.GetCollection(_collection.Name);
+        var collection = Database.GetCollection(Collection.Name);
         var entity = collection.FindById(new BsonValue(id));
         var fieldName = ((MemberExpression)field.Body).Member.Name;
 
@@ -279,7 +275,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     public virtual Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field,
         Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value)
     {
-        var collection = _database.GetCollection(_collection.Name);
+        var collection = Database.GetCollection(Collection.Name);
         var entity = collection.FindById(new BsonValue(id));
         var fieldName = ((MemberExpression)field.Body).Member.Name;
 
@@ -315,7 +311,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     public virtual Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
         Expression<Func<U, bool>> elemFieldMatch, U value)
     {
-        var collection = _database.GetCollection(_collection.Name);
+        var collection = Database.GetCollection(Collection.Name);
         var entity = collection.FindById(new BsonValue(id));
         var fieldName = ((MemberExpression)field.Body).Member.Name;
         if (entity == null) return Task.CompletedTask;
@@ -357,7 +353,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns></returns>
     public virtual Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value)
     {
-        var collection = _database.GetCollection(_collection.Name);
+        var collection = Database.GetCollection(Collection.Name);
         var fieldName = ((MemberExpression)field.Body).Member.Name;
         var records = collection.Find(Query.EQ($"{fieldName}[*] ANY", elemFieldMatch.ToString())).ToList();
         foreach (var entity in records)
@@ -393,7 +389,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     public virtual Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field,
         Expression<Func<U, Z>> elemFieldMatch, Z elemMatch)
     {
-        var collection = _database.GetCollection(_collection.Name);
+        var collection = Database.GetCollection(Collection.Name);
         var fieldName = ((MemberExpression)field.Body).Member.Name;
 
         var member = ((MemberExpression)elemFieldMatch.Body).Member;
@@ -445,7 +441,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     public virtual Task PullFilter<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
         Expression<Func<U, bool>> elemFieldMatch)
     {
-        var collection = _database.GetCollection(_collection.Name);
+        var collection = Database.GetCollection(Collection.Name);
         var entity = collection.FindById(new BsonValue(id));
         var fieldName = ((MemberExpression)field.Body).Member.Name;
         if (entity == null) return Task.CompletedTask;
@@ -477,7 +473,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns></returns>
     public virtual Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
     {
-        var collection = _database.GetCollection(_collection.Name);
+        var collection = Database.GetCollection(Collection.Name);
         var fieldName = ((MemberExpression)field.Body).Member.Name;
         if (string.IsNullOrEmpty(id))
         {
@@ -516,7 +512,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <param name="entity">Entity</param>
     public virtual void Delete(T entity)
     {
-        _collection.Delete(new BsonValue(entity.Id));
+        Collection.Delete(new BsonValue(entity.Id));
     }
 
     /// <summary>
@@ -545,7 +541,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns></returns>
     public virtual Task DeleteManyAsync(Expression<Func<T, bool>> filterExpression)
     {
-        _collection.DeleteMany(filterExpression);
+        Collection.DeleteMany(filterExpression);
         return Task.CompletedTask;
     }
 
@@ -554,7 +550,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// </summary>
     public Task ClearAsync()
     {
-        _collection.DeleteAll();
+        Collection.DeleteAll();
         return Task.CompletedTask;
     }
 
@@ -565,14 +561,14 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Gets a table
     /// </summary>
-    public virtual IQueryable<T> Table => _collection.Query().ToEnumerable().AsQueryable();
+    public virtual IQueryable<T> Table => Collection.Query().ToEnumerable().AsQueryable();
 
     /// <summary>
     ///     Gets a table collection
     /// </summary>
     public virtual IQueryable<C> TableCollection<C>() where C : class
     {
-        return _database.GetCollection<C>(nameof(T)).Query().ToEnumerable().AsQueryable();
+        return Database.GetCollection<C>(nameof(T)).Query().ToEnumerable().AsQueryable();
     }
 
     #endregion

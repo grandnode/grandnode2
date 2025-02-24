@@ -7,7 +7,7 @@ using MongoDB.Bson.Serialization.Serializers;
 
 namespace Grand.Data.Tests.MongoDb;
 
-public class MongoDBRepositoryTest<T> : MongoRepository<T>, IRepository<T> where T : BaseEntity
+public class MongoDBRepositoryTest<T> : MongoRepository<T> where T : BaseEntity
 {
     public MongoDBRepositoryTest() : base(
         DriverTestConfiguration.Client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName),
@@ -22,8 +22,8 @@ public class MongoDBRepositoryTest<T> : MongoRepository<T>, IRepository<T> where
         var client = DriverTestConfiguration.Client;
 
 
-        _database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-        _database.DropCollection(typeof(T).Name);
-        _collection = _database.GetCollection<T>(typeof(T).Name);
+        Database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+        Database.DropCollection(typeof(T).Name);
+        Collection = Database.GetCollection<T>(typeof(T).Name);
     }
 }

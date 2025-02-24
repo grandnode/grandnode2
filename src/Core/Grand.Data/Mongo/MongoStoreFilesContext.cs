@@ -6,14 +6,14 @@ namespace Grand.Data.Mongo;
 
 public class MongoStoreFilesContext : IStoreFilesContext
 {
-    protected IMongoDatabase _database;
+    private readonly IMongoDatabase _database;
 
     public MongoStoreFilesContext()
     {
         var connectionString = DataSettingsManager.Instance.LoadSettings().ConnectionString;
 
-        var mongourl = new MongoUrl(connectionString);
-        var databaseName = mongourl.DatabaseName;
+        var mongoUrl = new MongoUrl(connectionString);
+        var databaseName = mongoUrl.DatabaseName;
         _database = new MongoClient(connectionString).GetDatabase(databaseName);
     }
 
