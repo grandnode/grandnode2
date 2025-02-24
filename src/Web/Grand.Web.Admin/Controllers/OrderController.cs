@@ -534,11 +534,9 @@ public class OrderController(
             return RedirectToAction("Edit", "Order", new { id });
         }
 
-        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId);
-        if (orderItem == null)
-            throw new ArgumentException("No order item found with the specified id");
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId) ?? throw new ArgumentException("No order item found with the specified id");
+        var itemModel = model.Items.FirstOrDefault(x => x.Id == model.OrderItemId) ?? throw new ArgumentException("No order item model found with the specified id");
 
-        var itemModel = model.Items.FirstOrDefault(x => x.Id == model.OrderItemId);
         if (itemModel.Quantity == 0 || (orderItem.OpenQty != orderItem.Quantity && orderItem.IsShipEnabled))
         {
             Error("You can't change quantity");

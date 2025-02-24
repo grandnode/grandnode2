@@ -20,7 +20,10 @@ public class AffiliateDeleteValidator : BaseGrandValidator<AffiliateDeleteModel>
         {
             var affiliate = await affiliateService.GetAffiliateById(x.Id);
             if (affiliate == null)
+            {
                 context.AddFailure("No affiliate found with the specified id");
+                return;
+            }
 
             var customers = new GetCustomerQuery {
                 AffiliateId = affiliate.Id,

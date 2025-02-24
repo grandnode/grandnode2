@@ -151,7 +151,10 @@ public class CommonController : BasePublicController
         string langCode, string returnUrl = "")
     {
         var language = await _languageService.GetLanguageByCode(langCode);
-        if (!language?.Published ?? false)
+        if (language == null)
+            return InvokeHttp404();
+
+        if (!language.Published)
             language = _contextAccessor.WorkContext.WorkingLanguage;
 
         //prevent open redirection attack

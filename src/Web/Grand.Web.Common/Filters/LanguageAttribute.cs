@@ -126,7 +126,7 @@ public class LanguageAttribute : TypeFilterAttribute
             if (!string.IsNullOrEmpty(url)) url = Url.EncodeIllegalCharacters(url);
 
             //add language code
-            url = $"/{language.UniqueSeoCode}/{url.TrimStart('/')}";
+            url = $"/{language.UniqueSeoCode}/{url?.TrimStart('/')}";
 
             return url;
         }

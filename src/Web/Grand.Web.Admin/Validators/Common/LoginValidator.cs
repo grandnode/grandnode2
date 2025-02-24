@@ -65,7 +65,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                         translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
                     break;
                 case { CannotLoginUntilDateUtc: not null }
-                    when customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow:
+                    when customer!.CannotLoginUntilDateUtc.Value > DateTime.UtcNow:
                     context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials.LockedOut"));
                     break;
                 case not null:
