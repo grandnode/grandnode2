@@ -25,7 +25,7 @@ public class CookiePreference : ICookiePreference
     {
         var result = default(bool?);
         var savedCookiesConsent = customer.GetUserFieldFromEntity<Dictionary<string, bool>>(SystemCustomerFieldNames.ConsentCookies, store.Id);
-        if (savedCookiesConsent == null) return null;
+        if (savedCookiesConsent == null) return Task.FromResult<bool?>(null);
         if (savedCookiesConsent.TryGetValue(cookieSystemName, out var value))
             result = value;
 
