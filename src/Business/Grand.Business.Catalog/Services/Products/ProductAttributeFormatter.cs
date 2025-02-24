@@ -222,9 +222,9 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
                     //attributes with values
                     if (product.ProductAttributeMappings.FirstOrDefault(x => x.Id == attributes[i].Id) != null)
                     {
-                        var attributeValue = product.ProductAttributeMappings
-                            .FirstOrDefault(x => x.Id == attributes[i].Id).ProductAttributeValues
-                            .FirstOrDefault(x => x.Id == valueStr);
+                        var attributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == attributes[i].Id);
+                        var attributeValue = attributeMapping?.ProductAttributeValues.FirstOrDefault(x => x.Id == valueStr);
+
                         if (attributeValue != null)
                         {
                             formattedAttribute =
