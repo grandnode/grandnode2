@@ -5,7 +5,7 @@ namespace Grand.Data.LiteDb;
 
 public class LiteDBStoreFilesContext : IStoreFilesContext
 {
-    protected LiteDatabase _database;
+    private readonly LiteDatabase _database;
 
     public LiteDBStoreFilesContext(LiteDatabase database)
     {
@@ -16,7 +16,7 @@ public class LiteDBStoreFilesContext : IStoreFilesContext
     {
         var fs = _database.FileStorage;
         var file = fs.FindById(id);
-
+    
         if (file == null)
             throw new ArgumentNullException(nameof(file));
 

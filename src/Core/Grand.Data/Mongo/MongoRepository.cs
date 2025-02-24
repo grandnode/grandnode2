@@ -17,14 +17,12 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Gets the collection
     /// </summary>
-    protected IMongoCollection<T> _collection;
-
-    public IMongoCollection<T> Collection => _collection;
+    public IMongoCollection<T> Collection { get; protected init; }
 
     /// <summary>
     ///     Mongo Database
     /// </summary>
-    protected IMongoDatabase _database;
+    protected IMongoDatabase Database { get; init; }
 
     #endregion
 
@@ -33,7 +31,6 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Ctor
     /// </summary>
-    public MongoRepository(IAuditInfoProvider auditInfoProvider)
     public MongoRepository(IAuditInfoProvider auditInfoProvider) : this(
         DataSettingsManager.Instance.LoadSettings().ConnectionString, auditInfoProvider)
     {
@@ -54,9 +51,9 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     
     public MongoRepository(IMongoDatabase database, IAuditInfoProvider auditInfoProvider)
     {
-        _database = database;
+        Database = database;
         _auditInfoProvider = auditInfoProvider;
-        _collection = _database.GetCollection<T>(typeof(T).Name);
+        Collection = Database.GetCollection<T>(typeof(T).Name);
     }
 
     #endregion
@@ -70,7 +67,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns>Entity</returns>
     public virtual T GetById(string id)
     {
-        return _collection.Find(e => e.Id == id).FirstOrDefault();
+        return Collection.Find(e => e.Id == id).FirstOrDefault();
     }
 
     /// <summary>
@@ -80,7 +77,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns>Entity</returns>
     public virtual Task<T> GetByIdAsync(string id)
     {
-        return _collection.Find(e => e.Id == id).FirstOrDefaultAsync();
+        return Collection.Find(e => e.Id == id).FirstOrDefaultAsync();
     }
 
     /// <summary>
@@ -90,7 +87,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns>Entity</returns>
     public virtual Task<T> GetOneAsync(Expression<Func<T, bool>> predicate)
     {
-        return _collection.Find(predicate).FirstOrDefaultAsync();
+        return Collection.Find(predicate).FirstOrDefaultAsync();
     }
 
     /// <summary>
@@ -101,7 +98,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        _collection.InsertOne(entity);
+        Collection.InsertOne(entity);
         return entity;
     }
 
@@ -113,7 +110,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        await _collection.InsertOneAsync(entity);
+        await Collection.InsertOneAsync(entity);
         return entity;
     }
 
@@ -125,7 +122,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.UpdatedBy = _auditInfoProvider?.GetCurrentUser();
-        _collection.ReplaceOne(x => x.Id == entity.Id, entity, new ReplaceOptions { IsUpsert = false });
+        Collection.ReplaceOne(x => x.Id == entity.Id, entity, new ReplaceOptions { IsUpsert = false });
         return entity;
     }
 
@@ -137,7 +134,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
-        await _collection.ReplaceOneAsync(x => x.Id == entity.Id, entity,
+        await Collection.ReplaceOneAsync(x => x.Id == entity.Id, entity,
             new ReplaceOptions { IsUpsert = false });
         return entity;
     }
@@ -158,7 +155,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
             .Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser())
             .Set(expression, value);
 
-        await _collection.UpdateOneAsync(filter, update);
+        await Collection.UpdateOneAsync(filter, update);
     }
 
     /// <summary>
@@ -175,7 +172,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         var update = Builders<T>.Update
             .Inc(expression, value);
 
-        await _collection.UpdateOneAsync(filter, update);
+        await Collection.UpdateOneAsync(filter, update);
     }
 
     /// <summary>
@@ -190,7 +187,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-        await _collection.UpdateOneAsync(filterExpression, update);
+        await Collection.UpdateOneAsync(filterExpression, update);
     }
 
     /// <summary>
@@ -205,7 +202,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         updateBuilder.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         updateBuilder.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-        await _collection.UpdateManyAsync(filterExpression, update);
+        await Collection.UpdateManyAsync(filterExpression, update);
     }
 
     /// <summary>
@@ -225,7 +222,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-        await _collection.UpdateOneAsync(filter, combinedUpdate);
+        await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
     /// <summary>
@@ -251,7 +248,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
 
-        await _collection.UpdateOneAsync(filter, combinedUpdate);
+        await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
     /// <summary>
@@ -278,9 +275,9 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
         if (string.IsNullOrEmpty(id))
-            await _collection.UpdateManyAsync(filter, combinedUpdate);
+            await Collection.UpdateManyAsync(filter, combinedUpdate);
         else
-            await _collection.UpdateOneAsync(filter, combinedUpdate);
+            await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
     /// <summary>
@@ -307,7 +304,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
 
-        await _collection.UpdateManyAsync(filter, combinedUpdate);
+        await Collection.UpdateManyAsync(filter, combinedUpdate);
     }
 
     /// <summary>
@@ -333,9 +330,9 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
 
         if (string.IsNullOrEmpty(id))
-            await _collection.UpdateManyAsync(filter, combinedUpdate);
+            await Collection.UpdateManyAsync(filter, combinedUpdate);
         else
-            await _collection.UpdateOneAsync(filter, combinedUpdate);
+            await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
     /// <summary>
@@ -356,7 +353,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
         var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
 
-        await _collection.UpdateOneAsync(filter, combinedUpdate);
+        await Collection.UpdateOneAsync(filter, combinedUpdate);
     }
 
     /// <summary>
@@ -375,9 +372,9 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
 
         if (string.IsNullOrEmpty(id))
-            await _collection.UpdateManyAsync(Builders<T>.Filter.Where(x => true), combinedUpdate);
+            await Collection.UpdateManyAsync(Builders<T>.Filter.Where(x => true), combinedUpdate);
         else
-            await _collection.UpdateOneAsync(Builders<T>.Filter.Eq(x => x.Id, id), combinedUpdate);
+            await Collection.UpdateOneAsync(Builders<T>.Filter.Eq(x => x.Id, id), combinedUpdate);
     }
 
     /// <summary>
@@ -386,7 +383,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <param name="entity">Entity</param>
     public virtual void Delete(T entity)
     {
-        _collection.FindOneAndDelete(e => e.Id == entity.Id);
+        Collection.FindOneAndDelete(e => e.Id == entity.Id);
     }
 
     /// <summary>
@@ -395,7 +392,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <param name="entity">Entity</param>
     public virtual async Task<T> DeleteAsync(T entity)
     {
-        await _collection.DeleteOneAsync(e => e.Id == entity.Id);
+        await Collection.DeleteOneAsync(e => e.Id == entity.Id);
         return entity;
     }
 
@@ -415,7 +412,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns></returns>
     public virtual async Task DeleteManyAsync(Expression<Func<T, bool>> filterExpression)
     {
-        await _collection.DeleteManyAsync(filterExpression);
+        await Collection.DeleteManyAsync(filterExpression);
     }
 
     /// <summary>
@@ -423,7 +420,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// </summary>
     public Task ClearAsync()
     {
-        return _collection.DeleteManyAsync(Builders<T>.Filter.Empty);
+        return Collection.DeleteManyAsync(Builders<T>.Filter.Empty);
     }
 
     #endregion
@@ -433,14 +430,14 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Gets a table
     /// </summary>
-    public virtual IQueryable<T> Table => _collection.AsQueryable();
+    public virtual IQueryable<T> Table => Collection.AsQueryable();
 
     /// <summary>
     ///     Gets a table collection
     /// </summary>
     public virtual IQueryable<C> TableCollection<C>() where C : class
     {
-        return _database.GetCollection<C>(typeof(T).Name).AsQueryable();
+        return Database.GetCollection<C>(typeof(T).Name).AsQueryable();
     }
 
     #endregion

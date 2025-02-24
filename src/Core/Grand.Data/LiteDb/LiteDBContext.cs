@@ -6,7 +6,7 @@ namespace Grand.Data.LiteDb;
 
 public class LiteDBContext : IDatabaseContext
 {
-    protected LiteDatabase _database;
+    private readonly LiteDatabase _database;
 
     public LiteDBContext(LiteDatabase database)
     {
