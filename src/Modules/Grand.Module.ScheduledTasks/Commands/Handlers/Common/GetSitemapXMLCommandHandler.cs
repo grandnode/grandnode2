@@ -354,7 +354,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     {
         if (str == null)
             return null;
-        str = Regex.Replace(str, @"[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD]", "", RegexOptions.Compiled);
+        str = Regex.Replace(str, @"[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD]", "", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
         if (string.IsNullOrEmpty(str))
             return null;
 

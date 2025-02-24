@@ -49,7 +49,7 @@ public static class GrandVersion
             if (assembly.GetCustomAttribute(typeof(AssemblyInformationalVersionAttribute)) is not
                 AssemblyInformationalVersionAttribute infoVersionAttribute) return "0";
             var fullVersion = infoVersionAttribute.InformationalVersion;
-            var match = Regex.Match(fullVersion, @"(\d+)\.(\d+)\.(\d+)(?:-([^\+]+))?");
+            var match = Regex.Match(fullVersion, @"(\d+)\.(\d+)\.(\d+)(?:-([^\+]+))?", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
             if (!match.Success) return "0";
             var patch = match.Groups[3].Value;
             var suffix = match.Groups[4].Value;

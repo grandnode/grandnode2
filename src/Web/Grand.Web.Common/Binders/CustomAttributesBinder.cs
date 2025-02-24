@@ -26,7 +26,7 @@ public class CustomAttributesBinder : IModelBinder
 
     private static string GetKey(string key)
     {
-        var regex = new Regex("\\[(?<Value>\\w+)\\]");
+        var regex = new Regex("\\[(?<Value>\\w+)\\]", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
         string value = null;
         var match = regex.Match(key);
         if (match.Success) value = match.Groups["Value"].Value;

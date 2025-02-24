@@ -179,7 +179,7 @@ public class DownloadController : BasePublicController
         }
 
         return File(memoryStream.ToArray(), "application/zip",
-            $"{Regex.Replace(product.Name, "[^A-Za-z0-9 _]", "")}.zip");
+            $"{Regex.Replace(product.Name, "[^A-Za-z0-9 _]", "", RegexOptions.Compiled, TimeSpan.FromSeconds(1))}.zip");
     }
 
     [HttpGet]

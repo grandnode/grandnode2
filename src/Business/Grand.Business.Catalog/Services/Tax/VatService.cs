@@ -32,7 +32,7 @@ public class VatService : IVatService
 
         //PL 111 1111 111 or PL 1111111111
         //more advanced regex - http://codeigniter.com/wiki/European_Vat_Checker
-        var r = new Regex(@"^(\w{2})(.*)");
+        var r = new Regex(@"^(\w{2})(.*)", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
         var match = r.Match(fullVatNumber);
         if (!match.Success)
             return (VatNumberStatus.Invalid, name, address, null);
@@ -41,7 +41,6 @@ public class VatService : IVatService
 
         return await GetVatNumberStatus(twoLetterIsoCode, vatNumber);
     }
-
 
     /// <summary>
     ///     Gets VAT Number status
