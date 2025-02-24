@@ -34,29 +34,24 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     ///     Ctor
     /// </summary>
     public MongoRepository(IAuditInfoProvider auditInfoProvider)
+    public MongoRepository(IAuditInfoProvider auditInfoProvider) : this(
+        DataSettingsManager.Instance.LoadSettings().ConnectionString, auditInfoProvider)
     {
-        _auditInfoProvider = auditInfoProvider;
-        var connection = DataSettingsManager.Instance.LoadSettings();
-
-        if (!string.IsNullOrEmpty(connection.ConnectionString))
-        {
-            var client = new MongoClient(connection.ConnectionString);
-            var databaseName = new MongoUrl(connection.ConnectionString).DatabaseName;
-            _database = client.GetDatabase(databaseName);
-            _collection = _database.GetCollection<T>(typeof(T).Name);
-        }
     }
 
     public MongoRepository(string connectionString, IAuditInfoProvider auditInfoProvider)
     {
         _auditInfoProvider = auditInfoProvider;
-        var client = new MongoClient(connectionString);
-        var databaseName = new MongoUrl(connectionString).DatabaseName;
-        _database = client.GetDatabase(databaseName);
-        _collection = _database.GetCollection<T>(typeof(T).Name);
+
+        if (!string.IsNullOrEmpty(connectionString))
+        {
+            var client = new MongoClient(connectionString);
+            var databaseName = new MongoUrl(connectionString).DatabaseName;
+            Database = client.GetDatabase(databaseName);
+            Collection = Database.GetCollection<T>(typeof(T).Name);
+        }
     }
-
-
+    
     public MongoRepository(IMongoDatabase database, IAuditInfoProvider auditInfoProvider)
     {
         _database = database;
