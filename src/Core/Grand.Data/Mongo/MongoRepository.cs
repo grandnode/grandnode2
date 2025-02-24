@@ -241,7 +241,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
         var filter = Builders<T>.Filter.Eq(x => x.Id, id)
                      & Builders<T>.Filter.ElemMatch(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
 
-        var me = field.Body as MemberExpression;
+        var me = (MemberExpression)field.Body;
         var minfo = me.Member;
         var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
         var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
@@ -267,7 +267,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
             : Builders<T>.Filter.Eq(x => x.Id, id)
               & Builders<T>.Filter.ElemMatch(field, elemFieldMatch);
 
-        var me = field.Body as MemberExpression;
+        var me = (MemberExpression)field.Body;
         var minfo = me.Member;
         var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
 
@@ -291,7 +291,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <returns></returns>
     public virtual async Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value)
     {
-        var me = field.Body as MemberExpression;
+        var me = (MemberExpression)field.Body;
         var minfo = me.Member;
 
         var filter = new BsonDocument {
