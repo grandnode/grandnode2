@@ -53,7 +53,7 @@ public class DownloadController : BasePublicController
     {
         var product = await _productService.GetProductById(productId);
         if (product == null)
-            return InvokeHttp404();
+            return NotFound();
 
         if (!product.HasSampleDownload)
             return Content("Product doesn't have a sample download.");
@@ -81,7 +81,7 @@ public class DownloadController : BasePublicController
     {
         var orderItem = await _orderService.GetOrderItemByGuid(orderItemId);
         if (orderItem == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var order = await _orderService.GetOrderByOrderItemId(orderItem.Id);
         var product = await _productService.GetProductById(orderItem.ProductId);
@@ -186,7 +186,7 @@ public class DownloadController : BasePublicController
     {
         var orderItem = await _orderService.GetOrderItemByGuid(orderItemId);
         if (orderItem == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var order = await _orderService.GetOrderByOrderItemId(orderItem.Id);
         var product = await _productService.GetProductById(orderItem.ProductId);
@@ -250,11 +250,11 @@ public class DownloadController : BasePublicController
     {
         var orderNote = await _orderService.GetOrderNote(orderNoteId);
         if (orderNote == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var order = await _orderService.GetOrderById(orderNote.OrderId);
         if (order == null)
-            return InvokeHttp404();
+            return NotFound();
 
         if (_contextAccessor.WorkContext.CurrentCustomer == null || (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id &&
                                                      order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id))
@@ -286,15 +286,15 @@ public class DownloadController : BasePublicController
     {
         var shipmentNote = await shipmentService.GetShipmentNote(shipmentNoteId);
         if (shipmentNote == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var shipment = await shipmentService.GetShipmentById(shipmentNote.ShipmentId);
         if (shipment == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var order = await _orderService.GetOrderById(shipment.OrderId);
         if (order == null)
-            return InvokeHttp404();
+            return NotFound();
 
         if (_contextAccessor.WorkContext.CurrentCustomer == null || (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id &&
                                                      order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id))
@@ -329,7 +329,7 @@ public class DownloadController : BasePublicController
 
         var customerNote = await customerNoteService.GetCustomerNote(customerNoteId);
         if (customerNote == null)
-            return InvokeHttp404();
+            return NotFound();
 
         if (_contextAccessor.WorkContext.CurrentCustomer == null || customerNote.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
             return Challenge();
@@ -359,12 +359,12 @@ public class DownloadController : BasePublicController
     {
         var merchandiseReturnNote = await _merchandiseReturnService.GetMerchandiseReturnNote(merchandiseReturnNoteId);
         if (merchandiseReturnNote == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var merchandiseReturn =
             await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnNote.MerchandiseReturnId);
         if (merchandiseReturn == null)
-            return InvokeHttp404();
+            return NotFound();
 
         if (_contextAccessor.WorkContext.CurrentCustomer == null || merchandiseReturn.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
             return Challenge();
@@ -398,7 +398,7 @@ public class DownloadController : BasePublicController
 
         var document = await documentService.GetById(documentId);
         if (document is not { Published: true })
-            return InvokeHttp404();
+            return NotFound();
 
         if (_contextAccessor.WorkContext.CurrentCustomer == null || document.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
             return Challenge();

@@ -275,7 +275,7 @@ public class ProductController : BasePublicController
     {
         var product = await _productService.GetProductById(productId);
         if (product == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
@@ -284,19 +284,19 @@ public class ProductController : BasePublicController
             //Check whether the current user has a "Manage catalog" permission
             //It allows him to preview a product before publishing
             if (!product.Published && !await _permissionService.Authorize(StandardPermission.ManageProducts, customer))
-                return InvokeHttp404();
+                return NotFound();
 
         //ACL (access control list)
         if (!_aclService.Authorize(product, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         //Store access
         if (!_aclService.Authorize(product, _contextAccessor.StoreContext.CurrentStore.Id))
-            return InvokeHttp404();
+            return NotFound();
 
         //availability dates
         if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction)
-            return InvokeHttp404();
+            return NotFound();
 
         //visible individually?
         if (!product.VisibleIndividually)

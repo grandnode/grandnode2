@@ -125,7 +125,7 @@ public class BlogController : BasePublicController
 
         //Store acl
         if (!aclService.Authorize(blogPost, _contextAccessor.StoreContext.CurrentStore.Id))
-            return InvokeHttp404();
+            return NotFound();
 
         var model = await _mediator.Send(new GetBlogPost { BlogPost = blogPost });
 

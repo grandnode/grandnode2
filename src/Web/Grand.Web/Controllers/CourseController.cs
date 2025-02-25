@@ -82,10 +82,10 @@ public class CourseController : BasePublicController
 
         var course = await _courseService.GetById(courseId);
         if (course == null)
-            return InvokeHttp404();
+            return NotFound();
 
         if (!await CheckPermission(course, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         //display "edit" (manage) link
         if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) &&
@@ -109,14 +109,14 @@ public class CourseController : BasePublicController
 
         var lesson = await _courseLessonService.GetById(id);
         if (lesson == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var course = await _courseService.GetById(lesson.CourseId);
         if (course == null)
-            return InvokeHttp404();
+            return NotFound();
 
         if (!await CheckPermission(course, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         //display "edit" (manage) link
         if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) &&
@@ -141,14 +141,14 @@ public class CourseController : BasePublicController
 
         var lesson = await _courseLessonService.GetById(id);
         if (lesson == null || string.IsNullOrEmpty(lesson.AttachmentId))
-            return InvokeHttp404();
+            return NotFound();
 
         var course = await _courseService.GetById(lesson.CourseId);
         if (course == null)
-            return InvokeHttp404();
+            return NotFound();
 
         if (!await CheckPermission(course, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         var download = await _downloadService.GetDownloadById(lesson.AttachmentId);
         if (download == null)
@@ -177,14 +177,14 @@ public class CourseController : BasePublicController
 
         var lesson = await _courseLessonService.GetById(id);
         if (lesson == null || string.IsNullOrEmpty(lesson.VideoFile))
-            return InvokeHttp404();
+            return NotFound();
 
         var course = await _courseService.GetById(lesson.CourseId);
         if (course == null)
-            return InvokeHttp404();
+            return NotFound();
 
         if (!await CheckPermission(course, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         var download = await _downloadService.GetDownloadById(lesson.VideoFile);
         if (download == null)
