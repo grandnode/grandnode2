@@ -5,7 +5,6 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Directory;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using Grand.Module.Api.Attributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -26,9 +25,9 @@ public class CountryController : BaseApiController
     [EndpointDescription("Get entity from Country by key")]
     [EndpointName("GetCountryById")]
     [HttpGet("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CountryDto))]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Countries)) return Forbid();
@@ -44,7 +43,7 @@ public class CountryController : BaseApiController
     [EndpointName("GetCountries")]
     [HttpGet]
     [EnableQuery]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CountryDto>))]
     public async Task<IActionResult> Get()
     {

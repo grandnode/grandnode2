@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.Net;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -28,9 +27,9 @@ public class CollectionController : BaseApiController
     [EndpointDescription("Get entity from Collection by key")]
     [EndpointName("GetCollectionById")]
     [HttpGet("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
@@ -45,7 +44,7 @@ public class CollectionController : BaseApiController
     [EndpointName("GetCollections")]
     [HttpGet]
     [EnableQuery]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CollectionDto>))]
     public async Task<IActionResult> Get()
     {
@@ -57,9 +56,9 @@ public class CollectionController : BaseApiController
     [EndpointDescription("Add new entity to Collection")]
     [EndpointName("InsertCollection")]
     [HttpPost]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CollectionDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
@@ -71,9 +70,9 @@ public class CollectionController : BaseApiController
     [EndpointDescription("Update entity in Collection")]
     [EndpointName("UpdateCollection")]
     [HttpPut]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] CollectionDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();
@@ -85,10 +84,10 @@ public class CollectionController : BaseApiController
     [EndpointDescription("Partially update entity in Collection")]
     [EndpointName("PartiallyUpdateCollection")]
     [HttpPatch("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Patch([FromRoute] string key, [FromBody] JsonPatchDocument<CollectionDto> model)
     {
         if (string.IsNullOrEmpty(key))
@@ -108,9 +107,9 @@ public class CollectionController : BaseApiController
     [EndpointDescription("Delete entity in Collection")]
     [EndpointName("DeleteCollection")]
     [HttpDelete("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Collections)) return Forbid();

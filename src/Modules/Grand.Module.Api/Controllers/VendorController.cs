@@ -8,7 +8,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.Net;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -26,9 +25,9 @@ public class VendorController : BaseApiController
     [EndpointDescription("Get entity from Vendor by key")]
     [EndpointName("GetVendorById")]
     [HttpGet("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(VendorDto))]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Vendors)) return Forbid();
@@ -43,7 +42,7 @@ public class VendorController : BaseApiController
     [EndpointName("GetVendors")]
     [HttpGet]
     [EnableQuery]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<VendorDto>))]
     public async Task<IActionResult> Get()
     {

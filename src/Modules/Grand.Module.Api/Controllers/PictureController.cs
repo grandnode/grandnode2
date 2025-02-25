@@ -8,7 +8,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.Net;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -26,9 +25,9 @@ public class PictureController : BaseApiController
     [EndpointDescription("Get entities from Picture by key")]
     [EndpointName("GetPictureById")]
     [HttpGet("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PictureDto))]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
@@ -42,9 +41,9 @@ public class PictureController : BaseApiController
     [EndpointDescription("Add new entity in Picture")]
     [EndpointName("InsertPicture")]
     [HttpPost]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] PictureDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
@@ -56,9 +55,9 @@ public class PictureController : BaseApiController
     [EndpointDescription("Update entity in Picture")]
     [EndpointName("UpdatePicture")]
     [HttpPut]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] PictureDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();
@@ -70,9 +69,9 @@ public class PictureController : BaseApiController
     [EndpointDescription("Delete entity in Picture")]
     [EndpointName("DeletePicture")]
     [HttpDelete("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Pictures)) return Forbid();

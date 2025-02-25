@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.Net;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -28,9 +27,9 @@ public class CustomerGroupController : BaseApiController
     [EndpointDescription("Get entity from CustomerGroup by key")]
     [EndpointName("GetCustomerGroupById")]
     [HttpGet("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerGroupDto))]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
@@ -45,7 +44,7 @@ public class CustomerGroupController : BaseApiController
     [EndpointName("GetCustomerGroups")]
     [HttpGet]
     [EnableQuery]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CustomerGroupDto>))]
     public async Task<IActionResult> Get()
     {
@@ -57,9 +56,9 @@ public class CustomerGroupController : BaseApiController
     [EndpointDescription("Add new entity to CustomerGroup")]
     [EndpointName("InsertCustomerGroup")]
     [HttpPost]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerGroupDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CustomerGroupDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
@@ -71,9 +70,9 @@ public class CustomerGroupController : BaseApiController
     [EndpointDescription("Update entity in CustomerGroup")]
     [EndpointName("UpdateCustomerGroup")]
     [HttpPut]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerGroupDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] CustomerGroupDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
@@ -90,10 +89,10 @@ public class CustomerGroupController : BaseApiController
     [EndpointDescription("Partially update entity in CustomerGroup")]
     [EndpointName("PartiallyUpdateCustomerGroup")]
     [HttpPatch("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Patch([FromRoute] string key, [FromBody] JsonPatchDocument<CustomerGroupDto> model)
     {
         if (string.IsNullOrEmpty(key))
@@ -118,9 +117,9 @@ public class CustomerGroupController : BaseApiController
     [EndpointDescription("Delete entity in CustomerGroup")]
     [EndpointName("DeleteCustomerGroup")]
     [HttpDelete("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
