@@ -1,10 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
     <Import Project="..\..\Build\Grand.Common.props" />
 	<PropertyGroup>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 		<CompressionEnabled>false</CompressionEnabled>
 	</PropertyGroup>
     <ItemGroup>
       <Folder Include="wwwroot\" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
     </ItemGroup>
 
 </Project>
