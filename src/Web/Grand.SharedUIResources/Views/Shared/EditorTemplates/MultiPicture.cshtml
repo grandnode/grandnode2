@@ -1,4 +1,4 @@
-@using Constants = Grand.SharedUIResources.Constants
+@using Grand.SharedKernel.Extensions
 @model string
 @{
     var random = CommonHelper.GenerateRandomInteger();
@@ -20,6 +20,7 @@
 <div id="@(clientId)-qq-template" style="display: none;">
     <partial name="Partials/QqUploader" />
 </div>
+
 
 <script>
     $(document).ready(function() {
