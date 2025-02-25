@@ -68,7 +68,7 @@ public class ActionCartController : BasePublicController
 
     #region Private methods
 
-    private IActionResult RedirectToProduct(Product product, ShoppingCartType cartType, int quantity)
+    private JsonResult RedirectToProduct(Product product, ShoppingCartType cartType, int quantity)
     {
         //we can't add grouped products 
         if (product.ProductTypeId == ProductType.GroupedProduct)
