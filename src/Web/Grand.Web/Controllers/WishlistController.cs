@@ -60,8 +60,7 @@ public class WishlistController : BasePublicController
     #region Wishlist
 
     [HttpGet]
-    [ProducesResponseType(typeof(MiniWishlistModel), StatusCodes.Status200OK)]
-    public async Task<IActionResult> SidebarWishlist()
+    public async Task<ActionResult<MiniWishlistModel>> SidebarWishlist()
     {
         if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
             return Content("");
@@ -84,8 +83,7 @@ public class WishlistController : BasePublicController
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(WishlistModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> Index(Guid? customerGuid)
+    public virtual async Task<ActionResult<WishlistModel>> Index(Guid? customerGuid)
     {
         if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
             return RedirectToRoute("HomePage");

@@ -116,7 +116,7 @@ public class ActionCartController : BasePublicController
             _contextAccessor.StoreContext.CurrentStore.DefaultWarehouseId;
     }
 
-    private IActionResult ReturnFailMessage(Product product, ShoppingCartType shoppingCartTypeId)
+    private JsonResult ReturnFailMessage(Product product, ShoppingCartType shoppingCartTypeId)
     {
         switch (product.ProductTypeId)
         {
@@ -165,9 +165,8 @@ public class ActionCartController : BasePublicController
 
     #region Public methods
 
-    [ProducesResponseType(typeof(ProductCatalogCart), StatusCodes.Status200OK)]
     [HttpPost]
-    public virtual async Task<IActionResult> AddProductCatalog(ProductCatalogCart model)
+    public virtual async Task<ActionResult<ProductCatalogCart>> AddProductCatalog(ProductCatalogCart model)
     {
         var product = await _productService.GetProductById(model.ProductId);
         if (product == null)
@@ -319,9 +318,8 @@ public class ActionCartController : BasePublicController
         }
     }
 
-    [ProducesResponseType(typeof(ProductDetailsCart), StatusCodes.Status200OK)]
     [HttpPost]
-    public virtual async Task<IActionResult> AddProductDetails(ProductDetailsCart model)
+    public virtual async Task<ActionResult<ProductDetailsCart>> AddProductDetails(ProductDetailsCart model)
     {
         var product = await _productService.GetProductById(model.ProductId);
         if (product == null)
@@ -520,9 +518,8 @@ public class ActionCartController : BasePublicController
         #endregion
     }
 
-    [ProducesResponseType(typeof(ProductDetailsCart), StatusCodes.Status200OK)]
     [HttpPost]
-    public virtual async Task<IActionResult> UpdateItemCart(ProductDetailsCart model)
+    public virtual async Task<ActionResult<ProductDetailsCart>> UpdateItemCart(ProductDetailsCart model)
     {
         var cart = _contextAccessor.WorkContext.CurrentCustomer.ShoppingCartItems.FirstOrDefault(sci =>
             sci.Id == model.ShoppingCartItemId);
@@ -709,9 +706,8 @@ public class ActionCartController : BasePublicController
         });
     }
 
-    [ProducesResponseType(typeof(AddBidModel), StatusCodes.Status200OK)]
     [HttpPost]
-    public virtual async Task<IActionResult> AddBid(AddBidModel model,
+    public virtual async Task<ActionResult<AddBidModel>> AddBid(AddBidModel model,
         [FromServices] IAuctionService auctionService)
     {
         var customer = _contextAccessor.WorkContext.CurrentCustomer;

@@ -54,8 +54,7 @@ public class BlogController : BasePublicController
     #region Methods
 
     [HttpGet]
-    [ProducesResponseType(typeof(BlogPostListModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> List(BlogPagingFilteringModel command)
+    public virtual async Task<ActionResult<BlogPostListModel>> List(BlogPagingFilteringModel command)
     {
         if (!_blogSettings.Enabled)
             return RedirectToRoute("HomePage");
@@ -65,8 +64,7 @@ public class BlogController : BasePublicController
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(BlogPostListModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> BlogByTag(BlogPagingFilteringModel command)
+    public virtual async Task<ActionResult<BlogPostListModel>> BlogByTag(BlogPagingFilteringModel command)
     {
         if (!_blogSettings.Enabled)
             return RedirectToRoute("HomePage");
@@ -76,8 +74,7 @@ public class BlogController : BasePublicController
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(BlogPostListModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> BlogByMonth(BlogPagingFilteringModel command)
+    public virtual async Task<ActionResult<BlogPostListModel>> BlogByMonth(BlogPagingFilteringModel command)
     {
         if (!_blogSettings.Enabled)
             return RedirectToRoute("HomePage");
@@ -87,8 +84,7 @@ public class BlogController : BasePublicController
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(BlogPostListModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> BlogByCategory(BlogPagingFilteringModel command)
+    public virtual async Task<ActionResult<BlogPostListModel>> BlogByCategory(BlogPagingFilteringModel command)
     {
         if (!_blogSettings.Enabled)
             return RedirectToRoute("HomePage");
@@ -98,8 +94,7 @@ public class BlogController : BasePublicController
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(BlogPostListModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> BlogByKeyword(BlogPagingFilteringModel command)
+    public virtual async Task<ActionResult<BlogPostListModel>> BlogByKeyword(BlogPagingFilteringModel command)
     {
         if (!_blogSettings.Enabled)
             return RedirectToRoute("HomePage");
@@ -109,8 +104,7 @@ public class BlogController : BasePublicController
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(BlogPostModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> BlogPost(string blogPostId,
+    public virtual async Task<ActionResult<BlogPostModel>> BlogPost(string blogPostId,
         [FromServices] IAclService aclService,
         [FromServices] IPermissionService permissionService)
     {
@@ -140,8 +134,7 @@ public class BlogController : BasePublicController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
-    [ProducesResponseType(typeof(AddBlogCommentModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> BlogPost(AddBlogCommentModel model,
+    public virtual async Task<ActionResult<AddBlogCommentModel>> BlogPost(AddBlogCommentModel model,
         [FromServices] IAclService aclService)
     {
         var blogPost = await _blogService.GetBlogPostById(model.Id);

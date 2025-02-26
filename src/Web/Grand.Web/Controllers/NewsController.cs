@@ -59,8 +59,7 @@ public class NewsController : BasePublicController
     #region Methods
 
     [HttpGet]
-    [ProducesResponseType(typeof(NewsItemListModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> List(NewsPagingFilteringModel command)
+    public virtual async Task<ActionResult<NewsItemListModel>> List(NewsPagingFilteringModel command)
     {
         if (!_newsSettings.Enabled)
             return RedirectToRoute("HomePage");
@@ -70,8 +69,7 @@ public class NewsController : BasePublicController
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(NewsItemModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> NewsItem(string newsItemId)
+    public virtual async Task<ActionResult<NewsItemModel>> NewsItem(string newsItemId)
     {
         if (!_newsSettings.Enabled)
             return RedirectToRoute("HomePage");

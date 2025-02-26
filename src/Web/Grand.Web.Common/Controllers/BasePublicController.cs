@@ -25,7 +25,7 @@ public abstract class BasePublicController : BaseController
     }
 
     [IgnoreApi]
-    public new IActionResult View(object model)
+    public new ActionResult View(object model)
     {
         if (IsJsonResponseView())
             return Ok(model);

@@ -98,8 +98,7 @@ public class ShoppingCartController : BasePublicController
     #region Shopping cart
 
     [HttpGet]
-    [ProducesResponseType(typeof(MiniShoppingCartModel), StatusCodes.Status200OK)]
-    public async Task<IActionResult> SidebarShoppingCart()
+    public async Task<ActionResult<MiniShoppingCartModel>> SidebarShoppingCart()
     {
         if (!_shoppingCartSettings.MiniShoppingCartEnabled)
             return Content("");
@@ -253,8 +252,7 @@ public class ShoppingCartController : BasePublicController
     }
 
     [HttpGet]
-    //[ProducesResponseType(typeof(ShoppingCartModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> Cart(bool checkoutAttributes)
+    public virtual async Task<ActionResult<ShoppingCartModel>> Cart(bool checkoutAttributes)
     {
         if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
             return RedirectToRoute("HomePage");
@@ -274,8 +272,7 @@ public class ShoppingCartController : BasePublicController
 
     [HttpGet]
     [DenySystemAccount]
-    [ProducesResponseType(typeof(ShoppingCartModel), StatusCodes.Status200OK)]
-    public async Task<IActionResult> CartSummary()
+    public async Task<ActionResult<ShoppingCartModel>> CartSummary()
     {
         var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
@@ -295,8 +292,7 @@ public class ShoppingCartController : BasePublicController
 
     [HttpGet]
     [DenySystemAccount]
-    [ProducesResponseType(typeof(OrderTotalsModel), StatusCodes.Status200OK)]
-    public async Task<IActionResult> CartTotal()
+    public async Task<ActionResult<OrderTotalsModel>> CartTotal()
     {
         var cart = await _shoppingCartService.GetShoppingCart(_contextAccessor.StoreContext.CurrentStore.Id,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);

@@ -270,8 +270,7 @@ public class ProductController : BasePublicController
     #region Product details page
 
     [HttpGet]
-    [ProducesResponseType(typeof(ProductDetailsModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> ProductDetails(string productId)
+    public virtual async Task<ActionResult<ProductDetailsModel>> ProductDetails(string productId)
     {
         var product = await _productService.GetProductById(productId);
         if (product == null)
@@ -337,8 +336,7 @@ public class ProductController : BasePublicController
     //handle product attribute selection event. this way we return new price, overridden gtin/sku/mpn
     //currently we use this method on the product details pages
     [HttpPost]
-    [ProducesResponseType(typeof(ProductDetailsModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> ProductDetails_AttributeChange(ProductModel model)
+    public virtual async Task<ActionResult<ProductDetailsModel>> ProductDetails_AttributeChange(ProductModel model)
     {
         var product = await _productService.GetProductById(model.ProductId);
         if (product == null)

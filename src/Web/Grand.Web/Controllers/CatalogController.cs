@@ -91,9 +91,8 @@ public class CatalogController : BasePublicController
 
     #region Categories
 
-    [ProducesResponseType(typeof(CategoryModel), StatusCodes.Status200OK)]
     [HttpGet]
-    public virtual async Task<IActionResult> Category(string categoryId, CatalogPagingFilteringModel command)
+    public virtual async Task<ActionResult<CategoryModel>> Category(string categoryId, CatalogPagingFilteringModel command)
     {
         var category = await _categoryService.GetCategoryById(categoryId);
         if (category == null)
