@@ -8,6 +8,7 @@
     var picture = await pictureService.GetPictureById(Model);
     var targetPictureSize = 100;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    
 }
 
 <partial name="Partials/FineUploader" />
@@ -16,7 +17,7 @@
     <input asp-for="@Model" type="hidden"/>
 </div>
 <div id="@(clientId + "image")">
-    <img src="@(await pictureService.GetPictureUrl(Model, targetPictureSize))"/>
+    <img alt="@picture.AltAttribute" src="@(await pictureService.GetPictureUrl(Model, targetPictureSize))" />
 </div>
 @if (picture != null)
 {
