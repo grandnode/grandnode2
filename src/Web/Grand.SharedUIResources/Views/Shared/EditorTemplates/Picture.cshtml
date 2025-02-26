@@ -17,7 +17,7 @@
     <input asp-for="@Model" type="hidden"/>
 </div>
 <div id="@(clientId + "image")">
-    <img alt="@picture.AltAttribute" src="@(await pictureService.GetPictureUrl(Model, targetPictureSize))" />
+    <img alt="@picture?.AltAttribute" src="@(await pictureService.GetPictureUrl(Model, targetPictureSize))" />
 </div>
 @if (picture != null)
 {
