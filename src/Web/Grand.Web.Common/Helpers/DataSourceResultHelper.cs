@@ -31,5 +31,5 @@ public static class DataSourceResultHelper
             Total = searchModels.Count
         };
     }
-    private record SearchModel(string Id, string Name);
+    private sealed record SearchModel(string Id, string Name);
 }
