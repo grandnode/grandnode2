@@ -1,5 +1,7 @@
 ﻿@model string
-
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 @Html.TextBoxFor(model => model, new { @class = "col-md-8", style = "width: 100%;" })
 
 <script>
@@ -11,7 +13,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("Collection", "Search", new { area = Constants.AreaAdmin, collectionId = Model }))"
+                        url: "@Html.Raw(Url.Action("Collection", "Search", new { area, collectionId = Model }))"
                     }
                 },
                 schema: {

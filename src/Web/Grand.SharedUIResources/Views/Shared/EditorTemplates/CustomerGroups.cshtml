@@ -1,18 +1,18 @@
 ﻿@using Grand.Infrastructure.Configuration
 @model string[]
-@inject AccessControlConfig AccessControlConfig
+@inject AccessControlConfig AccessControlConfig;
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     var warnings = true;
-    if (ViewData["DisableIgnoreStoreWarnings"] != null)
+    if (ViewData["DisableIgnoreAclWarnings"] != null)
     {
-        warnings = !(bool)ViewData["DisableIgnoreStoreWarnings"];
+        warnings = !(bool)ViewData["DisableIgnoreAclWarnings"];
     }
 }
 @Html.ListBoxFor(model => model, new List<SelectListItem>())
-
-@if (AccessControlConfig.IgnoreStoreLimitations && warnings)
+@if (AccessControlConfig.IgnoreAcl && warnings)
 {
-    <div class="note note-info">@Loc["Admin.System.Warnings.IgnoreStoreLimitations"]</div>
+    <div class="note note-info">@Loc["Admin.System.Warnings.IgnoreAcl"]</div>
 }
 
 <script>
@@ -23,7 +23,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("Stores", "Search", new { area = Constants.AreaAdmin, stores = Model }))"
+                        url: "@Html.Raw(Url.Action("CustomerGroup", "Search", new { area, customerGroups = Model }))"
                     }
                 },
                 schema: {

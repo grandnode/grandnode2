@@ -1,11 +1,11 @@
 ﻿@using Grand.Business.Core.Interfaces.Storage
-@using Constants = Grand.SharedUIResources.Constants
+@using Grand.SharedKernel.Extensions
 @model string
 @inject IDownloadService downloadService
 @{
-    <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/fineuploader/fineuploader-4.2.2.min.css"/>
-    <script asp-location="Footer" asp-src="@(Constants.WwwRoot)/administration/fineuploader/jquery.fineuploader-4.2.2.min.js"></script>
-
+    <link rel="stylesheet" type="text/css" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/fineuploader/fineuploader-4.2.2.min.css" />
+    <script asp-location="Footer" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/fineuploader/jquery.fineuploader-4.2.2.min.js"></script>
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     var randomNumber = CommonHelper.GenerateRandomInteger();
     var clientId = "download" + randomNumber;
     var download = await downloadService.GetDownloadById(Model);
@@ -23,7 +23,7 @@
             $.ajax({
                 cache: false,
                 type: "POST",
-                url: "@(Url.Action("SaveDownloadUrl", "Download", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin }))",
+                url: "@(Url.Action("SaveDownloadUrl", "Download", new { area }))",
                 data: { "downloadUrl": downloadUrl, DownloadType: '@ViewData["DownloadType"]', ReferenceId: '@ViewData["ReferenceId"]' },
                 success: function (data) {
                     if (data.success) {
@@ -115,7 +115,7 @@
                         $(document).ready(function () {
                             $("#@clientId").fineUploader({
                                 request: {
-                                    endpoint: '@(Url.Action("AsyncUpload", "Download", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin }))',
+                                    endpoint: '@(Url.Action("AsyncUpload", "Download", new { area }))',
                                     params: {
                                         DownloadType: '@ViewData["DownloadType"]',
                                         ReferenceId: '@ViewData["ReferenceId"]'
@@ -144,7 +144,7 @@
                 <div id="@(clientId + "downloadurl")">
                     @if (download != null)
                     {
-                        <a href="@(Url.Action("DownloadFile", "Download", new { downloadGuid = download.DownloadGuid, area = Grand.Web.Admin.Extensions.Constants.AreaAdmin }))" class="btn purple">@Loc["Admin.Download.DownloadUploadedFile"]</a>
+                        <a href="@(Url.Action("DownloadFile", "Download", new { downloadGuid = download.DownloadGuid, area }))" class="btn purple">@Loc["Admin.Download.DownloadUploadedFile"]</a>
                     }
                 </div>
                 <div>

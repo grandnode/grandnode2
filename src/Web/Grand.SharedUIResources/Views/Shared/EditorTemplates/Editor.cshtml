@@ -1,6 +1,7 @@
 ﻿@using Grand.Business.Core.Interfaces.Common.Security
 @using Grand.Domain.Permissions
-@using Constants = Grand.SharedUIResources.Constants
+@using Grand.SharedKernel.Extensions
+
 @model string
 @inject IPermissionService permissionService
 @{
@@ -17,7 +18,7 @@
     function elfinderDialog@(random)(context) { // <------------------ +context
         var fm = $('<div/>').dialogelfinder({
             url: '@Url.Action("Connector", "ElFinder")',
-            baseUrl: '@(Constants.WwwRoot)/administration/elfinder/',
+            baseUrl: '@(Grand.SharedUIResources.Constants.WwwRoot)/administration/elfinder/',
             lang: 'en',
             width: 840,
             height: 450,
