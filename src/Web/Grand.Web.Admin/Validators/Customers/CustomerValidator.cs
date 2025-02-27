@@ -183,7 +183,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                             context.AddFailure("Owner email is not exists");
                     }
 
-                    if (!string.IsNullOrWhiteSpace(x.Username) & customerSettings.UsernamesEnabled)
+                    if (!string.IsNullOrWhiteSpace(x.Username) && customerSettings.UsernamesEnabled)
                     {
                         var customerByUsername = await customerService.GetCustomerByUsername(x.Username);
                         if (customerByUsername != null)
@@ -248,7 +248,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                                 translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));
                     }
 
-                    if (customer != null && !string.IsNullOrWhiteSpace(x.Username) & customerSettings.UsernamesEnabled)
+                    if (customer != null && !string.IsNullOrWhiteSpace(x.Username) && customerSettings.UsernamesEnabled)
                     {
                         if (x.Username.Length > 100)
                             context.AddFailure("Username is too long");
