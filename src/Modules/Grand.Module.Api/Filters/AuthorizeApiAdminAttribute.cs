@@ -30,17 +30,11 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
     /// <summary>
     ///     Represents a filter that confirms access to the admin panel
     /// </summary>
-    private class AuthorizeApiAdminFilter : IAsyncAuthorizationFilter
+    private class AuthorizeApiAdminFilter(bool ignoreFilter, IPermissionService permissionService,
+        SecuritySettings securitySettings) : IAsyncAuthorizationFilter
     {
-        #region Ctor
 
-        public AuthorizeApiAdminFilter(bool ignoreFilter, IPermissionService permissionService,
-            SecuritySettings securitySettings)
-        {
-            _ignoreFilter = ignoreFilter;
-            _permissionService = permissionService;
-            _securitySettings = securitySettings;
-        }
+        #region Ctor
 
         #endregion
 
@@ -60,7 +54,7 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
                 .Select(f => f.Filter).OfType<AuthorizeApiAdminAttribute>().FirstOrDefault();
 
             //ignore filter (the action is available even if a customer hasn't access to the admin area)
-            if (actionFilter?.IgnoreFilter ?? _ignoreFilter)
+            if (actionFilter?.IgnoreFilter ?? ignoreFilter)
                 return;
 
             if (!DataSettingsManager.DatabaseIsInstalled())
@@ -70,11 +64,11 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
             if (filterContext.Filters.Any(filter => filter is AuthorizeApiAdminFilter))
             {
                 //authorize permission of access to the admin area
-                if (!await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
+                if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
                     filterContext.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
 
                 //get allowed IP addresses
-                var ipAddresses = _securitySettings.AdminAreaAllowedIpAddresses;
+                var ipAddresses = securitySettings.AdminAreaAllowedIpAddresses;
 
                 //there are no restrictions
                 if (ipAddresses == null || !ipAddresses.Any())
@@ -88,14 +82,7 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
         }
 
         #endregion
-
-        #region Fields
-
-        private readonly bool _ignoreFilter;
-        private readonly IPermissionService _permissionService;
-        private readonly SecuritySettings _securitySettings;
-
-        #endregion
+        
     }
 
     #endregion
