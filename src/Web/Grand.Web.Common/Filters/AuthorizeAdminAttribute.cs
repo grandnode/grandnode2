@@ -32,21 +32,9 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
     /// <summary>
     ///     Represents a filter that confirms access to the admin panel
     /// </summary>
-    private class AuthorizeAdminFilter : IAsyncAuthorizationFilter
+    private class AuthorizeAdminFilter(bool ignoreFilter, IPermissionService permissionService,
+        SecuritySettings securitySettings, IContextAccessor contextAccessor, IGroupService groupService) : IAsyncAuthorizationFilter
     {
-        #region Ctor
-
-        public AuthorizeAdminFilter(bool ignoreFilter, IPermissionService permissionService,
-            SecuritySettings securitySettings, IContextAccessor contextAccessor, IGroupService groupService)
-        {
-            _ignoreFilter = ignoreFilter;
-            _permissionService = permissionService;
-            _securitySettings = securitySettings;
-            _contextAccessor = contextAccessor;
-            _groupService = groupService;
-        }
-
-        #endregion
 
         #region Methods
 
@@ -64,7 +52,7 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
                 .Select(f => f.Filter).OfType<AuthorizeAdminAttribute>().FirstOrDefault();
 
             //ignore filter (the action is available even if a customer hasn't access to the admin area)
-            if (actionFilter?.IgnoreFilter ?? _ignoreFilter)
+            if (actionFilter?.IgnoreFilter ?? ignoreFilter)
                 return;
 
             if (!DataSettingsManager.DatabaseIsInstalled())
@@ -74,16 +62,16 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
             if (filterContext.Filters.Any(filter => filter is AuthorizeAdminFilter))
             {
                 //authorize permission of access to the admin area
-                if (!await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
+                if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
                     filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
 
                 //whether current customer is vendor
-                if (await _groupService.IsVendor(_contextAccessor.WorkContext.CurrentCustomer) ||
-                    _contextAccessor.WorkContext.CurrentVendor is not null)
+                if (await groupService.IsVendor(contextAccessor.WorkContext.CurrentCustomer) ||
+                    contextAccessor.WorkContext.CurrentVendor is not null)
                     filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
 
                 //get allowed IP addresses
-                var ipAddresses = _securitySettings.AdminAreaAllowedIpAddresses;
+                var ipAddresses = securitySettings.AdminAreaAllowedIpAddresses;
 
                 //there are no restrictions
                 if (ipAddresses == null || !ipAddresses.Any())
@@ -95,17 +83,6 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
                     filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
             }
         }
-
-        #endregion
-
-        #region Fields
-
-        private readonly bool _ignoreFilter;
-        private readonly IPermissionService _permissionService;
-        private readonly IContextAccessor _contextAccessor;
-        private readonly IGroupService _groupService;
-
-        private readonly SecuritySettings _securitySettings;
 
         #endregion
     }

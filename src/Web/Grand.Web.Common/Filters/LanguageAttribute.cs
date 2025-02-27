@@ -29,29 +29,10 @@ public class LanguageAttribute : TypeFilterAttribute
     /// <summary>
     ///     Represents a filter that checks SEO friendly URLs for multiple languages and properly redirect if necessary
     /// </summary>
-    private class LanguageSeoCodeFilter : IAsyncActionFilter
+    private class LanguageSeoCodeFilter(
+        IContextAccessor contextAccessor, ILanguageService languageService,
+        AppConfig config) : IAsyncActionFilter
     {
-        #region Ctor
-
-        public LanguageSeoCodeFilter(
-            IContextAccessor contextAccessor, ILanguageService languageService,
-            AppConfig config)
-        {
-            _contextAccessor = contextAccessor;
-            _languageService = languageService;
-            _config = config;
-        }
-
-        #endregion
-
-        #region Fields
-
-        private readonly IContextAccessor _contextAccessor;
-        private readonly ILanguageService _languageService;
-        private readonly AppConfig _config;
-
-        #endregion
-
         #region Methods
 
         /// <summary>
@@ -75,7 +56,7 @@ public class LanguageAttribute : TypeFilterAttribute
             }
 
             //whether SEO friendly URLs are enabled
-            if (!_config.SeoFriendlyUrlsForLanguagesEnabled)
+            if (!config.SeoFriendlyUrlsForLanguagesEnabled)
             {
                 await next();
                 return;
@@ -96,7 +77,7 @@ public class LanguageAttribute : TypeFilterAttribute
                 return;
             }
 
-            pageUrl = AddLanguageSeo(pageUrl, _contextAccessor.WorkContext.WorkingLanguage);
+            pageUrl = AddLanguageSeo(pageUrl, contextAccessor.WorkContext.WorkingLanguage);
             context.Result = new RedirectResult(pageUrl, false);
         }
 
@@ -111,7 +92,7 @@ public class LanguageAttribute : TypeFilterAttribute
                 return false;
 
             //suppose that the first segment is the language code and try to get language
-            var language = (await _languageService.GetAllLanguages())
+            var language = (await languageService.GetAllLanguages())
                 .FirstOrDefault(urlLanguage =>
                     urlLanguage.UniqueSeoCode.Equals(firstSegment, StringComparison.OrdinalIgnoreCase));
 

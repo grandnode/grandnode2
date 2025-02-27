@@ -33,21 +33,9 @@ public class AuthorizeVendorAttribute : TypeFilterAttribute
     ///     Represents a filter confirming that user with "Vendor" customer group has appropriate vendor account associated
     ///     (and active)
     /// </summary>
-    private class AuthorizeVendorFilter : IAsyncAuthorizationFilter
+    private class AuthorizeVendorFilter(bool ignoreFilter, IContextAccessor contextAccessor, IGroupService groupService,
+        IPermissionService permissionService) : IAsyncAuthorizationFilter
     {
-        #region Ctor
-
-        public AuthorizeVendorFilter(bool ignoreFilter, IContextAccessor contextAccessor, IGroupService groupService,
-            IPermissionService permissionService)
-        {
-            _ignoreFilter = ignoreFilter;
-            _contextAccessor = contextAccessor;
-            _groupService = groupService;
-            _permissionService = permissionService;
-        }
-
-        #endregion
-
         #region Methods
 
         /// <summary>
@@ -65,29 +53,20 @@ public class AuthorizeVendorAttribute : TypeFilterAttribute
                 .Select(f => f.Filter).OfType<AuthorizeVendorAttribute>().FirstOrDefault();
 
             //ignore filter (the action is available even if the current customer isn't a vendor)
-            if (actionFilter?.IgnoreFilter ?? _ignoreFilter)
+            if (actionFilter?.IgnoreFilter ?? ignoreFilter)
                 return;
 
             if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             //authorize permission of access to the vendor area
-            if (!await _permissionService.Authorize(StandardPermission.ManageAccessVendorPanel))
+            if (!await permissionService.Authorize(StandardPermission.ManageAccessVendorPanel))
                 context.Result = new RedirectToRouteResult("VendorLogin", new RouteValueDictionary());
 
             //ensure that this user has active vendor record associated
-            if (!await _groupService.IsVendor(_contextAccessor.WorkContext.CurrentCustomer) || _contextAccessor.WorkContext.CurrentVendor == null)
+            if (!await groupService.IsVendor(contextAccessor.WorkContext.CurrentCustomer) || contextAccessor.WorkContext.CurrentVendor == null)
                 context.Result = new RedirectToRouteResult("VendorLogin", new RouteValueDictionary());
         }
-
-        #endregion
-
-        #region Fields
-
-        private readonly bool _ignoreFilter;
-        private readonly IPermissionService _permissionService;
-        private readonly IContextAccessor _contextAccessor;
-        private readonly IGroupService _groupService;
 
         #endregion
     }

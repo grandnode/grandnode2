@@ -28,11 +28,6 @@ public class AffiliateAttribute : TypeFilterAttribute
         ICustomerService customerService,
         IContextAccessor contextAccessor) : IAsyncActionFilter
     {
-
-        #region Ctor
-
-        #endregion
-
         #region Methods
 
         /// <summary>
