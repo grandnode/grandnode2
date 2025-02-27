@@ -333,7 +333,7 @@ public static class PluginManager
 
     private static bool Matches(string fullName, string pattern)
     {
-        return Regex.IsMatch(fullName, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        return Regex.IsMatch(fullName, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled, TimeSpan.FromSeconds(1));
     }
 
     private static void AddApplicationPart(IMvcCoreBuilder mvcCoreBuilder,

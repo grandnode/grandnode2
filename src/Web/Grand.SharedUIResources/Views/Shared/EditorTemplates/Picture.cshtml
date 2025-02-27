@@ -1,0 +1,73 @@
+@using Grand.Business.Core.Interfaces.Storage
+@using Grand.SharedKernel.Extensions
+@model string
+@inject IPictureService pictureService
+@{
+    var random = CommonHelper.GenerateRandomInteger();
+    var clientId = "picture" + random;
+    var picture = await pictureService.GetPictureById(Model);
+    var targetPictureSize = 100;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    var altText = picture?.AltAttribute ?? "";
+}
+
+<partial name="Partials/FineUploader" />
+
+<div id="@(clientId + "value")">
+    <input asp-for="@Model" type="hidden"/>
+</div>
+<div id="@(clientId + "image")">
+    <img alt="@altText" src="@(await pictureService.GetPictureUrl(Model, targetPictureSize))" />
+</div>
+@if (picture != null)
+{
+    <span id="@(clientId + "remove")" class="btn red btn-outline margin-top-10">@Loc["Admin.Picture.RemovePicture"]</span>
+}
+else
+{
+    <span id="@(clientId + "remove")" class="btn red btn-outline" style="display:none;">@Loc["Admin.Picture.RemovePicture"]</span>
+}
+<br/>
+<div id="@clientId"></div>
+
+<div id="@(clientId)-qq-template" style="display: none;">
+    <partial name="Partials/QqUploader" />
+</div>
+
+<script>
+    $(document).ready(function() {
+
+        $("#@(clientId)").fineUploader({
+            request: {
+                endpoint: '@(Url.Action("AsyncUpload", "Picture", new { area }))',
+                params: {
+                    Reference: '@ViewData["Reference"]',
+                    ObjectId: '@ViewData["ObjectId"]'
+                },
+                inputName: "file"
+            },            
+            template: "@(clientId)-qq-template",
+            multiple: false,
+            validation: {
+                itemLimit: 5,
+                acceptFiles: 'image/*',
+            }
+        }).on("complete", function(event, id, name, responseJSON, xhr) {
+            if (responseJSON.success) {
+                $("#@(clientId + "image")").html("<img src='" + responseJSON.imageUrl + "' width='100' >");
+                $("#@(clientId + "value") input").val(responseJSON.pictureId);
+                $("#@(clientId + "remove")").show();
+            }
+            else {
+                $('.qq-upload-status-message').text(responseJSON.message);
+            }
+        });
+
+        $("#@(clientId + "remove")").click(function(e) {
+            $("#@(clientId + "image")").html("<img src='@await pictureService.GetDefaultPictureUrl(targetPictureSize)' width='100' >");
+            $("#@(clientId + "value") input").val('');
+            $(".qq-upload-list").empty();
+            $(this).hide();
+        });
+    });
+</script>

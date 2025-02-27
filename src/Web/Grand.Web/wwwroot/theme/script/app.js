@@ -446,7 +446,7 @@ var vm = new Vue({
             var formData = new FormData();
             var imagefile = e;
             var url = imagefile.getAttribute('data-url');
-            formData.append("image", qqfile.files[0]);
+            formData.append("file", e.files[0]);
             axios.post(url, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'

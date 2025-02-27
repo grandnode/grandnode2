@@ -142,7 +142,7 @@
                         <script asp-location="Footer">
                             function uploadFile(e) {
                                 var formData = new FormData();
-                                formData.append("image", qqfile.files[0]);
+                                formData.append("file", e.files[0]);
                                 axios.post('@(Url.RouteUrl("UploadFileContactAttribute", new { attributeId = attribute.Id }))', formData, {
                                     headers: {
                                         'Content-Type': 'multipart/form-data'

@@ -124,7 +124,7 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
                 { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
             foreach (var c in loadCountries())
                 model.AvailableCountries.Add(new SelectListItem {
-                    Text = c.GetTranslation(x => x.Name, language.Id),
+                    Text = c.GetTranslation(x => x.Name, language?.Id),
                     Value = c.Id,
                     Selected = !string.IsNullOrEmpty(model.CountryId)
                         ? c.Id == model.CountryId

@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Documents;
@@ -178,7 +179,7 @@ public class DownloadController : BasePublicController
         }
 
         return File(memoryStream.ToArray(), "application/zip",
-            $"{Regex.Replace(product.Name, "[^A-Za-z0-9 _]", "")}.zip");
+            $"{Regex.Replace(product.Name, "[^A-Za-z0-9 _]", "", RegexOptions.Compiled, TimeSpan.FromSeconds(1))}.zip");
     }
 
     [HttpGet]
@@ -220,13 +221,15 @@ public class DownloadController : BasePublicController
     }
 
     [HttpGet]
-    public virtual async Task<IActionResult> GetFileUpload(Guid downloadId)
+    public virtual async Task<IActionResult> GetFileUpload(Guid downloadId, [FromServices] IGroupService groupService)
     {
         var download = await _downloadService.GetDownloadByGuid(downloadId);
         if (download == null)
             return Content("Download is not available any more.");
 
-        if (_contextAccessor.WorkContext.CurrentCustomer == null || download.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
+        if (_contextAccessor.WorkContext.CurrentCustomer == null ||
+            (!await groupService.IsAdmin(_contextAccessor.WorkContext.CurrentCustomer)
+            && download.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id))
             return Challenge();
 
         if (download.UseDownloadUrl)

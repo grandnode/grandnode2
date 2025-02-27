@@ -21,7 +21,7 @@ public class NoScriptsAttribute : ValidationAttribute
 
     private static bool ContainsScript(string input)
     {
-        var scriptRegex = new Regex(Pattern, RegexOptions.IgnoreCase);
+        var scriptRegex = new Regex(Pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1));
         return scriptRegex.IsMatch(input);
     }
 }

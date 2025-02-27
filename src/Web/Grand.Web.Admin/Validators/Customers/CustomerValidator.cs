@@ -79,15 +79,13 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
 
         RuleFor(x => x).Custom((x, context) =>
         {
-            if (!string.IsNullOrEmpty(x.Password))
-                if (!string.IsNullOrEmpty(customerSettings.PasswordRegularExpression))
-                {
-                    var passwordRegex = new Regex(customerSettings.PasswordRegularExpression);
-                    if (!passwordRegex.Match(x.Password).Success)
-                        context.AddFailure(translationService.GetResource("Account.Fields.Password.Validation"));
-                }
-
-            if (string.IsNullOrWhiteSpace(x.Username) & customerSettings.UsernamesEnabled)
+            if (!string.IsNullOrEmpty(x.Password) && !string.IsNullOrEmpty(customerSettings.PasswordRegularExpression))
+            {
+                var passwordRegex = new Regex(customerSettings.PasswordRegularExpression, RegexOptions.Compiled, TimeSpan.FromSeconds(1));
+                if (!passwordRegex.Match(x.Password).Success)
+                    context.AddFailure(translationService.GetResource("Account.Fields.Password.Validation"));
+            }
+            if (string.IsNullOrWhiteSpace(x.Username) && customerSettings.UsernamesEnabled)
                 context.AddFailure("The username cannot be empty");
         });
 

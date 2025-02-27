@@ -1,0 +1,53 @@
+@using Grand.SharedKernel.Extensions
+@model string
+@{
+    var random = CommonHelper.GenerateRandomInteger();
+    var clientId = "multipicture" + random;
+
+    var reference = ViewData["Reference"];
+    var objectId = ViewData["ObjectId"];
+    var endpoint = ViewData["Endpoint"];
+    var click = ViewData["Click"];
+}
+
+<partial name="Partials/FineUploader" />
+
+<div id="@clientId"></div>
+
+<div id="@(clientId + "image")">
+</div>
+
+<div id="@(clientId)-qq-template" style="display: none;">
+    <partial name="Partials/QqUploader" />
+</div>
+
+
+<script>
+    $(document).ready(function() {
+
+        $("#@(clientId)").fineUploader({
+            request: {
+                endpoint: '@endpoint',
+                params: {
+                    Reference: '@reference',
+                    ObjectId: '@objectId'
+                },
+                inputName: "files"
+            },
+            template: "@(clientId)-qq-template",
+            multiple: true,
+            validation: {
+                itemLimit: 10,
+                acceptFiles: 'image/*',
+            }
+        }).on("complete", function(event, id, name, responseJSON, xhr) {
+            if (responseJSON.success) {               
+                $("#@click").click();
+            }
+            else {
+                $('.qq-upload-status-message').text(responseJSON.message);
+            }
+        });
+
+    });
+</script>

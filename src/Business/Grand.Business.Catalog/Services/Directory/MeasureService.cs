@@ -4,7 +4,6 @@ using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using Grand.SharedKernel;
 using MediatR;
 
 namespace Grand.Business.Catalog.Services.Directory;
@@ -93,8 +92,8 @@ public class MeasureService : IMeasureService
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from md in _measureDimensionRepository.Table
-                orderby md.DisplayOrder
-                select md;
+                        orderby md.DisplayOrder
+                        select md;
             return await Task.FromResult(query.ToList());
         });
     }
@@ -162,7 +161,7 @@ public class MeasureService : IMeasureService
         ArgumentNullException.ThrowIfNull(targetMeasureDimension);
 
         var result = value;
-        if (result != 0 && sourceMeasureDimension.Id != targetMeasureDimension.Id)
+        if (sourceMeasureDimension.Id != targetMeasureDimension.Id)
         {
             result = await ConvertToPrimaryMeasureDimension(result, sourceMeasureDimension);
             result = await ConvertFromPrimaryMeasureDimension(result, targetMeasureDimension);
@@ -186,11 +185,8 @@ public class MeasureService : IMeasureService
 
         var result = value;
         var baseDimensionIn = await GetMeasureDimensionById(_measureSettings.BaseDimensionId);
-        if (result == 0 || sourceMeasureDimension.Id == baseDimensionIn.Id) return result;
-        var exchangeRatio = sourceMeasureDimension.Ratio;
-        if (exchangeRatio == 0)
-            throw new GrandException($"Exchange ratio not set for dimension [{sourceMeasureDimension.Name}]");
-        result /= exchangeRatio;
+        if (sourceMeasureDimension.Id == baseDimensionIn.Id) return result;
+        result /= sourceMeasureDimension.Ratio;
         return result;
     }
 
@@ -207,11 +203,8 @@ public class MeasureService : IMeasureService
 
         var result = value;
         var baseDimensionIn = await GetMeasureDimensionById(_measureSettings.BaseDimensionId);
-        if (result == 0 || targetMeasureDimension.Id == baseDimensionIn.Id) return result;
-        var exchangeRatio = targetMeasureDimension.Ratio;
-        if (exchangeRatio == 0)
-            throw new GrandException($"Exchange ratio not set for dimension [{targetMeasureDimension.Name}]");
-        result *= exchangeRatio;
+        if (targetMeasureDimension.Id == baseDimensionIn.Id) return result;
+        result *= targetMeasureDimension.Ratio;
         return result;
     }
 
@@ -255,8 +248,8 @@ public class MeasureService : IMeasureService
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from mw in _measureWeightRepository.Table
-                orderby mw.DisplayOrder
-                select mw;
+                        orderby mw.DisplayOrder
+                        select mw;
             return await Task.FromResult(query.ToList());
         });
     }
@@ -324,7 +317,7 @@ public class MeasureService : IMeasureService
         ArgumentNullException.ThrowIfNull(targetMeasureWeight);
 
         var result = value;
-        if (result != 0 && sourceMeasureWeight.Id != targetMeasureWeight.Id)
+        if (sourceMeasureWeight.Id != targetMeasureWeight.Id)
         {
             result = await ConvertToPrimaryMeasureWeight(result, sourceMeasureWeight);
             result = await ConvertFromPrimaryMeasureWeight(result, targetMeasureWeight);
@@ -347,11 +340,8 @@ public class MeasureService : IMeasureService
 
         var result = value;
         var baseWeightIn = await GetMeasureWeightById(_measureSettings.BaseWeightId);
-        if (result == 0 || sourceMeasureWeight.Id == baseWeightIn.Id) return result;
-        var exchangeRatio = sourceMeasureWeight.Ratio;
-        if (exchangeRatio == 0)
-            throw new GrandException($"Exchange ratio not set for weight [{sourceMeasureWeight.Name}]");
-        result /= exchangeRatio;
+        if (sourceMeasureWeight.Id == baseWeightIn.Id) return result;
+        result /= sourceMeasureWeight.Ratio;
         return result;
     }
 
@@ -368,11 +358,8 @@ public class MeasureService : IMeasureService
 
         var result = value;
         var baseWeightIn = await GetMeasureWeightById(_measureSettings.BaseWeightId);
-        if (result == 0 || targetMeasureWeight.Id == baseWeightIn.Id) return result;
-        var exchangeRatio = targetMeasureWeight.Ratio;
-        if (exchangeRatio == 0)
-            throw new GrandException($"Exchange ratio not set for weight [{targetMeasureWeight.Name}]");
-        result *= exchangeRatio;
+        if (targetMeasureWeight.Id == baseWeightIn.Id) return result;
+        result *= targetMeasureWeight.Ratio;
         return result;
     }
 
@@ -402,8 +389,8 @@ public class MeasureService : IMeasureService
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from md in _measureUnitRepository.Table
-                orderby md.DisplayOrder
-                select md;
+                        orderby md.DisplayOrder
+                        select md;
             return await Task.FromResult(query.ToList());
         });
     }

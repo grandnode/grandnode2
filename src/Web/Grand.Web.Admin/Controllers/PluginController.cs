@@ -62,12 +62,14 @@ public class PluginController(
         if (string.IsNullOrEmpty(path))
             throw new ArgumentNullException(path);
 
-        //find more info about directory deletion
-        //and why we use this approach at https://stackoverflow.com/questions/329355/cannot-delete-directory-with-directory-deletepath-true
+        // Ensure the path is within the PluginsPath
+        if (!path.StartsWith(PluginsPath, StringComparison.Ordinal))
+            throw new UnauthorizedAccessException("Attempt to delete a directory outside of the plugins path.");
 
-        foreach (var directory in Directory.GetDirectories(path)) DeleteDirectory(directory);
+        foreach (var directory in Directory.GetDirectories(path))
+            DeleteDirectory(directory);
 
-        if (Directory.Exists(path) && path.StartsWith(PluginsPath, StringComparison.Ordinal))
+        if (Directory.Exists(path))
             Directory.Delete(path, true);
 
     }

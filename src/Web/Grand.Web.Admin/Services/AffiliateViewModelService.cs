@@ -112,7 +112,8 @@ public class AffiliateViewModelService : IAffiliateViewModelService
             var states = !string.IsNullOrEmpty(model.Address.CountryId)
                 ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces
                 : new List<StateProvince>();
-            if (states.Count > 0)
+
+            if (states?.Count > 0)
                 foreach (var s in states)
                     model.Address.AvailableStates.Add(new SelectListItem {
                         Text = s.Name, Value = s.Id,

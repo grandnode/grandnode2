@@ -73,11 +73,11 @@ public class ApiAuthenticationService : IApiAuthenticationService
         if (!authResult.Succeeded)
             return await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
 
-        var email = authResult.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
+        var email = authResult.Principal.Claims.FirstOrDefault(x => x.Type == "Email")?.Value;
         if (email is null)
         {
             //guest
-            var id = authResult.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Guid")?.Value;
+            var id = authResult.Principal.Claims.FirstOrDefault(x => x.Type == "Guid")?.Value;
             if (id != null) customer = await _customerService.GetCustomerByGuid(Guid.Parse(id));
         }
         else

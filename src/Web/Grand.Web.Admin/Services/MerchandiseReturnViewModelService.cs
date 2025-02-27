@@ -174,7 +174,8 @@ public class MerchandiseReturnViewModelService(
         var states = !string.IsNullOrEmpty(model.CountryId)
             ? (await countryService.GetCountryById(model.CountryId))?.StateProvinces
             : new List<StateProvince>();
-        if (states.Count > 0)
+
+        if (states?.Count > 0)
             foreach (var s in states)
                 model.AvailableStates.Add(new SelectListItem
                     { Text = s.Name, Value = s.Id, Selected = s.Id == model.StateProvinceId });

@@ -7,6 +7,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Attributes;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Contact;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
@@ -116,50 +117,42 @@ public class ContactController : BasePublicController
 
     [HttpPost]
     [DenySystemAccount]
-    public virtual async Task<IActionResult> UploadFileContactAttribute(string attributeId,
+    public virtual async Task<IActionResult> UploadFileContactAttribute(string attributeId, IFormFile file,
         [FromServices] IDownloadService downloadService,
         [FromServices] IContactAttributeService contactAttributeService)
     {
         var attribute = await contactAttributeService.GetContactAttributeById(attributeId);
         if (attribute is not { AttributeControlType: AttributeControlType.FileUpload })
-            return Json(new {
+            return Json(new
+            {
                 success = false,
                 downloadGuid = Guid.Empty
             });
 
-        var form = await HttpContext.Request.ReadFormAsync();
-        var httpPostedFile = form.Files.FirstOrDefault();
-        if (httpPostedFile == null)
-            return Json(new {
+        if (file == null)
+            return Json(new
+            {
                 success = false,
                 message = "No file uploaded",
                 downloadGuid = Guid.Empty
             });
 
-        var fileBinary = httpPostedFile.GetDownloadBits();
-
-        var fileName = httpPostedFile.FileName;
-
-        fileName = Path.GetFileName(fileName);
-
-        var contentType = httpPostedFile.ContentType;
-
+        var fileName = Path.GetFileName(file.FileName);
+        var contentType = file.ContentType;
         var fileExtension = Path.GetExtension(fileName);
-        if (!string.IsNullOrEmpty(fileExtension))
-            fileExtension = fileExtension.ToLowerInvariant();
-
         if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
         {
-            var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.ToLowerInvariant()
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
-                .ToList();
-            if (!allowedFileExtensions.Contains(fileExtension.ToLowerInvariant()))
-                return Json(new {
+            var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            if (!allowedFileExtensions.IsAllowedMediaFileType(fileExtension))
+                return Json(new
+                {
                     success = false,
                     message = _translationService.GetResource("ContactUs.ValidationFileAllowed"),
                     downloadGuid = Guid.Empty
                 });
         }
+
+        var fileBinary = file.GetDownloadBits();
 
         if (attribute.ValidationFileMaximumSize.HasValue)
         {
@@ -168,7 +161,8 @@ public class ContactController : BasePublicController
             if (fileBinary.Length > maxFileSizeBytes)
                 //when returning JSON the mime-type must be set to text/plain
                 //otherwise some browsers will pop-up a "Save As" dialog.
-                return Json(new {
+                return Json(new
+                {
                     success = false,
                     message = string.Format(_translationService.GetResource("ContactUs.MaximumUploadedFileSize"),
                         attribute.ValidationFileMaximumSize.Value),
@@ -176,7 +170,8 @@ public class ContactController : BasePublicController
                 });
         }
 
-        var download = new Download {
+        var download = new Download
+        {
             DownloadGuid = Guid.NewGuid(),
             CustomerId = _contextAccessor.WorkContext.CurrentCustomer.Id,
             UseDownloadUrl = false,
@@ -193,7 +188,8 @@ public class ContactController : BasePublicController
 
         //when returning JSON the mime-type must be set to text/plain
         //otherwise some browsers will pop-up a "Save As" dialog.
-        return Json(new {
+        return Json(new
+        {
             success = true,
             message = _translationService.GetResource("ContactUs.FileUploaded"),
             downloadUrl = Url.Action("GetFileUpload", "Download", new { downloadId = download.DownloadGuid }),

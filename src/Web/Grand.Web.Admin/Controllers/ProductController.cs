@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
 using Grand.Web.Common.Helpers;
+using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -1118,7 +1119,9 @@ public class ProductController : BaseAdminController
 
     [HttpPost]
     [IgnoreAntiforgeryToken]
-    public async Task<IActionResult> ProductPictureAdd(Reference reference, string objectId,
+    public async Task<IActionResult> ProductPictureAdd(
+        IFormFileCollection files,
+        Reference reference, string objectId,
         [FromServices] IPictureService pictureService,
         [FromServices] MediaSettings mediaSettings)
     {
@@ -1134,9 +1137,7 @@ public class ProductController : BaseAdminController
                 message = "Please save form before upload new pictures"
             });
 
-        var form = await HttpContext.Request.ReadFormAsync();
-        var httpPostedFiles = form.Files.ToList();
-        if (!httpPostedFiles.Any())
+        if (!files.Any())
             return Json(new {
                 success = false,
                 message = "No files uploaded"
@@ -1151,24 +1152,15 @@ public class ProductController : BaseAdminController
             });
 
         var values = new List<(string pictureUrl, string pictureId)>();
-        foreach (var file in httpPostedFiles)
+        foreach (var file in files)
         {
-            var qqFileNameParameter = "qqfilename";
             var fileName = file.FileName;
-            if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
-                fileName = form[qqFileNameParameter].ToString();
-
-            fileName = Path.GetFileName(fileName);
-
             var contentType = file.ContentType;
             var fileExtension = Path.GetExtension(fileName);
-            if (!string.IsNullOrEmpty(fileExtension))
-                fileExtension = fileExtension.ToLowerInvariant();
-
             if (string.IsNullOrEmpty(contentType))
                 _ = new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
 
-            if (FileExtensions.GetAllowedMediaFileTypes(mediaSettings.AllowedFileTypes).Contains(fileExtension))
+            if (FileExtensions.GetAllowedMediaFileTypes(mediaSettings.AllowedFileTypes).IsAllowedMediaFileType(fileExtension))
             {
                 var fileBinary = file.GetDownloadBits();
                 //insert picture
