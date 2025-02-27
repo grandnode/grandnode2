@@ -152,7 +152,7 @@ public class CommonController : BasePublicController
     {
         var language = await _languageService.GetLanguageByCode(langCode);
         if (language == null)
-            return InvokeHttp404();
+            return NotFound();
 
         if (!language.Published)
             language = _contextAccessor.WorkContext.WorkingLanguage;
