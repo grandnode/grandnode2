@@ -1,7 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -10,24 +8,19 @@ using Grand.Web.Commands.Models.ShoppingCart;
 using MediatR;
 
 namespace Grand.Web.Commands.Handler.ShoppingCart;
-
-public class
-    SaveCheckoutAttributesCommandHandler : IRequestHandler<SaveCheckoutAttributesCommand, IList<CustomAttribute>>
+public class SaveCheckoutAttributesCommandHandler : IRequestHandler<SaveCheckoutAttributesCommand, IList<CustomAttribute>>
 {
     private readonly ICheckoutAttributeParser _checkoutAttributeParser;
     private readonly ICheckoutAttributeService _checkoutAttributeService;
-    private readonly IDownloadService _downloadService;
     private readonly ICustomerService _customerService;
 
     public SaveCheckoutAttributesCommandHandler(
         ICheckoutAttributeService checkoutAttributeService,
         ICheckoutAttributeParser checkoutAttributeParser,
-        IDownloadService downloadService,
         ICustomerService customerService)
     {
         _checkoutAttributeService = checkoutAttributeService;
         _checkoutAttributeParser = checkoutAttributeParser;
-        _downloadService = downloadService;
         _customerService = customerService;
     }
 
@@ -51,57 +44,47 @@ public class
                 case AttributeControlType.RadioList:
                 case AttributeControlType.ColorSquares:
                 case AttributeControlType.ImageSquares:
-                {
-                    var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                    if (!string.IsNullOrEmpty(ctrlAttributes))
-                        customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
-                            attribute, ctrlAttributes).ToList();
-                }
+                    {
+                        var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (!string.IsNullOrEmpty(ctrlAttributes))
+                            customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
+                                attribute, ctrlAttributes).ToList();
+                    }
                     break;
                 case AttributeControlType.Checkboxes:
-                {
-                    var cblAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                    if (!string.IsNullOrEmpty(cblAttributes))
-                        foreach (var item in cblAttributes.Split(','))
-                            if (!string.IsNullOrEmpty(item))
-                                customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
-                                    attribute, item).ToList();
-                }
+                    {
+                        var cblAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (!string.IsNullOrEmpty(cblAttributes))
+                            foreach (var item in cblAttributes.Split(','))
+                                if (!string.IsNullOrEmpty(item))
+                                    customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
+                                        attribute, item).ToList();
+                    }
                     break;
                 case AttributeControlType.ReadonlyCheckboxes:
-                {
-                    //load read-only (already server-side selected) values
-                    var attributeValues = attribute.CheckoutAttributeValues;
-                    foreach (var selectedAttributeId in attributeValues
-                                 .Where(v => v.IsPreSelected)
-                                 .Select(v => v.Id)
-                                 .ToList())
-                        customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
-                            attribute, selectedAttributeId).ToList();
-                }
+                    {
+                        //load read-only (already server-side selected) values
+                        var attributeValues = attribute.CheckoutAttributeValues;
+                        foreach (var selectedAttributeId in attributeValues
+                                     .Where(v => v.IsPreSelected)
+                                     .Select(v => v.Id)
+                                     .ToList())
+                            customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
+                                attribute, selectedAttributeId).ToList();
+                    }
                     break;
                 case AttributeControlType.TextBox:
                 case AttributeControlType.MultilineTextbox:
                 case AttributeControlType.Datepicker:
-                {
-                    var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                    if (!string.IsNullOrEmpty(ctrlAttributes))
-                    {
-                        var enteredText = ctrlAttributes.Trim();
-                        customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
-                            attribute, enteredText).ToList();
-                    }
-                }
-                    break;
                 case AttributeControlType.FileUpload:
-                {
-                    var guid = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                    Guid.TryParse(guid, out var downloadGuid);
-                    var download = await _downloadService.GetDownloadByGuid(downloadGuid);
-                    if (download != null)
-                        customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
-                            attribute, download.DownloadGuid.ToString()).ToList();
-                }
+                    {
+                        var ctrlAttributes = request.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (!string.IsNullOrEmpty(ctrlAttributes))
+                        {
+                            var enteredText = ctrlAttributes.Trim();
+                            customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes, attribute, enteredText).ToList();
+                        }
+                    }
                     break;
             }
 
@@ -111,8 +94,7 @@ public class
         {
             var conditionMet = await _checkoutAttributeParser.IsConditionMet(attribute, customAttributes);
             if (conditionMet.HasValue && !conditionMet.Value)
-                customAttributes = _checkoutAttributeParser.RemoveCheckoutAttribute(customAttributes, attribute)
-                    .ToList();
+                customAttributes = _checkoutAttributeParser.RemoveCheckoutAttribute(customAttributes, attribute).ToList();
         }
 
         await _customerService.UpdateUserField(request.Customer, SystemCustomerFieldNames.CheckoutAttributes,
