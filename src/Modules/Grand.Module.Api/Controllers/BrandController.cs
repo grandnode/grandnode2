@@ -7,7 +7,6 @@ using Grand.Domain.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using Microsoft.AspNetCore.Http;
 using Grand.Module.Api.Attributes;
 using Microsoft.AspNetCore.Routing;
@@ -29,7 +28,7 @@ public class BrandController : BaseApiController
     [EndpointName("GetBrands")]
     [HttpGet]
     [EnableQuery]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BrandDto>))]
     public async Task<IActionResult> Get()
     {
@@ -41,8 +40,8 @@ public class BrandController : BaseApiController
     [EndpointDescription("Get entity from Brand by key")]
     [EndpointName("GetBrandById")]
     [HttpGet("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
     public async Task<IActionResult> GetById([FromRoute] string key)
     {
@@ -57,9 +56,9 @@ public class BrandController : BaseApiController
     [EndpointDescription("Add new entity to Brand")]
     [EndpointName("InsertBrand")]
     [HttpPost]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] BrandDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
@@ -71,9 +70,9 @@ public class BrandController : BaseApiController
     [EndpointDescription("Update entity in Brand")]
     [EndpointName("UpdateBrand")]
     [HttpPut]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] BrandDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();
@@ -85,10 +84,10 @@ public class BrandController : BaseApiController
     [EndpointDescription("Partially update entity in Brand")]
     [EndpointName("PartiallyUpdateBrand")]
     [HttpPatch("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
 
     ///sample
     ///{
@@ -115,9 +114,9 @@ public class BrandController : BaseApiController
     [EndpointDescription("Delete entity in Brand")]
     [EndpointName("DeleteBrand")]
     [HttpDelete("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Brands)) return Forbid();

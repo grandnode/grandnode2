@@ -359,8 +359,7 @@ public class AccountController : BasePublicController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     [PublicStore(true)]
-    [ProducesResponseType(typeof(PasswordRecoveryModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model)
+    public virtual async Task<ActionResult<PasswordRecoveryModel>> PasswordRecovery(PasswordRecoveryModel model)
     {
         if (!ModelState.IsValid) return View(model);
 
@@ -379,8 +378,7 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [PublicStore(true)]
-    [ProducesResponseType(typeof(PasswordRecoveryConfirmModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> PasswordRecoveryConfirm(string token, string email)
+    public virtual async Task<ActionResult<PasswordRecoveryConfirmModel>> PasswordRecoveryConfirm(string token, string email)
     {
         var customer = await _customerService.GetCustomerByEmail(email);
         if (customer == null)
@@ -419,8 +417,7 @@ public class AccountController : BasePublicController
     //available even when navigation is not allowed
     [PublicStore(true)]
     [HttpGet]
-    [ProducesResponseType(typeof(RegisterModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> Register()
+    public virtual async Task<ActionResult<RegisterModel>> Register()
     {
         //check whether registration is allowed
         if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
@@ -628,8 +625,7 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    [ProducesResponseType(typeof(CustomerInfoModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> Info()
+    public virtual async Task<ActionResult<CustomerInfoModel>> Info()
     {
         var model = await _mediator.Send(new GetInfo {
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
@@ -643,8 +639,7 @@ public class AccountController : BasePublicController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    [ProducesResponseType(typeof(CustomerInfoModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> Info(CustomerInfoModel model)
+    public virtual async Task<ActionResult<CustomerInfoModel>> Info(CustomerInfoModel model)
     {
         if (ModelState.IsValid)
         {
@@ -717,8 +712,7 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    [ProducesResponseType(typeof(CustomerAddressListModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> Addresses()
+    public virtual async Task<ActionResult<CustomerAddressListModel>> Addresses()
     {
         var model = await _mediator.Send(new GetAddressList {
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
@@ -751,8 +745,7 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    [ProducesResponseType(typeof(CustomerAddressEditModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> AddressAdd()
+    public virtual async Task<ActionResult<CustomerAddressEditModel>> AddressAdd()
     {
         var countries =
             await _countryService.GetAllCountries(_contextAccessor.WorkContext.WorkingLanguage.Id, _contextAccessor.StoreContext.CurrentStore.Id);
@@ -775,8 +768,7 @@ public class AccountController : BasePublicController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    [ProducesResponseType(typeof(AddressModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> AddressAdd(CustomerAddressEditModel model,
+    public virtual async Task<ActionResult<AddressModel>> AddressAdd(CustomerAddressEditModel model,
         [FromServices] AddressSettings addressSettings)
     {
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
@@ -813,8 +805,7 @@ public class AccountController : BasePublicController
 
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    [ProducesResponseType(typeof(CustomerAddressEditModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> AddressEdit(string addressId)
+    public virtual async Task<ActionResult<CustomerAddressEditModel>> AddressEdit(string addressId)
     {
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         //find address (ensure that it belongs to the current customer)
@@ -842,9 +833,7 @@ public class AccountController : BasePublicController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    [ProducesResponseType(typeof(CustomerAddressEditModel), StatusCodes.Status200OK)]
-
-    public virtual async Task<IActionResult> AddressEdit(CustomerAddressEditModel model,
+    public virtual async Task<ActionResult<CustomerAddressEditModel>> AddressEdit(CustomerAddressEditModel model,
         [FromServices] AddressSettings addressSettings)
     {
         var customer = _contextAccessor.WorkContext.CurrentCustomer;

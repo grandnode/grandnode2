@@ -11,12 +11,6 @@ namespace Grand.Web.Common.Controllers;
 [SharedKernel.Attributes.ApiController]
 public abstract class BasePublicController : BaseController
 {
-    protected IActionResult InvokeHttp404()
-    {
-        Response.StatusCode = 404;
-        return new EmptyResult();
-    }
-
     private bool IsJsonResponseView()
     {
         if (Request.Method.Equals("GET", StringComparison.InvariantCultureIgnoreCase))
@@ -31,7 +25,7 @@ public abstract class BasePublicController : BaseController
     }
 
     [IgnoreApi]
-    public new IActionResult View(object model)
+    public new ActionResult View(object model)
     {
         if (IsJsonResponseView())
             return Ok(model);
@@ -40,7 +34,7 @@ public abstract class BasePublicController : BaseController
     }
 
     [IgnoreApi]
-    public new IActionResult View(string viewName, object model)
+    public new ActionResult View(string viewName, object model)
     {
         if (IsJsonResponseView())
             return Json(model);

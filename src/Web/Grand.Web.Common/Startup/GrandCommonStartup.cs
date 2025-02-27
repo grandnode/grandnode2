@@ -104,7 +104,7 @@ public class GrandCommonStartup : IStartupApplication
             application.UsePoweredBy();
 
         //add responsive middleware (for detection)
-        application.UseGrandDetection();
+        application.UseDetection();
 
         //use routing
         application.UseRouting();

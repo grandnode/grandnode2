@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.Net;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -30,9 +29,9 @@ public class ProductAttributeController : BaseApiController
     [EndpointDescription("Get entity from ProductAttribute by key")]
     [EndpointName("GetProductAttributeById")]
     [HttpGet("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductAttributeDto))]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes)) return Forbid();
@@ -47,7 +46,7 @@ public class ProductAttributeController : BaseApiController
     [EndpointName("GetProductAttributes")]
     [HttpGet]
     [EnableQuery]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ProductAttributeDto>))]
     public async Task<IActionResult> Get()
     {
@@ -59,9 +58,9 @@ public class ProductAttributeController : BaseApiController
     [EndpointDescription("Add new entity to ProductAttribute")]
     [EndpointName("InsertProductAttribute")]
     [HttpPost]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductAttributeDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] ProductAttributeDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes)) return Forbid();
@@ -73,9 +72,9 @@ public class ProductAttributeController : BaseApiController
     [EndpointDescription("Update entity in ProductAttribute")]
     [EndpointName("UpdateProductAttribute")]
     [HttpPut]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductAttributeDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] ProductAttributeDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes)) return Forbid();
@@ -87,10 +86,10 @@ public class ProductAttributeController : BaseApiController
     [EndpointDescription("Partially update entity in ProductAttribute")]
     [EndpointName("PartiallyUpdateProductAttribute")]
     [HttpPatch("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductAttributeDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Patch([FromRoute] string key, [FromBody] JsonPatchDocument<ProductAttributeDto> model)
     {
         if (string.IsNullOrEmpty(key))
@@ -110,9 +109,9 @@ public class ProductAttributeController : BaseApiController
     [EndpointDescription("Delete entity from ProductAttribute")]
     [EndpointName("DeleteProductAttribute")]
     [HttpDelete("{key}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes)) return Forbid();

@@ -186,11 +186,11 @@ public class KnowledgebaseController : BasePublicController
 
         //ACL (access control list)
         if (!_aclService.Authorize(article, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         //Store acl
         if (!_aclService.Authorize(article, _contextAccessor.StoreContext.CurrentStore.Id))
-            return InvokeHttp404();
+            return NotFound();
 
         //display "edit" (manage) link
         if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) &&

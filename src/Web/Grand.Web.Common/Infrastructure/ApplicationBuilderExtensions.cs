@@ -162,15 +162,6 @@ public static class ApplicationBuilderExtensions
     }
 
     /// <summary>
-    ///     Configure MVC endpoint
-    /// </summary>
-    /// <param name="application">Builder for configuring an application's request pipeline</param>
-    public static void UseGrandDetection(this WebApplication application)
-    {
-        application.UseDetection();
-    }
-
-    /// <summary>
     ///     Configure static file serving
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>

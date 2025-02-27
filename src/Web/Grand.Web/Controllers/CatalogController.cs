@@ -91,28 +91,27 @@ public class CatalogController : BasePublicController
 
     #region Categories
 
-    [ProducesResponseType(typeof(CategoryModel), StatusCodes.Status200OK)]
     [HttpGet]
-    public virtual async Task<IActionResult> Category(string categoryId, CatalogPagingFilteringModel command)
+    public virtual async Task<ActionResult<CategoryModel>> Category(string categoryId, CatalogPagingFilteringModel command)
     {
         var category = await _categoryService.GetCategoryById(categoryId);
         if (category == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
         //Check whether the current user has a "Manage catalog" permission
         //It allows him to preview a category before publishing
         if (!category.Published && !await _permissionService.Authorize(StandardPermission.ManageCategories, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         //ACL (access control list)
         if (!_aclService.Authorize(category, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         //Store access
         if (!_aclService.Authorize(category, _contextAccessor.StoreContext.CurrentStore.Id))
-            return InvokeHttp404();
+            return NotFound();
 
         //display "edit" (manage) link
         if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) &&
@@ -157,22 +156,22 @@ public class CatalogController : BasePublicController
     {
         var brand = await _brandService.GetBrandById(brandId);
         if (brand == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
         //Check whether the current user has a "Manage catalog" permission
         //It allows him to preview a collection before publishing
         if (!brand.Published && !await _permissionService.Authorize(StandardPermission.ManageBrands, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         //ACL (access control list)
         if (!_aclService.Authorize(brand, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         //Store access
         if (!_aclService.Authorize(brand, _contextAccessor.StoreContext.CurrentStore.Id))
-            return InvokeHttp404();
+            return NotFound();
 
         //display "edit" (manage) link
         if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) &&
@@ -216,7 +215,7 @@ public class CatalogController : BasePublicController
     {
         var collection = await _collectionService.GetCollectionById(collectionId);
         if (collection == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
@@ -224,15 +223,15 @@ public class CatalogController : BasePublicController
         //It allows him to preview a collection before publishing
         if (!collection.Published &&
             !await _permissionService.Authorize(StandardPermission.ManageCollections, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         //ACL (access control list)
         if (!_aclService.Authorize(collection, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         //Store access
         if (!_aclService.Authorize(collection, _contextAccessor.StoreContext.CurrentStore.Id))
-            return InvokeHttp404();
+            return NotFound();
 
         //display "edit" (manage) link
         if (await _permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer) &&
@@ -277,11 +276,11 @@ public class CatalogController : BasePublicController
     {
         var vendor = await _vendorService.GetVendorById(vendorId);
         if (vendor == null || vendor.Deleted || !vendor.Active)
-            return InvokeHttp404();
+            return NotFound();
 
         //Vendor is active?
         if (!vendor.Active)
-            return InvokeHttp404();
+            return NotFound();
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
@@ -415,7 +414,7 @@ public class CatalogController : BasePublicController
     {
         var productTag = await productTagService.GetProductTagById(productTagId);
         if (productTag == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var model = await _mediator.Send(new GetProductsByTag {
             Command = command,
@@ -433,7 +432,7 @@ public class CatalogController : BasePublicController
     {
         var productTag = await productTagService.GetProductTagBySeName(seName);
         if (productTag == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var model = await _mediator.Send(new GetProductsByTag {
             Command = command,

@@ -71,8 +71,7 @@ public class OrderController : BasePublicController
     //My account / Orders
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    [ProducesResponseType(typeof(OrderPagingModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> CustomerOrders(OrderPagingModel command)
+    public virtual async Task<ActionResult<OrderPagingModel>> CustomerOrders(OrderPagingModel command)
     {
         var model = await _mediator.Send(new GetCustomerOrderList {
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
@@ -85,8 +84,7 @@ public class OrderController : BasePublicController
 
     //My account / Order details page
     [HttpGet]
-    [ProducesResponseType(typeof(OrderDetailsModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> Details(string orderId)
+    public virtual async Task<ActionResult<OrderDetailsModel>> Details(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
         if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
@@ -139,8 +137,7 @@ public class OrderController : BasePublicController
     //My account / Order details page / Add order note        
     [HttpPost]
     [AutoValidateAntiforgeryToken]
-    [ProducesResponseType(typeof(AddOrderNoteModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> AddOrderNote(AddOrderNoteModel model)
+    public virtual async Task<ActionResult<AddOrderNoteModel>> AddOrderNote(AddOrderNoteModel model)
     {
         if (!_orderSettings.AllowCustomerToAddOrderNote)
             return RedirectToRoute("HomePage");
@@ -199,8 +196,7 @@ public class OrderController : BasePublicController
 
     //My account / Order details page / Shipment details page
     [HttpGet]
-    [ProducesResponseType(typeof(ShipmentDetailsModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> ShipmentDetails(string shipmentId,
+    public virtual async Task<ActionResult<ShipmentDetailsModel>> ShipmentDetails(string shipmentId,
         [FromServices] IShipmentService shipmentService)
     {
         var shipment = await shipmentService.GetShipmentById(shipmentId);
@@ -224,8 +220,7 @@ public class OrderController : BasePublicController
     //My account / Loyalty points
     [HttpGet]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    [ProducesResponseType(typeof(CustomerLoyaltyPointsModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> CustomerLoyaltyPoints(
+    public virtual async Task<ActionResult<CustomerLoyaltyPointsModel>> CustomerLoyaltyPoints(
         [FromServices] LoyaltyPointsSettings loyaltyPointsSettings)
     {
         if (!loyaltyPointsSettings.Enabled)

@@ -10,7 +10,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.Net;
 
 namespace Grand.Module.Api.Controllers;
 
@@ -37,9 +36,9 @@ public class CustomerController : BaseApiController
     [EndpointDescription("Get entity from Customer by email")]
     [EndpointName("GetCustomerByEmail")]
     [HttpGet]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] string email)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
@@ -53,9 +52,9 @@ public class CustomerController : BaseApiController
     [EndpointDescription("Add new entity to Customer")]
     [EndpointName("InsertCustomer")]
     [HttpPost]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CustomerDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
@@ -67,9 +66,9 @@ public class CustomerController : BaseApiController
     [EndpointDescription("Update entity in Customer")]
     [EndpointName("UpdateCustomer")]
     [HttpPut]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] CustomerDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
@@ -81,9 +80,9 @@ public class CustomerController : BaseApiController
     [EndpointDescription("Delete entity from Customer")]
     [EndpointName("DeleteCustomer")]
     [HttpDelete("{email}")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string email)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
@@ -100,10 +99,10 @@ public class CustomerController : BaseApiController
     [EndpointDescription("Invoke action AddAddress")]
     [EndpointName("AddAddress")]
     [HttpPost("{email}/AddAddress")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AddressDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddAddress([FromRoute] string email, [FromBody] AddressDto address)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
@@ -119,10 +118,10 @@ public class CustomerController : BaseApiController
     [EndpointDescription("Invoke action UpdateAddress")]
     [EndpointName("UpdateAddress")]
     [HttpPost("{email}/UpdateAddress")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AddressDto))]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateAddress([FromRoute] string email, [FromBody] AddressDto address)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
@@ -140,9 +139,9 @@ public class CustomerController : BaseApiController
     [EndpointDescription("Invoke action DeleteAddress")]
     [EndpointName("DeleteAddress")]
     [HttpPost("{email}/DeleteAddress")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAddress([FromRoute] string email, [FromBody] DeleteAddressDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
@@ -165,10 +164,10 @@ public class CustomerController : BaseApiController
     [EndpointDescription("Invoke action SetPassword")]
     [EndpointName("SetPassword")]
     [HttpPost("{email}/SetPassword")]
-    [ProducesResponseType((int)HttpStatusCode.Forbidden)]
-    [ProducesResponseType((int)HttpStatusCode.OK)]
-    [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-    [ProducesResponseType((int)HttpStatusCode.NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SetPassword([FromRoute] string email, [FromBody] PasswordDto model)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();

@@ -271,12 +271,11 @@ public class ProductController : BasePublicController
     #region Product details page
 
     [HttpGet]
-    [ProducesResponseType(typeof(ProductDetailsModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> ProductDetails(string productId)
+    public virtual async Task<ActionResult<ProductDetailsModel>> ProductDetails(string productId)
     {
         var product = await _productService.GetProductById(productId);
         if (product == null)
-            return InvokeHttp404();
+            return NotFound();
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
 
@@ -285,19 +284,19 @@ public class ProductController : BasePublicController
             //Check whether the current user has a "Manage catalog" permission
             //It allows him to preview a product before publishing
             if (!product.Published && !await _permissionService.Authorize(StandardPermission.ManageProducts, customer))
-                return InvokeHttp404();
+                return NotFound();
 
         //ACL (access control list)
         if (!_aclService.Authorize(product, customer))
-            return InvokeHttp404();
+            return NotFound();
 
         //Store access
         if (!_aclService.Authorize(product, _contextAccessor.StoreContext.CurrentStore.Id))
-            return InvokeHttp404();
+            return NotFound();
 
         //availability dates
         if (!product.IsAvailable() && product.ProductTypeId != ProductType.Auction)
-            return InvokeHttp404();
+            return NotFound();
 
         //visible individually?
         if (!product.VisibleIndividually)
@@ -338,8 +337,7 @@ public class ProductController : BasePublicController
     //handle product attribute selection event. this way we return new price, overridden gtin/sku/mpn
     //currently we use this method on the product details pages
     [HttpPost]
-    [ProducesResponseType(typeof(ProductDetailsModel), StatusCodes.Status200OK)]
-    public virtual async Task<IActionResult> ProductDetails_AttributeChange(ProductModel model)
+    public virtual async Task<ActionResult<ProductDetailsModel>> ProductDetails_AttributeChange(ProductModel model)
     {
         var product = await _productService.GetProductById(model.ProductId);
         if (product == null)

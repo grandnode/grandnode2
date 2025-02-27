@@ -455,7 +455,7 @@ public class CommonController : BasePublicController
     public virtual IActionResult GenericUrl()
     {
         //not found
-        return InvokeHttp404();
+        return NotFound();
     }
 
     [ClosedStore(true)]
