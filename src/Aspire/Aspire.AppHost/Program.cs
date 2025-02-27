@@ -6,4 +6,4 @@ var mongo = builder.AddMongoDB("mongo").WithLifetime(ContainerLifetime.Persisten
 var mongodb = mongo.AddDatabase("Mongodb");
 builder.ConfigureGrandWebProject(mongodb);
 
-builder.Build().Run();
+await builder.Build().RunAsync();
