@@ -267,11 +267,6 @@ internal class ViewBuffer : IHtmlContentBuilder
         }
     }
 
-    private string DebuggerToString()
-    {
-        return _name;
-    }
-
     private void MoveTo(ViewBuffer destination)
     {
         for (var i = 0; i < Count; i++)
