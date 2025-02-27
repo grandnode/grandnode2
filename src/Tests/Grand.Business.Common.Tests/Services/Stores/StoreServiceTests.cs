@@ -117,6 +117,6 @@ public class StoreServiceTests
         var result = await _service.GetStoreByHost("nonexisting.com");
 
         // Assert - returns first store
-        Assert.AreEqual(null, result);
+        Assert.IsNull(result);
     }
 }
