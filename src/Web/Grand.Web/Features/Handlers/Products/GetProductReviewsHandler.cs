@@ -41,8 +41,7 @@ public class GetProductReviewsHandler : IRequestHandler<GetProductReviews, Produ
 
     public async Task<ProductReviewsModel> Handle(GetProductReviews request, CancellationToken cancellationToken)
     {
-        if (request.Product == null)
-            throw new ArgumentNullException(nameof(request.Product));
+        ArgumentNullException.ThrowIfNull(request.Product);
 
         var model = new ProductReviewsModel {
             ProductId = request.Product.Id,

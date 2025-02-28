@@ -24,8 +24,7 @@ public class GetFormatBasePriceHandler : IRequestHandler<GetFormatBasePrice, str
 
     public async Task<string> Handle(GetFormatBasePrice request, CancellationToken cancellationToken)
     {
-        if (request.Product == null)
-            throw new ArgumentNullException(nameof(request.Product));
+        ArgumentNullException.ThrowIfNull(request.Product);
 
         if (!request.Product.BasepriceEnabled)
             return null;

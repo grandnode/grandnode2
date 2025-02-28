@@ -173,8 +173,7 @@ public class CustomerManagerService : ICustomerManagerService
         ArgumentNullException.ThrowIfNull(request);
 
         var customer = await _customerService.GetCustomerByEmail(request.Email);
-        if (customer == null)
-            throw new ArgumentNullException(nameof(customer));
+        ArgumentNullException.ThrowIfNull(customer);
 
         switch (request.PasswordFormat)
         {

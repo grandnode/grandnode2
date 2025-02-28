@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace Grand.Web.Common.ViewRender;
 
@@ -38,7 +39,7 @@ public class ViewRenderService : IViewRenderService
         await using var sw = new StringWriter();
         var viewResult = _razorViewEngine.GetView(viewPath, viewPath, false);
 
-        if (viewResult.View == null) throw new ArgumentNullException($"{viewPath} does not match any available view");
+        ArgumentNullException.ThrowIfNull(viewResult.View);
 
         var viewDictionary = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) {
             Model = model

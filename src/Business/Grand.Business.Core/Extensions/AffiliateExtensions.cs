@@ -47,9 +47,7 @@ public static class AffiliateExtensions
     public static string GenerateUrl(this Affiliate affiliate, string host)
     {
         ArgumentNullException.ThrowIfNull(affiliate);
-
-        if (string.IsNullOrEmpty(host))
-            throw new ArgumentNullException(nameof(host));
+        ArgumentNullException.ThrowIfNullOrEmpty(host);
 
         var uriBuilder = new UriBuilder(host);
         var query = HttpUtility.ParseQueryString(uriBuilder.Query);

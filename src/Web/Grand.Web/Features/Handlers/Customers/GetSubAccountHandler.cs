@@ -18,8 +18,7 @@ public class GetSubAccountHandler : IRequestHandler<GetSubAccount, SubAccountEdi
 
     public async Task<SubAccountEditModel> Handle(GetSubAccount request, CancellationToken cancellationToken)
     {
-        if (request.CurrentCustomer == null)
-            throw new ArgumentNullException(nameof(request.CurrentCustomer));
+        ArgumentNullException.ThrowIfNull(request.CurrentCustomer);
 
         var model = new SubAccountEditModel();
 

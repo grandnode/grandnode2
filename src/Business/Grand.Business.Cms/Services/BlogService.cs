@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Blogs;
+using Grand.Domain.Payments;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using MediatR;
@@ -322,8 +323,7 @@ public class BlogService : IBlogService
     /// <returns></returns>
     public virtual async Task<BlogCategory> GetBlogCategoryBySeName(string blogCategorySeName)
     {
-        if (string.IsNullOrEmpty(blogCategorySeName))
-            throw new ArgumentNullException(nameof(blogCategorySeName));
+        ArgumentNullException.ThrowIfNullOrEmpty(blogCategorySeName);
 
         return await _blogCategoryRepository.GetOneAsync(x => x.SeName == blogCategorySeName.ToLowerInvariant());
     }

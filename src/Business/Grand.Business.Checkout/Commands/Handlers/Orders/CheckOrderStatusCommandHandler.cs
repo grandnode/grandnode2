@@ -25,8 +25,7 @@ public class CheckOrderStatusCommandHandler : IRequestHandler<CheckOrderStatusCo
 
     public async Task<bool> Handle(CheckOrderStatusCommand request, CancellationToken cancellationToken)
     {
-        if (request.Order == null)
-            throw new ArgumentNullException(nameof(request.Order));
+        ArgumentNullException.ThrowIfNull(request.Order);
 
         if (request.Order.PaymentStatusId == PaymentStatus.Paid && !request.Order.PaidDateUtc.HasValue)
         {

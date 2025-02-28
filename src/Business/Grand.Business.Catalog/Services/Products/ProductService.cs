@@ -1181,8 +1181,8 @@ public class ProductService : IProductService
 
     public virtual async Task DeleteDiscount(string discountId, string productId)
     {
-        if (string.IsNullOrEmpty(discountId))
-            throw new ArgumentNullException(nameof(discountId));
+        ArgumentNullException.ThrowIfNullOrEmpty(discountId);
+        ArgumentNullException.ThrowIfNullOrEmpty(productId);
 
         await _productRepository.Pull(productId, x => x.AppliedDiscounts, discountId);
 

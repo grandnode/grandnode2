@@ -59,8 +59,7 @@ public class PluginController(
     /// <param name="path">Directory path</param>
     protected void DeleteDirectory(string path)
     {
-        if (string.IsNullOrEmpty(path))
-            throw new ArgumentNullException(path);
+        ArgumentNullException.ThrowIfNullOrEmpty(path);
 
         // Ensure the path is within the PluginsPath
         if (!path.StartsWith(PluginsPath, StringComparison.Ordinal))

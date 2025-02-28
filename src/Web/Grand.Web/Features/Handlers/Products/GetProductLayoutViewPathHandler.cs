@@ -15,8 +15,7 @@ public class GetProductLayoutViewPathHandler : IRequestHandler<GetProductLayoutV
 
     public async Task<string> Handle(GetProductLayoutViewPath request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(request.ProductLayoutId))
-            throw new ArgumentNullException(nameof(request.ProductLayoutId));
+        ArgumentNullException.ThrowIfNullOrEmpty(request.ProductLayoutId);
 
         var layout = await _productLayoutService.GetProductLayoutById(request.ProductLayoutId) ??
                      (await _productLayoutService.GetAllProductLayouts()).FirstOrDefault();

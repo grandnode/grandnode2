@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using MediatR;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
@@ -23,11 +24,8 @@ public class
     public async Task<bool> Handle(ValidateMinShoppingCartSubtotalAmountCommand request,
         CancellationToken cancellationToken)
     {
-        if (request.Cart == null)
-            throw new ArgumentNullException(nameof(request.Cart));
-
-        if (request.Customer == null)
-            throw new ArgumentNullException(nameof(request.Customer));
+        ArgumentNullException.ThrowIfNull(request.Cart);
+        ArgumentNullException.ThrowIfNull(request.Customer);
 
         return await ValidateMinOrderSubtotalAmount(request.Cart);
     }

@@ -29,11 +29,8 @@ public class InsertOrderItemCommandHandler : IRequestHandler<InsertOrderItemComm
 
     public async Task<bool> Handle(InsertOrderItemCommand request, CancellationToken cancellationToken)
     {
-        if (request.Order == null)
-            throw new ArgumentNullException(nameof(request.Order));
-
-        if (request.OrderItem == null)
-            throw new ArgumentNullException(nameof(request.OrderItem));
+        ArgumentNullException.ThrowIfNull(request.Order);
+        ArgumentNullException.ThrowIfNull(request.OrderItem);
 
         request.Order.OrderItems.Add(request.OrderItem);
         request.Order.OrderSubtotalExclTax += request.OrderItem.PriceExclTax;

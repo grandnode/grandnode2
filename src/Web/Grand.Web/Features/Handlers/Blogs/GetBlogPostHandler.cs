@@ -54,8 +54,7 @@ public class GetBlogPostHandler : IRequestHandler<GetBlogPost, BlogPostModel>
 
     public async Task<BlogPostModel> Handle(GetBlogPost request, CancellationToken cancellationToken)
     {
-        if (request.BlogPost == null)
-            throw new ArgumentNullException(nameof(request.BlogPost));
+        ArgumentNullException.ThrowIfNull(request.BlogPost);
 
         var model = new BlogPostModel {
             Id = request.BlogPost.Id,

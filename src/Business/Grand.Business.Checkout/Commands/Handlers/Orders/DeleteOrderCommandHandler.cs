@@ -45,8 +45,7 @@ public class DeleteOrderCommandHandler : IRequestHandler<DeleteOrderCommand, boo
 
     public async Task<bool> Handle(DeleteOrderCommand request, CancellationToken cancellationToken)
     {
-        if (request.Order == null)
-            throw new ArgumentNullException(nameof(request.Order));
+        ArgumentNullException.ThrowIfNull(request.Order);
 
         var shipments = await _shipmentService.GetShipmentsByOrder(request.Order.Id);
         if (shipments.Any())

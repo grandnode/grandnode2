@@ -26,15 +26,13 @@ public class MarkAsAuthorizedCommandHandler : IRequestHandler<MarkAsAuthorizedCo
     public async Task<bool> Handle(MarkAsAuthorizedCommand request, CancellationToken cancellationToken)
     {
         var paymentTransaction = request.PaymentTransaction;
-        if (paymentTransaction == null)
-            throw new ArgumentNullException(nameof(request.PaymentTransaction));
+        ArgumentNullException.ThrowIfNull(paymentTransaction);
 
         paymentTransaction.TransactionStatus = TransactionStatus.Authorized;
         await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
         var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
-        if (order == null)
-            throw new ArgumentNullException(nameof(order));
+        ArgumentNullException.ThrowIfNull(order);
 
         order.PaymentStatusId = PaymentStatus.Authorized;
         await _orderService.UpdateOrder(order);

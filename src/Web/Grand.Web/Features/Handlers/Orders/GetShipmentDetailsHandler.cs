@@ -45,8 +45,7 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
 
     public async Task<ShipmentDetailsModel> Handle(GetShipmentDetails request, CancellationToken cancellationToken)
     {
-        if (request.Shipment == null)
-            throw new ArgumentNullException(nameof(request.Shipment));
+        ArgumentNullException.ThrowIfNull(request.Shipment);
 
         var model = new ShipmentDetailsModel {
             Id = request.Shipment.Id,

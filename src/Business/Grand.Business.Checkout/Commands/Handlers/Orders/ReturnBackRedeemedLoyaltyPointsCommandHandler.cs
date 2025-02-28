@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Payments;
 using MediatR;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
@@ -21,8 +22,7 @@ public class
 
     public async Task<bool> Handle(ReturnBackRedeemedLoyaltyPointsCommand request, CancellationToken cancellationToken)
     {
-        if (request.Order == null)
-            throw new ArgumentNullException(nameof(request.Order));
+        ArgumentNullException.ThrowIfNull(request.Order);
 
         //were some points redeemed when placing an order?
         if (request.Order.RedeemedLoyaltyPoints == 0)

@@ -186,9 +186,8 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
     {
         var article = await _knowledgebaseService.GetKnowledgebaseArticle(model.ArticleId);
         var related = await _knowledgebaseService.GetKnowledgebaseArticle(model.Id);
-
-        if (article == null || related == null)
-            throw new ArgumentNullException("No article found with specified id");
+        ArgumentNullException.ThrowIfNull(article);
+        ArgumentNullException.ThrowIfNull(related);
 
         var toDelete = "";
         foreach (var item in article.RelatedArticles)

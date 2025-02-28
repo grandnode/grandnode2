@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Options;
+using Org.BouncyCastle.Asn1.X509;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -404,7 +405,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
                 (htmlAttributeDictionary == null || !htmlAttributeDictionary.ContainsKey("checked")))
             {
                 // Note value may be null if isChecked is non-null.
-                if (value == null) throw new ArgumentNullException(nameof(value));
+                ArgumentNullException.ThrowIfNull(value);
 
                 // isChecked not provided nor found in the given attributes; fall back to view data.
                 var valueString = Convert.ToString(value, CultureInfo.CurrentCulture);

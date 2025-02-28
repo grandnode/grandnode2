@@ -8,6 +8,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using MediatR;
@@ -198,8 +199,7 @@ public class ShoppingCartService : IShoppingCartService
         validator ??= new ShoppingCartValidatorOptions();
 
         var product = await _productService.GetProductById(productId);
-        if (product == null)
-            throw new ArgumentNullException(nameof(product));
+        ArgumentNullException.ThrowIfNull(product);
 
         var cart = customer.ShoppingCartItems
             .Where(sci => sci.ShoppingCartTypeId == shoppingCartType)

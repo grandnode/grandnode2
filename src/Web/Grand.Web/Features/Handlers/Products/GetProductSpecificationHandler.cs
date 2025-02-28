@@ -20,8 +20,7 @@ public class GetProductSpecificationHandler : IRequestHandler<GetProductSpecific
     public async Task<IList<ProductSpecificationModel>> Handle(GetProductSpecification request,
         CancellationToken cancellationToken)
     {
-        if (request.Product == null)
-            throw new ArgumentNullException(nameof(request.Product));
+        ArgumentNullException.ThrowIfNull(request.Product);
 
         var spa = new List<ProductSpecificationModel>();
         foreach (var item in request.Product.ProductSpecificationAttributes.Where(x => x.ShowOnProductPage)

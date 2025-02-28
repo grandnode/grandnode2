@@ -27,11 +27,8 @@ public class SaveCheckoutAttributesCommandHandler : IRequestHandler<SaveCheckout
     public async Task<IList<CustomAttribute>> Handle(SaveCheckoutAttributesCommand request,
         CancellationToken cancellationToken)
     {
-        if (request.Cart == null)
-            throw new ArgumentNullException(nameof(request.Cart));
-
-        if (request.SelectedAttributes == null)
-            throw new ArgumentNullException(nameof(request.SelectedAttributes));
+        ArgumentNullException.ThrowIfNull(request.Cart);
+        ArgumentNullException.ThrowIfNull(request.SelectedAttributes);
 
         var customAttributes = new List<CustomAttribute>();
         var checkoutAttributes =

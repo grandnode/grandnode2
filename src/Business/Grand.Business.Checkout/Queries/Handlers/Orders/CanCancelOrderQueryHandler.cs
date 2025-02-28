@@ -9,8 +9,7 @@ public class CanCancelOrderQueryHandler : IRequestHandler<CanCancelOrderQuery, b
     public Task<bool> Handle(CanCancelOrderQuery request, CancellationToken cancellationToken)
     {
         var order = request.Order;
-        if (order == null)
-            throw new ArgumentNullException(nameof(request.Order));
+        ArgumentNullException.ThrowIfNull(request.Order);
 
         return Task.FromResult(order.OrderStatusId == (int)OrderStatusSystem.Pending);
     }

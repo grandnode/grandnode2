@@ -2,6 +2,7 @@
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Customers;
+using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
@@ -145,9 +146,7 @@ public class GroupService : IGroupService
         bool? isSystem = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
-
-        if (string.IsNullOrEmpty(customerGroupSystemName))
-            throw new ArgumentNullException(nameof(customerGroupSystemName));
+        ArgumentNullException.ThrowIfNullOrEmpty(customerGroupSystemName);
 
         var customerGroup = await GetCustomerGroupBySystemName(customerGroupSystemName);
         if (customerGroup == null)

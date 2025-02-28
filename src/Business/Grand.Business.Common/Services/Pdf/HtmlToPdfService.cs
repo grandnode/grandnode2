@@ -56,8 +56,7 @@ public class HtmlToPdfService : IPdfService
         var fileName = $"order_{order.OrderGuid}_{CommonHelper.GenerateRandomDigitCode(4)}.pdf";
 
         var dir = Path.Combine(_webHostEnvironment.WebRootPath, "assets/files/exportimport");
-        if (dir == null)
-            throw new ArgumentNullException(nameof(dir));
+        ArgumentNullException.ThrowIfNull(dir);
 
         if (!System.IO.Directory.Exists(dir)) System.IO.Directory.CreateDirectory(dir);
 

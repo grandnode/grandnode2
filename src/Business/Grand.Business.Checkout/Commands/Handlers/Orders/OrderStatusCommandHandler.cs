@@ -41,8 +41,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
 
     public async Task<bool> Handle(SetOrderStatusCommand request, CancellationToken cancellationToken)
     {
-        if (request.Order == null)
-            throw new ArgumentNullException(nameof(request.Order));
+        ArgumentNullException.ThrowIfNull(request.Order);
 
         var prevOrderStatus = request.Order.OrderStatusId;
         if (prevOrderStatus == (int)request.Os)

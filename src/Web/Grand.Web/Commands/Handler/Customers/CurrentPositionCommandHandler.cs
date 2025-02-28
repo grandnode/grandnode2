@@ -15,11 +15,8 @@ public class CurrentPositionCommandHandler : IRequestHandler<CurrentPositionComm
 
     public async Task<bool> Handle(CurrentPositionCommand request, CancellationToken cancellationToken)
     {
-        if (request.Customer == null)
-            throw new ArgumentNullException(nameof(request.Customer));
-
-        if (request.Model == null)
-            throw new ArgumentNullException(nameof(request.Model));
+        ArgumentNullException.ThrowIfNull(request.Customer);
+        ArgumentNullException.ThrowIfNull(request.Model);
 
         await _customerCoordinateService.SaveGeoCoordinate(request.Customer, request.Model.Longitude,
             request.Model.Latitude);

@@ -17,8 +17,7 @@ public class CanRefundQueryHandler : IRequestHandler<CanRefundQuery, bool>
     public async Task<bool> Handle(CanRefundQuery request, CancellationToken cancellationToken)
     {
         var paymentTransaction = request.PaymentTransaction;
-        if (paymentTransaction == null)
-            throw new ArgumentNullException(nameof(request.PaymentTransaction));
+        ArgumentNullException.ThrowIfNull(paymentTransaction);
 
         if (paymentTransaction.TransactionAmount == 0)
             return false;

@@ -53,8 +53,7 @@ public static class PluginManager
 
         lock (_synLock)
         {
-            if (mvcCoreBuilder == null)
-                throw new ArgumentNullException(nameof(mvcCoreBuilder));
+            ArgumentNullException.ThrowIfNull(mvcCoreBuilder);
 
             _logger = mvcCoreBuilder.Services.BuildServiceProvider().GetService<ILoggerFactory>()
                 .CreateLogger("PluginManager");
@@ -191,8 +190,7 @@ public static class PluginManager
     /// <returns>Plugin descriptor if exists; otherwise null</returns>
     public static PluginInfo FindPlugin(Type typeAssembly)
     {
-        if (typeAssembly == null)
-            throw new ArgumentNullException(nameof(typeAssembly));
+        ArgumentNullException.ThrowIfNull(typeAssembly);
 
         return ReferencedPlugins?.FirstOrDefault(plugin => plugin.ReferencedAssembly != null
                                                            && plugin.ReferencedAssembly.FullName!.Equals(
@@ -217,8 +215,7 @@ public static class PluginManager
 
     private static IList<PluginInfo> GetPluginInfo()
     {
-        if (_pluginFolder == null)
-            throw new ArgumentNullException(nameof(_pluginFolder));
+        ArgumentNullException.ThrowIfNull(_pluginFolder);
 
         var result = new List<PluginInfo>();
         foreach (var pluginFile in _pluginFolder.GetFiles("*.dll", SearchOption.AllDirectories))

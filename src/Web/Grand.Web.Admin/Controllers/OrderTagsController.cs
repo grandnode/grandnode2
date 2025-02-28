@@ -69,8 +69,7 @@ public class OrderTagsController : BaseAdminController
             });
 
         var tag = await _orderTagService.GetOrderTagById(tagId);
-        if (tag == null)
-            throw new ArgumentNullException(nameof(tag));
+        ArgumentNullException.ThrowIfNull(tag);
 
         var orders =
             (await _orderService.SearchOrders(pageIndex: command.Page - 1, pageSize: command.PageSize,

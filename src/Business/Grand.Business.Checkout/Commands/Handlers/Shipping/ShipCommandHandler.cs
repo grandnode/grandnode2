@@ -31,8 +31,7 @@ public class ShipCommandHandler : IRequestHandler<ShipCommand, bool>
 
     public async Task<bool> Handle(ShipCommand request, CancellationToken cancellationToken)
     {
-        if (request.Shipment == null)
-            throw new ArgumentNullException(nameof(request.Shipment));
+        ArgumentNullException.ThrowIfNull(request.Shipment);
 
         var order = await _orderService.GetOrderById(request.Shipment.OrderId);
         if (order == null)
