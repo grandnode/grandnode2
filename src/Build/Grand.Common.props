@@ -1,6 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>true</ImplicitUsings>
     </PropertyGroup>
     <PropertyGroup>
         <Product>grandnode</Product>
@@ -16,13 +17,7 @@
         <Optimize>true</Optimize>
     </PropertyGroup>
     <ItemGroup>
-        <Using Include="System" />
-        <Using Include="System.Collections.Generic" />
-        <Using Include="System.IO" />
         <Using Include="System.Text" />
-        <Using Include="System.Linq" />
-        <Using Include="System.Threading" />
-        <Using Include="System.Threading.Tasks" />
     </ItemGroup>
     <Target Name="SetSourceRevisionId" BeforeTargets="InitializeSourceControlInformation"
             Condition="'$(SourceRevisionId)'=='' And Exists('$(MSBuildProjectDirectory)\.git')">
