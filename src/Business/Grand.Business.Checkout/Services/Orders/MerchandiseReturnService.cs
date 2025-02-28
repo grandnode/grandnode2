@@ -45,7 +45,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
 
     #region Fields
 
-    private static readonly object Locker = new();
+    private static readonly Lock Locker = new();
 
     private readonly IRepository<MerchandiseReturn> _merchandiseReturnRepository;
     private readonly IRepository<MerchandiseReturnAction> _merchandiseReturnActionRepository;

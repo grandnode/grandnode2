@@ -30,7 +30,7 @@ public static class SeoExtensions
     #region Fields
 
     private static Dictionary<string, string> _seoCharacterTable;
-    private static readonly object SLock = new();
+    private static readonly Lock SLock = new();
 
     #endregion
 
