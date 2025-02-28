@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Payments;
 using MediatR;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
