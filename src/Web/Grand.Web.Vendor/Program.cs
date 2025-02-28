@@ -1,7 +1,4 @@
-using Grand.Infrastructure;
 using Grand.Web.Common.Extensions;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
 using StartupBase = Grand.Infrastructure.StartupBase;
 
 var builder = WebApplication.CreateBuilder(args);

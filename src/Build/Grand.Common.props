@@ -1,42 +1,44 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
         <ImplicitUsings>true</ImplicitUsings>
     </PropertyGroup>
     <PropertyGroup>
         <Product>grandnode</Product>
         <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/grandnode/grandnode2</RepositoryUrl>
         <PackageLicenseUrl>https://github.com/grandnode/grandnode2/blob/main/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/grandnode/grandnode2</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
-        <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
         <DebugSymbols>false</DebugSymbols>
         <DebugType>none</DebugType>
         <Optimize>true</Optimize>
     </PropertyGroup>
+
     <ItemGroup>
-        <Using Include="System.Text" />
+        <Using Include="System.Text"/>
     </ItemGroup>
+
     <Target Name="SetSourceRevisionId" BeforeTargets="InitializeSourceControlInformation"
             Condition="'$(SourceRevisionId)'=='' And Exists('$(MSBuildProjectDirectory)\.git')">
         <Exec Command="git describe --long --always --exclude=* --abbrev=8" ConsoleToMSBuild="True"
               IgnoreExitCode="True">
-            <Output PropertyName="SourceRevisionId" TaskParameter="ConsoleOutput" />
+            <Output PropertyName="SourceRevisionId" TaskParameter="ConsoleOutput"/>
         </Exec>
     </Target>
     <Target Name="SetRepositoryBranch" BeforeTargets="InitializeSourceControlInformation"
             Condition="'$(GitBranch)'=='' And Exists('$(MSBuildProjectDirectory)\.git')">
         <Exec Command="git rev-parse --abbrev-ref HEAD" ConsoleToMSBuild="True" IgnoreExitCode="True">
-            <Output PropertyName="branch" TaskParameter="ConsoleOutput" />
+            <Output PropertyName="branch" TaskParameter="ConsoleOutput"/>
         </Exec>
         <ItemGroup>
-            <AssemblyMetadata Include="GitBranch" Value="$(branch)" />
+            <AssemblyMetadata Include="GitBranch" Value="$(branch)"/>
         </ItemGroup>
     </Target>
     <ItemGroup Condition="'$(GitBranch)'!=''">
-        <AssemblyMetadata Include="GitBranch" Value="$(GitBranch)" />
+        <AssemblyMetadata Include="GitBranch" Value="$(GitBranch)"/>
     </ItemGroup>
     <Target Name="SetVersion" BeforeTargets="PrepareForBuild">
         <PropertyGroup>
