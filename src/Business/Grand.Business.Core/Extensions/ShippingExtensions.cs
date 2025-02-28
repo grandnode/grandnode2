@@ -19,27 +19,18 @@ public static class ShippingExtensions
     public static bool CountryRestrictionExists(this ShippingMethod shippingMethod,
         string countryId)
     {
-        ArgumentNullException.ThrowIfNull(shippingMethod);
-
-        var result = shippingMethod.RestrictedCountries.ToList().Find(c => c.Id == countryId) != null;
-        return result;
+        return shippingMethod.RestrictedCountries.Any(c => c.Id == countryId);
     }
 
     public static bool CustomerGroupRestrictionExists(this ShippingMethod shippingMethod,
         string roleId)
     {
-        ArgumentNullException.ThrowIfNull(shippingMethod);
-
-        var result = shippingMethod.RestrictedGroups.ToList().Find(c => c == roleId) != null;
-        return result;
+        return shippingMethod.RestrictedGroups.Any(c => c == roleId);
     }
 
     public static bool CustomerGroupRestrictionExists(this ShippingMethod shippingMethod,
-        List<string> roleIds)
+        IEnumerable<string> roleIds)
     {
-        ArgumentNullException.ThrowIfNull(shippingMethod);
-
-        var result = shippingMethod.RestrictedGroups.ToList().Find(roleIds.Contains) != null;
-        return result;
+        return shippingMethod.RestrictedGroups.Any(roleIds.Contains);
     }
 }

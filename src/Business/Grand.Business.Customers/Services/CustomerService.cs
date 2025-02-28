@@ -202,8 +202,10 @@ public class CustomerService : ICustomerService
             select c;
         var customers = query.ToList();
         //sort by passed identifiers
-        var sortedCustomers = customerIds.Select(id => customers.Find(x => x.Id == id))
-            .Where(customer => customer != null).ToList();
+        var sortedCustomers = customerIds.Select(id => customers.FirstOrDefault(customer => customer.Id == id))
+            .Where(customer => customer != null)
+            .ToList();
+        
         return await Task.FromResult(sortedCustomers);
     }
 

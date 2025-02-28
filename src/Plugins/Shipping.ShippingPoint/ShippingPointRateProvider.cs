@@ -111,7 +111,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
 
         //override price 
         var offeredShippingOptions = _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<List<ShippingOption>>(SystemCustomerFieldNames.OfferedShippingOptions, _contextAccessor.StoreContext.CurrentStore.Id);
-        offeredShippingOptions.Find(x => x.Name == shippingMethodName).Rate =
+        offeredShippingOptions.First(x => x.Name == shippingMethodName).Rate =
             await _currencyService.ConvertFromPrimaryStoreCurrency(chosenShippingOption.PickupFee,
                 _contextAccessor.WorkContext.WorkingCurrency);
 

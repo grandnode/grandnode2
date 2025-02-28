@@ -103,8 +103,8 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
                 request.Store.Id);
         if (!string.IsNullOrEmpty(selectedPaymentMethodSystemName))
         {
-            var paymentMethodToSelect = model.PaymentMethods.ToList()
-                .Find(pm => pm.PaymentMethodSystemName.Equals(selectedPaymentMethodSystemName,
+            var paymentMethodToSelect = model.PaymentMethods
+                .FirstOrDefault(pm => pm.PaymentMethodSystemName.Equals(selectedPaymentMethodSystemName,
                     StringComparison.OrdinalIgnoreCase));
             if (paymentMethodToSelect != null)
                 paymentMethodToSelect.Selected = true;

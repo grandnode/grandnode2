@@ -1225,7 +1225,7 @@ public class OrderViewModelService : IOrderViewModelService
         foreach (var newOrderTag in newOrderTags)
         {
             OrderTag orderTag;
-            var orderTag2 = allOrderTags.ToList().Find(o => o.Name == newOrderTag);
+            var orderTag2 = allOrderTags.FirstOrDefault(o => o.Name == newOrderTag);
 
             if (orderTag2 == null)
             {

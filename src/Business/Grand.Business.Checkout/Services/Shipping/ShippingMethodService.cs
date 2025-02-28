@@ -88,7 +88,7 @@ public class ShippingMethodService : IShippingMethodService
             shippingMethods = shippingMethods.Where(x => !x.CountryRestrictionExists(filterByCountryId)).ToList();
         if (customer != null)
             shippingMethods = shippingMethods
-                .Where(x => !x.CustomerGroupRestrictionExists(customer.Groups.Select(y => y).ToList())).ToList();
+                .Where(x => !x.CustomerGroupRestrictionExists(customer.Groups)).ToList();
 
         return shippingMethods;
     }

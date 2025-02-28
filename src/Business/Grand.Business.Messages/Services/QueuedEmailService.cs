@@ -106,8 +106,10 @@ public class QueuedEmailService : IQueuedEmailService
         var queuedEmails = query.ToList();
         //sort by passed identifiers
         var sortedQueuedEmails =
-            queuedEmailIds.Select(id => queuedEmails.Find(x => x.Id == id)).Where(queuedEmail => queuedEmail != null)
+            queuedEmailIds.Select(id => queuedEmails.FirstOrDefault(email => email.Id == id))
+                .Where(queuedEmail => queuedEmail != null)
                 .ToList();
+        
         return await Task.FromResult(sortedQueuedEmails);
     }
 

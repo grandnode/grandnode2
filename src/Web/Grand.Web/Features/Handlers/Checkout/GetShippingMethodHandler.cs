@@ -76,8 +76,8 @@ public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, Check
                     request.Store.Id);
             if (selectedShippingOption != null)
             {
-                var shippingOptionToSelect = model.ShippingMethods.ToList()
-                    .Find(so =>
+                var shippingOptionToSelect = model.ShippingMethods
+                    .FirstOrDefault(so =>
                         !string.IsNullOrEmpty(so.Name) &&
                         so.Name.Equals(selectedShippingOption.Name, StringComparison.OrdinalIgnoreCase) &&
                         !string.IsNullOrEmpty(so.ShippingRateProviderSystemName) &&

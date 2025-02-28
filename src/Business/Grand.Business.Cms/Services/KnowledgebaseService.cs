@@ -512,13 +512,9 @@ public class KnowledgebaseService : IKnowledgebaseService
                     select bc;
         var comments = query.ToList();
         //sort by passed identifiers
-        var sortedComments = new List<KnowledgebaseArticleComment>();
-        foreach (var id in commentIds)
-        {
-            var comment = comments.Find(x => x.Id == id);
-            if (comment != null)
-                sortedComments.Add(comment);
-        }
+        var sortedComments = commentIds.Select(id => comments.FirstOrDefault(x => x.Id == id))
+            .Where(comment => comment != null)
+            .ToList();
 
         return await Task.FromResult(sortedComments);
     }

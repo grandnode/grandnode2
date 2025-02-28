@@ -112,7 +112,9 @@ public class OrderService : IOrderService
             select o;
         var orders = await Task.FromResult(query.ToList());
         //sort by passed identifiers
-        return orderIds.Select(id => orders.Find(x => x.Id == id)).Where(order => order != null).ToList();
+        return orderIds.Select(id => orders.FirstOrDefault(order => order.Id == id))
+            .Where(order => order != null)
+            .ToList();
     }
 
     /// <summary>

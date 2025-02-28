@@ -214,7 +214,7 @@ public class CheckoutController : BasePublicController
                 }
 
                 //try to find an address with the same values (don't duplicate records)
-                var address = _contextAccessor.WorkContext.CurrentCustomer.Addresses.ToList().FindAddress(
+                var address = _contextAccessor.WorkContext.CurrentCustomer.Addresses.FindAddress(
                     model.BillingNewAddress.FirstName, model.BillingNewAddress.LastName,
                     model.BillingNewAddress.PhoneNumber,
                     model.BillingNewAddress.Email, model.BillingNewAddress.FaxNumber,
@@ -370,7 +370,7 @@ public class CheckoutController : BasePublicController
                     }
 
                     //try to find an address with the same values (don't duplicate records)
-                    var address = _contextAccessor.WorkContext.CurrentCustomer.Addresses.ToList().FindAddress(
+                    var address = _contextAccessor.WorkContext.CurrentCustomer.Addresses.FindAddress(
                         model.ShippingNewAddress.FirstName, model.ShippingNewAddress.LastName,
                         model.ShippingNewAddress.PhoneNumber,
                         model.ShippingNewAddress.Email, model.ShippingNewAddress.FaxNumber,
@@ -493,7 +493,7 @@ public class CheckoutController : BasePublicController
                     .ToList();
 
             var shippingOption = shippingOptions
-                .Find(so => !string.IsNullOrEmpty(so.Name) &&
+                .FirstOrDefault(so => !string.IsNullOrEmpty(so.Name) &&
                             so.Name.Equals(selectedName, StringComparison.OrdinalIgnoreCase));
             if (shippingOption == null)
                 throw new Exception("Selected shipping method can't be loaded");
