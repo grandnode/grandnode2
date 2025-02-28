@@ -155,7 +155,7 @@ public class BlogService : IBlogService
             foreach (var tag in tags)
             {
                 var foundBlogPostTag =
-                    blogPostTags.Find(bpt => bpt.Name.Equals(tag, StringComparison.OrdinalIgnoreCase));
+                    blogPostTags.FirstOrDefault(bpt => bpt.Name.Equals(tag, StringComparison.OrdinalIgnoreCase));
                 if (foundBlogPostTag == null)
                 {
                     foundBlogPostTag = new BlogPostTag {
@@ -267,8 +267,10 @@ public class BlogService : IBlogService
             select bc;
         var comments = query.ToList();
         //sort by passed identifiers
-        var sortedComments = commentIds.Select(id => comments.Find(x => x.Id == id)).Where(comment => comment != null)
+        var sortedComments = commentIds.Select(id => comments.FirstOrDefault(comment => comment.Id == id))
+            .Where(comment => comment != null)
             .ToList();
+        
         return await Task.FromResult(sortedComments);
     }
 

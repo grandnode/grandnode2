@@ -158,16 +158,20 @@ public static class IFileStoreExtensions
     /// <param name="fileStore">The <see cref="IFileStore" />.</param>
     /// <param name="paths">The path parts to combine.</param>
     /// <returns>The full combined path.</returns>
-    public static string Combine(this IFileStore fileStore, params string[] paths)
+    public static string Combine(this IFileStore fileStore, params ReadOnlySpan<string> paths)
     {
         if (paths.Length == 0)
             return null;
-
-        var normalizedParts =
-            paths
-                .Select(x => fileStore.NormalizePath(x))
-                .Where(x => !string.IsNullOrEmpty(x))
-                .ToArray();
+        
+        List<string> normalizedParts = [];
+        foreach (var path in paths)
+        {
+            var normalizedPath = fileStore.NormalizePath(path);
+            if (!string.IsNullOrEmpty(normalizedPath))
+            {
+                normalizedParts.Add(normalizedPath);
+            }
+        }
 
         var combined = string.Join("/", normalizedParts);
         if (!Path.IsPathRooted(combined)) combined = "/" + combined;

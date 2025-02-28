@@ -143,7 +143,9 @@ public class CountryService : ICountryService
             select c;
         var countries = await Task.FromResult(query.ToList());
         //sort by passed identifiers
-        return countryIds.Select(id => countries.Find(x => x.Id == id)).Where(country => country != null).ToList();
+        return countryIds.Select(id => countries.FirstOrDefault(country => country.Id == id))
+            .Where(country => country != null)
+            .ToList();
     }
 
     /// <summary>

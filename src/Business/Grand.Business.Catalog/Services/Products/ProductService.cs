@@ -890,7 +890,7 @@ public class ProductService : IProductService
             foreach (var crossSell in crossSells)
             {
                 //validate that this product is not added to result yet
-                if (result.Find(p => p.Id == crossSell) != null ||
+                if (result.FirstOrDefault(p => p.Id == crossSell) != null ||
                     cartProductIds.Contains(crossSell)) continue;
                 var productToAdd = await GetProductById(crossSell);
                 //validate product

@@ -8,7 +8,7 @@ namespace Grand.Data;
 public sealed class DataSettingsManager
 {
     private static DataSettingsManager _instance;
-    private static readonly object _lock = new();
+    private static readonly Lock _lock = new();
 
     public static DataSettingsManager Instance => _instance ?? throw new InvalidOperationException("DataSettingsManager has not been initialized. Call Initialize first.");
 

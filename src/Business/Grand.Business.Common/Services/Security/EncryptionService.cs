@@ -45,7 +45,7 @@ public class EncryptionService : IEncryptionService
             throw new ArgumentException("Unrecognized hash name");
 
         var hashByteArray = algorithm.ComputeHash(Encoding.UTF8.GetBytes(saltAndPassword));
-        return BitConverter.ToString(hashByteArray).Replace("-", "");
+        return Convert.ToHexString(hashByteArray);
     }
 
     /// <summary>
