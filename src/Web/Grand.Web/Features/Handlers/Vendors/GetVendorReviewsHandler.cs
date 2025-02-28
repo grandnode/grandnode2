@@ -44,8 +44,7 @@ public class GetVendorReviewsHandler : IRequestHandler<GetVendorReviews, VendorR
 
     public async Task<VendorReviewsModel> Handle(GetVendorReviews request, CancellationToken cancellationToken)
     {
-        if (request.Vendor == null)
-            throw new ArgumentNullException(nameof(request.Vendor));
+        ArgumentNullException.ThrowIfNull(request.Vendor);
 
         var model = new VendorReviewsModel {
             VendorId = request.Vendor.Id,

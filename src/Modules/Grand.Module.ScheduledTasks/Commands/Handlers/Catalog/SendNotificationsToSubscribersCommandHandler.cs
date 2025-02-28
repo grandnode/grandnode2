@@ -7,6 +7,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.SharedKernel.Extensions;
 using MediatR;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Grand.Module.ScheduledTasks.Commands.Handlers.Catalog;
 
@@ -31,8 +32,7 @@ public class
     public async Task<IList<OutOfStockSubscription>> Handle(SendNotificationsToSubscribersCommand request,
         CancellationToken cancellationToken)
     {
-        if (request.Product == null)
-            throw new ArgumentNullException(nameof(request.Product));
+        ArgumentNullException.ThrowIfNull(request.Product);
 
         var subscriptions =
             await GetAllSubscriptionsByProductId(request.Product.Id, request.Attributes, request.Warehouse);

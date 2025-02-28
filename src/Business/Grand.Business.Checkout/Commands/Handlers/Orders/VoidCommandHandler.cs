@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Azure.Core;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
@@ -36,8 +37,7 @@ public class VoidCommandHandler : IRequestHandler<VoidCommand, IList<string>>
     public async Task<IList<string>> Handle(VoidCommand command, CancellationToken cancellationToken)
     {
         var paymentTransaction = command.PaymentTransaction;
-        if (paymentTransaction == null)
-            throw new ArgumentNullException(nameof(command.PaymentTransaction));
+        ArgumentNullException.ThrowIfNull(paymentTransaction);
 
         var canVoid = await _mediator.Send(new CanVoidQuery { PaymentTransaction = paymentTransaction },
             cancellationToken);
@@ -59,8 +59,7 @@ public class VoidCommandHandler : IRequestHandler<VoidCommand, IList<string>>
                 await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
                 var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
-                if (order == null)
-                    throw new ArgumentNullException(nameof(order));
+                ArgumentNullException.ThrowIfNull(order);
 
                 if (paymentTransaction.TransactionStatus == TransactionStatus.Voided)
                 {

@@ -337,8 +337,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     /// <returns>Shopping cart item weight</returns>
     private async Task<double> GetShoppingCartItemWeight(ShoppingCartItem shoppingCartItem)
     {
-        if (shoppingCartItem == null)
-            throw new ArgumentNullException(nameof(shoppingCartItem));
+        ArgumentNullException.ThrowIfNull(shoppingCartItem);
+
         var product = await _productService.GetProductById(shoppingCartItem.ProductId);
         if (product == null)
             return 0;

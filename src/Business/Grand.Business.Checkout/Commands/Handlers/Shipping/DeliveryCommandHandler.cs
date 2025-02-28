@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using MediatR;
 
@@ -31,8 +32,7 @@ public class DeliveryCommandHandler : IRequestHandler<DeliveryCommand, bool>
 
     public async Task<bool> Handle(DeliveryCommand request, CancellationToken cancellationToken)
     {
-        if (request.Shipment == null)
-            throw new ArgumentNullException(nameof(request.Shipment));
+        ArgumentNullException.ThrowIfNull(request.Shipment);
 
         var order = await _orderService.GetOrderById(request.Shipment.OrderId);
         if (order == null)

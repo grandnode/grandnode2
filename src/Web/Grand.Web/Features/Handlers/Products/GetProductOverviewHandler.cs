@@ -72,8 +72,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
     public async Task<IEnumerable<ProductOverviewModel>> Handle(GetProductOverview request,
         CancellationToken cancellationToken)
     {
-        if (request.Products == null)
-            throw new ArgumentNullException(nameof(request.Products));
+        ArgumentNullException.ThrowIfNull(request.Products);
 
         var displayPrices =
             await _permissionService.Authorize(StandardPermission.DisplayPrices, _contextAccessor.WorkContext.CurrentCustomer);

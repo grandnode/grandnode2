@@ -9,8 +9,7 @@ public class CanPartiallyPaidOfflineQueryHandler : IRequestHandler<CanPartiallyP
     public Task<bool> Handle(CanPartiallyPaidOfflineQuery request, CancellationToken cancellationToken)
     {
         var paymentTransaction = request.PaymentTransaction;
-        if (paymentTransaction == null)
-            throw new ArgumentNullException(nameof(request.PaymentTransaction));
+        ArgumentNullException.ThrowIfNull(paymentTransaction);
 
         var amountToPaid = request.AmountToPaid;
 

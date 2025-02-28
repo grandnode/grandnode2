@@ -30,19 +30,9 @@ public class PublicStoreAttribute : TypeFilterAttribute
     /// <summary>
     ///     Represents a filter that confirms access to public store
     /// </summary>
-    private class AccessPublicStoreFilter : IAsyncAuthorizationFilter
+    private class AccessPublicStoreFilter(bool ignoreFilter, IPermissionService permissionService,
+        StoreInformationSettings storeInformationSettings) : IAsyncAuthorizationFilter
     {
-        #region Ctor
-
-        public AccessPublicStoreFilter(bool ignoreFilter, IPermissionService permissionService,
-            StoreInformationSettings storeInformationSettings)
-        {
-            _ignoreFilter = ignoreFilter;
-            _permissionService = permissionService;
-            _storeInformationSettings = storeInformationSettings;
-        }
-
-        #endregion
 
         #region Methods
 
@@ -62,30 +52,22 @@ public class PublicStoreAttribute : TypeFilterAttribute
 
 
             //ignore filter (the action is available even if navigation is not allowed)
-            if (actionFilter?.IgnoreFilter ?? _ignoreFilter)
+            if (actionFilter?.IgnoreFilter ?? ignoreFilter)
                 return;
 
             if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             //check whether current customer has access to a public store
-            if (await _permissionService.Authorize(StandardPermission.PublicStoreAllowNavigation))
+            if (await permissionService.Authorize(StandardPermission.PublicStoreAllowNavigation))
                 return;
 
-            filterContext.Result = _storeInformationSettings.StoreClosed
+            filterContext.Result = storeInformationSettings.StoreClosed
                 ? new RedirectToRouteResult("StoreClosed", new RouteValueDictionary())
                 :
                 //customer has not access to a public store
                 new RedirectToRouteResult("Login", new RouteValueDictionary());
         }
-
-        #endregion
-
-        #region Fields
-
-        private readonly bool _ignoreFilter;
-        private readonly IPermissionService _permissionService;
-        private readonly StoreInformationSettings _storeInformationSettings;
 
         #endregion
     }

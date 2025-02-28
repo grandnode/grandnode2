@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Data;
 using Grand.Domain.Courses;
+using Grand.Domain.Customers;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 
@@ -29,8 +30,7 @@ public class CourseLessonService : ICourseLessonService
 
     public virtual async Task<IList<CourseLesson>> GetByCourseId(string courseId)
     {
-        if (string.IsNullOrEmpty(courseId))
-            throw new ArgumentNullException(nameof(courseId));
+        ArgumentNullException.ThrowIfNullOrEmpty(courseId);
 
         var query = from c in _courseLessonRepository.Table
             where c.CourseId == courseId

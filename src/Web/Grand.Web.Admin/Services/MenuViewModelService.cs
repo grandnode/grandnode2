@@ -27,8 +27,7 @@ public class MenuViewModelService : IMenuViewModelService
 
     public virtual async Task<AdminSiteMap> GetMenuById(string id)
     {
-        if (string.IsNullOrEmpty(id))
-            throw new ArgumentNullException(nameof(id));
+        ArgumentNullException.ThrowIfNullOrEmpty(id);
 
         var sitemap = await _adminSiteMapService.GetSiteMap();
         return sitemap.Select(rootNode => FindAdminSiteMapById(rootNode, id)).FirstOrDefault(result => result != null);
@@ -80,8 +79,7 @@ public class MenuViewModelService : IMenuViewModelService
 
     public virtual async Task DeleteMenu(string id)
     {
-        if (string.IsNullOrEmpty(id))
-            throw new ArgumentNullException(nameof(id));
+        ArgumentNullException.ThrowIfNullOrEmpty(id);
 
         var sitemap = await _adminSiteMapService.GetSiteMap();
         var parentEntity = FindTopLevelNodeById(sitemap, id);

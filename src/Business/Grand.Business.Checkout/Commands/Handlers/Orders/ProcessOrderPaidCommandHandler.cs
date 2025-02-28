@@ -6,7 +6,9 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using MediatR;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
 
@@ -47,8 +49,7 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
     /// <param name="order">Order</param>
     protected virtual async Task ProcessOrderPaid(Order order)
     {
-        if (order == null)
-            throw new ArgumentNullException(nameof(order));
+        ArgumentNullException.ThrowIfNull(order);
 
         //raise event
         await _mediator.Publish(new OrderPaidEvent(order));

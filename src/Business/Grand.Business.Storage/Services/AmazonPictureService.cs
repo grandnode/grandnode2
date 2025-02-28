@@ -5,6 +5,7 @@ using Amazon.S3.Model;
 using Amazon.S3.Util;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Data;
+using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
@@ -40,12 +41,9 @@ public class AmazonPictureService : PictureService
         _config = config;
 
         //Arguments guard
-        if (string.IsNullOrEmpty(_config.AmazonAwsAccessKeyId))
-            throw new ArgumentNullException("AmazonAwsAccessKeyId");
-        if (string.IsNullOrEmpty(_config.AmazonAwsSecretAccessKey))
-            throw new ArgumentNullException("AmazonAwsSecretAccessKey");
-        if (string.IsNullOrEmpty(_config.AmazonBucketName))
-            throw new ArgumentNullException("AmazonBucketName");
+        ArgumentNullException.ThrowIfNullOrEmpty(_config.AmazonAwsAccessKeyId);
+        ArgumentNullException.ThrowIfNullOrEmpty(_config.AmazonAwsSecretAccessKey);
+        ArgumentNullException.ThrowIfNullOrEmpty(_config.AmazonBucketName);
 
         //Region guard
         var regionEndpoint = RegionEndpoint.GetBySystemName(_config.AmazonRegion);

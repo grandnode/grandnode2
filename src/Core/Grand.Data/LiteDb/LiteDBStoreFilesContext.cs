@@ -1,5 +1,6 @@
 ﻿using Grand.Domain;
 using LiteDB;
+using System.Xml.Linq;
 
 namespace Grand.Data.LiteDb;
 
@@ -16,9 +17,8 @@ public class LiteDBStoreFilesContext : IStoreFilesContext
     {
         var fs = _database.FileStorage;
         var file = fs.FindById(id);
-    
-        if (file == null)
-            throw new ArgumentNullException(nameof(file));
+
+        ArgumentNullException.ThrowIfNull(file);
 
         using (var stream = file.OpenRead())
         using (MemoryStream mstream = new())

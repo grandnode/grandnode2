@@ -28,8 +28,7 @@ public class PartiallyPaidOfflineCommandHandler : IRequestHandler<PartiallyPaidO
     public async Task<bool> Handle(PartiallyPaidOfflineCommand command, CancellationToken cancellationToken)
     {
         var paymentTransaction = command.PaymentTransaction;
-        if (paymentTransaction == null)
-            throw new ArgumentNullException(nameof(command.PaymentTransaction));
+        ArgumentNullException.ThrowIfNull(paymentTransaction);
 
         var amountToPaid = command.AmountToPaid;
 
@@ -47,8 +46,7 @@ public class PartiallyPaidOfflineCommandHandler : IRequestHandler<PartiallyPaidO
         await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
         var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
-        if (order == null)
-            throw new ArgumentNullException(nameof(order));
+        ArgumentNullException.ThrowIfNull(order);
 
         //update order info
         order.PaidAmount += amountToPaid;

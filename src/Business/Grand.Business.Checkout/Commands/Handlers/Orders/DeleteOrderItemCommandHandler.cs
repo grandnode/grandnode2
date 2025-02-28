@@ -37,11 +37,8 @@ public class DeleteOrderItemCommandHandler : IRequestHandler<DeleteOrderItemComm
     public async Task<(bool error, string message)> Handle(DeleteOrderItemCommand request,
         CancellationToken cancellationToken)
     {
-        if (request.Order == null)
-            throw new ArgumentNullException(nameof(request.Order));
-
-        if (request.OrderItem == null)
-            throw new ArgumentNullException(nameof(request.OrderItem));
+        ArgumentNullException.ThrowIfNull(request.Order);
+        ArgumentNullException.ThrowIfNull(request.OrderItem);
 
         var product = await _productService.GetProductById(request.OrderItem.ProductId);
         if (product == null)

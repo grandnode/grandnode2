@@ -259,8 +259,7 @@ public class OrderController(
         try
         {
             var status = await orderStatusService.GetByStatusId(model.OrderStatusId);
-            if (status == null)
-                throw new ArgumentNullException(nameof(status));
+            ArgumentNullException.ThrowIfNull(status);
 
             order.OrderStatusId = model.OrderStatusId;
             await orderService.UpdateOrder(order);

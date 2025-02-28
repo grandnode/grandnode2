@@ -3,42 +3,8 @@
 <div id="product-attributes"></div>
 @{
     //dynamic update support
-    var attributeChangeScriptsBuilder = new StringBuilder();
     var attributeChangeHandlerFuncName = $"attribute_change_handler_{Model.Id}";
     var fileLink = Url.RouteUrl("UploadFileProductAttribute");
-    //generate change event script
-    foreach (var attribute in Model.ProductAttributes)
-    {
-        var controlId = $"product_attribute_{attribute.Id}";
-        switch (attribute.AttributeControlType)
-        {
-            case AttributeControlType.DropdownList:
-            {
-                attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}').addEventListener('change', function (){{{attributeChangeHandlerFuncName}();}});\n");
-            }
-                break;
-            case AttributeControlType.RadioList:
-            case AttributeControlType.ColorSquares:
-            case AttributeControlType.ImageSquares:
-            {
-                foreach (var attributeValue in attribute.Values)
-                {
-                    attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(e){{{attributeChangeHandlerFuncName}();}},false);\n");
-                }
-            }
-                break;
-            case AttributeControlType.Checkboxes:
-            case AttributeControlType.ReadonlyCheckboxes:
-            {
-                foreach (var attributeValue in attribute.Values)
-                {
-                    attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(e){{{attributeChangeHandlerFuncName}();}},false);\n");
-                }
-            }
-                break;
-        }
-    }
-
     //render scripts
     <div id="product-attributes">
         <template v-if="standardProductAttributes_@(Model.Id).ProductAttributes !== 'undefined'">

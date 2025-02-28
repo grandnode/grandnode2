@@ -28,8 +28,7 @@ public class ProductCourseService : IProductCourseService
 
     public virtual async Task UpdateCourseOnProduct(string productId, string courseId)
     {
-        if (string.IsNullOrEmpty(productId))
-            throw new ArgumentNullException(nameof(productId));
+        ArgumentNullException.ThrowIfNullOrEmpty(productId);
 
         await _productRepository.UpdateField(productId, x => x.CourseId, courseId);
         await _productRepository.UpdateField(productId, x => x.UpdatedOnUtc, DateTime.UtcNow);

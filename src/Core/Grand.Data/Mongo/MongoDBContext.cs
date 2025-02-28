@@ -1,6 +1,7 @@
 ﻿using Grand.Domain;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Xml.Linq;
 
 namespace Grand.Data.Mongo;
 
@@ -22,8 +23,7 @@ public class MongoDBContext : IDatabaseContext
 
     public async Task CreateTable(string name, string collation)
     {
-        if (string.IsNullOrEmpty(name))
-            throw new ArgumentNullException(nameof(name));
+        ArgumentNullException.ThrowIfNullOrEmpty(name);
 
         if (!string.IsNullOrEmpty(collation))
         {
@@ -40,17 +40,14 @@ public class MongoDBContext : IDatabaseContext
 
     public async Task DeleteTable(string name)
     {
-        if (string.IsNullOrEmpty(name))
-            throw new ArgumentNullException(nameof(name));
-
+        ArgumentNullException.ThrowIfNullOrEmpty(name);
         await _database.DropCollectionAsync(name);
     }
 
     public async Task CreateIndex<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName,
         bool unique = false) where T : BaseEntity
     {
-        if (string.IsNullOrEmpty(indexName))
-            throw new ArgumentNullException(nameof(indexName));
+        ArgumentNullException.ThrowIfNullOrEmpty(indexName);
 
         IList<IndexKeysDefinition<T>> keys = new List<IndexKeysDefinition<T>>();
         foreach (var item in orderBuilder.Fields)
@@ -74,8 +71,7 @@ public class MongoDBContext : IDatabaseContext
 
     public async Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity
     {
-        if (string.IsNullOrEmpty(indexName))
-            throw new ArgumentNullException(nameof(indexName));
+        ArgumentNullException.ThrowIfNullOrEmpty(indexName);
         try
         {
             await ((MongoRepository<T>)repository).Collection.Indexes.DropOneAsync(indexName);

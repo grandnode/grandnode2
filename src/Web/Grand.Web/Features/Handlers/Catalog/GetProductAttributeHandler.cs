@@ -16,8 +16,7 @@ public class GetProductAttributeHandler : IRequestHandler<GetProductAttribute, P
 
     public async Task<ProductAttribute> Handle(GetProductAttribute request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(request.Id))
-            throw new ArgumentNullException(nameof(request.Id));
+        ArgumentNullException.ThrowIfNullOrEmpty(request.Id);
 
         return await _productAttributeService.GetProductAttributeById(request.Id);
     }

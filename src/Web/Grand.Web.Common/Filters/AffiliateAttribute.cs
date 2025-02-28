@@ -24,21 +24,10 @@ public class AffiliateAttribute : TypeFilterAttribute
     /// <summary>
     ///     Represents a filter that checks and updates affiliate of customer
     /// </summary>
-    private class AffiliateFilter : IAsyncActionFilter
+    private class AffiliateFilter(IAffiliateService affiliateService,
+        ICustomerService customerService,
+        IContextAccessor contextAccessor) : IAsyncActionFilter
     {
-        #region Ctor
-
-        public AffiliateFilter(IAffiliateService affiliateService,
-            ICustomerService customerService,
-            IContextAccessor contextAccessor)
-        {
-            _affiliateService = affiliateService;
-            _customerService = customerService;
-            _contextAccessor = contextAccessor;
-        }
-
-        #endregion
-
         #region Methods
 
         /// <summary>
@@ -65,7 +54,7 @@ public class AffiliateAttribute : TypeFilterAttribute
             {
                 var affiliateId = affiliateIds.FirstOrDefault();
                 if (!string.IsNullOrEmpty(affiliateId))
-                    await SetCustomerAffiliateId(await _affiliateService.GetAffiliateById(affiliateId));
+                    await SetCustomerAffiliateId(await affiliateService.GetAffiliateById(affiliateId));
                 return;
             }
 
@@ -75,7 +64,7 @@ public class AffiliateAttribute : TypeFilterAttribute
             {
                 var affiliateName = affiliateNames.FirstOrDefault();
                 if (!string.IsNullOrEmpty(affiliateName))
-                    await SetCustomerAffiliateId(await _affiliateService.GetAffiliateByFriendlyUrlName(affiliateName));
+                    await SetCustomerAffiliateId(await affiliateService.GetAffiliateByFriendlyUrlName(affiliateName));
             }
         }
 
@@ -92,13 +81,13 @@ public class AffiliateAttribute : TypeFilterAttribute
             if (affiliate is not { Active: true })
                 return;
 
-            if (affiliate.Id == _contextAccessor.WorkContext.CurrentCustomer.AffiliateId)
+            if (affiliate.Id == contextAccessor.WorkContext.CurrentCustomer.AffiliateId)
                 return;
 
             //update affiliate identifier
-            _contextAccessor.WorkContext.CurrentCustomer.AffiliateId = affiliate.Id;
-            await _customerService.UpdateCustomerField(_contextAccessor.WorkContext.CurrentCustomer.Id, x => x.AffiliateId,
-                _contextAccessor.WorkContext.CurrentCustomer.AffiliateId);
+            contextAccessor.WorkContext.CurrentCustomer.AffiliateId = affiliate.Id;
+            await customerService.UpdateCustomerField(contextAccessor.WorkContext.CurrentCustomer.Id, x => x.AffiliateId,
+                contextAccessor.WorkContext.CurrentCustomer.AffiliateId);
         }
 
         #endregion
@@ -107,14 +96,6 @@ public class AffiliateAttribute : TypeFilterAttribute
 
         private const string IdQueryParameterName = "affiliateid";
         private const string FriendlyUrlNameQueryParameterName = "affiliate";
-
-        #endregion
-
-        #region Fields
-
-        private readonly IAffiliateService _affiliateService;
-        private readonly ICustomerService _customerService;
-        private readonly IContextAccessor _contextAccessor;
 
         #endregion
     }

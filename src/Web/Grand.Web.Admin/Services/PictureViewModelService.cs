@@ -20,15 +20,9 @@ public class PictureViewModelService : IPictureViewModelService
 
     public virtual async Task<PictureModel> PreparePictureModel(string pictureId, string objectId)
     {
-        if (string.IsNullOrEmpty(pictureId))
-            throw new ArgumentNullException(nameof(pictureId));
-
-        if (string.IsNullOrEmpty(objectId))
-            throw new ArgumentNullException(nameof(objectId));
-
+        ArgumentNullException.ThrowIfNullOrEmpty(objectId);
         var picture = await _pictureService.GetPictureById(pictureId);
-        if (picture == null)
-            throw new ArgumentNullException(nameof(picture));
+        ArgumentNullException.ThrowIfNull(picture);
 
         var model = new PictureModel {
             Id = picture.Id,
@@ -55,12 +49,10 @@ public class PictureViewModelService : IPictureViewModelService
 
     public virtual async Task UpdatePicture(PictureModel model)
     {
-        if (model == null)
-            throw new ArgumentNullException(nameof(model));
+        ArgumentNullException.ThrowIfNull(model);
 
         var picture = await _pictureService.GetPictureById(model.Id);
-        if (picture == null)
-            throw new ArgumentNullException(nameof(picture));
+        ArgumentNullException.ThrowIfNull(picture);
 
         //Update picture fields
         await _pictureService.UpdatePictureField(picture, x => x.AltAttribute, model.AltAttribute);

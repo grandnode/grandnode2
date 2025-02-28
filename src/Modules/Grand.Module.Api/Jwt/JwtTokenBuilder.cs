@@ -16,14 +16,9 @@ public sealed class JwtTokenBuilder
 
     private void EnsureArguments()
     {
-        if (securityKey == null)
-            throw new ArgumentNullException(nameof(securityKey));
-
-        if (useissuer && string.IsNullOrEmpty(issuer))
-            throw new ArgumentNullException(nameof(issuer));
-
-        if (useaudience && string.IsNullOrEmpty(audience))
-            throw new ArgumentNullException(nameof(audience));
+        ArgumentNullException.ThrowIfNull(securityKey);
+        if (useissuer) ArgumentNullException.ThrowIfNullOrEmpty(issuer);
+        if (useaudience) ArgumentNullException.ThrowIfNullOrEmpty(audience);
     }
 
     public JwtTokenBuilder AddSecurityKey(SecurityKey securityKey)

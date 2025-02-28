@@ -9,8 +9,7 @@ public class CanPartiallyRefundOfflineQueryHandler : IRequestHandler<CanPartiall
     public Task<bool> Handle(CanPartiallyRefundOfflineQuery request, CancellationToken cancellationToken)
     {
         var paymentTransaction = request.PaymentTransaction;
-        if (paymentTransaction == null)
-            throw new ArgumentNullException(nameof(request.PaymentTransaction));
+        ArgumentNullException.ThrowIfNull(paymentTransaction);
 
         var amountToRefund = request.AmountToRefund;
 

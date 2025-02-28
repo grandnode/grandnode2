@@ -28,8 +28,7 @@ public class
     public async Task<bool> Handle(ActivatedValueForPurchasedGiftVouchersCommand request,
         CancellationToken cancellationToken)
     {
-        if (request.Order == null)
-            throw new ArgumentNullException(nameof(request.Order));
+        ArgumentNullException.ThrowIfNull(request.Order);
 
         foreach (var orderItem in request.Order.OrderItems)
         {

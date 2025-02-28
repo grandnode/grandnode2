@@ -304,8 +304,7 @@ public class DiscountController : BaseAdminController
     public async Task<IActionResult> GetDiscountRequirementConfigurationUrl(string rulesystemName,
         string discountId, string discountRequirementId)
     {
-        if (string.IsNullOrEmpty(rulesystemName))
-            throw new ArgumentNullException(nameof(rulesystemName));
+        ArgumentNullException.ThrowIfNullOrEmpty(rulesystemName);
 
         var discountPlugin = _discountProviderLoader.LoadDiscountProviderByRuleSystemName(rulesystemName);
 

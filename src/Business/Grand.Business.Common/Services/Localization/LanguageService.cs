@@ -88,8 +88,7 @@ public class LanguageService : ILanguageService
     /// <returns>Language</returns>
     public virtual async Task<Language> GetLanguageByCode(string languageCode)
     {
-        if (string.IsNullOrEmpty(languageCode))
-            throw new ArgumentNullException(nameof(languageCode));
+        ArgumentNullException.ThrowIfNullOrEmpty(languageCode);
 
         var key = string.Format(CacheKey.LANGUAGES_BY_CODE, languageCode);
         return await _cacheBase.GetAsync(key, async () =>

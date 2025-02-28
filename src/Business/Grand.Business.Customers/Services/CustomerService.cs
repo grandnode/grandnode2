@@ -321,8 +321,7 @@ public class CustomerService : ICustomerService
     public virtual async Task UpdateCustomerField<T>(string customerId,
         Expression<Func<Customer, T>> expression, T value)
     {
-        if (string.IsNullOrEmpty(customerId))
-            throw new ArgumentNullException(nameof(customerId));
+        ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
         await _customerRepository.UpdateField(customerId, expression, value);
     }
@@ -609,9 +608,7 @@ public class CustomerService : ICustomerService
     public virtual async Task DeleteCustomerGroupInCustomer(CustomerGroup customerGroup, string customerId)
     {
         ArgumentNullException.ThrowIfNull(customerGroup);
-
-        if (string.IsNullOrEmpty(customerId))
-            throw new ArgumentNullException(nameof(customerId));
+        ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
         await _customerRepository.Pull(customerId, x => x.Groups, customerGroup.Id);
     }
@@ -619,9 +616,7 @@ public class CustomerService : ICustomerService
     public virtual async Task InsertCustomerGroupInCustomer(CustomerGroup customerGroup, string customerId)
     {
         ArgumentNullException.ThrowIfNull(customerGroup);
-
-        if (string.IsNullOrEmpty(customerId))
-            throw new ArgumentNullException(nameof(customerId));
+        ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
         await _customerRepository.AddToSet(customerId, x => x.Groups, customerGroup.Id);
     }
@@ -633,9 +628,7 @@ public class CustomerService : ICustomerService
     public virtual async Task DeleteAddress(Address address, string customerId)
     {
         ArgumentNullException.ThrowIfNull(address);
-
-        if (string.IsNullOrEmpty(customerId))
-            throw new ArgumentNullException(nameof(customerId));
+        ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
         await _customerRepository.PullFilter(customerId, x => x.Addresses, x => x.Id, address.Id);
 
@@ -646,9 +639,7 @@ public class CustomerService : ICustomerService
     public virtual async Task InsertAddress(Address address, string customerId)
     {
         ArgumentNullException.ThrowIfNull(address);
-
-        if (string.IsNullOrEmpty(customerId))
-            throw new ArgumentNullException(nameof(customerId));
+        ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
         if (address.StateProvinceId == "0")
             address.StateProvinceId = "";
@@ -662,9 +653,7 @@ public class CustomerService : ICustomerService
     public virtual async Task UpdateAddress(Address address, string customerId)
     {
         ArgumentNullException.ThrowIfNull(address);
-
-        if (string.IsNullOrEmpty(customerId))
-            throw new ArgumentNullException(nameof(customerId));
+        ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
         await _customerRepository.UpdateToSet(customerId, x => x.Addresses, z => z.Id, address.Id, address);
 
@@ -676,9 +665,7 @@ public class CustomerService : ICustomerService
     public virtual async Task UpdateBillingAddress(Address address, string customerId)
     {
         ArgumentNullException.ThrowIfNull(address);
-
-        if (string.IsNullOrEmpty(customerId))
-            throw new ArgumentNullException(nameof(customerId));
+        ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
         await _customerRepository.UpdateField(customerId, x => x.BillingAddress, address);
     }
@@ -686,9 +673,7 @@ public class CustomerService : ICustomerService
     public virtual async Task UpdateShippingAddress(Address address, string customerId)
     {
         ArgumentNullException.ThrowIfNull(address);
-
-        if (string.IsNullOrEmpty(customerId))
-            throw new ArgumentNullException(nameof(customerId));
+        ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
         await _customerRepository.UpdateField(customerId, x => x.ShippingAddress, address);
     }

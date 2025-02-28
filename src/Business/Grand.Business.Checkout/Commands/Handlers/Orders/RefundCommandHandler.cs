@@ -43,11 +43,7 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
     public async Task<IList<string>> Handle(RefundCommand command, CancellationToken cancellationToken)
     {
         var paymentTransaction = command.PaymentTransaction;
-        if (paymentTransaction == null)
-            throw new ArgumentNullException(nameof(command.PaymentTransaction));
-
-        //if (!await CanRefund(order))
-        //    throw new GrandException("Cannot do refund for order.");
+        ArgumentNullException.ThrowIfNull(paymentTransaction);
 
         var request = new RefundPaymentRequest();
         RefundPaymentResult result = null;
@@ -64,8 +60,7 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
                 await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
                 var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
-                if (order == null)
-                    throw new ArgumentNullException(nameof(order));
+                ArgumentNullException.ThrowIfNull(order);
 
                 var totalAmountRefunded = order.RefundedAmount + request.AmountToRefund;
 

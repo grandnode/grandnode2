@@ -17,8 +17,7 @@ public class CanPartiallyRefundQueryHandler : IRequestHandler<CanPartiallyRefund
     public async Task<bool> Handle(CanPartiallyRefundQuery request, CancellationToken cancellationToken)
     {
         var paymentTransaction = request.PaymentTransaction;
-        if (paymentTransaction == null)
-            throw new ArgumentNullException(nameof(request.PaymentTransaction));
+        ArgumentNullException.ThrowIfNull(paymentTransaction);
 
         var amountToRefund = request.AmountToRefund;
 

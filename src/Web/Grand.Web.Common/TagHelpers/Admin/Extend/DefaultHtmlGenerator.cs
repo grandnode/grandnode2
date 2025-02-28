@@ -404,7 +404,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
                 (htmlAttributeDictionary == null || !htmlAttributeDictionary.ContainsKey("checked")))
             {
                 // Note value may be null if isChecked is non-null.
-                if (value == null) throw new ArgumentNullException(nameof(value));
+                ArgumentNullException.ThrowIfNull(value);
 
                 // isChecked not provided nor found in the given attributes; fall back to view data.
                 var valueString = Convert.ToString(value, CultureInfo.CurrentCulture);

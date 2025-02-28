@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Azure.Core;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
@@ -36,8 +37,7 @@ public class CaptureCommandHandler : IRequestHandler<CaptureCommand, IList<strin
     public async Task<IList<string>> Handle(CaptureCommand command, CancellationToken cancellationToken)
     {
         var paymentTransaction = command.PaymentTransaction;
-        if (paymentTransaction == null)
-            throw new ArgumentNullException(nameof(command.PaymentTransaction));
+        ArgumentNullException.ThrowIfNull(paymentTransaction);
 
         var canCapture = await _mediator.Send(new CanCaptureQuery { PaymentTransaction = paymentTransaction },
             cancellationToken);

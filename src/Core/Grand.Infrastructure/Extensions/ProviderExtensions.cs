@@ -10,16 +10,14 @@ public static class ProviderExtensions
 {
     public static bool IsAuthenticateStore(this IProvider method, Store store)
     {
-        if (method == null)
-            throw new ArgumentNullException(nameof(method));
+        ArgumentNullException.ThrowIfNull(method);
 
         return store == null || IsAuthenticateStore(method, store.Id);
     }
 
     public static bool IsAuthenticateStore(this IProvider method, string storeId)
     {
-        if (method == null)
-            throw new ArgumentNullException(nameof(method));
+        ArgumentNullException.ThrowIfNull(method);
 
         if (string.IsNullOrEmpty(storeId))
             return true;
@@ -32,8 +30,7 @@ public static class ProviderExtensions
 
     public static bool IsAuthenticateGroup(this IProvider method, Customer customer)
     {
-        if (method == null)
-            throw new ArgumentNullException(nameof(method));
+        ArgumentNullException.ThrowIfNull(method);
 
         if (customer == null)
             return true;

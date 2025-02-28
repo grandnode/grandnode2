@@ -730,8 +730,7 @@ public class ActionCartController : BasePublicController
             });
 
         var product = await _productService.GetProductById(model.ProductId);
-        if (product == null)
-            throw new ArgumentNullException(nameof(product));
+        ArgumentNullException.ThrowIfNull(product);
 
         if (product.HighestBidder == customer.Id)
             return Json(new {

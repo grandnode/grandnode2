@@ -28,7 +28,6 @@ using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -39,7 +38,7 @@ namespace Grand.Web.Admin.Services;
 
 public class OrderViewModelService : IOrderViewModelService
 {
-        
+
     #region Fields
 
     private readonly IOrderService _orderService;
@@ -198,8 +197,7 @@ public class OrderViewModelService : IOrderViewModelService
         }
 
         //order's tags
-        model.AvailableOrderTags.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableOrderTags.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var s in await _orderTagService.GetAllOrderTags())
             model.AvailableOrderTags.Add(new SelectListItem { Text = s.Name, Value = s.Id });
 
@@ -218,27 +216,23 @@ public class OrderViewModelService : IOrderViewModelService
         }
 
         //stores
-        model.AvailableStores.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var s in (await _storeService.GetAllStores()).Where(x =>
                      x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
             model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
         //vendors
-        model.AvailableVendors.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
             model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 
         //warehouses
-        model.AvailableWarehouses.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableWarehouses.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var w in await _warehouseService.GetAllWarehouses())
             model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id });
 
         //payment methods
-        model.AvailablePaymentMethods.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailablePaymentMethods.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var pm in await _paymentService.LoadAllPaymentMethods())
             model.AvailablePaymentMethods.Add(new SelectListItem { Text = pm.FriendlyName, Value = pm.SystemName });
 
@@ -925,19 +919,16 @@ public class OrderViewModelService : IOrderViewModelService
         model.Address.AddressTypeEnabled = _addressSettings.AddressTypeEnabled;
 
         //countries
-        model.Address.AvailableCountries.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+        model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
         foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-            model.Address.AvailableCountries.Add(new SelectListItem
-                { Text = c.Name, Value = c.Id, Selected = c.Id == address.CountryId });
+            model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == address.CountryId });
         //states
         var states = !string.IsNullOrEmpty(address.CountryId)
             ? (await _countryService.GetCountryById(address.CountryId))?.StateProvinces
             : new List<StateProvince>();
         if (states?.Count > 0)
             foreach (var s in states)
-                model.Address.AvailableStates.Add(new SelectListItem
-                    { Text = s.Name, Value = s.Id, Selected = s.Id == address.StateProvinceId });
+                model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == address.StateProvinceId });
 
         //customer attribute services
         await model.Address.PrepareCustomAddressAttributes(address, _addressAttributeService,
@@ -1039,57 +1030,47 @@ public class OrderViewModelService : IOrderViewModelService
                 case AttributeControlType.RadioList:
                 case AttributeControlType.ColorSquares:
                 case AttributeControlType.ImageSquares:
-                {
-                    var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                    if (!string.IsNullOrEmpty(ctrlAttributes))
-                        customattributes = ProductExtensions.AddProductAttribute(customattributes,
-                            attribute, ctrlAttributes).ToList();
-                }
+                    {
+                        var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (!string.IsNullOrEmpty(ctrlAttributes))
+                            customattributes = ProductExtensions.AddProductAttribute(customattributes,
+                                attribute, ctrlAttributes).ToList();
+                    }
                     break;
                 case AttributeControlType.Checkboxes:
-                {
-                    var cblAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                    if (!string.IsNullOrEmpty(cblAttributes))
-                        foreach (var item in cblAttributes
-                                     .Split([','], StringSplitOptions.RemoveEmptyEntries))
-                            customattributes = ProductExtensions.AddProductAttribute(
-                                customattributes,
-                                attribute, item).ToList();
-                }
+                    {
+                        var cblAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (!string.IsNullOrEmpty(cblAttributes))
+                            foreach (var item in cblAttributes
+                                         .Split([','], StringSplitOptions.RemoveEmptyEntries))
+                                customattributes = ProductExtensions.AddProductAttribute(
+                                    customattributes,
+                                    attribute, item).ToList();
+                    }
                     break;
                 case AttributeControlType.ReadonlyCheckboxes:
-                {
-                    //load read-only (already server-side selected) values
-                    var attributeValues = attribute.ProductAttributeValues;
-                    foreach (var selectedAttributeId in attributeValues
-                                 .Where(v => v.IsPreSelected)
-                                 .Select(v => v.Id)
-                                 .ToList())
-                        customattributes = ProductExtensions.AddProductAttribute(customattributes,
-                            attribute, selectedAttributeId).ToList();
-                }
+                    {
+                        //load read-only (already server-side selected) values
+                        var attributeValues = attribute.ProductAttributeValues;
+                        foreach (var selectedAttributeId in attributeValues
+                                     .Where(v => v.IsPreSelected)
+                                     .Select(v => v.Id)
+                                     .ToList())
+                            customattributes = ProductExtensions.AddProductAttribute(customattributes,
+                                attribute, selectedAttributeId).ToList();
+                    }
                     break;
                 case AttributeControlType.TextBox:
                 case AttributeControlType.MultilineTextbox:
-                {
-                    var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                    if (!string.IsNullOrEmpty(ctrlAttributes))
-                    {
-                        var enteredText = ctrlAttributes.Trim();
-                        customattributes = ProductExtensions.AddProductAttribute(customattributes,
-                            attribute, enteredText).ToList();
-                    }
-                }
-                    break;
                 case AttributeControlType.FileUpload:
-                {
-                    var guid = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                    Guid.TryParse(guid, out var downloadGuid);
-                    var download = await _downloadService.GetDownloadByGuid(downloadGuid);
-                    if (download != null)
-                        customattributes = ProductExtensions.AddProductAttribute(customattributes,
-                            attribute, download.DownloadGuid.ToString()).ToList();
-                }
+                    {
+                        var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (!string.IsNullOrEmpty(ctrlAttributes))
+                        {
+                            var enteredText = ctrlAttributes.Trim();
+                            customattributes = ProductExtensions.AddProductAttribute(customattributes, attribute, enteredText).ToList();
+                        }
+                    }
                     break;
             }
 
@@ -1162,8 +1143,7 @@ public class OrderViewModelService : IOrderViewModelService
                 CreatedOnUtc = DateTime.UtcNow
             };
 
-            await _mediator.Send(new InsertOrderItemCommand
-                { Order = order, OrderItem = orderItem, Product = product });
+            await _mediator.Send(new InsertOrderItemCommand { Order = order, OrderItem = orderItem, Product = product });
         }
 
         return warnings;
@@ -1307,8 +1287,8 @@ public class OrderViewModelService : IOrderViewModelService
         }
         if (picture == null)
         {
-            var pp = product.ProductPictures.OrderByDescending(p => p.IsDefault) 
-                .ThenBy(p => p.DisplayOrder) 
+            var pp = product.ProductPictures.OrderByDescending(p => p.IsDefault)
+                .ThenBy(p => p.DisplayOrder)
                 .FirstOrDefault();
             if (pp != null)
                 picture = await _pictureService.GetPictureById(pp.PictureId);
