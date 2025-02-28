@@ -7,15 +7,15 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 
 public static class LiquidExtensions
 {
-    public static List<string> GetTokens(params Type[] drops)
+    public static List<string> GetTokens(params ReadOnlySpan<Type> drops)
     {
-        var toReturn = new List<string>();
+        List<string> tokens = [];
         foreach (var drop in drops)
-            toReturn.AddRange(drop
+            tokens.AddRange(drop
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                .Select(x => "{{" + drop.Name[6..] + "." + x.Name + "}}"));
+                .Select(property => "{{" + drop.Name[6..] + "." + property.Name + "}}"));
 
-        return toReturn;
+        return tokens;
     }
 
     public static string Render(LiquidObject liquidObject, string source)
