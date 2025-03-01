@@ -31,12 +31,14 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         ICustomerService customerService,
         IGroupService groupService,
         IHttpContextAccessor httpContextAccessor,
+        ICookieOptionsFactory cookieOptionsFactory,
         SecurityConfig securityConfig)
     {
         _customerSettings = customerSettings;
         _customerService = customerService;
         _groupService = groupService;
         _httpContextAccessor = httpContextAccessor;
+        _cookieOptionsFactory = cookieOptionsFactory;
         _securityConfig = securityConfig;
     }
 
@@ -54,6 +56,8 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ICookieOptionsFactory _cookieOptionsFactory;
+
     private readonly SecurityConfig _securityConfig;
 
     #endregion
@@ -224,10 +228,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
             return Task.CompletedTask;
 
         //set new cookie value
-        var options = new CookieOptions {
-            HttpOnly = true,
-            Expires = cookieExpiresDate
-        };
+        var options = _cookieOptionsFactory.Create(cookieExpiresDate);
         _httpContextAccessor.HttpContext.Response.Cookies.Append(CustomerCookieName, customerGuid.ToString(), options);
 
         return Task.CompletedTask;

@@ -1,5 +1,5 @@
-﻿using Grand.Domain.Stores;
-using Grand.Infrastructure.Configuration;
+﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Domain.Stores;
 using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Common.Themes;
@@ -10,11 +10,8 @@ public class ThemeContext : ThemeContextBase
     private readonly StoreInformationSettings _storeInformationSettings;
     private string _themeName;
 
-    public ThemeContext(
-        IHttpContextAccessor contextAccessor,
-        SecurityConfig securityConfig,
-        StoreInformationSettings storeInformationSettings) :
-        base(contextAccessor, securityConfig)
+    public ThemeContext(IHttpContextAccessor contextAccessor, ICookieOptionsFactory cookieOptionsFactory,
+        StoreInformationSettings storeInformationSettings) : base(contextAccessor, cookieOptionsFactory)
     {
         _storeInformationSettings = storeInformationSettings;
         _contextAccessor = contextAccessor;

@@ -1,4 +1,4 @@
-﻿using Grand.Infrastructure.Configuration;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Common.Themes;
@@ -6,15 +6,15 @@ namespace Grand.Web.Common.Themes;
 public abstract class ThemeContextBase : IThemeContext
 {
     private readonly IHttpContextAccessor _contextAccessor;
-    private readonly SecurityConfig _securityConfig;
+    private readonly ICookieOptionsFactory _cookieOptionsFactory;
 
-    protected ThemeContextBase(IHttpContextAccessor contextAccessor, SecurityConfig securityConfig)
+    protected ThemeContextBase(IHttpContextAccessor contextAccessor, ICookieOptionsFactory cookieOptionsFactory)
     {
         _contextAccessor = contextAccessor;
-        _securityConfig = securityConfig;
+        _cookieOptionsFactory = cookieOptionsFactory;
     }
 
-    public string CookiesName => $"{_securityConfig.CookiePrefix}.{AreaName}.Theme";
+    public string CookiesName => $"{_cookieOptionsFactory.CookiePrefix}.{AreaName}.Theme";
 
     public abstract string AreaName { get; }
     public abstract string GetCurrentTheme();
@@ -23,7 +23,8 @@ public abstract class ThemeContextBase : IThemeContext
     {
         _contextAccessor.HttpContext?.Response.Cookies.Delete(CookiesName);
         _contextAccessor.HttpContext?.Response.Cookies.Append(CookiesName, themeName,
-            new CookieOptions { HttpOnly = false, Expires = DateTimeOffset.Now.AddYears(1) });
+            _cookieOptionsFactory.Create(DateTime.Now.AddYears(1)));
+
         return Task.CompletedTask;
     }
 }

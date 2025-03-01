@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Grand.Module.Api.Infrastructure;
 
@@ -11,16 +12,23 @@ public class CorsStartup : IStartupApplication
 {
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
-        application.UseCors(Configurations.CorsPolicyName);
+        if(webHostEnvironment.IsDevelopment())
+            application.UseCors(Configurations.DevelopmentCorsPolicyName);
+        else
+            application.UseCors(Configurations.ProductionCorsPolicyName);
     }
 
     public void ConfigureServices(IServiceCollection services,
         IConfiguration configuration)
     {
+        var allowedOrigins = configuration.GetSection("AllowedHostOrigins").Get<string[]>() ?? Array.Empty<string>();
+
         services.AddCors(options =>
         {
-            options.AddPolicy(Configurations.CorsPolicyName,
+            options.AddPolicy(Configurations.DevelopmentCorsPolicyName,
                 builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            options.AddPolicy(Configurations.ProductionCorsPolicyName,
+                builder => builder.WithOrigins(allowedOrigins).AllowAnyMethod().AllowAnyHeader());
         });
     }
 

@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Common.Services.Stores;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -245,7 +246,7 @@ public class CommonController : BasePublicController
     public virtual async Task<IActionResult> SetStore(
         [FromServices] IStoreService storeService,
         [FromServices] CommonSettings commonSettings,
-        [FromServices] SecurityConfig securityConfig,
+        [FromServices] ICookieOptionsFactory cookieOptionsFactory,
         string shortcut, string returnUrl = "")
     {
         var currentstoreShortcut = _contextAccessor.StoreContext.CurrentStore.Shortcut;
@@ -279,15 +280,8 @@ public class CommonController : BasePublicController
 
             //remove current cookie
             HttpContext.Response.Cookies.Delete(CommonHelper.StoreCookieName);
-
-            //get date of cookie expiration
-            var cookieExpiresDate = DateTime.UtcNow.AddHours(securityConfig.CookieAuthExpires);
-
             //set new cookie value
-            var options = new CookieOptions {
-                HttpOnly = true,
-                Expires = cookieExpiresDate
-            };
+            var options = cookieOptionsFactory.Create();
             HttpContext.Response.Cookies.Append(CommonHelper.StoreCookieName, store.Id, options);
         }
     }

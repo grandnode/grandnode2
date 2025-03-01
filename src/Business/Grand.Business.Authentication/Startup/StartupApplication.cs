@@ -13,6 +13,7 @@ public class StartupApplication : IStartupApplication
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IGrandAuthenticationService, CookieAuthenticationService>();
+        services.AddScoped<ICookieOptionsFactory, CookieOptionsFactory>();
         services.AddScoped<IApiAuthenticationService, ApiAuthenticationService>();
         services.AddScoped<IJwtBearerAuthenticationService, JwtBearerAuthenticationService>();
         services.AddScoped<ITwoFactorAuthenticationService, TwoFactorAuthenticationService>();
