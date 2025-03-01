@@ -338,7 +338,7 @@ public class ShippingController : BaseAdminController
         if (states?.Count > 0)
             foreach (var s in states)
                 model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem
-                    { Text = s.Name, Value = s.Id, Selected = s.Id == originAddress?.StateProvinceId });
+                    { Text = s.Name, Value = s.Id, Selected = s.Id == originAddress.StateProvinceId });
 
         model.ShippingOriginAddress.CountryEnabled = true;
         model.ShippingOriginAddress.StateProvinceEnabled = true;

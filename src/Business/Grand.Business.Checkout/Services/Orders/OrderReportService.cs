@@ -489,7 +489,8 @@ public class OrderReportService : IOrderReportService
             group o by 1
             into g
             select new ReportPeriodOrder { Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate), Count = g.Count() };
-        var report = query.ToList()?.FirstOrDefault() ?? new ReportPeriodOrder();
+
+        var report = query.FirstOrDefault() ?? new ReportPeriodOrder();
         report.Date = date;
         return await Task.FromResult(report);
     }

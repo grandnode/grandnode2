@@ -362,7 +362,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
                 var bsonValue = BsonMapper.Global.Serialize(value);
                 var oldbsonValue = BsonMapper.Global.Serialize(elemFieldMatch);
                 var list = entity[fieldName].AsArray.ToList();
-                if (list != null && list.Any())
+                if (list.Any())
                 {
                     list.Add(bsonValue);
                     list.Remove(oldbsonValue);
@@ -416,7 +416,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
                 var bsonValue = BsonMapper.Global.Serialize(elemMatch);
                 var list = entity[fieldName].AsArray.ToList();
                 var documents = list.Where(x => x[elementfieldName] == new BsonValue(elemMatch)).ToList();
-                if (documents != null && documents.Any())
+                if (documents.Any())
                 {
                     foreach (var document in documents) list.Remove(document);
                     entity[fieldName] = new BsonArray(list);
@@ -492,7 +492,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
             if (entity != null && entity[fieldName].IsArray)
             {
                 var list = entity[fieldName].AsArray.ToList();
-                if (list != null && list.Any())
+                if (list.Any())
                 {
                     list.Remove(new BsonValue(element));
                     entity[fieldName] = new BsonArray(list);

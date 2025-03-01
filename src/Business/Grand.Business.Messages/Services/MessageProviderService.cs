@@ -871,7 +871,7 @@ public class MessageProviderService : IMessageProviderService
         var toEmail = emailAccount.Email;
         var toName = "";
 
-        if (!string.IsNullOrEmpty(product?.VendorId))
+        if (!string.IsNullOrEmpty(product.VendorId))
         {
             var vendor = await _mediator.Send(new GetVendorByIdQuery { Id = product.VendorId });
             if (vendor != null)
@@ -1679,7 +1679,7 @@ public class MessageProviderService : IMessageProviderService
             subject: subject,
             replyToEmailAddress: senderEmail,
             replyToName: senderName,
-            reference: Reference.Vendor, objectId: vendor?.Id);
+            reference: Reference.Vendor, objectId: vendor.Id);
     }
 
     #region Auction notification
@@ -1762,7 +1762,7 @@ public class MessageProviderService : IMessageProviderService
             await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject2,
                 toEmail, toName,
-                reference: Reference.Customer, objectId: customer?.Id);
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         return 0;
@@ -1905,7 +1905,7 @@ public class MessageProviderService : IMessageProviderService
         return await SendNotification(messageTemplate, emailAccount,
             languageId, liquidObject,
             toEmail, toName,
-            reference: Reference.Customer, objectId: customer?.Id);
+            reference: Reference.Customer, objectId: customer.Id);
     }
 
     #endregion

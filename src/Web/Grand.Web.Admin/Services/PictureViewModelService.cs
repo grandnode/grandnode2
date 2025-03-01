@@ -28,10 +28,10 @@ public class PictureViewModelService : IPictureViewModelService
             Id = picture.Id,
             ObjectId = objectId,
             PictureUrl = await _pictureService.GetPictureUrl(picture),
-            AltAttribute = picture?.AltAttribute,
-            TitleAttribute = picture?.TitleAttribute,
-            Style = picture?.Style,
-            ExtraField = picture?.ExtraField
+            AltAttribute = picture.AltAttribute,
+            TitleAttribute = picture.TitleAttribute,
+            Style = picture.Style,
+            ExtraField = picture.ExtraField
         };
 
         foreach (var language in await _languageService.GetAllLanguages(true))

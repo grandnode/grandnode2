@@ -410,7 +410,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                     WarehouseId = warehouse.Id,
                     Name = warehouse.Name,
                     Code = warehouse.Code,
-                    Selected = updateCartItem != null && updateCartItem?.WarehouseId == warehouse.Id
+                    Selected = updateCartItem != null && updateCartItem.WarehouseId == warehouse.Id
                 });
             }
 

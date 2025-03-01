@@ -38,7 +38,8 @@ public class
             return false;
 
         //min order amount sub-total validation
-        if (!cart.Any() || !(_orderSettings.MinOrderSubtotalAmount > 0)) return true;
+        if (!(_orderSettings.MinOrderSubtotalAmount > 0)) return true;
+
         //subtotal
         var (_, _, subTotalWithoutDiscount, _, _) =
             await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, false);
