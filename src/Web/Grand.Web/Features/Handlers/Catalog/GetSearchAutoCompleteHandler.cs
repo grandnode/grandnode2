@@ -162,12 +162,12 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
             var brand = await _brandService.GetBrandById(item);
             if (brand is not { Published: true }) continue;
             var allow = true;
-            if (!_accessControlConfig.IgnoreAcl)
-                if (!_aclService.Authorize(brand, _contextAccessor.WorkContext.CurrentCustomer))
-                    allow = false;
-            if (!_accessControlConfig.IgnoreStoreLimitations)
-                if (!_aclService.Authorize(brand, storeId))
-                    allow = false;
+            
+            if (!_accessControlConfig.IgnoreAcl && !_aclService.Authorize(brand, _contextAccessor.WorkContext.CurrentCustomer))
+                allow = false;
+
+            if (!_accessControlConfig.IgnoreStoreLimitations && !_aclService.Authorize(brand, storeId))
+                allow = false;
             if (!allow) continue;
 
             var desc = "";
