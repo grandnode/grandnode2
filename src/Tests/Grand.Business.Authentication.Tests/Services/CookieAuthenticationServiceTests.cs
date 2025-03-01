@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Authentication.Services;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
@@ -24,6 +25,7 @@ public class CookieAuthenticationServiceTests
     private Mock<IHttpContextAccessor> _httpAccessorMock;
     private DefaultHttpContext _httpContext;
     private Mock<IServiceProvider> serviceProviderMock;
+    private CookieOptionsFactory _cookieOptionsFactory;
 
     [TestInitialize]
     public void Init()
@@ -37,8 +39,9 @@ public class CookieAuthenticationServiceTests
             CookieClaimsIssuer = "grandnode",
             CookiePrefix = ".Grand."
         };
+        _cookieOptionsFactory = new CookieOptionsFactory(_config);
         _cookieAuthService = new CookieAuthenticationService(_customerSettings, _customerServiceMock.Object,
-            _groupServiceMock.Object, _httpAccessorMock.Object, _config);
+            _groupServiceMock.Object, _httpAccessorMock.Object, _cookieOptionsFactory, _config);
         //For mock HttpContext extension methods like SignOutAsync ,SignInAsync etc..
         _authServiceMock = new Mock<IAuthenticationService>();
         serviceProviderMock = new Mock<IServiceProvider>();
