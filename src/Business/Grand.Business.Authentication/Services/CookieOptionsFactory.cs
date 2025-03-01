@@ -23,7 +23,7 @@ public class CookieOptionsFactory(SecurityConfig securityConfig) : ICookieOption
         var options = new CookieOptions {
             HttpOnly = true,
             Expires = cookieExpiresDate,
-            Secure = securityConfig.CookieSecurePolicyAlways ? true : false,
+            Secure = securityConfig.CookieSecurePolicyAlways,
             SameSite = securityConfig.CookieSameSite,
         };
 
