@@ -32,7 +32,7 @@
             Value = Url.RouteUrl("ChangeCurrency", new { currencyCode = x.CurrencyCode, returnUrl }),
             Selected = x.Id.Equals(contextAccessor.WorkContext.WorkingCurrency.Id)
         });
-        <b-dropdown class="mr-2" text="@currencies.FirstOrDefault(x => x.Selected).Text">
+        <b-dropdown class="mr-2" text="@currencies.FirstOrDefault(x => x.Selected)?.Text">
             @foreach (var item in currencies)
             {
                 var className = item.Selected ? "active" : "";
