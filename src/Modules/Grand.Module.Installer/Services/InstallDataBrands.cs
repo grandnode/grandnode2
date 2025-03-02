@@ -27,7 +27,7 @@ public partial class InstallationService
             DisplayOrder = 1
         };
         brandXiaomi.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "brand_xiaomi.jpg"), "image/pjpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "brand_xiaomi.jpg"), "image/pjpeg",
             "Xiaomi", "", "", false, Reference.Brand, brandXiaomi.Id)).Id;
         await _brandRepository.InsertAsync(brandXiaomi);
         allbrands.Add(brandXiaomi);
@@ -43,7 +43,7 @@ public partial class InstallationService
             DisplayOrder = 5
         };
         brandDell.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "brand_dell.jpg"), "image/pjpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "brand_dell.jpg"), "image/pjpeg",
             ("Dell"), "", "", false, Reference.Brand, brandDell.Id)).Id;
 
         await _brandRepository.InsertAsync(brandDell);
@@ -60,7 +60,7 @@ public partial class InstallationService
             DisplayOrder = 5
         };
         brandAdidas.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "brand_adidas.jpg"), "image/pjpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "brand_adidas.jpg"), "image/pjpeg",
             ("Adidas"), "", "", false, Reference.Brand, brandAdidas.Id)).Id;
         await _brandRepository.InsertAsync(brandAdidas);
         allbrands.Add(brandAdidas);

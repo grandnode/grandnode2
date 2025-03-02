@@ -1,6 +1,5 @@
 ﻿using Grand.Domain;
 using LiteDB;
-using System.Xml.Linq;
 
 namespace Grand.Data.LiteDb;
 
@@ -23,8 +22,8 @@ public class LiteDBStoreFilesContext : IStoreFilesContext
         using (var stream = file.OpenRead())
         using (MemoryStream mstream = new())
         {
-            stream.CopyTo(mstream);
-            return await Task.FromResult(mstream.ToArray());
+            await stream.CopyToAsync(mstream);
+            return mstream.ToArray();
         }
     }
 
