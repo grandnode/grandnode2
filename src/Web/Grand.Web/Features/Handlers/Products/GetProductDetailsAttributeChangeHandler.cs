@@ -175,7 +175,7 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
         return model;
     }
 
-    private List<string> PrepareNotAvailableAttributeMapping(GetProductDetailsAttributeChange request,
+    private static List<string> PrepareNotAvailableAttributeMapping(GetProductDetailsAttributeChange request,
         IList<CustomAttribute> customAttributes)
     {
         var model = new List<string>();

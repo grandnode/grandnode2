@@ -38,7 +38,7 @@ public class StartupApplication : IStartupApplication
     public bool BeforeConfigure => false;
 
 
-    private void RegisterOrdersService(IServiceCollection serviceCollection)
+    private static void RegisterOrdersService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ILoyaltyPointsService, LoyaltyPointsService>();
         serviceCollection.AddScoped<IGiftVoucherService, GiftVoucherService>();
@@ -56,13 +56,13 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IOrderReportService, OrderReportService>();
     }
 
-    private void RegisterPaymentsService(IServiceCollection serviceCollection)
+    private static void RegisterPaymentsService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IPaymentService, PaymentService>();
         serviceCollection.AddScoped<IPaymentTransactionService, PaymentTransactionService>();
     }
 
-    private void RegisterShippingService(IServiceCollection serviceCollection)
+    private static void RegisterShippingService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IShipmentService, ShipmentService>();
         serviceCollection.AddScoped<IShippingService, ShippingService>();
@@ -72,7 +72,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IShippingMethodService, ShippingMethodService>();
     }
 
-    private void RegisterExportImport(IServiceCollection serviceCollection)
+    private static void RegisterExportImport(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ISchemaProperty<Order>, OrderSchemaProperty>();
     }

@@ -87,7 +87,7 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
         return model;
     }
 
-    private string PrepareRandomCode()
+    private static string PrepareRandomCode()
     {
         var generator = new Random();
         return generator.Next(0, 999999).ToString("D6");

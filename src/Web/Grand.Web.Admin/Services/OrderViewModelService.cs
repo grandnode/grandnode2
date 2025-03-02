@@ -1241,7 +1241,7 @@ public class OrderViewModelService : IOrderViewModelService
         }
     }
 
-    private IList<string> ParseOrderTagsToList(string orderTags)
+    private static IList<string> ParseOrderTagsToList(string orderTags)
     {
         var result = new List<string>();
         if (!string.IsNullOrWhiteSpace(orderTags))

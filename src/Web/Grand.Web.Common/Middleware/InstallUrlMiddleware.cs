@@ -83,7 +83,7 @@ public class InstallUrlMiddleware
         }, int.MaxValue);
     }
 
-    private bool IsInstallUrl(HttpRequest request)
+    private static bool IsInstallUrl(HttpRequest request)
     {
         return request.GetEncodedPathAndQuery().StartsWith(InstallUrl, StringComparison.OrdinalIgnoreCase);
     }

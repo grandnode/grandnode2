@@ -575,13 +575,13 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
 
     #region Helpers
 
-    private string GetName(LambdaExpression lambdaexpression)
+    private static string GetName(LambdaExpression lambdaexpression)
     {
         var expression = (MemberExpression)lambdaexpression.Body;
         return expression.Member.Name;
     }
 
-    private string GetName<TSource, TField>(Expression<Func<TSource, TField>> Field)
+    private static string GetName<TSource, TField>(Expression<Func<TSource, TField>> Field)
     {
         if (Equals(Field, null)) throw new NullReferenceException("Field is required");
 

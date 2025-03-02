@@ -104,7 +104,7 @@ public class BackgroundServiceTask : BackgroundService
             }
     }
 
-    private async Task WorkContext(IServiceProvider serviceProvider, ScheduleTask scheduleTask)
+    private static async Task WorkContext(IServiceProvider serviceProvider, ScheduleTask scheduleTask)
     {
         var contextAccessor = serviceProvider.GetRequiredService<IContextAccessor>();
         

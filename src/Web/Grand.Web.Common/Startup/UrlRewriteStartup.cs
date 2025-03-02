@@ -42,7 +42,7 @@ public class UrlRewriteStartup : IStartupApplication
             application.UseRewriter(urlRewriteOptions);
         }
     }
-    private void ConfigureUrlRewriteOptions(RewriteOptions options, UrlRewriteConfig config)
+    private static void ConfigureUrlRewriteOptions(RewriteOptions options, UrlRewriteConfig config)
     {
         if (config.UseUrlRewrite && File.Exists(UrlRewriteFilePath))
         {
@@ -51,7 +51,7 @@ public class UrlRewriteStartup : IStartupApplication
         }
     }
 
-    private void ConfigureHttpsOptions(RewriteOptions options, UrlRewriteConfig config)
+    private static void ConfigureHttpsOptions(RewriteOptions options, UrlRewriteConfig config)
     {
         if (config.UrlRewriteHttpsOptions)
         {

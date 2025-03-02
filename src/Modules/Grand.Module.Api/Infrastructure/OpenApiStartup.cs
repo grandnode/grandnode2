@@ -65,7 +65,7 @@ public class OpenApiStartup : IStartupApplication
     public int Priority => 505;
     public bool BeforeConfigure => false;
 
-    private void ConfigureBackendApi(IServiceCollection services)
+    private static void ConfigureBackendApi(IServiceCollection services)
     {
         services.AddOpenApi(ApiConstants.ApiGroupNameV1, options =>
         {
@@ -78,7 +78,7 @@ public class OpenApiStartup : IStartupApplication
         });
     }
 
-    private void ConfigureFrontendApi(IServiceCollection services)
+    private static void ConfigureFrontendApi(IServiceCollection services)
     {
         services.AddOpenApi(ApiConstants.ApiGroupNameV2, options =>
         {

@@ -241,7 +241,7 @@ public class PowerExcelMapper : ExcelMapper
         return t.GetTypeInfo().IsValueType ? Activator.CreateInstance(t) : null;
     }
 
-    private void TriggerOrThrowParsingError(ExcelMapperConvertException excelMapperConvertException)
+    private static void TriggerOrThrowParsingError(ExcelMapperConvertException excelMapperConvertException)
     {
         var parsingError = new ParsingErrorEventArgs(excelMapperConvertException);
         //ErrorParsingCell?.Invoke(this, parsingError);

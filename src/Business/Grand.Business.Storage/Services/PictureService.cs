@@ -73,7 +73,7 @@ public class PictureService : IPictureService
     /// </summary>
     /// <param name="mimeType">Mime type</param>
     /// <returns>File extension</returns>
-    private string GetFileExtensionFromMimeType(string mimeType)
+    private static string GetFileExtensionFromMimeType(string mimeType)
     {
         if (mimeType == null)
             return null;
@@ -804,7 +804,7 @@ public class PictureService : IPictureService
     }
 
 
-    private SKEncodedImageFormat EncodedImageFormat(string mimetype)
+    private static SKEncodedImageFormat EncodedImageFormat(string mimetype)
     {
         const SKEncodedImageFormat defaultFormat = SKEncodedImageFormat.Jpeg;
         if (string.IsNullOrEmpty(mimetype))

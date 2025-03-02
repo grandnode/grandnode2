@@ -842,7 +842,7 @@ public class CheckoutController : BasePublicController
         return warnings;
     }
 
-    private IList<string> SerializeModelState(ModelStateDictionary modelState)
+    private static IList<string> SerializeModelState(ModelStateDictionary modelState)
     {
         var errors = new List<string>();
         var valuerrors = modelState.Where(entry => entry.Value.Errors.Any());

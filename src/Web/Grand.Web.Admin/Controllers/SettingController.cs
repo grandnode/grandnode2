@@ -777,7 +777,7 @@ public class SettingController(
             throw new ArgumentNullException($"{fullPath} not exist");
     }
 
-    private string GetSafeFilePath(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, string filename)
+    private static string GetSafeFilePath(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, string filename)
     {
         var directoryParam = configuration[CommonPath.DirectoryParam] ?? "";
 
@@ -795,7 +795,7 @@ public class SettingController(
         return fullPath;
     }
 
-    private string[] UpdateFileLines(string[] lines, PushNotificationsSettingsModel model)
+    private static string[] UpdateFileLines(string[] lines, PushNotificationsSettingsModel model)
     {
         for (var i = 0; i < lines.Length; i++)
         {

@@ -21,7 +21,7 @@ public class EnableQueryAttribute : ActionFilterAttribute
         }
     }
 
-    private IQueryable ApplyQueryOptions(IQueryable queryable, IQueryCollection query, HttpResponse response)
+    private static IQueryable ApplyQueryOptions(IQueryable queryable, IQueryCollection query, HttpResponse response)
     {
         if (query.TryGetValue("$filter", out var filter))
             queryable = queryable.Where(filter.ToString());

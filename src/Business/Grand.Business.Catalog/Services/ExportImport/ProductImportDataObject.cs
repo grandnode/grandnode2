@@ -265,7 +265,7 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>
         }
     }
 
-    private bool ValidProduct(Product product)
+    private static bool ValidProduct(Product product)
     {
         return !string.IsNullOrEmpty(product.Name);
     }
