@@ -176,7 +176,7 @@
                                     @if (await groupService.IsAdmin(currentCustomer))
                                     {
                                         <li>
-                                            <a href="@Url.Action("Edit", "Customer", new { id = currentCustomer.Id, area = Constants.AreaAdmin })">
+                                            <a href="@Url.Action("Edit", "Customer", new { currentCustomer.Id, area = Constants.AreaAdmin })">
                                                 <i class="icon-user"></i> @Loc["Admin.Header.Profile"]
                                             </a>
                                         </li>
