@@ -44,7 +44,7 @@ public class StartupApplication : IStartupApplication
     public int Priority => 100;
     public bool BeforeConfigure => false;
 
-    private void RegisterCatalogService(IServiceCollection serviceCollection)
+    private static void RegisterCatalogService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IOutOfStockSubscriptionService, OutOfStockSubscriptionService>();
         serviceCollection.AddScoped<ICategoryService, CategoryService>();
@@ -77,21 +77,21 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IMeasureService, MeasureService>();
     }
 
-    private void RegisterDiscountsService(IServiceCollection serviceCollection)
+    private static void RegisterDiscountsService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IDiscountService, DiscountService>();
         serviceCollection.AddScoped<IDiscountValidationService, DiscountValidationService>();
         serviceCollection.AddScoped<IDiscountProviderLoader, DiscountProviderLoader>();
     }
 
-    private void RegisterTaxService(IServiceCollection serviceCollection)
+    private static void RegisterTaxService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ITaxService, TaxService>();
         serviceCollection.AddScoped<IVatService, VatService>();
         serviceCollection.AddScoped<ITaxCategoryService, TaxCategoryService>();
     }
 
-    private void RegisterExportImport(IServiceCollection serviceCollection)
+    private static void RegisterExportImport(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ISchemaProperty<Brand>, BrandSchemaProperty>();
         serviceCollection.AddScoped<ISchemaProperty<Category>, CategorySchemaProperty>();

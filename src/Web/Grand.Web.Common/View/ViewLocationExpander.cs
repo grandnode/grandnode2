@@ -15,7 +15,7 @@ public class ViewLocationExpander : IViewLocationExpander
         var themeContext = themeContextFactory.GetThemeContext(context.AreaName ?? "");
         var themeName = themeContext?.GetCurrentTheme();
         if (!string.IsNullOrEmpty(themeName))
-            context.Values[ThemeKey] = themeContext?.GetCurrentTheme();
+            context.Values[ThemeKey] = themeContext.GetCurrentTheme();
     }
 
     public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context,

@@ -183,7 +183,7 @@ public class WidgetsGoogleAnalyticsViewComponent : ViewComponent
         return analyticsTrackingScript;
     }
 
-    private string FixIllegalJavaScriptChars(string text)
+    private static string FixIllegalJavaScriptChars(string text)
     {
         if (string.IsNullOrEmpty(text))
             return text;

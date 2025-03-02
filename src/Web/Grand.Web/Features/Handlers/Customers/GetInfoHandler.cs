@@ -86,7 +86,7 @@ public class GetInfoHandler : IRequestHandler<GetInfo, CustomerInfoModel>
         return model;
     }
 
-    private void PrepareNotExludeModel(CustomerInfoModel model, GetInfo request)
+    private static void PrepareNotExludeModel(CustomerInfoModel model, GetInfo request)
     {
         model.VatNumber = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.VatNumber);
         model.FirstName = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName);

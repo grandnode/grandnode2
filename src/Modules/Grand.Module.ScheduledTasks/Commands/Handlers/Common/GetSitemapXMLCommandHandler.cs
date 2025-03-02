@@ -77,7 +77,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
         return await Generate(request.Language, request.Store);
     }
 
-    private string RemoveBom(string p)
+    private static string RemoveBom(string p)
     {
         var bomMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
         if (p.StartsWith(bomMarkUtf8))

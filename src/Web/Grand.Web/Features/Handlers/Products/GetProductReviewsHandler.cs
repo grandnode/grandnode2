@@ -56,7 +56,7 @@ public class GetProductReviewsHandler : IRequestHandler<GetProductReviews, Produ
             var customer = await _customerService.GetCustomerById(pr.CustomerId);
             model.Items.Add(new ProductReviewModel {
                 Id = pr.Id,
-                CustomerId = pr?.CustomerId,
+                CustomerId = pr.CustomerId,
                 CustomerName = customer?.FormatUserName(_customerSettings.CustomerNameFormat),
                 Title = pr.Title,
                 ReviewText = pr.ReviewText,

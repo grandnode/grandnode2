@@ -81,7 +81,7 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>
         await _slugService.SaveSlug(brand, seName, "");
     }
 
-    private bool ValidBrand(Brand brand)
+    private static bool ValidBrand(Brand brand)
     {
         return !string.IsNullOrEmpty(brand.Name);
     }

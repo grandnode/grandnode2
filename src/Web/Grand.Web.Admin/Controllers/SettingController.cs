@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.Permissions;
 using Grand.Domain.Admin;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
@@ -18,6 +17,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Media;
 using Grand.Domain.News;
 using Grand.Domain.Orders;
+using Grand.Domain.Permissions;
 using Grand.Domain.PushNotifications;
 using Grand.Domain.Security;
 using Grand.Domain.Seo;
@@ -29,7 +29,6 @@ using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Extensions.Mapping.Settings;
 using Grand.Web.Admin.Models.Settings;
 using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
@@ -47,14 +46,10 @@ namespace Grand.Web.Admin.Controllers;
 [PermissionAuthorize(PermissionSystemName.Settings)]
 public class SettingController(
     ISettingService settingService,
-    ICurrencyService currencyService,
     IPictureService pictureService,
     ITranslationService translationService,
-    IDateTimeService dateTimeService,
-    IMediator mediator,
     IMerchandiseReturnService merchandiseReturnService,
     ILanguageService languageService,
-    IOrderStatusService orderStatusService,
     ICacheBase cacheBase,
     IEnumTranslationService enumTranslationService)
     : BaseAdminController
@@ -222,7 +217,7 @@ public class SettingController(
 
     #endregion
 
-    public async Task<IActionResult> Sales()
+    public async Task<IActionResult> Sales([FromServices] IOrderStatusService orderStatusService, [FromServices] ICurrencyService currencyService)
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
@@ -286,8 +281,8 @@ public class SettingController(
         {
             //If we got this far, something failed, redisplay form
             foreach (var modelState in ModelState.Values)
-            foreach (var error in modelState.Errors)
-                Error(error.ErrorMessage);
+                foreach (var error in modelState.Errors)
+                    Error(error.ErrorMessage);
         }
 
         //selected tab
@@ -595,7 +590,7 @@ public class SettingController(
         return RedirectToAction("Customer");
     }
 
-    public async Task<IActionResult> GeneralCommon([FromServices] IEnumerable<IThemeView> themes)
+    public async Task<IActionResult> GeneralCommon([FromServices] IEnumerable<IThemeView> themes, [FromServices] IDateTimeService dateTimeService)
     {
         var model = new GeneralCommonSettingsModel();
         var storeScope = await GetActiveStore();
@@ -757,27 +752,27 @@ public class SettingController(
         await ClearCache();
 
         //save to file
-        SavePushNotificationsToFile(model, configuration, webHostEnvironment);
+        SavePushNotificationsToFile(model);
 
         Success(translationService.GetResource("Admin.Configuration.Updated"));
         return await PushNotifications();
-    }
 
-    private void SavePushNotificationsToFile(PushNotificationsSettingsModel model, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
-    {
-        var fullPath = GetSafeFilePath(configuration, webHostEnvironment, "firebase-messaging-sw.js");
-
-        if (System.IO.File.Exists(fullPath))
+        void SavePushNotificationsToFile(PushNotificationsSettingsModel model)
         {
-            var lines = System.IO.File.ReadAllLines(fullPath);
-            lines = UpdateFileLines(lines, model);
-            System.IO.File.WriteAllLines(fullPath, lines);
+            var fullPath = GetSafeFilePath(configuration, webHostEnvironment, "firebase-messaging-sw.js");
+
+            if (System.IO.File.Exists(fullPath))
+            {
+                var lines = System.IO.File.ReadAllLines(fullPath);
+                lines = UpdateFileLines(lines, model);
+                System.IO.File.WriteAllLines(fullPath, lines);
+            }
+            else
+                throw new ArgumentNullException($"{fullPath} not exist");
         }
-        else
-            throw new ArgumentNullException($"{fullPath} not exist");
     }
 
-    private string GetSafeFilePath(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, string filename)
+    private static string GetSafeFilePath(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, string filename)
     {
         var directoryParam = configuration[CommonPath.DirectoryParam] ?? "";
 
@@ -795,7 +790,7 @@ public class SettingController(
         return fullPath;
     }
 
-    private string[] UpdateFileLines(string[] lines, PushNotificationsSettingsModel model)
+    private static string[] UpdateFileLines(string[] lines, PushNotificationsSettingsModel model)
     {
         for (var i = 0; i < lines.Length; i++)
         {
@@ -809,7 +804,7 @@ public class SettingController(
         }
         return lines;
     }
-    
+
     public async Task<IActionResult> AdminSearch()
     {
         var settings = await settingService.LoadSetting<AdminSearchSettings>();
@@ -833,7 +828,7 @@ public class SettingController(
 
     #region System settings
 
-    public async Task<IActionResult> SystemSetting()
+    public async Task<IActionResult> SystemSetting([FromServices] IMediator mediator)
     {
         var settings = await settingService.LoadSetting<SystemSettings>();
 
@@ -870,7 +865,7 @@ public class SettingController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> SystemSetting(SystemSettingsModel model)
+    public async Task<IActionResult> SystemSetting([FromServices] IMediator mediator, SystemSettingsModel model)
     {
         //system 
         var settings = await settingService.LoadSetting<SystemSettings>();
@@ -906,7 +901,7 @@ public class SettingController(
 
         Success(translationService.GetResource("Admin.Configuration.Updated"));
 
-        return await SystemSetting();
+        return RedirectToAction("SystemSetting");
     }
 
     [HttpPost]

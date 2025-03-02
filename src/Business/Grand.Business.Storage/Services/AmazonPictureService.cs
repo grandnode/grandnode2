@@ -109,7 +109,7 @@ public class AmazonPictureService : PictureService
     /// </summary>
     /// <param name="actualResponse">Actual Response</param>
     /// <param name="expectedHttpStatusCode">Expected Status Code</param>
-    private void EnsureValidResponse(AmazonWebServiceResponse actualResponse, HttpStatusCode expectedHttpStatusCode)
+    private static void EnsureValidResponse(AmazonWebServiceResponse actualResponse, HttpStatusCode expectedHttpStatusCode)
     {
         if (actualResponse.HttpStatusCode != expectedHttpStatusCode)
             throw new Exception("Http Status Codes Aren't Consistent");

@@ -55,7 +55,7 @@ public class ExcelExportProvider : IExportProvider
     /// </summary>
     /// <param name="sheet"></param>
     /// <param name="properties"></param>
-    private void WriteCaption<T>(ISheet sheet, PropertyByName<T>[] properties)
+    private static void WriteCaption<T>(ISheet sheet, PropertyByName<T>[] properties)
     {
         var row = sheet.CreateRow(0);
         foreach (var caption in properties)
@@ -69,7 +69,7 @@ public class ExcelExportProvider : IExportProvider
     /// <param name="idrow">Row index</param>
     /// <param name="properties"></param>
     /// <param name="sheet"></param>
-    private void WriteToXlsx<T>(PropertyByName<T>[] properties, ISheet sheet, T items, int idrow)
+    private static void WriteToXlsx<T>(PropertyByName<T>[] properties, ISheet sheet, T items, int idrow)
     {
         var row = sheet.CreateRow(idrow);
         foreach (var prop in properties)

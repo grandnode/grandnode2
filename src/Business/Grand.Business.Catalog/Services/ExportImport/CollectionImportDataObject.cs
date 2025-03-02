@@ -83,7 +83,7 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>
         await _slugService.SaveSlug(collection, sename, "");
     }
 
-    private bool ValidCollection(Collection collection)
+    private static bool ValidCollection(Collection collection)
     {
         return !string.IsNullOrEmpty(collection.Name);
     }

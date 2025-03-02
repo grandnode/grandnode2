@@ -29,7 +29,7 @@ public partial class InstallationService
     {
         var path = Path.Combine(_hostingEnvironment.WebRootPath, "logo.png");
 
-        var storePictureId = (await _pictureRepository.InsertPicture(File.ReadAllBytes(path), "image/png", "Logo")).Id;
+        var storePictureId = (await _pictureRepository.InsertPicture(await File.ReadAllBytesAsync(path), "image/png", "Logo")).Id;
 
         await _settingRepository.SaveSetting(new MenuItemSettings {
             DisplayHomePageMenu = !installSampleData,

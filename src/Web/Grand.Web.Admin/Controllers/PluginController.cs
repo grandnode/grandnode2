@@ -73,7 +73,7 @@ public class PluginController(
 
     }
 
-    protected byte[] ToByteArray(Stream stream)
+    protected static byte[] ToByteArray(Stream stream)
     {
         using (stream)
         {

@@ -56,7 +56,7 @@ public class CommonController : BasePublicController
 
     #region Utilities
 
-    private string RemoveLanguageSeoCode(string url, PathString pathBase)
+    private static string RemoveLanguageSeoCode(string url, PathString pathBase)
     {
         if (string.IsNullOrEmpty(url))
             return url;

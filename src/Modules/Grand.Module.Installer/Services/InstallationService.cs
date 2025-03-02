@@ -449,7 +449,7 @@ public partial class InstallationService : IInstallationService
         await _customerRepository.UpdateAsync(customer);
 
     }
-    private byte[] EncryptTextToMemory(string data, byte[] key, byte[] iv)
+    private static byte[] EncryptTextToMemory(string data, byte[] key, byte[] iv)
     {
         using var ms = new MemoryStream();
         using (var cs = new CryptoStream(ms, TripleDES.Create().CreateEncryptor(key, iv), CryptoStreamMode.Write))

@@ -31,7 +31,7 @@ public class DefaultAreaViewFactory : IAreaViewFactory
             : GetDefaultViewLocations();
     }
 
-    private IEnumerable<string> GetDefaultViewLocations()
+    private static IEnumerable<string> GetDefaultViewLocations()
     {
         return new List<string> {
             "/Views/{1}/{0}.cshtml",

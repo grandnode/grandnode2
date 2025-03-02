@@ -35,7 +35,7 @@ public partial class InstallationService
             DisplayOrder = 100
         };
         categoryComputers.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_computers.jpeg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_computers.jpeg"), "image/jpeg",
             "Computers", reference: Reference.Category,
             objectId: categoryComputers.Id)).Id;
         allCategories.Add(categoryComputers);
@@ -52,7 +52,7 @@ public partial class InstallationService
             DisplayOrder = categoryComputers.DisplayOrder + 1
         };
         categoryTablets.PictureId = (await _pictureRepository.InsertPicture(
-                File.ReadAllBytes(sampleImagesPath + "category_tablets.jpg"), "image/jpeg",
+                await File.ReadAllBytesAsync(sampleImagesPath + "category_tablets.jpg"), "image/jpeg",
                 "Tablets", reference: Reference.Category,
                 objectId: categoryTablets.Id))
             .Id;
@@ -70,7 +70,7 @@ public partial class InstallationService
             DisplayOrder = categoryComputers.DisplayOrder + 2
         };
         categoryNotebooks.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_notebooks.jpg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_notebooks.jpg"), "image/jpeg",
             "Notebooks", reference: Reference.Category,
             objectId: categoryNotebooks.Id)).Id;
         allCategories.Add(categoryNotebooks);
@@ -87,7 +87,7 @@ public partial class InstallationService
             DisplayOrder = categoryComputers.DisplayOrder + 3
         };
         categorySmartwatches.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_smartwatches.jpg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_smartwatches.jpg"), "image/jpeg",
             "Smartwatches", reference: Reference.Category,
             objectId: categorySmartwatches.Id)).Id;
         allCategories.Add(categorySmartwatches);
@@ -105,7 +105,7 @@ public partial class InstallationService
             DisplayOrder = 200
         };
         categoryElectronics.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_electronics.jpeg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_electronics.jpeg"), "image/jpeg",
             "Electronics", reference: Reference.Category,
             objectId: categoryElectronics.Id)).Id;
         allCategories.Add(categoryElectronics);
@@ -122,7 +122,7 @@ public partial class InstallationService
             DisplayOrder = categoryElectronics.DisplayOrder + 1
         };
         categoryDisplay.PictureId = (await _pictureRepository.InsertPicture(
-                File.ReadAllBytes(sampleImagesPath + "category_display.jpeg"), "image/jpeg",
+                await File.ReadAllBytesAsync(sampleImagesPath + "category_display.jpeg"), "image/jpeg",
                 "Display", reference: Reference.Category,
                 objectId: categoryDisplay.Id))
             .Id;
@@ -140,7 +140,7 @@ public partial class InstallationService
             DisplayOrder = categoryElectronics.DisplayOrder + 2
         };
         categorySmartphones.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_smartphones.jpeg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_smartphones.jpeg"), "image/jpeg",
             "Smartphones", reference: Reference.Category,
             objectId: categorySmartphones.Id)).Id;
         allCategories.Add(categorySmartphones);
@@ -158,7 +158,7 @@ public partial class InstallationService
             DisplayOrder = categoryElectronics.DisplayOrder + 3
         };
         categoryOthers.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_accessories.jpg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_accessories.jpg"), "image/jpeg",
             "SmAccessoriesartphones", reference: Reference.Category,
             objectId: categoryOthers.Id)).Id;
 
@@ -177,7 +177,7 @@ public partial class InstallationService
             DisplayOrder = 300
         };
         categorySport.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_sport.jpeg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_sport.jpeg"), "image/jpeg",
             ("Sport"), reference: Reference.Category, objectId: categorySport.Id)).Id;
         allCategories.Add(categorySport);
 
@@ -193,7 +193,7 @@ public partial class InstallationService
             DisplayOrder = categorySport.DisplayOrder + 1
         };
         categoryShoes.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_shoes.jpeg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_shoes.jpeg"), "image/jpeg",
             "Shoes", reference: Reference.Category, objectId: categoryShoes.Id)).Id;
         allCategories.Add(categoryShoes);
 
@@ -209,7 +209,7 @@ public partial class InstallationService
             DisplayOrder = categorySport.DisplayOrder + 2
         };
         categoryApparel.PictureId = (await _pictureRepository.InsertPicture(
-                File.ReadAllBytes(sampleImagesPath + "category_sport.jpeg"), "image/jpeg",
+                await File.ReadAllBytesAsync(sampleImagesPath + "category_sport.jpeg"), "image/jpeg",
                 "Apparel", reference: Reference.Category,
                 objectId: categoryApparel.Id))
             .Id;
@@ -228,7 +228,7 @@ public partial class InstallationService
             DisplayOrder = categorySport.DisplayOrder + 3
         };
         categoryBalls.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_balls.jpeg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_balls.jpeg"), "image/jpeg",
             ("Balls"), reference: Reference.Category, objectId: categoryBalls.Id)).Id;
         allCategories.Add(categoryBalls);
 
@@ -245,7 +245,7 @@ public partial class InstallationService
             DisplayOrder = 400
         };
         categoryDigitalDownloads.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_digital_downloads.jpeg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_digital_downloads.jpeg"), "image/jpeg",
             ("Digital downloads"), reference: Reference.Category,
             objectId: categoryDigitalDownloads.Id)).Id;
         allCategories.Add(categoryDigitalDownloads);
@@ -267,7 +267,7 @@ public partial class InstallationService
             FlagStyle = "bg-success"
         };
         categoryLego.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_lego.jpeg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_lego.jpeg"), "image/jpeg",
             (categoryLego.Name), reference: Reference.Category,
             objectId: categoryLego.Id)).Id;
         allCategories.Add(categoryLego);
@@ -284,7 +284,7 @@ public partial class InstallationService
             DisplayOrder = 600
         };
         categoryGiftVouchers.PictureId = (await _pictureRepository.InsertPicture(
-            File.ReadAllBytes(sampleImagesPath + "category_gift_cards.jpeg"), "image/jpeg",
+            await File.ReadAllBytesAsync(sampleImagesPath + "category_gift_cards.jpeg"), "image/jpeg",
             (categoryGiftVouchers.Name), reference: Reference.Category,
             objectId: categoryGiftVouchers.Id)).Id;
         allCategories.Add(categoryGiftVouchers);

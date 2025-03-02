@@ -121,7 +121,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public virtual T Update(T entity)
     {
         entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
-        entity.UpdatedBy = _auditInfoProvider?.GetCurrentUser();
+        entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
         Collection.ReplaceOne(x => x.Id == entity.Id, entity, new ReplaceOptions { IsUpsert = false });
         return entity;
     }

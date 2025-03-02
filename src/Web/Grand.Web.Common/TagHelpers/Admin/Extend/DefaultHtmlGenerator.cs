@@ -1330,7 +1330,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         return listItemBuilder;
     }
 
-    private IHtmlContent GenerateOption(SelectListItem item, ICollection<string> currentValues)
+    private static IHtmlContent GenerateOption(SelectListItem item, ICollection<string> currentValues)
     {
         var selected = item.Selected;
         if (currentValues != null)

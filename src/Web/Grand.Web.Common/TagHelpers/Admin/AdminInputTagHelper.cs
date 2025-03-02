@@ -156,7 +156,7 @@ public class AdminInputTagHelper : TagHelper
     }
 
 
-    private object GetPrivateFieldValue(object target, string fieldName)
+    private static object GetPrivateFieldValue(object target, string fieldName)
     {
         ArgumentNullException.ThrowIfNull(target);
         ArgumentNullException.ThrowIfNullOrEmpty(fieldName);

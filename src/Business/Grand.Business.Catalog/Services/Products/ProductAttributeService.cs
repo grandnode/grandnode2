@@ -258,10 +258,10 @@ public class ProductAttributeService : IProductAttributeService
         ArgumentNullException.ThrowIfNull(productAttributeValue);
 
         var p = await _productRepository.GetByIdAsync(productId);
-        ArgumentNullException.ThrowIfNull(p, nameof(p));
+        ArgumentNullException.ThrowIfNull(p);
 
         var pam = p.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
-        ArgumentNullException.ThrowIfNull(pam, nameof(pam));
+        ArgumentNullException.ThrowIfNull(pam);
 
         pam.ProductAttributeValues.Add(productAttributeValue);
         await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id,

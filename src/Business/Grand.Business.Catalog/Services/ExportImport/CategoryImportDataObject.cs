@@ -86,7 +86,7 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>
         await _slugService.SaveSlug(category, seName, "");
     }
 
-    private bool ValidCategory(Category category)
+    private static bool ValidCategory(Category category)
     {
         return !string.IsNullOrEmpty(category.Name);
     }

@@ -266,7 +266,7 @@ public class OrderController(
 
             //add a note
             await orderService.InsertOrderNote(new OrderNote {
-                Note = $"Order status has been edited. New status: {status?.Name}",
+                Note = $"Order status has been edited. New status: {status.Name}",
                 DisplayToCustomer = false,
                 OrderId = order.Id
             });

@@ -22,7 +22,7 @@ public class StartupApplication : IStartupApplication
     public int Priority => 100;
     public bool BeforeConfigure => false;
 
-    private void RegisterInstallService(IServiceCollection serviceCollection)
+    private static void RegisterInstallService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IInstallationLocalizedService, InstallationLocalizedService>();
         serviceCollection.AddScoped<IInstallationService, InstallationService>();

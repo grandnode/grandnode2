@@ -13,10 +13,10 @@ public static class AddressMappingExtensions
     {
         var address = entity.MapTo<Address, AddressModel>();
         var country = await countryService.GetCountryById(address.CountryId);
-        if (country != null && !string.IsNullOrEmpty(address.CountryId)) address.CountryName = country?.Name;
+        if (country != null && !string.IsNullOrEmpty(address.CountryId)) address.CountryName = country.Name;
         if (country != null && !string.IsNullOrEmpty(address.StateProvinceId))
             address.StateProvinceName =
-                country?.StateProvinces.FirstOrDefault(x => x.Id == address.StateProvinceId)?.Name;
+                country.StateProvinces.FirstOrDefault(x => x.Id == address.StateProvinceId)?.Name;
 
         return address;
     }

@@ -37,14 +37,14 @@ public class StartupApplication : IStartupApplication
     public int Priority => 100;
     public bool BeforeConfigure => false;
 
-    private void RegisterCustomer(IServiceCollection serviceCollection)
+    private static void RegisterCustomer(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ICustomerTagService, CustomerTagService>();
         serviceCollection.AddScoped<ICustomerProductService, CustomerProductService>();
         serviceCollection.AddScoped<ICustomerCoordinatesService, CustomerCoordinatesService>();
     }
 
-    private void RegisterCommon(IServiceCollection serviceCollection)
+    private static void RegisterCommon(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IContactAttributeParser, ContactAttributeParser>();
         serviceCollection.AddScoped<IContactAttributeService, ContactAttributeService>();
@@ -56,7 +56,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddHttpClient<IPushNotificationsService, PushNotificationsService>();
     }
 
-    private void RegisterCoursesService(IServiceCollection serviceCollection)
+    private static void RegisterCoursesService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<ICourseActionService, CourseActionService>();
         serviceCollection.AddScoped<ICourseLessonService, CourseLessonService>();
@@ -65,7 +65,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<ICourseSubjectService, CourseSubjectService>();
     }
 
-    private void RegisterDocumentsService(IServiceCollection serviceCollection)
+    private static void RegisterDocumentsService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IDocumentTypeService, DocumentTypeService>();
         serviceCollection.AddScoped<IDocumentService, DocumentService>();

@@ -54,7 +54,7 @@ public class CustomerGroupsController : BaseAdminPluginController
         foreach (var cr in await _groupService.GetAllCustomerGroups(showHidden: true))
             model.AvailableCustomerGroups.Add(new SelectListItem {
                 Text = cr.Name, Value = cr.Id,
-                Selected = discountRequirement != null && cr.Id == discountRequirement?.Metadata
+                Selected = discountRequirement != null && cr.Id == discountRequirement.Metadata
             });
 
         //add a prefix

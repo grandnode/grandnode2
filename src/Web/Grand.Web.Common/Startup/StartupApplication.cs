@@ -54,7 +54,7 @@ public class StartupApplication : IStartupApplication
     public int Priority => 0;
     public bool BeforeConfigure => false;
 
-    private void RegisterCache(IServiceCollection serviceCollection, IConfiguration configuration)
+    private static void RegisterCache(IServiceCollection serviceCollection, IConfiguration configuration)
     {
         var config = new RedisConfig();
         configuration.GetSection("Redis").Bind(config);
@@ -71,7 +71,7 @@ public class StartupApplication : IStartupApplication
         }
     }
 
-    private void RegisterContextService(IServiceCollection serviceCollection)
+    private static void RegisterContextService(IServiceCollection serviceCollection)
     {
         //work context
         serviceCollection.AddSingleton<IContextAccessor, ContextAccessor>();
@@ -98,7 +98,7 @@ public class StartupApplication : IStartupApplication
     }
 
 
-    private void RegisterFramework(IServiceCollection serviceCollection)
+    private static void RegisterFramework(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IPageHeadBuilder, PageHeadBuilder>();
 

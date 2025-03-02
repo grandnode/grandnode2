@@ -31,7 +31,7 @@ public class SliderMapperConfiguration : Profile, IAutoMapperProfile
 
     public int Order => 0;
 
-    private string SetObjectEntry(SlideModel model)
+    private static string SetObjectEntry(SlideModel model)
     {
         return model.SliderTypeId switch {
             (int)SliderType.HomePage => "",
@@ -42,17 +42,17 @@ public class SliderMapperConfiguration : Profile, IAutoMapperProfile
         };
     }
 
-    private string GetCategoryId(PictureSlider pictureSlider)
+    private static string GetCategoryId(PictureSlider pictureSlider)
     {
         return pictureSlider.SliderTypeId == SliderType.Category ? pictureSlider.ObjectEntry : "";
     }
 
-    private string GetCollectionId(PictureSlider pictureSlider)
+    private static string GetCollectionId(PictureSlider pictureSlider)
     {
         return pictureSlider.SliderTypeId == SliderType.Collection ? pictureSlider.ObjectEntry : "";
     }
 
-    private string GetBrandId(PictureSlider pictureSlider)
+    private static string GetBrandId(PictureSlider pictureSlider)
     {
         return pictureSlider.SliderTypeId == SliderType.Brand ? pictureSlider.ObjectEntry : "";
     }

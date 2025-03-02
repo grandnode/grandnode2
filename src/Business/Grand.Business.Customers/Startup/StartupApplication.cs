@@ -27,7 +27,7 @@ public class StartupApplication : IStartupApplication
     public int Priority => 100;
     public bool BeforeConfigure => false;
 
-    private void RegisterCustomerService(IServiceCollection serviceCollection)
+    private static void RegisterCustomerService(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IVendorService, VendorService>();
         serviceCollection.AddScoped<ICustomerAttributeParser, CustomerAttributeParser>();

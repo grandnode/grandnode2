@@ -22,7 +22,7 @@ public class StartupApplication : IStartupApplication
     public int Priority => 100;
     public bool BeforeConfigure => false;
 
-    private void RegisterTask(IServiceCollection serviceCollection)
+    private static void RegisterTask(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IScheduleTaskService, ScheduleTaskService>();
 
