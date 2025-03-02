@@ -206,7 +206,7 @@ public class HomeController : BaseAdminController
             return View();
         }
 
-        _logger.LogInformation("Access denied to user #{CurrentCustomerEmail} \'{CurrentCustomerEmail}\'", currentCustomer.Email, currentCustomer.Email);
+        _logger.LogInformation("Access denied to user #{CurrentCustomerEmail}", currentCustomer.Email);
 
         return View();
     }
