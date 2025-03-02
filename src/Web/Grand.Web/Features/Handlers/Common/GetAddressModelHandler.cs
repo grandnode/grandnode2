@@ -135,14 +135,14 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
             {
                 var states = await _countryService
                     .GetStateProvincesByCountryId(
-                        !string.IsNullOrEmpty(model.CountryId) ? model.CountryId : store.DefaultCountryId, language.Id);
+                        !string.IsNullOrEmpty(model.CountryId) ? model.CountryId : store.DefaultCountryId, language?.Id);
 
                 model.AvailableStates.Add(new SelectListItem
                     { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
 
                 foreach (var s in states)
                     model.AvailableStates.Add(new SelectListItem {
-                        Text = s.GetTranslation(x => x.Name, language.Id),
+                        Text = s.GetTranslation(x => x.Name, language?.Id),
                         Value = s.Id,
                         Selected = s.Id == model.StateProvinceId
                     });
