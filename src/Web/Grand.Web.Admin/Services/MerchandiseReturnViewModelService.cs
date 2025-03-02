@@ -214,6 +214,7 @@ public class MerchandiseReturnViewModelService(
         foreach (var item in merchandiseReturn.MerchandiseReturnItems)
         {
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
+            ArgumentNullException.ThrowIfNull(orderItem);
             items.Add(new MerchandiseReturnModel.MerchandiseReturnItemModel {
                 ProductId = orderItem.ProductId,
                 ProductName = (await productService.GetProductByIdIncludeArch(orderItem.ProductId)).Name,
