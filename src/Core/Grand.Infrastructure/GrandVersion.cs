@@ -33,12 +33,12 @@ public static class GrandVersion
     /// <summary>
     ///     Gets the git branch
     /// </summary>
-    public static string GitBranch = GetGitBranch();
+    public static readonly string GitBranch = GetGitBranch();
 
     /// <summary>
     ///     Gets the git commit
     /// </summary>
-    public static string GitCommit = GetGitHash();
+    public static readonly string GitCommit = GetGitHash();
 
     /// <summary>
     ///     Gets the patch version

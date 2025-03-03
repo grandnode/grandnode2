@@ -136,7 +136,7 @@ public static partial class CacheKey
     /// <summary>
     ///     Key pattern to clear cache
     /// </summary>
-    public static string URLEntity_PATTERN_KEY = "Grand.urlEntity.";
+    public const string URLEntity_PATTERN_KEY = "Grand.urlEntity.";
 
     #endregion
 
