@@ -2,15 +2,15 @@
 
 public static class CommonPath
 {
-    public static string AppData => "App_Data";
+    public const string AppData = "App_Data";
 
-    public static string Plugins => "Plugins";
+    public const string Plugins = "Plugins";
 
-    public static string TmpUploadPath = "TempUploads";
+    public const string TmpUploadPath = "TempUploads";
 
-    public static string DirectoryParam = "Directory";
+    public const string DirectoryParam = "Directory";
 
-    public static string SettingsFile = "Settings.cfg";
+    public const string SettingsFile = "Settings.cfg";
 
-    public static string InstalledPluginsFile = "InstalledPlugins.cfg";
+    public const string InstalledPluginsFile = "InstalledPlugins.cfg";
 }

@@ -402,6 +402,8 @@ public class CategoryService : ICategoryService
     public virtual async Task InsertCategory(Category category)
     {
         ArgumentNullException.ThrowIfNull(category);
+        if (string.IsNullOrEmpty(category.ParentCategoryId))
+            category.ParentCategoryId = "";
 
         await _categoryRepository.InsertAsync(category);
 

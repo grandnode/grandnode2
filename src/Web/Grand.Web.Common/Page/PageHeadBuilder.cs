@@ -15,15 +15,14 @@ public class PageHeadBuilder : IPageHeadBuilder
     /// <param name="seoSettings">SEO settings</param>
     public PageHeadBuilder(SeoSettings seoSettings)
     {
-        _title = new List<string>();
-        _metaDescription = new List<string>();
-        _metaKeyword = new List<string>();
-        _canonicalUrl = new List<string>();
-        _headCustom = new List<string>();
-        _pageCssClass = new List<string>();
-
-        if (!string.IsNullOrEmpty(seoSettings.CustomHeadTags)) AppendHeadCustomParts(seoSettings.CustomHeadTags);
+        _title = [];
+        _metaDescription = [];
+        _metaKeyword = [];
+        _canonicalUrl = [];
+        _headCustom = [];
+        _pageCssClass = [];
         _seoSettings = seoSettings;
+        ConfigureHeadParts();
     }
 
     #endregion
@@ -42,6 +41,14 @@ public class PageHeadBuilder : IPageHeadBuilder
     #endregion
 
     #region Methods
+
+    private void ConfigureHeadParts()
+    {
+        if (!string.IsNullOrEmpty(_seoSettings.CustomHeadTags))
+        {
+            AppendHeadCustomParts(_seoSettings.CustomHeadTags);
+        }
+    }
 
     public virtual void AddTitleParts(string part)
     {

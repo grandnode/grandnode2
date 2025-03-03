@@ -60,9 +60,8 @@ public class OrderReportService : IOrderReportService
     /// <param name="startTimeUtc">Start date</param>
     /// <param name="endTimeUtc">End date</param>
     /// <returns>Result</returns>
-    public virtual async Task<IList<OrderByCountryReportLine>> GetCountryReport(string storeId, string vendorId,
-        int? os,
-        PaymentStatus? ps, ShippingStatus? ss, DateTime? startTimeUtc, DateTime? endTimeUtc)
+    public virtual async Task<IList<OrderByCountryReportLine>> GetCountryReport(string storeId = "", string vendorId = "",
+        int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null, DateTime? startTimeUtc = null, DateTime? endTimeUtc = null)
     {
         var query = from p in _orderRepository.Table
             select p;

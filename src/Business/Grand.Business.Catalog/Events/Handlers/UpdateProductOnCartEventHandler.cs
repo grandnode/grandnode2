@@ -18,15 +18,15 @@ public class UpdateProductOnCartEventHandler : INotificationHandler<UpdateProduc
     {
         var customers = _customerRepository.Table
             .Where(x => x.ShoppingCartItems.Any(y => y.ProductId == notification.Product.Id)).ToList();
-        foreach (var cs in customers)
-        foreach (var item in cs.ShoppingCartItems.Where(x => x.ProductId == notification.Product.Id))
+        foreach (var (cs, item) in from cs in customers
+                                   from item in cs.ShoppingCartItems.Where(x => x.ProductId == notification.Product.Id)
+                                   select (cs, item))
         {
             item.AdditionalShippingChargeProduct = notification.Product.AdditionalShippingCharge;
             item.IsFreeShipping = notification.Product.IsFreeShipping;
             item.IsGiftVoucher = notification.Product.IsGiftVoucher;
             item.IsShipEnabled = notification.Product.IsShipEnabled;
             item.IsTaxExempt = notification.Product.IsTaxExempt;
-
             await _customerRepository.UpdateToSet(cs.Id, x => x.ShoppingCartItems, z => z.Id, item.Id, item);
         }
     }

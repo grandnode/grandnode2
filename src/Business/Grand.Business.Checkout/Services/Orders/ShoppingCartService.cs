@@ -8,7 +8,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
-using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using MediatR;
@@ -314,7 +313,7 @@ public class ShoppingCartService : IShoppingCartService
     /// <returns>Warnings</returns>
     public virtual async Task<IList<string>> UpdateShoppingCartItem(Customer customer,
         string shoppingCartItemId, string warehouseId, IList<CustomAttribute> attributes,
-        double? customerEnteredPrice,
+        double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
         int quantity = 1, bool resetCheckoutData = true, string reservationId = "", string sciId = "")
     {
