@@ -18,8 +18,8 @@ public class DomainHostValidator : BaseGrandValidator<DomainHostModel>
         {
             try
             {
-                new Uri(x.Url);
-                return true;
+                var uri = new Uri(x.Url);
+                return uri != null;
             }
             catch
             {

@@ -63,8 +63,7 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
         if (!string.IsNullOrEmpty(request.Shipment.TrackingNumber))
         {
             model.TrackingNumber = request.Shipment.TrackingNumber;
-            var srcm = _shippingService.LoadShippingRateCalculationProviderBySystemName(request.Order
-                .ShippingRateProviderSystemName);
+            var srcm = _shippingService.LoadShippingRateCalculationProviderBySystemName(request.Order.ShippingRateProviderSystemName);
             if (srcm != null &&
                 srcm.IsShippingRateMethodActive(_shippingProviderSettings))
             {

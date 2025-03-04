@@ -226,8 +226,8 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
             propertyInfo?.SetValue(entity, item.Value);
         }
 
-        entity.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
-        entity.UpdatedBy = _auditInfoProvider.GetCurrentUser();
+        entity!.UpdatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
+        entity!.UpdatedBy = _auditInfoProvider.GetCurrentUser();
 
         Collection.Update(entity);
         return Task.CompletedTask;

@@ -631,7 +631,6 @@ public class ProductController : BaseAdminController
 
         Error(ModelState);
         model = await _productViewModelService.PrepareRelatedProductModel();
-        model.ProductId = model.ProductId;
         return View(model);
     }
 
@@ -729,7 +728,6 @@ public class ProductController : BaseAdminController
 
         Error(ModelState);
         model = await _productViewModelService.PrepareSimilarProductModel();
-        model.ProductId = model.ProductId;
         return View(model);
     }
 
@@ -827,7 +825,6 @@ public class ProductController : BaseAdminController
 
         Error(ModelState);
         model = await _productViewModelService.PrepareBundleProductModel();
-        model.ProductId = model.ProductId;
         return View(model);
     }
 
@@ -915,7 +912,6 @@ public class ProductController : BaseAdminController
 
         Error(ModelState);
         model = await _productViewModelService.PrepareCrossSellProductModel();
-        model.ProductId = model.ProductId;
         return View(model);
     }
 
@@ -1002,7 +998,6 @@ public class ProductController : BaseAdminController
 
         Error(ModelState);
         model = await _productViewModelService.PrepareRecommendedProductModel();
-        model.ProductId = model.ProductId;
         return View(model);
     }
 
@@ -1108,7 +1103,6 @@ public class ProductController : BaseAdminController
 
         Error(ModelState);
         model = await _productViewModelService.PrepareAssociatedProductModel();
-        model.ProductId = model.ProductId;
         return View(model);
     }
 
