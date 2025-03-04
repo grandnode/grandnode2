@@ -22,8 +22,8 @@ public class StoreValidator : BaseGrandValidator<StoreModel>
         {
             try
             {
-                new Uri(x.Url);
-                return true;
+                var uri = new Uri(x.Url);
+                return uri != null;
             }
             catch
             {
