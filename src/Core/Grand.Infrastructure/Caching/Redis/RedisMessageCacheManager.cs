@@ -53,12 +53,11 @@ public class RedisMessageCacheManager : MemoryCacheBase, ICacheBase
     ///     Clear cache
     /// </summary>
     /// <param name="publisher">publisher</param>
-    public override Task Clear(bool publisher = true)
+    public override async Task Clear(bool publisher = true)
     {
-        base.Clear();
+        await base.Clear(publisher);
         if (publisher)
-            _messageBus.PublishAsync(new MessageEvent { Key = "", MessageType = (int)MessageEventType.ClearCache });
+            await _messageBus.PublishAsync(new MessageEvent { Key = "", MessageType = (int)MessageEventType.ClearCache });
 
-        return Task.CompletedTask;
     }
 }
