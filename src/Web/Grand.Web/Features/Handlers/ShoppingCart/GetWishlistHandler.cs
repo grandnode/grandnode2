@@ -20,7 +20,6 @@ using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart;
 

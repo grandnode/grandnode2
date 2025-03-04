@@ -1,7 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Customers;
-using Grand.Domain.Affiliates;
-using Grand.Domain.Seo;
-using Grand.SharedKernel.Extensions;
+﻿using Grand.Domain.Affiliates;
 using System.Web;
 
 namespace Grand.Business.Core.Extensions;

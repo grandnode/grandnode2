@@ -31,7 +31,6 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Globalization;
 using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;

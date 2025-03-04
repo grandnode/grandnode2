@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Customers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Module.Api.Controllers;
 

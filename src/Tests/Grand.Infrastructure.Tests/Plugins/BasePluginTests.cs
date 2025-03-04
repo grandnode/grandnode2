@@ -1,6 +1,5 @@
 ﻿using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
-using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestContext = NUnit.Framework.TestContext;
 

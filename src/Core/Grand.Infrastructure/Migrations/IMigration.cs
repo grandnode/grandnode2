@@ -1,6 +1,4 @@
-﻿using Grand.Data;
-
-namespace Grand.Infrastructure.Migrations;
+﻿namespace Grand.Infrastructure.Migrations;
 
 public interface IMigration : IBaseMigration
 {

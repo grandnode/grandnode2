@@ -2,7 +2,6 @@
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Customers;
-using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;

@@ -6,7 +6,6 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Controllers;
 

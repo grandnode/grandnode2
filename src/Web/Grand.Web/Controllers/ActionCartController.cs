@@ -16,9 +16,7 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 
 namespace Grand.Web.Controllers;

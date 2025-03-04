@@ -7,7 +7,6 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.AspNetCore.Http;
 using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Admin.Controllers;

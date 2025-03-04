@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-
-namespace Grand.Business.Core.Utilities.System;
+﻿namespace Grand.Business.Core.Utilities.System;
 
 public static class DownloadUrl
 {

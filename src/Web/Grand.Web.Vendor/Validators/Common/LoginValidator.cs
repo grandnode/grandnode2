@@ -11,8 +11,6 @@ using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Vendor.Models.Common;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Vendor.Validators.Common;
 

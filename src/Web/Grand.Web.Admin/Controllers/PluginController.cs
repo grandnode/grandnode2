@@ -10,11 +10,7 @@ using Grand.Web.Admin.Models.Plugins;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 using System.Reflection;
 

@@ -1,5 +1,4 @@
-﻿using DotLiquid.Tags;
-using Grand.Business.Core.Interfaces.Storage;
+﻿using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Storage.Services;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;

@@ -24,8 +24,6 @@ using Grand.Web.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
-using Grand.Web.Models.Orders;
-using Microsoft.AspNetCore.Http;
 using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Controllers;

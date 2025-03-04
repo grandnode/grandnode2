@@ -2,7 +2,6 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Data;
 using Grand.Domain.Directory;
-using Grand.Domain.Payments;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;

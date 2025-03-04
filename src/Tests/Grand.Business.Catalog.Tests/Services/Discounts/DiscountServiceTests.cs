@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Catalog.Queries.Handlers;
 using Grand.Business.Catalog.Services.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
@@ -16,7 +15,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

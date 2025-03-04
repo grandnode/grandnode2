@@ -11,7 +11,6 @@ using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Interfaces;

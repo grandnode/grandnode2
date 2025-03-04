@@ -1,11 +1,8 @@
 ﻿using Grand.Business.Authentication.Services;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Security;
-using Grand.Domain.Stores;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.TypeConverters.Converter;
 using Grand.SharedKernel.Extensions;

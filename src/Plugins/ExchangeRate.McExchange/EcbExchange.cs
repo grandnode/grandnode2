@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Net.Http;
 using System.Xml;
 
 namespace ExchangeRate.McExchange;

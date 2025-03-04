@@ -12,7 +12,6 @@ using Grand.Web.Common.Validators;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Validators.Customer;
 

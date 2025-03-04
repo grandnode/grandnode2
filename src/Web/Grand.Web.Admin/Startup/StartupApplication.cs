@@ -5,10 +5,6 @@ using Grand.Web.Admin.Infrastructure;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Services;
 using Grand.Web.Common.View;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Startup;
 

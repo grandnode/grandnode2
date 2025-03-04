@@ -2,7 +2,6 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Blogs;
-using Grand.Domain.Payments;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using MediatR;

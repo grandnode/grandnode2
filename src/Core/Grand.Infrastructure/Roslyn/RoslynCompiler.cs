@@ -1,12 +1,10 @@
 ﻿using Grand.Infrastructure.Configuration;
-using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting.Internal;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Runtime.Loader;

@@ -1,7 +1,5 @@
 ﻿using Grand.Business.Cms.Services;
 using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;

@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Data;
 using Grand.Domain;
-using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Permissions;
@@ -12,7 +11,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace Grand.Business.Cms.Services;
 

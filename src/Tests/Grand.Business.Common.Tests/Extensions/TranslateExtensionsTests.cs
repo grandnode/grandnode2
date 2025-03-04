@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
-using Grand.Domain.Permissions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

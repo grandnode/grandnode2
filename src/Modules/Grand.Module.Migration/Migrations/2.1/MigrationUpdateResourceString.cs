@@ -1,5 +1,4 @@
-﻿using Grand.Data;
-using Grand.Infrastructure.Migrations;
+﻿using Grand.Infrastructure.Migrations;
 
 namespace Grand.Module.Migration.Migrations._2._1;
 

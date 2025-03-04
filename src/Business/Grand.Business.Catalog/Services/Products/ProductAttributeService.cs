@@ -2,7 +2,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
-using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;

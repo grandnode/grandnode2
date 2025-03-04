@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Common;
-using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Data.Tests.MongoDb;
