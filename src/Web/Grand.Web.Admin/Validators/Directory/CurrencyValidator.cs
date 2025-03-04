@@ -37,10 +37,9 @@ public class CurrencyValidator : BaseGrandValidator<CurrencyModel>
                 {
                     if (string.IsNullOrEmpty(x))
                         return true;
-                    //create a CultureInfo object
-                    //if "DisplayLocale" is wrong, then exception will be thrown
-                    new CultureInfo(x);
-                    return true;
+
+                    var culture = new CultureInfo(x);
+                    return culture != null;
                 }
                 catch
                 {

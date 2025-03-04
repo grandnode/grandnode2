@@ -21,8 +21,8 @@ public class LanguageValidator : BaseGrandValidator<LanguageModel>
                 try
                 {
                     //create a CultureInfo object
-                    new CultureInfo(x);
-                    return true;
+                    var culture = new CultureInfo(x);
+                    return culture != null;
                 }
                 catch
                 {
