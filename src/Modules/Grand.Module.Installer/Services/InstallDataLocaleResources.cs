@@ -12,7 +12,7 @@ public partial class InstallationService
 
         //save resources
         var filePath = Path.Combine(_hostingEnvironment.ContentRootPath, "App_Data/Resources/DefaultLanguage.xml");
-        var localesXml = File.ReadAllText(filePath);
+        var localesXml = await File.ReadAllTextAsync(filePath);
 
         var xmlDoc = XmlExtensions.LanguageXmlDocument(localesXml);
 
