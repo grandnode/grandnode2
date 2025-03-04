@@ -945,7 +945,6 @@ public class OrderController(
 
         //If we got this far, something failed, redisplay form
         model = await orderViewModelService.PrepareOrderAddressModel(order, address);
-        model.BillingAddress = model.BillingAddress;
         return View(model);
     }
 
