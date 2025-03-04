@@ -1,6 +1,4 @@
-﻿using Grand.Business.Common.Services.Directory;
-using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Queries.Customers;
+﻿using Grand.Business.Core.Queries.Customers;
 using Grand.Business.Customers.Services;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;

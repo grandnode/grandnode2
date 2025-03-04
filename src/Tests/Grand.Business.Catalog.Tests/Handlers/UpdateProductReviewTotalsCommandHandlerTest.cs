@@ -6,7 +6,6 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
-using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Driver;
 using Moq;

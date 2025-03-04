@@ -11,7 +11,6 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

@@ -35,10 +35,8 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Themes;
 using MediatR;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Configuration;
 using OperatingSystem = Grand.Infrastructure.OperatingSystem;
 
 namespace Grand.Web.Admin.Controllers;

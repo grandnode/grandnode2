@@ -2,7 +2,6 @@
 using Grand.Domain.Common;
 using Grand.Domain.Seo;
 using Grand.Module.Installer.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Module.Installer.Services;
 

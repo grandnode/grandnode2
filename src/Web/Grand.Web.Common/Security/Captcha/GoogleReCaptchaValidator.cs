@@ -1,6 +1,5 @@
 ﻿using Grand.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Http;
-using System.Net.Http;
 using System.Text.Json;
 
 namespace Grand.Web.Common.Security.Captcha;

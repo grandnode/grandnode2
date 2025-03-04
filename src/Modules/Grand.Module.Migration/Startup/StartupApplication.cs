@@ -1,6 +1,5 @@
 ﻿using Grand.Data;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Migrations;
 using Grand.Module.Migration.Migrations;
 using Microsoft.AspNetCore.Builder;

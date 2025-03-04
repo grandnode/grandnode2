@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Catalog.Services.Tax;
-using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Catalog;
@@ -7,7 +6,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
-using Grand.SharedKernel.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

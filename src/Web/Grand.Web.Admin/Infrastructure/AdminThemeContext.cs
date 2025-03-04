@@ -2,7 +2,6 @@
 using Grand.Domain.Stores;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Common.Themes;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Infrastructure;
 

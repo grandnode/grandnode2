@@ -7,7 +7,6 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Controllers;
 

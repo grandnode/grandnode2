@@ -1,7 +1,6 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Data;
 using Grand.Domain.Configuration;
-using Grand.Domain.Payments;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using System.Text.Json;

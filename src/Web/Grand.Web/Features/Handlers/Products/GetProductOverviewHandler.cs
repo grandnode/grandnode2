@@ -16,7 +16,6 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
-using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Web.Features.Handlers.Products;
 

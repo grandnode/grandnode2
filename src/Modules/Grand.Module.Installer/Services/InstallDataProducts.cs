@@ -1,5 +1,4 @@
-﻿using Grand.Domain.Blogs;
-using Grand.Domain.Catalog;
+﻿using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Seo;

@@ -13,7 +13,6 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Home;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Admin.Controllers;
 

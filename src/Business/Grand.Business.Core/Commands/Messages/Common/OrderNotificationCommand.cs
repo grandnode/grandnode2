@@ -1,5 +1,4 @@
-﻿using Grand.Domain.Customers;
-using Grand.Domain.Orders;
+﻿using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using MediatR;
 

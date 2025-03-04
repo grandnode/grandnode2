@@ -1,13 +1,7 @@
-﻿using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Infrastructure;
-using Grand.Web.Common.Extensions;
+﻿using Grand.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Grand.Business.Core.Extensions;
-using Grand.SharedKernel.Extensions;
-using Grand.Domain.Tasks;
-using Scryber;
 using DotLiquid.Util;
 
 namespace Grand.Web.Common.Middleware;

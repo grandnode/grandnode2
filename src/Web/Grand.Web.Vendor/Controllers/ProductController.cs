@@ -23,7 +23,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
 using Grand.Web.Common.Helpers;
-using Microsoft.AspNetCore.Http;
 using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Vendor.Controllers;

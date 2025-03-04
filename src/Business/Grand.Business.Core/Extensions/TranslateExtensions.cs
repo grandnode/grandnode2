@@ -3,7 +3,6 @@ using Grand.Domain;
 using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
 using System.Linq.Expressions;
 using System.Reflection;

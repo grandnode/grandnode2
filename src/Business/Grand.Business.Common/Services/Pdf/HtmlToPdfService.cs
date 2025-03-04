@@ -6,7 +6,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Scryber;
 using Scryber.Components;
 using Path = System.IO.Path;

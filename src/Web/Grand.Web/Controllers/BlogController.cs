@@ -13,9 +13,7 @@ using Grand.Web.Events;
 using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Models.Blogs;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Grand.SharedKernel.Attributes;
 
 namespace Grand.Web.Controllers;

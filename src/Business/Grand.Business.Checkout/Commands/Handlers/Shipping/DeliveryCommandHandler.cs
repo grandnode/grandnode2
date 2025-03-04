@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Orders;
-using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using MediatR;
 

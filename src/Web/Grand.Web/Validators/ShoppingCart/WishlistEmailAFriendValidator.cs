@@ -8,7 +8,6 @@ using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.ShoppingCart;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Validators.ShoppingCart;
 

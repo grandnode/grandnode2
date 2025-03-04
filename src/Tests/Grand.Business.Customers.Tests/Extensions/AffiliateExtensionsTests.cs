@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Affiliates;
 using Grand.Domain.Common;
-using Grand.Domain.Seo;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

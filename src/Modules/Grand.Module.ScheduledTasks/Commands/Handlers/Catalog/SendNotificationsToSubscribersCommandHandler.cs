@@ -7,7 +7,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Grand.Module.ScheduledTasks.Commands.Handlers.Catalog;
 

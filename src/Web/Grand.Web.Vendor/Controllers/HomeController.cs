@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Directory;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Vendor.Controllers;
 

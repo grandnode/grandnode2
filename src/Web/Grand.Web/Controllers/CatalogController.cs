@@ -21,7 +21,6 @@ using Grand.Web.Models.Vendors;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
-using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Controllers;
 

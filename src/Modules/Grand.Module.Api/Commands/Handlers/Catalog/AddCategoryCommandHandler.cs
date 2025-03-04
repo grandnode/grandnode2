@@ -3,7 +3,6 @@ using Grand.Module.Api.DTOs.Catalog;
 using Grand.Module.Api.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Seo;
-using Grand.Domain.Catalog;
 using MediatR;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;

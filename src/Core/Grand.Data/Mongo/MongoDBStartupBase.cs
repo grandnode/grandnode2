@@ -1,5 +1,4 @@
-﻿using Grand.Domain;
-using Grand.Domain.Media;
+﻿using Grand.Domain.Media;
 using Grand.SharedKernel;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;

@@ -5,7 +5,6 @@ using Amazon.S3.Model;
 using Amazon.S3.Util;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Data;
-using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;

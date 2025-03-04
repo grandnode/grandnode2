@@ -6,7 +6,6 @@ using Grand.Domain.PushNotifications;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System.Net.Http;
 using System.Text.Json;
 
 namespace Grand.Business.Marketing.Services.PushNotifications;

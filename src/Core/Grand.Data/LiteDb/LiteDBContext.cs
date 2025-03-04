@@ -1,7 +1,6 @@
 ﻿using Grand.Domain;
 using Grand.Domain.Common;
 using LiteDB;
-using System.Xml.Linq;
 
 namespace Grand.Data.LiteDb;
 

@@ -1,7 +1,5 @@
 ﻿using Grand.Infrastructure.Endpoints;
 using Grand.Web.Vendor.Extensions;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Web.Vendor.Endpoints;
 

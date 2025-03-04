@@ -14,10 +14,7 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Common;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
 namespace Grand.Web.Admin.Controllers;
