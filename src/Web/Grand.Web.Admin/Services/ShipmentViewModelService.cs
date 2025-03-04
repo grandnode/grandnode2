@@ -104,7 +104,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
         if (prepareProducts)
             foreach (var shipmentItem in shipment.ShipmentItems)
             {
-                var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);
+                var orderItem = order?.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);
                 if (orderItem == null)
                     continue;
 
@@ -143,8 +143,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
 
         if (prepareShipmentEvent && !string.IsNullOrEmpty(shipment.TrackingNumber))
         {
-            var srcm = _shippingService.LoadShippingRateCalculationProviderBySystemName(
-                order.ShippingRateProviderSystemName);
+            var srcm = _shippingService.LoadShippingRateCalculationProviderBySystemName(order?.ShippingRateProviderSystemName);
             if (srcm != null &&
                 srcm.IsShippingRateMethodActive(_shippingProviderSettings))
             {

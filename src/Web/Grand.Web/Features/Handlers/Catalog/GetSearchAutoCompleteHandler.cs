@@ -187,12 +187,10 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
             var category = await _categoryService.GetCategoryById(item);
             if (category is not { Published: true }) continue;
             var allow = true;
-            if (!_accessControlConfig.IgnoreAcl)
-                if (!_aclService.Authorize(category, _contextAccessor.WorkContext.CurrentCustomer))
-                    allow = false;
-            if (!_accessControlConfig.IgnoreStoreLimitations)
-                if (!_aclService.Authorize(category, storeId))
-                    allow = false;
+            if (!_accessControlConfig.IgnoreAcl && !_aclService.Authorize(category, _contextAccessor.WorkContext.CurrentCustomer))
+                allow = false;
+            if (!_accessControlConfig.IgnoreStoreLimitations && !_aclService.Authorize(category, storeId))
+                allow = false;
             if (!allow) continue;
             var desc = "";
             if (_catalogSettings.SearchByDescription)
