@@ -80,12 +80,12 @@ GrandNode can be installed in a few different ways. Note: The develop branch is 
 latest stable version, download it from the Releases page or switch to a release branch. 
 
 * Docker 
-```
+```bash
 docker run -d -p 127.0.0.1:27017:27017 --name mongodb mongo 
 docker run -d -p 80:8080 --name grandnode2 --link mongodb:mongo -v grandnode_images:/app/wwwroot/assets/images -v grandnode_appdata:/app/App_Data grandnode/grandnode2
 ``` 
 If you want to download the latest stable version of GrandNode please use the following command, where x.xx is a number of GrandNode release: 
-```
+```bash
 docker pull grandnode/grandnode2:x.xx 
 ```
 
@@ -96,25 +96,25 @@ Run the project in the Visual Studio 2022+, extract the source code package down
 * Host on Linux server 
 
 Before you start - please install, configure the nginx server, .NET Core 8.0+ and MongoDB 4.0+
-```
+```bash
 mkdir ~/source
 cd ~/source
 git clone - b x.xx https://github.com/grandnode/grandnode2.git
 ```
-```
+```bash
 cd ~/source/grandnode
 dotnet restore GrandNode.sln
 ```
 Now it's time to rebuild all of our plugins and publish application (command is pretty long because we've combined all commands in a single line, to ease up your work):
-```
+```bash
 sudo dotnet build src/Plugins/Authentication.Facebook && sudo dotnet build src/Plugins/Authentication.Google && sudo dotnet build src/Plugins/DiscountRules.Standard && sudo dotnet build src/Plugins/ExchangeRate.McExchange && sudo dotnet build src/Plugins/Payments.BrainTree && sudo dotnet build src/Plugins/Payments.CashOnDelivery && sudo dotnet build src/Plugins/Payments.StripeCheckout && sudo dotnet build src/Plugins/Shipping.ByWeight && sudo dotnet build src/Plugins/Shipping.FixedRateShipping && sudo dotnet build src/Plugins/Shipping.ShippingPoint && sudo dotnet build src/Plugins/Tax.CountryStateZip && sudo dotnet build src/Plugins/Tax.FixedRate && sudo dotnet build src/Plugins/Widgets.FacebookPixel && sudo dotnet build src/Plugins/Widgets.GoogleAnalytics && sudo dotnet build src/Plugins/Widgets.Slider && sudo dotnet build src/Plugins/Theme.Modern && sudo dotnet publish src/Web/Grand.Web -c Release -o /var/webapps/grandnode 
 ```
 Optional: Create the service file, to automatically restart your application.
-```
+```bash
 sudo vi /etc/systemd/system/grandnode.service
 ```
 Paste the following content, and save changes:
-```
+```ini
 [Unit]
 Description=GrandNode
 
@@ -171,7 +171,7 @@ We have a clear vision in which direction we would like to develop GrandNode. Re
 ## Contributing
 
 GrandNode is and always will be free and open-source.
-How to contribut:
+How to contribute:
 - Star this project on GitHub.
 - Report bugs or suggest features by creating new issues
 - Submit pull requests
@@ -186,4 +186,4 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 To clarify behavior rules in our community, GrandNode has adopted the code of conduct defined by the Contributor Covenant. For more information see the [Code of Conduct.](https://www.contributor-covenant.org/version/2/0/code_of_conduct/)
 
 ## License
-GrandNode is completely free and distributed under the GNU General Public License v3.0. It's available [here](https://github.com/grandnode/grandnode2/blob/main/LICENSE)
+GrandNode is completely free and distributed under the GNU General Public License v3.0. It's available [here](LICENSE)
