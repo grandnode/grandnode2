@@ -6,72 +6,78 @@
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.2.0" />
     <PackageVersion Include="MaxMind.GeoIP2" Version="5.2.0" />
     <PackageVersion Include="ExcelMapper" Version="5.2.598" />
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
     <PackageVersion Include="Microsoft.FeatureManagement.AspNetCore" Version="4.0.0" />
     <PackageVersion Include="NPOI" Version="2.7.2" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.0.5" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.0.26" />
     <PackageVersion Include="Scryber.Core" Version="6.0.4-beta" />
     <PackageVersion Include="Scryber.Core.OpenType" Version="6.1.0-beta" />
-    <PackageVersion Include="MailKit" Version="4.10.0" />
-    <PackageVersion Include="AWSSDK.Core" Version="3.7.401.5" />
-    <PackageVersion Include="AWSSDK.S3" Version="3.7.412.5" />
+    <PackageVersion Include="MailKit" Version="4.11.0" />
+    <PackageVersion Include="AWSSDK.Core" Version="3.7.402.15" />
+    <PackageVersion Include="AWSSDK.S3" Version="3.7.415.14" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.23.0" />
+    <PackageVersion Include="SixLabors.ImageSharp" Version="2.1.10" />
     <PackageVersion Include="SkiaSharp" Version="3.116.1" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.116.1" />
     <PackageVersion Include="LiteDB" Version="5.0.21" />
-    <PackageVersion Include="MongoDB.Bson" Version="3.1.0" />
-    <PackageVersion Include="MongoDB.Driver" Version="3.1.0" />
-    <PackageVersion Include="DotLiquid" Version="2.3.18" />
+    <PackageVersion Include="MongoDB.Bson" Version="3.2.1" />
+    <PackageVersion Include="MongoDB.Driver" Version="3.2.1" />
+    <PackageVersion Include="DotLiquid" Version="2.3.77" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageVersion Include="GoogleAuthenticator" Version="3.2.0" />
-    <PackageVersion Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="9.0.1" />
-    <PackageVersion Include="AutoMapper" Version="13.0.1" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.12.0" />
+    <PackageVersion Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="8.1.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="9.0.2" />
+    <PackageVersion Include="AutoMapper" Version="14.0.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.13.0" />
     <PackageVersion Include="MediatR" Version="12.4.1" />
     <PackageVersion Include="Scrutor" Version="6.0.1" />
-    <PackageVersion Include="StackExchange.Redis" Version="2.8.24" />
+    <PackageVersion Include="StackExchange.Redis" Version="2.8.31" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.JsonPatch" Version="9.0.1" />
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.1" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.1" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.1" />
-    <PackageVersion Include="Braintree" Version="5.29.0" />
-    <PackageVersion Include="System.Configuration.ConfigurationManager" Version="9.0.1" />
-    <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.6.0.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.JsonPatch" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.2" />
+    <PackageVersion Include="Braintree" Version="5.31.0" />
+    <PackageVersion Include="System.Configuration.ConfigurationManager" Version="9.0.2" />
+    <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.6.0.2" />
     <PackageVersion Include="System.Xml.XPath.XmlDocument" Version="4.7.0" />
-    <PackageVersion Include="Stripe.net" Version="47.3.0" />
+    <PackageVersion Include="Stripe.net" Version="47.4.0" />
     <PackageVersion Include="elFinder.Net.AspNetCore" Version="1.5.0" />
     <PackageVersion Include="elFinder.Net.Core" Version="1.5.0" />
     <PackageVersion Include="elFinder.Net.Drivers.FileSystem" Version="1.5.0" />
-    <PackageVersion Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.4.0" />
-    <PackageVersion Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.3.0" />
+    <PackageVersion Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.5.0" />
+    <PackageVersion Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.4.0" />
     <PackageVersion Include="Azure.Identity" Version="1.13.2" />
     <PackageVersion Include="Flurl.Http" Version="4.0.2" />
-    <PackageVersion Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="9.0.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="9.0.2" />
     <PackageVersion Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.24.0" />
     <PackageVersion Include="Wangkanai.Detection" Version="8.14.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.1" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
-    <PackageVersion Include="MSTest.TestAdapter" Version="3.7.3" />
-    <PackageVersion Include="MSTest.TestFramework" Version="3.7.3" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="3.8.2" />
+    <PackageVersion Include="MSTest.TestFramework" Version="3.8.2" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="NUnit" Version="4.3.2" />
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.0.0" />
-    <PackageVersion Include="Aspire.Hosting.MongoDB" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.1.0" />
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0" />
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.1" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.11.1" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.11.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.11.0" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.1.0" />
+    <PackageVersion Include="Aspire.Hosting.MongoDB" Version="9.1.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.2.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.1.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.2" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.11.2" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.11.1" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.11.1" />
     <PackageVersion Include="Aspire.Dashboard.Sdk.$(NETCoreSdkRuntimeIdentifier)" Version="9.0.0" />
     <PackageVersion Include="Aspire.Hosting.Orchestration.$(NETCoreSdkRuntimeIdentifier)" Version="9.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageVersion Update="Aspire.Dashboard.Sdk.win-x64" Version="9.1.0" />
+    <PackageVersion Update="Aspire.Hosting.Orchestration.win-x64" Version="9.1.0" />
   </ItemGroup>
 </Project>
