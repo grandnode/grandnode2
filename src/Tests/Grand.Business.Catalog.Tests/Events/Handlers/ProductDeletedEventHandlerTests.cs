@@ -37,7 +37,7 @@ public class ProductDeletedEventHandlerTests
         _productTagService = new Mock<IProductTagService>();
         _handler = new ProductDeletedEventHandler(_repository, _customerGroupProductRepository,
             _customerRepository, _entityUrlRepository, _productTagRepository, _productReviewRepository,
-            _productDeletedRepository, _productTagService.Object);
+            _productDeletedRepository);
     }
 
 

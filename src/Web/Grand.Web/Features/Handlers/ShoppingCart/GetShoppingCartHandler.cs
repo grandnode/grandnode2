@@ -86,7 +86,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         OrderSettings orderSettings,
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings,
-        CommonSettings commonSettings, 
+        CommonSettings commonSettings,
         IEnumTranslationService enumTranslationService)
     {
         _productService = productService;
@@ -267,55 +267,55 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                 case AttributeControlType.Checkboxes:
                 case AttributeControlType.ColorSquares:
                 case AttributeControlType.ImageSquares:
-                {
-                    if (selectedCheckoutAttributes != null && selectedCheckoutAttributes.Any())
                     {
-                        //clear default selection
-                        foreach (var item in attributeModel.Values)
-                            item.IsPreSelected = false;
+                        if (selectedCheckoutAttributes != null && selectedCheckoutAttributes.Any())
+                        {
+                            //clear default selection
+                            foreach (var item in attributeModel.Values)
+                                item.IsPreSelected = false;
 
-                        //select new values
-                        var selectedValues =
-                            await _checkoutAttributeParser.ParseCheckoutAttributeValues(selectedCheckoutAttributes);
-                        foreach (var attributeValue in selectedValues)
-                            if (attributeModel.Id == attributeValue.CheckoutAttributeId)
-                                foreach (var item in attributeModel.Values)
-                                    if (attributeValue.Id == item.Id)
-                                        item.IsPreSelected = true;
+                            //select new values
+                            var selectedValues =
+                                await _checkoutAttributeParser.ParseCheckoutAttributeValues(selectedCheckoutAttributes);
+                            foreach (var attributeValue in selectedValues)
+                                if (attributeModel.Id == attributeValue.CheckoutAttributeId)
+                                    foreach (var item in attributeModel.Values)
+                                        if (attributeValue.Id == item.Id)
+                                            item.IsPreSelected = true;
+                        }
                     }
-                }
                     break;
                 case AttributeControlType.ReadonlyCheckboxes:
-                {
-                    //do nothing
-                    //values are already pre-set
-                }
+                    {
+                        //do nothing
+                        //values are already pre-set
+                    }
                     break;
                 case AttributeControlType.TextBox:
                 case AttributeControlType.MultilineTextbox:
                 case AttributeControlType.Datepicker:
-                {
-                    if (selectedCheckoutAttributes != null && selectedCheckoutAttributes.Any())
                     {
-                        var enteredText = selectedCheckoutAttributes.Where(x => x.Key == attribute.Id)
-                            .Select(x => x.Value).ToList();
-                        if (enteredText.Any())
-                            attributeModel.DefaultValue = enteredText[0];
+                        if (selectedCheckoutAttributes != null && selectedCheckoutAttributes.Any())
+                        {
+                            var enteredText = selectedCheckoutAttributes.Where(x => x.Key == attribute.Id)
+                                .Select(x => x.Value).ToList();
+                            if (enteredText.Any())
+                                attributeModel.DefaultValue = enteredText[0];
+                        }
                     }
-                }
                     break;
                 case AttributeControlType.FileUpload:
-                {
-                    if (selectedCheckoutAttributes != null && selectedCheckoutAttributes.Any())
                     {
-                        var downloadGuidStr = selectedCheckoutAttributes.Where(x => x.Key == attribute.Id)
-                            .Select(x => x.Value).FirstOrDefault();
-                        Guid.TryParse(downloadGuidStr, out var downloadGuid);
-                        var download = await _downloadService.GetDownloadByGuid(downloadGuid);
-                        if (download != null)
-                            attributeModel.DefaultValue = download.DownloadGuid.ToString();
+                        if (selectedCheckoutAttributes != null && selectedCheckoutAttributes.Any())
+                        {
+                            var downloadGuidStr = selectedCheckoutAttributes.Where(x => x.Key == attribute.Id)
+                                .Select(x => x.Value).FirstOrDefault();
+                            Guid.TryParse(downloadGuidStr, out var downloadGuid);
+                            var download = await _downloadService.GetDownloadByGuid(downloadGuid);
+                            if (download != null)
+                                attributeModel.DefaultValue = download.DownloadGuid.ToString();
+                        }
                     }
-                }
                     break;
             }
 
@@ -448,12 +448,12 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                     _priceFormatter.FormatPrice(cartItemModel.UnitPriceWithoutDiscountValue);
                 cartItemModel.UnitPriceValue = productprices.productprice;
                 cartItemModel.UnitPrice = _priceFormatter.FormatPrice(productprices.productprice);
-                if (appliedDiscounts != null && appliedDiscounts.Any())
+                if (appliedDiscounts.Any())
                 {
-                    var discount = await _discountService.GetDiscountById(appliedDiscounts.FirstOrDefault().DiscountId);
-                    if (discount is { MaximumDiscountedQuantity: not null })
-                        cartItemModel.DiscountedQty = discount.MaximumDiscountedQuantity.Value;
-
+                    if (appliedDiscounts.Any(x => x.MaximumDiscountedQuantity.HasValue))
+                    {
+                        cartItemModel.DiscountedQty = appliedDiscounts.Where(x => x.MaximumDiscountedQuantity.HasValue).Max(x => x.MaximumDiscountedQuantity.Value);
+                    }
                     appliedDiscounts.ForEach(x => cartItemModel.Discounts.Add(x.DiscountId));
                 }
 

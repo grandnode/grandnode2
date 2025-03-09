@@ -1,8 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Prices;
 using Grand.Business.Common.Services.Directory;
-using Grand.Business.Core.Interfaces.Catalog.Brands;
-using Grand.Business.Core.Interfaces.Catalog.Categories;
-using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -30,15 +27,10 @@ namespace Grand.Business.Catalog.Tests.Services.Prices;
 [TestClass]
 public class PriceServiceTests
 {
-    private IBrandService _brandService;
     private CatalogSettings _catalogSettings;
-    private ICategoryService _categoryService;
-    private ICollectionService _collectionService;
     private Currency _currency;
     private ICurrencyService _currencyService;
     private CurrencySettings _currencySettings;
-    private IDiscountService _discountService;
-    private Mock<IDiscountValidationService> _discountValidationService;
     private IMediator _eventPublisher;
     private IPricingService _pricingService;
     private IProductService _productService;
@@ -48,7 +40,8 @@ public class PriceServiceTests
     private Mock<IDiscountService> tempDiscountServiceMock;
     private Mock<IProductService> tempProductService;
     private Mock<IContextAccessor> tempWorkContext;
-
+    private Mock<IDiscountHandlerService> tempDiscountApplicationService;
+    private IDiscountService _discountService;
     [TestInitialize]
     public void TestInitialize()
     {
@@ -63,16 +56,6 @@ public class PriceServiceTests
             _workContext = tempWorkContext.Object;
         }
 
-        tempDiscountServiceMock = new Mock<IDiscountService>();
-        {
-            _discountService = tempDiscountServiceMock.Object;
-        }
-
-        _categoryService = new Mock<ICategoryService>().Object;
-        _collectionService = new Mock<ICollectionService>().Object;
-        _brandService = new Mock<IBrandService>().Object;
-        _discountValidationService = new Mock<IDiscountValidationService>();
-
         tempProductService = new Mock<IProductService>();
         {
             _productService = tempProductService.Object;
@@ -86,17 +69,23 @@ public class PriceServiceTests
             PrimaryExchangeRateCurrencyId = "1",
             PrimaryStoreCurrencyId = "1"
         };
-        //_currencyService = new Mock<ICurrencyService>().Object;
+
         _currency = new Currency {
-            Id = "1", CurrencyCode = "USD", Rate = 1, Published = true, MidpointRoundId = MidpointRounding.ToEven,
+            Id = "1",
+            CurrencyCode = "USD",
+            Rate = 1,
+            Published = true,
+            MidpointRoundId = MidpointRounding.ToEven,
             RoundingTypeId = RoundingType.Rounding001
         };
 
+        tempDiscountServiceMock = new Mock<IDiscountService>();
+        {
+            _discountService = tempDiscountServiceMock.Object;
+        }
         var tempCurrency = new Mock<ICurrencyService>();
         {
             tempCurrency.Setup(instance => instance.GetPrimaryStoreCurrency()).Returns(Task.FromResult(_currency));
-            //tempCurrency.Setup(instance => instance.ConvertToPrimaryStoreCurrency(It.IsAny<double>(), _currency)).ReturnsAsync(5);
-            //_currencyService = tempCurrency.Object;
         }
         var cacheManager = new Mock<ICacheBase>().Object;
         IRepository<Currency> _currencyRepository;
@@ -118,17 +107,14 @@ public class PriceServiceTests
             cacheManager, _currencyRepository, _aclService,
             _currencySettings, _eventPublisher);
 
+        tempDiscountApplicationService = new Mock<IDiscountHandlerService>();
 
         _pricingService = new PricingService(
             _workContext,
-            _discountService,
-            _categoryService,
-            _brandService,
-            _collectionService,
             _productService,
             _eventPublisher,
             _currencyService,
-            _discountValidationService.Object,
+            tempDiscountApplicationService.Object,
             _shoppingCartSettings,
             _catalogSettings);
     }
@@ -146,7 +132,11 @@ public class PriceServiceTests
         product.ProductPrices.Add(new ProductPrice { CurrencyCode = "USD", Price = 49.99 });
 
         var currency = new Currency {
-            Id = "1", CurrencyCode = "USD", Rate = 1, Published = true, MidpointRoundId = MidpointRounding.ToEven,
+            Id = "1",
+            CurrencyCode = "USD",
+            Rate = 1,
+            Published = true,
+            MidpointRoundId = MidpointRounding.ToEven,
             RoundingTypeId = RoundingType.Rounding001
         };
         var customer = new Customer();
@@ -247,28 +237,18 @@ public class PriceServiceTests
             CurrencyCode = _currency.CurrencyCode
         };
 
-        tempDiscountServiceMock.Setup(x => x.GetDiscountById(discount001.Id)).ReturnsAsync(discount001);
-
         product.AppliedDiscounts.Add(discount001.Id);
 
-        _discountValidationService.Setup(x => x.ValidateDiscount(discount001, customer, _store, _currency))
-            .ReturnsAsync(new DiscountValidationResult { IsValid = true });
-        tempDiscountServiceMock
-            .Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToCategories, "1", _currency.CurrencyCode))
-            .ReturnsAsync(new List<Discount>());
-        tempDiscountServiceMock
-            .Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToCollections, "1", _currency.CurrencyCode))
-            .ReturnsAsync(new List<Discount>());
-        tempDiscountServiceMock
-            .Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode))
-            .ReturnsAsync(new List<Discount>());
-        tempDiscountServiceMock
-            .Setup(x => x.GetActiveDiscountsByContext(DiscountType.AssignedToSkus, "1", _currency.CurrencyCode))
-            .ReturnsAsync(new List<Discount> { discount001 });
-
         var discountAmount = discount001.DiscountAmount;
-        tempDiscountServiceMock
-            .Setup(x => x.GetPreferredDiscount(It.IsAny<List<ApplyDiscount>>(), customer, _currency, product, 49.99))
+        tempDiscountApplicationService.Setup(x => x.GetAllowedDiscounts(It.IsAny<Product>(), It.IsAny<Customer>(), It.IsAny<Store>(),
+            It.IsAny<Currency>())).ReturnsAsync((new List<ApplyDiscount>() {
+                     new ApplyDiscount()
+                        {
+                        DiscountId = discount001.Id
+                    }
+            }));
+
+        tempDiscountApplicationService.Setup(x => x.GetDiscountAmount(It.IsAny<Product>(), It.IsAny<Customer>(), It.IsAny<Store>(), It.IsAny<Currency>(), It.IsAny<double>()))
             .ReturnsAsync((new List<ApplyDiscount>(), 10));
 
         //it should return 39.99 - price cheaper about 10 

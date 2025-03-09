@@ -67,9 +67,6 @@ public static class ApplicationBuilderExtensions
                     logger.LogError(exception, exception.Message);
                 }
 
-                // Set the response status code and message without throwing
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await context.Response.WriteAsync("An unexpected error occurred.");
             });
         });
     }

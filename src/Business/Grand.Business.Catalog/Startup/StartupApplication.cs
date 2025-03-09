@@ -82,6 +82,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IDiscountService, DiscountService>();
         serviceCollection.AddScoped<IDiscountValidationService, DiscountValidationService>();
         serviceCollection.AddScoped<IDiscountProviderLoader, DiscountProviderLoader>();
+        serviceCollection.AddScoped<IDiscountHandlerService, DiscountHandlerService>();
     }
 
     private static void RegisterTaxService(IServiceCollection serviceCollection)

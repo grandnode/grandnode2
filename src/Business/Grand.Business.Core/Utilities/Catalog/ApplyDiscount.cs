@@ -20,4 +20,9 @@ public class ApplyDiscount
     ///     Gets or sets is discount is cumulative
     /// </summary>
     public bool IsCumulative { get; set; }
+
+    /// <summary>
+    /// Maximum discounted quantity
+    /// </summary>
+    public int? MaximumDiscountedQuantity { get; set; }
 }
