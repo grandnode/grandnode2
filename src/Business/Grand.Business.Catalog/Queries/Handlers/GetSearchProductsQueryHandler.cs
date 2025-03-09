@@ -62,7 +62,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         return (products, filterableSpecificationAttributeOptionIds);
     }
 
-    private void CleanupRequestParameters(GetSearchProductsQuery request)
+    private static void CleanupRequestParameters(GetSearchProductsQuery request)
     {
         if (request.CategoryIds != null && request.CategoryIds.Contains(""))
             request.CategoryIds.Remove("");
@@ -146,7 +146,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
                !_catalogSettings.IgnoreFilterableSpecAttributeOption;
     }
 
-    private List<string> GetFilterableSpecificationAttributeOptionIds(IQueryable<Product> querySpecification)
+    private static List<string> GetFilterableSpecificationAttributeOptionIds(IQueryable<Product> querySpecification)
     {
         var filterSpecExists = querySpecification.Where(x =>
             x.ProductSpecificationAttributes.Any(x => x.AllowFiltering));
