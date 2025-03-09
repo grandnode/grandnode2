@@ -1,7 +1,4 @@
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Brands;
-using Grand.Business.Core.Interfaces.Catalog.Categories;
-using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -12,7 +9,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
-using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
@@ -28,30 +24,22 @@ public class PricingService : IPricingService
 {
     #region Ctor
 
-    public PricingService(IContextAccessor contextAccessor,
-        IDiscountService discountService,
-        ICategoryService categoryService,
-        IBrandService brandService,
-        ICollectionService collectionService,
+    public PricingService(
+        IContextAccessor contextAccessor,
         IProductService productService,
         IMediator mediator,
         ICurrencyService currencyService,
-        IDiscountValidationService discountValidationService,
+        IDiscountHandlerService discountApplicationService,
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings)
     {
         _contextAccessor = contextAccessor;
-        _discountService = discountService;
-        _categoryService = categoryService;
-        _brandService = brandService;
-        _collectionService = collectionService;
         _productService = productService;
-        _mediator = mediator;
         _mediator = mediator;
         _currencyService = currencyService;
         _shoppingCartSettings = shoppingCartSettings;
         _catalogSettings = catalogSettings;
-        _discountValidationService = discountValidationService;
+        _discountApplicationService = discountApplicationService;
     }
 
     #endregion
@@ -71,308 +59,12 @@ public class PricingService : IPricingService
     #region Fields
 
     private readonly IContextAccessor _contextAccessor;
-    private readonly IDiscountService _discountService;
-    private readonly ICategoryService _categoryService;
-    private readonly IBrandService _brandService;
-    private readonly ICollectionService _collectionService;
     private readonly IProductService _productService;
     private readonly IMediator _mediator;
     private readonly ICurrencyService _currencyService;
-    private readonly IDiscountValidationService _discountValidationService;
+    private readonly IDiscountHandlerService _discountApplicationService;
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly CatalogSettings _catalogSettings;
-
-    #endregion
-
-    #region Utilities
-
-    /// <summary>
-    ///     Gets allowed discounts
-    /// </summary>
-    /// <param name="product">Product</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
-    /// <param name="currency">Currency</param>
-    /// <returns>Discounts</returns>
-    protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToProduct(Product product,
-        Customer customer, Store store, Currency currency)
-    {
-        var allowedDiscounts = new List<ApplyDiscount>();
-        if (_catalogSettings.IgnoreDiscounts)
-            return allowedDiscounts;
-
-        if (!product.AppliedDiscounts.Any()) return allowedDiscounts;
-        foreach (var appliedDiscount in product.AppliedDiscounts)
-        {
-            var discount = await _discountService.GetDiscountById(appliedDiscount);
-            if (discount == null) continue;
-            var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
-            if (validDiscount.IsValid &&
-                discount.DiscountTypeId == DiscountType.AssignedToSkus)
-                allowedDiscounts.Add(new ApplyDiscount {
-                    CouponCode = validDiscount.CouponCode,
-                    DiscountId = discount.Id,
-                    IsCumulative = discount.IsCumulative
-                });
-        }
-
-        return allowedDiscounts;
-    }
-
-    protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToAllProduct(Product product,
-        Customer customer, Store store, Currency currency)
-    {
-        var allowedDiscounts = new List<ApplyDiscount>();
-        if (_catalogSettings.IgnoreDiscounts)
-            return allowedDiscounts;
-
-        var discounts = await _discountService.GetActiveDiscountsByContext(DiscountType.AssignedToAllProducts, store.Id,
-            currency.CurrencyCode);
-        foreach (var discount in discounts)
-        {
-            var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
-            if (validDiscount.IsValid)
-                allowedDiscounts.Add(new ApplyDiscount {
-                    CouponCode = validDiscount.CouponCode,
-                    DiscountId = discount.Id,
-                    IsCumulative = discount.IsCumulative
-                });
-        }
-
-        return allowedDiscounts;
-    }
-
-
-    /// <summary>
-    ///     Gets allowed discounts applied to categories
-    /// </summary>
-    /// <param name="product">Product</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
-    /// <param name="currency">Currency</param>
-    /// <returns>Discounts</returns>
-    protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToCategories(Product product,
-        Customer customer, Store store, Currency currency)
-    {
-        var allowedDiscounts = new List<ApplyDiscount>();
-        if (_catalogSettings.IgnoreDiscounts)
-            return allowedDiscounts;
-
-        foreach (var productCategory in product.ProductCategories)
-        {
-            var category = await _categoryService.GetCategoryById(productCategory.CategoryId);
-            if (category == null || !category.AppliedDiscounts.Any()) continue;
-            foreach (var appliedDiscount in category.AppliedDiscounts)
-            {
-                var discount = await _discountService.GetDiscountById(appliedDiscount);
-                if (discount == null) continue;
-                var validDiscount =
-                    await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
-                if (validDiscount.IsValid && discount.DiscountTypeId == DiscountType.AssignedToCategories)
-                    allowedDiscounts.Add(new ApplyDiscount {
-                        CouponCode = validDiscount.CouponCode,
-                        DiscountId = discount.Id,
-                        IsCumulative = discount.IsCumulative
-                    });
-            }
-        }
-
-        return allowedDiscounts;
-    }
-
-    /// <summary>
-    ///     Get allowed discount applied to brands
-    /// </summary>
-    /// <param name="product"></param>
-    /// <param name="customer"></param>
-    /// <param name="store">Store</param>
-    /// <param name="currency">Currency</param>
-    /// <returns></returns>
-    protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToBrands(Product product,
-        Customer customer, Store store, Currency currency)
-    {
-        var allowedDiscounts = new List<ApplyDiscount>();
-        if (_catalogSettings.IgnoreDiscounts)
-            return allowedDiscounts;
-
-        if (string.IsNullOrEmpty(product.BrandId)) return allowedDiscounts;
-        var brand = await _brandService.GetBrandById(product.BrandId);
-        if (brand == null) return allowedDiscounts;
-        if (!brand.AppliedDiscounts.Any()) return allowedDiscounts;
-        foreach (var appliedDiscount in brand.AppliedDiscounts)
-        {
-            var discount = await _discountService.GetDiscountById(appliedDiscount);
-            if (discount == null) continue;
-            var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
-            if (validDiscount.IsValid &&
-                discount.DiscountTypeId == DiscountType.AssignedToBrands)
-                allowedDiscounts.Add(new ApplyDiscount {
-                    CouponCode = validDiscount.CouponCode,
-                    DiscountId = discount.Id,
-                    IsCumulative = discount.IsCumulative
-                });
-        }
-
-        return allowedDiscounts;
-    }
-
-    /// <summary>
-    ///     Gets allowed discounts applied to collections
-    /// </summary>
-    /// <param name="product">Product</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
-    /// <param name="currency">Currency</param>
-    /// <returns>Discounts</returns>
-    protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToCollections(Product product,
-        Customer customer, Store store, Currency currency)
-    {
-        var allowedDiscounts = new List<ApplyDiscount>();
-        if (_catalogSettings.IgnoreDiscounts)
-            return allowedDiscounts;
-
-        foreach (var productCollection in product.ProductCollections)
-        {
-            var collection = await _collectionService.GetCollectionById(productCollection.CollectionId);
-            if (collection == null || !collection.AppliedDiscounts.Any()) continue;
-            foreach (var appliedDiscount in collection.AppliedDiscounts)
-            {
-                var discount = await _discountService.GetDiscountById(appliedDiscount);
-                if (discount == null) continue;
-                var validDiscount =
-                    await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
-                if (validDiscount.IsValid &&
-                    discount.DiscountTypeId == DiscountType.AssignedToCollections)
-                    allowedDiscounts.Add(new ApplyDiscount {
-                        CouponCode = validDiscount.CouponCode,
-                        DiscountId = discount.Id,
-                        IsCumulative = discount.IsCumulative
-                    });
-            }
-        }
-
-        return allowedDiscounts;
-    }
-
-    /// <summary>
-    ///     Get allowed discounts applied to vendors
-    /// </summary>
-    /// <param name="product"></param>
-    /// <param name="customer"></param>
-    /// <param name="store">Store</param>
-    /// <param name="currency">Currency</param>
-    /// <returns></returns>
-    protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscountsAppliedToVendors(Product product,
-        Customer customer, Store store, Currency currency)
-    {
-        var allowedDiscounts = new List<ApplyDiscount>();
-        if (_catalogSettings.IgnoreDiscounts)
-            return allowedDiscounts;
-
-        if (string.IsNullOrEmpty(product.VendorId)) return allowedDiscounts;
-
-        var vendor = await _mediator.Send(new GetVendorByIdQuery { Id = product.VendorId });
-        if (vendor == null) return allowedDiscounts;
-        if (!vendor.AppliedDiscounts.Any()) return allowedDiscounts;
-        foreach (var appliedDiscount in vendor.AppliedDiscounts)
-        {
-            var discount = await _discountService.GetDiscountById(appliedDiscount);
-            if (discount == null) continue;
-            var validDiscount = await _discountValidationService.ValidateDiscount(discount, customer, store, currency);
-            if (validDiscount.IsValid &&
-                discount.DiscountTypeId == DiscountType.AssignedToVendors)
-                allowedDiscounts.Add(new ApplyDiscount {
-                    CouponCode = validDiscount.CouponCode,
-                    DiscountId = discount.Id,
-                    IsCumulative = discount.IsCumulative
-                });
-        }
-
-        return allowedDiscounts;
-    }
-
-    /// <summary>
-    ///     Gets allowed discounts
-    /// </summary>
-    /// <param name="product">Product</param>
-    /// <param name="customer">Customer</param>
-    /// <param name="store">Store</param>
-    /// <param name="currency">Currency</param>
-    /// <returns>Discounts</returns>
-    protected virtual async Task<IList<ApplyDiscount>> GetAllowedDiscounts(Product product, Customer customer,
-        Store store, Currency currency)
-    {
-        var allowedDiscounts = new List<ApplyDiscount>();
-        if (_catalogSettings.IgnoreDiscounts)
-            return allowedDiscounts;
-
-        //discounts applied to products
-        foreach (var discount in await GetAllowedDiscountsAppliedToProduct(product, customer, store, currency))
-            if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
-                allowedDiscounts.Add(discount);
-
-        //discounts applied to all products
-        foreach (var discount in await GetAllowedDiscountsAppliedToAllProduct(product, customer, store, currency))
-            if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
-                allowedDiscounts.Add(discount);
-
-        //discounts applied to categories
-        foreach (var discount in await GetAllowedDiscountsAppliedToCategories(product, customer, store, currency))
-            if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
-                allowedDiscounts.Add(discount);
-
-        //discounts applied to brands
-        foreach (var discount in await GetAllowedDiscountsAppliedToBrands(product, customer, store, currency))
-            if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
-                allowedDiscounts.Add(discount);
-
-        //discounts applied to collections
-        foreach (var discount in await GetAllowedDiscountsAppliedToCollections(product, customer, store, currency))
-            if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
-                allowedDiscounts.Add(discount);
-
-        //discounts applied to vendors
-        foreach (var discount in await GetAllowedDiscountsAppliedToVendors(product, customer, store, currency))
-            if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
-                allowedDiscounts.Add(discount);
-
-        return allowedDiscounts;
-    }
-
-    /// <summary>
-    ///     Gets discount amount
-    /// </summary>
-    /// <param name="product">Product</param>
-    /// <param name="customer">The customer</param>
-    /// <param name="store">Store</param>
-    /// <param name="currency">Currency</param>
-    /// <param name="productPriceWithoutDiscount">Already calculated product price without discount</param>
-    /// <returns>Discount amount</returns>
-    protected virtual async Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetDiscountAmount(
-        Product product,
-        Customer customer, Store store, Currency currency, double productPriceWithoutDiscount)
-    {
-        ArgumentNullException.ThrowIfNull(product);
-
-        //we don't apply discounts to products with price entered by a customer
-        if (product.EnteredPrice)
-            return (0, null);
-
-        //discounts are disabled
-        if (_catalogSettings.IgnoreDiscounts)
-            return (0, null);
-
-        var allowedDiscounts = await GetAllowedDiscounts(product, customer, store, currency);
-
-        //no discounts
-        if (!allowedDiscounts.Any())
-            return (0, null);
-
-        var preferredDiscount = await _discountService.GetPreferredDiscount(allowedDiscounts, customer, currency,
-            product, productPriceWithoutDiscount);
-
-        return (preferredDiscount.discountAmount, preferredDiscount.appliedDiscount);
-    }
 
     #endregion
 
@@ -457,8 +149,7 @@ public class PricingService : IPricingService
             //customer product price
             if (_catalogSettings.CustomerProductPrice)
             {
-                var customerPrice = await _mediator.Send(new GetPriceByCustomerProductQuery
-                    { CustomerId = customer.Id, ProductId = product.Id });
+                var customerPrice = await _mediator.Send(new GetPriceByCustomerProductQuery { CustomerId = customer.Id, ProductId = product.Id });
                 if (customerPrice.HasValue && customerPrice.Value <
                     await _currencyService.ConvertToPrimaryStoreCurrency(price, currency))
                     price = await _currencyService.ConvertFromPrimaryStoreCurrency(customerPrice.Value, currency);
@@ -484,8 +175,7 @@ public class PricingService : IPricingService
             if (includeDiscounts)
             {
                 //discount
-                var (tmpDiscountAmount, tmpAppliedDiscounts) =
-                    await GetDiscountAmount(product, customer, store, currency, price);
+                var (tmpAppliedDiscounts, tmpDiscountAmount) = await _discountApplicationService.GetDiscountAmount(product, customer, store, currency, price);
                 price -= tmpDiscountAmount;
 
                 if (tmpAppliedDiscounts != null)
@@ -673,7 +363,7 @@ public class PricingService : IPricingService
     {
         ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
-        double subTotal;
+        double subTotal = 0;
         //unit price
         var getUnitPrice = await GetUnitPrice(shoppingCartItem, product, includeDiscounts);
         var unitPrice = getUnitPrice.unitprice;
@@ -683,20 +373,15 @@ public class PricingService : IPricingService
         //discount
         if (appliedDiscounts.Any())
         {
-            Discount oneAndOnlyDiscount = null;
-            if (appliedDiscounts.Count == 1)
-                oneAndOnlyDiscount =
-                    await _discountService.GetDiscountById(appliedDiscounts.FirstOrDefault()?.DiscountId);
 
-            if (oneAndOnlyDiscount is { MaximumDiscountedQuantity: not null } &&
-                shoppingCartItem.Quantity > oneAndOnlyDiscount.MaximumDiscountedQuantity.Value)
+            var discountedQuantity = appliedDiscounts.Max(x => x.MaximumDiscountedQuantity);
+            if (appliedDiscounts.Any(x => x.MaximumDiscountedQuantity.HasValue)
+                && shoppingCartItem.Quantity > discountedQuantity.Value)
             {
-                //we cannot apply discount for all shopping cart items
-                var discountedQuantity = oneAndOnlyDiscount.MaximumDiscountedQuantity.Value;
-                var discountedSubTotal = unitPrice * discountedQuantity;
-                discountAmount *= discountedQuantity;
+                var discountedSubTotal = unitPrice * discountedQuantity.Value;
+                discountAmount *= discountedQuantity.Value;
 
-                var notDiscountedQuantity = shoppingCartItem.Quantity - discountedQuantity;
+                var notDiscountedQuantity = shoppingCartItem.Quantity - discountedQuantity.Value;
                 var notDiscountedUnitPrice = await GetUnitPrice(shoppingCartItem, product, false);
                 var notDiscountedSubTotal = notDiscountedUnitPrice.unitprice * notDiscountedQuantity;
 
@@ -735,18 +420,18 @@ public class PricingService : IPricingService
             switch (attributeValue.AttributeValueTypeId)
             {
                 case AttributeValueType.Simple:
-                {
-                    //simple attribute
-                    cost += attributeValue.Cost;
-                }
+                    {
+                        //simple attribute
+                        cost += attributeValue.Cost;
+                    }
                     break;
                 case AttributeValueType.AssociatedToProduct:
-                {
-                    //bundled product
-                    var associatedProduct = await _productService.GetProductById(attributeValue.AssociatedProductId);
-                    if (associatedProduct != null)
-                        cost += associatedProduct.ProductCost * attributeValue.Quantity;
-                }
+                    {
+                        //bundled product
+                        var associatedProduct = await _productService.GetProductById(attributeValue.AssociatedProductId);
+                        if (associatedProduct != null)
+                            cost += associatedProduct.ProductCost * attributeValue.Quantity;
+                    }
                     break;
             }
 
@@ -766,26 +451,26 @@ public class PricingService : IPricingService
         switch (value.AttributeValueTypeId)
         {
             case AttributeValueType.Simple:
-            {
-                //simple attribute
-                adjustment = value.PriceAdjustment;
-                if (adjustment > 0)
-                    adjustment =
-                        await _currencyService.ConvertFromPrimaryStoreCurrency(adjustment,
-                            _contextAccessor.WorkContext.WorkingCurrency);
-            }
+                {
+                    //simple attribute
+                    adjustment = value.PriceAdjustment;
+                    if (adjustment > 0)
+                        adjustment =
+                            await _currencyService.ConvertFromPrimaryStoreCurrency(adjustment,
+                                _contextAccessor.WorkContext.WorkingCurrency);
+                }
                 break;
             case AttributeValueType.AssociatedToProduct:
-            {
-                //bundled product
-                var associatedProduct = await _productService.GetProductById(value.AssociatedProductId);
-                if (associatedProduct != null)
-                    adjustment = (await GetFinalPrice(associatedProduct,
-                        _contextAccessor.WorkContext.CurrentCustomer,
-                        _contextAccessor.StoreContext.CurrentStore,
-                        _contextAccessor.WorkContext.WorkingCurrency,
-                        value.PriceAdjustment)).finalPrice * value.Quantity;
-            }
+                {
+                    //bundled product
+                    var associatedProduct = await _productService.GetProductById(value.AssociatedProductId);
+                    if (associatedProduct != null)
+                        adjustment = (await GetFinalPrice(associatedProduct,
+                            _contextAccessor.WorkContext.CurrentCustomer,
+                            _contextAccessor.StoreContext.CurrentStore,
+                            _contextAccessor.WorkContext.WorkingCurrency,
+                            value.PriceAdjustment)).finalPrice * value.Quantity;
+                }
                 break;
         }
 

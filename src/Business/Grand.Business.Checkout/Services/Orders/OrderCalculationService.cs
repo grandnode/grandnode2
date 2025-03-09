@@ -149,7 +149,8 @@ public class OrderCalculationService : IOrderCalculationService
                     allowedDiscounts.Add(new ApplyDiscount {
                         DiscountId = discount.Id,
                         IsCumulative = discount.IsCumulative,
-                        CouponCode = validDiscount.CouponCode
+                        CouponCode = validDiscount.CouponCode,
+                        MaximumDiscountedQuantity = discount.MaximumDiscountedQuantity
                     });
             }
 
@@ -194,7 +195,8 @@ public class OrderCalculationService : IOrderCalculationService
                     allowedDiscounts.Add(new ApplyDiscount {
                         DiscountId = discount.Id,
                         IsCumulative = discount.IsCumulative,
-                        CouponCode = validDiscount.CouponCode
+                        CouponCode = validDiscount.CouponCode,
+                        MaximumDiscountedQuantity = discount.MaximumDiscountedQuantity
                     });
             }
 
@@ -243,7 +245,8 @@ public class OrderCalculationService : IOrderCalculationService
                     allowedDiscounts.Add(new ApplyDiscount {
                         DiscountId = discount.Id,
                         IsCumulative = discount.IsCumulative,
-                        CouponCode = validDiscount.CouponCode
+                        CouponCode = validDiscount.CouponCode,
+                        MaximumDiscountedQuantity = discount.MaximumDiscountedQuantity
                     });
             }
 
