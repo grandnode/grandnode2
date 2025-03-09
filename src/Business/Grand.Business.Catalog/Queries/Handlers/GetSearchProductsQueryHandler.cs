@@ -27,87 +27,141 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         _catalogSettings = catalogSettings;
         _accessControlConfig = accessControlConfig;
     }
-
     public async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> Handle(GetSearchProductsQuery request, CancellationToken cancellationToken)
     {
         var filterableSpecificationAttributeOptionIds = new List<string>();
 
-        //validate "categoryIds" parameter
-        if (request.CategoryIds != null && request.CategoryIds.Contains(""))
-            request.CategoryIds.Remove("");
+        // Clean up request parameters
+        CleanupRequestParameters(request);
 
-        //Access control list. Allowed customer groups
+        // Access control list. Allowed customer groups
         var allowedCustomerGroupsIds = request.Customer.GetCustomerGroupIds();
 
-        #region Search products
-
-        //products
-        var query = from p in _productRepository.Table
-            select p;
-
+        // Build base query
+        var query = _productRepository.Table.AsQueryable();
         query = FilterQueryable(request, query, allowedCustomerGroupsIds);
 
+        // Keep a copy for specifications filtering
         var querySpecification = query;
 
-        //search by specs
-        if (request.FilteredSpecs != null && request.FilteredSpecs.Any())
-        {
-            var spec = new HashSet<string>();
-            var dictionary = new Dictionary<string, List<string>>();
-            foreach (var key in request.FilteredSpecs)
-            {
-                var specification = await _specificationAttributeService.GetSpecificationAttributeByOptionId(key);
-                if (specification == null) continue;
-                spec.Add(specification.Id);
-                if (!dictionary.ContainsKey(specification.Id))
-                {
-                    //add
-                    dictionary.Add(specification.Id, new List<string>());
-                    querySpecification = querySpecification.Where(x =>
-                        x.ProductSpecificationAttributes.Any(y =>
-                            y.SpecificationAttributeId == specification.Id && y.AllowFiltering));
-                }
+        // Apply specification filters
+        (query, querySpecification) = await ApplySpecificationFilters(request, query, querySpecification);
 
-                dictionary[specification.Id].Add(key);
-            }
-
-            foreach (var item in dictionary)
-                query = query.Where(x => x.ProductSpecificationAttributes.Any(y =>
-                    y.SpecificationAttributeId == item.Key && y.AllowFiltering
-                                                           && item.Value.Contains(
-                                                               y.SpecificationAttributeOptionId)));
-        }
-
-        if (request.SpecificationOptions != null && request.SpecificationOptions.Any())
-            query = query.Where(x => x.ProductSpecificationAttributes.Any(y =>
-                request.SpecificationOptions.Contains(y.SpecificationAttributeOptionId)));
-
+        // Order the results
         query = OrderByQueryable(request, query);
 
+        // Create paged list
         var products = await PagedList<Product>.Create(query, request.PageIndex, request.PageSize);
 
-        if (!request.LoadFilterableSpecificationAttributeOptionIds ||
-            _catalogSettings.IgnoreFilterableSpecAttributeOption)
-            return (products, filterableSpecificationAttributeOptionIds);
+        // Get filterable specification attributes if needed
+        if (ShouldLoadFilterableSpecifications(request))
         {
-            var filterSpecExists =
-                querySpecification.Where(x => x.ProductSpecificationAttributes.Any(x => x.AllowFiltering));
-
-            var spec = from p in filterSpecExists
-                from item in p.ProductSpecificationAttributes
-                select item;
-
-            var groupQuerySpec = spec.Where(x => x.AllowFiltering).GroupBy(x =>
-                new { x.SpecificationAttributeOptionId }).ToList();
-            IList<string> specification =
-                groupQuerySpec.Select(item => item.Key.SpecificationAttributeOptionId).ToList();
-
-            filterableSpecificationAttributeOptionIds = specification.ToList();
+            filterableSpecificationAttributeOptionIds = GetFilterableSpecificationAttributeOptionIds(querySpecification);
         }
 
         return (products, filterableSpecificationAttributeOptionIds);
+    }
 
-        #endregion
+    private void CleanupRequestParameters(GetSearchProductsQuery request)
+    {
+        if (request.CategoryIds != null && request.CategoryIds.Contains(""))
+            request.CategoryIds.Remove("");
+    }
+
+    private async Task<(IQueryable<Product> query, IQueryable<Product> querySpecification)> ApplySpecificationFilters(
+        GetSearchProductsQuery request,
+        IQueryable<Product> query,
+        IQueryable<Product> querySpecification)
+    {
+        // Apply filtered specs
+        if (request.FilteredSpecs != null && request.FilteredSpecs.Any())
+        {
+            (query, querySpecification) = await ApplyFilteredSpecifications(request, query, querySpecification);
+        }
+
+        // Apply specification options
+        if (request.SpecificationOptions != null && request.SpecificationOptions.Any())
+        {
+            query = ApplySpecificationOptions(request, query);
+        }
+
+        return (query, querySpecification);
+    }
+
+    private async Task<(IQueryable<Product> query, IQueryable<Product> querySpecification)> ApplyFilteredSpecifications(
+        GetSearchProductsQuery request,
+        IQueryable<Product> query,
+        IQueryable<Product> querySpecification)
+    {
+        var specAttributeMapping = await BuildSpecificationAttributeMapping(request.FilteredSpecs, querySpecification);
+
+        // Apply filters for each specification attribute
+        foreach (var item in specAttributeMapping.Dictionary)
+        {
+            query = query.Where(x => x.ProductSpecificationAttributes.Any(y =>
+                y.SpecificationAttributeId == item.Key &&
+                y.AllowFiltering &&
+                item.Value.Contains(y.SpecificationAttributeOptionId)));
+        }
+
+        return (query, specAttributeMapping.QuerySpecification);
+    }
+
+    private async Task<(Dictionary<string, List<string>> Dictionary, IQueryable<Product> QuerySpecification)>
+        BuildSpecificationAttributeMapping(IList<string> filteredSpecs, IQueryable<Product> querySpecification)
+    {
+        var dictionary = new Dictionary<string, List<string>>();
+
+        foreach (var key in filteredSpecs)
+        {
+            var specification = await _specificationAttributeService.GetSpecificationAttributeByOptionId(key);
+            if (specification == null) continue;
+
+            if (!dictionary.ContainsKey(specification.Id))
+            {
+                // Add to dictionary
+                dictionary.Add(specification.Id, new List<string>());
+
+                // Update querySpecification
+                querySpecification = querySpecification.Where(x =>
+                    x.ProductSpecificationAttributes.Any(y =>
+                        y.SpecificationAttributeId == specification.Id && y.AllowFiltering));
+            }
+
+            dictionary[specification.Id].Add(key);
+        }
+
+        return (dictionary, querySpecification);
+    }
+
+    private static IQueryable<Product> ApplySpecificationOptions(GetSearchProductsQuery request, IQueryable<Product> query)
+    {
+        return query.Where(x => x.ProductSpecificationAttributes.Any(y =>
+            request.SpecificationOptions.Contains(y.SpecificationAttributeOptionId)));
+    }
+
+    private bool ShouldLoadFilterableSpecifications(GetSearchProductsQuery request)
+    {
+        return request.LoadFilterableSpecificationAttributeOptionIds &&
+               !_catalogSettings.IgnoreFilterableSpecAttributeOption;
+    }
+
+    private List<string> GetFilterableSpecificationAttributeOptionIds(IQueryable<Product> querySpecification)
+    {
+        var filterSpecExists = querySpecification.Where(x =>
+            x.ProductSpecificationAttributes.Any(x => x.AllowFiltering));
+
+        var spec = from p in filterSpecExists
+                   from item in p.ProductSpecificationAttributes
+                   select item;
+
+        var groupQuerySpec = spec.Where(x => x.AllowFiltering)
+            .GroupBy(x => new { x.SpecificationAttributeOptionId })
+            .ToList();
+
+        return groupQuerySpec
+            .Select(item => item.Key.SpecificationAttributeOptionId)
+            .ToList();
     }
 
     private IQueryable<Product> FilterQueryable(GetSearchProductsQuery request, IQueryable<Product> query, string[] allowedCustomerGroupsIds)
