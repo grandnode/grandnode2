@@ -54,7 +54,7 @@ $(document).ready(function () {
                 }
             },
             requestEnd: function (e) {
-                if (e.type == "update") {
+                if (e.type == "update" || e.type == "destroy") {
                     this.read();
                 }
             },
@@ -76,7 +76,7 @@ $(document).ready(function () {
         },
         editable: {
             confirmation: true,
-            mode: "inline"
+            mode: "incell"
         },
         toolbar: ["save"],
         scrollable: false,
@@ -124,14 +124,34 @@ $(document).ready(function () {
             width: 200,
             type: "date",
             format: "{0:G}"
-        }, {
-            command: [
-                {
-                name: "destroy",
-                text: "@Loc["Admin.Common.Delete"]"
-            }],
-            width: 200
-        }]
+        },  {
+                title: "@Loc["Admin.Common.Delete"]",
+                width: 200,
+                template: "<button class='k-button k-grid-delete' onclick=deleteRow('#=Id#')>Delete</button>"
+            }]
     });
 });
+
+        function deleteRow(id) {
+            var grid = $("#currentshoppingcart-grid").data("kendoGrid");
+            var dataItem = grid.dataSource.get(id);
+            var tokenInput = $('input[name=__RequestVerificationToken]');
+            $.ajax({
+                url: "@Html.Raw(Url.Action("DeleteCart", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin }))",
+                type: "POST",
+                data: {
+                    id: dataItem.Id,
+                    customerId: "@Model.Id",
+                    __RequestVerificationToken: tokenInput.val(),
+                },                
+                success: function () {
+                    grid.dataSource.remove(dataItem);
+                    grid.dataSource.sync();
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                }
+        });
+    }
+
 </script>
