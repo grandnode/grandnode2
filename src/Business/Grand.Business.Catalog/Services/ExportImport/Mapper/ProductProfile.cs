@@ -10,6 +10,7 @@ public class ProductProfile : Profile, IAutoMapperProfile
     public ProductProfile()
     {
         CreateMap<ProductDto, Product>()
+            .ForMember(x => x.Id, opts => opts.Condition(src => !string.IsNullOrEmpty(src.Id)))
             .ForMember(x => x.UpdatedOnUtc, opt => opt.MapFrom(o => DateTime.UtcNow))
             .ForMember(x => x.ProductTypeId, opt => opt.Condition(z => z.ProductTypeId.HasValue))
             .ForMember(x => x.VisibleIndividually, opt => opt.Condition(z => z.VisibleIndividually.HasValue))
