@@ -3,7 +3,8 @@
   <ItemGroup>
   	<PackageReference Include="ExcelMapper" />
   	<PackageReference Include="NPOI" />
-	  <PackageReference Include="Scryber.Core" />
+	<PackageReference Include="SixLabors.ImageSharp" />
+	<PackageReference Include="Scryber.Core" />
     <PackageReference Include="Scryber.Core.OpenType" />
   </ItemGroup>
   <ItemGroup>
