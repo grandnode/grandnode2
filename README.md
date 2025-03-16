@@ -3,7 +3,7 @@
     <img src="https://grandnode.com/logo.png" alt="GrandNode - Open Source E-Commerce Platform">
   </a>
 
-  <h1 align="center">GRANDNODE 2: OPEN-SOURCE E-COMMERCE PLATFORM
+  <h1 align="center">OPEN-SOURCE E-COMMERCE PLATFORM
     <br />
     FREE, FAST, FLEXIBLE, FEATURE-RICH</h1>
      <p align="center">
@@ -70,7 +70,7 @@ GrandNode was designed to solve the most important business challenges from the 
 ## Key Features
 
 ### Performance & Architecture
-- ⚡ **High-Performance Frontend** - Pages render in milliseconds
+- ⚡ **High-Performance** - Pages render in milliseconds
 - 📊 **MongoDB Database** - Superior scalability and performance
 - 🚀 **ASP.NET Core** - Modern and efficient codebase
 
