@@ -22,12 +22,11 @@ public class VendorServiceTests
     [TestInitialize]
     public void Init()
     {
-        _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
-           new CacheConfig { DefaultCacheTimeMinutes = 1 });
-
+        _mediatorMock = new Mock<IMediator>();
         _repoMock = new Mock<IRepository<Vendor>>();
         _vendorReviewRepositoryMock = new Mock<IRepository<VendorReview>>();
-        _mediatorMock = new Mock<IMediator>();
+        _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
+           new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _vendorService = new VendorService(_repoMock.Object, _vendorReviewRepositoryMock.Object, _cacheBase, _mediatorMock.Object);
     }
 
