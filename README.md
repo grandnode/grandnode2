@@ -73,7 +73,6 @@ GrandNode was designed to solve the most important business challenges from the 
 - ⚡ **High-Performance Frontend** - Pages render in milliseconds
 - 📊 **MongoDB Database** - Superior scalability and performance
 - 🚀 **ASP.NET Core** - Modern and efficient codebase
-- 🔄 **Microservices-Ready** - Modular architecture for enterprise scalability
 
 ### Business Features
 - 🏪 **Multi-Store Management** - Run multiple stores from one installation
@@ -98,7 +97,6 @@ GrandNode 2 leverages the latest technologies to deliver a high-performance e-co
 - **MongoDB 4.0+** - NoSQL database for unlimited scalability
 - **Docker Support** - Easy deployment and containerization
 - **REST API** - Comprehensive API for integrations
-- **Microservices Architecture** - Modular design for enterprise applications
 - **Cloud-Ready** - Optimized for cloud hosting environments
 - **Real-time Processing** - Immediate updates throughout the system
 
@@ -113,8 +111,7 @@ GrandNode requires .NET Core 9.0, MongoDB 4.0+, and OS-specific dependency tools
 
 ### Installation
 
-GrandNode can be installed in a few different ways. Note: The develop branch is the development version of GrandNode and it may be unstable. To use the
-latest stable version, download it from the Releases page or switch to a release branch. 
+GrandNode can be installed in a few different ways. Note: The develop branch is the development version of GrandNode and it may be unstable. The main branch is the primary branch that contains the latest stable version. You can also download specific stable versions from the Releases page or switch to a release branch.
 
 * Docker 
 ```bash
@@ -132,7 +129,7 @@ Run the project in the Visual Studio 2022+, extract the source code package down
 
 * Host on Linux server 
 
-Before you start - please install, configure the nginx server, .NET Core 8.0+ and MongoDB 4.0+
+Before you start - please install, configure the nginx server, .NET Core 9.0+ and MongoDB 4.0+
 ```bash
 mkdir ~/source
 cd ~/source
@@ -217,9 +214,7 @@ GrandNode stands out in the crowded e-commerce platform market by offering:
 - **Ultimate Scalability** - From startup to enterprise, grow without limits
 - **Lower Total Cost of Ownership** - Free, open-source with no licensing costs
 - **Modern Technology Stack** - Built with future-proof technologies
-- **Active Community** - Regular updates and community contributions
 - **Extensible Architecture** - Build custom modules and integrations
-- **Comprehensive Documentation** - Detailed guides for developers and users
 
 Whether you're launching a single online store or building a complex multi-vendor marketplace, GrandNode provides the tools and performance you need to succeed in today's competitive e-commerce landscape.
 
