@@ -1,7 +1,10 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Data;
 using Grand.Domain;
+using Grand.Domain.Catalog;
 using Grand.Domain.Vendors;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 
@@ -21,10 +24,11 @@ public class VendorService : IVendorService
     /// <param name="vendorReviewRepository">Vendor review repository</param>
     /// <param name="mediator">Mediator</param>
     public VendorService(IRepository<Vendor> vendorRepository, IRepository<VendorReview> vendorReviewRepository,
-        IMediator mediator)
+        ICacheBase cacheBase, IMediator mediator)
     {
         _vendorRepository = vendorRepository;
         _vendorReviewRepository = vendorReviewRepository;
+        _cacheBase = cacheBase;
         _mediator = mediator;
     }
 
@@ -35,6 +39,7 @@ public class VendorService : IVendorService
     private readonly IRepository<Vendor> _vendorRepository;
     private readonly IRepository<VendorReview> _vendorReviewRepository;
     private readonly IMediator _mediator;
+    private readonly ICacheBase _cacheBase;
 
     #endregion
 
@@ -45,9 +50,10 @@ public class VendorService : IVendorService
     /// </summary>
     /// <param name="vendorId">Vendor identifier</param>
     /// <returns>Vendor</returns>
-    public virtual Task<Vendor> GetVendorById(string vendorId)
+    public virtual async Task<Vendor> GetVendorById(string vendorId)
     {
-        return _vendorRepository.GetByIdAsync(vendorId);
+        var key = string.Format(CacheKey.VENDOR_BY_ID_KEY, vendorId);
+        return await _cacheBase.GetAsync(key, () => _vendorRepository.GetByIdAsync(vendorId));
     }
 
     /// <summary>
@@ -99,6 +105,9 @@ public class VendorService : IVendorService
 
         //event notification
         await _mediator.EntityUpdated(vendor);
+
+        // clear cache
+        await _cacheBase.RemoveAsync(string.Format(CacheKey.VENDOR_BY_ID_KEY, vendor.Id));
     }
 
     /// <summary>
@@ -111,6 +120,9 @@ public class VendorService : IVendorService
 
         vendor.Deleted = true;
         await UpdateVendor(vendor);
+
+        // clear cache
+        await _cacheBase.RemoveAsync(string.Format(CacheKey.VENDOR_BY_ID_KEY, vendor.Id));
     }
 
 
@@ -250,6 +262,9 @@ public class VendorService : IVendorService
 
         //event notification
         await _mediator.EntityUpdated(vendor);
+
+        // clear cache
+        await _cacheBase.RemoveAsync(string.Format(CacheKey.VENDOR_BY_ID_KEY, vendor.Id));
     }
 
     public virtual async Task UpdateVendorReview(VendorReview vendorReview)
