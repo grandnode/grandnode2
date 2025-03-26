@@ -293,6 +293,10 @@
                     confirmation: false,
                     mode: "inline"
                 },
+                remove:function(e){ 
+                 e.model.StartDateTime= null;
+                 e.model.EndDateTime= null;
+                },
                 scrollable: false,
                 columns: [
                 @if (!adminAreaSettings.HideStoreColumn)
