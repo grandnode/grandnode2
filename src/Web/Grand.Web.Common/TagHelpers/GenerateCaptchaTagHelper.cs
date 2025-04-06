@@ -1,4 +1,5 @@
-﻿using Grand.Web.Common.Security.Captcha;
+﻿using Grand.Domain.Common;
+using Grand.Web.Common.Security.Captcha;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;

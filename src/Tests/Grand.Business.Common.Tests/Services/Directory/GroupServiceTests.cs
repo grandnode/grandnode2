@@ -111,12 +111,12 @@ public class GroupServiceTests
     {
         //Arrange
         var customerGroup = new CustomerGroup
-            { IsSystem = true, SystemName = SystemCustomerGroupNames.Staff, Active = true };
+            { IsSystem = true, SystemName = SystemCustomerGroupNames.StoreManager, Active = true };
         await _groupService.InsertCustomerGroup(customerGroup);
         var customer = new Customer();
         customer.Groups.Add(customerGroup.Id);
         //Act
-        var result = await _groupService.IsStaff(customer);
+        var result = await _groupService.IsStoreManager(customer);
         //Assert
         Assert.IsTrue(result);
     }

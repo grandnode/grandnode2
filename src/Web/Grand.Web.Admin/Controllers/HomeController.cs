@@ -53,7 +53,7 @@ public class HomeController : BaseAdminController
         var model = new DashboardActivityModel();
 
         var storeId = string.Empty;
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         model.OrdersPending =
@@ -137,7 +137,7 @@ public class HomeController : BaseAdminController
         if (storeid != null)
             storeid = storeid.Trim();
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             returnUrl = Url.Action("Index", "Home", new { area = Constants.AreaAdmin });
 
         var store = await _storeService.GetStoreById(storeid);

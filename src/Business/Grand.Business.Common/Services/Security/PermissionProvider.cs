@@ -11,6 +11,7 @@ public class PermissionProvider : IPermissionProvider
         return [
             StandardPermission.ManageAccessAdminPanel,
             StandardPermission.ManageAccessVendorPanel,
+            StandardPermission.ManageAccessStoreManagerPanel,
             StandardPermission.AllowCustomerImpersonation,
             StandardPermission.ManageProducts,
             StandardPermission.ManageCategories,
@@ -195,9 +196,9 @@ public class PermissionProvider : IPermissionProvider
                 ]
             },
             new DefaultPermission {
-                CustomerGroupSystemName = SystemCustomerGroupNames.Staff,
+                CustomerGroupSystemName = SystemCustomerGroupNames.StoreManager,
                 Permissions = [
-                    StandardPermission.ManageAccessAdminPanel,
+                    StandardPermission.ManageAccessStoreManagerPanel,
                     StandardPermission.ManageProducts,
                     StandardPermission.ManageFiles,
                     StandardPermission.ManagePictures,

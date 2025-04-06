@@ -300,7 +300,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
 
         var orderItems = order.OrderItems;
         //a vendor should have access only to his products
-        if (_contextAccessor.WorkContext.CurrentVendor != null && !await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (_contextAccessor.WorkContext.CurrentVendor != null && !await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             orderItems = orderItems.Where(_contextAccessor.WorkContext.HasAccessToOrderItem).ToList();
 
         foreach (var orderItem in orderItems)

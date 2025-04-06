@@ -110,7 +110,7 @@ public class DiscountController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
                 model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
             var discount = await _discountViewModelService.InsertDiscountModel(model);
@@ -133,7 +133,7 @@ public class DiscountController : BaseAdminController
             //No discount found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
         {
             if (!discount.LimitedToStores || (discount.LimitedToStores &&
                                               discount.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
@@ -164,13 +164,13 @@ public class DiscountController : BaseAdminController
             //No discount found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             if (!discount.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = discount.Id });
 
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
                 model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
             discount = await _discountViewModelService.UpdateDiscountModel(discount, model);
@@ -201,7 +201,7 @@ public class DiscountController : BaseAdminController
             //No discount found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             if (!discount.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = discount.Id });
 

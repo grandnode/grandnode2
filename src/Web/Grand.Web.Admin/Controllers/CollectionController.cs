@@ -53,7 +53,7 @@ public class CollectionController : BaseAdminController
     protected async Task<(bool allow, string message)> CheckAccessToCollection(Collection collection)
     {
         if (collection == null) return (false, "Collection not exists");
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             if (!(!collection.LimitedToStores ||
                   (collection.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
                    collection.LimitedToStores)))
@@ -100,7 +100,7 @@ public class CollectionController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, CollectionListModel model)
     {
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var collections = await _collectionService.GetAllCollections(model.SearchCollectionName,
             model.SearchStoreId, command.Page - 1, command.PageSize, true);
@@ -144,7 +144,7 @@ public class CollectionController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
                 model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
             var collection = await _collectionViewModelService.InsertCollectionModel(model);
@@ -171,7 +171,7 @@ public class CollectionController : BaseAdminController
             //No collection found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
         {
             if (!collection.LimitedToStores || (collection.LimitedToStores &&
                                                 collection.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
@@ -218,12 +218,12 @@ public class CollectionController : BaseAdminController
             //No collection found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             if (!collection.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = collection.Id });
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
                 model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             collection = await _collectionViewModelService.UpdateCollectionModel(collection, model);
             Success(_translationService.GetResource("Admin.Catalog.Collections.Updated"));
@@ -260,7 +260,7 @@ public class CollectionController : BaseAdminController
             //No collection found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             if (!collection.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = collection.Id });
 
@@ -439,7 +439,7 @@ public class CollectionController : BaseAdminController
     public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command,
         CollectionModel.AddCollectionProductModel model)
     {
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var products = await _collectionViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {

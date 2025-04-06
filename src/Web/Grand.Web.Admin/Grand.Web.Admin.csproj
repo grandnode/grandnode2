@@ -28,6 +28,6 @@
 		<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
 		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
 		<ProjectReference Include="..\Grand.SharedUIResources\Grand.SharedUIResources.csproj" />
-		<ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
+		<ProjectReference Include="..\Grand.Web.AdminShared\Grand.Web.AdminShared.csproj" />
 	</ItemGroup>
 </Project>

@@ -1,0 +1,201 @@
+﻿@using Grand.Domain.Localization
+@using Grand.Web.Common.TagHelpers
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Constants = Grand.SharedUIResources.Constants
+@inject IContextAccessor contextAccessor
+@inject LanguageSettings languageSettings
+@{
+    var currentCustomer = contextAccessor.WorkContext.CurrentCustomer;
+    var currentVersion = GrandVersion.FullVersion;
+    var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl &&
+                     !languageSettings.IgnoreRtlPropertyForAdminArea;
+
+    //page title
+    var pageTitle = "";
+    if (!string.IsNullOrWhiteSpace(ViewBag.Title))
+    {
+        pageTitle = ViewBag.Title + " / ";
+    }
+
+    pageTitle += Loc["Admin.PageTitle"];
+}
+<!DOCTYPE html>
+<html @if (supportRtl)
+{
+    <text> dir="rtl" </text>
+}
+>
+<head>
+    <title>@pageTitle</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8"/>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <head-custom/>
+    <partial name="Partials/HeadStore"/>
+    <resources asp-type="HeadLink"/>
+    <resources asp-type="HeadScript"/>
+</head>
+<body class="nav-sm @if (IsSectionDefined("popupwindow")) {
+ @await RenderSectionAsync("popupwindow") <text>no-sidebar</text>
+ }">
+    @Html.AntiForgeryToken()
+<script>
+        kendo.culture("@CultureInfo.CurrentCulture.Name");
+        if (document.readyState == "loading") {
+            $(".site_title").css("padding-left", "26px");
+            if ($('body').hasClass('nav-sm')) {
+                $('#sidebar-menu').find('li.active').addClass('active-sm').removeClass('active');
+                $('#sidebar-menu').find('li.active-sm ul').hide();
+            }
+        }
+
+    </script>
+<div class="container body">
+    <div class="main_container">
+        <vc:store-widget widget-zone="store_store_header_before" additional-data="null"/>
+            @if (IsSectionDefined("headermenu"))
+            {
+                @await RenderSectionAsync("headermenu")
+            }
+            else
+            {
+                <partial name="Partials/Menu"/>
+            }
+        <vc:store-widget widget-zone="store_store_header_after" additional-data="null"/>
+            @if (IsSectionDefined("statusbar"))
+            {
+                @await RenderSectionAsync("statusbar")
+            }
+            @if (IsSectionDefined("header"))
+            {
+                @await RenderSectionAsync("header")
+            }
+            else
+            {
+                        <vc:store-widget widget-zone="store_header_before" additional-data="null"/>
+                <div class="top_nav">
+                    <div class="nav_menu">
+                        <nav>
+                                    <vc:store-widget widget-zone="store_header_toggle_after" additional-data="null"/>
+                            <ul class="nav navbar-nav navbar-right">
+
+                                <li class="dropdown" role="presentation">
+                                    <a href="@Url.Action("Index", "Home", new { area = "" })" class="dropdown-toggle">
+                                        <i class="icon-home"></i>
+                                    </a>
+                                </li>
+                                <li role="presentation" class="dropdown">
+                                    <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+                                        <i class="icon-info"></i>
+                                    </a>
+                                    <ul id="menu1" class="dropdown-menu dropdown-menu-right list-unstyled msg_list overflow-h" role="menu">
+                                        <li>
+                                            <a href="http://docs.grandnode.com/" target="_blank">
+                                                <i class="icon-book-open"></i>
+                                                @Loc["Admin.Header.Documentation"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://grandnode.com/boards" target="_blank">
+                                                <i class="icon-bubbles"></i>
+                                                @Loc["Admin.Header.Community"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://grandnode.com/release-notes" target="_blank">
+                                                <i class="fa fa-dot-circle-o"></i>
+                                                grandnode @currentVersion
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <li>
+                                    <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                        <img src="@(Constants.WwwRoot)/administration/build/images/avatar.png" alt="">
+                                        <div class="username-hide-on-mobile">
+                                            @(currentCustomer.Email)
+                                        </div>
+                                        <span class="fa fa-angle-down"></span>
+                                    </a>
+
+                                    <ul class="dropdown-menu dropdown-menu-right dropdown-menu-default">
+                                        <li>
+                                            <a href="@Url.Action("Logout", "Home", new { area = Grand.Web.Store.Extensions.Constants.AreaStore }, null)">
+                                                    <i class="icon-logout"></i> @Loc["Admin.Header.Logout"]
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown" role="presentation">
+                                    <span id="searchIcon" class="searchIcon dropdown-toggle">
+                                        <i class="icon-magnifier"></i>
+                                    </span>
+                                </li>
+                                <li role="presentation">
+                                    <a>
+                                        <div class="custom-control custom-switch light-dark-switch">
+                                            <input type="checkbox" class="custom-control-input" id="DarkLight">
+                                            <label class="custom-control-label" for="DarkLight">Enable Dark Mode</label>
+                                        </div>
+                                    </a>
+                                    <script>
+                                            const toggleSwitch = document.querySelector('.light-dark-switch input[type="checkbox"]');
+                                            const currentTheme = localStorage.getItem('theme');
+
+                                            if (currentTheme) {
+                                                document.documentElement.setAttribute('data-theme', currentTheme);
+
+                                                if (currentTheme === 'dark') {
+                                                    toggleSwitch.checked = true;
+                                                    $('#DarkLight ~ label').text('Disable Dark Mode');
+                                                }
+                                            }
+
+                                            function switchTheme(e) {
+                                                if (e.target.checked) {
+                                                    document.documentElement.setAttribute('data-theme', 'dark');
+                                                    localStorage.setItem('theme', 'dark');
+                                                    $('#DarkLight ~ label').text('Disable Dark Mode');
+
+                                                }
+                                                else {
+                                                    document.documentElement.setAttribute('data-theme', 'light');
+                                                    localStorage.setItem('theme', 'light');
+                                                    $('#DarkLight ~ label').text('Enable Dark Mode');
+                                                }
+                                            }
+
+                                            toggleSwitch.addEventListener('change', switchTheme, false);
+                                        </script>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                    <vc:store-widget widget-zone="store_header_navbar_after" additional-data="null"/>
+            }
+
+        <div class="right_col" role="main">
+            <partial name="Partials/Notifications"/>
+                @RenderBody()
+        </div>
+        <div class="throbber">
+            <div class="curtain">
+            </div>
+            <div class="curtain-content">
+                <div>
+                    <h1 class="throbber-header">Wait...</h1>
+                    <div class="spinner active">
+                        <svg style="width:100px; height:100px" viewBox="0 0 64 64">
+                            <circle cx="32" cy="32" r="29" fill="none" stroke-width="3" stroke-miterlimit="10"></circle>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<resources asp-type="ScriptFooter"/>
+</body>
+</html>

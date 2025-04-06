@@ -696,7 +696,7 @@ public class CustomerController : BaseAdminController
         var model = new OrderListModel {
             CustomerId = customerId
         };
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             model.StoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var (orderModels, totalCount) =
@@ -723,7 +723,7 @@ public class CustomerController : BaseAdminController
         if (order == null)
             throw new ArgumentException("No order found with the specified id");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer) &&
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer) &&
             order.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return Json(new DataSourceResult {
                 Data = null,

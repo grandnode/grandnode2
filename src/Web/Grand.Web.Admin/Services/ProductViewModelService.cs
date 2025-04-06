@@ -694,7 +694,7 @@ public class ProductViewModelService(
     public virtual async Task<Product> InsertProductModel(ProductModel model)
     {
         //a staff should have access only to his products
-        if (await groupService.IsStaff(contextAccessor.WorkContext.CurrentCustomer))
+        if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
             model.Stores = [contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
         //product
@@ -734,7 +734,7 @@ public class ProductViewModelService(
     public virtual async Task<Product> UpdateProductModel(Product product, ProductModel model)
     {
         //a staff should have access only to his products
-        if (await groupService.IsStaff(contextAccessor.WorkContext.CurrentCustomer))
+        if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
             model.Stores = [contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
         var prevStockQuantity = stockQuantityService.GetTotalStockQuantity(product, total: true);
@@ -832,7 +832,7 @@ public class ProductViewModelService(
         for (var i = 0; i < products.Count; i++)
         {
             var product = products[i];
-            if (await groupService.IsStaff(contextAccessor.WorkContext.CurrentCustomer))
+            if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
                 if (!(product.LimitedToStores && product.Stores.Contains(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
                       product.Stores.Count == 1))
                     continue;
@@ -1239,7 +1239,7 @@ public class ProductViewModelService(
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "0" });
 
         // avaible stores
-        if (await groupService.IsStaff(contextAccessor.WorkContext.CurrentCustomer))
+        if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
         {
             storeId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
             var store = (await storeService.GetAllStores()).FirstOrDefault(x => x.Id == storeId);
@@ -1262,7 +1262,7 @@ public class ProductViewModelService(
         PrepareBulkEditProductModel(BulkEditListModel model, int pageIndex, int pageSize)
     {
         var storeId = model.SearchStoreId;
-        if (await groupService.IsStaff(contextAccessor.WorkContext.CurrentCustomer))
+        if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
             storeId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var searchCategoryIds = new List<string>();
@@ -1305,7 +1305,7 @@ public class ProductViewModelService(
             if (product != null)
             {
                 //a staff can have access only to his products
-                if (await groupService.IsStaff(contextAccessor.WorkContext.CurrentCustomer))
+                if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
                     if (!product.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                         continue;
 
@@ -1340,7 +1340,7 @@ public class ProductViewModelService(
             var product = await productService.GetProductById(pModel.Id, true);
             if (product != null)
             {
-                if (await groupService.IsStaff(contextAccessor.WorkContext.CurrentCustomer))
+                if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
                     if (!product.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                         continue;
 

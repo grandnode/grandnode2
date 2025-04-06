@@ -43,7 +43,7 @@ public partial class InstallationService
             Name = "Staff",
             Active = true,
             IsSystem = true,
-            SystemName = SystemCustomerGroupNames.Staff
+            SystemName = SystemCustomerGroupNames.StoreManager
         };
         await _customerGroupRepository.InsertAsync(crStaff);
 

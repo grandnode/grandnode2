@@ -194,7 +194,7 @@ public static class PermissionExtensions
                 ]
             },
             new DefaultPermission {
-                CustomerGroupSystemName = SystemCustomerGroupNames.Staff,
+                CustomerGroupSystemName = SystemCustomerGroupNames.StoreManager,
                 Permissions = [
                     StandardPermission.ManageAccessAdminPanel,
                     StandardPermission.ManageProducts,

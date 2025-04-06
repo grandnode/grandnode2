@@ -2,11 +2,12 @@
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Common;
 using Grand.Domain.News;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Common.Security.Captcha;
+using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.News;
 
@@ -19,7 +20,7 @@ public class AddNewsCommentValidator : BaseGrandValidator<AddNewsCommentModel>
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         IContextAccessor contextAccessor, IGroupService groupService, INewsService newsService,
         CaptchaSettings captchaSettings, NewsSettings newsSettings,
-        IHttpContextAccessor httpcontextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
+        IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
         : base(validators)
     {

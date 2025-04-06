@@ -5,20 +5,20 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Domain.Permissions;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Localization;
+using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
-using Grand.SharedKernel.Attributes;
 
 namespace Grand.Web.Controllers;
 
@@ -306,7 +306,7 @@ public class KnowledgebaseController : BasePublicController
         await PrepareKnowledgebaseArticleModel(model, article, customerService);
         return View("Article", model);
     }
-    
+
     private async Task<IList<KnowledgebaseCategory>> GetCategoryBreadCrumb(KnowledgebaseCategory category, bool showHidden = false)
     {
         ArgumentNullException.ThrowIfNull(category);

@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure.ModelBinding;
+﻿using Grand.Domain.Common;
+using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Security.Captcha;
 using Microsoft.AspNetCore.Mvc.Rendering;

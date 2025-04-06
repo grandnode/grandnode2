@@ -2,9 +2,9 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Tax;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Grand.Web.Models.Newsletter;
@@ -85,8 +85,7 @@ public class GetRegisterHandler : IRequestHandler<GetRegister, RegisterModel>
         //countries and states
         if (_customerSettings.CountryEnabled)
         {
-            model.AvailableCountries.Add(new SelectListItem
-                { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
+            model.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
 
             foreach (var c in await _countryService.GetAllCountries(request.Language.Id, request.Store.Id))
                 model.AvailableCountries.Add(new SelectListItem {
@@ -99,12 +98,12 @@ public class GetRegisterHandler : IRequestHandler<GetRegister, RegisterModel>
             {
                 //states
                 var states = await _countryService.GetStateProvincesByCountryId(model.CountryId, request.Language.Id);
-                model.AvailableStates.Add(new SelectListItem
-                    { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
+                model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
 
                 foreach (var s in states)
                     model.AvailableStates.Add(new SelectListItem {
-                        Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id,
+                        Text = s.GetTranslation(x => x.Name, request.Language.Id),
+                        Value = s.Id,
                         Selected = s.Id == model.StateProvinceId
                     });
             }

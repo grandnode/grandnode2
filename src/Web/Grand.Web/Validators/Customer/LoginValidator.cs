@@ -4,10 +4,11 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Common.Security.Captcha;
+using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Customer;
 using MediatR;
@@ -21,7 +22,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         ICustomerService customerService, IGroupService groupService, IEncryptionService encryptionService,
         ITranslationService translationService, CustomerSettings customerSettings, CaptchaSettings captchaSettings,
-        IHttpContextAccessor contextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator)
+        IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator)
         : base(validators)
     {
         if (!customerSettings.UsernamesEnabled)
@@ -66,24 +67,24 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                     context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials.LockedOut"));
                     break;
                 case not null:
-                {
-                    var pwd = customer.PasswordFormatId switch {
-                        PasswordFormat.Clear => x.Password,
-                        PasswordFormat.Encrypted => encryptionService.EncryptText(x.Password, customer.PasswordSalt),
-                        PasswordFormat.Hashed => encryptionService.CreatePasswordHash(x.Password, customer.PasswordSalt,
-                            customerSettings.HashedPasswordFormat),
-                        _ => throw new Exception("PasswordFormat not supported")
-                    };
-                    var isValid = pwd == customer.Password;
-                    if (!isValid)
                     {
-                        context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials"));
-                        await contextAccessor.HttpContext!.RequestServices.GetRequiredService<IMediator>()
-                            .Publish(new CustomerLoginFailedEvent(customer), _);
-                    }
+                        var pwd = customer.PasswordFormatId switch {
+                            PasswordFormat.Clear => x.Password,
+                            PasswordFormat.Encrypted => encryptionService.EncryptText(x.Password, customer.PasswordSalt),
+                            PasswordFormat.Hashed => encryptionService.CreatePasswordHash(x.Password, customer.PasswordSalt,
+                                customerSettings.HashedPasswordFormat),
+                            _ => throw new Exception("PasswordFormat not supported")
+                        };
+                        var isValid = pwd == customer.Password;
+                        if (!isValid)
+                        {
+                            context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials"));
+                            await contextAccessor.HttpContext!.RequestServices.GetRequiredService<IMediator>()
+                                .Publish(new CustomerLoginFailedEvent(customer), _);
+                        }
 
-                    break;
-                }
+                        break;
+                    }
             }
         });
 

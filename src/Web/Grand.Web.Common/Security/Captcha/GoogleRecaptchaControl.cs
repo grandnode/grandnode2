@@ -1,4 +1,5 @@
-﻿using Grand.Web.Common.Extensions;
+﻿using Grand.Domain.Common;
+using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Common.Security.Captcha;

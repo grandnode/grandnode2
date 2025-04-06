@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
+using Grand.Domain.Common;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Models.Catalog;
 using Microsoft.AspNetCore.Mvc;
 

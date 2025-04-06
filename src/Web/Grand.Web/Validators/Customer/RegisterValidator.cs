@@ -2,12 +2,13 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
+using Grand.SharedKernel.Captcha;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
@@ -23,7 +24,7 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
         ITranslationService translationService,
         ICountryService countryService,
         CustomerSettings customerSettings, CaptchaSettings captchaSettings,
-        IHttpContextAccessor httpcontextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
+        IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
         IMediator mediator, ICustomerAttributeParser customerAttributeParser,
         ICustomerService customerService,
         IGroupService groupService, IContextAccessor contextAccessor
@@ -129,8 +130,7 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
 
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
-            var customerAttributes = await mediator.Send(new GetParseCustomAttributes
-                { SelectedAttributes = x.SelectedAttributes }, _);
+            var customerAttributes = await mediator.Send(new GetParseCustomAttributes { SelectedAttributes = x.SelectedAttributes }, _);
             var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
             foreach (var error in customerAttributeWarnings) context.AddFailure(error);
 

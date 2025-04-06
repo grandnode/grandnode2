@@ -49,7 +49,7 @@ public class CategoryController : BaseAdminController
     protected async Task<(bool allow, string message)> CheckAccessToCategory(Category category)
     {
         if (category == null) return (false, "Category not exists");
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             if (!(!category.LimitedToStores || (category.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
                                                 category.LimitedToStores)))
                 return (false, "This is not your category");
@@ -87,7 +87,7 @@ public class CategoryController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, CategoryListModel model)
     {
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var categories =
@@ -120,7 +120,7 @@ public class CategoryController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
                 model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
             var category = await _categoryViewModelService.InsertCategoryModel(model);
@@ -143,7 +143,7 @@ public class CategoryController : BaseAdminController
             //No category found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
         {
             if (!category.LimitedToStores || (category.LimitedToStores &&
                                               category.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
@@ -187,13 +187,13 @@ public class CategoryController : BaseAdminController
             //No category found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             if (!category.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = category.Id });
 
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
                 model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
             category = await _categoryViewModelService.UpdateCategoryModel(category, model);
@@ -226,7 +226,7 @@ public class CategoryController : BaseAdminController
             //No category found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             if (!category.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = category.Id });
 
@@ -396,7 +396,7 @@ public class CategoryController : BaseAdminController
         CategoryModel.AddCategoryProductModel model)
     {
         var gridModel = new DataSourceResult();
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var products = await _categoryViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         gridModel.Data = products.products.ToList();

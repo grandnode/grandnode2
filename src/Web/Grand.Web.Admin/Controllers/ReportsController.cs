@@ -103,7 +103,7 @@ public class ReportsController : BaseAdminController
         int pageSize, int orderBy)
     {
         var storeId = "";
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var items = await _orderReportService.BestSellersReport(
@@ -203,7 +203,7 @@ public class ReportsController : BaseAdminController
         var model = new BestsellersReportModel();
 
         var storeId = "";
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //stores
@@ -244,7 +244,7 @@ public class ReportsController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> BestsellersReportList(DataSourceRequest command, BestsellersReportModel model)
     {
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             model.StoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         DateTime? startDateValue = model.StartDate == null
@@ -318,7 +318,7 @@ public class ReportsController : BaseAdminController
             return Content("");
 
         var storeId = "";
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var model = await _orderReportService.GetOrderByTimeReport(storeId, startDate, endDate);
@@ -346,7 +346,7 @@ public class ReportsController : BaseAdminController
             : _dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
         var storeId = "";
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var items = await _orderReportService.ProductsNeverSold(storeId, "",
@@ -371,7 +371,7 @@ public class ReportsController : BaseAdminController
             return Content("");
 
         var storeId = "";
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var report = new List<OrderAverageReportLineSummary> {
@@ -412,7 +412,7 @@ public class ReportsController : BaseAdminController
         if (!await _permissionService.Authorize(StandardPermission.ManageOrders))
             return Content("");
         var storeId = "";
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //load orders
@@ -458,7 +458,7 @@ public class ReportsController : BaseAdminController
             return Content("");
 
         var storeId = "";
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
 
@@ -542,7 +542,7 @@ public class ReportsController : BaseAdminController
         var paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
 
         var storeId = "";
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var items = await _orderReportService.GetCountryReport(
@@ -599,7 +599,7 @@ public class ReportsController : BaseAdminController
     public async Task<IActionResult> LowStockReportList(DataSourceRequest command)
     {
         var storeId = "";
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var lowStockProducts = await _productsReportService.LowStockProducts(storeId: storeId);
@@ -659,7 +659,7 @@ public class ReportsController : BaseAdminController
     public async Task<IActionResult> ReportBestCustomersByOrderTotalList(DataSourceRequest command,
         BestCustomersReportModel model)
     {
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             model.StoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var (bestCustomerReportLineModels, totalCount) =
@@ -676,7 +676,7 @@ public class ReportsController : BaseAdminController
     public async Task<IActionResult> ReportBestCustomersByNumberOfOrdersList(DataSourceRequest command,
         BestCustomersReportModel model)
     {
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             model.StoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var (bestCustomerReportLineModels, totalCount) =
@@ -693,7 +693,7 @@ public class ReportsController : BaseAdminController
     public async Task<IActionResult> ReportRegisteredCustomersList(DataSourceRequest command)
     {
         var storeId = "";
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var model = await _customerReportViewModelService.GetReportRegisteredCustomersModel(storeId);
@@ -710,7 +710,7 @@ public class ReportsController : BaseAdminController
         DateTime? endDate)
     {
         var storeId = "";
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var model = await _customerReportService.GetCustomerByTimeReport(storeId, startDate, endDate);

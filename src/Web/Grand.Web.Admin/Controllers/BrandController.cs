@@ -53,7 +53,7 @@ public class BrandController : BaseAdminController
     protected async Task<(bool allow, string message)> CheckAccessToBrand(Brand brand)
     {
         if (brand == null) return (false, "Brand not exists");
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             if (!(!brand.LimitedToStores || (brand.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
                                              brand.LimitedToStores)))
                 return (false, "This is not your collection");
@@ -99,7 +99,7 @@ public class BrandController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, BrandListModel model)
     {
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var brands = await _brandService.GetAllBrands(model.SearchBrandName,
             model.SearchStoreId, command.Page - 1, command.PageSize, true);
@@ -143,7 +143,7 @@ public class BrandController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
                 model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
 
             var collection = await _brandViewModelService.InsertBrandModel(model);
@@ -170,7 +170,7 @@ public class BrandController : BaseAdminController
             //No collection found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
         {
             if (!brand.LimitedToStores || (brand.LimitedToStores &&
                                            brand.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
@@ -217,12 +217,12 @@ public class BrandController : BaseAdminController
             //No collection found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             if (!brand.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = brand.Id });
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
                 model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             brand = await _brandViewModelService.UpdateBrandModel(brand, model);
             Success(_translationService.GetResource("Admin.Catalog.Brands.Updated"));
@@ -259,7 +259,7 @@ public class BrandController : BaseAdminController
             //No collection found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             if (!brand.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("Edit", new { id = brand.Id });
 

@@ -63,7 +63,7 @@ public class ProductReviewController : BaseAdminController
     public async Task<IActionResult> List(DataSourceRequest command, ProductReviewListModel model)
     {
         //limit for store manager
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var (productReviewModels, totalCount) =
@@ -86,7 +86,7 @@ public class ProductReviewController : BaseAdminController
             //No product review found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer) &&
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer) &&
             productReview.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var model = new ProductReviewModel();
@@ -104,7 +104,7 @@ public class ProductReviewController : BaseAdminController
             //No product review found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer) &&
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer) &&
             productReview.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         if (ModelState.IsValid)
@@ -131,7 +131,7 @@ public class ProductReviewController : BaseAdminController
             //No product review found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer) &&
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer) &&
             productReview.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         if (ModelState.IsValid)
@@ -176,7 +176,7 @@ public class ProductReviewController : BaseAdminController
             return Content("");
 
         var storeId = string.Empty;
-        if (await _groupService.IsStaff(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
             storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         //products

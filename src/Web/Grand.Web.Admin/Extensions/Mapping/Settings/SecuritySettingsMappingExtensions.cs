@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure.Mapper;
+﻿using Grand.Domain.Common;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Settings;
 using Grand.Web.Common.Security.Captcha;
 

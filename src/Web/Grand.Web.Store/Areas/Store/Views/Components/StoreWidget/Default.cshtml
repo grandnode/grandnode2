@@ -1,0 +1,6 @@
+﻿@using Grand.Web.AdminShared.Models.Cms
+@model List<WidgetModel>
+@foreach (var widget in Model)
+{
+    @await Component.InvokeAsync(widget.ViewComponentName, new { widgetZone = widget.WidgetZone, additionalData = widget.AdditionalData })
+}

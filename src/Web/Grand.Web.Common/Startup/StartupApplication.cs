@@ -7,6 +7,7 @@ using Grand.Infrastructure.Caching.Message;
 using Grand.Infrastructure.Caching.Redis;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
+using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Menu;
@@ -124,7 +125,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddSingleton<IPoweredByMiddlewareOptions, PoweredByMiddlewareOptions>();
 
         //request reCAPTCHA service
-        serviceCollection.AddHttpClient<GoogleReCaptchaValidator>();
+        serviceCollection.AddHttpClient<IGoogleReCaptchaValidator, GoogleReCaptchaValidator>();
 
         serviceCollection.AddScoped<IViewRenderService, ViewRenderService>();
     }

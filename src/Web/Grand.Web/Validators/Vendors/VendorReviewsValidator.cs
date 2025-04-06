@@ -3,12 +3,13 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
-using Grand.Web.Common.Security.Captcha;
+using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Vendors;
 using MediatR;
@@ -23,7 +24,7 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
         IMediator mediator,
         IGroupService groupService, IContextAccessor contextAccessor, IVendorService vendorService,
         CaptchaSettings captchaSettings, VendorSettings vendorSettings,
-        IHttpContextAccessor httpcontextAccessor, GoogleReCaptchaValidator googleReCaptchaValidator,
+        IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
         ITranslationService translationService)
         : base(validators)
     {

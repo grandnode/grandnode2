@@ -103,7 +103,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                 customerGroups.FirstOrDefault(cr => cr.SystemName == SystemCustomerGroupNames.Administrators) != null;
             var isVendorGroup =
                 customerGroups.FirstOrDefault(cr => cr.SystemName == SystemCustomerGroupNames.Vendors) != null;
-            var isStaffGroup = customerGroups.FirstOrDefault(cr => cr.SystemName == SystemCustomerGroupNames.Staff) !=
+            var isStaffGroup = customerGroups.FirstOrDefault(cr => cr.SystemName == SystemCustomerGroupNames.StoreManager) !=
                                null;
             var isSalesGroup =
                 customerGroups.FirstOrDefault(cr => cr.SystemName == SystemCustomerGroupNames.SalesManager) != null;

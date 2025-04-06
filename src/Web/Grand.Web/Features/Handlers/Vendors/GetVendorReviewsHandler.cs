@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Vendors;
 using Grand.Web.Models.Vendors;
 using MediatR;
