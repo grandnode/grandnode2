@@ -61,11 +61,17 @@ public class AuthorizeStoreAttribute : TypeFilterAttribute
 
             //authorize permission of access to the vendor area
             if (!await permissionService.Authorize(StandardPermission.ManageAccessStoreManagerPanel))
+            {
                 context.Result = new RedirectToRouteResult("StoreLogin", new RouteValueDictionary());
-
-            //ensure that this user has active store
-            if (!await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
+                return;
+            }
+            //ensure that this user has store manager
+            if (!await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer) || string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            {
                 context.Result = new RedirectToRouteResult("StoreLogin", new RouteValueDictionary());
+            }
+            return;
+            //add active store
         }
 
         #endregion

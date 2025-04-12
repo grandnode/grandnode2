@@ -1,0 +1,22 @@
+﻿using AutoMapper;
+using Grand.Domain.Shipping;
+using Grand.Infrastructure.Mapper;
+using Grand.Web.AdminShared.Models.Shipping;
+using Grand.Web.Common.Extensions;
+
+namespace Grand.Web.AdminShared.Mapper;
+
+public class DeliveryDateProfile : Profile, IAutoMapperProfile
+{
+    public DeliveryDateProfile()
+    {
+        CreateMap<DeliveryDate, DeliveryDateModel>()
+            .ForMember(dest => dest.Locales, mo => mo.Ignore());
+
+        CreateMap<DeliveryDateModel, DeliveryDate>()
+            .ForMember(dest => dest.Id, mo => mo.Ignore())
+            .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()));
+    }
+
+    public int Order => 0;
+}

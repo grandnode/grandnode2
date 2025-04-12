@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Infrastructure;
-using Grand.Web.Admin.Models.Settings;
+using Grand.Web.AdminShared.Models.Settings;
 using Grand.Web.Common.Components;
 using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Models;

@@ -1,0 +1,20 @@
+﻿using AutoMapper;
+using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Infrastructure.Mapper;
+using Grand.Web.AdminShared.Models.ExternalAuthentication;
+
+namespace Grand.Web.AdminShared.Mapper;
+
+public class ExternalAuthenticationMethodProfile : Profile, IAutoMapperProfile
+{
+    public ExternalAuthenticationMethodProfile()
+    {
+        CreateMap<IExternalAuthenticationProvider, AuthenticationMethodModel>()
+            .ForMember(dest => dest.FriendlyName, mo => mo.MapFrom(src => src.FriendlyName))
+            .ForMember(dest => dest.SystemName, mo => mo.MapFrom(src => src.SystemName))
+            .ForMember(dest => dest.DisplayOrder, mo => mo.MapFrom(src => src.Priority))
+            .ForMember(dest => dest.IsActive, mo => mo.Ignore());
+    }
+
+    public int Order => 0;
+}

@@ -2,8 +2,8 @@
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Common;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;

@@ -10,7 +10,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Models.Home;
+using Grand.Web.AdminShared.Models.Home;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

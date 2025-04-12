@@ -2,8 +2,8 @@
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Permissions;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Affiliates;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Affiliates;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;

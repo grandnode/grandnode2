@@ -13,7 +13,7 @@ using Grand.Domain.Admin;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Models.Settings;
+using Grand.Web.AdminShared.Models.Settings;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Helpers;
 using Microsoft.AspNetCore.Mvc;

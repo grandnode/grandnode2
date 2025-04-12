@@ -1,0 +1,18 @@
+﻿using Grand.Infrastructure.ModelBinding;
+using Grand.Infrastructure.Models;
+
+namespace Grand.Web.AdminShared.Models.Layouts;
+
+public class BrandLayoutModel : BaseEntityModel
+{
+    [GrandResourceDisplayName("Admin.Configuration.Layouts.Brand.Name")]
+
+    public string Name { get; set; }
+
+    [GrandResourceDisplayName("Admin.Configuration.Layouts.Brand.ViewPath")]
+
+    public string ViewPath { get; set; }
+
+    [GrandResourceDisplayName("Admin.Configuration.Layouts.Brand.DisplayOrder")]
+    public int DisplayOrder { get; set; }
+}

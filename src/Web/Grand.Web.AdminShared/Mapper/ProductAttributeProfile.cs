@@ -1,0 +1,22 @@
+﻿using AutoMapper;
+using Grand.Domain.Catalog;
+using Grand.Infrastructure.Mapper;
+using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.Common.Extensions;
+
+namespace Grand.Web.AdminShared.Mapper;
+
+public class ProductAttributeProfile : Profile, IAutoMapperProfile
+{
+    public ProductAttributeProfile()
+    {
+        CreateMap<ProductAttribute, ProductAttributeModel>()
+            .ForMember(dest => dest.Locales, mo => mo.Ignore());
+        CreateMap<ProductAttributeModel, ProductAttribute>()
+            .ForMember(dest => dest.Id, mo => mo.Ignore())
+            .ForMember(dest => dest.LimitedToStores, mo => mo.MapFrom(x => x.Stores != null && x.Stores.Any()))
+            .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()));
+    }
+
+    public int Order => 0;
+}

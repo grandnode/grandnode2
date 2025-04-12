@@ -12,10 +12,10 @@ using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Catalog;
-using Grand.Web.Admin.Models.Orders;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
 using Grand.Web.Common.Helpers;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.AdminShared.Extensions;
 
 namespace Grand.Web.Admin.Controllers;
 

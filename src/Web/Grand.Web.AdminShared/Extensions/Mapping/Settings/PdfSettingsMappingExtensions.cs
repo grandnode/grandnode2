@@ -1,0 +1,18 @@
+﻿using Grand.Domain.Common;
+using Grand.Infrastructure.Mapper;
+using Grand.Web.AdminShared.Models.Settings;
+
+namespace Grand.Web.AdminShared.Extensions.Mapping.Settings;
+
+public static class PdfSettingsMappingExtensions
+{
+    public static GeneralCommonSettingsModel.PdfSettingsModel ToModel(this PdfSettings entity)
+    {
+        return entity.MapTo<PdfSettings, GeneralCommonSettingsModel.PdfSettingsModel>();
+    }
+
+    public static PdfSettings ToEntity(this GeneralCommonSettingsModel.PdfSettingsModel model, PdfSettings destination)
+    {
+        return model.MapTo(destination);
+    }
+}

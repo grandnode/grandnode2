@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
-using Grand.Web.Admin.Interfaces;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

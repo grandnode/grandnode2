@@ -1,0 +1,24 @@
+﻿using Grand.Domain.Orders;
+using Grand.Web.AdminShared.Models.Orders;
+
+namespace Grand.Web.AdminShared.Interfaces;
+
+public interface IGiftVoucherViewModelService
+{
+    GiftVoucherListModel PrepareGiftVoucherListModel();
+    Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucherModel model = null);
+
+    Task<(IEnumerable<GiftVoucherModel> giftVoucherModels, int totalCount)> PrepareGiftVoucherModel(
+        GiftVoucherListModel model, int pageIndex, int pageSize);
+
+    Task<GiftVoucherModel> FillGiftVoucherModel(GiftVoucher giftVoucher, GiftVoucherModel model);
+    Task NotifyRecipient(GiftVoucher giftVoucher);
+    Task<Order> GetOrderFromGiftVoucher(GiftVoucher giftVoucher);
+    Task<GiftVoucher> InsertGiftVoucherModel(GiftVoucherModel model);
+    Task<GiftVoucher> UpdateGiftVoucherModel(GiftVoucher giftVoucher, GiftVoucherModel model);
+    Task DeleteGiftVoucher(GiftVoucher giftVoucher);
+    Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucher giftVoucher);
+
+    Task<(IEnumerable<GiftVoucherModel.GiftVoucherUsageHistoryModel> giftVoucherUsageHistoryModels, int totalCount)>
+        PrepareGiftVoucherUsageHistoryModels(GiftVoucher giftVoucher, int pageIndex, int pageSize);
+}

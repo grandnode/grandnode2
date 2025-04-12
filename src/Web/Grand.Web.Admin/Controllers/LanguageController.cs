@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Localization;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Localization;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;

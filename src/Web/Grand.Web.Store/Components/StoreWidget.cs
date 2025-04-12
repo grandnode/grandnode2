@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Components;
 
-public class VendorWidgetViewComponent : BaseVendorViewComponent
+public class StoreWidgetViewComponent : BaseVendorViewComponent
 {
     #region Constructors
 
-    public VendorWidgetViewComponent(IWidgetService widgetService, IContextAccessor contextAccessor)
+    public StoreWidgetViewComponent(IWidgetService widgetService, IContextAccessor contextAccessor)
     {
         _widgetService = widgetService;
         _contextAccessor = contextAccessor;
@@ -22,14 +22,14 @@ public class VendorWidgetViewComponent : BaseVendorViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
     {
-        var model = new List<WidgetModel>();
+        var model = new List<AdminWidgetModel>();
 
         var widgets = await _widgetService.LoadActiveWidgetsByWidgetZone(widgetZone, _contextAccessor.StoreContext.CurrentStore.Id,
             _contextAccessor.WorkContext.CurrentCustomer);
         foreach (var item in widgets)
         {
             var viewComponentName = await item.GetPublicViewComponentName(widgetZone);
-            var widgetModel = new WidgetModel {
+            var widgetModel = new AdminWidgetModel {
                 WidgetZone = widgetZone,
                 ViewComponentName = viewComponentName
             };

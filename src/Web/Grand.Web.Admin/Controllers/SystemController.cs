@@ -11,7 +11,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Roslyn;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Models.Common;
+using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;

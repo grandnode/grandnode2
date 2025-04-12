@@ -1,0 +1,29 @@
+﻿using FluentValidation;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure.Validators;
+using Grand.Web.AdminShared.Models.Blogs;
+
+namespace Grand.Web.AdminShared.Validators.Blogs;
+
+public class BlogPostValidator : BaseGrandValidator<BlogPostModel>
+{
+    public BlogPostValidator(
+        IEnumerable<IValidatorConsumer<BlogPostModel>> validators,
+        ITranslationService translationService)
+        : base(validators)
+    {
+        RuleFor(x => x.Title)
+            .NotEmpty()
+            .WithMessage(translationService.GetResource("Admin.Content.Blog.BlogPosts.Fields.Title.Required"));
+
+        RuleFor(x => x.Body)
+            .NotEmpty()
+            .WithMessage(translationService.GetResource("Admin.Content.Blog.BlogPosts.Fields.Body.Required"));
+
+        //blog tags should not contain dots
+        //current implementation does not support it because it can be handled as file extension
+        RuleFor(x => x.Tags)
+            .Must(x => x == null || !x.Contains("."))
+            .WithMessage(translationService.GetResource("Admin.Content.Blog.BlogPosts.Fields.Tags.NoDots"));
+    }
+}

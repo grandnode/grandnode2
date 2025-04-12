@@ -6,7 +6,7 @@ using Grand.Business.Core.Interfaces.Marketing.PushNotifications;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Permissions;
 using Grand.Domain.PushNotifications;
-using Grand.Web.Admin.Models.PushNotifications;
+using Grand.Web.AdminShared.Models.PushNotifications;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Orders;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;

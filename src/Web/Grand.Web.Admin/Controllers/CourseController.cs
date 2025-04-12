@@ -7,14 +7,15 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Courses;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Courses;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Courses;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.AdminShared.Extensions;
 
 namespace Grand.Web.Admin.Controllers;
 

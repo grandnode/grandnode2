@@ -1,0 +1,19 @@
+﻿using Grand.Infrastructure.ModelBinding;
+using Grand.Infrastructure.Models;
+
+namespace Grand.Web.AdminShared.Models.Documents;
+
+public class DocumentTypeModel : BaseEntityModel
+{
+    [GrandResourceDisplayName("Admin.Documents.Type.Fields.Name")]
+
+    public string Name { get; set; }
+
+    [GrandResourceDisplayName("Admin.Documents.Type.Fields.Description")]
+
+    public string Description { get; set; }
+
+    [GrandResourceDisplayName("Admin.Documents.Type.Fields.DisplayOrder")]
+
+    public int DisplayOrder { get; set; }
+}

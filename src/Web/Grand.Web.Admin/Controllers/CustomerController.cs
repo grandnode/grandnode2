@@ -17,15 +17,16 @@ using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Catalog;
-using Grand.Web.Admin.Models.Customers;
-using Grand.Web.Admin.Models.Orders;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.AdminShared.Models.Customers;
+using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Models;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.AdminShared.Extensions;
 
 namespace Grand.Web.Admin.Controllers;
 

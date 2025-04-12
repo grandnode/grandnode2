@@ -8,7 +8,7 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
-using Grand.Web.Admin.Models.Orders;
+using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;

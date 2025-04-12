@@ -1,9 +1,24 @@
-﻿using Grand.Infrastructure.Models;
+﻿using Grand.Infrastructure.ModelBinding;
+using Grand.Infrastructure.Models;
 
 namespace Grand.Web.AdminShared.Models.Cms;
+
 public class WidgetModel : BaseModel
 {
-    public string? WidgetZone { get; set; }
-    public string? ViewComponentName { get; set; }
-    public object? AdditionalData { get; set; }
+    [GrandResourceDisplayName("Admin.Plugins.Widgets.Fields.FriendlyName")]
+
+    public string FriendlyName { get; set; }
+
+    [GrandResourceDisplayName("Admin.Plugins.Widgets.Fields.SystemName")]
+
+    public string SystemName { get; set; }
+
+    [GrandResourceDisplayName("Admin.Plugins.Widgets.Fields.DisplayOrder")]
+    public int DisplayOrder { get; set; }
+
+    [GrandResourceDisplayName("Admin.Plugins.Widgets.Fields.IsActive")]
+    public bool IsActive { get; set; }
+
+    [GrandResourceDisplayName("Admin.Plugins.Widgets.Fields.Configure")]
+    public string ConfigurationUrl { get; set; }
 }

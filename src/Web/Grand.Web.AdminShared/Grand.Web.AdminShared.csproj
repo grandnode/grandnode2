@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,5 +10,11 @@
     <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
     <ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
   </ItemGroup>
-
+	<ItemGroup>
+		<PackageReference Include="elFinder.Net.AspNetCore" />
+		<PackageReference Include="elFinder.Net.Core" />
+		<PackageReference Include="elFinder.Net.Drivers.FileSystem" />
+		<PackageReference Include="Microsoft.AspNetCore.Http" />
+		<PackageReference Include="SixLabors.ImageSharp" />
+	</ItemGroup>
 </Project>

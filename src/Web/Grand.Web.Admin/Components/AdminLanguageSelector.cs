@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Models.Common;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Components;
 using Microsoft.AspNetCore.Mvc;
 

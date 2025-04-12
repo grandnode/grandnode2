@@ -35,6 +35,7 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
     private class AuthorizeAdminFilter(bool ignoreFilter, IPermissionService permissionService,
         SecuritySettings securitySettings, IContextAccessor contextAccessor, IGroupService groupService) : IAsyncAuthorizationFilter
     {
+        const string routeName = "AdminLogin";
 
         #region Methods
 
@@ -61,14 +62,21 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
             //there is AdminAuthorizeFilter, so check access
             if (filterContext.Filters.Any(filter => filter is AuthorizeAdminFilter))
             {
+                
+
                 //authorize permission of access to the admin area
                 if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
-                    filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
+                    filterContext.Result = new RedirectToRouteResult(routeName, new RouteValueDictionary());
 
                 //whether current customer is vendor
                 if (await groupService.IsVendor(contextAccessor.WorkContext.CurrentCustomer) ||
                     contextAccessor.WorkContext.CurrentVendor is not null)
-                    filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
+                    filterContext.Result = new RedirectToRouteResult(routeName, new RouteValueDictionary());
+
+                //whether current customer is store manager
+                if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer) ||
+                    !string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                    filterContext.Result = new RedirectToRouteResult(routeName, new RouteValueDictionary());
 
                 //get allowed IP addresses
                 var ipAddresses = securitySettings.AdminAreaAllowedIpAddresses;
@@ -80,7 +88,7 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
                 //whether current IP is allowed
                 var currentIp = filterContext.HttpContext.Connection.RemoteIpAddress?.ToString();
                 if (!ipAddresses.Any(ip => ip.Equals(currentIp, StringComparison.OrdinalIgnoreCase)))
-                    filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
+                    filterContext.Result = new RedirectToRouteResult(routeName, new RouteValueDictionary());
             }
         }
 

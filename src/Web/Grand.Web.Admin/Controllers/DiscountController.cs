@@ -11,16 +11,16 @@ using Grand.Domain.Permissions;
 using Grand.Domain;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
-using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Extensions.Mapping;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Catalog;
-using Grand.Web.Admin.Models.Discounts;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.AdminShared.Models.Discounts;
+using Grand.Web.AdminShared.Extensions;
 
 namespace Grand.Web.Admin.Controllers;
 
