@@ -196,17 +196,9 @@ public class HomeController : BaseAdminController
         return Json(result);
     }
 
-    public async Task<IActionResult> AccessDenied()
+    public IActionResult AccessDenied()
     {
-        var currentCustomer = _contextAccessor.WorkContext.CurrentCustomer;
-        if (currentCustomer == null || await _groupService.IsGuest(currentCustomer))
-        {
-            _logger.LogInformation("Access denied to anonymous request");
-            return View();
-        }
-
-        _logger.LogInformation("Access denied to user #{CurrentCustomerEmail}", currentCustomer.Email);
-
+        _logger.LogInformation("Access denied to user #{CurrentCustomerEmail}", _contextAccessor.WorkContext.CurrentCustomer);
         return View();
     }
 

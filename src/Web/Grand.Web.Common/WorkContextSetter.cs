@@ -153,6 +153,7 @@ public class WorkContextSetter : IWorkContextSetter
         if (workContext.CurrentCustomer != null)
         {
             workContext.CurrentVendor = await CurrentVendor(workContext.CurrentCustomer);
+            workContext.StoreManager = await GetStoreManager(workContext.CurrentCustomer);
             workContext.OriginalCustomerIfImpersonated = _originalCustomerIfImpersonated;
             workContext.WorkingLanguage = await WorkingLanguage(workContext.CurrentCustomer, currentStore);
             workContext.WorkingCurrency = await WorkingCurrency(workContext.CurrentCustomer, workContext.WorkingLanguage, currentStore);
@@ -317,6 +318,28 @@ public class WorkContextSetter : IWorkContextSetter
     }
 
     /// <summary>
+    ///    Get the store (store manager)
+    /// </summary>
+    /// <param name="customer"></param>
+    /// <returns></returns>
+    protected async Task<Store> GetStoreManager(Customer customer)
+    {
+        if (customer == null)
+            return await Task.FromResult<Store>(null);
+        
+        if (string.IsNullOrEmpty(customer.StoreId))
+            return await Task.FromResult<Store>(null);
+
+        //try to get store
+        var store = await _storeService.GetStoreById(customer.StoreId);
+        //check store availability
+        if (store == null)  // || store.Deleted || !store.Published)
+            return await Task.FromResult<Store>(null);
+
+        return store;
+    }
+
+    /// <summary>
     ///     Set current user working language by Middleware
     /// </summary>
     /// <param name="customer"></param>
@@ -431,6 +454,8 @@ public class WorkContextSetter : IWorkContextSetter
         public Language WorkingLanguage { get; set; }
 
         public Currency WorkingCurrency { get; set; }
+
+        public Store StoreManager { get; set; }
 
         public TaxDisplayType TaxDisplayType { get; set; }
     }

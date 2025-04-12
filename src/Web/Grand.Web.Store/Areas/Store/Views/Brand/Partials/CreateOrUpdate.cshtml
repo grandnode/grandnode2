@@ -1,0 +1,53 @@
+﻿@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Domain.Permissions
+@model BrandModel
+@inject IPermissionService permissionService
+@{
+    //has "Manage Documents" permission?
+    var canManageDocuments = await permissionService.Authorize(StandardPermission.ManageDocuments);
+}
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+<admin-tabstrip name="brand-edit" BindGrid="true">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Catalog.Brands.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Common.SEO"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabSeo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Brands.Discounts"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabDiscounts" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (canManageDocuments)
+        {
+            <tabstrip-item text="@Loc["Admin.Catalog.Brands.Documents"]" tab-index="3">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabDocuments" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="4">
+            <content>
+                <div>
+                    <partial name="Partials/UserFields" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="brand_details_tabs" additional-data="Model"/>
+    </items>
+</admin-tabstrip>

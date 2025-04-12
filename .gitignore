@@ -375,3 +375,9 @@ src/Web/Grand.Web.Vendor/Plugins/*
 src/Web/Grand.Web.Vendor/Modules/*
 src/Web/Grand.Web.Vendor/App_Data/DataProtectionKeys/*
 src/Web/Grand.Web.Vendor/wwwroot/assets/images/thumbs/*.**
+src/Web/Grand.Web.Store/App_Data/InstalledPlugins.cfg
+src/Web/Grand.Web.Store/App_Data/Settings.cfg
+src/Web/Grand.Web.Store/Plugins/*
+src/Web/Grand.Web.Store/Modules/*
+src/Web/Grand.Web.Store/App_Data/DataProtectionKeys/*
+src/Web/Grand.Web.Store/wwwroot/assets/images/thumbs/*.**

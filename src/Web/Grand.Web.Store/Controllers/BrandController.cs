@@ -1,11 +1,10 @@
-﻿using Grand.Business.Core.Dto;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
+using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
@@ -14,26 +13,25 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Grand.Web.Admin.Controllers;
+namespace Grand.Web.Store.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.Brands)]
-public class BrandController : BaseAdminController
+public class BrandController : BaseStoreController
 {
     #region Constructors
 
     public BrandController(
         IBrandViewModelService brandViewModelService,
         IBrandService brandService,
-        IStoreService storeService,
+        IContextAccessor contextAccessor,
         ILanguageService languageService,
         ITranslationService translationService,
         IPictureViewModelService pictureViewModelService)
     {
         _brandViewModelService = brandViewModelService;
         _brandService = brandService;
-        _storeService = storeService;
+        _contextAccessor = contextAccessor;
         _languageService = languageService;
         _translationService = translationService;
         _pictureViewModelService = pictureViewModelService;
@@ -45,7 +43,7 @@ public class BrandController : BaseAdminController
 
     private readonly IBrandViewModelService _brandViewModelService;
     private readonly IBrandService _brandService;
-    private readonly IStoreService _storeService;
+    private readonly IContextAccessor _contextAccessor;
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
     private readonly IPictureViewModelService _pictureViewModelService;
@@ -59,13 +57,9 @@ public class BrandController : BaseAdminController
         return RedirectToAction("List");
     }
 
-    public async Task<IActionResult> List()
+    public IActionResult List()
     {
         var model = new BrandListModel();
-        model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-        foreach (var s in (await _storeService.GetAllStores()))
-            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
-
         return View(model);
     }
 
@@ -73,8 +67,9 @@ public class BrandController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, BrandListModel model)
     {
-        var brands = await _brandService.GetAllBrands(model.SearchBrandName,
-            model.SearchStoreId, command.Page - 1, command.PageSize, true);
+        model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+
+        var brands = await _brandService.GetAllBrands(model.SearchBrandName, model.SearchStoreId, command.Page - 1, command.PageSize, true);
         var gridModel = new DataSourceResult {
             Data = brands.Select(x => x.ToModel()),
             Total = brands.TotalCount
@@ -115,6 +110,7 @@ public class BrandController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
+            model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             var collection = await _brandViewModelService.InsertBrandModel(model);
             Success(_translationService.GetResource("Admin.Catalog.Brands.Added"));
             return continueEditing ? RedirectToAction("Edit", new { id = collection.Id }) : RedirectToAction("List");
@@ -138,6 +134,19 @@ public class BrandController : BaseAdminController
         if (brand == null)
             //No collection found with the specified id
             return RedirectToAction("List");
+
+        if (!brand.LimitedToStores || (brand.LimitedToStores &&
+                                       brand.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
+                                       brand.Stores.Count > 1))
+        {
+            Warning(_translationService.GetResource("Admin.Catalog.Brands.Permissions"));
+        }
+        else
+        {
+            if (!brand.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                return RedirectToAction("List");
+        }
+
 
         var model = brand.ToModel();
         //locales
@@ -171,8 +180,12 @@ public class BrandController : BaseAdminController
             //No collection found with the specified id
             return RedirectToAction("List");
 
+        if (!brand.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return RedirectToAction("Edit", new { id = brand.Id });
+
         if (ModelState.IsValid)
         {
+            model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             brand = await _brandViewModelService.UpdateBrandModel(brand, model);
             Success(_translationService.GetResource("Admin.Catalog.Brands.Updated"));
 
@@ -208,6 +221,9 @@ public class BrandController : BaseAdminController
             //No collection found with the specified id
             return RedirectToAction("List");
 
+        if (!brand.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return RedirectToAction("Edit", new { id = brand.Id });
+
         if (ModelState.IsValid)
         {
             await _brandViewModelService.DeleteBrand(brand);
@@ -231,6 +247,9 @@ public class BrandController : BaseAdminController
         if (brand == null)
             return Content("Brand not exist");
 
+        if (!brand.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return Content("This is not your brand");
+
         if (string.IsNullOrEmpty(brand.PictureId))
             return Content("Picture not exist");
 
@@ -248,6 +267,9 @@ public class BrandController : BaseAdminController
             if (brand == null)
                 throw new ArgumentException("No brand found with the specified id");
 
+            if (!brand.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                return Content("This is not your brand");
+
             if (string.IsNullOrEmpty(brand.PictureId))
                 throw new ArgumentException("No picture found with the specified id");
 
@@ -263,52 +285,5 @@ public class BrandController : BaseAdminController
 
         return View("Partials/PicturePopup", model);
     }
-
-    #endregion
-
-    #region Export / Import
-
-    [PermissionAuthorizeAction(PermissionActionName.Export)]
-    public async Task<IActionResult> ExportXlsx([FromServices] IExportManager<Brand> exportManager)
-    {
-        try
-        {
-            var bytes = await exportManager.Export(await _brandService.GetAllBrands(showHidden: true));
-            return File(bytes, "text/xls", "brands.xlsx");
-        }
-        catch (Exception exc)
-        {
-            Error(exc);
-            return RedirectToAction("List");
-        }
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Import)]
-    [HttpPost]
-    public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile,
-        [FromServices] IImportManager<BrandDto> importManager)
-    {
-        try
-        {
-            if (importexcelfile is { Length: > 0 })
-            {
-                await importManager.Import(importexcelfile.OpenReadStream());
-            }
-            else
-            {
-                Error(_translationService.GetResource("Admin.Common.UploadFile"));
-                return RedirectToAction("List");
-            }
-
-            Success(_translationService.GetResource("Admin.Catalog.Brands.Imported"));
-            return RedirectToAction("List");
-        }
-        catch (Exception exc)
-        {
-            Error(exc);
-            return RedirectToAction("List");
-        }
-    }
-
     #endregion
 }
