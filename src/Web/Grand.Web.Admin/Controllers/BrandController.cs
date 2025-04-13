@@ -98,8 +98,8 @@ public class BrandController : BaseAdminController
         //discounts
         await _brandViewModelService.PrepareDiscountModel(model, null, true);
         //default values
-        model.PageSize = catalogSettings.DefaultCollectionPageSize;
-        model.PageSizeOptions = catalogSettings.DefaultCollectionPageSizeOptions;
+        model.PageSize = catalogSettings.DefaultPageSize;
+        model.PageSizeOptions = catalogSettings.DefaultPageSizeOptions;
         model.Published = true;
         model.AllowCustomersToSelectPageSize = true;
         //sort options

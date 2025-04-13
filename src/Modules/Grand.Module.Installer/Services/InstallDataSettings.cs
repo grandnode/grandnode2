@@ -233,8 +233,8 @@ public partial class InstallationService
             ProductsByTagAllowCustomersToSelectPageSize = true,
             ProductsByTagPageSizeOptions = "6, 3, 9, 18",
             CollectionsBlockItemsToDisplay = 2,
-            DefaultCategoryPageSizeOptions = "6, 3, 9",
-            DefaultCollectionPageSize = 6,
+            DefaultPageSizeOptions = "6, 3, 9",
+            DefaultPageSize = 6,
             LimitOfFeaturedProducts = 30,
             SecondPictureOnCatalogPages = true
         });

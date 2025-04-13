@@ -104,8 +104,8 @@ public class CategoryViewModelService : ICategoryViewModelService
         await PrepareDiscountModel(model, null, true, storeId);
 
         //default values
-        model.PageSize = _catalogSettings.DefaultCategoryPageSize;
-        model.PageSizeOptions = _catalogSettings.DefaultCategoryPageSizeOptions;
+        model.PageSize = _catalogSettings.DefaultPageSize;
+        model.PageSizeOptions = _catalogSettings.DefaultPageSizeOptions;
         model.Published = true;
         model.IncludeInMenu = true;
         model.AllowCustomersToSelectPageSize = true;

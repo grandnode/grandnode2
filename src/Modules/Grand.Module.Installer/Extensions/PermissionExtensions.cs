@@ -10,6 +10,7 @@ public static class PermissionExtensions
         return [
             StandardPermission.ManageAccessAdminPanel,
             StandardPermission.ManageAccessVendorPanel,
+            StandardPermission.ManageAccessStoreManagerPanel,
             StandardPermission.AllowCustomerImpersonation,
             StandardPermission.ManageProducts,
             StandardPermission.ManageCategories,
@@ -196,7 +197,7 @@ public static class PermissionExtensions
             new DefaultPermission {
                 CustomerGroupSystemName = SystemCustomerGroupNames.StoreManager,
                 Permissions = [
-                    StandardPermission.ManageAccessAdminPanel,
+                    StandardPermission.ManageAccessStoreManagerPanel,
                     StandardPermission.ManageProducts,
                     StandardPermission.ManageFiles,
                     StandardPermission.ManagePictures,

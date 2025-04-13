@@ -241,8 +241,12 @@ public class CatalogSettingsModel : BaseModel
 
     public IList<SelectListItem> DefaultViewModes { get; set; }
 
-    [GrandResourceDisplayName("Admin.Settings.Catalog.DefaultCollectionPageSize")]
-    public int DefaultCollectionPageSize { get; set; }
+    [GrandResourceDisplayName("Admin.Settings.Catalog.DefaultPageSizeOptions")]
+    public string DefaultPageSizeOptions { get; set; }
+
+    [GrandResourceDisplayName("Admin.Settings.Catalog.DefaultPageSize")]
+    public int DefaultPageSize { get; set; }
+
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.MaxCatalogPageSize")]
     public int MaxCatalogPageSize { get; set; }

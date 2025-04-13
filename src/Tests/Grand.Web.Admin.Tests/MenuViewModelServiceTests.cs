@@ -2,9 +2,9 @@
 using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Domain.Admin;
 using Grand.Infrastructure.Mapper;
-using Grand.Web.Admin.Mapper;
-using Grand.Web.Admin.Models.Menu;
-using Grand.Web.Admin.Services;
+using Grand.Web.AdminShared.Mapper;
+using Grand.Web.AdminShared.Models.Menu;
+using Grand.Web.AdminShared.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;

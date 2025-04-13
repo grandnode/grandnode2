@@ -640,11 +640,20 @@
 </div>
 <div class="form-group">
     <div class="col-6 col-md-6 col-sm-6">
-        <admin-label asp-for="DefaultCollectionPageSize" class="control-label"/>
+        <admin-label asp-for="DefaultPageSizeOptions" class="control-label"/>
     </div>
     <div class="col-6 col-md-6 col-sm-6">
-        <admin-input asp-for="DefaultCollectionPageSize"/>
-        <span asp-validation-for="DefaultCollectionPageSize"></span>
+        <admin-input asp-for="DefaultPageSizeOptions"/>
+        <span asp-validation-for="DefaultPageSizeOptions"></span>
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-6 col-md-6 col-sm-6">
+        <admin-label asp-for="DefaultPageSize" class="control-label"/>
+    </div>
+    <div class="col-6 col-md-6 col-sm-6">
+        <admin-input asp-for="DefaultPageSize"/>
+        <span asp-validation-for="DefaultPageSize"></span>
     </div>
 </div>
 <div class="form-group">
