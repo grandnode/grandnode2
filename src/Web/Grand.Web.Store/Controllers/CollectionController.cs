@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Dto;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
+using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
@@ -14,28 +14,29 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Grand.Web.Admin.Controllers;
+namespace Grand.Web.Store.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.Collections)]
-public class CollectionController : BaseAdminController
+public class CollectionController : BaseStoreController
 {
     #region Constructors
 
     public CollectionController(
         ICollectionViewModelService collectionViewModelService,
         ICollectionService collectionService,
-        IStoreService storeService,
+        IContextAccessor contextAccessor,
         ILanguageService languageService,
         ITranslationService translationService,
+        IGroupService groupService,
         IPictureViewModelService pictureViewModelService)
     {
         _collectionViewModelService = collectionViewModelService;
         _collectionService = collectionService;
-        _storeService = storeService;
+        _contextAccessor = contextAccessor;
         _languageService = languageService;
         _translationService = translationService;
+        _groupService = groupService;
         _pictureViewModelService = pictureViewModelService;
     }
 
@@ -45,9 +46,10 @@ public class CollectionController : BaseAdminController
 
     private readonly ICollectionViewModelService _collectionViewModelService;
     private readonly ICollectionService _collectionService;
-    private readonly IStoreService _storeService;
+    private readonly IContextAccessor _contextAccessor;
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
+    private readonly IGroupService _groupService;
     private readonly IPictureViewModelService _pictureViewModelService;
 
     #endregion
@@ -59,13 +61,9 @@ public class CollectionController : BaseAdminController
         return RedirectToAction("List");
     }
 
-    public async Task<IActionResult> List()
+    public IActionResult List()
     {
         var model = new CollectionListModel();
-        model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-        foreach (var s in (await _storeService.GetAllStores()))
-            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
-
         return View(model);
     }
 
@@ -73,6 +71,7 @@ public class CollectionController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, CollectionListModel model)
     {
+        model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var collections = await _collectionService.GetAllCollections(model.SearchCollectionName,
             model.SearchStoreId, command.Page - 1, command.PageSize, true);
         var gridModel = new DataSourceResult {
@@ -115,6 +114,7 @@ public class CollectionController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
+            model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             var collection = await _collectionViewModelService.InsertCollectionModel(model);
             Success(_translationService.GetResource("Admin.Catalog.Collections.Added"));
             return continueEditing ? RedirectToAction("Edit", new { id = collection.Id }) : RedirectToAction("List");
@@ -138,6 +138,21 @@ public class CollectionController : BaseAdminController
         if (collection == null)
             //No collection found with the specified id
             return RedirectToAction("List");
+
+        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
+        {
+            if (!collection.LimitedToStores || (collection.LimitedToStores &&
+                                                collection.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
+                                                collection.Stores.Count > 1))
+            {
+                Warning(_translationService.GetResource("Admin.Catalog.Collections.Permissions"));
+            }
+            else
+            {
+                if (!collection.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                    return RedirectToAction("List");
+            }
+        }
 
         var model = collection.ToModel();
         //locales
@@ -171,8 +186,12 @@ public class CollectionController : BaseAdminController
             //No collection found with the specified id
             return RedirectToAction("List");
 
+        if (!collection.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return RedirectToAction("Edit", new { id = collection.Id });
+
         if (ModelState.IsValid)
         {
+            model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             collection = await _collectionViewModelService.UpdateCollectionModel(collection, model);
             Success(_translationService.GetResource("Admin.Catalog.Collections.Updated"));
 
@@ -184,7 +203,6 @@ public class CollectionController : BaseAdminController
             }
             return RedirectToAction("List");
         }
-
         //If we got this far, something failed, redisplay form
         //layouts
         await _collectionViewModelService.PrepareLayoutsModel(model);
@@ -204,6 +222,9 @@ public class CollectionController : BaseAdminController
         if (collection == null)
             //No collection found with the specified id
             return RedirectToAction("List");
+
+        if (!collection.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return RedirectToAction("Edit", new { id = collection.Id });
 
         if (ModelState.IsValid)
         {
@@ -228,6 +249,9 @@ public class CollectionController : BaseAdminController
         if (collection == null)
             return Content("Collection not exist");
 
+        if (!collection.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return Content("This is not your collection");
+
         if (string.IsNullOrEmpty(collection.PictureId))
             return Content("Picture not exist");
 
@@ -241,7 +265,12 @@ public class CollectionController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var collection = await _collectionService.GetCollectionById(model.ObjectId) ?? throw new ArgumentException("No collection found with the specified id");
+            var collection = await _collectionService.GetCollectionById(model.ObjectId);
+            if (collection == null)
+                throw new ArgumentException("No collection found with the specified id");
+
+            if (!collection.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                return Content("This is not your collection");
 
             if (string.IsNullOrEmpty(collection.PictureId))
                 throw new ArgumentException("No picture found with the specified id");
@@ -261,52 +290,6 @@ public class CollectionController : BaseAdminController
 
     #endregion
 
-    #region Export / Import
-
-    [PermissionAuthorizeAction(PermissionActionName.Export)]
-    public async Task<IActionResult> ExportXlsx([FromServices] IExportManager<Collection> exportManager)
-    {
-        try
-        {
-            var bytes = await exportManager.Export(await _collectionService.GetAllCollections(showHidden: true));
-            return File(bytes, "text/xls", "collections.xlsx");
-        }
-        catch (Exception exc)
-        {
-            Error(exc);
-            return RedirectToAction("List");
-        }
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Import)]
-    [HttpPost]
-    public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile,
-        [FromServices] IImportManager<CollectionDto> importManager)
-    {
-        try
-        {
-            if (importexcelfile is { Length: > 0 })
-            {
-                await importManager.Import(importexcelfile.OpenReadStream());
-            }
-            else
-            {
-                Error(_translationService.GetResource("Admin.Common.UploadFile"));
-                return RedirectToAction("List");
-            }
-
-            Success(_translationService.GetResource("Admin.Catalog.Collection.Imported"));
-            return RedirectToAction("List");
-        }
-        catch (Exception exc)
-        {
-            Error(exc);
-            return RedirectToAction("List");
-        }
-    }
-
-    #endregion
-
     #region Products
 
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
@@ -314,8 +297,10 @@ public class CollectionController : BaseAdminController
     public async Task<IActionResult> ProductList(DataSourceRequest command, string collectionId)
     {
         var collection = await _collectionService.GetCollectionById(collectionId);
+        if (!collection.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return ErrorForKendoGridJson("This is not your collection");
 
-        var (collectionProductModels, totalCount) = await _collectionViewModelService.PrepareCollectionProductModel(collectionId, string.Empty, command.Page, command.PageSize);
+        var (collectionProductModels, totalCount) = await _collectionViewModelService.PrepareCollectionProductModel(collectionId, _contextAccessor.StoreContext.CurrentStore.Id, command.Page, command.PageSize);
 
         var gridModel = new DataSourceResult {
             Data = collectionProductModels.ToList(),
@@ -353,7 +338,7 @@ public class CollectionController : BaseAdminController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> ProductAddPopup(string collectionId)
     {
-        var model = await _collectionViewModelService.PrepareAddCollectionProductModel(string.Empty);
+        var model = await _collectionViewModelService.PrepareAddCollectionProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
         model.CollectionId = collectionId;
         return View(model);
     }
@@ -363,6 +348,7 @@ public class CollectionController : BaseAdminController
     public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command,
         CollectionModel.AddCollectionProductModel model)
     {
+        model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var products = await _collectionViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = products.products.ToList(),

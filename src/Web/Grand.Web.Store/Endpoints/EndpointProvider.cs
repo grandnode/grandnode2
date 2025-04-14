@@ -13,11 +13,11 @@ public class EndpointProvider : IEndpointProvider
             Constants.AreaStore,
             $"{Constants.AreaStore}/{{controller=Home}}/{{action=Index}}/{{id?}}");
 
-        //vendor index
+        //store index
         endpointRouteBuilder.MapControllerRoute("StoreIndex", "store/",
             new { controller = "Home", action = "Index", area = Constants.AreaStore });
 
-        //vendor login
+        //store login
         endpointRouteBuilder.MapControllerRoute("StoreLogin", "store/login/",
             new { controller = "Login", action = "Index", area = Constants.AreaStore });
     }
