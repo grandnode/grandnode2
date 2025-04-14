@@ -301,13 +301,11 @@ public class CategoryViewModelService : ICategoryViewModelService
             });
     }
 
-    protected virtual async Task PrepareDiscountModel(CategoryModel model, Category category, bool excludeProperties,
-        string storeId)
+    protected virtual async Task PrepareDiscountModel(CategoryModel model, Category category, bool excludeProperties, string storeId)
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        model.AvailableDiscounts = (await _discountService
-                .GetDiscountsQuery(DiscountType.AssignedToCategories, storeId))
+        model.AvailableDiscounts = (await _discountService.GetDiscountsQuery(DiscountType.AssignedToCategories, storeId))
             .Select(d => d.ToModel())
             .ToList();
 
