@@ -23,7 +23,6 @@ using Grand.Domain.Seo;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
@@ -141,21 +140,17 @@ public class ProductViewModelService(
             (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
     }
 
-    public virtual async Task PrepareTierPriceModel(ProductModel.TierPriceModel model)
+    public virtual async Task PrepareTierPriceModel(ProductModel.TierPriceModel model, string storeId = "")
     {
-        var storeId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
         if (string.IsNullOrEmpty(storeId))
-            model.AvailableStores.Add(new SelectListItem
-                { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
 
         foreach (var store in (await storeService.GetAllStores()).Where(x =>
                      x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
             model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
 
         //customer groups
-        model.AvailableCustomerGroups.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableCustomerGroups.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var role in await groupService.GetAllCustomerGroups(showHidden: true))
             model.AvailableCustomerGroups.Add(new SelectListItem { Text = role.Name, Value = role.Id });
 
@@ -375,11 +370,13 @@ public class ProductViewModelService(
         //tax categories
         var taxCategories = await taxCategoryService.GetAllTaxCategories();
         model.AvailableTaxCategories.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = ""
+            Text = translationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"),
+            Value = ""
         });
         foreach (var tc in taxCategories)
             model.AvailableTaxCategories.Add(new SelectListItem {
-                Text = tc.Name, Value = tc.Id,
+                Text = tc.Name,
+                Value = tc.Id,
                 Selected = product != null && !setPredefinedValues && tc.Id == product.TaxCategoryId
             });
 
@@ -387,12 +384,14 @@ public class ProductViewModelService(
         var measureWeights = await measureService.GetAllMeasureWeights();
         foreach (var mw in measureWeights)
             model.AvailableBasepriceUnits.Add(new SelectListItem {
-                Text = mw.Name, Value = mw.Id,
+                Text = mw.Name,
+                Value = mw.Id,
                 Selected = product != null && !setPredefinedValues && mw.Id == product.BasepriceUnitId
             });
         foreach (var mw in measureWeights)
             model.AvailableBasepriceBaseUnits.Add(new SelectListItem {
-                Text = mw.Name, Value = mw.Id,
+                Text = mw.Name,
+                Value = mw.Id,
                 Selected = product != null && !setPredefinedValues && mw.Id == product.BasepriceBaseUnitId
             });
 
@@ -400,12 +399,10 @@ public class ProductViewModelService(
         var units = await measureService.GetAllMeasureUnits();
         model.AvailableUnits.Add(new SelectListItem { Text = "---", Value = "" });
         foreach (var un in units)
-            model.AvailableUnits.Add(new SelectListItem
-                { Text = un.Name, Value = un.Id, Selected = product != null && un.Id == product.UnitId });
+            model.AvailableUnits.Add(new SelectListItem { Text = un.Name, Value = un.Id, Selected = product != null && un.Id == product.UnitId });
 
         //discounts
-        model.AvailableDiscounts = (await discountService
-                .GetDiscountsQuery(DiscountType.AssignedToSkus, contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+        model.AvailableDiscounts = (await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus, model.StoreId))
             .Select(d => d.ToModel(dateTimeService))
             .ToList();
         if (!excludeProperties && product != null) model.SelectedDiscountIds = product.AppliedDiscounts.ToArray();
@@ -523,21 +520,17 @@ public class ProductViewModelService(
         }
     }
 
-    public virtual async Task<ProductListModel> PrepareProductListModel()
+    public virtual async Task<ProductListModel> PrepareProductListModel(string storeId = "")
     {
         var model = new ProductListModel();
 
-        var storeId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
         //stores
-        model.AvailableStores.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var s in (await storeService.GetAllStores()).Where(x =>
                      x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
             model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
         //warehouses
-        model.AvailableWarehouses.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableWarehouses.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var wh in await warehouseService.GetAllWarehouses())
             model.AvailableWarehouses.Add(new SelectListItem { Text = wh.Name, Value = wh.Id });
 
@@ -552,8 +545,7 @@ public class ProductViewModelService(
         //2 - unpublished only
         //3 - Show on homepage
         //4 - mark as new
-        model.AvailablePublishedOptions.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.All"), Value = " " });
+        model.AvailablePublishedOptions.Add(new SelectListItem { Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.All"), Value = " " });
         model.AvailablePublishedOptions.Add(new SelectListItem {
             Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.PublishedOnly"),
             Value = "1"
@@ -567,7 +559,8 @@ public class ProductViewModelService(
             Value = "3"
         });
         model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.MarkAsNew"), Value = "4"
+            Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.MarkAsNew"),
+            Value = "4"
         });
 
         return model;
@@ -576,9 +569,6 @@ public class ProductViewModelService(
     public virtual async Task<(IEnumerable<ProductModel> productModels, int totalCount)> PrepareProductsModel(
         ProductListModel model, int pageIndex, int pageSize)
     {
-        //limit for store manager
-        if (!string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            model.SearchStoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var categoryIds = new List<string>();
         if (!string.IsNullOrEmpty(model.SearchCategoryId))
@@ -651,9 +641,6 @@ public class ProductViewModelService(
 
     public virtual async Task<IList<Product>> PrepareProducts(ProductListModel model)
     {
-        //limit for store manager
-        model.SearchStoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
         var categoryIds = new List<string>();
         if (!string.IsNullOrEmpty(model.SearchCategoryId))
             categoryIds.Add(model.SearchCategoryId);
@@ -694,53 +681,42 @@ public class ProductViewModelService(
 
     public virtual async Task<Product> InsertProductModel(ProductModel model)
     {
-        //a staff should have access only to his products
-        if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
-            model.Stores = [contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
-
         //product
         var product = model.ToEntity(dateTimeService);
-        
+
         //discounts
-        var allDiscounts =
-            await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus,
-                contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
-        foreach (var discount in allDiscounts)
+        var allDiscounts = await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus, model.StoreId);
+        foreach (Discount discount in allDiscounts)
             if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
             {
                 product.AppliedDiscounts.Add(discount.Id);
             }
-        
+
         product.Locales = await seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
         product.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
-        
+
         await productService.InsertProduct(product);
 
         //search engine name
         await seNameService.SaveSeName(product);
-        
+
         //tags
         await SaveProductTags(product, ParseProductTags(model.ProductTags));
-        
+
         //warehouses
         await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
-        
-        
-        
+
+
+
         await productService.UpdateProduct(product);
-        
+
         return product;
     }
 
     public virtual async Task<Product> UpdateProductModel(Product product, ProductModel model)
     {
-        //a staff should have access only to his products
-        if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
-            model.Stores = [contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
-
         var prevStockQuantity = stockQuantityService.GetTotalStockQuantity(product, total: true);
-        var prevMultiWarehouseStock = product.ProductWarehouseInventory.Select(i => new ProductWarehouseInventory
-                { WarehouseId = i.WarehouseId, StockQuantity = i.StockQuantity, ReservedQuantity = i.ReservedQuantity })
+        var prevMultiWarehouseStock = product.ProductWarehouseInventory.Select(i => new ProductWarehouseInventory { WarehouseId = i.WarehouseId, StockQuantity = i.StockQuantity, ReservedQuantity = i.ReservedQuantity })
             .ToList();
 
         var prevDownloadId = product.DownloadId;
@@ -752,9 +728,8 @@ public class ProductViewModelService(
         product.Locales = await seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
         product.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
         //discounts
-        var allDiscounts =
-            await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus,
-                contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var allDiscounts = await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus, model.StoreId);
+
         foreach (var discount in allDiscounts)
             if (model.SelectedDiscountIds != null && model.SelectedDiscountIds.Contains(discount.Id))
             {
@@ -772,7 +747,7 @@ public class ProductViewModelService(
                     product.AppliedDiscounts.Remove(discount.Id);
                 }
             }
-               
+
         await productService.UpdateProduct(product);
 
         //search engine name
@@ -832,27 +807,19 @@ public class ProductViewModelService(
         products.AddRange(await productService.GetProductsByIds(selectedIds.ToArray(), true));
         for (var i = 0; i < products.Count; i++)
         {
-            var product = products[i];
-            if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
-                if (!(product.LimitedToStores && product.Stores.Contains(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
-                      product.Stores.Count == 1))
-                    continue;
-            await DeleteProduct(product);
+            await DeleteProduct(products[i]);
         }
     }
 
-    public virtual async Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel()
+    public virtual async Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel(string storeId = "")
     {
-        var model = await PrepareAddProductModel<ProductModel.AddRequiredProductModel>();
+        var model = await PrepareAddProductModel<ProductModel.AddRequiredProductModel>(storeId);
         return model;
     }
 
     public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(
         ProductModel.AddProductModel model, int pageIndex, int pageSize)
     {
-        //limit for store manager
-        model.SearchStoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
         var products = await productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
             model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);
@@ -1192,47 +1159,45 @@ public class ProductViewModelService(
         await productService.UpdateAssociatedProduct(product);
     }
 
-    public virtual async Task<ProductModel.AddRelatedProductModel> PrepareRelatedProductModel()
+    public virtual async Task<ProductModel.AddRelatedProductModel> PrepareRelatedProductModel(string storeId = "")
     {
-        var model = await PrepareAddProductModel<ProductModel.AddRelatedProductModel>();
+        var model = await PrepareAddProductModel<ProductModel.AddRelatedProductModel>(storeId);
         return model;
     }
 
-    public virtual async Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel()
+    public virtual async Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel(string storeId = "")
     {
-        var model = await PrepareAddProductModel<ProductModel.AddSimilarProductModel>();
+        var model = await PrepareAddProductModel<ProductModel.AddSimilarProductModel>(storeId);
         return model;
     }
 
-    public virtual async Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel()
+    public virtual async Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel(string storeId = "")
     {
-        var model = await PrepareAddProductModel<ProductModel.AddBundleProductModel>();
+        var model = await PrepareAddProductModel<ProductModel.AddBundleProductModel>(storeId);
         return model;
     }
 
-    public virtual async Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel()
+    public virtual async Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel(string storeId = "")
     {
-        var model = await PrepareAddProductModel<ProductModel.AddCrossSellProductModel>();
+        var model = await PrepareAddProductModel<ProductModel.AddCrossSellProductModel>(storeId);
         return model;
     }
 
-    public virtual async Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel()
+    public virtual async Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel(string storeId = "")
     {
-        var model = await PrepareAddProductModel<ProductModel.AddRecommendedProductModel>();
+        var model = await PrepareAddProductModel<ProductModel.AddRecommendedProductModel>(storeId);
         return model;
     }
 
-    public virtual async Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel()
+    public virtual async Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel(string storeId = "")
     {
-        var model = await PrepareAddProductModel<ProductModel.AddAssociatedProductModel>();
+        var model = await PrepareAddProductModel<ProductModel.AddAssociatedProductModel>(storeId);
         return model;
     }
 
-    public virtual async Task<BulkEditListModel> PrepareBulkEditListModel()
+    public virtual async Task<BulkEditListModel> PrepareBulkEditListModel(string storeId = "")
     {
         var model = new BulkEditListModel();
-
-        string storeId;
 
         //product types
         model.AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
@@ -1240,17 +1205,15 @@ public class ProductViewModelService(
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "0" });
 
         // avaible stores
-        if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
+        if (!string.IsNullOrEmpty(storeId))
         {
-            storeId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
             var store = (await storeService.GetAllStores()).FirstOrDefault(x => x.Id == storeId);
             if (store != null)
                 model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
         }
         else
         {
-            model.AvailableStores.Add(new SelectListItem
-                { Text = translationService.GetResource("Admin.Common.All"), Value = "" });
+            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "" });
 
             foreach (var s in await storeService.GetAllStores())
                 model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
@@ -1262,10 +1225,6 @@ public class ProductViewModelService(
     public virtual async Task<(IEnumerable<BulkEditProductModel> bulkEditProductModels, int totalCount)>
         PrepareBulkEditProductModel(BulkEditListModel model, int pageIndex, int pageSize)
     {
-        var storeId = model.SearchStoreId;
-        if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
-            storeId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
         var searchCategoryIds = new List<string>();
         if (!string.IsNullOrEmpty(model.SearchCategoryId))
             searchCategoryIds.Add(model.SearchCategoryId);
@@ -1273,7 +1232,7 @@ public class ProductViewModelService(
         var products = (await productService.SearchProducts(categoryIds: searchCategoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
-            storeId: storeId,
+            storeId: model.SearchStoreId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
             pageIndex: pageIndex - 1,
@@ -1305,11 +1264,6 @@ public class ProductViewModelService(
             var product = await productService.GetProductById(pModel.Id, true);
             if (product != null)
             {
-                //a staff can have access only to his products
-                if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
-                    if (!product.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                        continue;
-
                 var prevStockQuantity = stockQuantityService.GetTotalStockQuantity(product, total: true);
 
                 product.Sku = pModel.Sku;
@@ -1341,19 +1295,13 @@ public class ProductViewModelService(
             var product = await productService.GetProductById(pModel.Id, true);
             if (product != null)
             {
-                if (await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer))
-                    if (!product.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                        continue;
-
                 await productService.DeleteProduct(product);
             }
         }
     }
 
-    public virtual async Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product)
+    public virtual async Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product, string storeId = "")
     {
-        var storeId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
         var items = new List<ProductModel.TierPriceModel>();
         foreach (var x in product.TierPrices
                      .Where(x => x.StoreId == storeId || string.IsNullOrWhiteSpace(storeId) ||
@@ -1556,8 +1504,7 @@ public class ProductViewModelService(
             {
                 var name = predefinedValue.GetTranslation(x => x.Name, lang.Id, false);
                 if (!string.IsNullOrEmpty(name))
-                    pav.Locales.Add(new TranslationEntity
-                        { LanguageId = lang.Id, LocaleKey = "Name", LocaleValue = name });
+                    pav.Locales.Add(new TranslationEntity { LanguageId = lang.Id, LocaleKey = "Name", LocaleValue = name });
             }
 
             productAttributeMapping.ProductAttributeValues.Add(pav);
@@ -1668,22 +1615,22 @@ public class ProductViewModelService(
                         case AttributeControlType.Checkboxes:
                         case AttributeControlType.ColorSquares:
                         case AttributeControlType.ImageSquares:
-                        {
-                            if (productAttributeMapping.ConditionAttribute.Any())
                             {
-                                //clear default selection
-                                foreach (var item in attributeModel.Values)
-                                    item.IsPreSelected = false;
+                                if (productAttributeMapping.ConditionAttribute.Any())
+                                {
+                                    //clear default selection
+                                    foreach (var item in attributeModel.Values)
+                                        item.IsPreSelected = false;
 
-                                //select new values
-                                var selectedValues =
-                                    product.ParseProductAttributeValues(productAttributeMapping.ConditionAttribute);
-                                foreach (var attributeValue in selectedValues)
-                                foreach (var item in attributeModel.Values)
-                                    if (attributeValue.Id == item.Id)
-                                        item.IsPreSelected = true;
+                                    //select new values
+                                    var selectedValues =
+                                        product.ParseProductAttributeValues(productAttributeMapping.ConditionAttribute);
+                                    foreach (var attributeValue in selectedValues)
+                                        foreach (var item in attributeModel.Values)
+                                            if (attributeValue.Id == item.Id)
+                                                item.IsPreSelected = true;
+                                }
                             }
-                        }
                             break;
                         case AttributeControlType.ReadonlyCheckboxes:
                         case AttributeControlType.TextBox:
@@ -1718,41 +1665,41 @@ public class ProductViewModelService(
                     case AttributeControlType.RadioList:
                     case AttributeControlType.ColorSquares:
                     case AttributeControlType.ImageSquares:
-                    {
-                        var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                        if (!string.IsNullOrEmpty(ctrlAttributes))
-                            customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
-                                attribute, ctrlAttributes).ToList();
-                        else
-                            customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
-                                attribute, "").ToList();
-                    }
-                        break;
-                    case AttributeControlType.Checkboxes:
-                    {
-                        var cblAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                        if (!string.IsNullOrEmpty(cblAttributes))
                         {
-                            var anyValueSelected = false;
-                            foreach (var item in cblAttributes.Split([','],
-                                         StringSplitOptions.RemoveEmptyEntries))
-                                if (!string.IsNullOrEmpty(item))
-                                {
-                                    customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
-                                        attribute, item).ToList();
-                                    anyValueSelected = true;
-                                }
-
-                            if (!anyValueSelected)
+                            var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                            if (!string.IsNullOrEmpty(ctrlAttributes))
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
+                                    attribute, ctrlAttributes).ToList();
+                            else
                                 customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                     attribute, "").ToList();
                         }
-                        else
+                        break;
+                    case AttributeControlType.Checkboxes:
                         {
-                            customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
-                                attribute, "").ToList();
+                            var cblAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                            if (!string.IsNullOrEmpty(cblAttributes))
+                            {
+                                var anyValueSelected = false;
+                                foreach (var item in cblAttributes.Split([','],
+                                             StringSplitOptions.RemoveEmptyEntries))
+                                    if (!string.IsNullOrEmpty(item))
+                                    {
+                                        customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
+                                            attribute, item).ToList();
+                                        anyValueSelected = true;
+                                    }
+
+                                if (!anyValueSelected)
+                                    customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
+                                        attribute, "").ToList();
+                            }
+                            else
+                            {
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
+                                    attribute, "").ToList();
+                            }
                         }
-                    }
                         break;
                     case AttributeControlType.ReadonlyCheckboxes:
                     case AttributeControlType.TextBox:
@@ -1925,12 +1872,9 @@ public class ProductViewModelService(
             model.ProductAttributeMappingId);
     }
 
-    public virtual async Task<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>
-        PrepareAssociateProductToAttributeValueModel()
+    public virtual async Task<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel> PrepareAssociateProductToAttributeValueModel(string storeId = "")
     {
-        var model =
-            await PrepareAddProductModel<
-                ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>();
+        var model = await PrepareAddProductModel<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>(storeId);
         return model;
     }
 
@@ -2076,35 +2020,35 @@ public class ProductViewModelService(
                     case AttributeControlType.RadioList:
                     case AttributeControlType.ColorSquares:
                     case AttributeControlType.ImageSquares:
-                    {
-                        var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                        if (!string.IsNullOrEmpty(ctrlAttributes))
-                            customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
-                                attribute, ctrlAttributes).ToList();
-                    }
+                        {
+                            var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                            if (!string.IsNullOrEmpty(ctrlAttributes))
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
+                                    attribute, ctrlAttributes).ToList();
+                        }
                         break;
                     case AttributeControlType.Checkboxes:
-                    {
-                        var cblAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                        if (!string.IsNullOrEmpty(cblAttributes))
-                            foreach (var item in cblAttributes.Split([','],
-                                         StringSplitOptions.RemoveEmptyEntries))
-                                if (!string.IsNullOrEmpty(item))
-                                    customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
-                                        attribute, item).ToList();
-                    }
+                        {
+                            var cblAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                            if (!string.IsNullOrEmpty(cblAttributes))
+                                foreach (var item in cblAttributes.Split([','],
+                                             StringSplitOptions.RemoveEmptyEntries))
+                                    if (!string.IsNullOrEmpty(item))
+                                        customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
+                                            attribute, item).ToList();
+                        }
                         break;
                     case AttributeControlType.ReadonlyCheckboxes:
-                    {
-                        //load read-only (already server-side selected) values
-                        var attributeValues = attribute.ProductAttributeValues;
-                        foreach (var selectedAttributeId in attributeValues
-                                     .Where(v => v.IsPreSelected)
-                                     .Select(v => v.Id)
-                                     .ToList())
-                            customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
-                                attribute, selectedAttributeId).ToList();
-                    }
+                        {
+                            //load read-only (already server-side selected) values
+                            var attributeValues = attribute.ProductAttributeValues;
+                            foreach (var selectedAttributeId in attributeValues
+                                         .Where(v => v.IsPreSelected)
+                                         .Select(v => v.Id)
+                                         .ToList())
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
+                                    attribute, selectedAttributeId).ToList();
+                        }
                         break;
                 }
 
@@ -2389,7 +2333,7 @@ public class ProductViewModelService(
 
         if (product.ProductPictures.Any(x => x.PictureId == picture.Id))
             return;
-        
+
         var productPicture = new ProductPicture {
             PictureId = picture.Id,
             DisplayOrder = displayOrder
@@ -2607,22 +2551,18 @@ public class ProductViewModelService(
         }
     }
 
-    protected virtual async Task<T> PrepareAddProductModel<T>() where T : ProductModel.AddProductModel, new()
+    protected virtual async Task<T> PrepareAddProductModel<T>(string storeId = "") where T : ProductModel.AddProductModel, new()
     {
         var model = new T();
 
-        var storeId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
         //stores
-        model.AvailableStores.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var s in (await storeService.GetAllStores()).Where(x =>
                      x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
             model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
         //vendors
-        model.AvailableVendors.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableVendors.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var v in await vendorService.GetAllVendors(showHidden: true))
             model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
 

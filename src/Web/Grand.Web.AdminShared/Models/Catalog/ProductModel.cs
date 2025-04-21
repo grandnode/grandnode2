@@ -408,6 +408,8 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     [UIHint("Stores")]
     public string[] Stores { get; set; }
 
+    public string StoreId { get; set; }
+
     #region Nested classes
 
     public class AddProductModel : BaseModel
