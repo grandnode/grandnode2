@@ -1,12 +1,9 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Addresses;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
-using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
@@ -20,7 +17,7 @@ using Grand.Web.Common.Security.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Admin.Controllers;
+namespace Grand.Web.Store.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.Orders)]
 public class OrderController(
@@ -30,20 +27,8 @@ public class OrderController(
     ITranslationService translationService,
     IContextAccessor contextAccessor,
     IPdfService pdfService,
-    IGroupService groupService,
-    IExportManager<Order> exportManager,
-    IMediator mediator)
-    : BaseAdminController
+    IMediator mediator) : BaseStoreController
 {
-    #region Utilities
-
-    protected virtual async Task<bool> CheckSalesManager(Order order)
-    {
-        return await groupService.IsSalesManager(contextAccessor.WorkContext.CurrentCustomer)
-               && contextAccessor.WorkContext.CurrentCustomer.SeId != order.SeId;
-    }
-
-    #endregion
 
     #region Order list
 
@@ -55,7 +40,8 @@ public class OrderController(
     public async Task<IActionResult> List(int? orderStatusId = null,
         int? paymentStatusId = null, int? shippingStatusId = null, DateTime? startDate = null, string code = null)
     {
-        var model = await orderViewModelService.PrepareOrderListModel(orderStatusId, paymentStatusId, shippingStatusId, startDate, "", code);
+        var model = await orderViewModelService.PrepareOrderListModel(orderStatusId, paymentStatusId, shippingStatusId,
+            startDate, contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, code);
         return View(model);
     }
 
@@ -69,6 +55,7 @@ public class OrderController(
         //products
         const int productNumber = 15;
         var products = (await productService.SearchProducts(
+            storeId: contextAccessor.WorkContext.CurrentCustomer.StaffStoreId,
             keywords: term,
             pageSize: productNumber,
             showHidden: true)).products;
@@ -87,6 +74,8 @@ public class OrderController(
     [HttpPost]
     public async Task<IActionResult> OrderList(DataSourceRequest command, OrderListModel model)
     {
+        model.StoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+
         var (orderModels, totalCount) =
             await orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
 
@@ -112,52 +101,14 @@ public class OrderController(
             case 1:
                 order = orders.FirstOrDefault();
                 break;
+            case 0:
+                return RedirectToAction("List", new { Code = model.GoDirectlyToNumber });
         }
 
-        if (order == null || await CheckSalesManager(order))
+        if (order!.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         return RedirectToAction("Edit", "Order", new { id = order.Id });
-    }
-
-    #endregion
-
-    #region Export
-
-    [PermissionAuthorizeAction(PermissionActionName.Export)]
-    [HttpPost]
-    public async Task<IActionResult> ExportExcelAll(OrderListModel model)
-    {
-        //load orders
-        var orders = await orderViewModelService.PrepareOrders(model);
-        try
-        {
-            var bytes = await exportManager.Export(orders);
-            return File(bytes, "text/xls", "orders.xlsx");
-        }
-        catch (Exception exc)
-        {
-            Error(exc);
-            return RedirectToAction("List");
-        }
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Export)]
-    [HttpPost]
-    public async Task<IActionResult> ExportExcelSelected(string selectedIds)
-    {
-        var orders = new List<Order>();
-        if (selectedIds != null)
-        {
-            var ids = selectedIds
-                .Split([','], StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x)
-                .ToArray();
-            orders.AddRange(await orderService.GetOrdersByIds(ids));
-        }
-
-        var bytes = await exportManager.Export(orders);
-        return File(bytes, "text/xls", "orders.xlsx");
     }
 
     #endregion
@@ -171,9 +122,11 @@ public class OrderController(
     public async Task<IActionResult> CancelOrder(string id)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
             return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         try
         {
@@ -195,9 +148,11 @@ public class OrderController(
     public async Task<IActionResult> SaveOrderTags(OrderModel orderModel)
     {
         var order = await orderService.GetOrderById(orderModel.Id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
             return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         try
         {
@@ -220,9 +175,11 @@ public class OrderController(
     public async Task<IActionResult> ChangeOrderStatus(string id, OrderModel model)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
             return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         try
         {
@@ -258,9 +215,11 @@ public class OrderController(
     public async Task<IActionResult> Edit(string id)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || order.Deleted || await CheckSalesManager(order))
+        if (order == null || order.Deleted)
             //No order found with the specified id
             return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var model = new OrderModel();
         await orderViewModelService.PrepareOrderDetailsModel(model, order);
@@ -273,9 +232,11 @@ public class OrderController(
     public async Task<IActionResult> Delete(OrderDeleteModel model)
     {
         var order = await orderService.GetOrderById(model.Id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
             return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         if (ModelState.IsValid)
         {
@@ -288,34 +249,10 @@ public class OrderController(
         return RedirectToAction("Edit", "Order", new { model.Id });
     }
 
-    [PermissionAuthorizeAction(PermissionActionName.Delete)]
-    [HttpPost]
-    public async Task<IActionResult> DeleteSelected(
-        ICollection<string> selectedIds,
-        [FromServices] IShipmentService shipmentService)
-    {
-        if (selectedIds != null)
-        {
-            var orders = new List<Order>();
-            orders.AddRange(await orderService.GetOrdersByIds(selectedIds.ToArray()));
-            for (var i = 0; i < orders.Count; i++)
-            {
-                var order = orders[i];
-                var shipments = await shipmentService.GetShipmentsByOrder(order.Id);
-                if (shipments.Any())
-                    Error("Some orders is in associated with shipments. Please delete it first.");
-
-                if (!shipments.Any()) await mediator.Send(new DeleteOrderCommand { Order = order });
-            }
-        }
-
-        return Json(new { Result = true });
-    }
-
     public async Task<IActionResult> PdfInvoice(string orderId)
     {
         var order = await orderService.GetOrderById(orderId);
-        if (await CheckSalesManager(order)) return RedirectToAction("List");
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var orders = new List<Order> {
             order
@@ -336,6 +273,7 @@ public class OrderController(
     {
         //load orders
         var orders = await orderViewModelService.PrepareOrders(model);
+        orders = orders.Where(x => x.StoreId == contextAccessor.WorkContext.CurrentCustomer.StaffStoreId).ToList();
 
         byte[] bytes;
         using (var stream = new MemoryStream())
@@ -361,6 +299,8 @@ public class OrderController(
             orders.AddRange(await orderService.GetOrdersByIds(ids));
         }
 
+        orders = orders.Where(x => x.StoreId == contextAccessor.WorkContext.CurrentCustomer.StaffStoreId).ToList();
+
         //ensure that we at least one order selected
         if (orders.Count == 0)
         {
@@ -383,8 +323,11 @@ public class OrderController(
     public async Task<IActionResult> EditOrderTotals(string id, OrderModel model)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
+            return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         order.OrderSubtotalInclTax = model.OrderSubtotalInclTaxValue;
@@ -417,8 +360,11 @@ public class OrderController(
     public async Task<IActionResult> EditShippingMethod(string id, OrderModel model)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
+            return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         order.ShippingMethod = model.ShippingMethod;
@@ -442,8 +388,11 @@ public class OrderController(
     public async Task<IActionResult> EditUserFields(string id, OrderModel model)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
+            return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         order.UserFields = model.UserFields;
@@ -463,8 +412,11 @@ public class OrderController(
     public async Task<IActionResult> SaveOrderItem(string id, OrderItemsModel model)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
+            return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         if (order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
@@ -524,8 +476,11 @@ public class OrderController(
     public async Task<IActionResult> DeleteOrderItem(string id, string orderItemId)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
+            return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId) ?? throw new ArgumentException("No order item found with the specified id");
@@ -544,8 +499,11 @@ public class OrderController(
     public async Task<IActionResult> CancelOrderItem(string id, string orderItemId)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
+            return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId) ?? throw new ArgumentException("No order item found with the specified id");
@@ -566,8 +524,11 @@ public class OrderController(
     public async Task<IActionResult> ResetDownloadCount(string id, string orderItemId)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
+            return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId) ?? throw new ArgumentException("No order item found with the specified id");
@@ -587,8 +548,11 @@ public class OrderController(
     public async Task<IActionResult> ActivateDownloadItem(string id, string orderItemId)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
+            return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId) ?? throw new ArgumentException("No order item found with the specified id");
@@ -608,8 +572,11 @@ public class OrderController(
         [FromServices] IProductService productService)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
+            return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId) ?? throw new ArgumentException("No order item found with the specified id");
@@ -631,8 +598,11 @@ public class OrderController(
     public async Task<IActionResult> UploadLicenseFilePopup(OrderModel.UploadLicenseModel model)
     {
         var order = await orderService.GetOrderById(model.OrderId);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
+            return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId) ?? throw new ArgumentException("No order item found with the specified id");
@@ -652,11 +622,16 @@ public class OrderController(
     public async Task<IActionResult> DeleteLicenseFilePopup(OrderModel.UploadLicenseModel model)
     {
         var order = await orderService.GetOrderById(model.OrderId);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
             return RedirectToAction("List");
 
-        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId) ?? throw new ArgumentException("No order item found with the specified id");
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
+            return RedirectToAction("List");
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId);
+        if (orderItem == null)
+            throw new ArgumentException("No order item found with the specified id");
 
         //attach license
         orderItem.LicenseDownloadId = null;
@@ -672,8 +647,11 @@ public class OrderController(
     public async Task<IActionResult> AddProductToOrder(string orderId)
     {
         var order = await orderService.GetOrderById(orderId);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
+            return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
             return RedirectToAction("List");
 
         var model = await orderViewModelService.PrepareAddOrderProductModel(order);
@@ -691,6 +669,7 @@ public class OrderController(
 
         var gridModel = new DataSourceResult();
         var products = (await productService.SearchProducts(categoryIds: categoryIds,
+            storeId: contextAccessor.WorkContext.CurrentCustomer.StaffStoreId,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
@@ -717,8 +696,10 @@ public class OrderController(
     public async Task<IActionResult> AddProductToOrderDetails(string orderId, string productId)
     {
         var order = await orderService.GetOrderById(orderId);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var model = await orderViewModelService.PrepareAddProductToOrderModel(order, productId);
         return View(model);
@@ -729,8 +710,10 @@ public class OrderController(
     public async Task<IActionResult> AddProductToOrderDetails(AddProductToOrderModel model)
     {
         var order = await orderService.GetOrderById(model.OrderId);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var warnings = await orderViewModelService.AddProductToOrderDetails(model);
         if (!warnings.Any())
@@ -753,9 +736,11 @@ public class OrderController(
     public async Task<IActionResult> AddressEdit(string addressId, string orderId, bool billingAddress)
     {
         var order = await orderService.GetOrderById(orderId);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
             return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var address = new Address();
         switch (billingAddress)
@@ -789,9 +774,11 @@ public class OrderController(
         [FromServices] IAddressAttributeParser addressAttributeParser)
     {
         var order = await orderService.GetOrderById(model.OrderId);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             //No order found with the specified id
             return RedirectToAction("List");
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         var address = new Address();
         switch (model.BillingAddress)
@@ -812,8 +799,7 @@ public class OrderController(
 
         if (ModelState.IsValid)
         {
-            var customAttributes =
-                await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
+            var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
             await orderViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
             return RedirectToAction("AddressEdit",
                 new { addressId = model.Address.Id, orderId = model.OrderId, model.BillingAddress });
@@ -832,9 +818,8 @@ public class OrderController(
     [HttpPost]
     public async Task<IActionResult> OrderNotesSelect(string orderId, DataSourceRequest command)
     {
-        var order = await orderService.GetOrderById(orderId);
-        if (order == null || await CheckSalesManager(order))
-            throw new ArgumentException("No order found with the specified id");
+        var order = await orderService.GetOrderById(orderId) ?? throw new ArgumentException("No order found with the specified id");
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Content("");
 
         //order notes
         var orderNoteModels = await orderViewModelService.PrepareOrderNotes(order);
@@ -850,8 +835,10 @@ public class OrderController(
         string message)
     {
         var order = await orderService.GetOrderById(orderId);
-        if (order == null || await CheckSalesManager(order))
+        if (order == null)
             return Json(new { Result = false });
+
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
 
         await orderViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message);
 
@@ -862,9 +849,8 @@ public class OrderController(
     [HttpPost]
     public async Task<IActionResult> OrderNoteDelete(string id, string orderId)
     {
-        var order = await orderService.GetOrderById(orderId);
-        if (order == null || await CheckSalesManager(order))
-            throw new ArgumentException("No order found with the specified id");
+        var order = await orderService.GetOrderById(orderId) ?? throw new ArgumentException("No order found with the specified id");
+        if (order.StoreId != contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
 
         await orderViewModelService.DeleteOrderNote(order, id);
 
