@@ -1,0 +1,80 @@
+﻿@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["Admin.PaymentTransaction.Fields.PartialRefund"];
+}
+@model PaymentTransactionModel
+<form id="PartiallyRefundPopup" asp-area="@Constants.AreaStore" asp-controller="PaymentTransaction" asp-action="PartiallyRefundPopup" method="post"
+      asp-route-OrderId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["Id"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-online="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["online"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
+
+    <input asp-for="Id" type="hidden"/>
+    <input asp-for="MaxAmountToRefund" type="hidden"/>
+    <input asp-for="CurrencyCode" type="hidden"/>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-tag"></i>
+                        @Loc["Admin.PaymentTransaction.Fields.PartialRefund"]
+                    </div>
+                </div>
+                <vc:admin-widget widget-zone="payment_transaction_partially_refund_buttons" additional-data="Model"/>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="AmountToRefund"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="AmountToRefund"/> &nbsp;
+                                    <span style="white-space: nowrap">
+                                        @string.Format(Loc["Admin.PaymentTransaction.Fields.PartialRefund.AmountToRefund.Max"], Model.MaxAmountToRefund.ToString("G29"), Model.CurrencyCode)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <input type="submit" name="partialrefundpaymenttransaction" asp-action="PartiallyRefundPopup" value="@Loc["Admin.PaymentTransaction.Fields.Refund"]" id="partialrefundpaymenttransaction" class="btn default"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+    @if (ViewBag.RefreshPage == true)
+    {
+        <script>
+            try {
+                window.location.href = window.location.href;
+            }
+            catch (e) { }
+        </script>
+    }
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#PartiallyRefundPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    $.magnificPopup.open({
+                        items: {
+                            src: data,
+                            type: 'inline'
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</form>

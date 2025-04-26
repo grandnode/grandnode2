@@ -1,0 +1,79 @@
+﻿@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["Admin.PaymentTransaction.Fields.PartialPaid"];
+}
+@model PaymentTransactionModel
+<form id="PartiallyPaidPopup" asp-area="@Constants.AreaStore" asp-controller="PaymentTransaction" asp-action="PartiallyPaidPopup" method="post"
+      asp-route-OrderId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["Id"])"
+      asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
+      asp-route-online="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["online"])"
+      asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
+
+    <input asp-for="Id" type="hidden"/>
+    <input asp-for="MaxAmountToPaid" type="hidden"/>
+    <input asp-for="CurrencyCode" type="hidden"/>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-tag"></i>
+                        @Loc["Admin.PaymentTransaction.Fields.PartialPaid"]
+                    </div>
+                </div>
+                <vc:admin-widget widget-zone="payment_transaction_partially_paid_buttons" additional-data="Model"/>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="AmountToPaid"/>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="AmountToPaid"/> &nbsp;
+                                    <span style="white-space: nowrap">
+                                        @string.Format(Loc["Admin.PaymentTransaction.Fields.PartialPaid.AmountToPaid.Max"], Model.MaxAmountToPaid.ToString("N2"), Model.CurrencyCode)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <input type="submit" name="partialpaidpaymenttransaction" value="@Loc["Admin.PaymentTransaction.Fields.Paid"]" id="partialpaidpaymenttransaction" class="btn default"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+    @if (ViewBag.RefreshPage == true)
+    {
+        <script>
+            try {
+                window.location.href = window.location.href;
+            }
+            catch (e) { }
+        </script>
+    }
+    <script>
+        $("#PartiallyPaidPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    $.magnificPopup.open({
+                        items: {
+                            src: data,
+                            type: 'inline'
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</form>
