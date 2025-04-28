@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
+using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
@@ -12,10 +13,10 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Admin.Controllers;
+namespace Grand.Web.Store.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.MerchandiseReturns)]
-public class MerchandiseReturnController : BaseAdminController
+public class MerchandiseReturnController : BaseStoreController
 {
     #region Constructors
 
@@ -23,12 +24,14 @@ public class MerchandiseReturnController : BaseAdminController
         IMerchandiseReturnViewModelService merchandiseReturnViewModelService,
         ITranslationService translationService,
         IMerchandiseReturnService merchandiseReturnService,
-        IOrderService orderService)
+        IOrderService orderService,
+        IContextAccessor contextAccessor)
     {
         _merchandiseReturnViewModelService = merchandiseReturnViewModelService;
         _translationService = translationService;
         _merchandiseReturnService = merchandiseReturnService;
         _orderService = orderService;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -39,6 +42,7 @@ public class MerchandiseReturnController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly IOrderService _orderService;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion Fields
 
@@ -60,7 +64,10 @@ public class MerchandiseReturnController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, MerchandiseReturnListModel model)
     {
+        model.StoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+
         var merchandiseReturnModels = await _merchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, command.Page, command.PageSize);
+
         var gridModel = new DataSourceResult {
             Data = merchandiseReturnModels.merchandiseReturnModels,
             Total = merchandiseReturnModels.totalCount
@@ -84,6 +91,9 @@ public class MerchandiseReturnController : BaseAdminController
             //not found
             return RedirectToAction("List", "MerchandiseReturn");
 
+        if (merchandiseReturn.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
+            return RedirectToAction("List", "MerchandiseReturn");
+
         return RedirectToAction("Edit", "MerchandiseReturn", new { id = merchandiseReturn.Id });
     }
 
@@ -94,6 +104,9 @@ public class MerchandiseReturnController : BaseAdminController
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (merchandiseReturn == null)
             return ErrorForKendoGridJson("Merchandise return not found");
+
+        if (merchandiseReturn.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
+            return ErrorForKendoGridJson("Merchandise return is not your");
 
         var items = await _merchandiseReturnViewModelService.PrepareMerchandiseReturnItemModel(merchandiseReturnId);
         var gridModel = new DataSourceResult {
@@ -112,6 +125,9 @@ public class MerchandiseReturnController : BaseAdminController
         if (merchandiseReturn == null)
             //No merchandise return found with the specified id
             return RedirectToAction("List");
+
+        if (merchandiseReturn.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
+            return RedirectToAction("List", "MerchandiseReturn");
 
         var model = new MerchandiseReturnModel();
         await _merchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
@@ -132,16 +148,16 @@ public class MerchandiseReturnController : BaseAdminController
             //No merchandise return found with the specified id
             return RedirectToAction("List");
 
+        if (merchandiseReturn.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
+            return RedirectToAction("List", "MerchandiseReturn");
+
         if (ModelState.IsValid)
         {
             var customAddressAttributes = new List<CustomAttribute>();
             if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
-                customAddressAttributes =
-                    await model.PickupAddress.ParseCustomAddressAttributes(addressAttributeParser,
-                        addressAttributeService);
-            merchandiseReturn =
-                await _merchandiseReturnViewModelService.UpdateMerchandiseReturnModel(merchandiseReturn, model,
-                    customAddressAttributes);
+                customAddressAttributes = await model.PickupAddress.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
+
+            merchandiseReturn = await _merchandiseReturnViewModelService.UpdateMerchandiseReturnModel(merchandiseReturn, model, customAddressAttributes);
 
             Success(_translationService.GetResource("Admin.Orders.MerchandiseReturns.Updated"));
             return continueEditing
@@ -163,6 +179,9 @@ public class MerchandiseReturnController : BaseAdminController
         if (merchandiseReturn == null)
             //No merchandise return found with the specified id
             return RedirectToAction("List");
+
+        if (merchandiseReturn.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)
+            return RedirectToAction("List", "MerchandiseReturn");
 
         if (ModelState.IsValid)
         {
@@ -187,6 +206,8 @@ public class MerchandiseReturnController : BaseAdminController
         if (merchandiseReturn == null)
             throw new ArgumentException("No merchandise return found with the specified id");
 
+        if (merchandiseReturn.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Content("");
+
         //merchandise return notes
         var merchandiseReturnNoteModels = await _merchandiseReturnViewModelService.PrepareMerchandiseReturnNotes(merchandiseReturn);
         var gridModel = new DataSourceResult {
@@ -208,6 +229,8 @@ public class MerchandiseReturnController : BaseAdminController
         if (order == null)
             return Json(new { Result = false });
 
+        if (merchandiseReturn.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
+
         await _merchandiseReturnViewModelService.InsertMerchandiseReturnNote(merchandiseReturn, order, downloadId,
             displayToCustomer, message);
 
@@ -221,6 +244,8 @@ public class MerchandiseReturnController : BaseAdminController
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (merchandiseReturn == null)
             throw new ArgumentException("No merchandise return found with the specified id");
+
+        if (merchandiseReturn.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
 
         await _merchandiseReturnViewModelService.DeleteMerchandiseReturnNote(merchandiseReturn, id);
 
