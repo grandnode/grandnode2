@@ -1,6 +1,6 @@
 ﻿@{
     //page title
-    ViewBag.Title = Loc["Vendor.Dashboard.Statistics"];
+    ViewBag.Title = Loc["Admin.Dashboard.Statistics"];
 }
 
 <div class="page-bar" style="height:43px;">
@@ -14,13 +14,13 @@
 <div class="content-header">
     <h3 class="page-title">
         <i class="icon-bulb"></i>
-        @Loc["Vendor.Dashboard"]
-        <small>@Loc["Vendor.Dashboard.Statistics"]</small>
+        @Loc["Admin.Dashboard"]
+        <small>@Loc["Admin.Dashboard.Statistics"]</small>
     </h3>
 </div>
 
 <div class="content">
-    <vc:vendor-widget widget-zone="vendor_dashboard_statistics_before"/>
+    <vc:store-widget widget-zone="store_dashboard_statistics_before"/>
     <div class="row">
         <div class="col-md-12">
             <div class="row">
@@ -28,11 +28,11 @@
                     <div class="x_panel">
                         <div class="x_title">
                             <div class="caption level-caption">
-                                <span class="caption-subject font-dark bold uppercase">@Loc["Vendor.Reports.BestSellers.ByQuantity"]</span>
+                                <span class="caption-subject font-dark bold uppercase">@Loc["Admin.Reports.BestSellers.ByQuantity"]</span>
                             </div>
                         </div>
                         <div class="x_content">
-                            <vc:vendor-bestsellers-brief-report-by-quantity></vc:vendor-bestsellers-brief-report-by-quantity>
+                            <vc:bestsellers-brief-report-by-quantity></vc:bestsellers-brief-report-by-quantity>
                         </div>
                     </div>
                 </div>
@@ -40,16 +40,16 @@
                     <div class="x_panel">
                         <div class="x_title">
                             <div class="caption level-caption">
-                                <span class="caption-subject font-dark bold uppercase">@Loc["Vendor.Reports.BestSellers.ByAmount"]</span>
+                                <span class="caption-subject font-dark bold uppercase">@Loc["Admin.Reports.BestSellers.ByAmount"]</span>
                             </div>
                         </div>
                         <div class="x_content">
-                            <vc:vendor-bestsellers-brief-report-by-amount></vc:vendor-bestsellers-brief-report-by-amount>
+                            <vc:bestsellers-brief-report-by-amount></vc:bestsellers-brief-report-by-amount>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <vc:vendor-widget widget-zone="vendor_dashboard_statistics_after"/>
+    <vc:store-widget widget-zone="store_dashboard_statistics_after"/>
 </div>
