@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Components;
 
-public class OrderIncompleteReportViewComponent : BaseAdminViewComponent
+public class StoreBestsellersBriefReportByQuantityViewComponent : BaseAdminViewComponent
 {
     private readonly IPermissionService _permissionService;
 
-    public OrderIncompleteReportViewComponent(IPermissionService permissionService)
+    public StoreBestsellersBriefReportByQuantityViewComponent(IPermissionService permissionService)
     {
         _permissionService = permissionService;
     }

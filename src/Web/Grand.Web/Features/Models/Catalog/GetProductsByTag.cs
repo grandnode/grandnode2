@@ -10,7 +10,7 @@ namespace Grand.Web.Features.Models.Catalog;
 public class GetProductsByTag : IRequest<ProductsByTagModel>
 {
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Language Language { get; set; }
     public ProductTag ProductTag { get; set; }
     public CatalogPagingFilteringModel Command { get; set; }

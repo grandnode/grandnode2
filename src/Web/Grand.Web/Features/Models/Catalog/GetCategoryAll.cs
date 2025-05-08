@@ -8,7 +8,7 @@ namespace Grand.Web.Features.Models.Catalog;
 
 public class GetCategoryAll : IRequest<CategoryListModel>
 {
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Customer Customer { get; set; }
     public Language Language { get; set; }
     public CategoryPagingModel Command { get; set; }

@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Customers;
-using Grand.Domain.Stores;
 using Grand.Web.Common.Models;
 using MediatR;
 
@@ -10,5 +9,5 @@ public class
 {
     public IList<CustomAttributeModel> Attributes { get; set; }
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
 }

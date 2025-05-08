@@ -11,7 +11,7 @@ public class GetProductReviews : IRequest<ProductReviewsModel>
 {
     public Product Product { get; set; }
     public Language Language { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Customer Customer { get; set; }
     public int Size { get; set; }
 }

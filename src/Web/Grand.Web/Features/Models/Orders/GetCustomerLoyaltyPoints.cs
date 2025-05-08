@@ -9,6 +9,6 @@ namespace Grand.Web.Features.Models.Orders;
 public class GetCustomerLoyaltyPoints : IRequest<CustomerLoyaltyPointsModel>
 {
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Currency Currency { get; set; }
 }

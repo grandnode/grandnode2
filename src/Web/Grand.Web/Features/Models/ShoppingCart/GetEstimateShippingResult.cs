@@ -10,7 +10,7 @@ namespace Grand.Web.Features.Models.ShoppingCart;
 public class GetEstimateShippingResult : IRequest<EstimateShippingResultModel>
 {
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Currency Currency { get; set; }
 
     public IList<ShoppingCartItem> Cart { get; set; }

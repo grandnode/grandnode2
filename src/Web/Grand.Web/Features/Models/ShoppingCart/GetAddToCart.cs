@@ -17,7 +17,7 @@ public class GetAddToCart : IRequest<AddToCartModel>
     public Customer Customer { get; set; }
     public Language Language { get; set; }
     public Currency Currency { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public ShoppingCartItem ShoppingCartItem { get; set; }
     public TaxDisplayType TaxDisplayType { get; set; }
     public int Quantity { get; set; }

@@ -10,7 +10,7 @@ namespace Grand.Web.Commands.Models.ShoppingCart;
 public class SaveCheckoutAttributesCommand : IRequest<IList<CustomAttribute>>
 {
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
 
     public IList<ShoppingCartItem> Cart { get; set; }
     public IList<CustomAttributeModel> SelectedAttributes { get; set; }

@@ -13,6 +13,6 @@ public class GetMiniShoppingCart : IRequest<MiniShoppingCartModel>
     public Customer Customer { get; set; }
     public Language Language { get; set; }
     public Currency Currency { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public TaxDisplayType TaxDisplayType { get; set; }
 }

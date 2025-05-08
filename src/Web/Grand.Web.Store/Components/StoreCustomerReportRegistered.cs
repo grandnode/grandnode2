@@ -5,18 +5,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Components;
 
-public class BestsellersBriefReportByAmountViewComponent : BaseAdminViewComponent
+public class StoreCustomerReportRegisteredViewComponent : BaseAdminViewComponent
 {
     private readonly IPermissionService _permissionService;
 
-    public BestsellersBriefReportByAmountViewComponent(IPermissionService permissionService)
+    public StoreCustomerReportRegisteredViewComponent(IPermissionService permissionService)
     {
         _permissionService = permissionService;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
     {
-        if (!await _permissionService.Authorize(StandardPermission.ManageOrders))
+        if (!await _permissionService.Authorize(StandardPermission.ManageReports))
             return Content("");
 
         return View();

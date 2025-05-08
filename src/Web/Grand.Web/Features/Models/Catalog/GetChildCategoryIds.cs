@@ -8,5 +8,5 @@ public class GetChildCategoryIds : IRequest<IList<string>>
 {
     public string ParentCategoryId { get; set; }
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
 }

@@ -12,18 +12,16 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
-using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
@@ -145,7 +143,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             request.IsAssociatedProduct);
     }
 
-    private async Task<ProductDetailsModel> PrepareProductDetailsModel(Store store, Product product,
+    private async Task<ProductDetailsModel> PrepareProductDetailsModel(Domain.Stores.Store store, Product product,
         ShoppingCartItem updateCartItem, bool isAssociatedProduct)
     {
         ArgumentNullException.ThrowIfNull(product);
@@ -560,8 +558,8 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     private async Task<(PictureModel defaultPictureModel, List<PictureModel> pictureModels)>
         PrepareProductPictureModel(Product product, int defaultPictureSize, bool isAssociatedProduct, string name)
     {
-        var defaultPicture = product.ProductPictures.OrderByDescending(p => p.IsDefault)  
-            .ThenBy(p => p.DisplayOrder) 
+        var defaultPicture = product.ProductPictures.OrderByDescending(p => p.IsDefault)
+            .ThenBy(p => p.DisplayOrder)
             .FirstOrDefault() ?? new ProductPicture();
 
         var picture = await _pictureService.GetPictureById(defaultPicture.PictureId);
@@ -688,7 +686,8 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
 
                     if (product.BasepriceEnabled)
                         model.BasePricePAngV = await _mediator.Send(new GetFormatBasePrice {
-                            Currency = _contextAccessor.WorkContext.WorkingCurrency, Product = product,
+                            Currency = _contextAccessor.WorkContext.WorkingCurrency,
+                            Product = product,
                             ProductPrice = finalPriceWithDiscount
                         });
 
@@ -969,68 +968,68 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                     case AttributeControlType.Checkboxes:
                     case AttributeControlType.ColorSquares:
                     case AttributeControlType.ImageSquares:
-                    {
-                        if (updatecartitem.Attributes != null && updatecartitem.Attributes.Any())
                         {
-                            //clear default selection
-                            foreach (var item in attributeModel.Values)
-                                item.IsPreSelected = false;
+                            if (updatecartitem.Attributes != null && updatecartitem.Attributes.Any())
+                            {
+                                //clear default selection
+                                foreach (var item in attributeModel.Values)
+                                    item.IsPreSelected = false;
 
-                            //select new values
-                            var selectedValues = product.ParseProductAttributeValues(updatecartitem.Attributes);
-                            foreach (var attributeValue in selectedValues)
-                            foreach (var item in attributeModel.Values)
-                                if (attributeValue.Id == item.Id)
-                                    item.IsPreSelected = true;
+                                //select new values
+                                var selectedValues = product.ParseProductAttributeValues(updatecartitem.Attributes);
+                                foreach (var attributeValue in selectedValues)
+                                    foreach (var item in attributeModel.Values)
+                                        if (attributeValue.Id == item.Id)
+                                            item.IsPreSelected = true;
+                            }
                         }
-                    }
                         break;
                     case AttributeControlType.ReadonlyCheckboxes:
-                    {
-                        //do nothing
-                        //values are already pre-set
-                    }
+                        {
+                            //do nothing
+                            //values are already pre-set
+                        }
                         break;
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
-                    {
-                        if (updatecartitem.Attributes != null && updatecartitem.Attributes.Any())
                         {
-                            var enteredText =
-                                ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id);
-                            if (enteredText.Any())
-                                attributeModel.DefaultValue = enteredText[0];
+                            if (updatecartitem.Attributes != null && updatecartitem.Attributes.Any())
+                            {
+                                var enteredText =
+                                    ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id);
+                                if (enteredText.Any())
+                                    attributeModel.DefaultValue = enteredText[0];
+                            }
                         }
-                    }
                         break;
                     case AttributeControlType.Datepicker:
-                    {
-                        //keep in mind my that the code below works only in the current culture
-                        var selectedDateStr =
-                            ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id);
-                        if (selectedDateStr.Any())
-                            if (DateTime.TryParseExact(selectedDateStr[0], "D", CultureInfo.CurrentCulture,
-                                    DateTimeStyles.None, out var selectedDate))
-                            {
-                                //successfully parsed
-                                attributeModel.SelectedDay = selectedDate.Day;
-                                attributeModel.SelectedMonth = selectedDate.Month;
-                                attributeModel.SelectedYear = selectedDate.Year;
-                            }
-                    }
+                        {
+                            //keep in mind my that the code below works only in the current culture
+                            var selectedDateStr =
+                                ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id);
+                            if (selectedDateStr.Any())
+                                if (DateTime.TryParseExact(selectedDateStr[0], "D", CultureInfo.CurrentCulture,
+                                        DateTimeStyles.None, out var selectedDate))
+                                {
+                                    //successfully parsed
+                                    attributeModel.SelectedDay = selectedDate.Day;
+                                    attributeModel.SelectedMonth = selectedDate.Month;
+                                    attributeModel.SelectedYear = selectedDate.Year;
+                                }
+                        }
                         break;
                     case AttributeControlType.FileUpload:
-                    {
-                        if (updatecartitem.Attributes != null && updatecartitem.Attributes.Any())
                         {
-                            var downloadGuidStr = ProductExtensions
-                                .ParseValues(updatecartitem.Attributes, attribute.Id).FirstOrDefault();
-                            Guid.TryParse(downloadGuidStr, out var downloadGuid);
-                            var download = await _downloadService.GetDownloadByGuid(downloadGuid);
-                            if (download != null)
-                                attributeModel.DefaultValue = download.DownloadGuid.ToString();
+                            if (updatecartitem.Attributes != null && updatecartitem.Attributes.Any())
+                            {
+                                var downloadGuidStr = ProductExtensions
+                                    .ParseValues(updatecartitem.Attributes, attribute.Id).FirstOrDefault();
+                                Guid.TryParse(downloadGuidStr, out var downloadGuid);
+                                var download = await _downloadService.GetDownloadByGuid(downloadGuid);
+                                if (download != null)
+                                    attributeModel.DefaultValue = download.DownloadGuid.ToString();
+                            }
                         }
-                    }
                         break;
                 }
 
@@ -1137,8 +1136,8 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                 bundleProduct.PriceValue = productprice.productprice;
             }
 
-            var productPicture = p1.ProductPictures.OrderByDescending(p => p.IsDefault)  
-                .ThenBy(p => p.DisplayOrder) 
+            var productPicture = p1.ProductPictures.OrderByDescending(p => p.IsDefault)
+                .ThenBy(p => p.DisplayOrder)
                 .FirstOrDefault() ?? new ProductPicture();
 
             var picture = await _pictureService.GetPictureById(productPicture.PictureId);

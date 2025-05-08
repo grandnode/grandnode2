@@ -9,6 +9,6 @@ namespace Grand.Web.Features.Models.Catalog;
 public class GetSearchBox : IRequest<SearchBoxModel>
 {
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Language Language { get; set; }
 }

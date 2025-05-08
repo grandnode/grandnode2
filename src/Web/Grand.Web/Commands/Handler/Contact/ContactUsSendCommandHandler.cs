@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
-using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Contact;
@@ -46,7 +45,7 @@ public class ContactUsSendCommandHandler : IRequestHandler<ContactUsSendCommand,
         return request.Model;
     }
 
-    private async Task<ContactUsModel> SendContactUs(ContactUsSendCommand request, Store store)
+    private async Task<ContactUsModel> SendContactUs(ContactUsSendCommand request, Domain.Stores.Store store)
     {
         var subject = _commonSettings.SubjectFieldOnContactUsForm ? request.Model.Subject : null;
         var body = FormatText.ConvertText(request.Model.Enquiry);

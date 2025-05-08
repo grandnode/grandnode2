@@ -8,5 +8,5 @@ namespace Grand.Web.Features.Models.Customers;
 public class GetCourses : IRequest<CoursesModel>
 {
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
 }

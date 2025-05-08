@@ -11,7 +11,7 @@ public class GetInfo : IRequest<CustomerInfoModel>
 {
     public CustomerInfoModel Model { get; set; }
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Language Language { get; set; }
     public bool ExcludeProperties { get; set; }
     public IList<CustomAttribute> OverrideCustomCustomerAttributes { get; set; }

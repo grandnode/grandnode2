@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Components;
 
-public class OrderAverageReportViewComponent : BaseAdminViewComponent
+public class StoreOrderTimeChartViewComponent : BaseAdminViewComponent
 {
     private readonly IPermissionService _permissionService;
 
-    public OrderAverageReportViewComponent(IPermissionService permissionService)
+    public StoreOrderTimeChartViewComponent(IPermissionService permissionService)
     {
         _permissionService = permissionService;
     }

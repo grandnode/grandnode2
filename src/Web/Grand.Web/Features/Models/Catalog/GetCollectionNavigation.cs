@@ -10,6 +10,6 @@ public class GetCollectionNavigation : IRequest<CollectionNavigationModel>
 {
     public string CurrentCollectionId { get; set; }
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Language Language { get; set; }
 }

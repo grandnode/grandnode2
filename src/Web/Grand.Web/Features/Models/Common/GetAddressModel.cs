@@ -17,6 +17,6 @@ public class GetAddressModel : IRequest<AddressModel>
     public bool PrePopulateWithCustomerFields { get; set; }
     public Customer Customer { get; set; }
     public Language Language { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public IList<CustomAttribute> OverrideAttributes { get; set; }
 }

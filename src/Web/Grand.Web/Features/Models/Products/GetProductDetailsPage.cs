@@ -8,7 +8,7 @@ namespace Grand.Web.Features.Models.Products;
 
 public class GetProductDetailsPage : IRequest<ProductDetailsModel>
 {
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Product Product { get; set; }
     public ShoppingCartItem UpdateCartItem { get; set; }
     public bool IsAssociatedProduct { get; set; }

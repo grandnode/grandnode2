@@ -25,6 +25,7 @@
 		<ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
 		<ProjectReference Include="..\Grand.Web.Admin\Grand.Web.Admin.csproj" />
 		<ProjectReference Include="..\Grand.Web.Vendor\Grand.Web.Vendor.csproj" />
+		<ProjectReference Include="..\Grand.Web.Store\Grand.Web.Store.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>

@@ -14,7 +14,7 @@ public class GetShippingMethod : IRequest<CheckoutShippingMethodModel>
     public IList<ShoppingCartItem> Cart { get; set; }
     public Address ShippingAddress { get; set; }
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Currency Currency { get; set; }
     public Language Language { get; set; }
 }

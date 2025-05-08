@@ -17,7 +17,7 @@ public class GetBillingAddress : IRequest<CheckoutBillingAddressModel>
     public bool PrePopulateNewAddressWithCustomerFields { get; set; }
     public IList<CustomAttribute> OverrideAttributes { get; set; }
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Currency Currency { get; set; }
     public Language Language { get; set; }
 }

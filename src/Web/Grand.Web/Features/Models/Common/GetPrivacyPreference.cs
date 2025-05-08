@@ -8,5 +8,5 @@ namespace Grand.Web.Features.Models.Common;
 public class GetPrivacyPreference : IRequest<IList<PrivacyPreferenceModel>>
 {
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
 }

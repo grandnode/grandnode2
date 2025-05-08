@@ -9,7 +9,7 @@ namespace Grand.Web.Features.Models.Catalog;
 public class GetCategoryNavigation : IRequest<CategoryNavigationModel>
 {
     public Customer Customer { get; set; }
-    public Store Store { get; set; }
+    public Domain.Stores.Store Store { get; set; }
     public Language Language { get; set; }
     public string CurrentCategoryId { get; set; }
     public string CurrentProductId { get; set; }

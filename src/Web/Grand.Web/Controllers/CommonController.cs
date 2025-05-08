@@ -271,7 +271,7 @@ public class CommonController : BasePublicController
 
         return Redirect(returnUrl);
 
-        void SetStoreCookie(Store store)
+        void SetStoreCookie(Domain.Stores.Store store)
         {
             if (store == null)
                 return;
