@@ -32,7 +32,10 @@
                     Reference: '@reference',
                     ObjectId: '@objectId'
                 },
-                inputName: "files"
+                inputName: "files",
+                customHeaders: {
+                    'X-CSRF-TOKEN': $('input[name="__RequestVerificationToken"]').val()
+                }
             },
             template: "@(clientId)-qq-template",
             multiple: true,

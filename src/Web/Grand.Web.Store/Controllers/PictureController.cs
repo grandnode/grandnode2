@@ -33,7 +33,6 @@ public class PictureController : BaseStoreController
     }
 
     [HttpPost]
-    [IgnoreAntiforgeryToken]
     public virtual async Task<IActionResult> AsyncUpload(IFormFile file, Reference reference = Reference.None, string objectId = "")
     {
         if (file == null)
@@ -74,7 +73,6 @@ public class PictureController : BaseStoreController
     }
 
     [HttpPost]
-    [IgnoreAntiforgeryToken]
     public virtual async Task<IActionResult> AsyncLogoUpload(IFormFile file)
     {
         if (!await _permissionService.Authorize(StandardPermission.ManageSettings))

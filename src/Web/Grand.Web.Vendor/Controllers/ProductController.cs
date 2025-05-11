@@ -1074,8 +1074,7 @@ public class ProductController : BaseVendorController
 
     #region Product pictures
 
-    [HttpPost]
-    [IgnoreAntiforgeryToken]
+    [HttpPost]    
     public async Task<IActionResult> ProductPictureAdd(
         IFormFileCollection files,
         Reference reference, string objectId,

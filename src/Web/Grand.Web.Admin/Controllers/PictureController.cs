@@ -32,8 +32,7 @@ public class PictureController : BaseAdminController
         _mediaSettings = mediaSettings;
     }
 
-    [HttpPost]
-    [IgnoreAntiforgeryToken]
+    [HttpPost]   
     public virtual async Task<IActionResult> AsyncUpload(IFormFile file, Reference reference = Reference.None, string objectId = "")
     {
         if (file == null)
@@ -73,8 +72,7 @@ public class PictureController : BaseAdminController
         });
     }
 
-    [HttpPost]
-    [IgnoreAntiforgeryToken]
+    [HttpPost]   
     public virtual async Task<IActionResult> AsyncLogoUpload(IFormFile file)
     {
         if (!await _permissionService.Authorize(StandardPermission.ManageSettings))

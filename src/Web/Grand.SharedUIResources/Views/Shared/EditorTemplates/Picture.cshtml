@@ -44,7 +44,10 @@ else
                     Reference: '@ViewData["Reference"]',
                     ObjectId: '@ViewData["ObjectId"]'
                 },
-                inputName: "file"
+                inputName: "file",
+                customHeaders: {
+                    'X-CSRF-TOKEN': $('input[name="__RequestVerificationToken"]').val()
+                }
             },            
             template: "@(clientId)-qq-template",
             multiple: false,
