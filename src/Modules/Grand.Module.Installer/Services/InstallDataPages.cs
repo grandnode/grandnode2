@@ -161,7 +161,19 @@ public partial class InstallationService
                     "<p>Manage your product catalog, oversee customer orders, and streamline your shipping processes. Your vendor dashboard is the command center for your success. Stay organized, serve your customers efficiently, and watch your business thrive.</p>",
                 PageLayoutId = defaultPageLayout.Id,
                 Published = true
+            },
+            new() {
+                SystemName = "StorePortalInfo",
+                IncludeInSitemap = false,
+                IsPasswordProtected = false,
+                DisplayOrder = 1,
+                Title = "Welcome to our Store Management Hub!",
+                Body =
+                    "<p>Manage your product catalog, oversee customer orders, and streamline your shipping processes. Your store dashboard is the command center for your success. Stay organized, serve your customers efficiently, and watch your business thrive.</p>",
+                PageLayoutId = defaultPageLayout.Id,
+                Published = true
             }
+
         };
         pages.ForEach(x => _pageRepository.Insert(x));
 
