@@ -11,6 +11,7 @@
     var isCustomerImpersonated = contextAccessor.WorkContext.OriginalCustomerIfImpersonated != null;
     var isAdminAccess = await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel);
     var isVendor = contextAccessor.WorkContext.CurrentVendor != null;
+    var isStaffStore = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId != null;
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "header_links_before" })
@@ -39,7 +40,13 @@
                 <span class="text text-uppercase ml-3">@Loc["vendor.portal"]</span>
             </a>
         }
-
+        @if (isStaffStore)
+        {
+            <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.Content("~/Store")">
+                <b-icon icon="gear"></b-icon>
+                <span class="text text-uppercase ml-3">@Loc["store.portal"]</span>
+            </a>
+        }
         @if (!string.IsNullOrEmpty(pagebuilder.EditPageUrl))
         {
             <a target="_blank" class="btn btn-outline-secondary w-100 mb-2" href="@pagebuilder.EditPageUrl">
