@@ -40,7 +40,7 @@ public partial class InstallationService
         await _customerGroupRepository.InsertAsync(crVendors);
 
         var crStaff = new CustomerGroup {
-            Name = "Staff",
+            Name = "Store manager",
             Active = true,
             IsSystem = true,
             SystemName = SystemCustomerGroupNames.StoreManager
