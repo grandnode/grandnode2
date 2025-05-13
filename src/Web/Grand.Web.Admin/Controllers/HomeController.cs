@@ -198,7 +198,7 @@ public class HomeController : BaseAdminController
 
     public IActionResult AccessDenied()
     {
-        _logger.LogInformation("Access denied to user #{CurrentCustomerEmail}", _contextAccessor.WorkContext.CurrentCustomer);
+        _logger.LogInformation("Access denied");
         return View();
     }
 

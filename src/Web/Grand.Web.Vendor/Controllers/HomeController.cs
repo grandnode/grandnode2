@@ -45,7 +45,7 @@ public class HomeController : BaseVendorController
 
     public IActionResult AccessDenied()
     {
-        _logger.LogInformation("Access denied to user #{CurrentCustomerEmail}", _contextAccessor.WorkContext.CurrentCustomer.Email);
+        _logger.LogInformation("Access denied");
         return View();
     }
 
