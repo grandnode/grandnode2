@@ -199,6 +199,8 @@ public static class PermissionExtensions
                 Permissions = [
                     StandardPermission.ManageAccessStoreManagerPanel,
                     StandardPermission.ManageProducts,
+                    StandardPermission.ManageProductAttributes,
+                    StandardPermission.ManageSpecificationAttributes,
                     StandardPermission.ManageFiles,
                     StandardPermission.ManagePictures,
                     StandardPermission.ManageCategories,
