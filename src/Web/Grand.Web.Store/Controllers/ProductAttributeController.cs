@@ -65,7 +65,7 @@ public class ProductAttributeController : BaseStoreController
                 productAttribute.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
                 productAttribute.Stores.Count > 1))
         {
-            Warning(_translationService.GetResource("Admin.Catalog.ProductAttribute.Permissions"));
+            Warning(_translationService.GetResource("admin.Catalog.attributes.productattributes.permissions"));
             return true;
         }
 
@@ -277,7 +277,7 @@ public class ProductAttributeController : BaseStoreController
         var productAttribute = await _productAttributeService.GetProductAttributeById(productAttributeId);
 
         if (!CheckAccessPermission(productAttribute))
-            return View("AccessDenied", _translationService.GetResource("Admin.Catalog.ProductAttribute.Permissions"));
+            return View("AccessDenied", _translationService.GetResource("admin.Catalog.attributes.productattributes.permissions"));
 
         var values = productAttribute.PredefinedProductAttributeValues;
         var gridModel = new DataSourceResult {
@@ -297,7 +297,7 @@ public class ProductAttributeController : BaseStoreController
             throw new ArgumentException("No product attribute found with the specified id");
 
         if (!productAttribute.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return View("AccessDenied", _translationService.GetResource("Admin.Catalog.ProductAttribute.Permissions"));
+            return View("AccessDenied", _translationService.GetResource("admin.Catalog.attributes.productattributes.permissions"));
 
         var model = new PredefinedProductAttributeValueModel {
             ProductAttributeId = productAttributeId
@@ -319,7 +319,7 @@ public class ProductAttributeController : BaseStoreController
             throw new ArgumentException("No product attribute found with the specified id");
 
         if (!productAttribute.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return View("AccessDenied", _translationService.GetResource("Admin.Catalog.ProductAttribute.Permissions"));
+            return View("AccessDenied", _translationService.GetResource("admin.Catalog.attributes.productattributes.permissions"));
 
         if (ModelState.IsValid)
         {
@@ -340,7 +340,7 @@ public class ProductAttributeController : BaseStoreController
         var productAttribute = await _productAttributeService.GetProductAttributeById(productAttributeId);
 
         if (!CheckAccessPermission(productAttribute))
-            return View("AccessDenied", _translationService.GetResource("Admin.Catalog.ProductAttribute.Permissions"));
+            return View("AccessDenied", _translationService.GetResource("admin.Catalog.attributes.productattributes.permissions"));
 
         var ppav = productAttribute.PredefinedProductAttributeValues.FirstOrDefault(x => x.Id == id);
         if (ppav == null)
@@ -363,7 +363,7 @@ public class ProductAttributeController : BaseStoreController
         var productAttribute = await _productAttributeService.GetProductAttributeById(model.ProductAttributeId);
 
         if (!productAttribute.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return View("AccessDenied", _translationService.GetResource("Admin.Catalog.ProductAttribute.Permissions"));
+            return View("AccessDenied", _translationService.GetResource("admin.Catalog.attributes.productattributes.permissions"));
 
         var ppav = productAttribute.PredefinedProductAttributeValues.FirstOrDefault(x => x.Id == model.Id);
         if (ppav == null)
@@ -392,7 +392,7 @@ public class ProductAttributeController : BaseStoreController
             throw new ArgumentException("No product attribute found with the specified id");
 
         if (!productAttribute.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return View("AccessDenied", _translationService.GetResource("Admin.Catalog.ProductAttribute.Permissions"));
+            return View("AccessDenied", _translationService.GetResource("admin.Catalog.attributes.productattributes.permissions"));
 
         if (ModelState.IsValid)
         {

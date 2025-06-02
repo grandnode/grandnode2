@@ -121,7 +121,7 @@ public class SpecificationAttributeController : BaseStoreController
                 specificationAttribute.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
                 specificationAttribute.Stores.Count > 1))
         {
-            Warning(_translationService.GetResource("Admin.Catalog.SpecificationAttribute.Permissions"));
+            Warning(_translationService.GetResource("admin.catalog.attributes.specificationattributes.permissions"));
             return true;
         }
 
@@ -344,7 +344,7 @@ public class SpecificationAttributeController : BaseStoreController
             return RedirectToAction("List");
 
         if (!specificationAttribute.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return View("AccessDenied", _translationService.GetResource("Admin.Catalog.SpecificationAttribute.Permissions"));
+            return View("AccessDenied", _translationService.GetResource("admin.catalog.attributes.specificationattributes.permissions"));
 
         if (ModelState.IsValid)
         {
@@ -377,7 +377,7 @@ public class SpecificationAttributeController : BaseStoreController
         var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == id);
 
         if (!CheckAccessPermission(specificationAttribute))
-            return View("AccessDenied", _translationService.GetResource("Admin.Catalog.SpecificationAttribute.Permissions"));
+            return View("AccessDenied", _translationService.GetResource("admin.catalog.attributes.specificationattributes.permissions"));
 
         if (sao == null)
             //No specification attribute option found with the specified id
@@ -401,7 +401,7 @@ public class SpecificationAttributeController : BaseStoreController
         var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeByOptionId(model.Id);
 
         if (!specificationAttribute.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return View("AccessDenied", _translationService.GetResource("Admin.Catalog.SpecificationAttribute.Permissions"));
+            return View("AccessDenied", _translationService.GetResource("admin.catalog.attributes.specificationattributes.permissions"));
 
         var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == model.Id);
         if (sao == null)
@@ -437,7 +437,7 @@ public class SpecificationAttributeController : BaseStoreController
             var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeByOptionId(id);
 
             if (!specificationAttribute.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return View("AccessDenied", _translationService.GetResource("Admin.Catalog.SpecificationAttribute.Permissions"));
+                return View("AccessDenied", _translationService.GetResource("admin.catalog.attributes.specificationattributes.permissions"));
  
             var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == id);
             if (sao == null)
