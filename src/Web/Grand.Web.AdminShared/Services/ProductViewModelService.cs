@@ -278,7 +278,7 @@ public class ProductViewModelService(
 
             model.AutoAddRequiredProducts = product.AutoAddRequiredProducts;
             //product attributes
-            foreach (var productAttribute in await productAttributeService.GetAllProductAttributes())
+            foreach (var productAttribute in await productAttributeService.GetAllProductAttributes(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 model.AvailableProductAttributes.Add(new SelectListItem {
                     Text = productAttribute.Name,
                     Value = productAttribute.Id
@@ -1372,7 +1372,7 @@ public class ProductViewModelService(
         var model = new ProductModel.ProductAttributeMappingModel {
             ProductId = product.Id
         };
-        foreach (var attribute in await productAttributeService.GetAllProductAttributes())
+        foreach (var attribute in await productAttributeService.GetAllProductAttributes(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             model.AvailableProductAttribute.Add(new SelectListItem {
                 Value = attribute.Id,
                 Text = attribute.Name
@@ -1384,7 +1384,7 @@ public class ProductViewModelService(
         Product product, ProductAttributeMapping productAttributeMapping)
     {
         var model = productAttributeMapping.ToModel();
-        foreach (var attribute in await productAttributeService.GetAllProductAttributes())
+        foreach (var attribute in await productAttributeService.GetAllProductAttributes(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             model.AvailableProductAttribute.Add(new SelectListItem {
                 Value = attribute.Id,
                 Text = attribute.Name,
@@ -1396,7 +1396,7 @@ public class ProductViewModelService(
     public virtual async Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(
         ProductModel.ProductAttributeMappingModel model)
     {
-        foreach (var attribute in await productAttributeService.GetAllProductAttributes())
+        foreach (var attribute in await productAttributeService.GetAllProductAttributes(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             model.AvailableProductAttribute.Add(new SelectListItem {
                 Value = attribute.Id,
                 Text = attribute.Name
