@@ -1,11 +1,8 @@
 name: Docker Image CI
-
-env:
-  TAG: 'latest'
   
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
   workflow_dispatch:
   
 jobs:
@@ -14,10 +11,16 @@ jobs:
 
     runs-on: ubuntu-latest
     name: Build image
-    
-    steps:
+      steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set TAG environment variable
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "TAG=latest" >> $GITHUB_ENV
+          else
+            echo "TAG=develop" >> $GITHUB_ENV
+          fi
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Buildx
