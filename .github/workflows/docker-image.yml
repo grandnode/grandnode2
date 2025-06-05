@@ -6,12 +6,12 @@ on:
   workflow_dispatch:
   
 jobs:
-
   build:
 
     runs-on: ubuntu-latest
     name: Build image
-      steps:
+    
+    steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set TAG environment variable
