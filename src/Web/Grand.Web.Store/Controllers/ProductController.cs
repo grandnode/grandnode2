@@ -1,5 +1,4 @@
-﻿using Grand.Business.Catalog.Services.Products;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -16,7 +15,6 @@ using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.AdminShared.Models.Orders;
-using Grand.Web.Common;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
@@ -275,7 +273,7 @@ public class ProductController : BaseStoreController
         {
             var originalProduct = await _productService.GetProductById(copyModel.Id, true);
 
-            if (!originalProduct.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            if (originalProduct.LimitedToStores && !originalProduct.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                 return RedirectToAction("List");
 
             originalProduct.LimitedToStores = true;
@@ -1452,7 +1450,7 @@ public class ProductController : BaseStoreController
 
         return new JsonResult("");
     }
-   
+
     [PermissionAuthorizeAction(PermissionActionName.Delete)]
     [HttpPost]
     public async Task<IActionResult> BulkEditDelete(IEnumerable<BulkEditProductModel> products)
