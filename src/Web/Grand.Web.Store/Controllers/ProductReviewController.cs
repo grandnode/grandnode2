@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
+using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.Common.DataSource;
@@ -8,21 +9,23 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Admin.Controllers;
+namespace Grand.Web.Store.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.ProductReviews)]
-public class ProductReviewController : BaseAdminController
+public class ProductReviewController : BaseStoreController
 {
     #region Constructors
 
     public ProductReviewController(
         IProductReviewViewModelService productReviewViewModelService,
         IProductReviewService productReviewService,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IContextAccessor contextAccessor)
     {
         _productReviewViewModelService = productReviewViewModelService;
         _productReviewService = productReviewService;
         _translationService = translationService;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -32,6 +35,7 @@ public class ProductReviewController : BaseAdminController
     private readonly IProductReviewViewModelService _productReviewViewModelService;
     private readonly IProductReviewService _productReviewService;
     private readonly ITranslationService _translationService;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion Fields
 
@@ -43,9 +47,9 @@ public class ProductReviewController : BaseAdminController
         return RedirectToAction("List");
     }
 
-    public async Task<IActionResult> List()
+    public IActionResult List()
     {
-        var model = await _productReviewViewModelService.PrepareProductReviewListModel();
+        var model = new ProductReviewListModel();
         return View(model);
     }
 
@@ -53,8 +57,8 @@ public class ProductReviewController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, ProductReviewListModel model)
     {
-        var (productReviewModels, totalCount) =
-            await _productReviewViewModelService.PrepareProductReviewsModel(model, command.Page, command.PageSize);
+        model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+        var (productReviewModels, totalCount) = await _productReviewViewModelService.PrepareProductReviewsModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = productReviewModels.ToList(),
             Total = totalCount
@@ -73,6 +77,8 @@ public class ProductReviewController : BaseAdminController
             //No product review found with the specified id
             return RedirectToAction("List");
 
+        if (productReview.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+
         var model = new ProductReviewModel();
         await _productReviewViewModelService.PrepareProductReviewModel(model, productReview, false, false);
         return View(model);
@@ -87,6 +93,8 @@ public class ProductReviewController : BaseAdminController
         if (productReview == null)
             //No product review found with the specified id
             return RedirectToAction("List");
+
+        if (productReview.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
 
         if (ModelState.IsValid)
         {
@@ -112,6 +120,8 @@ public class ProductReviewController : BaseAdminController
             //No product review found with the specified id
             return RedirectToAction("List");
 
+        if (productReview.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
+
         if (ModelState.IsValid)
         {
             await _productReviewViewModelService.DeleteProductReview(productReview);
@@ -128,7 +138,8 @@ public class ProductReviewController : BaseAdminController
     public async Task<IActionResult> ApproveSelected(ICollection<string> selectedIds)
     {
         if (selectedIds != null)
-            await _productReviewViewModelService.ApproveSelected(selectedIds.ToList());
+            await _productReviewViewModelService.ApproveSelected(selectedIds.ToList(),
+                _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
 
         return Json(new { Result = true });
     }
@@ -138,7 +149,8 @@ public class ProductReviewController : BaseAdminController
     public async Task<IActionResult> DisapproveSelected(ICollection<string> selectedIds)
     {
         if (selectedIds != null)
-            await _productReviewViewModelService.DisapproveSelected(selectedIds.ToList());
+            await _productReviewViewModelService.DisapproveSelected(selectedIds.ToList(),
+                _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
 
         return Json(new { Result = true });
     }
@@ -151,9 +163,12 @@ public class ProductReviewController : BaseAdminController
         if (string.IsNullOrWhiteSpace(term) || term.Length < searchTermMinimumLength)
             return Content("");
 
+        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+
         //products
         const int productNumber = 15;
         var products = (await productService.SearchProducts(
+            storeId: storeId,
             keywords: term,
             pageSize: productNumber,
             showHidden: true)).products;

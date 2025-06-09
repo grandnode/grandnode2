@@ -84,7 +84,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
         }
     }
 
-    public virtual async Task<ProductReviewListModel> PrepareProductReviewListModel(string storeId)
+    public virtual async Task<ProductReviewListModel> PrepareProductReviewListModel(string storeId = "")
     {
         var model = new ProductReviewListModel();
 
@@ -146,7 +146,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
         await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
     }
 
-    public virtual async Task ApproveSelected(IEnumerable<string> selectedIds, string storeId)
+    public virtual async Task ApproveSelected(IEnumerable<string> selectedIds, string storeId = "")
     {
         foreach (var id in selectedIds)
         {
@@ -170,7 +170,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
         }
     }
 
-    public virtual async Task DisapproveSelected(IEnumerable<string> selectedIds, string storeId)
+    public virtual async Task DisapproveSelected(IEnumerable<string> selectedIds, string storeId = "")
     {
         foreach (var id in selectedIds)
         {

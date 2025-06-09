@@ -201,6 +201,7 @@ public static class PermissionExtensions
                     StandardPermission.ManageProducts,
                     StandardPermission.ManageProductAttributes,
                     StandardPermission.ManageSpecificationAttributes,
+                    StandardPermission.ManageProductReviews,
                     StandardPermission.ManageFiles,
                     StandardPermission.ManagePictures,
                     StandardPermission.ManageCategories,
