@@ -27,9 +27,9 @@ public class CheckoutAttributeViewModelService(
     IEnumTranslationService enumTranslationService)
     : ICheckoutAttributeViewModelService
 {
-    public virtual async Task<IEnumerable<CheckoutAttributeModel>> PrepareCheckoutAttributeListModel()
+    public virtual async Task<IEnumerable<CheckoutAttributeModel>> PrepareCheckoutAttributeListModel(string storeId = "")
     {
-        var checkoutAttributes = await checkoutAttributeService.GetAllCheckoutAttributes(ignoreAcl: true);
+        var checkoutAttributes = await checkoutAttributeService.GetAllCheckoutAttributes(storeId: storeId, ignoreAcl: true);
         return checkoutAttributes.Select((Func<CheckoutAttribute, CheckoutAttributeModel>)(x =>
         {
             var attributeModel = x.ToModel();

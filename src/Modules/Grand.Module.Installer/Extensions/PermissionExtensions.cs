@@ -211,6 +211,7 @@ public static class PermissionExtensions
                     StandardPermission.ManagePaymentTransactions,
                     StandardPermission.ManageShipments,
                     StandardPermission.ManageMerchandiseReturns,
+                    StandardPermission.ManageCheckoutAttribute,
                     StandardPermission.ManageReports
                 ]
             },

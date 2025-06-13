@@ -5,7 +5,7 @@ namespace Grand.Web.AdminShared.Interfaces;
 
 public interface ICheckoutAttributeViewModelService
 {
-    Task<IEnumerable<CheckoutAttributeModel>> PrepareCheckoutAttributeListModel();
+    Task<IEnumerable<CheckoutAttributeModel>> PrepareCheckoutAttributeListModel(string storeId = "");
     Task<IEnumerable<CheckoutAttributeValueModel>> PrepareCheckoutAttributeValuesModel(string checkoutAttributeId);
     Task<CheckoutAttributeModel> PrepareCheckoutAttributeModel();
     Task<CheckoutAttributeValueModel> PrepareCheckoutAttributeValueModel(string checkoutAttributeId);
