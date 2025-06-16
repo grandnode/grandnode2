@@ -185,7 +185,7 @@ public class CheckoutAttributeController : BaseStoreController
             return RedirectToAction("List");
 
         if (!checkoutAttribute.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return RedirectToAction("Edit", new { checkoutAttribute.Id });
+            return RedirectToAction("Edit", new { id = checkoutAttribute.Id });
 
         if (ModelState.IsValid)
         {
