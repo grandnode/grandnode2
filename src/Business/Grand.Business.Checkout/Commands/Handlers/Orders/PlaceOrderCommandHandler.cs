@@ -141,7 +141,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         try
         {
             //prepare order details
-            var details = await PreparePlaceOrderDetails();
+            var details = await PreparePlaceOrderDetails(command);
 
             //event notification
             await _mediator.PlaceOrderDetailsEvent(result, details);
@@ -373,11 +373,11 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         return weight;
     }
 
-    protected virtual async Task<PlaceOrderContainer> PreparePlaceOrderDetails()
+    protected virtual async Task<PlaceOrderContainer> PreparePlaceOrderDetails(PlaceOrderCommand command)
     {
         var details = new PlaceOrderContainer {
             //customer
-            Customer = _contextAccessor.WorkContext.CurrentCustomer
+            Customer = command.Customer ?? _contextAccessor.WorkContext.CurrentCustomer
         };
         if (details.Customer == null)
             throw new ArgumentException("Customer is not set");
@@ -566,7 +566,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //payment 
         var paymentMethodSystemName =
-            _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPaymentMethod,
+            details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPaymentMethod,
                 _contextAccessor.StoreContext.CurrentStore.Id);
         details.PaymentMethodSystemName = paymentMethodSystemName;
         var paymentAdditionalFee =
