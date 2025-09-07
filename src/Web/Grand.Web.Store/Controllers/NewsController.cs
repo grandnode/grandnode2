@@ -60,7 +60,7 @@ public class NewsController : BaseStoreController
         return RedirectToAction("List");
     }
 
-    public async Task<IActionResult> List()
+    public IActionResult List()
     {
         var model = new NewsItemListModel();
         return View(model);
