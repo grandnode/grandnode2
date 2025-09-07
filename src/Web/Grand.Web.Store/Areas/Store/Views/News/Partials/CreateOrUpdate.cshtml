@@ -1,0 +1,30 @@
+@model NewsItemModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">@T("Admin.Content.News.NewsItems.Info")</h4>
+            </div>
+            <div class="card-body">
+                <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">@T("Admin.Common.SEO")</h4>
+            </div>
+            <div class="card-body">
+                <partial name="Partials/CreateOrUpdate.TabSeo" model="Model"/>
+            </div>
+        </div>
+    </div>
+</div>

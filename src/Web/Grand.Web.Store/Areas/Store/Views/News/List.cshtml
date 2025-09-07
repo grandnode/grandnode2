@@ -12,6 +12,11 @@
                     <i class="fa fa-list"></i>
                     @T("Admin.Content.News.NewsItems")
                 </h3>
+                <div class="card-tools">
+                    <a href="@Url.Action("Create")" class="btn btn-primary btn-sm">
+                        <i class="fa fa-plus"></i> @T("Admin.Common.AddNew")
+                    </a>
+                </div>
             </div>
             <div class="card-body">
                 <div id="news-grid"></div>
@@ -84,12 +89,39 @@
                 attributes: { style: "text-align:center" }
             }, {
                 field: "Id",
-                title: "@T("Admin.Common.View")",
-                width: 100,
+                title: "@T("Admin.Common.Actions")",
+                width: 150,
                 headerAttributes: { style: "text-align:center" },
                 attributes: { style: "text-align:center" },
-                template: '<a class="btn btn-default btn-sm" href="@Url.Action("Preview", "News")?id=#=Id#"><i class="fa fa-eye"></i></a>'
+                template: '<div class="btn-group" role="group">' +
+                         '<a class="btn btn-info btn-sm" href="@Url.Action("Preview", "News")?id=#=Id#" title="Preview"><i class="fa fa-eye"></i></a>' +
+                         '<a class="btn btn-warning btn-sm" href="@Url.Action("Edit", "News")?id=#=Id#" title="Edit"><i class="fa fa-edit"></i></a>' +
+                         '<button class="btn btn-danger btn-sm" onclick="deleteNews(\'#=Id#\')" title="Delete"><i class="fa fa-trash"></i></button>' +
+                         '</div>'
             }]
         });
     });
+
+    function deleteNews(id) {
+        if (confirm('@T("Admin.Common.AreYouSure")')) {
+            var postData = {
+                id: id
+            };
+            addAntiForgeryToken(postData);
+            
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.Action("Delete", "News"))",
+                data: postData,
+                success: function (data) {
+                    var grid = $('#news-grid').data('kendoGrid');
+                    grid.dataSource.read();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to delete news item');
+                }
+            });
+        }
+    }
 </script>

@@ -1,0 +1,38 @@
+@model NewsItemModel
+@{
+    ViewBag.Title = T("Admin.Content.News.NewsItems.AddNew");
+    Layout = Constants.LayoutStore;
+}
+
+<form asp-area="Store" asp-controller="News" asp-action="Create" method="post">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fa fa-plus"></i>
+                        @T("Admin.Content.News.NewsItems.AddNew")
+                    </h3>
+                    <div class="card-tools">
+                        <a href="@Url.Action("List")" class="btn btn-secondary btn-sm">
+                            <i class="fa fa-arrow-left"></i> @T("Admin.Content.News.NewsItems.BackToList")
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
+                </div>
+                <div class="card-footer">
+                    <div class="float-right">
+                        <button class="btn btn-success" type="submit" name="save">
+                            <i class="fa fa-check"></i> @T("Admin.Common.Save")
+                        </button>
+                        <button class="btn btn-info" type="submit" name="save-continue">
+                            <i class="fa fa-check-circle"></i> @T("Admin.Common.SaveContinue")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
