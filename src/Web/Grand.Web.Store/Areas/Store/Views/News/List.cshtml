@@ -1,0 +1,95 @@
+@model NewsItemListModel
+@{
+    ViewBag.Title = T("Admin.Content.News.NewsItems");
+    Layout = Constants.LayoutStore;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fa fa-list"></i>
+                    @T("Admin.Content.News.NewsItems")
+                </h3>
+            </div>
+            <div class="card-body">
+                <div id="news-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#news-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("List", "News"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: function() {
+                            var data = {
+                                SearchNewsTitle: ''
+                            };
+                            addAntiForgeryToken(data);
+                            return data;
+                        }
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                pageSize: @(10),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [5, 10, 20, 50]
+            },
+            scrollable: false,
+            dataBound: onDataBound,
+            columns: [{
+                field: "Title",
+                title: "@T("Admin.Content.News.NewsItems.Fields.Title")",
+                width: 300
+            }, {
+                field: "Published",
+                title: "@T("Admin.Content.News.NewsItems.Fields.Published")",
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '<i class="fa fa-check" style="color:#5cb85c;" title="true" alt="#=Published#"></i>'
+            }, {
+                field: "CreatedOn",
+                title: "@T("Admin.Content.News.NewsItems.Fields.CreatedOn")",
+                width: 150,
+                type: "date",
+                format: "{0:G}"
+            }, {
+                field: "Comments",
+                title: "@T("Admin.Content.News.NewsItems.Fields.Comments")",
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" }
+            }, {
+                field: "Id",
+                title: "@T("Admin.Common.View")",
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '<a class="btn btn-default btn-sm" href="@Url.Action("Preview", "News")?id=#=Id#"><i class="fa fa-eye"></i></a>'
+            }]
+        });
+    });
+</script>

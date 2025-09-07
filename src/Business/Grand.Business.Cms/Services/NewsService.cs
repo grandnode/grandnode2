@@ -101,6 +101,70 @@ public class NewsService : INewsService
     }
 
     /// <summary>
+    ///     Gets news for store with configurable limit
+    /// </summary>
+    /// <param name="storeId">Store identifier</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="storeNewsLimit">Maximum number of news items to return (0 for unlimited)</param>
+    /// <param name="newsTitle">News title filter</param>
+    /// <returns>News items</returns>
+    public virtual async Task<IPagedList<NewsItem>> GetStoreNews(string storeId = "",
+        int pageIndex = 0, int pageSize = int.MaxValue, int storeNewsLimit = 0, string newsTitle = "")
+    {
+        var query = from p in _newsItemRepository.Table
+            select p;
+
+        if (!string.IsNullOrWhiteSpace(newsTitle))
+            query = query.Where(n => n.Title != null && n.Title.ToLower().Contains(newsTitle.ToLower()));
+
+        // Store news should only show published and current items
+        var utcNow = DateTime.UtcNow;
+        query = query.Where(n => n.Published);
+        query = query.Where(n => !n.StartDateUtc.HasValue || n.StartDateUtc <= utcNow);
+        query = query.Where(n => !n.EndDateUtc.HasValue || n.EndDateUtc >= utcNow);
+
+        // Apply ACL and store limitations for store context
+        if (!_accessControlConfig.IgnoreAcl)
+        {
+            var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
+            query = from p in query
+                where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                select p;
+        }
+
+        // Store acl
+        if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
+            query = from p in query
+                where !p.LimitedToStores || p.Stores.Contains(storeId)
+                select p;
+
+        query = query.OrderByDescending(n => n.CreatedOnUtc);
+
+        // Apply store news limit if specified
+        if (storeNewsLimit > 0)
+        {
+            // Take only the limited number of items before pagination
+            query = query.Take(storeNewsLimit);
+            
+            // Adjust page size if it would exceed the limit
+            var remainingItems = storeNewsLimit - (pageIndex * pageSize);
+            if (remainingItems <= 0)
+            {
+                // No items left for this page
+                return new PagedList<NewsItem>(new List<NewsItem>(), pageIndex, pageSize, 0);
+            }
+            
+            if (pageSize > remainingItems)
+            {
+                pageSize = remainingItems;
+            }
+        }
+
+        return await PagedList<NewsItem>.Create(query, pageIndex, pageSize);
+    }
+
+    /// <summary>
     ///     Inserts a news item
     /// </summary>
     /// <param name="news">News item</param>
