@@ -1,47 +1,48 @@
 @model NewsItemListModel
+@inject AdminAreaSettings adminAreaSettings
 @{
+    //page title
     ViewBag.Title = Loc["Admin.Content.News.NewsItems"];
     Layout = Constants.LayoutStore;
 }
 
 <div class="row">
     <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fa fa-list"></i>
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-hacker-news"></i>
                     @Loc["Admin.Content.News.NewsItems"]
-                </h3>
-                <div class="card-tools">
-                    <a href="@Url.Action("Create")" class="btn btn-primary btn-sm">
-                        <i class="fa fa-plus"></i> @Loc["Admin.Common.AddNew"]
-                    </a>
                 </div>
-            </div>
-            <div class="card-body">
-                <div id="news-grid"></div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                    <vc:admin-widget widget-zone="news_list_buttons" additional-data="null" />
+                </div>
+            </div>            
+            <div class="x_content">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div id="newsitem-grid"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
 <script>
     $(document).ready(function () {
-        $("#news-grid").kendoGrid({
+        $("#newsitem-grid").kendoGrid({
             dataSource: {
-                type: "json",
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("List", "News"))",
+                        url: "@Html.Raw(Url.Action("List", "News", new { area = Constants.AreaStore }))",
                         type: "POST",
                         dataType: "json",
-                        data: function() {
-                            var data = {
-                                SearchNewsTitle: ''
-                            };
-                            addAntiForgeryToken(data);
-                            return data;
-                        }
+                        data: additionalData
                     }
                 },
                 schema: {
@@ -51,77 +52,80 @@
                 },
                 error: function(e) {
                     display_kendoui_grid_error(e);
+                    // Cancel the changes
                     this.cancelChanges();
                 },
-                pageSize: @(10),
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
                 serverPaging: true,
                 serverFiltering: true,
                 serverSorting: true
             },
             pageable: {
                 refresh: true,
-                pageSizes: [5, 10, 20, 50]
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
             },
             scrollable: false,
-            dataBound: onDataBound,
             columns: [{
                 field: "Title",
+                width: 300,
                 title: "@Loc["Admin.Content.News.NewsItems.Fields.Title"]",
-                width: 300
+                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Title)#</a>',
+            }, {
+                field: "Comments",
+                title: "@Loc["Admin.Content.News.NewsItems.Fields.Comments"]",
+                width: 200,
+                template: '<a class="k-link" href="Edit/#=Id#">@Loc["Admin.Content.News.NewsItems.Fields.Comments"] - #=Comments# </a>'
+            }, {
+                field: "StartDate",
+                title: "@Loc["Admin.Content.News.NewsItems.Fields.StartDate"]",
+                width: 150,
+                type: "date",
+                format: "{0:G}"
+            }, {
+                field: "EndDate",
+                title: "@Loc["Admin.Content.News.NewsItems.Fields.EndDate"]",
+                width: 150,
+                type: "date",
+                format: "{0:G}"
             }, {
                 field: "Published",
                 title: "@Loc["Admin.Content.News.NewsItems.Fields.Published"]",
                 width: 100,
                 headerAttributes: { style: "text-align:center" },
                 attributes: { style: "text-align:center" },
-                template: '<i class="fa fa-check" style="color:#5cb85c;" title="true" alt="#=Published#"></i>'
+                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
             }, {
                 field: "CreatedOn",
                 title: "@Loc["Admin.Content.News.NewsItems.Fields.CreatedOn"]",
-                width: 150,
+                width: 200,
                 type: "date",
                 format: "{0:G}"
-            }, {
-                field: "Comments",
-                title: "@Loc["Admin.Content.News.NewsItems.Fields.Comments"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" }
-            }, {
-                field: "Id",
-                title: "@Loc["Admin.Common.Actions"]",
-                width: 150,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '<div class="btn-group" role="group">' +
-                         '<a class="btn btn-info btn-sm" href="@Url.Action("Preview", "News")?id=#=Id#" title="Preview"><i class="fa fa-eye"></i></a>' +
-                         '<a class="btn btn-warning btn-sm" href="@Url.Action("Edit", "News")?id=#=Id#" title="Edit"><i class="fa fa-edit"></i></a>' +
-                         '<button class="btn btn-danger btn-sm" onclick="deleteNews(\'#=Id#\')" title="Delete"><i class="fa fa-trash"></i></button>' +
-                         '</div>'
             }]
         });
     });
+</script>
+<script>
 
-    function deleteNews(id) {
-        if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
-            var postData = {
-                id: id
+    $(document).ready(function () {
+        //search button
+        $('#search-newsitem').click(function () {
+            //search
+            var grid = $('#newsitem-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+    });    
+
+    function additionalData() {        
+        var data = {
+                SearchNewsTitle: ''
             };
-            addAntiForgeryToken(postData);
-            
-            $.ajax({
-                cache: false,
-                type: "POST",
-                url: "@(Url.Action("Delete", "News"))",
-                data: postData,
-                success: function (data) {
-                    var grid = $('#news-grid').data('kendoGrid');
-                    grid.dataSource.read();
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert('Failed to delete news item');
-                }
-            });
-        }
+        addAntiForgeryToken(data);
+        return data;
     }
 </script>
