@@ -144,10 +144,7 @@ public class NewsService : INewsService
         // Apply store news limit if specified
         if (storeNewsLimit > 0)
         {
-            // Take only the limited number of items before pagination
-            query = query.Take(storeNewsLimit);
-            
-            // Adjust page size if it would exceed the limit
+            // First check if the requested page would exceed our limit
             var remainingItems = storeNewsLimit - (pageIndex * pageSize);
             if (remainingItems <= 0)
             {
@@ -155,10 +152,15 @@ public class NewsService : INewsService
                 return new PagedList<NewsItem>(new List<NewsItem>(), pageIndex, pageSize, 0);
             }
             
+            // Adjust page size if it would exceed the limit on this page
             if (pageSize > remainingItems)
             {
                 pageSize = remainingItems;
             }
+            
+            // Limit the total query to the store limit and let PagedList handle pagination
+            var limitedQuery = query.Take(storeNewsLimit);
+            return await PagedList<NewsItem>.Create(limitedQuery, pageIndex, pageSize);
         }
 
         return await PagedList<NewsItem>.Create(query, pageIndex, pageSize);
