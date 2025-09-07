@@ -10,12 +10,12 @@
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fa fa-eye"></i>
-                    @T("Admin.Content.News.NewsItems.Preview")
+                    @Loc["Admin.Content.News.NewsItems.Preview"]
                 </h3>
                 <div class="card-tools">
                     <a href="@Url.Action("List")" class="btn btn-default btn-sm">
                         <i class="fa fa-arrow-left"></i>
-                        @T("Admin.Common.BackToList")
+                        @Loc["Admin.Common.BackToList"]
                     </a>
                 </div>
             </div>
@@ -24,7 +24,7 @@
                     <div class="col-md-12">
                         <div class="form-group row">
                             <div class="col-md-3">
-                                <strong>@T("Admin.Content.News.NewsItems.Fields.Title"):</strong>
+                                <strong>@Loc["Admin.Content.News.NewsItems.Fields.Title"]:</strong>
                             </div>
                             <div class="col-md-9">
                                 @Model.Title
@@ -33,16 +33,16 @@
                         
                         <div class="form-group row">
                             <div class="col-md-3">
-                                <strong>@T("Admin.Content.News.NewsItems.Fields.Published"):</strong>
+                                <strong>@Loc["Admin.Content.News.NewsItems.Fields.Published"]:</strong>
                             </div>
                             <div class="col-md-9">
-                                @(Model.Published ? T("Admin.Common.Yes") : T("Admin.Common.No"))
+                                @(Model.Published ? Loc["Admin.Common.Yes"] : Loc["Admin.Common.No"])
                             </div>
                         </div>
                         
                         <div class="form-group row">
                             <div class="col-md-3">
-                                <strong>@T("Admin.Content.News.NewsItems.Fields.CreatedOn"):</strong>
+                                <strong>@Loc["Admin.Content.News.NewsItems.Fields.CreatedOn"]:</strong>
                             </div>
                             <div class="col-md-9">
                                 @Model.CreatedOn.ToString("G")
@@ -53,7 +53,7 @@
                         {
                             <div class="form-group row">
                                 <div class="col-md-3">
-                                    <strong>@T("Admin.Content.News.NewsItems.Fields.Short"):</strong>
+                                    <strong>@Loc["Admin.Content.News.NewsItems.Fields.Short"]:</strong>
                                 </div>
                                 <div class="col-md-9">
                                     @Html.Raw(Model.Short)
@@ -65,7 +65,7 @@
                         {
                             <div class="form-group row">
                                 <div class="col-md-3">
-                                    <strong>@T("Admin.Content.News.NewsItems.Fields.Full"):</strong>
+                                    <strong>@Loc["Admin.Content.News.NewsItems.Fields.Full"]:</strong>
                                 </div>
                                 <div class="col-md-9">
                                     @Html.Raw(Model.Full)
@@ -75,7 +75,7 @@
                         
                         <div class="form-group row">
                             <div class="col-md-3">
-                                <strong>@T("Admin.Content.News.NewsItems.Fields.Comments"):</strong>
+                                <strong>@Loc["Admin.Content.News.NewsItems.Fields.Comments"]:</strong>
                             </div>
                             <div class="col-md-9">
                                 @Model.Comments

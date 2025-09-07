@@ -4,15 +4,15 @@
 @{
     Func<int, HelperResult>
         template = @<div class="form-group">
-            <label class="form-label">@T("Admin.Content.News.NewsItems.Fields.Title")</label>
+            <label class="form-label">@Loc["Admin.Content.News.NewsItems.Fields.Title"]</label>
             <input asp-for="@Model.Locales[item].Title" class="form-control"/>
             <span asp-validation-for="@Model.Locales[item].Title" class="text-danger"></span>
             
-            <label class="form-label mt-3">@T("Admin.Content.News.NewsItems.Fields.Short")</label>
+            <label class="form-label mt-3">@Loc["Admin.Content.News.NewsItems.Fields.Short"]</label>
             <textarea asp-for="@Model.Locales[item].Short" class="form-control" rows="3"></textarea>
             <span asp-validation-for="@Model.Locales[item].Short" class="text-danger"></span>
             
-            <label class="form-label mt-3">@T("Admin.Content.News.NewsItems.Fields.Full")</label>
+            <label class="form-label mt-3">@Loc["Admin.Content.News.NewsItems.Fields.Full"]</label>
             <textarea asp-for="@Model.Locales[item].Full" class="form-control" rows="10"></textarea>
             <span asp-validation-for="@Model.Locales[item].Full" class="text-danger"></span>
             

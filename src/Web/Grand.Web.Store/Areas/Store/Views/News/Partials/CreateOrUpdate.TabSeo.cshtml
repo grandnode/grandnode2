@@ -4,19 +4,19 @@
 @{
     Func<int, HelperResult>
         template = @<div class="form-group">
-            <label class="form-label">@T("Admin.Content.News.NewsItems.Fields.MetaKeywords")</label>
+            <label class="form-label">@Loc["Admin.Content.News.NewsItems.Fields.MetaKeywords"]</label>
             <input asp-for="@Model.Locales[item].MetaKeywords" class="form-control"/>
             <span asp-validation-for="@Model.Locales[item].MetaKeywords" class="text-danger"></span>
             
-            <label class="form-label mt-3">@T("Admin.Content.News.NewsItems.Fields.MetaDescription")</label>
+            <label class="form-label mt-3">@Loc["Admin.Content.News.NewsItems.Fields.MetaDescription"]</label>
             <textarea asp-for="@Model.Locales[item].MetaDescription" class="form-control" rows="3"></textarea>
             <span asp-validation-for="@Model.Locales[item].MetaDescription" class="text-danger"></span>
             
-            <label class="form-label mt-3">@T("Admin.Content.News.NewsItems.Fields.MetaTitle")</label>
+            <label class="form-label mt-3">@Loc["Admin.Content.News.NewsItems.Fields.MetaTitle"]</label>
             <input asp-for="@Model.Locales[item].MetaTitle" class="form-control"/>
             <span asp-validation-for="@Model.Locales[item].MetaTitle" class="text-danger"></span>
             
-            <label class="form-label mt-3">@T("Admin.Content.News.NewsItems.Fields.SeName")</label>
+            <label class="form-label mt-3">@Loc["Admin.Content.News.NewsItems.Fields.SeName"]</label>
             <input asp-for="@Model.Locales[item].SeName" class="form-control"/>
             <span asp-validation-for="@Model.Locales[item].SeName" class="text-danger"></span>
             

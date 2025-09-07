@@ -1,6 +1,6 @@
 @model NewsItemModel
 @{
-    ViewBag.Title = T("Admin.Content.News.NewsItems.EditNewsItemDetails");
+    ViewBag.Title = Loc["Admin.Content.News.NewsItems.EditNewsItemDetails"];
     Layout = Constants.LayoutStore;
 }
 
@@ -11,14 +11,14 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fa fa-edit"></i>
-                        @T("Admin.Content.News.NewsItems.EditNewsItemDetails") - @Model.Title
+                        @Loc["Admin.Content.News.NewsItems.EditNewsItemDetails"] - @Model.Title
                     </h3>
                     <div class="card-tools">
                         <a href="@Url.Action("List")" class="btn btn-secondary btn-sm">
-                            <i class="fa fa-arrow-left"></i> @T("Admin.Content.News.NewsItems.BackToList")
+                            <i class="fa fa-arrow-left"></i> @Loc["Admin.Content.News.NewsItems.BackToList"]
                         </a>
                         <a href="@Url.Action("Preview", new { id = Model.Id })" class="btn btn-info btn-sm" target="_blank">
-                            <i class="fa fa-eye"></i> @T("Admin.Common.Preview")
+                            <i class="fa fa-eye"></i> @Loc["Admin.Common.Preview"]
                         </a>
                     </div>
                 </div>
@@ -28,15 +28,15 @@
                 <div class="card-footer">
                     <div class="float-left">
                         <button type="button" class="btn btn-danger" onclick="deleteNews()">
-                            <i class="fa fa-trash"></i> @T("Admin.Common.Delete")
+                            <i class="fa fa-trash"></i> @Loc["Admin.Common.Delete"]
                         </button>
                     </div>
                     <div class="float-right">
                         <button class="btn btn-success" type="submit" name="save">
-                            <i class="fa fa-check"></i> @T("Admin.Common.Save")
+                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
                         </button>
                         <button class="btn btn-info" type="submit" name="save-continue">
-                            <i class="fa fa-check-circle"></i> @T("Admin.Common.SaveContinue")
+                            <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                         </button>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
 
 <script>
     function deleteNews() {
-        if (confirm('@T("Admin.Common.AreYouSure")')) {
+        if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
             var postData = {
                 id: '@Model.Id'
             };

@@ -1,6 +1,6 @@
 @model NewsItemListModel
 @{
-    ViewBag.Title = T("Admin.Content.News.NewsItems");
+    ViewBag.Title = Loc["Admin.Content.News.NewsItems"];
     Layout = Constants.LayoutStore;
 }
 
@@ -10,11 +10,11 @@
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fa fa-list"></i>
-                    @T("Admin.Content.News.NewsItems")
+                    @Loc["Admin.Content.News.NewsItems"]
                 </h3>
                 <div class="card-tools">
                     <a href="@Url.Action("Create")" class="btn btn-primary btn-sm">
-                        <i class="fa fa-plus"></i> @T("Admin.Common.AddNew")
+                        <i class="fa fa-plus"></i> @Loc["Admin.Common.AddNew"]
                     </a>
                 </div>
             </div>
@@ -66,30 +66,30 @@
             dataBound: onDataBound,
             columns: [{
                 field: "Title",
-                title: "@T("Admin.Content.News.NewsItems.Fields.Title")",
+                title: "@Loc["Admin.Content.News.NewsItems.Fields.Title"]",
                 width: 300
             }, {
                 field: "Published",
-                title: "@T("Admin.Content.News.NewsItems.Fields.Published")",
+                title: "@Loc["Admin.Content.News.NewsItems.Fields.Published"]",
                 width: 100,
                 headerAttributes: { style: "text-align:center" },
                 attributes: { style: "text-align:center" },
                 template: '<i class="fa fa-check" style="color:#5cb85c;" title="true" alt="#=Published#"></i>'
             }, {
                 field: "CreatedOn",
-                title: "@T("Admin.Content.News.NewsItems.Fields.CreatedOn")",
+                title: "@Loc["Admin.Content.News.NewsItems.Fields.CreatedOn"]",
                 width: 150,
                 type: "date",
                 format: "{0:G}"
             }, {
                 field: "Comments",
-                title: "@T("Admin.Content.News.NewsItems.Fields.Comments")",
+                title: "@Loc["Admin.Content.News.NewsItems.Fields.Comments"]",
                 width: 100,
                 headerAttributes: { style: "text-align:center" },
                 attributes: { style: "text-align:center" }
             }, {
                 field: "Id",
-                title: "@T("Admin.Common.Actions")",
+                title: "@Loc["Admin.Common.Actions"]",
                 width: 150,
                 headerAttributes: { style: "text-align:center" },
                 attributes: { style: "text-align:center" },
@@ -103,7 +103,7 @@
     });
 
     function deleteNews(id) {
-        if (confirm('@T("Admin.Common.AreYouSure")')) {
+        if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
             var postData = {
                 id: id
             };
