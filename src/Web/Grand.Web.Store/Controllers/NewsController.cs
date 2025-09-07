@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.News;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
-using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.News;
@@ -71,15 +70,14 @@ public class NewsController : BaseStoreController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, NewsItemListModel model)
     {
-        var newsSettings = await _settingService.LoadSettingAsync<NewsSettings>(_contextAccessor.StoreContext.CurrentStore.Id);
+        var newsSettings = await _settingService.LoadSetting<NewsSettings>(_contextAccessor.StoreContext.CurrentStore.Id);
         var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-        
+
         // Use the store-specific news service method with limit
-        var news = await _newsService.GetStoreNews(storeId, command.Page - 1, command.PageSize, 
+        var news = await _newsService.GetStoreNews(storeId, command.Page - 1, command.PageSize,
             newsSettings.StoreNewsLimit, model.SearchNewsTitle);
-        
-        var gridModel = new DataSourceResult 
-        {
+
+        var gridModel = new DataSourceResult {
             Data = news.Select(x =>
             {
                 var m = x.ToModel(_dateTimeService);
@@ -120,7 +118,7 @@ public class NewsController : BaseStoreController
             newsItem.Stores.Clear();
             newsItem.Stores.Add(_contextAccessor.StoreContext.CurrentStore.Id);
             await _newsService.UpdateNews(newsItem);
-            
+
             Success(_translationService.GetResource("Admin.Content.News.NewsItems.Added"));
             return continueEditing ? RedirectToAction("Edit", new { id = newsItem.Id }) : RedirectToAction("List");
         }
