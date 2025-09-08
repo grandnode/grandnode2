@@ -1,57 +1,75 @@
-@using Microsoft.AspNetCore.Mvc.Razor
+﻿@using Microsoft.AspNetCore.Mvc.Razor
 @model NewsItemModel
 
+<vc:admin-widget widget-zone="news_details_seo_top" additional-data="Model"/>
 @{
     Func<int, HelperResult>
-        template = @<div class="form-group">
-            <label class="form-label">@Loc["Admin.Content.News.NewsItems.Fields.MetaKeywords"]</label>
-            <input asp-for="@Model.Locales[item].MetaKeywords" class="form-control"/>
-            <span asp-validation-for="@Model.Locales[item].MetaKeywords" class="text-danger"></span>
-            
-            <label class="form-label mt-3">@Loc["Admin.Content.News.NewsItems.Fields.MetaDescription"]</label>
-            <textarea asp-for="@Model.Locales[item].MetaDescription" class="form-control" rows="3"></textarea>
-            <span asp-validation-for="@Model.Locales[item].MetaDescription" class="text-danger"></span>
-            
-            <label class="form-label mt-3">@Loc["Admin.Content.News.NewsItems.Fields.MetaTitle"]</label>
-            <input asp-for="@Model.Locales[item].MetaTitle" class="form-control"/>
-            <span asp-validation-for="@Model.Locales[item].MetaTitle" class="text-danger"></span>
-            
-            <label class="form-label mt-3">@Loc["Admin.Content.News.NewsItems.Fields.SeName"]</label>
-            <input asp-for="@Model.Locales[item].SeName" class="form-control"/>
-            <span asp-validation-for="@Model.Locales[item].SeName" class="text-danger"></span>
-            
-            <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
-        </div>;
+        template = @<div class="form-body">
+                       <div class="form-group">
+                           <admin-label asp-for="@Model.Locales[item].MetaKeywords"/>
+                           <div class="col-md-9 col-sm-9">
+                               <admin-input asp-for="@Model.Locales[item].MetaKeywords"/>
+                               <span asp-validation-for="@Model.Locales[item].MetaKeywords"></span>
+                           </div>
+                       </div>
+                       <div class="form-group">
+                           <admin-label asp-for="@Model.Locales[item].MetaDescription"/>
+                           <div class="col-md-9 col-sm-9">
+                               <admin-textarea asp-for="@Model.Locales[item].MetaDescription"></admin-textarea>
+                               <span asp-validation-for="@Model.Locales[item].MetaDescription"></span>
+                           </div>
+                       </div>
+                       <div class="form-group">
+                           <admin-label asp-for="@Model.Locales[item].MetaTitle"/>
+                           <div class="col-md-9 col-sm-9">
+                               <admin-input asp-for="@Model.Locales[item].MetaTitle"/>
+                               <span asp-validation-for="@Model.Locales[item].MetaTitle"></span>
+                           </div>
+                       </div>
+                       <div class="form-group">
+                           <admin-label asp-for="@Model.Locales[item].SeName"/>
+                           <div class="col-md-9 col-sm-9">
+                               <admin-input asp-for="@Model.Locales[item].SeName"/>
+                               <span asp-validation-for="@Model.Locales[item].SeName"></span>
+                           </div>
+                       </div>
+                       <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
+                   </div>;
 }
 
 <div class="form-horizontal">
-    <div class="row">
-        <div class="col-md-12">
-            <localized-editor localized-template="@template" name="newsitem-seo-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-                <div class="form-group">
-                    <label asp-for="MetaKeywords" class="form-label"></label>
-                    <input asp-for="MetaKeywords" class="form-control"/>
-                    <span asp-validation-for="MetaKeywords" class="text-danger"></span>
+    <localized-editor localized-template="@template" name="newsitem-seo-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="MetaKeywords"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="MetaKeywords"/>
+                    <span asp-validation-for="MetaKeywords"></span>
                 </div>
-                
-                <div class="form-group">
-                    <label asp-for="MetaDescription" class="form-label"></label>
-                    <textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="MetaDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="MetaDescription"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-textarea asp-for="MetaDescription"></admin-textarea>
+                    <span asp-validation-for="MetaDescription"></span>
                 </div>
-                
-                <div class="form-group">
-                    <label asp-for="MetaTitle" class="form-label"></label>
-                    <input asp-for="MetaTitle" class="form-control"/>
-                    <span asp-validation-for="MetaTitle" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="MetaTitle"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="MetaTitle"/>
+                    <span asp-validation-for="MetaTitle"></span>
                 </div>
-                
-                <div class="form-group">
-                    <label asp-for="SeName" class="form-label"></label>
-                    <input asp-for="SeName" class="form-control"/>
-                    <span asp-validation-for="SeName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="SeName"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="SeName"/>
+                    <span asp-validation-for="SeName"></span>
                 </div>
-            </localized-editor>
+            </div>
         </div>
-    </div>
+    </localized-editor>
+
 </div>
+<vc:admin-widget widget-zone="news_details_seo_bottom" additional-data="Model"/>

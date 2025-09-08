@@ -1,75 +1,101 @@
-@using Microsoft.AspNetCore.Mvc.Razor
+﻿@using Microsoft.AspNetCore.Mvc.Razor
 @model NewsItemModel
 
 @{
     Func<int, HelperResult>
-        template = @<div class="form-group">
-            <label class="form-label">@Loc["Admin.Content.News.NewsItems.Fields.Title"]</label>
-            <input asp-for="@Model.Locales[item].Title" class="form-control"/>
-            <span asp-validation-for="@Model.Locales[item].Title" class="text-danger"></span>
-            
-            <label class="form-label mt-3">@Loc["Admin.Content.News.NewsItems.Fields.Short"]</label>
-            <textarea asp-for="@Model.Locales[item].Short" class="form-control" rows="3"></textarea>
-            <span asp-validation-for="@Model.Locales[item].Short" class="text-danger"></span>
-            
-            <label class="form-label mt-3">@Loc["Admin.Content.News.NewsItems.Fields.Full"]</label>
-            <textarea asp-for="@Model.Locales[item].Full" class="form-control" rows="10"></textarea>
-            <span asp-validation-for="@Model.Locales[item].Full" class="text-danger"></span>
-            
+        template = @<div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="@Model.Locales[item].Title"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="@Model.Locales[item].Title"/>
+                    <span asp-validation-for="@Model.Locales[item].Title"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="@Model.Locales[item].Short"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-textarea asp-for="@Model.Locales[item].Short"></admin-textarea>
+                    <span asp-validation-for="@Model.Locales[item].Short"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="@Model.Locales[item].Full"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="@Model.Locales[item].Full" asp-template="Editor"/>
+                    <span asp-validation-for="@Model.Locales[item].Full"></span>
+                </div>
+            </div>
             <input asp-for="Locales[item].LanguageId" type="hidden"/>
         </div>;
 }
 
 <div class="form-horizontal">
-    <div class="row">
-        <div class="col-md-12">
-            <localized-editor localized-template="@template" name="newsitem-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
-                <div class="form-group">
-                    <label asp-for="Title" class="form-label"></label>
-                    <input asp-for="Title" class="form-control"/>
-                    <span asp-validation-for="Title" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Short" class="form-label"></label>
-                    <textarea asp-for="Short" class="form-control" rows="3"></textarea>
-                    <span asp-validation-for="Short" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Full" class="form-label"></label>
-                    <textarea asp-for="Full" class="form-control" rows="10"></textarea>
-                    <span asp-validation-for="Full" class="text-danger"></span>
-                </div>
-            </localized-editor>
-            
+    <vc:admin-widget widget-zone="news_details_info_top" additional-data="Model"/>
+    <div class="form-body">
+        <localized-editor localized-template="@template" name="newsitem-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
             <div class="form-group">
-                <label asp-for="PictureId" class="form-label"></label>
-                <input asp-for="PictureId" class="form-control"/>
-                <span asp-validation-for="PictureId" class="text-danger"></span>
+                <admin-label asp-for="Title"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Title"/>
+                    <span asp-validation-for="Title"></span>
+                </div>
             </div>
-            
-            <div class="form-check">
-                <input asp-for="AllowComments" class="form-check-input"/>
-                <label asp-for="AllowComments" class="form-check-label"></label>
-                <span asp-validation-for="AllowComments" class="text-danger"></span>
-            </div>
-            
             <div class="form-group">
-                <label asp-for="StartDate" class="form-label"></label>
-                <input asp-for="StartDate" class="form-control" type="datetime-local"/>
-                <span asp-validation-for="StartDate" class="text-danger"></span>
+                <admin-label asp-for="Short"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-textarea asp-for="Short"></admin-textarea>
+                    <span asp-validation-for="Short"></span>
+                </div>
             </div>
-            
             <div class="form-group">
-                <label asp-for="EndDate" class="form-label"></label>
-                <input asp-for="EndDate" class="form-control" type="datetime-local"/>
-                <span asp-validation-for="EndDate" class="text-danger"></span>
+                <admin-label asp-for="Full"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Full" asp-template="Editor"/>
+                    <span asp-validation-for="Full"></span>
+                </div>
             </div>
-            
-            <div class="form-check">
-                <input asp-for="Published" class="form-check-input"/>
-                <label asp-for="Published" class="form-check-label"></label>
-                <span asp-validation-for="Published" class="text-danger"></span>
+        </localized-editor>
+        <div class="form-group">
+            <admin-label asp-for="PictureId"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="PictureId"/>
+                <span asp-validation-for="PictureId"></span>
             </div>
         </div>
+        <div class="form-group">
+            <admin-label asp-for="AllowComments"/>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AllowComments"/>
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="AllowComments"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="StartDate"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="StartDate"/>
+                <span asp-validation-for="StartDate"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="EndDate"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="EndDate"/>
+                <span asp-validation-for="EndDate"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Published"/>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="Published"/>
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="Published"></span>
+            </div>
+        </div>       
     </div>
+    <vc:admin-widget widget-zone="news_details_info_bottom" additional-data="Model"/>
 </div>

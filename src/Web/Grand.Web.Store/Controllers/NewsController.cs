@@ -3,9 +3,11 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Catalog;
 using Grand.Domain.News;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.News;
@@ -113,10 +115,8 @@ public class NewsController : BaseStoreController
     {
         if (ModelState.IsValid)
         {
+            model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             var newsItem = await _newsViewModelService.InsertNewsItemModel(model);
-            // Store-specific: Set the current store as the store for this news item
-            newsItem.Stores.Clear();
-            newsItem.Stores.Add(_contextAccessor.StoreContext.CurrentStore.Id);
             await _newsService.UpdateNews(newsItem);
 
             Success(_translationService.GetResource("Admin.Content.News.NewsItems.Added"));
@@ -136,9 +136,17 @@ public class NewsController : BaseStoreController
             //No news item found with the specified id
             return RedirectToAction("List");
 
-        // Store-specific: Ensure news item belongs to current store
-        if (!newsItem.Stores.Contains(_contextAccessor.StoreContext.CurrentStore.Id))
-            return RedirectToAction("List");
+        if (!newsItem.LimitedToStores || (newsItem.LimitedToStores &&
+                                          newsItem.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
+                                          newsItem.Stores.Count > 1))
+        {
+            Warning(_translationService.GetResource("Admin.Content.News.Permissions"));
+        }
+        else
+        {
+            if (!newsItem.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                return RedirectToAction("List");
+        }
 
         ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         var model = newsItem.ToModel(_dateTimeService);
@@ -166,12 +174,12 @@ public class NewsController : BaseStoreController
             //No news item found with the specified id
             return RedirectToAction("List");
 
-        // Store-specific: Ensure news item belongs to current store
-        if (!newsItem.Stores.Contains(_contextAccessor.StoreContext.CurrentStore.Id))
-            return RedirectToAction("List");
+        if (!newsItem.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return RedirectToAction("Edit", new { id = newsItem.Id });
 
         if (ModelState.IsValid)
         {
+            model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             newsItem = await _newsViewModelService.UpdateNewsItemModel(newsItem, model);
             Success(_translationService.GetResource("Admin.Content.News.NewsItems.Updated"));
 
@@ -201,8 +209,7 @@ public class NewsController : BaseStoreController
             //No news item found with the specified id
             return RedirectToAction("List");
 
-        // Store-specific: Ensure news item belongs to current store
-        if (!newsItem.Stores.Contains(_contextAccessor.StoreContext.CurrentStore.Id))
+        if (!newsItem.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             return RedirectToAction("List");
 
         if (ModelState.IsValid)
@@ -224,8 +231,7 @@ public class NewsController : BaseStoreController
         if (newsItem == null)
             return RedirectToAction("List");
 
-        // Store-specific: Ensure news item belongs to current store (for preview)
-        if (!newsItem.Stores.Contains(_contextAccessor.StoreContext.CurrentStore.Id))
+        if (!newsItem.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             return RedirectToAction("List");
 
         var model = newsItem.ToModel(_dateTimeService);

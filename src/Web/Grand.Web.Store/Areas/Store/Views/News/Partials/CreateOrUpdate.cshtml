@@ -1,30 +1,30 @@
-@model NewsItemModel
+﻿@model NewsItemModel
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
-
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title">@Loc["Admin.Content.News.NewsItems.Info"]</h4>
-            </div>
-            <div class="card-body">
-                <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-3">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title">@Loc["Admin.Common.SEO"]</h4>
-            </div>
-            <div class="card-body">
-                <partial name="Partials/CreateOrUpdate.TabSeo" model="Model"/>
-            </div>
-        </div>
-    </div>
-</div>
+<admin-tabstrip name="news-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Content.News.NewsItems.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Common.SEO"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabSeo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Content.News.NewsItems.Comments"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabComments" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="news_details_tabs" additional-data="Model"/>
+    </items>
+</admin-tabstrip>

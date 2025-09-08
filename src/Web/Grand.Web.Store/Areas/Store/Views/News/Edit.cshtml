@@ -1,70 +1,46 @@
-@model NewsItemModel
+﻿@model NewsItemModel
 @{
+    //page title
     ViewBag.Title = Loc["Admin.Content.News.NewsItems.EditNewsItemDetails"];
     Layout = Constants.LayoutStore;
 }
+<form asp-area="@Constants.AreaStore" asp-controller="News" asp-action="Edit" method="post">
 
-<form asp-area="Store" asp-controller="News" asp-action="Edit" method="post">
     <div class="row">
         <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fa fa-edit"></i>
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-hacker-news"></i>
                         @Loc["Admin.Content.News.NewsItems.EditNewsItemDetails"] - @Model.Title
-                    </h3>
-                    <div class="card-tools">
-                        <a href="@Url.Action("List")" class="btn btn-secondary btn-sm">
-                            <i class="fa fa-arrow-left"></i> @Loc["Admin.Content.News.NewsItems.BackToList"]
-                        </a>
-                        <a href="@Url.Action("Preview", new { id = Model.Id })" class="btn btn-info btn-sm" target="_blank">
-                            <i class="fa fa-eye"></i> @Loc["Admin.Common.Preview"]
-                        </a>
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Content.News.NewsItems.BackToList"], "List")
+                        </small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button type="button" onclick="window.open('@Url.RouteUrl("NewsItem", new { Model.SeName })','_blank');" class="btn purple">
+                                <i class="fa fa-eye"></i>
+                                @Loc["Admin.Common.Preview"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
+                            <span id="newsitem-delete" class="btn red">
+                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                            </span>
+                            <vc:admin-widget widget-zone="news_details_buttons" additional-data="Model"/>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="x_content form">
                     <partial name="Partials/CreateOrUpdate" model="Model"/>
-                </div>
-                <div class="card-footer">
-                    <div class="float-left">
-                        <button type="button" class="btn btn-danger" onclick="deleteNews()">
-                            <i class="fa fa-trash"></i> @Loc["Admin.Common.Delete"]
-                        </button>
-                    </div>
-                    <div class="float-right">
-                        <button class="btn btn-success" type="submit" name="save">
-                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
-                        </button>
-                        <button class="btn btn-info" type="submit" name="save-continue">
-                            <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </form>
-
-<script>
-    function deleteNews() {
-        if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
-            var postData = {
-                id: '@Model.Id'
-            };
-            addAntiForgeryToken(postData);
-            
-            $.ajax({
-                cache: false,
-                type: "POST",
-                url: "@(Url.Action("Delete", "News"))",
-                data: postData,
-                success: function (data) {
-                    window.location = '@Url.Action("List")';
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert('Failed to delete news item');
-                }
-            });
-        }
-    }
-</script>
+<admin-delete-confirmation button-id="newsitem-delete"/>
