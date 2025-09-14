@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Catalog;
 using Grand.Domain.News;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -72,8 +71,8 @@ public class NewsController : BaseStoreController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, NewsItemListModel model)
     {
-        var newsSettings = await _settingService.LoadSetting<NewsSettings>(_contextAccessor.StoreContext.CurrentStore.Id);
         var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
+        var newsSettings = await _settingService.LoadSetting<NewsSettings>(storeId);
 
         var news = await _newsService.GetAllNews(storeId, command.Page - 1, command.PageSize, newsTitle: model.SearchNewsTitle);
 
