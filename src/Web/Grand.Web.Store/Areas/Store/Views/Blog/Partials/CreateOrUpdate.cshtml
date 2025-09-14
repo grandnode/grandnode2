@@ -1,0 +1,30 @@
+@model BlogPostModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+<admin-tabstrip name="blog-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Content.Blog.BlogPosts.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Common.SEO"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabSeo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Content.Blog.BlogPosts.Comments"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabComments" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="blog_details_tabs" additional-data="Model"/>
+    </items>
+</admin-tabstrip>
