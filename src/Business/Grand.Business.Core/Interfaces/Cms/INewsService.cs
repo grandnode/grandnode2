@@ -53,14 +53,4 @@ public interface INewsService
     /// <param name="customerId">Customer identifier; "" to load all records</param>
     /// <returns>Comments</returns>
     Task<IList<NewsComment>> GetAllComments(string customerId);
-
-    /// <summary>
-    ///     Gets news for store with configurable limit
-    /// </summary>
-    /// <param name="storeId">Store identifier</param>
-    /// <param name="pageIndex">Page index</param>
-    /// <param name="pageSize">Page size</param>
-    /// <param name="newsTitle">News title filter</param>
-    /// <returns>News items</returns>
-    Task<IPagedList<NewsItem>> GetStoreNews(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue, string newsTitle = "");
 }

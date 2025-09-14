@@ -108,31 +108,4 @@ public class NewsServiceTests
         //Assert
         Assert.IsTrue(result.Any());
     }
-
-    [TestMethod]
-    public async Task GetStoreNews_NoLimit_ReturnsAllPublishedNews()
-    {
-        //Arrange
-        await _repository.InsertAsync(new NewsItem { Published = true, Title = "News 1" });
-        await _repository.InsertAsync(new NewsItem { Published = true, Title = "News 2" });
-        await _repository.InsertAsync(new NewsItem { Published = false, Title = "News 3" }); // Should be excluded
-        //Act
-        var result = await _newsService.GetStoreNews("", 0, 10); // No limit (storeNewsLimit = 0)
-        //Assert
-        Assert.AreEqual(2, result.Count); // Only published news
-        Assert.IsTrue(result.All(x => x.Published));
-    }
-
-    [TestMethod]
-    public async Task GetStoreNews_ExcludesUnpublishedNews()
-    {
-        //Arrange
-        await _repository.InsertAsync(new NewsItem { Published = true, Title = "Published News" });
-        await _repository.InsertAsync(new NewsItem { Published = false, Title = "Unpublished News" });
-        //Act
-        var result = await _newsService.GetStoreNews("", 0, 10);
-        //Assert
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("Published News", result.First().Title);
-    }
 }

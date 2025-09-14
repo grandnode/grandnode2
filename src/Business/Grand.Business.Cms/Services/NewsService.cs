@@ -101,49 +101,6 @@ public class NewsService : INewsService
     }
 
     /// <summary>
-    ///     Gets news for store with configurable limit
-    /// </summary>
-    /// <param name="storeId">Store identifier</param>
-    /// <param name="pageIndex">Page index</param>
-    /// <param name="pageSize">Page size</param>
-    /// <param name="newsTitle">News title filter</param>
-    /// <returns>News items</returns>
-    public virtual async Task<IPagedList<NewsItem>> GetStoreNews(string storeId = "",
-        int pageIndex = 0, int pageSize = int.MaxValue, string newsTitle = "")
-    {
-        var query = from p in _newsItemRepository.Table
-            select p;
-
-        if (!string.IsNullOrWhiteSpace(newsTitle))
-            query = query.Where(n => n.Title != null && n.Title.ToLower().Contains(newsTitle.ToLower()));
-
-        // Store news should only show published and current items
-        var utcNow = DateTime.UtcNow;
-        query = query.Where(n => n.Published);
-        query = query.Where(n => !n.StartDateUtc.HasValue || n.StartDateUtc <= utcNow);
-        query = query.Where(n => !n.EndDateUtc.HasValue || n.EndDateUtc >= utcNow);
-
-        // Apply ACL and store limitations for store context
-        if (!_accessControlConfig.IgnoreAcl)
-        {
-            var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
-            query = from p in query
-                where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
-                select p;
-        }
-
-        // Store acl
-        if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
-            query = from p in query
-                where !p.LimitedToStores || p.Stores.Contains(storeId)
-                select p;
-
-        query = query.OrderByDescending(n => n.CreatedOnUtc);
-
-        return await PagedList<NewsItem>.Create(query, pageIndex, pageSize);
-    }
-
-    /// <summary>
     ///     Inserts a news item
     /// </summary>
     /// <param name="news">News item</param>
