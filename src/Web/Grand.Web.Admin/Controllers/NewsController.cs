@@ -203,8 +203,7 @@ public class NewsController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> Comments(string filterByNewsItemId, DataSourceRequest command)
     {
-        var comments =
-            await _newsViewModelService.PrepareNewsCommentModel(filterByNewsItemId, command.Page, command.PageSize);
+        var comments = await _newsViewModelService.PrepareNewsCommentModel(filterByNewsItemId, command.Page, command.PageSize);
 
         var gridModel = new DataSourceResult {
             Data = comments.newsCommentModels.ToList(),

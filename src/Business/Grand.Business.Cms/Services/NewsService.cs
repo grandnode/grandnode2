@@ -106,11 +106,10 @@ public class NewsService : INewsService
     /// <param name="storeId">Store identifier</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    /// <param name="storeNewsLimit">Maximum number of news items to return (0 for unlimited)</param>
     /// <param name="newsTitle">News title filter</param>
     /// <returns>News items</returns>
     public virtual async Task<IPagedList<NewsItem>> GetStoreNews(string storeId = "",
-        int pageIndex = 0, int pageSize = int.MaxValue, int storeNewsLimit = 0, string newsTitle = "")
+        int pageIndex = 0, int pageSize = int.MaxValue, string newsTitle = "")
     {
         var query = from p in _newsItemRepository.Table
             select p;
@@ -140,28 +139,6 @@ public class NewsService : INewsService
                 select p;
 
         query = query.OrderByDescending(n => n.CreatedOnUtc);
-
-        // Apply store news limit if specified
-        if (storeNewsLimit > 0)
-        {
-            // First check if the requested page would exceed our limit
-            var remainingItems = storeNewsLimit - (pageIndex * pageSize);
-            if (remainingItems <= 0)
-            {
-                // No items left for this page
-                return new PagedList<NewsItem>(new List<NewsItem>(), pageIndex, pageSize, 0);
-            }
-            
-            // Adjust page size if it would exceed the limit on this page
-            if (pageSize > remainingItems)
-            {
-                pageSize = remainingItems;
-            }
-            
-            // Limit the total query to the store limit and let PagedList handle pagination
-            var limitedQuery = query.Take(storeNewsLimit);
-            return await PagedList<NewsItem>.Create(limitedQuery, pageIndex, pageSize);
-        }
 
         return await PagedList<NewsItem>.Create(query, pageIndex, pageSize);
     }

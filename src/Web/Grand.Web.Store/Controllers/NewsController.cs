@@ -76,8 +76,7 @@ public class NewsController : BaseStoreController
         var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
 
         // Use the store-specific news service method with limit
-        var news = await _newsService.GetStoreNews(storeId, command.Page - 1, command.PageSize,
-            newsSettings.StoreNewsLimit, model.SearchNewsTitle);
+        var news = await _newsService.GetStoreNews(storeId, command.Page - 1, command.PageSize, model.SearchNewsTitle);
 
         var gridModel = new DataSourceResult {
             Data = news.Select(x =>

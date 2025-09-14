@@ -59,9 +59,6 @@ public class ContentSettingsModel : BaseModel
 
         [GrandResourceDisplayName("Admin.Settings.News.NewsArchivePageSize")]
         public int NewsArchivePageSize { get; set; }
-
-        [GrandResourceDisplayName("Admin.Settings.News.StoreNewsLimit")]
-        public int StoreNewsLimit { get; set; }
     }
 
     public class KnowledgebaseSettingsModel : BaseModel

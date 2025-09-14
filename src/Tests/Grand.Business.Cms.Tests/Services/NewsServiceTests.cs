@@ -117,53 +117,10 @@ public class NewsServiceTests
         await _repository.InsertAsync(new NewsItem { Published = true, Title = "News 2" });
         await _repository.InsertAsync(new NewsItem { Published = false, Title = "News 3" }); // Should be excluded
         //Act
-        var result = await _newsService.GetStoreNews("", 0, 10, 0); // No limit (storeNewsLimit = 0)
+        var result = await _newsService.GetStoreNews("", 0, 10); // No limit (storeNewsLimit = 0)
         //Assert
         Assert.AreEqual(2, result.Count); // Only published news
         Assert.IsTrue(result.All(x => x.Published));
-    }
-
-    [TestMethod]
-    public async Task GetStoreNews_WithLimit_ReturnsLimitedNews()
-    {
-        //Arrange
-        for (int i = 1; i <= 10; i++)
-        {
-            await _repository.InsertAsync(new NewsItem { Published = true, Title = $"News {i}" });
-        }
-        //Act
-        var result = await _newsService.GetStoreNews("", 0, 10, 5); // Limit to 5 items
-        //Assert
-        Assert.AreEqual(5, result.Count);
-        Assert.AreEqual(5, result.TotalCount); // Total should respect the limit
-    }
-
-    [TestMethod]
-    public async Task GetStoreNews_WithLimitAndPagination_ReturnsCorrectPage()
-    {
-        //Arrange
-        for (int i = 1; i <= 15; i++)
-        {
-            await _repository.InsertAsync(new NewsItem { Published = true, Title = $"News {i}" });
-        }
-        //Act - Request page 2 (index 1) with page size 5, but limit to 8 total items
-        var result = await _newsService.GetStoreNews("", 1, 5, 8); // Page 2, size 5, limit 8
-        //Assert
-        Assert.AreEqual(3, result.Count); // Should have 3 items (8 total - 5 on first page = 3 remaining)
-    }
-
-    [TestMethod]
-    public async Task GetStoreNews_PageExceedsLimit_ReturnsEmptyResult()
-    {
-        //Arrange
-        for (int i = 1; i <= 10; i++)
-        {
-            await _repository.InsertAsync(new NewsItem { Published = true, Title = $"News {i}" });
-        }
-        //Act - Request page 3 (index 2) with page size 5, but limit to 8 total items
-        var result = await _newsService.GetStoreNews("", 2, 5, 8); // Page 3, size 5, limit 8 (no items left)
-        //Assert
-        Assert.AreEqual(0, result.Count);
     }
 
     [TestMethod]
@@ -173,7 +130,7 @@ public class NewsServiceTests
         await _repository.InsertAsync(new NewsItem { Published = true, Title = "Published News" });
         await _repository.InsertAsync(new NewsItem { Published = false, Title = "Unpublished News" });
         //Act
-        var result = await _newsService.GetStoreNews("", 0, 10, 0);
+        var result = await _newsService.GetStoreNews("", 0, 10);
         //Assert
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual("Published News", result.First().Title);

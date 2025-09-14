@@ -33,9 +33,4 @@ public class NewsSettings : ISettings
     ///     Gets or sets the page size for news archive
     /// </summary>
     public int NewsArchivePageSize { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the maximum number of news items to display in store (0 for unlimited)
-    /// </summary>
-    public int StoreNewsLimit { get; set; }
 }
