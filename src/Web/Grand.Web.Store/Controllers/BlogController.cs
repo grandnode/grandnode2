@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Domain.Blogs;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
@@ -633,7 +634,7 @@ public class BlogController : BaseStoreController
                     if (post != null && post.AccessToEntityByStore(currentStoreId))
                         if (!blogCategory.BlogPosts.Any(x => x.BlogPostId == id))
                         {
-                            blogCategory.BlogPosts.Add(new Domain.Blogs.BlogCategoryPost { BlogPostId = id });
+                            blogCategory.BlogPosts.Add(new BlogCategoryPost { BlogPostId = id });
                             await _blogService.UpdateBlogCategory(blogCategory);
                         }
                 }

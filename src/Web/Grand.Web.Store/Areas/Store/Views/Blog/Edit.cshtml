@@ -42,4 +42,30 @@
         </div>
     </div>
 </form>
-<delete-confirmation button-id="blogpost-delete"/>
+
+<script>
+    $(document).ready(function() {
+        $('#blogpost-delete').click(function() {
+            if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
+                var postData = {
+                    id: '@Model.Id'
+                };
+                addAntiForgeryToken(postData);
+                
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("Delete", "Blog", new { area = Grand.Web.Store.Extensions.Constants.AreaStore }))",
+                    data: postData,
+                    success: function() {
+                        location.href = "@(Url.Action("List", "Blog", new { area = Grand.Web.Store.Extensions.Constants.AreaStore }))";
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert('Failed to delete');
+                    }
+                });
+            }
+            return false;
+        });
+    });
+</script>

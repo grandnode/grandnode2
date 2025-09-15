@@ -39,4 +39,30 @@
         </div>
     </div>
 </form>
-<admin-delete-confirmation button-id="blogcategory-delete" action-name="CategoryDelete"/>
+
+<script>
+    $(document).ready(function() {
+        $('#blogcategory-delete').click(function() {
+            if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
+                var postData = {
+                    id: '@Model.Id'
+                };
+                addAntiForgeryToken(postData);
+                
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("CategoryDelete", "Blog", new { area = Grand.Web.Store.Extensions.Constants.AreaStore }))",
+                    data: postData,
+                    success: function() {
+                        location.href = "@(Url.Action("CategoryList", "Blog", new { area = Grand.Web.Store.Extensions.Constants.AreaStore }))";
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert('Failed to delete');
+                    }
+                });
+            }
+            return false;
+        });
+    });
+</script>
