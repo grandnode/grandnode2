@@ -111,8 +111,6 @@ public class BlogController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-                model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
             var blogPost = await _blogViewModelService.InsertBlogPostModel(model);
             Success(_translationService.GetResource("Admin.Content.Blog.BlogPosts.Added"));
             return continueEditing ? RedirectToAction("Edit", new { id = blogPost.Id }) : RedirectToAction("List");
@@ -131,21 +129,6 @@ public class BlogController : BaseAdminController
         if (blogPost == null)
             //No blog post found with the specified id
             return RedirectToAction("List");
-
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-        {
-            if (!blogPost.LimitedToStores || (blogPost.LimitedToStores &&
-                                              blogPost.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
-                                              blogPost.Stores.Count > 1))
-            {
-                Warning(_translationService.GetResource("Admin.Content.Blog.BlogPosts.Permissions"));
-            }
-            else
-            {
-                if (!blogPost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                    return RedirectToAction("List");
-            }
-        }
 
         ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         var model = blogPost.ToModel(_dateTimeService);
@@ -173,15 +156,8 @@ public class BlogController : BaseAdminController
             //No blog post found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!blogPost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return RedirectToAction("Edit", new { id = blogPost.Id });
-
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-                model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
-
             blogPost = await _blogViewModelService.UpdateBlogPostModel(model, blogPost);
 
             Success(_translationService.GetResource("Admin.Content.Blog.BlogPosts.Updated"));
@@ -221,10 +197,6 @@ public class BlogController : BaseAdminController
         if (blogPost == null)
             //No blog post found with the specified id
             return RedirectToAction("List");
-
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!blogPost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return RedirectToAction("Edit", new { id = blogPost.Id });
 
         if (ModelState.IsValid)
         {
@@ -295,7 +267,7 @@ public class BlogController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> CategoryList(DataSourceRequest command)
     {
-        var categories = await _blogService.GetAllBlogCategories(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var categories = await _blogService.GetAllBlogCategories("");
         var gridModel = new DataSourceResult {
             Data = categories,
             Total = categories.Count
@@ -321,9 +293,6 @@ public class BlogController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-                model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
-
             var blogCategory = model.ToEntity();
             blogCategory.SeName = SeoExtensions.GetSeName(
                 string.IsNullOrEmpty(blogCategory.SeName) ? blogCategory.Name : blogCategory.SeName,
@@ -352,22 +321,6 @@ public class BlogController : BaseAdminController
             //No blog post found with the specified id
             return RedirectToAction("CategoryList");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-        {
-            if (!blogCategory.LimitedToStores || (blogCategory.LimitedToStores &&
-                                                  blogCategory.Stores.Contains(
-                                                      _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
-                                                  blogCategory.Stores.Count > 1))
-            {
-                Warning(_translationService.GetResource("Admin.Content.Blog.BlogCategory.Permissions"));
-            }
-            else
-            {
-                if (!blogCategory.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                    return RedirectToAction("List");
-            }
-        }
-
         ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         var model = blogCategory.ToModel();
         //locales
@@ -388,15 +341,8 @@ public class BlogController : BaseAdminController
             //No blog post found with the specified id
             return RedirectToAction("CategoryList");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!blogCategory.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return RedirectToAction("CategoryEdit", new { id = blogCategory.Id });
-
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-                model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
-
             blogCategory = model.ToEntity(blogCategory);
             blogCategory.SeName = SeoExtensions.GetSeName(
                 string.IsNullOrEmpty(blogCategory.SeName) ? blogCategory.Name : blogCategory.SeName,
@@ -435,10 +381,6 @@ public class BlogController : BaseAdminController
         if (blogcategory == null)
             //No blog post found with the specified id
             return RedirectToAction("CategoryList");
-
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!blogcategory.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return RedirectToAction("CategoryEdit", new { id = blogcategory.Id });
 
         if (ModelState.IsValid)
         {
@@ -488,10 +430,6 @@ public class BlogController : BaseAdminController
         if (blogCategory == null)
             return ErrorForKendoGridJson("blogCategory no exists");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!blogCategory.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return ErrorForKendoGridJson("blogCategory no permission");
-
         if (ModelState.IsValid)
         {
             var post = blogCategory.BlogPosts.FirstOrDefault(x => x.Id == id);
@@ -512,12 +450,9 @@ public class BlogController : BaseAdminController
     {
         var model = new AddBlogPostCategoryModel();
         //stores
-        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
         model.AvailableStores.Add(new SelectListItem
             { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var s in (await _storeService.GetAllStores()).Where(x =>
-                     x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
+        foreach (var s in await _storeService.GetAllStores())
             model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
         model.CategoryId = categoryId;
         return View(model);
@@ -528,9 +463,6 @@ public class BlogController : BaseAdminController
     public async Task<IActionResult> BlogPostAddPopupList(DataSourceRequest command, AddBlogPostCategoryModel model)
     {
         var gridModel = new DataSourceResult();
-
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
         var posts = await _blogService.GetAllBlogPosts(model.SearchStoreId, blogPostName: model.SearchBlogTitle,
             pageIndex: command.Page - 1, pageSize: command.PageSize);
@@ -594,9 +526,6 @@ public class BlogController : BaseAdminController
             throw new ArgumentException("No comment found with the specified id");
 
         var blogPost = await _blogService.GetBlogPostById(comment.BlogPostId);
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!blogPost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return ErrorForKendoGridJson("blogPost no permission");
 
         if (ModelState.IsValid)
         {
