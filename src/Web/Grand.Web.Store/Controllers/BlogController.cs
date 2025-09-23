@@ -73,7 +73,8 @@ public class BlogController : BaseStoreController
     public async Task<IActionResult> List(DataSourceRequest command)
     {
         var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-        var blogPosts = await _blogService.GetAllBlogPosts(storeId, "", command.Page - 1, command.PageSize);
+        var blogPosts = await _blogService.GetAllBlogPosts(storeId, 
+            pageIndex: command.Page - 1, pageSize: command.PageSize);
 
         var gridModel = new DataSourceResult
         {
