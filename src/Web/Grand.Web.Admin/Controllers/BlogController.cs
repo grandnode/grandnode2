@@ -5,9 +5,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
-using Grand.Infrastructure;
-using Grand.Web.Admin.Extensions;
-using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Blogs;
@@ -31,8 +28,6 @@ public class BlogController : BaseAdminController
         ILanguageService languageService,
         ITranslationService translationService,
         IStoreService storeService,
-        IContextAccessor contextAccessor,
-        IGroupService groupService,
         IDateTimeService dateTimeService,
         IPictureViewModelService pictureViewModelService,
         SeoSettings seoSettings)
@@ -42,8 +37,6 @@ public class BlogController : BaseAdminController
         _languageService = languageService;
         _translationService = translationService;
         _storeService = storeService;
-        _contextAccessor = contextAccessor;
-        _groupService = groupService;
         _dateTimeService = dateTimeService;
         _pictureViewModelService = pictureViewModelService;
         _seoSettings = seoSettings;
@@ -58,8 +51,6 @@ public class BlogController : BaseAdminController
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
     private readonly IStoreService _storeService;
-    private readonly IContextAccessor _contextAccessor;
-    private readonly IGroupService _groupService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IPictureViewModelService _pictureViewModelService;
     private readonly SeoSettings _seoSettings;
@@ -450,8 +441,7 @@ public class BlogController : BaseAdminController
     {
         var model = new AddBlogPostCategoryModel();
         //stores
-        model.AvailableStores.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
         foreach (var s in await _storeService.GetAllStores())
             model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
         model.CategoryId = categoryId;

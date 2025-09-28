@@ -72,24 +72,11 @@ public class BlogController : BaseStoreController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command)
     {
-        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-        var blogPosts = await _blogService.GetAllBlogPosts(storeId, 
-            pageIndex: command.Page - 1, pageSize: command.PageSize);
-
-        var gridModel = new DataSourceResult
-        {
-            Data = blogPosts.Select(x => new
-            {
-                x.Id,
-                x.Title,
-                x.BodyOverview,
-                CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
-                x.Comments,
-                Published = x.StartDate == null || x.StartDate <= DateTime.UtcNow
-            }).ToList(),
-            Total = blogPosts.TotalCount
+        var blogPosts = await _blogViewModelService.PrepareBlogPostsModel(command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = blogPosts.blogPosts,
+            Total = blogPosts.totalCount
         };
-
         return Json(gridModel);
     }
 
