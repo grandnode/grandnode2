@@ -102,7 +102,10 @@ public class BlogService : IBlogService
         }
 
         if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
-            query = query.Where(b => b.Stores.Contains(storeId) || !b.LimitedToStores);
+            query = from p in query
+                    where !p.LimitedToStores || p.Stores.Contains(storeId)
+                    select p;
+
         if (!string.IsNullOrEmpty(tag)) query = query.Where(x => x.Tags.Contains(tag));
 
         query = query.OrderByDescending(b => b.CreatedOnUtc);
