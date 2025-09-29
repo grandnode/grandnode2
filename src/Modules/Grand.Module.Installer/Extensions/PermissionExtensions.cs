@@ -213,7 +213,8 @@ public static class PermissionExtensions
                     StandardPermission.ManageMerchandiseReturns,
                     StandardPermission.ManageCheckoutAttribute,
                     StandardPermission.ManageReports,
-                    StandardPermission.ManageNews
+                    StandardPermission.ManageNews,
+                    StandardPermission.ManageBlog
                 ]
             },
 
