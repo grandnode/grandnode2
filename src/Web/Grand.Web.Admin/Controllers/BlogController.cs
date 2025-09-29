@@ -87,7 +87,8 @@ public class BlogController : BaseAdminController
         ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         var model = new BlogPostModel {
             //default values
-            AllowComments = true
+            AllowComments = true,
+            CreateDate = DateTime.UtcNow
         };
         //locales
         await AddLocales(_languageService, model.Locales);
@@ -472,7 +473,7 @@ public class BlogController : BaseAdminController
             if (blogCategory != null)
                 foreach (var id in model.SelectedBlogPostIds)
                 {
-                    var post = _blogService.GetBlogPostById(id);
+                    var post = await _blogService.GetBlogPostById(id);
                     if (post != null)
                         if (!blogCategory.BlogPosts.Any(x => x.BlogPostId == id))
                         {
