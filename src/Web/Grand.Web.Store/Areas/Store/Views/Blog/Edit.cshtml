@@ -1,40 +1,41 @@
-@model BlogPostModel
+﻿@model BlogPostModel
 @{
     //page title
-    ViewBag.Title = Loc["Admin.Content.Blog.BlogPosts.EditDetails"];
-    Layout = Constants.LayoutStore;
+    ViewBag.Title = Loc["Admin.Content.Blog.BlogPosts.EditBlogPostDetails"];
 }
-<form asp-area="@Constants.AreaStore" asp-controller="Blog" asp-action="Edit" method="post">
+
+<form asp-area="@Constants.AreaStore" asp-controller="Blog" asp-action="Edit" method="post" id="blog-edit">
 
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-blog"></i>
-                        @Loc["Admin.Content.Blog.BlogPosts.EditDetails"] - @Model.Title
+                        <i class="fa fa-comment"></i>
+                        @Loc["Admin.Content.Blog.BlogPosts.EditBlogPostDetails"] - @Model.Title
                         <small>
                             <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Content.Blog.BlogPosts.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
+                            <button type="button" onclick="window.open('@Url.RouteUrl("BlogPost", new { Model.SeName })','_blank');" class="btn purple">
+                                <i class="fa fa-eye"></i>
+                                @Loc["Admin.Common.Preview"]
+                            </button>
                             <button class="btn btn-success" type="submit" name="save">
                                 <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
                             </button>
                             <button class="btn btn-success" type="submit" name="save-continue">
                                 <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                             </button>
-                            <a href="@Url.Action("Preview", new { id = Model.Id })" class="btn btn-info" target="_blank">
-                                <i class="fa fa-eye"></i> @Loc["Admin.Common.Preview"]
-                            </a>
-                            <button type="submit" name="Delete" onclick="javascript:return confirm('@Loc["Admin.Common.AreYouSure"]');" class="btn red">
+                            <span id="blogpost-delete" class="btn red">
                                 <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
-                            </button>
-                            <vc:admin-widget widget-zone="blog_details_buttons" additional-data="Model"/>
+                            </span>
                         </div>
                     </div>
                 </div>
+                <vc:admin-widget widget-zone="blog_details_buttons" additional-data="Model"/>
                 <div class="x_content form">
                     <partial name="Partials/CreateOrUpdate" model="Model"/>
                 </div>
@@ -42,3 +43,4 @@
         </div>
     </div>
 </form>
+<admin-delete-confirmation button-id="blogpost-delete"/>

@@ -1,4 +1,4 @@
-@model BlogPostModel
+﻿@model BlogPostModel
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
@@ -17,6 +17,27 @@
             <content>
                 <div>
                     <partial name="Partials/CreateOrUpdate.TabSeo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Content.Blog.BlogPosts.Products"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabProducts" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Content.Blog.BlogPosts.Comments"]" tab-index="3">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabComments" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="4">
+            <content>
+                <div>
+                    <partial name="Partials/UserFields" model="Model"/>
                 </div>
             </content>
         </tabstrip-item>

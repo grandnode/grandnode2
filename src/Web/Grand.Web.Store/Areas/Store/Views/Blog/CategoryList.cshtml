@@ -1,7 +1,7 @@
 ﻿@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
-    ViewBag.Title = Loc["Admin.Content.Blog.BlogPosts"];
+    ViewBag.Title = Loc["Admin.Content.Blog.BlogCategories"];
 }
 
 <div class="row">
@@ -10,10 +10,10 @@
             <div class="x_title">
                 <div class="caption">
                     <i class="fa fa-comment"></i>
-                    @Loc["Admin.Content.Blog.BlogPosts"]
+                    @Loc["Admin.Content.Blog.BlogCategories"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn green">
+                    <a href="@Url.Action("CategoryCreate", new { area = Constants.AreaStore })" class="btn green">
                         <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                 </div>
@@ -22,7 +22,7 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="blogpost-grid"></div>
+                            <div id="blogcategory-grid"></div>
                         </div>
                     </div>
                 </div>
@@ -33,11 +33,11 @@
 
 <script>
     $(document).ready(function () {
-        $("#blogpost-grid").kendoGrid({
+        $("#blogcategory-grid").kendoGrid({
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("List", "Blog", new { area = Constants.AreaStore }))",
+                        url: "@Html.Raw(Url.Action("CategoryList", "Blog", new { area = Constants.AreaStore }))",
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
@@ -68,33 +68,17 @@
             },
             scrollable: false,
             columns: [{
-                field: "Title",
-                title: "@Loc["Admin.Content.Blog.BlogPosts.Fields.Title"]",
-                width: 400,
-                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Title)#</a>',
-            }, {
-                field: "Comments",
-                title: "@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"]",
-                width: 200,
-                template: '<a class="k-link" href="Comments?filterByBlogPostId=#=Id#">@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"] - #=Comments# </a>'
-            }, {
-                field: "StartDate",
-                title: "@Loc["Admin.Content.Blog.BlogPosts.Fields.StartDate"]",
-                width: 150,
-                type: "date",
-                format: "{0:G}"
-            }, {
-                field: "EndDate",
-                title: "@Loc["Admin.Content.Blog.BlogPosts.Fields.EndDate"]",
-                width: 150,
-                type: "date",
-                format: "{0:G}"
-            },  {
-                field: "CreatedOn",
-                title: "@Loc["Admin.Content.Blog.BlogPosts.Fields.CreatedOn"]",
-                width: 200,
-                type: "date",
-                format: "{0:G}"
+                field: "Name",
+                title: "@Loc["Admin.Content.Blog.BlogCategory.Fields.Name"]",
+                width: 600,
+                template: '<a class="k-link" href="CategoryEdit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
+            },
+            {
+                field: "DisplayOrder",
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                title: "@Loc["Admin.Content.Blog.BlogCategory.Fields.DisplayOrder"]",
+                width: 100,    
             }]
         });
     });
