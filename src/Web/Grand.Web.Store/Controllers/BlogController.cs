@@ -15,13 +15,20 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Store.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.Blog)]
 public class BlogController : BaseStoreController
 {
+    #region Constants
+
+    private const string NoAccessToBlogPostMessage = "You don't have access to this blog post";
+    private const string NoAccessToBlogCategoryMessage = "You don't have access to this blog category";
+    private const string CategoryListAction = "CategoryList";
+
+    #endregion
+
     #region Constructors
 
     public BlogController(
@@ -234,7 +241,7 @@ public class BlogController : BaseStoreController
             return Content("Blog post not exist");
 
         if (!blogpost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return Content("You don't have access to this blog post");
+            return Content(NoAccessToBlogPostMessage);
 
         if (string.IsNullOrEmpty(blogpost.PictureId))
             return Content("Picture not exist");
@@ -254,7 +261,7 @@ public class BlogController : BaseStoreController
                 throw new ArgumentException("No blog post found with the specified id");
 
             if (!blogpost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return Content("You don't have access to this blog post");
+                return Content(NoAccessToBlogPostMessage);
 
             if (string.IsNullOrEmpty(blogpost.PictureId))
                 throw new ArgumentException("No picture found with the specified id");
@@ -305,7 +312,7 @@ public class BlogController : BaseStoreController
         var blogPost = await _blogService.GetBlogPostById(comment.BlogPostId);
 
         if (!blogPost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return ErrorForKendoGridJson("You don't have access to this blog post");
+            return ErrorForKendoGridJson(NoAccessToBlogPostMessage);
 
         if (ModelState.IsValid)
         {
@@ -331,7 +338,7 @@ public class BlogController : BaseStoreController
         var blogPost = await _blogService.GetBlogPostById(blogPostId);
 
         if (!blogPost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return ErrorForKendoGridJson("You don't have access to this blog post");
+            return ErrorForKendoGridJson(NoAccessToBlogPostMessage);
 
         var model = await _blogViewModelService.PrepareBlogProductsModel(blogPostId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
@@ -347,7 +354,7 @@ public class BlogController : BaseStoreController
         var blogPost = await _blogService.GetBlogPostById(blogPostId);
 
         if (!blogPost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return View("You don't have access to this blog post");
+            return View(NoAccessToBlogPostMessage);
 
         var model = await _blogViewModelService.PrepareBlogModelAddProductModel(blogPostId);
         return View(model);
@@ -377,7 +384,7 @@ public class BlogController : BaseStoreController
         var blogPost = await _blogService.GetBlogPostById(blogPostId);
 
         if (!blogPost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return View("You don't have access to this blog post");
+            return View(NoAccessToBlogPostMessage);
 
         if (model.SelectedProductIds != null) await _blogViewModelService.InsertProductModel(blogPostId, model);
         return Content("");
@@ -389,7 +396,7 @@ public class BlogController : BaseStoreController
         var blogPost = await _blogService.GetBlogPostById(blogPostId);
 
         if (!blogPost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            ModelState.AddModelError("Blog", "You don't have access to this blog post");
+            ModelState.AddModelError("Blog", NoAccessToBlogPostMessage);
 
         if (ModelState.IsValid)
         {
@@ -407,7 +414,7 @@ public class BlogController : BaseStoreController
         var blogPost = await _blogService.GetBlogPostById(bp.BlogPostId);
 
         if (!blogPost.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            ModelState.AddModelError("Blog", "You don't have access to this blog post");
+            ModelState.AddModelError("Blog", NoAccessToBlogPostMessage);
 
         if (ModelState.IsValid)
         {
@@ -469,7 +476,7 @@ public class BlogController : BaseStoreController
             Success(_translationService.GetResource("Admin.Content.Blog.BlogCategory.Added"));
             return continueEditing
                 ? RedirectToAction("CategoryEdit", new { id = blogCategory.Id })
-                : RedirectToAction("CategoryList");
+                : RedirectToAction(CategoryListAction);
         }
 
         //If we got this far, something failed, redisplay form
@@ -485,10 +492,10 @@ public class BlogController : BaseStoreController
         var blogCategory = await _blogService.GetBlogCategoryById(id);
         if (blogCategory == null)
             //No blog post found with the specified id
-            return RedirectToAction("CategoryList");
+            return RedirectToAction(CategoryListAction);
 
         if (!blogCategory.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return RedirectToAction("CategoryList");
+            return RedirectToAction(CategoryListAction);
 
         ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         var model = blogCategory.ToModel();
@@ -508,10 +515,10 @@ public class BlogController : BaseStoreController
         var blogCategory = await _blogService.GetBlogCategoryById(model.Id);
         if (blogCategory == null)
             //No blog post found with the specified id
-            return RedirectToAction("CategoryList");
+            return RedirectToAction(CategoryListAction);
 
         if (!blogCategory.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return RedirectToAction("CategoryList");
+            return RedirectToAction(CategoryListAction);
 
         if (ModelState.IsValid)
         {
@@ -531,7 +538,7 @@ public class BlogController : BaseStoreController
                 return RedirectToAction("CategoryEdit", new { id = blogCategory.Id });
             }
 
-            return RedirectToAction("CategoryList");
+            return RedirectToAction(CategoryListAction);
         }
 
         //If we got this far, something failed, redisplay form
@@ -553,17 +560,17 @@ public class BlogController : BaseStoreController
         var blogCategory = await _blogService.GetBlogCategoryById(id);
         if (blogCategory == null)
             //No blog post found with the specified id
-            return RedirectToAction("CategoryList");
+            return RedirectToAction(CategoryListAction);
 
         if (!blogCategory.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return RedirectToAction("CategoryList");
+            return RedirectToAction(CategoryListAction);
 
         if (ModelState.IsValid)
         {
             await _blogService.DeleteBlogCategory(blogCategory);
 
             Success(_translationService.GetResource("Admin.Content.Blog.BlogCategory.Deleted"));
-            return RedirectToAction("CategoryList");
+            return RedirectToAction(CategoryListAction);
         }
 
         Error(ModelState);
@@ -579,7 +586,7 @@ public class BlogController : BaseStoreController
             return ErrorForKendoGridJson("blogCategory no exists");
 
         if (!blogCategory.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return ErrorForKendoGridJson("You don't have access to this blog category");
+            return ErrorForKendoGridJson(NoAccessToBlogCategoryMessage);
 
         var blogposts = new List<AdminShared.Models.Blogs.BlogCategoryPost>();
         foreach (var item in blogCategory.BlogPosts)
@@ -610,7 +617,7 @@ public class BlogController : BaseStoreController
             return ErrorForKendoGridJson("blogCategory no exists");
 
         if (!blogCategory.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return ErrorForKendoGridJson("You don't have access to this blog category");
+            return ErrorForKendoGridJson(NoAccessToBlogCategoryMessage);
 
         if (ModelState.IsValid)
         {
@@ -638,21 +645,6 @@ public class BlogController : BaseStoreController
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> BlogPostAddPopupList(DataSourceRequest command, AddBlogPostCategoryModel model)
-    {
-        var gridModel = new DataSourceResult();
-        model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
-        var posts = await _blogService.GetAllBlogPosts(model.SearchStoreId, blogPostName: model.SearchBlogTitle,
-            pageIndex: command.Page - 1, pageSize: command.PageSize);
-        gridModel.Data = posts.Select(x => new { x.Id, Name = x.Title });
-        gridModel.Total = posts.TotalCount;
-
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
     public async Task<IActionResult> BlogPostAddPopup(AddBlogPostCategoryModel model)
     {
         if (model.SelectedBlogPostIds == null)
@@ -668,12 +660,27 @@ public class BlogController : BaseStoreController
 
         if (!blogCategory.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
         {
-            return Content("You don't have access to this blog category");
+            return Content(NoAccessToBlogCategoryMessage);
         }
 
         await AddSelectedPostsToBlogCategory(blogCategory, model.SelectedBlogPostIds);
 
         return Content("");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> BlogPostAddPopupList(DataSourceRequest command, AddBlogPostCategoryModel model)
+    {
+        var gridModel = new DataSourceResult();
+        model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+
+        var posts = await _blogService.GetAllBlogPosts(model.SearchStoreId, blogPostName: model.SearchBlogTitle,
+            pageIndex: command.Page - 1, pageSize: command.PageSize);
+        gridModel.Data = posts.Select(x => new { x.Id, Name = x.Title });
+        gridModel.Total = posts.TotalCount;
+
+        return Json(gridModel);
     }
 
     private async Task AddSelectedPostsToBlogCategory(BlogCategory blogCategory, string[] postIds)
