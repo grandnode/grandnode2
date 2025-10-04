@@ -62,6 +62,6 @@ public class EmailAccountServiceTests
         //we can't delete account if exist only one
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<EmailAccount>>>>()))
             .Returns(Task.FromResult(new List<EmailAccount> { new() }));
-        Assert.ThrowsExceptionAsync<GrandException>(async () => await _service.DeleteEmailAccount(new EmailAccount()));
+        Assert.ThrowsExactlyAsync<GrandException>(async () => await _service.DeleteEmailAccount(new EmailAccount()));
     }
 }

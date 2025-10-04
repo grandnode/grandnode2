@@ -31,7 +31,7 @@ public class AffiliateExtensionsTests
     public void GetFullName_NullParameter_ThrowException()
     {
         Affiliate affiliate = null;
-        Assert.ThrowsException<ArgumentNullException>(() => affiliate.GetFullName());
+        Assert.ThrowsExactly<ArgumentNullException>(() => affiliate.GetFullName());
     }
 
     [TestMethod]
@@ -68,14 +68,14 @@ public class AffiliateExtensionsTests
     public void GenerateUrl_NullAffiliate_ThrowException()
     {
         Affiliate affiliate = null;
-        Assert.ThrowsException<ArgumentNullException>(() => affiliate.GenerateUrl(null), "affiliate");
+        Assert.ThrowsExactly<ArgumentNullException>(() => affiliate.GenerateUrl(null), "affiliate");
     }
 
     [TestMethod]
     public void GenerateUrl_NullWebHelper_ThrowException()
     {
         var affiliate = new Affiliate();
-        Assert.ThrowsException<ArgumentNullException>(() => affiliate.GenerateUrl(null), "webHelper");
+        Assert.ThrowsExactly<ArgumentNullException>(() => affiliate.GenerateUrl(null), "webHelper");
     }
 
     [TestMethod]

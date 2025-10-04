@@ -51,18 +51,18 @@ public class SearchTermServiceTests
     [TestMethod]
     public void InsertSearchTerm_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.InsertSearchTerm(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertSearchTerm(null));
     }
 
     [TestMethod]
     public void UpdateSearchTerm_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.UpdateSearchTerm(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateSearchTerm(null));
     }
 
     [TestMethod]
     public void DeleteSearchTerm_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.DeleteSearchTerm(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteSearchTerm(null));
     }
 }

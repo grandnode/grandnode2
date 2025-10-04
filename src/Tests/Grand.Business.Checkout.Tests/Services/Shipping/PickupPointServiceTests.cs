@@ -39,7 +39,7 @@ public class PickupPointServiceTests
     [TestMethod]
     public void InsertPickupPoint_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.InsertPickupPoint(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertPickupPoint(null));
     }
 
     [TestMethod]
@@ -54,7 +54,7 @@ public class PickupPointServiceTests
     [TestMethod]
     public void UpdatePickupPoint_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.UpdatePickupPoint(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdatePickupPoint(null));
     }
 
     [TestMethod]
@@ -69,6 +69,6 @@ public class PickupPointServiceTests
     [TestMethod]
     public void DeletePickupPoint_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.DeletePickupPoint(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeletePickupPoint(null));
     }
 }

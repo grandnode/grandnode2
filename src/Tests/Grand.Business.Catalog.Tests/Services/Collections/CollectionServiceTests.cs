@@ -76,18 +76,18 @@ public class CollectionServiceTests
     [TestMethod]
     public void DeleteCollection_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _collectionService.DeleteCollection(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _collectionService.DeleteCollection(null));
     }
 
     [TestMethod]
     public void InsertCollection_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _collectionService.InsertCollection(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _collectionService.InsertCollection(null));
     }
 
     [TestMethod]
     public void UpdateCollection_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _collectionService.UpdateCollection(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _collectionService.UpdateCollection(null));
     }
 }

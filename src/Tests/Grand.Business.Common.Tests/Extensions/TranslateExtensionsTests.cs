@@ -30,14 +30,14 @@ public class TranslateExtensionsTests
     public void GetTranslation_NullArgument_ThrowException()
     {
         Product product = null;
-        Assert.ThrowsException<ArgumentNullException>(() => product.GetTranslation(c => c.Name, "PL"));
+        Assert.ThrowsExactly<ArgumentNullException>(() => product.GetTranslation(c => c.Name, "PL"));
     }
 
     [TestMethod]
     public void GetTranslation_ExpressionUseMethod_ThrowException()
     {
         var product = new Product();
-        Assert.ThrowsException<ArgumentException>(() =>
+        Assert.ThrowsExactly<ArgumentException>(() =>
             product.GetTranslation(c => c.ParseRequiredProductIds().First(), "PL"));
     }
 
@@ -60,7 +60,7 @@ public class TranslateExtensionsTests
     {
         var translationServiceMock = new Mock<ITranslationService>();
         var fake = new FakeStruct();
-        Assert.ThrowsException<ArgumentException>(() => fake.GetTranslationEnum(translationServiceMock.Object, "PL"));
+        Assert.ThrowsExactly<ArgumentException>(() => fake.GetTranslationEnum(translationServiceMock.Object, "PL"));
     }
     
     private struct FakeStruct;

@@ -32,7 +32,7 @@ public class PaymentExtensionsTests
     public void IsPaymentMethodActive_NullSettings_ThrowException()
     {
         PaymentSettings settings = null;
-        Assert.ThrowsException<ArgumentNullException>(() => _providerMock.Object.IsPaymentMethodActive(settings));
+        Assert.ThrowsExactly<ArgumentNullException>(() => _providerMock.Object.IsPaymentMethodActive(settings));
     }
 
     [TestMethod]
@@ -40,6 +40,6 @@ public class PaymentExtensionsTests
     {
         IPaymentProvider provider = null;
         var settings = new PaymentSettings();
-        Assert.ThrowsException<ArgumentNullException>(() => provider.IsPaymentMethodActive(settings));
+        Assert.ThrowsExactly<ArgumentNullException>(() => provider.IsPaymentMethodActive(settings));
     }
 }

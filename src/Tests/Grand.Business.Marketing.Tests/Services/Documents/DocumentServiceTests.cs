@@ -26,7 +26,7 @@ public class DocumentServiceTests
     [TestMethod]
     public async Task DeleteDocument_NullArgument_ThrowException()
     {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _documentService.Delete(null),
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _documentService.Delete(null),
             "document");
     }
 
@@ -48,7 +48,7 @@ public class DocumentServiceTests
     [TestMethod]
     public async Task InsertDocument_NullArgument_ThrowException()
     {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _documentService.Insert(null),
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _documentService.Insert(null),
             "document");
     }
 
@@ -71,6 +71,6 @@ public class DocumentServiceTests
     [TestMethod]
     public void UpdateDocument_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _documentService.Update(null), "document");
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _documentService.Update(null), "document");
     }
 }

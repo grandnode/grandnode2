@@ -61,7 +61,7 @@ public class StoreServiceTests
         //can not remove store if it is only one 
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
             .Returns(Task.FromResult(new List<Store> { new() }));
-        Assert.ThrowsExceptionAsync<Exception>(async () => await _service.DeleteStore(new Store()));
+        Assert.ThrowsExactlyAsync<Exception>(async () => await _service.DeleteStore(new Store()));
     }
 
     [TestMethod]

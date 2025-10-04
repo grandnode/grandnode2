@@ -61,7 +61,7 @@ public class UpdateProductReviewTotalsCommandHandlerTest
     {
         var request = new UpdateProductReviewTotalsCommand();
 
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _updateProductReviewTotalsCommandHandler.Handle(request, default));
     }
 

@@ -40,7 +40,7 @@ public class WarehouseServiceTests
     [TestMethod]
     public void InsertWarehouse_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.InsertWarehouse(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertWarehouse(null));
     }
 
     [TestMethod]
@@ -55,7 +55,7 @@ public class WarehouseServiceTests
     [TestMethod]
     public void UpdateWarehouse_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.UpdateWarehouse(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateWarehouse(null));
     }
 
     [TestMethod]
@@ -70,6 +70,6 @@ public class WarehouseServiceTests
     [TestMethod]
     public void DeleteWarehouse_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.DeleteWarehouse(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteWarehouse(null));
     }
 }

@@ -66,7 +66,7 @@ public class CookieAuthenticationServiceTests
     [TestMethod]
     public async Task SignIn_NullCustomer_ThrowException()
     {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(async () =>
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(async () =>
             await _cookieAuthService.SignIn(null, false));
     }
 

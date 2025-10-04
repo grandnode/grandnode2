@@ -35,7 +35,7 @@ public class CoursesServiceTests
     [TestMethod]
     public void Delete_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _courseService.Delete(null), "course");
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _courseService.Delete(null), "course");
     }
 
     [TestMethod]
@@ -49,7 +49,7 @@ public class CoursesServiceTests
     [TestMethod]
     public void Insert_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _courseService.Insert(null), "course");
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _courseService.Insert(null), "course");
     }
 
     [TestMethod]
@@ -63,7 +63,7 @@ public class CoursesServiceTests
     [TestMethod]
     public void Update_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _courseService.Update(null), "course");
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _courseService.Update(null), "course");
     }
 
     [TestMethod]

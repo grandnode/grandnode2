@@ -13,7 +13,7 @@ public class CommonHelperTests
     [DataRow("email@email@email.pl")]
     public void EnsureSubscriberEmailOrThrowTest_ThrowException(string email)
     {
-        Assert.ThrowsException<GrandException>(() => CommonHelper.EnsureSubscriberEmailOrThrow(email));
+        Assert.ThrowsExactly<GrandException>(() => CommonHelper.EnsureSubscriberEmailOrThrow(email));
     }
 
     [TestMethod]
@@ -67,7 +67,7 @@ public class CommonHelperTests
     [DataRow(10, 1)]
     public void GenerateRandomIntegerTest_ThrowException(int min, int max)
     {
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => CommonHelper.GenerateRandomInteger(min, max));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => CommonHelper.GenerateRandomInteger(min, max));
     }
 
     [TestMethod]
@@ -101,7 +101,7 @@ public class CommonHelperTests
     [DataRow("value", 1, "...")]
     public void EnsureMaximumLengthTest_ThrowException(string str, int max, string post)
     {
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => CommonHelper.EnsureMaximumLength(str, max, post));
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => CommonHelper.EnsureMaximumLength(str, max, post));
     }
 
     [TestMethod]
@@ -127,7 +127,7 @@ public class CommonHelperTests
     public void ToTest_ThrowException()
     {
         object obj = "sample";
-        Assert.ThrowsException<ArgumentException>(() => CommonHelper.To(obj, typeof(decimal)));
+        Assert.ThrowsExactly<ArgumentException>(() => CommonHelper.To(obj, typeof(decimal)));
     }
 
     [TestMethod]

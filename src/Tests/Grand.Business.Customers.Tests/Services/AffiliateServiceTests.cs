@@ -38,21 +38,21 @@ public class AffiliateServiceTests
     [TestMethod]
     public async Task UpdateAffiliate_NullParameter_ThrwoException()
     {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _affiliateService.UpdateAffiliate(null), "affiliate");
     }
 
     [TestMethod]
     public async Task InsertAffiliate_NullParameter_ThrwoException()
     {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _affiliateService.InsertAffiliate(null), "affiliate");
     }
 
     [TestMethod]
     public async Task DeleteAffiliate_NullParameter_ThrwoException()
     {
-        await Assert.ThrowsExceptionAsync<ArgumentNullException>(
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _affiliateService.DeleteAffiliate(null), "affiliate");
     }
 

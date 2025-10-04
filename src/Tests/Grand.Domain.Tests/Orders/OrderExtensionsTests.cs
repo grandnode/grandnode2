@@ -60,7 +60,7 @@ public class OrderExtensionsTests
     public void HasItemsToAddToShipment_NullOrder_ThrowException()
     {
         Order order = null;
-        Assert.ThrowsException<ArgumentNullException>(() => order.HasItemsToAddToShipment());
+        Assert.ThrowsExactly<ArgumentNullException>(() => order.HasItemsToAddToShipment());
     }
 
     [TestMethod]
@@ -78,6 +78,6 @@ public class OrderExtensionsTests
     public void OrderTagExists_NullOrder_ThrowException()
     {
         Order order = null;
-        Assert.ThrowsException<ArgumentNullException>(() => order.HasItemsToAddToShipment());
+        Assert.ThrowsExactly<ArgumentNullException>(() => order.HasItemsToAddToShipment());
     }
 }

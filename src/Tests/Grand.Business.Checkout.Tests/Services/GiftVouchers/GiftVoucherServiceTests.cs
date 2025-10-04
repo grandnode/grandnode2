@@ -50,7 +50,7 @@ public class GiftVoucherServiceTests
     [TestMethod]
     public void InsertGiftVoucher_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.InsertGiftVoucher(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.InsertGiftVoucher(null));
     }
 
     [TestMethod]
@@ -64,7 +64,7 @@ public class GiftVoucherServiceTests
     [TestMethod]
     public void UpdateGiftVoucher_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.UpdateGiftVoucher(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.UpdateGiftVoucher(null));
     }
 
     [TestMethod]
@@ -78,6 +78,6 @@ public class GiftVoucherServiceTests
     [TestMethod]
     public void DeleteGiftVoucher_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.DeleteGiftVoucher(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteGiftVoucher(null));
     }
 }

@@ -51,7 +51,7 @@ public class CategoryServiceTests
     [TestMethod]
     public void InsertCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _categoryService.InsertCategory(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _categoryService.InsertCategory(null),
             "category");
     }
 
@@ -68,7 +68,7 @@ public class CategoryServiceTests
     [TestMethod]
     public void UpdateCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _categoryService.UpdateCategory(null),
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _categoryService.UpdateCategory(null),
             "category");
     }
 
@@ -161,7 +161,7 @@ public class CategoryServiceTests
     [TestMethod]
     public void DeleteProductCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _productCategoryService.DeleteProductCategory(null, "id"), "productCategory");
     }
 
@@ -180,7 +180,7 @@ public class CategoryServiceTests
     [TestMethod]
     public void InsertProductCategory_NullArgument_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _productCategoryService.InsertProductCategory(null, "id"), "productCategory");
     }
 

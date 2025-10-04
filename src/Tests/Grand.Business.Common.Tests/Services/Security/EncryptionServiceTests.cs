@@ -73,7 +73,7 @@ public class EncryptionServiceTests
     {
         var privateKey = "secure key.";
         var toEncrypte = "text to encrypte...";
-        Assert.ThrowsException<Exception>(() => _encryptionService.EncryptText(toEncrypte, privateKey));
+        Assert.ThrowsExactly<Exception>(() => _encryptionService.EncryptText(toEncrypte, privateKey));
     }
 
     [TestMethod]
@@ -91,6 +91,6 @@ public class EncryptionServiceTests
     {
         var privateKey = "secure key.";
         var toDescrypt = "gdfgdfgt45gfdfg";
-        Assert.ThrowsException<Exception>(() => _encryptionService.DecryptText(toDescrypt, privateKey));
+        Assert.ThrowsExactly<Exception>(() => _encryptionService.DecryptText(toDescrypt, privateKey));
     }
 }

@@ -28,7 +28,7 @@ public class ShippingExtensionsTests
     {
         IShippingRateCalculationProvider provider = null;
         var settings = new ShippingProviderSettings();
-        Assert.ThrowsException<ArgumentNullException>(() => provider.IsShippingRateMethodActive(settings));
+        Assert.ThrowsExactly<ArgumentNullException>(() => provider.IsShippingRateMethodActive(settings));
     }
 
     [TestMethod]
@@ -36,7 +36,7 @@ public class ShippingExtensionsTests
     {
         var providerMock = new Mock<IShippingRateCalculationProvider>();
         var provider = providerMock.Object;
-        Assert.ThrowsException<ArgumentNullException>(() => provider.IsShippingRateMethodActive(null));
+        Assert.ThrowsExactly<ArgumentNullException>(() => provider.IsShippingRateMethodActive(null));
     }
 
     [TestMethod]

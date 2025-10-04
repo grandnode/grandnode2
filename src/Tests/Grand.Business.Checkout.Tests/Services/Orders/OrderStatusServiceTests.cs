@@ -38,7 +38,7 @@ public class OrderStatusServiceTests
     [TestMethod]
     public void Insert_NullArguemnt_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.Insert(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.Insert(null));
     }
 
     [TestMethod]
@@ -53,7 +53,7 @@ public class OrderStatusServiceTests
     [TestMethod]
     public void Update_NullArguemnt_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.Update(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.Update(null));
     }
 
     [TestMethod]
@@ -68,6 +68,6 @@ public class OrderStatusServiceTests
     [TestMethod]
     public void Delete_NullArguemnt_ThrowException()
     {
-        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.Delete(null));
+        Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.Delete(null));
     }
 }
