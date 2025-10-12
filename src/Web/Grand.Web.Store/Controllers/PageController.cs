@@ -70,22 +70,20 @@ public class PageController : BaseStoreController
         var allPages = await _pageService.GetAllPages("", true);
         
         // Filter to show only pages for this store or global pages
-        var pageModels = allPages
+        var filteredPages = allPages
             .Where(x => !x.LimitedToStores || x.Stores.Contains(storeId))
-            .Select(x => x.ToModel(_dateTimeService))
             .ToList();
 
         // Group by SystemName and prefer store-specific over global
-        var groupedPages = pageModels
+        var groupedPages = filteredPages
             .GroupBy(x => x.SystemName)
             .Select(g =>
             {
                 // If there's a store-specific version, use it; otherwise use global
-                var storeSpecific = g.FirstOrDefault(p => 
-                    allPages.First(ap => ap.Id == p.Id).LimitedToStores && 
-                    allPages.First(ap => ap.Id == p.Id).Stores.Contains(storeId));
+                var storeSpecific = g.FirstOrDefault(p => p.LimitedToStores && p.Stores.Contains(storeId));
                 return storeSpecific ?? g.First();
             })
+            .Select(x => x.ToModel(_dateTimeService))
             .ToList();
 
         if (!string.IsNullOrEmpty(model.Name))
