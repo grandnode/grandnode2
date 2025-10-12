@@ -158,7 +158,7 @@ public static class IFileStoreExtensions
     /// <param name="fileStore">The <see cref="IFileStore" />.</param>
     /// <param name="paths">The path parts to combine.</param>
     /// <returns>The full combined path.</returns>
-    public static string Combine(this IFileStore fileStore, params ReadOnlySpan<string> paths)
+    public static string Combine(this IFileStore fileStore, params string[] paths)
     {
         if (paths.Length == 0)
             return null;

@@ -7,7 +7,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 
 public static class LiquidExtensions
 {
-    public static List<string> GetTokens(params ReadOnlySpan<Type> drops)
+    public static List<string> GetTokens(params Type[] drops)
     {
         List<string> tokens = [];
         foreach (var drop in drops)
