@@ -294,7 +294,7 @@ public class PowerExcelMapper : ExcelMapper
             case CellType.String:
             default:
                 if (targetColumn.Json)
-                    return JsonSerializer.Deserialize(cell.StringCellValue, targetColumn.PropertyType);
+                    return JsonSerializer.Deserialize((string)cell.StringCellValue, targetColumn.PropertyType);
                 return cell.StringCellValue;
         }
     }

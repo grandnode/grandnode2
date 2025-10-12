@@ -129,7 +129,7 @@ public class SettingService : ISettingService
 
             var setting = settings.FirstOrDefault(x => x.StoreId == storeId) ??
                           settings.FirstOrDefault(x => string.IsNullOrEmpty(x.StoreId));
-            return setting != null ? Task.FromResult(JsonSerializer.Deserialize<T>(setting.Metadata)) : Task.FromResult(defaultValue);
+            return setting != null ? Task.FromResult(JsonSerializer.Deserialize<T>((string)setting.Metadata)) : Task.FromResult(defaultValue);
         });
     }
 
@@ -205,7 +205,7 @@ public class SettingService : ISettingService
                 setting = settings.FirstOrDefault(x => string.IsNullOrEmpty(x.StoreId));
 
             if (setting != null)
-                return JsonSerializer.Deserialize(setting.Metadata, type) as ISettings;
+                return JsonSerializer.Deserialize((string)setting.Metadata, type) as ISettings;
 
             return Activator.CreateInstance(type) as ISettings;
         });

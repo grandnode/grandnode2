@@ -31,7 +31,7 @@ public class JsonBodyModelBinder : IModelBinder
             };
             options.Converters.Add(new StringConverter());
             bindingContext.Result =
-                ModelBindingResult.Success(JsonSerializer.Deserialize(jsonPayload, bindingContext.ModelType, options));
+                ModelBindingResult.Success(JsonSerializer.Deserialize((string)jsonPayload, bindingContext.ModelType, options));
         }
         else
         {
