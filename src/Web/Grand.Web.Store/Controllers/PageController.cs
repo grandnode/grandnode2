@@ -157,6 +157,12 @@ public class PageController : BaseStoreController
         if (!page.AccessToEntityByStore(storeId))
             return RedirectToAction("List");
 
+        // Warn if this is a global page or a shared page
+        if (!page.LimitedToStores || (page.LimitedToStores && page.Stores.Contains(storeId) && page.Stores.Count > 1))
+        {
+            Warning(_translationService.GetResource("Admin.Content.Pages.Permissions"));
+        }
+
         var model = page.ToModel(_dateTimeService);
         model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) }, "http");
         //layouts
@@ -248,7 +254,7 @@ public class PageController : BaseStoreController
         // Prevent deletion of global pages (not limited to stores)
         if (!page.LimitedToStores)
         {
-            Error(_translationService.GetResource("Admin.Content.Pages.CannotDeleteGlobal"));
+            Error(_translationService.GetResource("Admin.Common.DeleteNotAllowed"));
             return RedirectToAction("Edit", new { id });
         }
 
