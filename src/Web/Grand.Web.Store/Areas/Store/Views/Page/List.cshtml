@@ -80,7 +80,9 @@
                 field: "SystemName",
                 title: "@Loc["Store.Content.Pages.Fields.SystemName"]",
                 template: function(dataItem) {
-                    if (dataItem.IsSystemPage) {
+                    // System pages have SystemName and no store restrictions (empty Stores array)
+                    var isSystemPage = dataItem.SystemName && (!dataItem.Stores || dataItem.Stores.length === 0);
+                    if (isSystemPage) {
                         return '<span title="System page - cannot be edited directly">#=SystemName# <i class="fa fa-lock text-muted"></i></span>';
                     } else {
                         return '<a class="k-link" href="Edit/#=Id#">#:SystemName || "(No system name)"#</a>';
@@ -103,7 +105,9 @@
                 width: 200,
                 template: function(dataItem) {
                     var html = '';
-                    if (dataItem.IsSystemPage) {
+                    // System pages have SystemName and no store restrictions (empty Stores array)
+                    var isSystemPage = dataItem.SystemName && (!dataItem.Stores || dataItem.Stores.length === 0);
+                    if (isSystemPage) {
                         html += '<a class="btn btn-sm btn-primary" href="' + '@Url.Action("Copy", "Page", new { area = Constants.AreaStore })'.replace('__id__', dataItem.Id) + '?id=' + dataItem.Id + '"><i class="fa fa-copy"></i> Copy</a>';
                     } else {
                         html += '<a class="btn btn-sm btn-info" href="Edit/' + dataItem.Id + '"><i class="fa fa-edit"></i> Edit</a> ';

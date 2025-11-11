@@ -6,7 +6,6 @@
 
 <form asp-area="@Constants.AreaStore" asp-controller="Page" asp-action="Edit" method="post">
     <input asp-for="Id" type="hidden"/>
-    <input asp-for="IsSystemPage" type="hidden"/>
     
     <div class="row">
         <div class="col-md-12">
@@ -14,7 +13,7 @@
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-fw fa-file-o"></i>
-                        @Loc["Store.Content.Pages.EditPageDetails"] - @Model.SystemName
+                        @Loc["Store.Content.Pages.EditPageDetails"]@if (!string.IsNullOrEmpty(Model.SystemName)) { <text> - @Model.SystemName</text> }
                         <small>
                             <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Store.Content.Pages.BackToList"], "List")
                         </small>
@@ -27,22 +26,13 @@
                             <button class="btn btn-success" type="submit" name="save-continue">
                                 <i class="fa fa-check-circle"></i> @Loc["Store.Common.SaveContinue"]
                             </button>
-                            @if (!Model.IsSystemPage)
-                            {
-                                <button type="button" id="page-delete" class="btn red">
-                                    <i class="fa fa-trash-o"></i> @Loc["Store.Common.Delete"]
-                                </button>
-                            }
+                            <button type="button" id="page-delete" class="btn red">
+                                <i class="fa fa-trash-o"></i> @Loc["Store.Common.Delete"]
+                            </button>
                         </div>
                     </div>
                 </div>
                 <div class="x_content form">
-                    @if (Model.IsSystemPage)
-                    {
-                        <div class="alert alert-info">
-                            <i class="fa fa-info-circle"></i> @Loc["Store.Content.Pages.SystemPageInfo"]
-                        </div>
-                    }
                     <div class="form-horizontal">
                         <div class="form-body">
                             @if (!string.IsNullOrEmpty(Model.SystemName))
@@ -93,22 +83,19 @@
     </div>
 </form>
 
-@if (!Model.IsSystemPage)
-{
-    <form id="delete-form" asp-area="@Constants.AreaStore" asp-controller="Page" asp-action="Delete" method="post">
-        <input type="hidden" name="id" value="@Model.Id"/>
-    </form>
-    
-    <script>
-        $(document).ready(function() {
-            $('#page-delete').click(function() {
-                if (confirm('@Loc["Store.Common.AreYouSure"]')) {
-                    $('#delete-form').submit();
-                }
-            });
+<form id="delete-form" asp-area="@Constants.AreaStore" asp-controller="Page" asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.Id"/>
+</form>
+
+<script>
+    $(document).ready(function() {
+        $('#page-delete').click(function() {
+            if (confirm('@Loc["Store.Common.AreYouSure"]')) {
+                $('#delete-form').submit();
+            }
         });
-    </script>
-}
+    });
+</script>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial"/>

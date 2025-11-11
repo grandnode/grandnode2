@@ -1,6 +1,6 @@
 using Grand.Data;
 using Grand.Infrastructure;
-using Grand.Web.Store.Interfaces;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Store.Services;
 
 namespace Grand.Web.Store.Startup;
@@ -12,7 +12,8 @@ public class StartupApplication : IStartupApplication
         if (!DataSettingsManager.DatabaseIsInstalled())
             return;
 
-        services.AddScoped<IPageViewModelService, PageViewModelService>();
+        // Register Store-specific implementation of IPageViewModelService
+        services.AddScoped<IPageViewModelService, StorePageViewModelService>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

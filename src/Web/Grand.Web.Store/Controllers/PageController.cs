@@ -1,12 +1,15 @@
 using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Pages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Web.Store.Interfaces;
-using Grand.Web.Store.Models.Pages;
+using Grand.Web.Store.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
@@ -20,6 +23,7 @@ public class PageController : BaseStoreController
     private readonly IPageService _pageService;
     private readonly ITranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
+    private readonly IDateTimeService _dateTimeService;
 
     #endregion
 
@@ -29,12 +33,14 @@ public class PageController : BaseStoreController
         IPageViewModelService pageViewModelService,
         IPageService pageService,
         ITranslationService translationService,
-        IContextAccessor contextAccessor)
+        IContextAccessor contextAccessor,
+        IDateTimeService dateTimeService)
     {
         _pageViewModelService = pageViewModelService;
         _pageService = pageService;
         _translationService = translationService;
         _contextAccessor = contextAccessor;
+        _dateTimeService = dateTimeService;
     }
 
     #endregion
@@ -60,15 +66,10 @@ public class PageController : BaseStoreController
         var pages = await _pageService.GetAllPages(storeId, true);
 
         var pageModels = pages
-            .Select(x => new PageModel
-            {
-                Id = x.Id,
-                SystemName = x.SystemName,
-                Title = x.Title,
-                Body = "", // Don't send body content to grid
-                Published = x.Published,
-                DisplayOrder = x.DisplayOrder,
-                IsSystemPage = !string.IsNullOrEmpty(x.SystemName) && !x.Stores.Any()
+            .Select(x => {
+                var pageModel = x.ToModel(_dateTimeService);
+                pageModel.Body = ""; // Don't send body content to grid
+                return pageModel;
             })
             .ToList();
 
@@ -99,8 +100,10 @@ public class PageController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> Create()
     {
-        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-        var model = await _pageViewModelService.PreparePageModel(storeId);
+        var model = new PageModel();
+        await _pageViewModelService.PrepareLayoutsModel(model);
+        model.DisplayOrder = 1;
+        model.Published = true;
         return View(model);
     }
 
@@ -113,8 +116,7 @@ public class PageController : BaseStoreController
         {
             try
             {
-                var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-                var page = await _pageViewModelService.InsertPageModel(model, storeId);
+                var page = await _pageViewModelService.InsertPageModel(model);
                 Success(_translationService.GetResource("Store.Content.Pages.Added"));
                 return continueEditing ? RedirectToAction("Edit", new { id = page.Id }) : RedirectToAction("List");
             }
@@ -124,6 +126,7 @@ public class PageController : BaseStoreController
             }
         }
 
+        await _pageViewModelService.PrepareLayoutsModel(model);
         return View(model);
     }
 
@@ -149,7 +152,8 @@ public class PageController : BaseStoreController
             return RedirectToAction("List");
         }
 
-        var model = await _pageViewModelService.PreparePageModel(page, storeId);
+        var model = page.ToModel(_dateTimeService);
+        await _pageViewModelService.PrepareLayoutsModel(model);
         return View(model);
     }
 
@@ -168,8 +172,7 @@ public class PageController : BaseStoreController
         {
             try
             {
-                var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-                page = await _pageViewModelService.UpdatePageModel(page, model, storeId);
+                page = await _pageViewModelService.UpdatePageModel(page, model);
                 Success(_translationService.GetResource("Store.Content.Pages.Updated"));
 
                 if (continueEditing)
@@ -205,8 +208,14 @@ public class PageController : BaseStoreController
 
         try
         {
-            var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-            var newPage = await _pageViewModelService.CopyPageModel(id, storeId);
+            // Cast to Store-specific service to access CopyPageModel
+            var storeService = _pageViewModelService as StorePageViewModelService;
+            if (storeService == null)
+            {
+                throw new InvalidOperationException("Store page service not available");
+            }
+            
+            var newPage = await storeService.CopyPageModel(id);
             Success(_translationService.GetResource("Store.Content.Pages.Copied"));
             return RedirectToAction("Edit", new { id = newPage.Id });
         }
