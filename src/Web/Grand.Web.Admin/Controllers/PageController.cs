@@ -76,9 +76,17 @@ public class PageController : BaseAdminController
                   (x.Title != null && x.Title.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()))).ToList();
         //"Error during serialization or deserialization using the JSON JavaScriptSerializer. The length of the string exceeds the value set on the maxJsonLength property. "
         foreach (var page in pageModels) page.Body = "";
+        
+        // Apply pagination
+        var totalCount = pageModels.Count;
+        var pagedData = pageModels
+            .Skip((command.Page - 1) * command.PageSize)
+            .Take(command.PageSize)
+            .ToList();
+        
         var gridModel = new DataSourceResult {
-            Data = pageModels,
-            Total = pageModels.Count
+            Data = pagedData,
+            Total = totalCount
         };
 
         return Json(gridModel);
