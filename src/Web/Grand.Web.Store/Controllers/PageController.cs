@@ -4,11 +4,11 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Pages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Web.Store.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
@@ -18,7 +18,7 @@ public class PageController : BaseStoreController
 {
     #region Fields
 
-    private readonly IStorePageViewModelService _pageViewModelService;
+    private readonly IPageViewModelService _pageViewModelService;
     private readonly IPageService _pageService;
     private readonly ITranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
@@ -29,7 +29,7 @@ public class PageController : BaseStoreController
     #region Constructors
 
     public PageController(
-        IStorePageViewModelService pageViewModelService,
+        IPageViewModelService pageViewModelService,
         IPageService pageService,
         ITranslationService translationService,
         IContextAccessor contextAccessor,

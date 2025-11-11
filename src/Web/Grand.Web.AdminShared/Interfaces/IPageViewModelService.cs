@@ -10,4 +10,5 @@ public interface IPageViewModelService
     Task<Page> InsertPageModel(PageModel model);
     Task<Page> UpdatePageModel(Page page, PageModel model);
     Task DeletePage(Page page);
+    Task<Page> CopyPageModel(string sourcePageId);
 }

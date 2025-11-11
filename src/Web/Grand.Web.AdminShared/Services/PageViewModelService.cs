@@ -92,4 +92,56 @@ public class PageViewModelService : IPageViewModelService
     {
         await _pageService.DeletePage(page);
     }
+
+    public virtual async Task<Page> CopyPageModel(string sourcePageId)
+    {
+        var sourcePage = await _pageService.GetPageById(sourcePageId);
+        if (sourcePage == null)
+        {
+            throw new ArgumentException("Source page not found");
+        }
+
+        var newPage = new Page
+        {
+            Title = sourcePage.Title + " (Copy)",
+            Body = sourcePage.Body,
+            PageLayoutId = sourcePage.PageLayoutId,
+            Published = false, // Start unpublished
+            DisplayOrder = sourcePage.DisplayOrder,
+            IncludeInSitemap = sourcePage.IncludeInSitemap,
+            IncludeInMenu = sourcePage.IncludeInMenu,
+            IncludeInFooterRow1 = sourcePage.IncludeInFooterRow1,
+            IncludeInFooterRow2 = sourcePage.IncludeInFooterRow2,
+            IncludeInFooterRow3 = sourcePage.IncludeInFooterRow3,
+            IsPasswordProtected = sourcePage.IsPasswordProtected,
+            Password = sourcePage.Password,
+            AccessibleWhenStoreClosed = sourcePage.AccessibleWhenStoreClosed,
+            MetaKeywords = sourcePage.MetaKeywords,
+            MetaDescription = sourcePage.MetaDescription,
+            MetaTitle = sourcePage.MetaTitle,
+            LimitedToStores = sourcePage.LimitedToStores,
+            Stores = sourcePage.Stores.ToList(),
+            LimitedToGroups = sourcePage.LimitedToGroups,
+            CustomerGroups = sourcePage.CustomerGroups.ToList(),
+            SystemName = null // Don't copy system name
+        };
+
+        // Copy locales
+        foreach (var locale in sourcePage.Locales)
+        {
+            newPage.Locales.Add(new Domain.Localization.TranslationEntity
+            {
+                LanguageId = locale.LanguageId,
+                LocaleKey = locale.LocaleKey,
+                LocaleValue = locale.LocaleValue
+            });
+        }
+
+        newPage.SeName = await _seNameService.ValidateSeName(newPage, "", newPage.Title, true);
+
+        await _pageService.InsertPage(newPage);
+        await _seNameService.SaveSeName(newPage);
+
+        return newPage;
+    }
 }
