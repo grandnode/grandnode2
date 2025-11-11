@@ -115,7 +115,17 @@ public class PageController : BaseStoreController
         {
             try
             {
+                // Store-specific: Ensure SystemName is not set and page is limited to current store
+                model.SystemName = null;
+                
                 var page = await _pageViewModelService.InsertPageModel(model);
+                
+                // Store-specific: Auto-tag to current store after creation
+                var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
+                page.LimitedToStores = true;
+                page.Stores = new List<string> { storeId };
+                await _pageService.UpdatePage(page);
+                
                 Success(_translationService.GetResource("Store.Content.Pages.Added"));
                 return continueEditing ? RedirectToAction("Edit", new { id = page.Id }) : RedirectToAction("List");
             }
@@ -167,11 +177,36 @@ public class PageController : BaseStoreController
             return RedirectToAction("List");
         }
 
+        // Store-specific: Prevent editing system pages
+        if (!string.IsNullOrEmpty(page.SystemName) && !page.Stores.Any())
+        {
+            Error(_translationService.GetResource("Store.Content.Pages.CannotEditSystemPage"));
+            return RedirectToAction("List");
+        }
+
+        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
+        
+        // Store-specific: Ensure page belongs to current store
+        if (!page.Stores.Contains(storeId))
+        {
+            Error("Cannot edit a page that doesn't belong to this store.");
+            return RedirectToAction("List");
+        }
+
         if (ModelState.IsValid)
         {
             try
             {
+                // Store-specific: Ensure SystemName is not changed and page stays limited to current store
+                model.SystemName = null;
+                
                 page = await _pageViewModelService.UpdatePageModel(page, model);
+                
+                // Store-specific: Maintain store restrictions
+                page.LimitedToStores = true;
+                page.Stores = new List<string> { storeId };
+                await _pageService.UpdatePage(page);
+                
                 Success(_translationService.GetResource("Store.Content.Pages.Updated"));
 
                 if (continueEditing)
@@ -207,8 +242,18 @@ public class PageController : BaseStoreController
 
         try
         {
-            // Use the extended interface method directly
             var newPage = await _pageViewModelService.CopyPageModel(id);
+            
+            // Store-specific: Override copy to be store-specific and unpublished
+            var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
+            newPage.SystemName = null; // Don't copy system name
+            newPage.Published = false; // Start unpublished
+            newPage.LimitedToStores = true;
+            newPage.Stores = new List<string> { storeId };
+            newPage.IsPasswordProtected = false; // Don't copy password
+            newPage.Password = null;
+            await _pageService.UpdatePage(newPage);
+            
             Success(_translationService.GetResource("Store.Content.Pages.Copied"));
             return RedirectToAction("Edit", new { id = newPage.Id });
         }
