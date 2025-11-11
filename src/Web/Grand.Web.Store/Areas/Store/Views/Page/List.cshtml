@@ -1,0 +1,148 @@
+@model PageListModel
+@using Grand.Web.Store.Extensions
+@{
+    ViewBag.Title = Loc["Store.Content.Pages"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-fw fa-file-o"></i>
+                    @Loc["Store.Content.Pages"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Store.Common.AddNew"] </span>
+                    </a>
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="row align-items-end mb-1">
+                            <div class="col-md-9 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <label asp-for="Name" class="d-flex flex-column align-items-start mw-100 px-0 text-left"></label>
+                                    <input asp-for="Name" class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
+                                <div class="form-actions">
+                                    <button class="btn btn-success filter-submit" id="search-pages">
+                                        <i class="fa fa-search"></i> @Loc["Store.Common.Search"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="x_content">
+                        <div id="pages-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#pages-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("List", "Page", new { area = Constants.AreaStore }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            scrollable: false,
+            columns: [{
+                field: "SystemName",
+                title: "@Loc["Store.Content.Pages.Fields.SystemName"]",
+                template: function(dataItem) {
+                    if (dataItem.IsSystemPage) {
+                        return '<span title="System page - cannot be edited directly">#=SystemName# <i class="fa fa-lock text-muted"></i></span>';
+                    } else {
+                        return '<a class="k-link" href="Edit/#=Id#">#:SystemName || "(No system name)"#</a>';
+                    }
+                }
+            }, {
+                field: "Title",
+                title: "@Loc["Store.Content.Pages.Fields.Title"]"
+            }, {
+                field: "Published",
+                title: "@Loc["Store.Content.Pages.Fields.Published"]",
+                template: '#= Published ? "<i class=\'fa fa-check\' style=\'color:green;\'></i>" : "<i class=\'fa fa-times\' style=\'color:red;\'></i>" #',
+                width: 100
+            }, {
+                field: "DisplayOrder",
+                title: "@Loc["Store.Content.Pages.Fields.DisplayOrder"]",
+                width: 100
+            }, {
+                title: "@Loc["Store.Common.Actions"]",
+                width: 200,
+                template: function(dataItem) {
+                    var html = '';
+                    if (dataItem.IsSystemPage) {
+                        html += '<a class="btn btn-sm btn-primary" href="' + '@Url.Action("Copy", "Page", new { area = Constants.AreaStore })'.replace('__id__', dataItem.Id) + '?id=' + dataItem.Id + '"><i class="fa fa-copy"></i> Copy</a>';
+                    } else {
+                        html += '<a class="btn btn-sm btn-info" href="Edit/' + dataItem.Id + '"><i class="fa fa-edit"></i> Edit</a> ';
+                        html += '<a class="btn btn-sm btn-primary" href="' + '@Url.Action("Copy", "Page", new { area = Constants.AreaStore })'.replace('__id__', dataItem.Id) + '?id=' + dataItem.Id + '"><i class="fa fa-copy"></i> Copy</a> ';
+                        html += '<button class="btn btn-sm btn-danger" onclick="deletePage(\'' + dataItem.Id + '\')"><i class="fa fa-trash"></i> Delete</button>';
+                    }
+                    return html;
+                }
+            }]
+        });
+
+        function additionalData() {
+            var data = {
+                Name: $('#Name').val()
+            };
+            return data;
+        }
+
+        $("#search-pages").click(function () {
+            var grid = $('#pages-grid').data('kendoGrid');
+            grid.dataSource.page(1);
+            grid.dataSource.read();
+            return false;
+        });
+    });
+
+    function deletePage(id) {
+        if (confirm('@Loc["Store.Common.AreYouSure"]')) {
+            $.ajax({
+                url: '@Url.Action("Delete", "Page", new { area = Constants.AreaStore })',
+                type: 'POST',
+                data: { id: id },
+                success: function() {
+                    var grid = $('#pages-grid').data('kendoGrid');
+                    grid.dataSource.read();
+                }
+            });
+        }
+    }
+</script>

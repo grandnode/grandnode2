@@ -21,7 +21,8 @@ public class PageProfile : Profile, IAutoMapperProfile
             .ForMember(dest => dest.Locales, mo => mo.Ignore())
             .ForMember(dest => dest.LimitedToGroups,
                 mo => mo.MapFrom(x => x.CustomerGroups != null && x.CustomerGroups.Any()))
-            .ForMember(dest => dest.LimitedToStores, mo => mo.MapFrom(x => x.Stores != null && x.Stores.Any()));
+            .ForMember(dest => dest.LimitedToStores, mo => mo.Ignore())
+            .ForMember(dest => dest.Stores, mo => mo.Ignore());
     }
 
     public int Order => 0;

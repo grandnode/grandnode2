@@ -1,0 +1,74 @@
+@model PageModel
+@using Grand.Web.Store.Extensions
+@{
+    ViewBag.Title = Loc["Store.Content.Pages.AddNew"];
+}
+
+<form asp-area="@Constants.AreaStore" asp-controller="Page" asp-action="Create" method="post">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-fw fa-file-o"></i>
+                        @Loc["Store.Content.Pages.AddNew"]
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Store.Content.Pages.BackToList"], "List")
+                        </small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Store.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Store.Common.SaveContinue"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <label asp-for="Title" class="col-sm-3 control-label"></label>
+                                <div class="col-sm-9">
+                                    <input asp-for="Title" class="form-control"/>
+                                    <span asp-validation-for="Title" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Body" class="col-sm-3 control-label"></label>
+                                <div class="col-sm-9">
+                                    <textarea asp-for="Body" class="form-control" rows="10"></textarea>
+                                    <span asp-validation-for="Body" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DisplayOrder" class="col-sm-3 control-label"></label>
+                                <div class="col-sm-9">
+                                    <input asp-for="DisplayOrder" class="form-control"/>
+                                    <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Published" class="col-sm-3 control-label"></label>
+                                <div class="col-sm-9">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <input asp-for="Published" type="checkbox"/>
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="Published" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}
