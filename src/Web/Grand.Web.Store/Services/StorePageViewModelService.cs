@@ -8,14 +8,15 @@ using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Pages;
+using Grand.Web.Store.Interfaces;
 
 namespace Grand.Web.Store.Services;
 
 /// <summary>
-/// Store-specific implementation of IPageViewModelService
-/// Provides page management functionality for store managers with store-scoped restrictions
+/// Store-specific implementation of IStorePageViewModelService
+/// Extends base IPageViewModelService with Store-specific restrictions and functionality
 /// </summary>
-public class StorePageViewModelService : IPageViewModelService
+public class StorePageViewModelService : IStorePageViewModelService
 {
     private readonly IPageService _pageService;
     private readonly IPageLayoutService _pageLayoutService;

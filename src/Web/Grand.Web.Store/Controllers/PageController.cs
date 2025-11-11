@@ -4,12 +4,11 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions.Mapping;
-using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Pages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Web.Store.Services;
+using Grand.Web.Store.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
@@ -19,7 +18,7 @@ public class PageController : BaseStoreController
 {
     #region Fields
 
-    private readonly IPageViewModelService _pageViewModelService;
+    private readonly IStorePageViewModelService _pageViewModelService;
     private readonly IPageService _pageService;
     private readonly ITranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
@@ -30,7 +29,7 @@ public class PageController : BaseStoreController
     #region Constructors
 
     public PageController(
-        IPageViewModelService pageViewModelService,
+        IStorePageViewModelService pageViewModelService,
         IPageService pageService,
         ITranslationService translationService,
         IContextAccessor contextAccessor,
@@ -208,14 +207,8 @@ public class PageController : BaseStoreController
 
         try
         {
-            // Cast to Store-specific service to access CopyPageModel
-            var storeService = _pageViewModelService as StorePageViewModelService;
-            if (storeService == null)
-            {
-                throw new InvalidOperationException("Store page service not available");
-            }
-            
-            var newPage = await storeService.CopyPageModel(id);
+            // Use the extended interface method directly
+            var newPage = await _pageViewModelService.CopyPageModel(id);
             Success(_translationService.GetResource("Store.Content.Pages.Copied"));
             return RedirectToAction("Edit", new { id = newPage.Id });
         }
