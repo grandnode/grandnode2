@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Pages;
 
-public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, IGroupLinkModel
+public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, IGroupLinkModel, IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.SystemName")]
     public string SystemName { get; set; }
@@ -90,6 +90,11 @@ public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, I
     public string[] CustomerGroups { get; set; }
 
     public IList<PageLocalizedModel> Locales { get; set; } = new List<PageLocalizedModel>();
+
+    //Store acl
+    [GrandResourceDisplayName("Admin.Content.Pages.Fields.LimitedToStores")]
+    [UIHint("Stores")]
+    public string[] Stores { get; set; }
 }
 
 public class PageLocalizedModel : ILocalizedModelLocal, ISlugModelLocal

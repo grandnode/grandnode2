@@ -65,8 +65,7 @@ public class PageController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, PageListModel model)
     {
-        // Don't filter by store in Admin - show all pages
-        var pageModels = (await _pageService.GetAllPages("", true))
+        var pageModels = (await _pageService.GetAllPages(model.SearchStoreId, true))
             .Select(x => x.ToModel(_dateTimeService))
             .ToList();
 

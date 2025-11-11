@@ -36,10 +36,15 @@ public class PageViewModelService : IPageViewModelService
         _seNameService = seNameService;
     }
 
-    public virtual Task<PageListModel> PreparePageListModel()
+    public virtual async Task<PageListModel> PreparePageListModel()
     {
         var model = new PageListModel();
-        return Task.FromResult(model);
+        //stores
+        model.AvailableStores.Add(new SelectListItem
+            { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
+        foreach (var s in await _storeService.GetAllStores())
+            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        return model;
     }
 
     public virtual async Task PrepareLayoutsModel(PageModel model)
