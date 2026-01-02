@@ -31,6 +31,7 @@ WORKDIR /app
 COPY --from=build-env /app/build/release .
 
 # Switch to the built-in non-root user
+RUN chown -R app:app /app
 USER app
 
 ENTRYPOINT ["dotnet", "Grand.Web.dll"]
