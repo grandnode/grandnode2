@@ -29,4 +29,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 EXPOSE 8080
 WORKDIR /app
 COPY --from=build-env /app/build/release .
+
+# Switch to the built-in non-root user
+USER app
+
 ENTRYPOINT ["dotnet", "Grand.Web.dll"]
