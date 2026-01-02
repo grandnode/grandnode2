@@ -13,9 +13,9 @@ variables:
   
 steps:
 - task: UseDotNet@2
-  displayName: 'Install .NET Core SDK 9'
+  displayName: 'Install .NET Core SDK 10'
   inputs:
-    version: '9.0.x'
+    version: '10.0.x'
 
 - task: Bash@3
   displayName: Install .NET Aspire workload
