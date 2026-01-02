@@ -103,7 +103,7 @@ public class DiscountServiceTests
 
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -179,7 +179,7 @@ public class DiscountServiceTests
         //Act
         var providers = _discountProviderLoader.LoadAllDiscountProviders();
         //Assert
-        Assert.AreEqual(1, providers.Count);
+        Assert.HasCount(1, providers);
     }
 
     [TestMethod]
@@ -234,7 +234,7 @@ public class DiscountServiceTests
         //Act
         var coupon = await _dicountService.GetAllCouponCodesByDiscountId(discount.Id);
         //Assert
-        Assert.AreEqual(2, coupon.Count);
+        Assert.HasCount(2, coupon);
     }
 
     [TestMethod]
@@ -604,7 +604,7 @@ public class DiscountServiceTests
         var usageHistory = await handler.Handle(new GetDiscountUsageHistoryQuery(), CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(2, usageHistory.Count);
+        Assert.HasCount(2, usageHistory);
     }
 
     [TestMethod]
@@ -848,6 +848,6 @@ public class DiscountServiceTests
         //Act
         var discountProviders = _discountProviderLoader.LoadDiscountAmountProviders();
         //Assert
-        Assert.AreEqual(1, discountProviders.Count);
+        Assert.HasCount(1, discountProviders);
     }
 }

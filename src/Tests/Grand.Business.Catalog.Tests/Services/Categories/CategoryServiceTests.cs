@@ -89,7 +89,7 @@ public class CategoryServiceTests
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
         var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
-        Assert.IsTrue(result.Count == 0);
+        Assert.IsEmpty(result);
     }
 
     [TestMethod]
@@ -102,7 +102,7 @@ public class CategoryServiceTests
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
         var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
-        Assert.IsTrue(result.Count == 2);
+        Assert.HasCount(2, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("3")));
     }
@@ -117,7 +117,7 @@ public class CategoryServiceTests
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<Customer>())).Returns(() => true);
         _aclServiceMock.Setup(a => a.Authorize(It.IsAny<Category>(), It.IsAny<string>())).Returns(() => true);
         var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
-        Assert.IsTrue(result.Count == 3);
+        Assert.HasCount(3, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("1")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("5")));

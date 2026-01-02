@@ -1,6 +1,0 @@
-<Project>
-  <!-- Enable test parallelization for MSTest projects (MSTEST0001) -->
-  <ItemGroup>
-    <AssemblyAttribute Include="Microsoft.VisualStudio.TestTools.UnitTesting.ParallelizeAttribute" />
-  </ItemGroup>
-</Project>

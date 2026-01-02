@@ -27,11 +27,11 @@ public class GiftVoucherExtensionsTests
             out var giftVoucherRecipientEmail,
             out var giftVoucherSenderName, out var giftVoucherSenderEmail, out var giftVoucherMessage);
 
-        Assert.IsTrue(giftVoucherRecipientName == "Johny");
-        Assert.IsTrue(giftVoucherRecipientEmail == "test@test.com");
-        Assert.IsTrue(giftVoucherSenderName == "My name");
-        Assert.IsTrue(giftVoucherSenderEmail == "name@name.com");
-        Assert.IsTrue(giftVoucherMessage == "my sample message");
+        Assert.AreEqual("Johny", giftVoucherRecipientName);
+        Assert.AreEqual("test@test.com", giftVoucherRecipientEmail);
+        Assert.AreEqual("My name", giftVoucherSenderName);
+        Assert.AreEqual("name@name.com", giftVoucherSenderEmail);
+        Assert.AreEqual("my sample message", giftVoucherMessage);
     }
 
     [TestMethod]
@@ -49,11 +49,11 @@ public class GiftVoucherExtensionsTests
             out var giftVoucherRecipientEmail,
             out var giftVoucherSenderName, out var giftVoucherSenderEmail, out var giftVoucherMessage);
 
-        Assert.IsTrue(giftVoucherRecipientName == "Johny");
-        Assert.IsTrue(giftVoucherRecipientEmail == "test@test.com");
-        Assert.IsTrue(giftVoucherSenderName == "My name");
-        Assert.IsTrue(giftVoucherSenderEmail == "name@name.com");
-        Assert.IsTrue(giftVoucherMessage == "my sample message");
+        Assert.AreEqual("Johny", giftVoucherRecipientName);
+        Assert.AreEqual("test@test.com", giftVoucherRecipientEmail);
+        Assert.AreEqual("My name", giftVoucherSenderName);
+        Assert.AreEqual("name@name.com", giftVoucherSenderEmail);
+        Assert.AreEqual("my sample message", giftVoucherMessage);
     }
 
     [TestMethod]
@@ -61,7 +61,7 @@ public class GiftVoucherExtensionsTests
     {
         giftVoucher.GiftVoucherUsageHistory.Add(new GiftVoucherUsageHistory { UsedValue = 3 });
         giftVoucher.GiftVoucherUsageHistory.Add(new GiftVoucherUsageHistory { UsedValue = 4 });
-        Assert.IsTrue(giftVoucher.GetGiftVoucherRemainingAmount() == 3);
+        Assert.AreEqual(3, giftVoucher.GetGiftVoucherRemainingAmount());
     }
 
     [TestMethod]

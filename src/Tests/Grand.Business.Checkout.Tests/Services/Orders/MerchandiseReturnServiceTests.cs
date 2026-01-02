@@ -86,7 +86,7 @@ public class MerchandiseReturnServiceTests
         var result = await _merchandiseReturnService.SearchMerchandiseReturns();
 
         //Assert
-        Assert.IsTrue(result.Any());
+        Assert.IsNotEmpty(result);
     }
 
     [TestMethod]
@@ -100,8 +100,8 @@ public class MerchandiseReturnServiceTests
         var result = await _merchandiseReturnService.GetAllMerchandiseReturnActions();
 
         //Assert
-        Assert.IsTrue(result.Any());
-        Assert.AreEqual(2, result.Count);
+        Assert.IsNotEmpty(result);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -125,7 +125,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.InsertMerchandiseReturn(new MerchandiseReturn());
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
+        Assert.IsNotEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -140,7 +140,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.UpdateMerchandiseReturn(merchandiseReturn);
 
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == merchandiseReturn.Id).CustomerComments == "test");
+        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == merchandiseReturn.Id).CustomerComments);
     }
 
     [TestMethod]
@@ -154,7 +154,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.DeleteMerchandiseReturn(merchandiseReturn);
 
         //Assert
-        Assert.IsFalse(_repository.Table.Any());
+        Assert.IsEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -164,7 +164,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.InsertMerchandiseReturnAction(new MerchandiseReturnAction());
 
         //Assert
-        Assert.IsTrue(_merchandiseReturnActionRepository.Table.Any());
+        Assert.IsNotEmpty(_merchandiseReturnActionRepository.Table);
     }
 
     [TestMethod]
@@ -179,8 +179,8 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.UpdateMerchandiseReturnAction(merchandiseReturnAction);
 
         //Assert
-        Assert.IsTrue(_merchandiseReturnActionRepository.Table.FirstOrDefault(x => x.Id == merchandiseReturnAction.Id)
-            .Name == "test");
+        Assert.AreEqual("test", _merchandiseReturnActionRepository.Table.FirstOrDefault(x => x.Id == merchandiseReturnAction.Id)
+            .Name);
     }
 
     [TestMethod]
@@ -194,7 +194,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.DeleteMerchandiseReturnAction(merchandiseReturnAction);
 
         //Assert
-        Assert.IsFalse(_merchandiseReturnActionRepository.Table.Any());
+        Assert.IsEmpty(_merchandiseReturnActionRepository.Table);
     }
 
     [TestMethod]
@@ -208,7 +208,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.DeleteMerchandiseReturnReason(merchandiseReturnReason);
 
         //Assert
-        Assert.IsFalse(_merchandiseReturnReasonRepository.Table.Any());
+        Assert.IsEmpty(_merchandiseReturnReasonRepository.Table);
     }
 
     [TestMethod]
@@ -222,7 +222,7 @@ public class MerchandiseReturnServiceTests
         var result = await _merchandiseReturnService.GetAllMerchandiseReturnReasons();
 
         //Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -249,7 +249,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.InsertMerchandiseReturnReason(merchandiseReturnReason);
 
         //Assert
-        Assert.IsTrue(_merchandiseReturnReasonRepository.Table.Any());
+        Assert.IsNotEmpty(_merchandiseReturnReasonRepository.Table);
     }
 
     [TestMethod]
@@ -263,8 +263,8 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.UpdateMerchandiseReturnReason(merchandiseReturnReason);
 
         //Assert
-        Assert.IsTrue(_merchandiseReturnReasonRepository.Table.FirstOrDefault(x => x.Id == merchandiseReturnReason.Id)
-            .Name == "test");
+        Assert.AreEqual("test", _merchandiseReturnReasonRepository.Table.FirstOrDefault(x => x.Id == merchandiseReturnReason.Id)
+            .Name);
     }
 
     [TestMethod]
@@ -278,7 +278,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.DeleteMerchandiseReturnNote(merchandiseReturnNote);
 
         //Assert
-        Assert.IsFalse(_merchandiseReturnNoteRepository.Table.Any());
+        Assert.IsEmpty(_merchandiseReturnNoteRepository.Table);
     }
 
     [TestMethod]
@@ -291,7 +291,7 @@ public class MerchandiseReturnServiceTests
         await _merchandiseReturnService.InsertMerchandiseReturnNote(merchandiseReturnNote);
 
         //Assert
-        Assert.IsTrue(_merchandiseReturnNoteRepository.Table.Any());
+        Assert.IsNotEmpty(_merchandiseReturnNoteRepository.Table);
     }
 
     [TestMethod]
@@ -305,7 +305,7 @@ public class MerchandiseReturnServiceTests
         var result = await _merchandiseReturnService.GetMerchandiseReturnNotes("1");
 
         //Assert
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]

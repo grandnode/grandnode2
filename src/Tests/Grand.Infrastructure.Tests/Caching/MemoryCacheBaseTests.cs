@@ -33,28 +33,28 @@ public class MemoryCacheBaseTests
     public void GetTest()
     {
         var result = _service.Get("key", () => { return "test"; });
-        Assert.AreEqual(result, "test");
+        Assert.AreEqual("test", result);
     }
 
     [TestMethod]
     public void GetTest_CacheTimeMinutes()
     {
         var result = _service.Get("key", () => { return "test"; }, 1);
-        Assert.AreEqual(result, "test");
+        Assert.AreEqual("test", result);
     }
 
     [TestMethod]
     public async Task GetAsyncTest()
     {
         var result = await _service.GetAsync("key", () => { return Task.FromResult("test"); });
-        Assert.AreEqual(result, "test");
+        Assert.AreEqual("test", result);
     }
 
     [TestMethod]
     public async Task GetAsyncTest_CacheTimeMinutes()
     {
         var result = await _service.GetAsync("key", () => { return Task.FromResult("test"); }, 1);
-        Assert.AreEqual(result, "test");
+        Assert.AreEqual("test", result);
     }
 
     [TestMethod]

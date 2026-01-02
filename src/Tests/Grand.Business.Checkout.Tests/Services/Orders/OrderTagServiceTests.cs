@@ -46,7 +46,7 @@ public class OrderTagServiceTests
         var result = await _service.GetAllOrderTags();
 
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]
@@ -86,7 +86,7 @@ public class OrderTagServiceTests
         await _service.InsertOrderTag(new OrderTag());
 
         //Assert
-        Assert.IsTrue(_orderTagRepository.Table.Any());
+        Assert.IsNotEmpty(_orderTagRepository.Table);
     }
 
     [TestMethod]
@@ -101,7 +101,7 @@ public class OrderTagServiceTests
         await _service.UpdateOrderTag(orderTag);
 
         //Assert
-        Assert.IsTrue(_orderTagRepository.Table.FirstOrDefault(x => x.Id == orderTag.Id).Name == "test");
+        Assert.AreEqual("test", _orderTagRepository.Table.FirstOrDefault(x => x.Id == orderTag.Id).Name);
     }
 
     [TestMethod]
@@ -115,7 +115,7 @@ public class OrderTagServiceTests
         await _service.DeleteOrderTag(orderTag);
 
         //Assert
-        Assert.IsFalse(_orderTagRepository.Table.FirstOrDefault(x => x.Id == orderTag.Id)?.Name == "test");
+        Assert.AreNotEqual("test", _orderTagRepository.Table.FirstOrDefault(x => x.Id == orderTag.Id)?.Name);
     }
 
     [TestMethod]
@@ -133,7 +133,7 @@ public class OrderTagServiceTests
         //Assert
         Assert.IsTrue(_orderRepository.Table.FirstOrDefault(x => x.Id == order.Id).OrderTags
             .Any(z => z == orderTag.Id));
-        Assert.IsTrue(_orderTagRepository.Table.FirstOrDefault(x => x.Id == orderTag.Id).Count == 1);
+        Assert.AreEqual(1, _orderTagRepository.Table.FirstOrDefault(x => x.Id == orderTag.Id).Count);
     }
 
     [TestMethod]
@@ -153,7 +153,7 @@ public class OrderTagServiceTests
         //Assert
         Assert.IsFalse(
             _orderRepository.Table.FirstOrDefault(x => x.Id == order.Id).OrderTags.Any(z => z == orderTag.Id));
-        Assert.IsTrue(_orderTagRepository.Table.FirstOrDefault(x => x.Id == orderTag.Id).Count == 0);
+        Assert.AreEqual(0, _orderTagRepository.Table.FirstOrDefault(x => x.Id == orderTag.Id).Count);
     }
 
     [TestMethod]

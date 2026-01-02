@@ -104,7 +104,7 @@ public class PageServiceTests
         page.SystemName = "test";
         await _pageService.UpdatePage(page);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == page.Id).SystemName == "test");
+        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == page.Id).SystemName);
     }
 
     [TestMethod]

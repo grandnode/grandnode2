@@ -52,7 +52,7 @@ public class ContactAttributeServiceTests
 
         //Assert
         Assert.IsNull(_repository.Table.FirstOrDefault(x => x.Name == "test"));
-        Assert.AreEqual(0, _repository.Table.Count());
+        Assert.IsEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -67,7 +67,7 @@ public class ContactAttributeServiceTests
         var result = await _contactAttributeService.GetAllContactAttributes();
 
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]
@@ -97,7 +97,7 @@ public class ContactAttributeServiceTests
         await _contactAttributeService.InsertContactAttribute(contactAttribute);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
+        Assert.IsNotEmpty(_repository.Table);
     }
 
     [TestMethod]

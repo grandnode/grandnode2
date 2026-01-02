@@ -43,7 +43,7 @@ public class BrandLayoutServiceTests
         var layouts = await _brandLayoutService.GetAllBrandLayouts();
 
         //Assert
-        Assert.AreEqual(3, layouts.Count);
+        Assert.HasCount(3, layouts);
     }
 
     [TestMethod]
@@ -69,7 +69,7 @@ public class BrandLayoutServiceTests
         //Act
         await _brandLayoutService.InsertBrandLayout(new BrandLayout());
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
+        Assert.IsNotEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -107,6 +107,6 @@ public class BrandLayoutServiceTests
 
         //Assert
         Assert.IsNull(_repository.Table.FirstOrDefault(x => x.Name == "test1"));
-        Assert.AreEqual(1, _repository.Table.Count());
+        Assert.HasCount(1, _repository.Table);
     }
 }

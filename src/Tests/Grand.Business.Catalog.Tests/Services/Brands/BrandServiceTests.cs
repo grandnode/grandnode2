@@ -50,7 +50,7 @@ public class BrandServiceTests
         var brand = await _brandService.GetAllBrands();
 
         //Assert
-        Assert.AreEqual(3, brand.Count);
+        Assert.HasCount(3, brand);
     }
 
     [TestMethod]
@@ -76,7 +76,7 @@ public class BrandServiceTests
         //Act
         await _brandService.InsertBrand(new Brand());
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
+        Assert.IsNotEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -114,7 +114,7 @@ public class BrandServiceTests
 
         //Assert
         Assert.IsNull(_repository.Table.FirstOrDefault(x => x.Name == "test1"));
-        Assert.AreEqual(1, _repository.Table.Count());
+        Assert.HasCount(1, _repository.Table);
     }
 
     [TestMethod]
@@ -137,6 +137,6 @@ public class BrandServiceTests
 
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
     }
 }

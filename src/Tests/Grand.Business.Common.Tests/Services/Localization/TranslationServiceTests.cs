@@ -79,7 +79,7 @@ public class TranslationServiceTests
         var result = _translationService.GetAllResources("1");
 
         //Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]

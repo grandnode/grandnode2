@@ -111,6 +111,6 @@ public class CountryImportDataObjectTests
 
         //Assert
         Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Any(x => x.Published));
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces.Count == 3);
+        Assert.HasCount(3, _repository.Table.FirstOrDefault(x => x.Id == country.Id).StateProvinces);
     }
 }

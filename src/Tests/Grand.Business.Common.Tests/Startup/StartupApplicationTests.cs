@@ -26,6 +26,6 @@ public class StartupApplicationTests
         //Act
         _application.ConfigureServices(_serviceCollection, _configuration);
         //Assert
-        Assert.IsTrue(_serviceCollection.Count > 0);
+        Assert.IsGreaterThan(0, _serviceCollection.Count);
     }
 }

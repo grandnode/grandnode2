@@ -26,10 +26,10 @@ public class ShoppingCartExtensionsTests
             new() { IsShipEnabled = false },
             new() { IsShipEnabled = false }
         };
-        Assert.IsTrue(shoppingCartItems.LimitPerStore(false, "id").ToList().Count == 0);
+        Assert.IsEmpty(shoppingCartItems.LimitPerStore(false, "id").ToList());
         shoppingCartItems.Add(new ShoppingCartItem { StoreId = "id" });
         var result = shoppingCartItems.LimitPerStore(false, "id").ToList();
-        Assert.IsTrue(result.Count == 1);
-        Assert.IsTrue(result.First().StoreId.Equals("id"));
+        Assert.HasCount(1, result);
+        Assert.AreEqual("id", result.First().StoreId);
     }
 }

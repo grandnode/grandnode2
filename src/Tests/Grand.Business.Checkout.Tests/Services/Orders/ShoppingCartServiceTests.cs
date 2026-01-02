@@ -65,7 +65,7 @@ public class ShoppingCartServiceTests
         //Act
         var result = await _shoppingCartService.GetShoppingCart();
         //Assert
-        Assert.IsTrue(result.Any());
+        Assert.IsNotEmpty(result);
     }
 
     [TestMethod]
@@ -138,7 +138,7 @@ public class ShoppingCartServiceTests
         var result = await _shoppingCartService.AddToCart(customer, "2", ShoppingCartType.ShoppingCart, "");
 
         //Assert
-        Assert.AreEqual(1, result.warnings.Count);
+        Assert.HasCount(1, result.warnings);
     }
 
     [TestMethod]
@@ -217,7 +217,7 @@ public class ShoppingCartServiceTests
         //Act
         await _shoppingCartService.MigrateShoppingCart(customer, customer2, false);
         //Assert
-        Assert.IsTrue(customer2.ShoppingCartItems.Any());
-        Assert.IsFalse(customer.ShoppingCartItems.Any());
+        Assert.IsNotEmpty(customer2.ShoppingCartItems);
+        Assert.IsEmpty(customer.ShoppingCartItems);
     }
 }

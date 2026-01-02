@@ -33,8 +33,8 @@ public class CookiePreferenceTests
     public void GetConsentCookies_ReturnCorectOrder()
     {
         var result = _cookiePreferences.GetConsentCookies();
-        Assert.IsTrue(result.First().DisplayOrder == 1);
-        Assert.IsTrue(result.Last().DisplayOrder == 2);
+        Assert.AreEqual(1, result.First().DisplayOrder);
+        Assert.AreEqual(2, result.Last().DisplayOrder);
     }
 
     [TestMethod]

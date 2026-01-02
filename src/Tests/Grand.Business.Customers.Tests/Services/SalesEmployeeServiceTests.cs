@@ -53,7 +53,7 @@ public class SalesEmployeeServiceTests
         //Act
         var result = await _salesEmployeeService.GetAll();
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]
@@ -62,7 +62,7 @@ public class SalesEmployeeServiceTests
         //Act
         await _salesEmployeeService.InsertSalesEmployee(new SalesEmployee());
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
+        Assert.IsNotEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -87,6 +87,6 @@ public class SalesEmployeeServiceTests
         //Act
         await _salesEmployeeService.DeleteSalesEmployee(salesEmployee);
         //Assert
-        Assert.IsFalse(_repository.Table.Any());
+        Assert.IsEmpty(_repository.Table);
     }
 }

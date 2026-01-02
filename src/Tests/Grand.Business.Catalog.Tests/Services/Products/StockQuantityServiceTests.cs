@@ -177,7 +177,7 @@ public class StockQuantityServiceTests
         //Act
         var result = _stockQuantityService.FormatStockMessage(product, "", new List<CustomAttribute>());
         //Assert
-        Assert.AreEqual(null, result.arg0);
+        Assert.IsNull(result.arg0);
         Assert.AreEqual("Products.Availability.InStock", result.resource);
     }
 }

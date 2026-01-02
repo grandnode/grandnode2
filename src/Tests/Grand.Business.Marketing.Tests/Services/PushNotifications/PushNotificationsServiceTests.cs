@@ -55,7 +55,7 @@ public class PushNotificationsServiceTests
         //Act
         await _pushNotificationsService.InsertPushReceiver(new PushRegistration());
         //Assert
-        Assert.IsTrue(_repositoryPushRegistration.Table.Any());
+        Assert.IsNotEmpty(_repositoryPushRegistration.Table);
     }
 
     [TestMethod]
@@ -69,7 +69,7 @@ public class PushNotificationsServiceTests
         await _pushNotificationsService.DeletePushReceiver(pushRegistration);
 
         //Assert
-        Assert.IsFalse(_repositoryPushRegistration.Table.Any());
+        Assert.IsEmpty(_repositoryPushRegistration.Table);
     }
 
     [TestMethod]
@@ -113,7 +113,7 @@ public class PushNotificationsServiceTests
         var result = await _pushNotificationsService.GetAllowedPushReceivers();
 
         //Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -150,7 +150,7 @@ public class PushNotificationsServiceTests
         //Act
         await _pushNotificationsService.InsertPushMessage(new PushMessage());
         //Assert
-        Assert.IsFalse(_repositoryPushRegistration.Table.Any());
+        Assert.IsEmpty(_repositoryPushRegistration.Table);
     }
 
     [TestMethod]
@@ -165,7 +165,7 @@ public class PushNotificationsServiceTests
         var result = await _pushNotificationsService.GetPushMessages();
 
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]
@@ -180,7 +180,7 @@ public class PushNotificationsServiceTests
         var result = await _pushNotificationsService.GetAllowedPushReceivers();
 
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]

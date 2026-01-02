@@ -69,9 +69,9 @@ public class KnowledgebaseServiceTests
         knowledgebaseCategory.Name = "test";
         await _knowledgebaseService.UpdateKnowledgebaseCategory(knowledgebaseCategory);
         //Assert
-        Assert.IsTrue(
-            _repositoryKnowledgebaseCategory.Table.FirstOrDefault(x => x.Id == knowledgebaseCategory.Id).Name ==
-            "test");
+        Assert.AreEqual(
+            "test",
+            _repositoryKnowledgebaseCategory.Table.FirstOrDefault(x => x.Id == knowledgebaseCategory.Id).Name);
     }
 
     [TestMethod]
@@ -167,8 +167,7 @@ public class KnowledgebaseServiceTests
         knowledgebaseArticle.Name = "test";
         await _knowledgebaseService.UpdateKnowledgebaseArticle(knowledgebaseArticle);
         //Assert
-        Assert.IsTrue(_repositoryKnowledgebaseArticle.Table.FirstOrDefault(x => x.Id == knowledgebaseArticle.Id).Name ==
-                      "test");
+        Assert.AreEqual("test", _repositoryKnowledgebaseArticle.Table.FirstOrDefault(x => x.Id == knowledgebaseArticle.Id).Name);
     }
 
     [TestMethod]

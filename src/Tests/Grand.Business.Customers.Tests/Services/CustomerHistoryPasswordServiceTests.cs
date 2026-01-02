@@ -30,7 +30,7 @@ public class CustomerHistoryPasswordServiceTests
         //Act
         await _customerHistoryPasswordService.InsertCustomerPassword(new Customer());
         //Asser
-        Assert.IsTrue(_repository.Table.Any());
+        Assert.IsNotEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -44,6 +44,6 @@ public class CustomerHistoryPasswordServiceTests
         //Act
         var result = await _customerHistoryPasswordService.GetPasswords("1", 1);
         //Asser
-        Assert.IsTrue(result.Count == 1);
+        Assert.HasCount(1, result);
     }
 }

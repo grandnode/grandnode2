@@ -56,7 +56,7 @@ public class DataSourceRequestFilterBinderTests
         Assert.IsNotNull(result);
         Assert.AreEqual("and", result.Logic);
         Assert.IsNotNull(result.Filters);
-        Assert.AreEqual(1, result.Filters.Count);
+        Assert.HasCount(1, result.Filters);
 
         var filter = result.Filters.First();
         Assert.AreEqual("Name", filter.Field);

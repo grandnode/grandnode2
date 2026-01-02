@@ -53,7 +53,7 @@ public class LoyaltyPointsServiceTests
         //Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(10, result.Points);
-        Assert.IsTrue(_repository.Table.Any());
+        Assert.IsNotEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -69,6 +69,6 @@ public class LoyaltyPointsServiceTests
         //Act
         var result = await _loyaltyPointsService.GetLoyaltyPointsHistory("1");
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 }

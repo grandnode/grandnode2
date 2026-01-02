@@ -41,7 +41,7 @@ public class LanguageServiceTests
         //Act
         var result = await _languageService.GetAllLanguages();
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]
@@ -93,7 +93,7 @@ public class LanguageServiceTests
         language.FlagImageFileName = "en.png";
         await _languageService.UpdateLanguage(language);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == language.Id).FlagImageFileName == "en.png");
+        Assert.AreEqual("en.png", _repository.Table.FirstOrDefault(x => x.Id == language.Id).FlagImageFileName);
     }
 
     [TestMethod]

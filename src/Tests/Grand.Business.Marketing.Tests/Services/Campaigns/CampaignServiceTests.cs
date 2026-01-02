@@ -57,7 +57,7 @@ public class CampaignServiceTests
         await _campaignService.InsertCampaign(new Campaign());
         //Assert
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Campaign>>(), default), Times.Once);
-        Assert.IsTrue(_campaignRepository.Table.Any());
+        Assert.IsNotEmpty(_campaignRepository.Table);
     }
 
     [TestMethod]
@@ -66,7 +66,7 @@ public class CampaignServiceTests
         //Act
         await _campaignService.InsertCampaignHistory(new CampaignHistory());
         //Assert
-        Assert.IsTrue(_campaignHistoryRepository.Table.Any());
+        Assert.IsNotEmpty(_campaignHistoryRepository.Table);
     }
 
     [TestMethod]
@@ -81,7 +81,7 @@ public class CampaignServiceTests
         await _campaignService.UpdateCampaign(campaign);
         //Assert
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Campaign>>(), default), Times.Once);
-        Assert.IsTrue(_campaignRepository.Table.FirstOrDefault(x => x.Id == campaign.Id).Subject == "test");
+        Assert.AreEqual("test", _campaignRepository.Table.FirstOrDefault(x => x.Id == campaign.Id).Subject);
     }
 
     [TestMethod]
@@ -95,7 +95,7 @@ public class CampaignServiceTests
         await _campaignService.DeleteCampaign(campaign);
         //Assert
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<Campaign>>(), default), Times.Once);
-        Assert.IsFalse(_campaignRepository.Table.Any());
+        Assert.IsEmpty(_campaignRepository.Table);
     }
 
     [TestMethod]
@@ -127,7 +127,7 @@ public class CampaignServiceTests
         var result = await _campaignService.GetAllCampaigns();
 
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]
@@ -145,7 +145,7 @@ public class CampaignServiceTests
         var result = await _campaignService.GetCampaignHistory(campaign);
 
         //Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -163,7 +163,7 @@ public class CampaignServiceTests
         var result = await _campaignService.CustomerSubscriptions(campaign);
 
         //Assert
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]

@@ -53,7 +53,7 @@ public class RecentlyViewedProductsServiceTests
         var result = await _service.GetRecentlyViewedProducts("1", 10);
 
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]

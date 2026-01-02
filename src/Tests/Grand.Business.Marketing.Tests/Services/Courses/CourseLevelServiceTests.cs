@@ -37,7 +37,7 @@ public class CourseLevelServiceTests
 
         //Assert
         Assert.IsNull(_repository.Table.FirstOrDefault(x => x.Name == "test"));
-        Assert.AreEqual(0, _repository.Table.Count());
+        Assert.IsEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -52,7 +52,7 @@ public class CourseLevelServiceTests
         var result = await _courseLevelService.GetAll();
 
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]
@@ -82,7 +82,7 @@ public class CourseLevelServiceTests
         await _courseLevelService.Insert(courseLevel);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
+        Assert.IsNotEmpty(_repository.Table);
     }
 
     [TestMethod]

@@ -13,7 +13,7 @@ public class BlogExtensionsTests
             Tags = "e-commerce, blog, moey"
         };
 
-        Assert.AreEqual(3, blogPost.ParseTags().Length);
+        Assert.HasCount(3, blogPost.ParseTags());
     }
 
     [TestMethod]
@@ -24,6 +24,6 @@ public class BlogExtensionsTests
             new() { StartDateUtc = new DateTime(2010, 02, 01) },
             new() { StartDateUtc = new DateTime(2010, 03, 01) }
         };
-        Assert.AreEqual(2, blogPosts.GetPostsByDate(new DateTime(2010, 01, 01), new DateTime(2010, 02, 28)).Count);
+        Assert.HasCount(2, blogPosts.GetPostsByDate(new DateTime(2010, 01, 01), new DateTime(2010, 02, 28)));
     }
 }

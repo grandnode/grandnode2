@@ -16,7 +16,7 @@ public class ExtendedLinqTests
         };
 
         var cartesianProduct = sampleList.GroupBy(x => x.Id).CartesianProduct().ToList();
-        Assert.AreEqual(2, cartesianProduct.Count);
+        Assert.HasCount(2, cartesianProduct);
     }
 
     [TestMethod]

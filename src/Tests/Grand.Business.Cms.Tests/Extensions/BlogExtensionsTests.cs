@@ -26,7 +26,7 @@ public class BlogExtensionsTests
         var from = DateTime.Now;
         var to = DateTime.Now.AddDays(3);
         var result = _blogPosts.GetPostsByDate(from, to);
-        Assert.AreEqual(4, result.Count);
+        Assert.HasCount(4, result);
         Assert.IsTrue(result.Any(b => b.Id.Equals("1")));
         Assert.IsTrue(result.Any(b => b.Id.Equals("2")));
         Assert.IsTrue(result.Any(b => b.Id.Equals("3")));
@@ -39,6 +39,6 @@ public class BlogExtensionsTests
         var from = DateTime.Now.AddDays(-3);
         var to = DateTime.Now.AddDays(-1);
         var result = _blogPosts.GetPostsByDate(from, to);
-        Assert.AreEqual(0, result.Count);
+        Assert.IsEmpty(result);
     }
 }

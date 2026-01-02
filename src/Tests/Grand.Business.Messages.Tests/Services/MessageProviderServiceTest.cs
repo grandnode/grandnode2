@@ -96,7 +96,7 @@ public class MessageProviderServiceTest
     public async Task SendOutBidCustomerNotificationMethodReturnCorrectResult()
     {
         var result = await _messageService.SendOutBidCustomerMessage(new Product(), "123", new Bid());
-        Assert.AreEqual(result, 1);
+        Assert.AreEqual(1, result);
     }
 
     [TestMethod]
@@ -104,7 +104,7 @@ public class MessageProviderServiceTest
     {
         var result = await _messageService.SendNewVendorAccountApplyStoreOwnerMessage(new Customer(), new Vendor(),
             new Store { Url = "https://localhost:44350/" }, "123");
-        Assert.AreEqual(result, 1);
+        Assert.AreEqual(1, result);
     }
 
     [TestMethod]
@@ -117,6 +117,6 @@ public class MessageProviderServiceTest
             toName: "The God",
             toEmailAddress: null);
 
-        Assert.AreEqual(result, 0);
+        Assert.AreEqual(0, result);
     }
 }

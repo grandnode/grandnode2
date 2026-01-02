@@ -40,7 +40,7 @@ public class CountryServiceTests
         //Act
         var result = await _countryService.GetAllCountries();
         //Assert
-        Assert.IsTrue(result.Count > 0);
+        Assert.IsNotEmpty(result);
     }
 
     [TestMethod]
@@ -52,7 +52,7 @@ public class CountryServiceTests
         //Act
         var result = await _countryService.GetAllCountriesForBilling();
         //Assert
-        Assert.IsTrue(result.Count == 1);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]
@@ -64,7 +64,7 @@ public class CountryServiceTests
         //Act
         var result = await _countryService.GetAllCountriesForShipping();
         //Assert
-        Assert.IsTrue(result.Count == 1);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]
@@ -92,7 +92,7 @@ public class CountryServiceTests
         //Act
         var result = await _countryService.GetCountriesByIds([country.Id]);
         //Assert
-        Assert.IsTrue(result.Count == 1);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]

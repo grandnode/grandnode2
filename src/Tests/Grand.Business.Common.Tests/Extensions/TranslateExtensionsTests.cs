@@ -20,10 +20,10 @@ public class TranslateExtensionsTests
         product.Locales.Add(new TranslationEntity { LanguageId = "PL", LocaleKey = "Name", LocaleValue = "PLName" });
         product.Locales.Add(new TranslationEntity { LanguageId = "UK", LocaleKey = "Name", LocaleValue = "UKName" });
 
-        Assert.AreEqual(product.GetTranslation(c => c.Name, "PL"), "PLName");
-        Assert.AreEqual(product.GetTranslation(c => c.Name, "UK"), "UKName");
+        Assert.AreEqual("PLName", product.GetTranslation(c => c.Name, "PL"));
+        Assert.AreEqual("UKName", product.GetTranslation(c => c.Name, "UK"));
         //if language dont exist return property value
-        Assert.AreEqual(product.GetTranslation(c => c.Name, "US"), "stname");
+        Assert.AreEqual("stname", product.GetTranslation(c => c.Name, "US"));
     }
 
     [TestMethod]
@@ -52,7 +52,7 @@ public class TranslateExtensionsTests
             ManageInventoryMethodId = ManageInventoryMethod.ManageStock
         };
         var result = product.ManageInventoryMethodId.GetTranslationEnum(translationServiceMock.Object, "PL");
-        Assert.AreEqual(result, "PLenum");
+        Assert.AreEqual("PLenum", result);
     }
 
     [TestMethod]

@@ -22,7 +22,7 @@ public class UserFieldExtensionsTests
     {
         var userField = entity.GetUserFieldFromEntity<string>("FirstName");
         Assert.IsNotNull(userField);
-        Assert.AreEqual(userField, "Sara");
+        Assert.AreEqual("Sara", userField);
     }
 
     [TestMethod]
@@ -37,7 +37,7 @@ public class UserFieldExtensionsTests
     {
         var userField = entity.GetUserFieldFromEntity<string>("Registered", "1");
         Assert.IsNotNull(userField);
-        Assert.AreEqual(userField, "1");
+        Assert.AreEqual("1", userField);
     }
 
     [TestMethod]

@@ -48,7 +48,7 @@ public class OutOfStockSubscriptionServiceTests
         var result = await _outOfStockSubscriptionService.GetAllSubscriptionsByCustomerId("1");
 
         //Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -167,7 +167,7 @@ public class OutOfStockSubscriptionServiceTests
 
         //Assert
         Assert.IsTrue(_repository.Table.Any());
-        Assert.IsTrue(_repository.Table.Count() == 1);
+        Assert.AreEqual(1, _repository.Table.Count());
     }
 
     [TestMethod]
@@ -185,7 +185,7 @@ public class OutOfStockSubscriptionServiceTests
         //Act
         await _outOfStockSubscriptionService.UpdateSubscription(outOfStockSubscription1);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault().CustomerId == "2");
+        Assert.AreEqual("2", _repository.Table.FirstOrDefault().CustomerId);
     }
 
     [TestMethod]
@@ -204,7 +204,7 @@ public class OutOfStockSubscriptionServiceTests
 
         //Assert
         Assert.IsFalse(_repository.Table.Any());
-        Assert.IsTrue(_repository.Table.Count() == 0);
+        Assert.AreEqual(0, _repository.Table.Count());
     }
 
     [TestMethod]

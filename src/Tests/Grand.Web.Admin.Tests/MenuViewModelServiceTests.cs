@@ -46,7 +46,7 @@ public class MenuViewModelServiceTests
         var result = await _menuViewModelService.MenuItems();
 
         // Assert
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
         Assert.AreEqual("1", result[0].Id);
         Assert.AreEqual("Item 1", result[0].SystemName);
         Assert.AreEqual(1, result[0].DisplayOrder);
@@ -92,7 +92,7 @@ public class MenuViewModelServiceTests
         // Assert
         Assert.AreEqual("3", result.Id);
         Assert.AreEqual("Item 3", result.SystemName);
-        Assert.AreEqual(1, parentEntity.ChildNodes.Count);
+        Assert.HasCount(1, parentEntity.ChildNodes);
     }
 
     [TestMethod]

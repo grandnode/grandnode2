@@ -56,8 +56,8 @@ public class ProductCollectionServiceTests
         var pc2 = await _productCollectionService.GetProductCollectionsByCollectionId("2", "");
 
         //Assert
-        Assert.AreEqual(1, pc1.Count);
-        Assert.AreEqual(2, pc2.Count);
+        Assert.HasCount(1, pc1);
+        Assert.HasCount(2, pc2);
     }
 
     [TestMethod]
@@ -77,7 +77,7 @@ public class ProductCollectionServiceTests
         var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1", "");
 
         //Assert
-        Assert.AreEqual(1, pc1.Count);
+        Assert.HasCount(1, pc1);
         Assert.AreEqual(10, pc1.FirstOrDefault().DisplayOrder);
     }
 
@@ -102,7 +102,7 @@ public class ProductCollectionServiceTests
         var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("10", "");
 
         //Assert
-        Assert.AreEqual(1, pc1.Count);
+        Assert.HasCount(1, pc1);
         Assert.AreEqual(5, pc1.FirstOrDefault().DisplayOrder);
     }
 
@@ -125,6 +125,6 @@ public class ProductCollectionServiceTests
         var pc1 = await _productCollectionService.GetProductCollectionsByCollectionId("1", "");
 
         //Assert
-        Assert.AreEqual(0, pc1.Count);
+        Assert.IsEmpty(pc1);
     }
 }

@@ -61,7 +61,7 @@ public class DiscountHandlerServiceTests
         var result = await _discountApplicationService.GetAllowedDiscounts(product, customer, store, currency);
 
         // Assert
-        Assert.AreEqual(0, result.Count);
+        Assert.IsEmpty(result);
     }
 
     [TestMethod]
@@ -101,7 +101,7 @@ public class DiscountHandlerServiceTests
         var result = await _discountApplicationService.GetAllowedDiscounts(product, customer, store, currency);
 
         // Assert
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
         Assert.AreEqual("discount1", result[0].DiscountId);
     }
 }

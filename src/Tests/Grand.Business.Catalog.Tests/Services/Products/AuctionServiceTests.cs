@@ -105,7 +105,7 @@ public class AuctionServiceTests
 
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -132,7 +132,7 @@ public class AuctionServiceTests
 
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]
@@ -148,8 +148,8 @@ public class AuctionServiceTests
         await _auctionService.InsertBid(bid1);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(1, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(1, _repository.Table);
     }
 
     [TestMethod]
@@ -184,7 +184,7 @@ public class AuctionServiceTests
         //Act
         await _auctionService.DeleteBid(bid1);
         //Assert
-        Assert.AreEqual(0, _repository.Table.Count());
+        Assert.IsEmpty(_repository.Table);
     }
 
     [TestMethod]
@@ -220,7 +220,7 @@ public class AuctionServiceTests
         var result = await _auctionService.GetAuctionsToEnd();
 
         //Assert
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
     }
 
     [TestMethod]
@@ -237,7 +237,7 @@ public class AuctionServiceTests
         await _auctionService.UpdateAuctionEnded(product1, true, true);
 
         //Assert
-        Assert.AreEqual(true, _productrepository.Table.FirstOrDefault(x => x.Id == product1.Id).AuctionEnded);
+        Assert.IsTrue(_productrepository.Table.FirstOrDefault(x => x.Id == product1.Id).AuctionEnded);
     }
 
     [TestMethod]

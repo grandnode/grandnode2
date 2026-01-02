@@ -88,8 +88,8 @@ public class CategoryImportDataObjectTests
         await _categoryImportDataObject.Execute(categorys);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
     }
 
     [TestMethod]
@@ -127,11 +127,11 @@ public class CategoryImportDataObjectTests
         await _categoryImportDataObject.Execute(categorys);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
         Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == category3.Id).Name);
         Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == category3.Id).DisplayOrder);
-        Assert.AreEqual(false, _repository.Table.FirstOrDefault(x => x.Id == category3.Id).Published);
+        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == category3.Id).Published);
     }
 
     [TestMethod]
@@ -160,11 +160,11 @@ public class CategoryImportDataObjectTests
         await _categoryImportDataObject.Execute(categorys);
 
         //Assert
-        Assert.IsTrue(_repository.Table.Any());
-        Assert.AreEqual(3, _repository.Table.Count());
+        Assert.IsNotEmpty(_repository.Table);
+        Assert.HasCount(3, _repository.Table);
         Assert.AreEqual("update3", _repository.Table.FirstOrDefault(x => x.Id == category3.Id).Name);
         Assert.AreEqual(3, _repository.Table.FirstOrDefault(x => x.Id == category3.Id).DisplayOrder);
-        Assert.AreEqual(false, _repository.Table.FirstOrDefault(x => x.Id == category3.Id).Published);
+        Assert.IsFalse(_repository.Table.FirstOrDefault(x => x.Id == category3.Id).Published);
     }
 
     private void InitAutoMapper()

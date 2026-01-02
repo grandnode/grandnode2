@@ -43,7 +43,7 @@ public class ProductLayoutServiceTests
         var layouts = await _productLayoutService.GetAllProductLayouts();
 
         //Assert
-        Assert.AreEqual(3, layouts.Count);
+        Assert.HasCount(3, layouts);
     }
 
     [TestMethod]

@@ -146,12 +146,12 @@ public class CheckoutAttributeParserTests
         //custom text
         attributes = _checkoutAttributeParser.AddCheckoutAttribute(attributes, ca3, "absolutely any value").ToList();
 
-        Assert.IsTrue(attributes.Count == 4);
+        Assert.HasCount(4, attributes);
         Assert.IsTrue(attributes.Any(c => c.Key.Equals(ca1.Id)));
         Assert.IsTrue(attributes.Any(c => c.Key.Equals(ca2.Id)));
         Assert.IsTrue(attributes.Any(c => c.Key.Equals(ca3.Id)));
         attributes = _checkoutAttributeParser.RemoveCheckoutAttribute(attributes, ca1);
-        Assert.IsTrue(attributes.Count == 3);
+        Assert.HasCount(3, attributes);
         Assert.IsFalse(attributes.Any(c => c.Key.Equals(ca1.Id)));
     }
 }

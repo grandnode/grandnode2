@@ -38,7 +38,7 @@ public class PaymentServiceTests
         _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
         var systemName = "systemName";
         var result = _paymentService.LoadPaymentMethodBySystemName(systemName);
-        Assert.AreEqual(result, _paymentProviderMock.Object);
+        Assert.AreEqual(_paymentProviderMock.Object, result);
     }
 
     [TestMethod]
@@ -64,7 +64,7 @@ public class PaymentServiceTests
             .Returns(() => Task.FromResult((PaymentRestrictedSettings)null));
 
         var result = await _paymentService.GetRestrictedCountryIds(_paymentProviderMock.Object);
-        Assert.IsTrue(result.Count == 0);
+        Assert.IsEmpty(result);
         _settingService.Verify(s => s.GetSettingByKey<PaymentRestrictedSettings>(expectedKey, null, ""), Times.Once);
     }
 
@@ -88,7 +88,7 @@ public class PaymentServiceTests
             TransactionAmount = 0
         };
         var response = await _paymentService.ProcessPayment(request);
-        Assert.IsTrue(response.NewPaymentTransactionStatus == TransactionStatus.Paid);
+        Assert.AreEqual(TransactionStatus.Paid, response.NewPaymentTransactionStatus);
     }
 
     [TestMethod]

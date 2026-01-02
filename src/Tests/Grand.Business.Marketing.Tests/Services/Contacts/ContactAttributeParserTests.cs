@@ -56,7 +56,7 @@ public class ContactAttributeParserTests
         _contactAttributeServiceMock.Setup(c => c.GetContactAttributeById(It.IsAny<string>())).Returns((string w) =>
             Task.FromResult(_contactAtr.FirstOrDefault(a => a.Id.Equals(w))));
         var result = await _parser.ParseContactAttributes(customAtr);
-        Assert.IsTrue(result.Count == 4);
+        Assert.HasCount(4, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("key1")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("key2")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("key3")));
@@ -70,7 +70,7 @@ public class ContactAttributeParserTests
         _contactAttributeServiceMock.Setup(c => c.GetContactAttributeById(It.IsAny<string>())).Returns((string w) =>
             Task.FromResult(_contactAtr.FirstOrDefault(a => a.Id.Equals(w))));
         var result = await _parser.ParseContactAttributeValues(customAtr);
-        Assert.IsTrue(result.Count == 3);
+        Assert.HasCount(3, result);
         Assert.IsTrue(result.Any(c => c.Id.Equals("value2")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("value3")));
         Assert.IsTrue(result.Any(c => c.Id.Equals("value4")));
@@ -81,7 +81,7 @@ public class ContactAttributeParserTests
     public void AddContactAttributeTest()
     {
         var result = _parser.AddContactAttribute(customAtr, new ContactAttribute { Id = "key7" }, "value7");
-        Assert.IsTrue(result.Count == 5);
+        Assert.HasCount(5, result);
         Assert.IsTrue(result.Any(c => c.Key.Equals("key7")));
     }
 
@@ -113,7 +113,7 @@ public class ContactAttributeParserTests
     public void RemoveContactAttributeTest()
     {
         var result = _parser.RemoveContactAttribute(customAtr, new ContactAttribute { Id = "key1" });
-        Assert.IsTrue(result.Count == 3);
+        Assert.HasCount(3, result);
         Assert.IsFalse(result.Any(c => c.Key.Equals("key1")));
     }
 
@@ -128,6 +128,6 @@ public class ContactAttributeParserTests
             new List<CustomAttribute> {
                 new() { Key = "key1", Value = "value1" }
             }, new Customer());
-        Assert.IsTrue(result == "name1: value1");
+        Assert.AreEqual("name1: value1", result);
     }
 }

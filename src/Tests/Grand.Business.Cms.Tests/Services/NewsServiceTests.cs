@@ -81,7 +81,7 @@ public class NewsServiceTests
         newsItem.Title = "test";
         await _newsService.UpdateNews(newsItem);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == newsItem.Id).Title == "test");
+        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == newsItem.Id).Title);
     }
 
     [TestMethod]

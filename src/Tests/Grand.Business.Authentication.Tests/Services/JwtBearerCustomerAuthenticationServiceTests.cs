@@ -54,7 +54,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerCustomerAuthenticationService.ErrorMessage(), "Not found customer");
+        Assert.AreEqual("Not found customer", await _jwtBearerCustomerAuthenticationService.ErrorMessage());
     }
 
     [TestMethod]
@@ -73,8 +73,8 @@ public class JwtBearerCustomerAuthenticationServiceTests
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerCustomerAuthenticationService.ErrorMessage(),
-            "Invalid token or cancel by refresh token");
+        Assert.AreEqual("Invalid token or cancel by refresh token",
+            await _jwtBearerCustomerAuthenticationService.ErrorMessage());
     }
 
 
@@ -97,8 +97,8 @@ public class JwtBearerCustomerAuthenticationServiceTests
             .Returns(() => Task.FromResult(new Customer { Active = false }));
         var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerCustomerAuthenticationService.ErrorMessage(),
-            "Customer not exists/or not active in the customer table");
+        Assert.AreEqual("Customer not exists/or not active in the customer table",
+            await _jwtBearerCustomerAuthenticationService.ErrorMessage());
     }
 
     [TestMethod]
@@ -123,8 +123,8 @@ public class JwtBearerCustomerAuthenticationServiceTests
 
         var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
         Assert.IsFalse(result);
-        Assert.AreEqual(await _jwtBearerCustomerAuthenticationService.ErrorMessage(),
-            "You do not have permission to use API operation (Customer group)");
+        Assert.AreEqual("You do not have permission to use API operation (Customer group)",
+            await _jwtBearerCustomerAuthenticationService.ErrorMessage());
     }
 
     [TestMethod]

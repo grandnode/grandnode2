@@ -37,6 +37,6 @@ public class GetSearchProductsQueryHandlerTests
         //Act
         var result = await handler.Handle(searchProductsQuery, CancellationToken.None);
         //Arrange
-        Assert.IsNotNull(result);
+        Assert.IsNotNull(result.products);
     }
 }

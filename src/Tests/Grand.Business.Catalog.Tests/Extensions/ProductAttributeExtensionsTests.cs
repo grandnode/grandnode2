@@ -15,12 +15,12 @@ public class ProductAttributeExtensionsTests
         var pam4 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.FileUpload };
         var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
         ProductAttributeMapping pam6 = null;
-        Assert.AreEqual(false, pam.ShouldHaveValues());
-        Assert.AreEqual(false, pam2.ShouldHaveValues());
-        Assert.AreEqual(false, pam3.ShouldHaveValues());
-        Assert.AreEqual(false, pam4.ShouldHaveValues());
-        Assert.AreEqual(false, pam6.ShouldHaveValues());
-        Assert.AreEqual(true, pam5.ShouldHaveValues());
+        Assert.IsFalse(pam.ShouldHaveValues());
+        Assert.IsFalse(pam2.ShouldHaveValues());
+        Assert.IsFalse(pam3.ShouldHaveValues());
+        Assert.IsFalse(pam4.ShouldHaveValues());
+        Assert.IsFalse(pam6.ShouldHaveValues());
+        Assert.IsTrue(pam5.ShouldHaveValues());
     }
 
 
@@ -33,12 +33,12 @@ public class ProductAttributeExtensionsTests
         var pam4 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.FileUpload };
         var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
         ProductAttributeMapping pam6 = null;
-        Assert.AreEqual(true, pam.ValidationRulesAllowed());
-        Assert.AreEqual(true, pam2.ValidationRulesAllowed());
-        Assert.AreEqual(true, pam4.ValidationRulesAllowed());
-        Assert.AreEqual(false, pam3.ValidationRulesAllowed());
-        Assert.AreEqual(false, pam6.ValidationRulesAllowed());
-        Assert.AreEqual(false, pam5.ValidationRulesAllowed());
+        Assert.IsTrue(pam.ValidationRulesAllowed());
+        Assert.IsTrue(pam2.ValidationRulesAllowed());
+        Assert.IsTrue(pam4.ValidationRulesAllowed());
+        Assert.IsFalse(pam3.ValidationRulesAllowed());
+        Assert.IsFalse(pam6.ValidationRulesAllowed());
+        Assert.IsFalse(pam5.ValidationRulesAllowed());
     }
 
     [TestMethod]
@@ -50,12 +50,12 @@ public class ProductAttributeExtensionsTests
         var pam4 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.FileUpload };
         var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
         ProductAttributeMapping pam6 = null;
-        Assert.AreEqual(false, pam.CanBeUsedAsCondition());
-        Assert.AreEqual(false, pam2.CanBeUsedAsCondition());
-        Assert.AreEqual(false, pam4.CanBeUsedAsCondition());
-        Assert.AreEqual(false, pam3.CanBeUsedAsCondition());
-        Assert.AreEqual(false, pam6.CanBeUsedAsCondition());
-        Assert.AreEqual(true, pam5.CanBeUsedAsCondition());
+        Assert.IsFalse(pam.CanBeUsedAsCondition());
+        Assert.IsFalse(pam2.CanBeUsedAsCondition());
+        Assert.IsFalse(pam4.CanBeUsedAsCondition());
+        Assert.IsFalse(pam3.CanBeUsedAsCondition());
+        Assert.IsFalse(pam6.CanBeUsedAsCondition());
+        Assert.IsTrue(pam5.CanBeUsedAsCondition());
     }
 
     [TestMethod]
@@ -68,12 +68,12 @@ public class ProductAttributeExtensionsTests
         var pam5 = new ProductAttributeMapping { AttributeControlTypeId = AttributeControlType.DropdownList };
         ProductAttributeMapping pam6 = null;
         var pam7 = new ProductAttributeMapping { Combination = true };
-        Assert.AreEqual(true, pam.IsNonCombinable());
-        Assert.AreEqual(true, pam2.IsNonCombinable());
-        Assert.AreEqual(true, pam4.IsNonCombinable());
-        Assert.AreEqual(true, pam3.IsNonCombinable());
-        Assert.AreEqual(false, pam6.IsNonCombinable());
-        Assert.AreEqual(true, pam5.IsNonCombinable());
-        Assert.AreEqual(false, pam7.IsNonCombinable());
+        Assert.IsTrue(pam.IsNonCombinable());
+        Assert.IsTrue(pam2.IsNonCombinable());
+        Assert.IsTrue(pam4.IsNonCombinable());
+        Assert.IsTrue(pam3.IsNonCombinable());
+        Assert.IsFalse(pam6.IsNonCombinable());
+        Assert.IsTrue(pam5.IsNonCombinable());
+        Assert.IsFalse(pam7.IsNonCombinable());
     }
 }

@@ -87,7 +87,7 @@ public class PageLayoutServiceTests
         pageLayout.Name = "test";
         await _pageLayoutService.UpdatePageLayout(pageLayout);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == pageLayout.Id).Name == "test");
+        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == pageLayout.Id).Name);
     }
 
     [TestMethod]

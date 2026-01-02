@@ -91,7 +91,7 @@ public class GroupServiceTests
         customerGroup.SystemName = systemName;
         await _groupService.UpdateCustomerGroup(customerGroup);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == customerGroup.Id).SystemName == systemName);
+        Assert.AreEqual(systemName, _repository.Table.FirstOrDefault(x => x.Id == customerGroup.Id).SystemName);
     }
 
     [TestMethod]
@@ -216,6 +216,6 @@ public class GroupServiceTests
         //Act
         var result = await _groupService.GetAllByIds([customerGroup.Id]);
         //Assert
-        Assert.AreEqual(1, result.Count);
+        Assert.HasCount(1, result);
     }
 }

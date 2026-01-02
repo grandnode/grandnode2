@@ -44,7 +44,7 @@ public class ProductTagServiceTests
         var result = await _productTagService.GetAllProductTags();
 
         //Assert
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
     }
 
     [TestMethod]

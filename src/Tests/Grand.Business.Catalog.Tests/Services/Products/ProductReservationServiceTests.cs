@@ -38,7 +38,7 @@ public class ProductReservationServiceTests
         //Act
         var result = await _service.GetProductReservationsByProductId("1", null, null);
 
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -149,7 +149,7 @@ public class ProductReservationServiceTests
         var result = await _service.GetCustomerReservationsHelpers("1");
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 
     [TestMethod]
@@ -165,6 +165,6 @@ public class ProductReservationServiceTests
         var result = await _service.GetCustomerReservationsHelperBySciId("1");
         //Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
     }
 }

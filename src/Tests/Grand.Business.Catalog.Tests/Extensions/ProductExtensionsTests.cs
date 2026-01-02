@@ -13,7 +13,7 @@ public class ProductExtensionsTests
         var product = new Product { AllowedQuantities = "1,3,42,1,dsad,123,d22,d,122223" };
 
         var result = product.ParseAllowedQuantities();
-        Assert.AreEqual(6, result.Length);
+        Assert.HasCount(6, result);
         Assert.AreEqual(1, result[0]);
         Assert.AreEqual(3, result[1]);
         Assert.AreEqual(42, result[2]);

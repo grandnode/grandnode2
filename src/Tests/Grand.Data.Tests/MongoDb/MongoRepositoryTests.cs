@@ -23,10 +23,10 @@ public class MongoRepositoryTests
         _myRepository.Insert(product);
         //Assert
         Assert.AreEqual(1, _myRepository.Table.Count());
-        Assert.IsTrue(_myRepository.Table.FirstOrDefault()!.CreatedBy == "user");
-        Assert.IsTrue(_myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(_myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Month == DateTime.UtcNow.Month);
-        Assert.IsTrue(_myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Day == DateTime.UtcNow.Day);
+        Assert.AreEqual("user", _myRepository.Table.FirstOrDefault()!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, _myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Year);
+        Assert.AreEqual(DateTime.UtcNow.Month, _myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Month);
+        Assert.AreEqual(DateTime.UtcNow.Day, _myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Day);
     }
 
 
@@ -54,8 +54,8 @@ public class MongoRepositoryTests
         var p = await _myRepository.GetByIdAsync("1");
         //Assert
         Assert.IsNotNull(p);
-        Assert.IsTrue(p!.CreatedBy == "user");
-        Assert.IsTrue(p!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
+        Assert.AreEqual("user", p!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p!.CreatedOnUtc.Year);
     }
 
     [TestMethod]
@@ -68,8 +68,8 @@ public class MongoRepositoryTests
         var p = await _myRepository.GetOneAsync(x => x.Id == "1");
         //Assert
         Assert.IsNotNull(p);
-        Assert.IsTrue(p!.CreatedBy == "user");
-        Assert.IsTrue(p!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
+        Assert.AreEqual("user", p!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p!.CreatedOnUtc.Year);
     }
 
     [TestMethod]
@@ -80,7 +80,7 @@ public class MongoRepositoryTests
 
         await _myRepository.ClearAsync();
 
-        Assert.IsTrue(_myRepository.Table.Count() == 0);
+        Assert.IsEmpty(_myRepository.Table);
     }
 
     [TestMethod]
@@ -100,10 +100,10 @@ public class MongoRepositoryTests
         var p = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p.UserFields.Count == 2);
-        Assert.IsTrue(p!.CreatedBy == "user");
-        Assert.IsTrue(p!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p!.UpdatedBy == "user");
+        Assert.HasCount(2, p.UserFields);
+        Assert.AreEqual("user", p!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p!.UpdatedBy);
         Assert.IsTrue(p!.UpdatedOnUtc.HasValue);
     }
 
@@ -152,7 +152,7 @@ public class MongoRepositoryTests
         await _myRepository.DeleteManyAsync(x => x.Name == "Test");
 
         //Assert
-        Assert.IsTrue(_myRepository.Table.Count() == 1);
+        Assert.AreEqual(1, _myRepository.Table.Count());
     }
 
     [TestMethod]
@@ -178,10 +178,10 @@ public class MongoRepositoryTests
         var p = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p.Phones.Count == 2);
-        Assert.IsTrue(p!.CreatedBy == "user");
-        Assert.IsTrue(p!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p!.UpdatedBy == "user");
+        Assert.HasCount(2, p.Phones);
+        Assert.AreEqual("user", p!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p!.UpdatedBy);
         Assert.IsTrue(p!.UpdatedOnUtc.HasValue);
     }
 
@@ -210,10 +210,12 @@ public class MongoRepositoryTests
         var p3 = _myRepository.GetById("3");
 
         //Assert
-        Assert.IsTrue(p1.Phones.Count == 2 && p2.Phones.Count == 2 && p3.Phones.Count == 0);
-        Assert.IsTrue(p1!.CreatedBy == "user");
-        Assert.IsTrue(p1!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.HasCount(2, p1.Phones);
+        Assert.HasCount(2, p2.Phones);
+        Assert.IsEmpty(p3.Phones);
+        Assert.AreEqual("user", p1!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -241,10 +243,10 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p1.UserFields.Count == 1);
-        Assert.IsTrue(p1!.CreatedBy == "user");
-        Assert.IsTrue(p1!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.HasCount(1, p1.UserFields);
+        Assert.AreEqual("user", p1!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -272,10 +274,10 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p1.UserFields.Count == 1);
-        Assert.IsTrue(p1!.CreatedBy == "user");
-        Assert.IsTrue(p1!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.HasCount(1, p1.UserFields);
+        Assert.AreEqual("user", p1!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -311,10 +313,11 @@ public class MongoRepositoryTests
         var p2 = _myRepository.GetById("2");
 
         //Assert
-        Assert.IsTrue(p1.UserFields.Count == 1 && p2.UserFields.Count == 2);
-        Assert.IsTrue(p1!.CreatedBy == "user");
-        Assert.IsTrue(p1!.CreatedOnUtc.Year == DateTime.UtcNow.Year);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.HasCount(1, p1.UserFields);
+        Assert.HasCount(2, p2.UserFields);
+        Assert.AreEqual("user", p1!.CreatedBy);
+        Assert.AreEqual(DateTime.UtcNow.Year, p1!.CreatedOnUtc.Year);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -345,8 +348,8 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p1.Name == "update");
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.AreEqual("update", p1.Name);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -375,8 +378,8 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p1.Name == "update");
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.AreEqual("update", p1.Name);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -403,8 +406,8 @@ public class MongoRepositoryTests
         var p1 = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p1.Name == "update");
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.AreEqual("update", p1.Name);
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -420,7 +423,7 @@ public class MongoRepositoryTests
 
         var p1 = _myRepository.GetById("1");
 
-        Assert.IsTrue(p1.Count == 3);
+        Assert.AreEqual(3, p1.Count);
     }
 
     [TestMethod]
@@ -446,8 +449,8 @@ public class MongoRepositoryTests
         var pUpdated = _myRepository.Table.Where(x => x.Name == "UpdateTest");
         var p1 = pUpdated.FirstOrDefault();
         //Assert
-        Assert.IsTrue(pUpdated.Count() == 2);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.AreEqual(2, pUpdated.Count());
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -476,8 +479,8 @@ public class MongoRepositoryTests
         var pUpdated = _myRepository.Table.Where(x => x.Name == "UpdateTest");
         var p1 = pUpdated.FirstOrDefault();
         //Assert
-        Assert.IsTrue(pUpdated.Count() == 1);
-        Assert.IsTrue(p1!.UpdatedBy == "user");
+        Assert.AreEqual(1, pUpdated.Count());
+        Assert.AreEqual("user", p1!.UpdatedBy);
         Assert.IsTrue(p1!.UpdatedOnUtc.HasValue);
     }
 
@@ -504,8 +507,8 @@ public class MongoRepositoryTests
         var p = _myRepository.GetById("1");
 
         //Assert
-        Assert.IsTrue(p.UserFields.FirstOrDefault(x => x.Key == "key")!.Value == "update");
-        Assert.IsTrue(p!.UpdatedBy == "user");
+        Assert.AreEqual("update", p.UserFields.FirstOrDefault(x => x.Key == "key")!.Value);
+        Assert.AreEqual("user", p!.UpdatedBy);
         Assert.IsTrue(p!.UpdatedOnUtc.HasValue);
     }
 }

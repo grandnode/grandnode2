@@ -81,7 +81,7 @@ public class PictureServiceTests
         _webHostMock.Setup(c => c.WebRootPath).Returns("~root/");
         var result = await _service.LoadPictureBinary(new Picture { Id = "id", MimeType = "image/jpeg" }, false);
         //we can't mock static class like File.Exist so, should return empty array
-        Assert.IsTrue(result.Length == 0);
+        Assert.IsEmpty(result);
     }
 
     [TestMethod]

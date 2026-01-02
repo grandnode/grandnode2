@@ -75,7 +75,7 @@ public class RobotsTxtServiceTests
         robotsTxt.Text = "test";
         await _robotsTxtService.UpdateRobotsTxt(robotsTxt);
         //Assert
-        Assert.IsTrue(_repository.Table.FirstOrDefault(x => x.Id == robotsTxt.Id).Text == "test");
+        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == robotsTxt.Id).Text);
     }
 
     [TestMethod]

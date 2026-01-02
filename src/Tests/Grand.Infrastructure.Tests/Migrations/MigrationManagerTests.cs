@@ -12,13 +12,13 @@ public class MigrationManagerTests
     public void GetAllMigrationsTest()
     {
         var result = migrationManager.GetAllMigrations();
-        Assert.IsTrue(result.Count() == 2);
+        Assert.AreEqual(2, result.Count());
     }
 
     [TestMethod]
     public void GetCurrentMigrationsTest()
     {
         var result = migrationManager.GetCurrentMigrations(new DbVersion(2,3));
-        Assert.IsTrue(result.Count() == 1);
+        Assert.AreEqual(1, result.Count());
     }
 }
