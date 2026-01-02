@@ -8,6 +8,7 @@ using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MediatR;
+using System.IO;
 
 namespace Grand.Business.Marketing.Services.Newsletters;
 
@@ -278,9 +279,9 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     {
         var count = 0;
         using var reader = new StreamReader(stream);
-        while (!reader.EndOfStream)
+        string line;
+        while ((line = await reader.ReadLineAsync()) is not null)
         {
-            var line = await reader.ReadLineAsync();
             if (string.IsNullOrWhiteSpace(line))
                 continue;
             var tmp = line.Split(',');

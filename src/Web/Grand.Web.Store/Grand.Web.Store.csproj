@@ -10,6 +10,7 @@
 		<!--Set GenerateRuntimeConfigurationFiles as true when Admin panel is supposed to works independent-->
 		<GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
 		<CompressionEnabled>false</CompressionEnabled>
+		<StaticWebAssetBasePath>_store</StaticWebAssetBasePath>
 	</PropertyGroup>
 	<ItemGroup>
 		<Content Include="Areas\**" CopyToPublishDirectory="Never" />

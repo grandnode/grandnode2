@@ -42,11 +42,16 @@ public sealed class RedisMessageBus : IMessageBus
 
     public Task SubscribeAsync()
     {
-        _subscriber.SubscribeAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel), (_, redisValue) =>
+        _ = _subscriber.SubscribeAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel), (_, redisValue) =>
         {
             try
             {
-                var message = JsonSerializer.Deserialize<MessageEventClient>(redisValue);
+                MessageEventClient message = null;
+                if (!redisValue.IsNull)
+                {
+                    // Use the string overload explicitly to resolve ambiguity
+                    message = JsonSerializer.Deserialize<MessageEventClient>(redisValue.ToString());
+                }
                 if (message != null && message.ClientId != ClientId)
                     OnSubscriptionChanged(message);
             }

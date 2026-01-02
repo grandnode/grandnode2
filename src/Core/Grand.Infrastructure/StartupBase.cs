@@ -123,8 +123,7 @@ public static class StartupBase
     /// <param name="services">Collection of service descriptors</param>
     private static void AddHttpContextAccessor(this IServiceCollection services)
     {
-        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();        
     }
 
     /// <summary>

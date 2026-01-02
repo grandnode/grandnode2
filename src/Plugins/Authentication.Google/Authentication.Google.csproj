@@ -20,7 +20,7 @@
 
   <Target Name="CopyFile" AfterTargets="AfterBuild">
     <ItemGroup>
-      <CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.google\9.0.9\lib\net9.0\*.dll" />
+      <CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.google\10.0.1\lib\net10.0\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Authentication.Google\" />
   </Target>

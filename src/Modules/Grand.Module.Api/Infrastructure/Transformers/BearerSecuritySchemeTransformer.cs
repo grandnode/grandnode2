@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Grand.Module.Api.Infrastructure.Transformers;
 internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider) : IOpenApiDocumentTransformer
@@ -10,7 +10,7 @@ internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvi
         var authenticationSchemes = await authenticationSchemeProvider.GetAllSchemesAsync();
         if (authenticationSchemes.Any(authScheme => authScheme.Name == "Bearer"))
         {
-            var requirements = new Dictionary<string, OpenApiSecurityScheme> {
+            var requirements = new Dictionary<string, IOpenApiSecurityScheme> {
                 ["Bearer"] = new OpenApiSecurityScheme {
                     Type = SecuritySchemeType.Http,
                     Scheme = "bearer",

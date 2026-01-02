@@ -1,6 +1,6 @@
 ﻿using Grand.SharedKernel.Attributes;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using System.Reflection;
 
 namespace Grand.Module.Api.Infrastructure.Transformers;
@@ -31,6 +31,5 @@ public class IgnoreFieldSchemaTransformer : IOpenApiSchemaTransformer
         foreach (var propertyToExclude in excludedSchemaPropertyKey) schema.Properties.Remove(propertyToExclude);
 
         return Task.CompletedTask;
-        //throw new NotImplementedException();
     }
 }
