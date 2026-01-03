@@ -25,6 +25,8 @@ jobs:
         for i in {1..10}; do
           nc -z localhost 27017 && echo "MongoDB is up" && break
           echo "Retrying in 3 seconds..."
+          echo "Container logs:"
+          docker logs grandnode2-container --tail 20
           sleep 3
         done
         
@@ -79,11 +81,20 @@ jobs:
           else
             echo "Received HTTP response code: $RESPONSE. Retrying in 3 seconds..."
           fi
+          echo "Container logs:"
+          docker logs grandnode2-container --tail 30
           sleep 3
         done
         echo "Application did not start successfully. Final response code: $RESPONSE"
         exit 1
-        
+
+    - name: Show container logs
+      run: |
+        echo "=== Full container logs ==="
+        docker logs grandnode2-container
+        echo "=== Container status ==="
+        docker inspect grandnode2-container --format='{{.State.Status}} - Exit: {{.State.ExitCode}}'
+
     - name: Stop and remove the container
       run: |
         docker stop grandnode2-container
