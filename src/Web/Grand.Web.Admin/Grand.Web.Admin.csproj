@@ -9,7 +9,7 @@
 		<!--Set GenerateRuntimeConfigurationFiles as true when Admin panel is supposed to works independent-->
 		<GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
 		<CompressionEnabled>false</CompressionEnabled>
-		<StaticWebAssetBasePath>_admin</StaticWebAssetBasePath>
+		<StaticWebAssetBasePath>_content/$(MSBuildProjectName)</StaticWebAssetBasePath>
 	</PropertyGroup>	
 	<ItemGroup>
 		<Content Include="Areas\**" CopyToPublishDirectory="Never" />
