@@ -30,4 +30,11 @@ EXPOSE 8080
 WORKDIR /app
 COPY --from=build-env /app/build/release .
 
+# Run as non-root (built-in 'app' user) and allow writes to required folders
+RUN set -eux; \
+  mkdir -p /app/App_Data /app/wwwroot /app/Plugins; \
+  chown -R app:app /app/App_Data /app/wwwroot /app/Plugins
+
+USER app
+
 ENTRYPOINT ["dotnet", "Grand.Web.dll"]
