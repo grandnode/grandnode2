@@ -28,12 +28,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 
 EXPOSE 8080
 WORKDIR /app
-COPY --from=build-env --chown=app:app /app/build/release .
-
-RUN mkdir -p /app/App_Data /app/Plugins /app/wwwroot \
- && chown -R app:app /app/App_Data /app/Plugins /app/wwwroot \
- && chmod -R 775 /app/App_Data /app/Plugins /app/wwwroot
-
-USER app
+COPY --from=build-env /app/build/release .
 
 ENTRYPOINT ["dotnet", "Grand.Web.dll"]
