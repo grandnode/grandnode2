@@ -211,8 +211,6 @@ public static class ServiceCollectionExtensions
         var securityConfig = new SecurityConfig();
         configuration.GetSection("Security").Bind(securityConfig);
 
-        if (securityConfig.EnableRuntimeCompilation) mvcBuilder.AddRazorRuntimeCompilation();
-
         if (securityConfig.UseHsts)
             services.AddHsts(options =>
             {
