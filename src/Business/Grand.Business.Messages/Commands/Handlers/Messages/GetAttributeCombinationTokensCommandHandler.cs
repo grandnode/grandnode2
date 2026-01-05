@@ -4,11 +4,9 @@ using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Domain.Catalog;
 using MediatR;
 
-namespace Grand.Business.System.Commands.Handlers.Messages;
+namespace Grand.Business.Messages.Commands.Handlers.Messages;
 
-public class
-    GetAttributeCombinationTokensCommandHandler : IRequestHandler<GetAttributeCombinationTokensCommand,
-    LiquidAttributeCombination>
+public class GetAttributeCombinationTokensCommandHandler : IRequestHandler<GetAttributeCombinationTokensCommand, LiquidAttributeCombination>
 {
     private readonly IProductAttributeFormatter _productAttributeFormatter;
 

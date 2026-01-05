@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Routing;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace Grand.Business.System.Commands.Handlers.Common;
+namespace Grand.Business.Messages.Commands.Handlers.Common;
 
 public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand, string>
 {
@@ -216,8 +216,11 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
             var imageurl = string.Empty;
             if (_commonSettings.SitemapIncludeImage)
                 if (!string.IsNullOrEmpty(category.PictureId))
+                {
                     imageurl = await _pictureService.GetPictureUrl(category.PictureId, showDefaultPicture: false,
                         storeLocation: storeLocation);
+                }
+
             categories.Add(new SitemapUrl(url, imageurl, UpdateFrequency.Weekly,
                 category.UpdatedOnUtc ?? category.CreatedOnUtc));
             categories.AddRange(await GetCategoryUrls(category.Id, language));
@@ -244,8 +247,11 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
             var imageUrl = string.Empty;
             if (_commonSettings.SitemapIncludeImage)
                 if (!string.IsNullOrEmpty(brand.PictureId))
+                {
                     imageUrl = await _pictureService.GetPictureUrl(brand.PictureId, showDefaultPicture: false,
                         storeLocation: storeLocation);
+                }
+
             brandUrls.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly,
                 brand.UpdatedOnUtc ?? brand.CreatedOnUtc));
         }
@@ -272,8 +278,11 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
             var imageUrl = string.Empty;
             if (_commonSettings.SitemapIncludeImage)
                 if (!string.IsNullOrEmpty(product.ProductPictures.FirstOrDefault()?.PictureId))
+                {
                     imageUrl = await _pictureService.GetPictureUrl(product.ProductPictures.FirstOrDefault()?.PictureId,
                         showDefaultPicture: false, storeLocation: storeLocation);
+                }
+
             products.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly,
                 product.UpdatedOnUtc ?? product.CreatedOnUtc));
         }
@@ -319,8 +328,11 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
             var imageurl = string.Empty;
             if (_commonSettings.SitemapIncludeImage)
                 if (!string.IsNullOrEmpty(blogpost.PictureId))
+                {
                     imageurl = await _pictureService.GetPictureUrl(blogpost.PictureId, showDefaultPicture: false,
                         storeLocation: storeLocation);
+                }
+
             blog.Add(new SitemapUrl(url, imageurl, UpdateFrequency.Weekly, DateTime.UtcNow));
         }
 

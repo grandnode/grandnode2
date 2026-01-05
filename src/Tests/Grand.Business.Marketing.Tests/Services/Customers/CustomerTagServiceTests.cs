@@ -179,8 +179,8 @@ public class CustomerTagServiceTests
         await _customerTagService.InsertTagToCustomer(customerTag.Id, customer.Id);
 
         //Assert
-        Assert.IsTrue(_repositoryCustomer.Table.FirstOrDefault(x => x.Id == customer.Id).CustomerTags
-            .Contains(customerTag.Id));
+        Assert.Contains(customerTag.Id, _repositoryCustomer.Table.FirstOrDefault(x => x.Id == customer.Id).CustomerTags
+);
     }
 
     [TestMethod]
@@ -198,8 +198,8 @@ public class CustomerTagServiceTests
         await _customerTagService.DeleteTagFromCustomer(customerTag.Id, customer.Id);
 
         //Assert
-        Assert.IsFalse(_repositoryCustomer.Table.FirstOrDefault(x => x.Id == customer.Id).CustomerTags
-            .Contains(customerTag.Id));
+        Assert.DoesNotContain(customerTag.Id, _repositoryCustomer.Table.FirstOrDefault(x => x.Id == customer.Id).CustomerTags
+);
     }
 
     [TestMethod]

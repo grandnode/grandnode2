@@ -3,7 +3,7 @@ using Grand.Data;
 using Grand.Domain.Catalog;
 using MediatR;
 
-namespace Grand.Business.System.Commands.Handlers.Common;
+namespace Grand.Business.Messages.Commands.Handlers.Common;
 
 public class ClearMostViewedCommandHandler : IRequestHandler<ClearMostViewedCommand, bool>
 {

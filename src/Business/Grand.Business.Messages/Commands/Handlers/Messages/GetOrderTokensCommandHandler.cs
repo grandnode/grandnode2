@@ -16,7 +16,7 @@ using MediatR;
 using System.Globalization;
 using System.Net;
 
-namespace Grand.Business.System.Commands.Handlers.Messages;
+namespace Grand.Business.Messages.Commands.Handlers.Messages;
 
 public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensCommand, LiquidOrder>
 {

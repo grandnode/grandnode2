@@ -3,7 +3,7 @@ using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Domain.Stores;
 using MediatR;
 
-namespace Grand.Business.System.Commands.Handlers.Messages;
+namespace Grand.Business.Messages.Commands.Handlers.Messages;
 
 public class GetStoreTokensCommandHandler : IRequestHandler<GetStoreTokensCommand, LiquidStore>
 {

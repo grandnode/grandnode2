@@ -5,7 +5,7 @@ using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using MediatR;
 using System.Globalization;
 
-namespace Grand.Business.System.Commands.Handlers.Messages;
+namespace Grand.Business.Messages.Commands.Handlers.Messages;
 
 public class GetAuctionTokensCommandHandler : IRequestHandler<GetAuctionTokensCommand, LiquidAuctions>
 {

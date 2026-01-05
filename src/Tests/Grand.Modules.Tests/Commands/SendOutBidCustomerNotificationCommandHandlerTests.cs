@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Grand.Module.ScheduledTasks.Commands.Handlers.Catalog;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace Grand.Modules.Tests.Commands;

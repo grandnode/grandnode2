@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using MediatR;
 
-namespace Grand.Business.System.Commands.Handlers.Messages;
+namespace Grand.Business.Messages.Commands.Handlers.Messages;
 
 public class GetShoppingCartTokensCommandHandler : IRequestHandler<GetShoppingCartTokensCommand, LiquidShoppingCart>
 {
