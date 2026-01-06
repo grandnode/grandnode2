@@ -3,9 +3,9 @@
 @{
     var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl;
 
-    <script asp-location="Head" src="/bundles/app.runtime.bundle.js"></script>
-    <script asp-location="Head" src="/bundles/chunk-vendors.runtime.bundle.js"></script>
-    <link asp-src="/bundles/libs.css" rel="stylesheet">
+    <script asp-location="Head" src="/bundles/app.runtime.bundle.js" asp-append-version="true"></script>
+    <script asp-location="Head" src="/bundles/chunk-vendors.runtime.bundle.js" asp-append-version="true"></script>
+    <link asp-src="/bundles/libs.css" rel="stylesheet" asp-append-version="true">
 
     <link rel="stylesheet" type="text/css" asp-src="/assets/custom/style.css">
 
@@ -32,11 +32,11 @@
     <environment include="Production">
         @if (supportRtl)
         {
-            <link rel="stylesheet" type="text/css" asp-src="/bundles/style.rtl.min.css">
+            <link rel="stylesheet" type="text/css" asp-src="/bundles/style.rtl.min.css" asp-append-version="true">
         }
         else
         {
-            <link rel="stylesheet" type="text/css" asp-src="/bundles/style.min.css">
+            <link rel="stylesheet" type="text/css" asp-src="/bundles/style.min.css" asp-append-version="true">
         }
     </environment>
 
