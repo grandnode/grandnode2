@@ -266,10 +266,11 @@ public class CommonController : BasePublicController
             }
 
         //prevent open redirection attack
-        if (!Url.IsLocalUrl(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
+        var redirectUrl = Url.RouteUrl("HomePage");
+        if (Url.IsLocalUrl(returnUrl))
+            redirectUrl = returnUrl;
 
-        return Redirect(returnUrl);
+        return Redirect(redirectUrl);
 
         void SetStoreCookie(Domain.Stores.Store store)
         {
