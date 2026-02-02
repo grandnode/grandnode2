@@ -1,0 +1,12 @@
+# Optional: use pre-built GrandNode image instead of building from source.
+# Copy to docker-compose.override.yml to skip build and start faster:
+#
+#   copy docker-compose.override.example.yml docker-compose.override.yml
+#
+# Then: docker compose up -d
+
+# Setting build to null makes Compose use only the image (no build).
+services:
+  grandnode:
+    image: grandnode/grandnode2:latest
+    build: ~

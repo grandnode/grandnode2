@@ -1,0 +1,51 @@
+# Docker Compose for GrandNode e-commerce (school project)
+# Runs GrandNode (ASP.NET Core) + MongoDB with persistent volumes.
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: grandnode-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  grandnode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Local image name (built, not pulled from a registry)
+    image: grandnode-school:latest
+    container_name: grandnode-web
+    restart: unless-stopped
+    # Bind to 127.0.0.1 on host to avoid connection issues on Windows
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      # MongoDB connection: host + database name (required; null causes startup crash)
+      ConnectionStrings__Mongodb: "mongodb://mongodb:27017/grandnode"
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: "http://+:8080"
+      # Disable installer after first setup (overrides appsettings FeatureManagement)
+      FeatureManagement__Grand__Module__Installer: "false"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - grandnode_images:/app/wwwroot/assets/images
+      # App_Data: do not mount a new volume here — it would hide appsettings.json
+      # and other files from the image and cause startup failure (ERR_CONNECTION_REFUSED).
+      # Uncomment below for persistence (requires init in Dockerfile/entrypoint):
+      # - grandnode_appdata:/app/App_Data
+
+volumes:
+  mongodb_data:
+  grandnode_images:
+  # grandnode_appdata:
