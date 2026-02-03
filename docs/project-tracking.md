@@ -76,4 +76,5 @@
 
 - **Docker Compose :** Déploiement local Online Boutique opérationnel.
 - **Test 1K :** Script `load-test/run-1k.ps1` utilisé (k6, scenario 1k, ramp 2m → 1000 VUs, palier 3m, ramp down 1m). Exécution initiée et réalisée.
+- **Tests de charge progressifs :** 5K → 20K → 50K utilisateurs réalisés (Semaine 2, fait en avance).
 - **Prochaines étapes :** EKS, Terraform, CloudWatch, puis finalisation doc d’infrastructure.
