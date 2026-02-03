@@ -1,9 +1,10 @@
 /**
  * k6 load test – GrandNode storefront
  * Simulates browsing: homepage, catalog, product page, search.
- * Configure via env: BASE_URL, VUS, DURATION, or SCENARIO=1k (1k users) / SCENARIO=90k.
+ * Configure via env: BASE_URL, VUS, DURATION, or SCENARIO=1k|90k|progressive.
  *
  * Run 1k users (local):  k6 run -e SCENARIO=1k storefront.js
+ * Run progressive 5K->20K->50K:  k6 run -e SCENARIO=progressive storefront.js
  * Run (local k6):        k6 run storefront.js
  * With env:              k6 run -e BASE_URL=http://127.0.0.1:8080 -e VUS=500 -e DURATION=3m storefront.js
  */
@@ -64,9 +65,30 @@ const scenario90k = {
   },
 };
 
+// Progressive: 5K -> 20K -> 50K users (standard ramp/hold durations)
+const scenarioProgressive = {
+  progressive_5k_20k_50k: {
+    executor: 'ramping-vus',
+    startVUs: 0,
+    stages: [
+      { duration: '5m', target: 5000 },
+      { duration: '5m', target: 5000 },
+      { duration: '10m', target: 20000 },
+      { duration: '5m', target: 20000 },
+      { duration: '10m', target: 50000 },
+      { duration: '5m', target: 50000 },
+      { duration: '5m', target: 0 },
+    ],
+    gracefulRampDown: '2m',
+    gracefulStop: '30s',
+    startTime: '0s',
+  },
+};
+
 const scenarioMap = {
   '1k': scenario1k,
   '90k': scenario90k,
+  progressive: scenarioProgressive,
 };
 export const options = {
   scenarios: scenarioMap[__ENV.SCENARIO] || defaultScenario,
