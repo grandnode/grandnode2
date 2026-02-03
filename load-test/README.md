@@ -31,6 +31,10 @@ k6 run -e VUS=200 -e DURATION=5m k6/storefront.js
 
 # Scénario 90k : montée jusqu’à 3k VUs sur ~1 h (nombre total d’itérations >> 90k)
 k6 run -e SCENARIO=90k -e BASE_URL=http://127.0.0.1:8080 k6/storefront.js
+
+# Progressif 5K → 20K → 50K (durée totale ~45 min)
+k6 run -e SCENARIO=progressive k6/storefront.js
+# Ou avec le script : .\run-progressive.ps1
 ```
 
 ## Variables d’environnement
@@ -40,13 +44,23 @@ k6 run -e SCENARIO=90k -e BASE_URL=http://127.0.0.1:8080 k6/storefront.js
 | `BASE_URL` | http://127.0.0.1:8080 | URL de base de GrandNode. |
 | `VUS`      | 50                    | Nombre cible d’utilisateurs virtuels (scénario par défaut). |
 | `DURATION` | 2m                    | Durée du palier de charge (scénario par défaut). |
-| `SCENARIO` | (aucun)               | `1k` = 1000 VUs (test local), `90k` = montée longue (5m→500, 20m→2k, 30m→3k, …). |
+| `SCENARIO` | (aucun)               | `1k` = 1000 VUs (local), `90k` = montée longue, `progressive` = 5K→20K→50K. |
 
 ## 1k utilisateurs (test en local)
 
 - **SCENARIO=1k**  
   Montée en 2 min à 1000 VUs, palier 3 min à 1000 VUs, descente 1 min. Durée totale ~6 min.  
   Idéal pour tester sur ta machine avant des scénarios plus lourds.
+
+## Tests progressifs 5K → 20K → 50K
+
+- **SCENARIO=progressive**  
+  Test de charge progressif avec paliers standard :  
+  - Montée 5 min → 5 000 VUs, palier 5 min à 5K  
+  - Montée 10 min → 20 000 VUs, palier 5 min à 20K  
+  - Montée 10 min → 50 000 VUs, palier 5 min à 50K  
+  - Descente 5 min → 0  
+  Durée totale ~45 min. Permet d’observer le comportement à chaque palier (débit, latence, erreurs).
 
 ## 90k utilisateurs
 
