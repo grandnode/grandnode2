@@ -27,7 +27,7 @@
 | ⬜ À faire | Security hardening : WAF, Security Groups, IAM |
 | ⬜ À faire | Observabilité complète : Prometheus + Grafana + Jaeger |
 | ⬜ À faire | Configuration auto-scaling (HPA, Cluster Autoscaler) |
-| ⬜ À faire | Tests de charge progressifs : 5K → 20K → 50K utilisateurs |
+| ✅ Fait  | Tests de charge progressifs : 5K → 20K → 50K utilisateurs |
 
 **Livrable :** Architecture sécurisée et scalable, dashboards Grafana
 
