@@ -30,7 +30,14 @@ EXPOSE 8080
 WORKDIR /app
 COPY --from=build-env /app/build/release .
 
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends curl \
+  && rm -rf /var/lib/apt/lists/*
+
 RUN chown -R app:app /app/App_Data /app/wwwroot /app/Plugins
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -fsS http://localhost:8080/health/live || exit 1
 
 USER app
 

@@ -16,6 +16,21 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+  
+  redis:
+    image: redis:7
+    container_name: grandnode-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   grandnode:
     build:
@@ -28,15 +43,25 @@ services:
     # Bind to 127.0.0.1 on host to avoid connection issues on Windows
     ports:
       - "127.0.0.1:8080:8080"
+    env_file:
+      - .env
     environment:
       # MongoDB connection: host + database name (required; null causes startup crash)
-      ConnectionStrings__Mongodb: "mongodb://mongodb:27017/grandnode"
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: "http://+:8080"
+      ConnectionStrings__Mongodb: "${MONGODB_URL}"
+      ConnectionStrings__Provider: "${DB_PROVIDER}"
+      ASPNETCORE_ENVIRONMENT: "${ASPNETCORE_ENVIRONMENT}"
+      ASPNETCORE_URLS: "${ASPNETCORE_URLS}"
+      # Optional Redis settings (enable if you want distributed cache/pubsub)
+      Redis__RedisPubSubEnabled: "${REDIS_PUBSUB_ENABLED}"
+      Redis__RedisPubSubConnectionString: "${REDIS_PUBSUB_CONNECTION}"
+      Redis__PersistKeysToRedis: "${REDIS_PERSIST_KEYS}"
+      Redis__PersistKeysToRedisUrl: "${REDIS_PERSIST_URL}"
       # Disable installer after first setup (overrides appsettings FeatureManagement)
-      FeatureManagement__Grand__Module__Installer: "false"
+      FeatureManagement__Grand__Module__Installer: "${INSTALLER_ENABLED}"
     depends_on:
       mongodb:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     volumes:
       - grandnode_images:/app/wwwroot/assets/images
@@ -47,5 +72,6 @@ services:
 
 volumes:
   mongodb_data:
+  redis_data:
   grandnode_images:
   # grandnode_appdata:
