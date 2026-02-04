@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-darker {
+            background-color: #131A22;
+        }
+
+        .text-aws-dark {
+            color: #232F3E;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+
+        /* Card Styles (no hover effects) */
+        .member-card {
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-full min-h-screen bg-aws-dark flex flex-col relative overflow-hidden">
+        <!-- Background decorative elements -->
+        <div
+            class="absolute top-0 right-0 w-[600px] h-[600px] bg-aws-orange opacity-5 rounded-full filter blur-3xl transform translate-x-1/2 -translate-y-1/2">
+        </div>
+        <div
+            class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500 opacity-5 rounded-full filter blur-3xl transform -translate-x-1/3 translate-y-1/3">
+        </div>
+        <!-- Top Bar -->
+        <div class="h-2 w-full bg-aws-orange z-10"></div>
+        <!-- Main Content Container -->
+        <div class="flex-1 flex flex-col items-center justify-center p-12 relative z-10">
+            <!-- Success Badge -->
+            <div class="mb-8 flex flex-col items-center">
+                <div
+                    class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center shadow-lg mb-4">
+                    <i class="fas fa-check text-4xl text-white"></i>
+                </div>
+                <h1 class="text-5xl font-black text-white tracking-tight mb-2">MISSION ACCOMPLIE</h1>
+                <p class="text-xl text-gray-400 font-light tracking-wide uppercase">Infrastructure Validée &amp;
+                    Sécurisée</p>
+            </div>
+            <!-- Key Achievements Row -->
+            <div class="flex gap-8 mb-12 w-full max-w-4xl justify-center">
+                <div
+                    class="bg-aws-darker border border-gray-700 px-6 py-3 rounded-lg flex items-center gap-3 shadow-lg">
+                    <i class="fas fa-users text-aws-orange text-xl"></i>
+                    <div>
+                        <p class="text-2xl font-bold text-white leading-none">92K</p>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider">Utilisateurs Simultanés</p>
+                    </div>
+                </div>
+                <div
+                    class="bg-aws-darker border border-gray-700 px-6 py-3 rounded-lg flex items-center gap-3 shadow-lg">
+                    <i class="fas fa-shield-alt text-green-500 text-xl"></i>
+                    <div>
+                        <p class="text-2xl font-bold text-white leading-none">100%</p>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider">Score Sécurité</p>
+                    </div>
+                </div>
+                <div
+                    class="bg-aws-darker border border-gray-700 px-6 py-3 rounded-lg flex items-center gap-3 shadow-lg">
+                    <i class="fas fa-stopwatch text-blue-500 text-xl"></i>
+                    <div>
+                        <p class="text-2xl font-bold text-white leading-none">&lt; 300ms</p>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider">Latence P95</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Team Grid -->
+            <div class="w-full max-w-5xl mb-12">
+                <h3
+                    class="text-aws-orange font-bold text-center uppercase tracking-widest text-xs mb-6 flex items-center justify-center gap-4">
+                    <span class="h-[1px] w-12 bg-gray-700"></span>
+                    L'Équipe Cloud DevOps MT5
+                    <span class="h-[1px] w-12 bg-gray-700"></span>
+                </h3>
+                <div class="grid grid-cols-5 gap-3 max-w-5xl mx-auto">
+                    <!-- Jean Cazals de Fabel - Team leader -->
+                    <div class="member-card p-4 rounded-xl border-l-4 border-aws-orange shadow-md">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-9 h-9 rounded-full bg-aws-orange bg-opacity-20 flex items-center justify-center text-aws-orange font-bold text-sm">JC</div>
+                            <div class="min-w-0 flex-1">
+                                <p class="font-bold text-gray-800 text-xs leading-tight">Jean Cazals de Fabel</p>
+                                <p class="text-[10px] text-aws-orange font-semibold leading-tight">Team leader</p>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">FinOps, budget, reporting &amp; doc. post‑mortem</p>
+                        <div class="flex gap-1.5 mt-2">
+                            <div class="contact-btn p-1.5 rounded-full bg-gray-50 text-gray-500 text-xs cursor-pointer"><i class="fab fa-linkedin"></i></div>
+                            <div class="contact-btn p-1.5 rounded-full bg-gray-50 text-gray-500 text-xs cursor-pointer"><i class="fas fa-envelope"></i></div>
+                        </div>
+                    </div>
+                    <!-- Mohamed Dridi - Infra as Code -->
+                    <div class="member-card p-4 rounded-xl border-l-4 border-blue-500 shadow-md">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">MD</div>
+                            <div class="min-w-0 flex-1">
+                                <p class="font-bold text-gray-800 text-xs leading-tight">Mohamed Dridi</p>
+                                <p class="text-[10px] text-blue-500 font-semibold leading-tight">Infra as Code</p>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">Project Architecte</p>
+                        <div class="flex gap-1.5 mt-2">
+                            <div class="contact-btn p-1.5 rounded-full bg-gray-50 text-gray-500 text-xs cursor-pointer"><i class="fab fa-linkedin"></i></div>
+                            <div class="contact-btn p-1.5 rounded-full bg-gray-50 text-gray-500 text-xs cursor-pointer"><i class="fas fa-envelope"></i></div>
+                        </div>
+                    </div>
+                    <!-- Tanel Oubadia - Performance -->
+                    <div class="member-card p-4 rounded-xl border-l-4 border-green-500 shadow-md">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-sm">TO</div>
+                            <div class="min-w-0 flex-1">
+                                <p class="font-bold text-gray-800 text-xs leading-tight">Tanel Oubadia</p>
+                                <p class="text-[10px] text-green-500 font-semibold leading-tight">Performance &amp; tests</p>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">Responsable tests de charge</p>
+                        <div class="flex gap-1.5 mt-2">
+                            <div class="contact-btn p-1.5 rounded-full bg-gray-50 text-gray-500 text-xs cursor-pointer"><i class="fab fa-linkedin"></i></div>
+                            <div class="contact-btn p-1.5 rounded-full bg-gray-50 text-gray-500 text-xs cursor-pointer"><i class="fas fa-envelope"></i></div>
+                        </div>
+                    </div>
+                    <!-- Achraf Aberwag - Observabilité -->
+                    <div class="member-card p-4 rounded-xl border-l-4 border-purple-500 shadow-md">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-sm">AA</div>
+                            <div class="min-w-0 flex-1">
+                                <p class="font-bold text-gray-800 text-xs leading-tight">Achraf Aberwag</p>
+                                <p class="text-[10px] text-purple-500 font-semibold leading-tight">Observabilité</p>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">CloudWatch, Prometheus, Loki</p>
+                        <div class="flex gap-1.5 mt-2">
+                            <div class="contact-btn p-1.5 rounded-full bg-gray-50 text-gray-500 text-xs cursor-pointer"><i class="fab fa-linkedin"></i></div>
+                            <div class="contact-btn p-1.5 rounded-full bg-gray-50 text-gray-500 text-xs cursor-pointer"><i class="fas fa-envelope"></i></div>
+                        </div>
+                    </div>
+                    <!-- Melissa Hanouti - Sécurité -->
+                    <div class="member-card p-4 rounded-xl border-l-4 border-teal-500 shadow-md">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-9 h-9 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 font-bold text-sm">MH</div>
+                            <div class="min-w-0 flex-1">
+                                <p class="font-bold text-gray-800 text-xs leading-tight">Melissa Hanouti</p>
+                                <p class="text-[10px] text-teal-600 font-semibold leading-tight">Sécurité &amp; Cloud</p>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-gray-500 leading-snug">Veille sécurité &amp; bonnes pratiques</p>
+                        <div class="flex gap-1.5 mt-2">
+                            <div class="contact-btn p-1.5 rounded-full bg-gray-50 text-gray-500 text-xs cursor-pointer"><i class="fab fa-linkedin"></i></div>
+                            <div class="contact-btn p-1.5 rounded-full bg-gray-50 text-gray-500 text-xs cursor-pointer"><i class="fas fa-envelope"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- CTA Section -->
+            <div class="flex gap-6 items-center">
+                <button
+                    class="cta-button bg-aws-orange text-white px-8 py-4 rounded-lg font-bold text-lg flex items-center gap-3">
+                    <i class="fas fa-comments"></i>
+                    <span>Questions &amp; Réponses</span>
+                </button>
+                <button
+                    class="cta-button bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg flex items-center gap-3 hover:bg-white hover:text-aws-dark transition-all">
+                    <i class="fas fa-laptop-code"></i>
+                    <span>Démo Live Architecture</span>
+                </button>
+            </div>
+        </div>
+        <!-- Footer -->
+        <div class="w-full py-4 bg-aws-darker border-t border-gray-800 flex justify-between items-center px-12 z-10">
+            <div class="flex items-center gap-2">
+                <i class="fab fa-aws text-aws-orange text-lg"></i>
+                <span class="text-xs text-gray-500">Powered by AWS EKS &amp; Terraform</span>
+            </div>
+            <p class="text-xs text-gray-500">HETIC - Projet Black Friday Survival - MT5 2026</p>
+        </div>
+    </div>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-light {
+            background-color: #F2F3F3;
+        }
+
+        .text-aws-dark {
+            color: #232F3E;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+
+        .list-bullet-icon {
+            min-width: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-full min-h-screen bg-white flex flex-col relative overflow-hidden">
+        <!-- Header Line -->
+        <div class="h-2 w-full bg-aws-orange"></div>
+        <!-- Header -->
+        <div class="bg-aws-dark text-white px-16 py-8 flex justify-between items-center shadow-md z-10">
+            <div>
+                <h2 class="text-aws-orange font-bold uppercase tracking-widest text-sm mb-1">Cahier des Charges</h2>
+                <h1 class="text-4xl font-bold">Contexte et Objectifs du Projet</h1>
+            </div>
+            <!-- Icone contextuelle -->
+            <div class="opacity-80 text-aws-orange">
+                <i class="fas fa-crosshairs text-4xl"></i>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="flex-1 flex p-16 relative">
+            <!-- Background Watermark -->
+            <div class="absolute bottom-[-50px] right-[-50px] opacity-5 pointer-events-none">
+                <i class="fab fa-aws text-[400px] text-aws-dark"></i>
+            </div>
+            <div class="w-full flex gap-16 z-10">
+                <!-- Left Column: Main Objectives (Bullet Points) -->
+                <div class="flex-1 flex flex-col justify-center">
+                    <ul class="space-y-8">
+                        <li class="flex items-start group">
+                            <div
+                                class="mt-1 mr-5 text-white bg-aws-orange rounded-full w-8 h-8 flex items-center justify-center shadow-md flex-shrink-0">
+                                <i class="fas fa-store text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-aws-dark mb-2">Simulation E-Commerce Réelle</h3>
+                                <p class="text-gray-600 text-lg leading-relaxed">
+                                    Déploiement et optimisation de la stack "Online Boutique" (11 microservices) sur AWS
+                                    pour simuler un pic de trafic critique.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div
+                                class="mt-1 mr-5 text-white bg-aws-orange rounded-full w-8 h-8 flex items-center justify-center shadow-md flex-shrink-0">
+                                <i class="fas fa-tools text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-aws-dark mb-2">Focus Infrastructure &amp; DevOps</h3>
+                                <p class="text-gray-600 text-lg leading-relaxed">
+                                    Aucun développement applicatif. L'accent est mis à 100% sur l'IaC (Terraform),
+                                    Kubernetes (EKS), la sécurité et la performance.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div
+                                class="mt-1 mr-5 text-white bg-aws-orange rounded-full w-8 h-8 flex items-center justify-center shadow-md flex-shrink-0">
+                                <i class="fas fa-chart-line text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-aws-dark mb-2">Objectif de Performance</h3>
+                                <p class="text-gray-600 text-lg leading-relaxed">
+                                    Tenir une charge de <span
+                                        class="font-bold text-aws-dark bg-orange-100 px-2 py-0.5 rounded">90 000
+                                        utilisateurs simultanés</span> sans crash ni dégradation majeure.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Right Column: Sidebar / Constraints -->
+                <div class="w-[360px] flex flex-col gap-6">
+                    <!-- Key Constraints Card -->
+                    <div class="bg-aws-dark text-white p-8 rounded-xl shadow-xl relative overflow-hidden flex-1">
+                        <!-- Decorative circle -->
+                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-gray-700 rounded-full opacity-30"></div>
+                        <h3
+                            class="text-aws-orange font-bold uppercase tracking-wider mb-6 pb-4 border-b border-gray-600 flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-3"></i> Contraintes
+                        </h3>
+                        <div class="space-y-6">
+                            <div>
+                                <p class="text-gray-400 text-sm uppercase font-bold mb-1">Durée</p>
+                                <p class="text-xl font-medium flex items-center">
+                                    <i class="far fa-clock text-aws-orange mr-3 w-5 text-center"></i> 3 semaines + Démo
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 text-sm uppercase font-bold mb-1">Budget Cloud</p>
+                                <p class="text-xl font-medium flex items-center">
+                                    <i class="fas fa-wallet text-aws-orange mr-3 w-5 text-center"></i> 1 500 € - 2 000 €
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 text-sm uppercase font-bold mb-1">Équipe</p>
+                                <p class="text-xl font-medium flex items-center">
+                                    <i class="fas fa-user-friends text-aws-orange mr-3 w-5 text-center"></i> 4-5
+                                    Étudiants
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <div
+            class="h-12 bg-gray-100 border-t border-gray-200 flex justify-between items-center px-16 text-sm text-gray-500 font-medium">
+            <p>HETIC - Projet Black Friday Survival</p>
+            <p>Page 2</p>
+        </div>
+    </div>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

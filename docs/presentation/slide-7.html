@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-darker {
+            background-color: #131A22;
+        }
+
+        .text-aws-dark {
+            color: #232F3E;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+
+        /* Custom Card Styles */
+        .strategy-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .strategy-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stack-item {
+            border-left: 3px solid #FF9900;
+            background-color: #2A303C;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-full min-h-screen bg-white flex flex-col relative overflow-hidden">
+        <!-- Header Line -->
+        <div class="h-2 w-full bg-aws-orange"></div>
+        <!-- Header -->
+        <div class="bg-aws-dark text-white px-12 py-6 flex justify-between items-end shadow-md z-10">
+            <div>
+                <h2 class="text-aws-orange font-bold uppercase tracking-widest text-xs mb-1">Observabilité &amp;
+                    Monitoring</h2>
+                <h1 class="text-3xl font-bold">Stratégie d'Observabilité &amp; Choix Techniques</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div
+                    class="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg flex items-center">
+                    <i class="fas fa-bullseye mr-2"></i> Approche "Golden Signals"
+                </div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="flex-1 p-8 bg-gray-50 flex gap-6 overflow-hidden">
+            <!-- Column 1: Architecture Stack (The HOW) -->
+            <div class="flex-[1] flex flex-col gap-4">
+                <div class="flex items-center justify-between border-b-2 border-aws-orange pb-2 mb-2">
+                    <h3 class="font-bold text-aws-dark text-lg"><i class="fas fa-layer-group mr-2"></i>Stack Technique
+                    </h3>
+                    <span class="text-xs text-gray-500 font-mono">LGTM Stack</span>
+                </div>
+                <div class="bg-aws-darker rounded-xl p-5 flex-1 flex flex-col gap-4 shadow-lg relative overflow-hidden">
+                    <!-- Background decoration -->
+                    <div class="absolute -right-10 -bottom-10 text-gray-800 opacity-20 transform rotate-12">
+                        <i class="fas fa-server text-[150px]"></i>
+                    </div>
+                    <!-- Stack Item: Prometheus -->
+                    <div class="stack-item p-3 rounded shadow-md relative z-10">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-orange-400"><i class="fas fa-fire mr-2"></i>Prometheus</span>
+                            <span class="text-[10px] bg-gray-700 px-2 rounded">Metrics</span>
+                        </div>
+                        <p class="text-xs text-gray-300 leading-tight">
+                            Choisi pour son modèle "Pull" adapté aux pods éphémères de Kubernetes et sa scalabilité
+                            horizontale.
+                        </p>
+                    </div>
+                    <!-- Stack Item: Loki -->
+                    <div class="stack-item p-3 rounded shadow-md relative z-10 border-l-pink-500"
+                        style="border-left-color: #e91e63;">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-pink-400"><i class="fas fa-scroll mr-2"></i>Loki</span>
+                            <span class="text-[10px] bg-gray-700 px-2 rounded">Logs</span>
+                        </div>
+                        <p class="text-xs text-gray-300 leading-tight">
+                            Indexation légère (metadata only) pour réduire les coûts de stockage vs ELK, idéal pour le
+                            budget limité.
+                        </p>
+                    </div>
+                    <!-- Stack Item: Jaeger -->
+                    <div class="stack-item p-3 rounded shadow-md relative z-10 border-l-blue-400"
+                        style="border-left-color: #60a5fa;">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-blue-400"><i class="fas fa-search mr-2"></i>Jaeger</span>
+                            <span class="text-[10px] bg-gray-700 px-2 rounded">Tracing</span>
+                        </div>
+                        <p class="text-xs text-gray-300 leading-tight">
+                            Indispensable pour tracer la latence à travers les 11 microservices (goulots
+                            d'étranglement).
+                        </p>
+                    </div>
+                    <!-- Stack Item: Grafana -->
+                    <div class="stack-item p-3 rounded shadow-md relative z-10 border-l-green-500"
+                        style="border-left-color: #10b981;">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-green-400"><i class="fas fa-chart-pie mr-2"></i>Grafana</span>
+                            <span class="text-[10px] bg-gray-700 px-2 rounded">Viz</span>
+                        </div>
+                        <p class="text-xs text-gray-300 leading-tight">
+                            Unification des sources de données dans un "Single Pane of Glass" pour la War Room.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- Column 2: Metrics Strategy (The WHAT) -->
+            <div class="flex-[1.2] flex flex-col gap-4">
+                <div class="flex items-center justify-between border-b-2 border-blue-500 pb-2 mb-2">
+                    <h3 class="font-bold text-aws-dark text-lg"><i class="fas fa-chart-line mr-2"></i>Métriques Clés
+                        (Golden Signals)</h3>
+                    <span class="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded font-bold">Google SRE</span>
+                </div>
+                <div class="grid grid-cols-1 gap-4 flex-1">
+                    <!-- Signal 1: Latency -->
+                    <div class="bg-white border-l-4 border-yellow-500 rounded-lg p-4 shadow-sm">
+                        <h4 class="font-bold text-gray-800 flex items-center mb-2">
+                            <i class="fas fa-clock text-yellow-500 mr-2"></i> Latence (Latency)
+                        </h4>
+                        <div class="bg-gray-50 rounded p-2 mb-2">
+                            <p class="text-xs font-mono text-gray-600">histogram_quantile(0.95,
+                                rate(http_req_duration_bucket[5m]))</p>
+                        </div>
+                        <p class="text-xs text-gray-600">
+                            <strong>Justification :</strong> Impact direct sur le taux de conversion. P95 surveillé pour
+                            garantir l'expérience de la majorité des utilisateurs.
+                        </p>
+                    </div>
+                    <!-- Signal 2: Traffic -->
+                    <div class="bg-white border-l-4 border-green-500 rounded-lg p-4 shadow-sm">
+                        <h4 class="font-bold text-gray-800 flex items-center mb-2">
+                            <i class="fas fa-globe text-green-500 mr-2"></i> Trafic (Traffic)
+                        </h4>
+                        <div class="bg-gray-50 rounded p-2 mb-2">
+                            <p class="text-xs font-mono text-gray-600">rate(http_requests_total[1m])</p>
+                        </div>
+                        <p class="text-xs text-gray-600">
+                            <strong>Justification :</strong> Indicateur principal de charge système. Sert de déclencheur
+                            pour l'auto-scaling (HPA).
+                        </p>
+                    </div>
+                    <!-- Signal 3: Errors -->
+                    <div class="bg-white border-l-4 border-red-500 rounded-lg p-4 shadow-sm">
+                        <h4 class="font-bold text-gray-800 flex items-center mb-2">
+                            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i> Erreurs (Errors)
+                        </h4>
+                        <div class="bg-gray-50 rounded p-2 mb-2">
+                            <p class="text-xs font-mono text-gray-600">rate(http_requests_total{status=~"5.."}[1m])</p>
+                        </div>
+                        <p class="text-xs text-gray-600">
+                            <strong>Justification :</strong> Mesure la santé fonctionnelle. Les 5xx indiquent un échec
+                            serveur critique nécessitant une intervention immédiate.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <!-- Column 3: Alerting Strategy (The WHEN) -->
+            <div class="flex-[1.2] flex flex-col gap-4">
+                <div class="flex items-center justify-between border-b-2 border-red-500 pb-2 mb-2">
+                    <h3 class="font-bold text-aws-dark text-lg"><i class="fas fa-bell mr-2"></i>Politique d'Alerting
+                    </h3>
+                    <span class="text-xs text-red-600 bg-red-50 px-2 py-0.5 rounded font-bold">Actionable Only</span>
+                </div>
+                <!-- Alerting Philosophy -->
+                <div class="bg-gray-100 rounded-lg p-3 text-xs text-gray-600 mb-2 italic border border-gray-200">
+                    <i class="fas fa-quote-left mr-2 text-gray-400"></i>
+                    Chaque alerte doit nécessiter une action humaine immédiate. Si non, c'est un log ou un dashboard,
+                    pas une alerte.
+                </div>
+                <!-- Alert Table -->
+                <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden flex-1">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 text-xs text-gray-500 uppercase font-bold border-b border-gray-200">
+                            <tr>
+                                <th class="p-3 w-20">Niveau</th>
+                                <th class="p-3">Seuil &amp; Condition</th>
+                                <th class="p-3">Rationale (Pourquoi ?)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs">
+                            <!-- Critical Alert -->
+                            <tr class="border-b border-gray-100 bg-red-50">
+                                <td class="p-3">
+                                    <span
+                                        class="bg-red-500 text-white px-2 py-1 rounded font-bold text-[10px]">CRITICAL</span>
+                                </td>
+                                <td class="p-3 font-medium text-red-900">
+                                    Error Rate &gt; 1%<br />
+                                    <span class="text-gray-500 font-normal">pendant 2 min</span>
+                                </td>
+                                <td class="p-3 text-gray-600">
+                                    Impact utilisateur direct. Signifie que le service est cassé pour 900+ utilisateurs
+                                    (sur 90K).
+                                </td>
+                            </tr>
+                            <!-- High Latency Alert -->
+                            <tr class="border-b border-gray-100">
+                                <td class="p-3">
+                                    <span
+                                        class="bg-orange-500 text-white px-2 py-1 rounded font-bold text-[10px]">PAGE</span>
+                                </td>
+                                <td class="p-3 font-medium text-gray-800">
+                                    Latency P95 &gt; 2s<br />
+                                    <span class="text-gray-500 font-normal">pendant 5 min</span>
+                                </td>
+                                <td class="p-3 text-gray-600">
+                                    Dégradation UX majeure. Risque élevé d'abandon de panier au-delà de 2s.
+                                </td>
+                            </tr>
+                            <!-- Saturation Alert -->
+                            <tr class="border-b border-gray-100">
+                                <td class="p-3">
+                                    <span
+                                        class="bg-yellow-500 text-white px-2 py-1 rounded font-bold text-[10px]">WARN</span>
+                                </td>
+                                <td class="p-3 font-medium text-gray-800">
+                                    CPU Worker &gt; 80%<br />
+                                    <span class="text-gray-500 font-normal">pendant 10 min</span>
+                                </td>
+                                <td class="p-3 text-gray-600">
+                                    Indique une sous-capacité du Cluster Autoscaler ou un problème de quota.
+                                </td>
+                            </tr>
+                            <!-- Pod Restart Alert -->
+                            <tr class="border-b border-gray-100">
+                                <td class="p-3">
+                                    <span
+                                        class="bg-blue-500 text-white px-2 py-1 rounded font-bold text-[10px]">TICKET</span>
+                                </td>
+                                <td class="p-3 font-medium text-gray-800">
+                                    Pod CrashLoopBackOff<br />
+                                    <span class="text-gray-500 font-normal">&gt; 5 restarts</span>
+                                </td>
+                                <td class="p-3 text-gray-600">
+                                    Instabilité applicative (OOMKilled ou bug), mais le service reste partiellement up
+                                    grâce aux replicas.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <div
+            class="h-10 bg-white border-t border-gray-200 flex justify-between items-center px-12 text-xs text-gray-400 font-medium z-10">
+            <p>HETIC - Projet Black Friday Survival</p>
+            <p>Page 7</p>
+        </div>
+    </div>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

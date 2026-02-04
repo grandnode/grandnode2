@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-darker {
+            background-color: #131A22;
+        }
+
+        .bg-aws-light {
+            background-color: #F2F3F3;
+        }
+
+        .text-aws-dark {
+            color: #232F3E;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+
+        /* IDE/Terminal Styles */
+        .ide-window {
+            background-color: #1E1E1E;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+        }
+
+        .ide-header {
+            background-color: #252526;
+            padding: 8px 12px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .ide-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .ide-sidebar {
+            background-color: #252526;
+            color: #CCCCCC;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+        }
+
+        .file-row {
+            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border-left: 2px solid transparent;
+        }
+
+        .file-row:hover {
+            background-color: #2A2D2E;
+        }
+
+        .file-row.active {
+            background-color: #37373D;
+            border-left-color: #FF9900;
+        }
+
+        .indent-1 {
+            padding-left: 24px;
+        }
+
+        .indent-2 {
+            padding-left: 40px;
+        }
+
+        .indent-3 {
+            padding-left: 56px;
+        }
+
+        /* Card Styles */
+        .resource-card {
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .resource-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-git {
+            border-left-color: #232F3E;
+        }
+
+        .card-doc {
+            border-left-color: #FF9900;
+        }
+
+        .card-obs {
+            border-left-color: #10B981;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-full min-h-screen bg-white flex flex-col relative overflow-hidden">
+        <!-- Header Line -->
+        <div class="h-2 w-full bg-aws-orange"></div>
+        <!-- Header -->
+        <div class="bg-aws-dark text-white px-12 py-6 flex justify-between items-end shadow-md z-10">
+            <div>
+                <h2 class="text-aws-orange font-bold uppercase tracking-widest text-xs mb-1">Livrables &amp; Ressources
+                </h2>
+                <h1 class="text-3xl font-bold">Repository &amp; Documentation</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-gray-700 px-4 py-2 rounded-lg flex items-center border border-gray-600">
+                    <i class="fab fa-github text-2xl mr-3 text-white"></i>
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider">Access Repository</p>
+                        <p class="text-sm font-mono text-aws-orange">github.com/hetic-mt5/bf-survival</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="flex-1 p-8 bg-gray-50 flex gap-8 overflow-hidden relative">
+            <!-- Left Column: Project Structure (IDE View) -->
+            <div class="flex-[1.2] flex flex-col h-full z-10">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-aws-dark flex items-center">
+                        <i class="fas fa-folder-tree mr-2 text-aws-orange"></i> Structure du Projet
+                    </h3>
+                    <span class="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">v1.0.0-release</span>
+                </div>
+                <div class="ide-window flex-1 flex flex-col overflow-hidden">
+                    <!-- IDE Header -->
+                    <div class="ide-header">
+                        <div class="ide-dot bg-red-500"></div>
+                        <div class="ide-dot bg-yellow-500"></div>
+                        <div class="ide-dot bg-green-500"></div>
+                        <div class="ml-4 text-gray-400 text-xs font-mono">black-friday-project — Visual Studio Code
+                        </div>
+                    </div>
+                    <!-- File Tree -->
+                    <div class="ide-sidebar flex-1 overflow-y-auto py-2">
+                        <div class="file-row text-blue-400 font-bold"><i
+                                class="fas fa-chevron-down mr-2 w-4 text-gray-500 text-xs"></i><i
+                                class="fas fa-folder mr-2"></i>black-friday-survival</div>
+                        <!-- .github -->
+                        <div class="file-row indent-1"><i
+                                class="fas fa-chevron-right mr-2 w-4 text-gray-500 text-xs"></i><i
+                                class="fas fa-folder mr-2 text-gray-500"></i>.github/workflows</div>
+                        <!-- docs -->
+                        <div class="file-row indent-1"><i
+                                class="fas fa-chevron-down mr-2 w-4 text-gray-500 text-xs"></i><i
+                                class="fas fa-folder-open mr-2 text-green-500"></i>docs</div>
+                        <div class="file-row indent-2 active"><i
+                                class="fas fa-file-invoice mr-2 text-gray-400"></i>ADR-001-Architecture.md</div>
+                        <div class="file-row indent-2"><i
+                                class="fas fa-file-medical mr-2 text-gray-400"></i>RUNBOOK_LATENCY.md</div>
+                        <div class="file-row indent-2"><i
+                                class="fas fa-file-alt mr-2 text-gray-400"></i>POST_MORTEM_BF.pdf</div>
+                        <!-- kubernetes -->
+                        <div class="file-row indent-1"><i
+                                class="fas fa-chevron-down mr-2 w-4 text-gray-500 text-xs"></i><i
+                                class="fas fa-folder mr-2 text-blue-400"></i>kubernetes</div>
+                        <div class="file-row indent-2"><i
+                                class="fas fa-dharmachakra mr-2 text-blue-300"></i>helm-charts/</div>
+                        <div class="file-row indent-2"><i
+                                class="fas fa-file-code mr-2 text-yellow-500"></i>values-prod.yaml</div>
+                        <!-- terraform -->
+                        <div class="file-row indent-1"><i
+                                class="fas fa-chevron-down mr-2 w-4 text-gray-500 text-xs"></i><i
+                                class="fas fa-folder mr-2 text-purple-400"></i>terraform</div>
+                        <div class="file-row indent-2"><i class="fas fa-folder mr-2 text-gray-500"></i>modules/</div>
+                        <div class="file-row indent-3"><i class="fas fa-folder mr-2 text-gray-500"></i>vpc/</div>
+                        <div class="file-row indent-3"><i class="fas fa-folder mr-2 text-gray-500"></i>eks-cluster/
+                        </div>
+                        <div class="file-row indent-2"><i class="fas fa-file-code mr-2 text-purple-400"></i>main.tf
+                        </div>
+                        <div class="file-row indent-2"><i class="fas fa-file-code mr-2 text-purple-400"></i>variables.tf
+                        </div>
+                        <!-- root files -->
+                        <div class="file-row indent-1"><i class="fas fa-file-code mr-2 text-red-400"></i>Makefile</div>
+                        <div class="file-row indent-1"><i class="fab fa-markdown mr-2 text-blue-300"></i>README.md</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Column: Deliverables Cards -->
+            <div class="flex-[1.8] flex flex-col gap-6 z-10">
+                <!-- Section: Documentation -->
+                <div>
+                    <h3 class="font-bold text-aws-dark mb-3 flex items-center border-b border-gray-200 pb-2">
+                        <i class="fas fa-book mr-2 text-aws-orange"></i> Documentation Technique
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- ADR Card -->
+                        <div
+                            class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 resource-card card-doc group cursor-pointer">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="bg-orange-100 text-orange-600 rounded p-2"><i class="fas fa-sitemap"></i>
+                                </div>
+                                <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">Markdown</span>
+                            </div>
+                            <h4 class="font-bold text-gray-800">Architecture Decision Records</h4>
+                            <p class="text-xs text-gray-500 mt-1 mb-3">Justification des choix techniques (EKS, Spot
+                                Instances, Tooling).</p>
+                            <div class="flex items-center text-xs font-bold text-aws-orange group-hover:underline">
+                                Voir ADRs <i class="fas fa-arrow-right ml-1 text-[10px]"></i>
+                            </div>
+                        </div>
+                        <!-- Runbooks Card -->
+                        <div
+                            class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 resource-card card-doc group cursor-pointer">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="bg-orange-100 text-orange-600 rounded p-2"><i class="fas fa-tools"></i>
+                                </div>
+                                <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">PDF</span>
+                            </div>
+                            <h4 class="font-bold text-gray-800">Runbooks Opérationnels</h4>
+                            <p class="text-xs text-gray-500 mt-1 mb-3">Procédures d'incidents (Latence élevée, Crash
+                                Pod, Scale-out).</p>
+                            <div class="flex items-center text-xs font-bold text-aws-orange group-hover:underline">
+                                Ouvrir Runbooks <i class="fas fa-arrow-right ml-1 text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Section: Monitoring & Reporting -->
+                <div>
+                    <h3 class="font-bold text-aws-dark mb-3 flex items-center border-b border-gray-200 pb-2">
+                        <i class="fas fa-chart-line mr-2 text-aws-orange"></i> Monitoring &amp; Analyse
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Post Mortem Card -->
+                        <div
+                            class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 resource-card card-obs group cursor-pointer">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="bg-green-100 text-green-600 rounded p-2"><i
+                                        class="fas fa-file-medical-alt"></i></div>
+                                <span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded">PDF</span>
+                            </div>
+                            <h4 class="font-bold text-gray-800">Post-Mortem Black Friday</h4>
+                            <p class="text-xs text-gray-500 mt-1 mb-3">Analyse détaillée de la simulation : incidents,
+                                timeline et résolutions.</p>
+                            <div class="flex items-center text-xs font-bold text-aws-dark group-hover:underline">
+                                Lire le rapport <i class="fas fa-arrow-right ml-1 text-[10px]"></i>
+                            </div>
+                        </div>
+                        <!-- Dashboard Access Card -->
+                        <div
+                            class="bg-aws-darker p-4 rounded-lg shadow-md border border-gray-700 resource-card card-git group cursor-pointer relative overflow-hidden">
+                            <!-- Background glow -->
+                            <div
+                                class="absolute -right-4 -top-4 w-20 h-20 bg-aws-orange opacity-20 rounded-full blur-xl">
+                            </div>
+                            <div class="flex justify-between items-start mb-2 relative z-10">
+                                <div class="bg-gray-700 text-aws-orange rounded p-2"><i
+                                        class="fas fa-tachometer-alt"></i></div>
+                                <span class="text-xs bg-gray-700 text-white px-2 py-0.5 rounded flex items-center">
+                                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></div>Live
+                                </span>
+                            </div>
+                            <h4 class="font-bold text-white relative z-10">Grafana Dashboards</h4>
+                            <p class="text-xs text-gray-400 mt-1 mb-3 relative z-10">Accès aux dashboards exportés
+                                (JSON) et snapshots.</p>
+                            <div
+                                class="flex items-center text-xs font-bold text-aws-orange group-hover:underline relative z-10">
+                                Accéder <i class="fas fa-external-link-alt ml-1 text-[10px]"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Footer Note -->
+                <div class="mt-auto bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-center">
+                    <i class="fas fa-info-circle text-blue-500 mr-3 text-lg"></i>
+                    <div>
+                        <p class="text-xs text-blue-800 font-bold">Note de version</p>
+                        <p class="text-[10px] text-blue-600">Le repository contient l'historique complet des commits
+                            (Conventional Commits) démontrant la progression sur les 3 semaines.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <div
+            class="h-10 bg-white border-t border-gray-200 flex justify-between items-center px-12 text-xs text-gray-400 font-medium z-10">
+            <p>HETIC - Projet Black Friday Survival</p>
+            <p>Page 8</p>
+        </div>
+    </div>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

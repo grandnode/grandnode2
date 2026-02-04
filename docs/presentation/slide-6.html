@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-darker {
+            background-color: #131A22;
+        }
+
+        .bg-aws-light {
+            background-color: #F2F3F3;
+        }
+
+        .text-aws-dark {
+            color: #232F3E;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-full min-h-screen bg-white flex flex-col relative overflow-hidden">
+        <!-- Header Line -->
+        <div class="h-2 w-full bg-aws-orange"></div>
+        <!-- Header -->
+        <div class="bg-aws-dark text-white px-12 py-6 flex justify-between items-end shadow-md z-10">
+            <div>
+                <h2 class="text-aws-orange font-bold uppercase tracking-widest text-xs mb-1">Gestion Financière &amp;
+                    FinOps</h2>
+                <h1 class="text-3xl font-bold">Analyse des Coûts Réels vs Budget</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div
+                    class="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i> BUDGET RESPECTÉ
+                </div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="flex-1 p-8 bg-gray-50 flex gap-8 overflow-hidden relative">
+            <!-- Background Decoration -->
+            <div class="absolute bottom-[-50px] left-[-50px] opacity-[0.03] pointer-events-none z-0">
+                <i class="fas fa-chart-pie text-[400px]"></i>
+            </div>
+            <!-- Left Column: Charts -->
+            <div class="flex-[3] flex flex-col gap-6 z-10">
+                <!-- Main Chart: Budget vs Real -->
+                <div class="bg-white rounded-xl card-shadow border border-gray-200 p-5 flex-1 flex flex-col">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-aws-dark flex items-center">
+                            <i class="fas fa-chart-bar text-aws-orange mr-2"></i> Suivi Hebdomadaire (Réel vs Budget)
+                        </h3>
+                        <div class="flex gap-4 text-xs">
+                            <div class="flex items-center"><span class="w-3 h-3 bg-gray-300 rounded-sm mr-1"></span>
+                                Budget Max</div>
+                            <div class="flex items-center"><span class="w-3 h-3 bg-blue-600 rounded-sm mr-1"></span>
+                                Coût Réel</div>
+                        </div>
+                    </div>
+                    <div class="flex-1 relative w-full min-h-0">
+                        <canvas id="budgetVsRealChart"></canvas>
+                    </div>
+                </div>
+                <!-- Secondary Chart: Cost Distribution -->
+                <div class="flex gap-6 h-64">
+                    <div
+                        class="flex-1 bg-white rounded-xl card-shadow border border-gray-200 p-4 relative flex flex-col">
+                        <h3 class="font-bold text-aws-dark text-sm mb-2 text-center">Répartition par Service AWS</h3>
+                        <div class="flex-1 relative">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- KPI Summary -->
+                    <div class="flex-1 flex flex-col justify-between">
+                        <div
+                            class="bg-white rounded-xl card-shadow border-l-4 border-aws-orange p-4 flex flex-col justify-center h-[48%]">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Coût Total Projet
+                            </p>
+                            <div class="flex items-end gap-2">
+                                <span class="text-3xl font-bold text-gray-800">1 342 €</span>
+                                <span class="text-xs text-gray-500 mb-1">/ 2 000 € (Max)</span>
+                            </div>
+                            <div class="mt-2 w-full bg-gray-200 rounded-full h-1.5">
+                                <div class="bg-green-500 h-1.5 rounded-full" style="width: 67%"></div>
+                            </div>
+                            <p class="text-xs text-green-600 font-bold mt-1 text-right">-33% vs Budget Max</p>
+                        </div>
+                        <div
+                            class="bg-white rounded-xl card-shadow border-l-4 border-green-500 p-4 flex flex-col justify-center h-[48%]">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Économies Spot</p>
+                            <div class="flex items-end gap-2">
+                                <span class="text-3xl font-bold text-gray-800">850 €</span>
+                                <span class="text-xs text-gray-500 mb-1">estimés</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">Économisés grâce aux instances Spot vs On-Demand</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Column: FinOps Actions -->
+            <div class="flex-[2] flex flex-col gap-6 z-10">
+                <div class="bg-aws-darker text-white rounded-xl card-shadow p-6 h-full flex flex-col">
+                    <h3 class="font-bold text-aws-orange text-lg mb-6 flex items-center border-b border-gray-700 pb-3">
+                        <i class="fas fa-search-dollar mr-3"></i> Optimisations FinOps Réalisées
+                    </h3>
+                    <div class="flex-1 space-y-6 overflow-y-auto pr-2">
+                        <!-- Action 1 -->
+                        <div class="flex items-start group">
+                            <div
+                                class="bg-aws-orange text-aws-dark rounded-lg w-10 h-10 flex items-center justify-center mr-4 flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-percentage text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-base">Spot Instances (Workers)</h4>
+                                <p class="text-sm text-gray-400 mt-1 leading-relaxed">
+                                    Utilisation de Spot Instances pour 100% des nœuds workers EKS. Configuration via
+                                    Karpenter pour gérer les interruptions.
+                                </p>
+                                <span
+                                    class="inline-block mt-2 px-2 py-0.5 bg-green-900 text-green-400 text-xs rounded font-bold">Gain:
+                                    ~60-70% sur Compute</span>
+                            </div>
+                        </div>
+                        <!-- Action 2 -->
+                        <div class="flex items-start group">
+                            <div
+                                class="bg-blue-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-4 flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-moon text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-base">Scheduling Automatisé</h4>
+                                <p class="text-sm text-gray-400 mt-1 leading-relaxed">
+                                    Mise en place d'une Lambda "Curator" pour éteindre les environnements de dev de 20h
+                                    à 8h et le weekend.
+                                </p>
+                                <span
+                                    class="inline-block mt-2 px-2 py-0.5 bg-green-900 text-green-400 text-xs rounded font-bold">Gain:
+                                    ~40% sur Dev</span>
+                            </div>
+                        </div>
+                        <!-- Action 3 -->
+                        <div class="flex items-start group">
+                            <div
+                                class="bg-purple-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-4 flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-network-wired text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-base">Optimisation Réseau</h4>
+                                <p class="text-sm text-gray-400 mt-1 leading-relaxed">
+                                    Utilisation de VPC Endpoints (S3, DynamoDB) pour éviter les frais de transfert de
+                                    données via NAT Gateway.
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Action 4 -->
+                        <div class="flex items-start group">
+                            <div
+                                class="bg-gray-600 text-white rounded-lg w-10 h-10 flex items-center justify-center mr-4 flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-hdd text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-base">Gestion du Stockage</h4>
+                                <p class="text-sm text-gray-400 mt-1 leading-relaxed">
+                                    Politique de rétention des logs CloudWatch à 3 jours et suppression des volumes EBS
+                                    orphelins.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <div
+            class="h-10 bg-white border-t border-gray-200 flex justify-between items-center px-12 text-xs text-gray-400 font-medium z-10">
+            <p>HETIC - Projet Black Friday Survival</p>
+            <p>Page 6</p>
+        </div>
+    </div>
+    <script>
+        // Budget vs Real Chart
+        const ctxBudget = document.getElementById('budgetVsRealChart').getContext('2d');
+        new Chart(ctxBudget, {
+            type: 'bar',
+            data: {
+                labels: ['Semaine 1 (Setup)', 'Semaine 2 (Hardening)', 'Semaine 3 (Pre-BF)',
+                    'Démo (Black Friday)'
+                ],
+                datasets: [{
+                        label: 'Coût Réel (€)',
+                        data: [185, 420, 560, 177],
+                        backgroundColor: '#3B82F6',
+                        borderRadius: 4,
+                        barPercentage: 0.6
+                    },
+                    {
+                        label: 'Budget Max (€)',
+                        data: [250, 600, 700, 250],
+                        backgroundColor: '#E5E7EB',
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        grouped: false, // Allows overlap logic if needed, but side-by-side is clearer here. Keeping grouped true is default.
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: '#232F3E'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#F3F4F6'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Coût (€)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Distribution Chart
+        const ctxDist = document.getElementById('distributionChart').getContext('2d');
+        new Chart(ctxDist, {
+            type: 'doughnut',
+            data: {
+                labels: ['EC2 (Spot)', 'NAT Gateway', 'EKS Control Plane', 'EBS / Stockage',
+                    'Autres (LB, Logs)'],
+                datasets: [{
+                    data: [45, 25, 15, 10, 5],
+                    backgroundColor: [
+                        '#FF9900', // EC2 (Main cost usually)
+                        '#3B82F6', // NAT
+                        '#10B981', // EKS
+                        '#8B5CF6', // EBS
+                        '#9CA3AF' // Others
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: {
+                                size: 10,
+                                family: "'Roboto', sans-serif"
+                            },
+                            boxWidth: 10,
+                            padding: 10
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+    </script>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

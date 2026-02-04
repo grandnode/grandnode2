@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-darker {
+            background-color: #131A22;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Container principal -->
+    <div class="w-full h-full min-h-screen bg-aws-dark text-white flex flex-col relative overflow-hidden shadow-2xl">
+        <!-- Élément décoratif : Bande orange à gauche -->
+        <div class="absolute top-0 left-0 w-3 h-full bg-aws-orange z-20"></div>
+        <!-- Élément décoratif : Forme géométrique arrière-plan -->
+        <div class="absolute top-0 right-0 w-[600px] h-full bg-aws-darker transform -skew-x-12 origin-top-right z-0">
+        </div>
+        <div
+            class="absolute bottom-0 right-0 w-[400px] h-[400px] border-2 border-gray-700 rounded-full opacity-10 transform translate-x-1/2 translate-y-1/2 z-0">
+        </div>
+        <div class="absolute top-10 right-20 z-0 opacity-20">
+            <i class="fas fa-cloud text-9xl"></i>
+        </div>
+        <!-- Header : Logos et info école -->
+        <div class="relative z-10 flex justify-between items-start pt-12 px-20 w-full">
+            <div class="flex flex-col">
+                <span class="text-gray-400 font-bold tracking-widest uppercase text-sm mb-1">HETIC - Master Tech</span>
+                <div class="h-1 w-12 bg-aws-orange"></div>
+            </div>
+            <div class="flex items-center gap-3 text-right">
+                <div class="flex flex-col">
+                    <span class="font-bold text-lg">Infrastructure Cloud</span>
+                    <span class="text-xs text-gray-400 uppercase tracking-wide">AWS &amp; Kubernetes</span>
+                </div>
+                <div class="bg-white p-2 rounded text-aws-dark">
+                    <i class="fab fa-aws text-3xl"></i>
+                </div>
+            </div>
+        </div>
+        <!-- Contenu Principal : Titre -->
+        <div class="relative z-10 flex-1 flex flex-col justify-center px-20">
+            <div class="mb-6">
+                <span class="bg-gray-700 text-white px-3 py-1 rounded text-xs font-bold uppercase tracking-wider">Cahier
+                    des Charges</span>
+            </div>
+            <h1 class="text-7xl font-black leading-none mb-4 uppercase">
+                Black Friday <br />
+                <span class="text-aws-orange">Survival</span>
+            </h1>
+            <div class="flex items-center mt-4">
+                <div class="w-1 bg-aws-orange h-16 mr-6"></div>
+                <div>
+                    <h2 class="text-2xl font-light text-white mb-1">Projet MT5 — Simulation de Crise E-Commerce</h2>
+                    <p class="text-gray-400 text-lg">Objectif : Tenir 90K utilisateurs simultanés sans crash</p>
+                </div>
+            </div>
+        </div>
+        <!-- Footer : Informations Équipe et Contact -->
+        <div class="relative z-10 bg-aws-darker bg-opacity-90 w-full px-20 py-10 border-t border-gray-700">
+            <div class="grid grid-cols-3 gap-12 text-sm">
+                <!-- Colonne 1 : Équipe -->
+                <div class="flex flex-col">
+                    <h3 class="text-aws-orange font-bold uppercase tracking-wider mb-3 flex items-center">
+                        <i class="fas fa-users mr-2 text-xs"></i> Équipe Projet
+                    </h3>
+                    <div class="space-y-2 text-gray-300">
+                        <p class="border-b border-gray-800 pb-2"><span class="font-semibold text-white">Jean Cazals de Fabel</span><br /><span class="text-xs text-gray-400">Team leader — FinOps, budget &amp; doc. post‑mortem</span></p>
+                        <p class="border-b border-gray-800 pb-2"><span class="font-semibold text-white">Mohamed Dridi</span><br /><span class="text-xs text-gray-400">Infra as Code — Project Architecte</span></p>
+                        <p class="border-b border-gray-800 pb-2"><span class="font-semibold text-white">Tanel Oubadia</span><br /><span class="text-xs text-gray-400">Performance &amp; tests</span></p>
+                        <p class="border-b border-gray-800 pb-2"><span class="font-semibold text-white">Achraf Aberwag</span><br /><span class="text-xs text-gray-400">Observabilité — CloudWatch, Prometheus, Loki</span></p>
+                        <p class="border-b border-gray-800 pb-2"><span class="font-semibold text-white">Melissa Hanouti</span><br /><span class="text-xs text-gray-400">Sécurité &amp; Cloud</span></p>
+                    </div>
+                </div>
+                <!-- Colonne 2 : Planning -->
+                <div class="flex flex-col">
+                    <h3 class="text-aws-orange font-bold uppercase tracking-wider mb-3 flex items-center">
+                        <i class="far fa-calendar-alt mr-2 text-xs"></i> Informations
+                    </h3>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex justify-between">
+                            <span class="font-medium">Date :</span>
+                            <span>[JJ/MM/AAAA]</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-medium">Durée :</span>
+                            <span>3 semaines + Démo</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-medium">Promotion :</span>
+                            <span>Master 5 (MT5)</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Colonne 3 : Liens / Contact -->
+                <div class="flex flex-col">
+                    <h3 class="text-aws-orange font-bold uppercase tracking-wider mb-3 flex items-center">
+                        <i class="fas fa-link mr-2 text-xs"></i> Liens &amp; Contact
+                    </h3>
+                    <div class="space-y-3 text-gray-300">
+                        <div class="flex items-center">
+                            <div
+                                class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center mr-3 text-aws-orange">
+                                <i class="fab fa-github"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase">Repository</p>
+                                <p class="font-medium truncate w-40">[Lien GitHub]</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div
+                                class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center mr-3 text-aws-orange">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase">Contact</p>
+                                <p class="font-medium truncate w-40">[Email Contact]</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

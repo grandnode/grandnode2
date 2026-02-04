@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-darker {
+            background-color: #131A22;
+        }
+
+        .bg-aws-light {
+            background-color: #F2F3F3;
+        }
+
+        .text-aws-dark {
+            color: #232F3E;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Specific Styles for Post Mortem */
+        .analysis-card {
+            transition: all 0.3s ease;
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .win-card {
+            border-top: 4px solid #10B981;
+        }
+
+        .gap-card {
+            border-top: 4px solid #EF4444;
+        }
+
+        .learn-card {
+            border-top: 4px solid #3B82F6;
+        }
+
+        .metric-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .metric-circle::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            border: 2px dashed #E5E7EB;
+            z-index: 0;
+        }
+
+        .priority-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .p-high {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .p-med {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+
+        .p-low {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-screen bg-white flex flex-col relative overflow-hidden">
+        <!-- Header Line -->
+        <div class="h-2 w-full bg-aws-orange flex-shrink-0"></div>
+        <!-- Header -->
+        <div class="bg-aws-dark text-white px-12 py-4 flex justify-between items-end shadow-md z-10 flex-shrink-0">
+            <div>
+                <h2 class="text-aws-orange font-bold uppercase tracking-widest text-xs mb-1">Jours 1-2 Démo : BLACK FRIDAY</h2>
+                <h1 class="text-2xl font-bold">Post-Mortem - Jour 2 (Analyse &amp; Actions)</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-gray-700 px-4 py-2 rounded-lg flex items-center border border-gray-600">
+                    <i class="fas fa-clipboard-check text-2xl mr-3 text-green-400"></i>
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider">Statut Projet</p>
+                        <p class="text-sm font-bold text-white">VALIDÉ - GO PROD</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content: min-h-0 so it shrinks and footer stays visible -->
+        <div class="flex-1 min-h-0 p-4 bg-gray-50 flex flex-col gap-4 overflow-hidden">
+            <!-- Top Row: Analysis (Wins, Gaps, Lessons) -->
+            <div class="flex gap-4 flex-1 min-h-0">
+                <!-- Wins -->
+                <div class="flex-1 bg-white rounded-xl card-shadow p-5 win-card analysis-card flex flex-col">
+                    <h3 class="font-bold text-gray-800 text-lg mb-3 flex items-center">
+                        <div class="w-8 h-8 rounded bg-green-100 text-green-600 flex items-center justify-center mr-3">
+                            <i class="fas fa-thumbs-up"></i>
+                        </div>
+                        Wins (Ce qui a marché)
+                    </h3>
+                    <ul class="flex-1 space-y-3 overflow-y-auto pr-2">
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                            <p><strong>Objectif 92K Utilisateurs atteint</strong> sans crash complet de la plateforme.
+                            </p>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                            <p><strong>Auto-scaling (HPA/CA)</strong> réactif lors de la montée en charge (passage de 10
+                                à 45 nodes).</p>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                            <p><strong>War Room efficace</strong> : Communication fluide et décisions prises en &lt;
+                                2min.</p>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Gaps -->
+                <div class="flex-1 bg-white rounded-xl card-shadow p-5 gap-card analysis-card flex flex-col">
+                    <h3 class="font-bold text-gray-800 text-lg mb-3 flex items-center">
+                        <div class="w-8 h-8 rounded bg-red-100 text-red-600 flex items-center justify-center mr-3">
+                            <i class="fas fa-thumbs-down"></i>
+                        </div>
+                        Gaps (Points d'échec)
+                    </h3>
+                    <ul class="flex-1 space-y-3 overflow-y-auto pr-2">
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-times text-red-500 mt-1 mr-2"></i>
+                            <p><strong>Redis OOM</strong> : Le cache unique est devenu un Single Point of Failure
+                                (SPOF).</p>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-times text-red-500 mt-1 mr-2"></i>
+                            <p><strong>Alert Fatigue</strong> : Trop de "faux positifs" sur les alertes CPU (seuil à 60%
+                                trop bas).</p>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-times text-red-500 mt-1 mr-2"></i>
+                            <p><strong>Temps de chauffe</strong> : Le "Cold Start" des nouveaux nœuds a causé de la
+                                latence temporaire.</p>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Lessons -->
+                <div class="flex-1 bg-white rounded-xl card-shadow p-5 learn-card analysis-card flex flex-col">
+                    <h3 class="font-bold text-gray-800 text-lg mb-3 flex items-center">
+                        <div class="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center mr-3">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        Lessons Learned
+                    </h3>
+                    <ul class="flex-1 space-y-3 overflow-y-auto pr-2">
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                            <p><strong>Fail Fast</strong> : Mieux vaut une erreur 503 rapide qu'une requête qui pend
+                                pendant 30s.</p>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                            <p><strong>Over-provisioning</strong> : Garder un buffer de capacité de 20% est vital pour
+                                les pics soudains.</p>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-600">
+                            <i class="fas fa-info-circle text-blue-500 mt-1 mr-2"></i>
+                            <p><strong>Documentation</strong> : Les Runbooks "Copier/Coller" ont sauvé 5 min précieuses
+                                par incident.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Bottom Row: Actions & Metrics -->
+            <div class="flex gap-6 flex-1">
+                <!-- Corrective Actions Table (60%) -->
+                <div class="flex-[1.5] bg-white rounded-xl card-shadow p-6 flex flex-col">
+                    <h3 class="font-bold text-aws-dark text-lg mb-4 flex items-center">
+                        <i class="fas fa-clipboard-list mr-2 text-aws-orange"></i> Plan d'Actions Correctives
+                    </h3>
+                    <div class="overflow-hidden rounded-lg border border-gray-200 flex-1">
+                        <table class="w-full text-left border-collapse">
+                            <thead
+                                class="bg-gray-50 text-xs text-gray-500 uppercase font-bold border-b border-gray-200">
+                                <tr>
+                                    <th class="p-3">Action</th>
+                                    <th class="p-3 w-32">Owner</th>
+                                    <th class="p-3 w-24 text-center">Priorité</th>
+                                    <th class="p-3 w-32 text-right">Échéance</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="p-3 font-medium text-gray-800">
+                                        <p>Migration Redis vers Cluster Mode (Sharding)</p>
+                                        <p class="text-xs text-gray-500 font-normal">Pour éliminer le SPOF mémoire</p>
+                                    </td>
+                                    <td class="p-3 text-gray-600 flex items-center">
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] mr-2">
+                                            OL</div>Ops Lead
+                                    </td>
+                                    <td class="p-3 text-center"><span class="priority-badge p-high">P0 - CRIT</span>
+                                    </td>
+                                    <td class="p-3 text-right text-gray-600 font-mono text-xs">J+2</td>
+                                </tr>
+                                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="p-3 font-medium text-gray-800">
+                                        <p>Implémentation Circuit Breaker (Istio)</p>
+                                        <p class="text-xs text-gray-500 font-normal">Isolation des microservices
+                                            défaillants</p>
+                                    </td>
+                                    <td class="p-3 text-gray-600 flex items-center">
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-[10px] mr-2">
+                                            AL</div>Archi Lead
+                                    </td>
+                                    <td class="p-3 text-center"><span class="priority-badge p-high">P1 - HIGH</span>
+                                    </td>
+                                    <td class="p-3 text-right text-gray-600 font-mono text-xs">J+5</td>
+                                </tr>
+                                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                    <td class="p-3 font-medium text-gray-800">
+                                        <p>Ajustement seuils alertes CloudWatch</p>
+                                        <p class="text-xs text-gray-500 font-normal">Réduction du bruit (Alert Fatigue)
+                                        </p>
+                                    </td>
+                                    <td class="p-3 text-gray-600 flex items-center">
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-[10px] mr-2">
+                                            ML</div>Monit. Lead
+                                    </td>
+                                    <td class="p-3 text-center"><span class="priority-badge p-med">P2 - MED</span></td>
+                                    <td class="p-3 text-right text-gray-600 font-mono text-xs">J+7</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Resilience Indicators (40%) -->
+                <div
+                    class="flex-[1] bg-aws-darker rounded-xl card-shadow p-6 flex flex-col text-white relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i class="fas fa-shield-virus text-9xl text-white"></i>
+                    </div>
+                    <h3 class="font-bold text-aws-orange text-lg mb-6 flex items-center relative z-10">
+                        <i class="fas fa-heartbeat mr-2"></i> Indicateurs de Résilience
+                    </h3>
+                    <div class="grid grid-cols-2 gap-6 relative z-10 flex-1">
+                        <!-- RTO -->
+                        <div
+                            class="bg-gray-800 bg-opacity-50 rounded-lg p-3 flex flex-col items-center justify-center border border-gray-700">
+                            <span class="text-xs text-gray-400 font-bold uppercase mb-2">RTO (Recovery Time)</span>
+                            <div class="text-2xl font-bold text-white mb-1">4m 15s</div>
+                            <span
+                                class="text-[10px] text-green-400 bg-green-900 bg-opacity-30 px-2 py-0.5 rounded">Target
+                                &lt; 15m</span>
+                        </div>
+                        <!-- RPO -->
+                        <div
+                            class="bg-gray-800 bg-opacity-50 rounded-lg p-3 flex flex-col items-center justify-center border border-gray-700">
+                            <span class="text-xs text-gray-400 font-bold uppercase mb-2">RPO (Data Loss)</span>
+                            <div class="text-2xl font-bold text-white mb-1">&lt; 1 sec</div>
+                            <span
+                                class="text-[10px] text-green-400 bg-green-900 bg-opacity-30 px-2 py-0.5 rounded">Target
+                                &lt; 1m</span>
+                        </div>
+                        <!-- Availability -->
+                        <div
+                            class="bg-gray-800 bg-opacity-50 rounded-lg p-3 flex flex-col items-center justify-center border border-gray-700 col-span-2">
+                            <div class="flex justify-between w-full mb-2 px-2">
+                                <span class="text-xs text-gray-400 font-bold uppercase">Disponibilité (SLA)</span>
+                                <span class="text-xs text-green-400 font-bold">99.95%</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2.5 mb-2">
+                                <div class="bg-gradient-to-r from-green-400 to-blue-500 h-2.5 rounded-full"
+                                    style="width: 99.95%"></div>
+                            </div>
+                            <p class="text-[10px] text-gray-500">Seulement 24s d'indisponibilité totale sur 8h</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer: flex-shrink-0 keeps it visible at bottom -->
+        <div class="h-10 flex-shrink-0 bg-white border-t border-gray-200 flex justify-between items-center text-xs text-gray-400 font-medium z-10">
+            <p class="pl-4">HETIC - Projet Black Friday Survival</p>
+            <p class="pr-4">Page 10</p>
+        </div>
+    </div>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

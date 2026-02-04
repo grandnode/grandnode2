@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-darker {
+            background-color: #131A22;
+        }
+
+        .text-aws-dark {
+            color: #232F3E;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+
+        /* War Room Styles */
+        .role-card {
+            border-left: 4px solid #FF9900;
+            background: #F9FAFB;
+            transition: all 0.2s;
+        }
+
+        .role-card:hover {
+            transform: translateX(2px);
+            background: #F3F4F6;
+        }
+
+        .timeline-track {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #E5E7EB;
+        }
+
+        .timeline-event {
+            position: relative;
+            padding-left: 36px;
+            margin-bottom: 10px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 14px;
+            top: 6px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #E5E7EB;
+            z-index: 10;
+        }
+
+        .bg-dot-blue {
+            background-color: #3B82F6;
+            box-shadow: 0 0 0 2px #BFDBFE;
+        }
+
+        .bg-dot-orange {
+            background-color: #FF9900;
+            box-shadow: 0 0 0 2px #FDBA74;
+        }
+
+        .bg-dot-red {
+            background-color: #EF4444;
+            box-shadow: 0 0 0 2px #FECACA;
+        }
+
+        .bg-dot-green {
+            background-color: #10B981;
+            box-shadow: 0 0 0 2px #A7F3D0;
+        }
+
+        .load-step {
+            clip-path: polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-screen bg-white flex flex-col relative overflow-hidden">
+        <!-- Header Line -->
+        <div class="h-2 w-full bg-aws-orange flex-shrink-0"></div>
+        <!-- Header -->
+        <div class="bg-aws-dark text-white px-12 py-4 flex justify-between items-end shadow-md z-10 flex-shrink-0">
+            <div>
+                <h2 class="text-aws-orange font-bold uppercase tracking-widest text-xs mb-1">Jours 1-2 Démo : BLACK
+                    FRIDAY</h2>
+                <h1 class="text-2xl font-bold">War Room — Jour 1 (Gestion de Crise)</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div
+                    class="bg-red-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg flex items-center animate-pulse">
+                    <i class="fas fa-satellite-dish mr-2"></i> WAR ROOM ACTIVE
+                </div>
+            </div>
+        </div>
+        <!-- Main Content: min-h-0 so it shrinks and footer stays visible -->
+        <div class="flex-1 min-h-0 p-4 bg-gray-50 flex gap-4 overflow-hidden">
+            <!-- Left Column: Org & Tools (uniform flex-1) -->
+            <div class="flex-1 min-h-0 flex flex-col gap-4 min-w-0">
+                <!-- Team Organization -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex-shrink-0">
+                    <h3 class="font-bold text-aws-dark text-sm mb-2 flex items-center border-b border-gray-100 pb-2">
+                        <i class="fas fa-users-cog mr-2 text-aws-orange"></i> Organisation Équipe
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="role-card p-2 rounded">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-gray-700 uppercase">Incident Commander</span>
+                                <i class="fas fa-chess-king text-gray-400 text-xs"></i>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">Coordonne la réponse, valide les actions critiques,
+                                communication externe.</p>
+                        </div>
+                        <div class="role-card p-2 rounded" style="border-left-color: #3B82F6;">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-gray-700 uppercase">Ops Lead</span>
+                                <i class="fas fa-terminal text-gray-400 text-xs"></i>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">Exécute les fix (Terraform/Kubectl), gère le scaling
+                                manuel si besoin.</p>
+                        </div>
+                        <div class="role-card p-2 rounded" style="border-left-color: #10B981;">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-gray-700 uppercase">Monitoring Lead</span>
+                                <i class="fas fa-chart-line text-gray-400 text-xs"></i>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1">Scrutin Grafana, détecte les anomalies, alerte
+                                l'Incident Commander.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Real-time Tools -->
+                <div class="bg-aws-darker rounded-xl shadow-sm p-4 text-white flex-1 min-h-0 overflow-auto">
+                    <h3 class="font-bold text-aws-orange mb-2 flex items-center text-xs uppercase tracking-wide flex-shrink-0">
+                        <i class="fas fa-tools mr-2"></i> Outils Temps Réel
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-gray-800 p-2 rounded border border-gray-700">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="fas fa-bullhorn text-purple-400 text-xs"></i>
+                                <span class="text-xs font-bold">Slack</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400">Canal #war-room dédié</p>
+                        </div>
+                        <div class="bg-gray-800 p-2 rounded border border-gray-700">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="fas fa-tachometer-alt text-orange-400 text-xs"></i>
+                                <span class="text-xs font-bold">Grafana</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400">Dashboard "Mission Control"</p>
+                        </div>
+                        <div class="bg-gray-800 p-2 rounded border border-gray-700">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="fas fa-bug text-red-400 text-xs"></i>
+                                <span class="text-xs font-bold">Jaeger</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400">Tracing d'erreurs 500</p>
+                        </div>
+                        <div class="bg-gray-800 p-2 rounded border border-gray-700">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="fab fa-aws text-yellow-400 text-xs"></i>
+                                <span class="text-xs font-bold">CloudWatch</span>
+                            </div>
+                            <p class="text-[10px] text-gray-400">Logs infrastructure bruts</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Middle Column: Load Plan & Escalation (uniform flex-1) -->
+            <div class="flex-1 min-h-0 flex flex-col gap-4 min-w-0">
+                <!-- Load Plan -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex-shrink-0">
+                    <h3 class="font-bold text-aws-dark text-sm mb-2 flex items-center border-b border-gray-100 pb-2">
+                        <i class="fas fa-layer-group mr-2 text-blue-600"></i> Plan de Montée en Charge
+                    </h3>
+                    <div class="space-y-1.5">
+                        <!-- Step 1 -->
+                        <div class="flex items-center">
+                            <div
+                                class="bg-blue-50 text-blue-800 px-3 py-1 rounded-l text-xs font-bold w-20 text-center border-r border-blue-200">
+                                09:00</div>
+                            <div
+                                class="bg-gray-100 flex-1 p-1 load-step relative overflow-hidden h-7 flex items-center">
+                                <div class="absolute left-0 top-0 bottom-0 bg-blue-200 w-[20%]"></div>
+                                <span class="relative z-10 text-xs font-bold ml-2 text-gray-700">5K Users
+                                    (Baseline)</span>
+                            </div>
+                            <div class="ml-2 text-[10px] text-gray-400"><i class="fas fa-check text-green-500"></i> OK
+                            </div>
+                        </div>
+                        <!-- Step 2 -->
+                        <div class="flex items-center">
+                            <div
+                                class="bg-blue-50 text-blue-800 px-3 py-1 rounded-l text-xs font-bold w-20 text-center border-r border-blue-200">
+                                11:00</div>
+                            <div
+                                class="bg-gray-100 flex-1 p-1 load-step relative overflow-hidden h-7 flex items-center">
+                                <div class="absolute left-0 top-0 bottom-0 bg-blue-300 w-[40%]"></div>
+                                <span class="relative z-10 text-xs font-bold ml-2 text-gray-700">20K Users</span>
+                            </div>
+                            <div class="ml-2 text-[10px] text-gray-400"><i class="fas fa-check text-green-500"></i> OK
+                            </div>
+                        </div>
+                        <!-- Step 3 -->
+                        <div class="flex items-center">
+                            <div
+                                class="bg-blue-50 text-blue-800 px-3 py-1 rounded-l text-xs font-bold w-20 text-center border-r border-blue-200">
+                                14:00</div>
+                            <div
+                                class="bg-gray-100 flex-1 p-1 load-step relative overflow-hidden h-7 flex items-center">
+                                <div class="absolute left-0 top-0 bottom-0 bg-blue-400 w-[70%]"></div>
+                                <span class="relative z-10 text-xs font-bold ml-2 text-gray-700">50K Users</span>
+                            </div>
+                            <div class="ml-2 text-[10px] text-gray-400"><i class="fas fa-check text-green-500"></i> OK
+                            </div>
+                        </div>
+                        <!-- Step 4 -->
+                        <div class="flex items-center">
+                            <div
+                                class="bg-blue-600 text-white px-3 py-1 rounded-l text-xs font-bold w-20 text-center border-r border-blue-700">
+                                16:00</div>
+                            <div
+                                class="bg-gray-100 flex-1 p-1 load-step relative overflow-hidden h-7 flex items-center">
+                                <div class="absolute left-0 top-0 bottom-0 bg-blue-600 w-[100%]"></div>
+                                <span class="relative z-10 text-xs font-bold ml-2 text-gray-800">92K Users (Peak)</span>
+                            </div>
+                            <div class="ml-2 text-[10px] text-gray-400"><i class="fas fa-check text-green-500"></i> OK
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Escalation Matrix -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex-1 min-h-0 overflow-auto">
+                    <h3 class="font-bold text-aws-dark text-sm mb-2 flex items-center border-b border-gray-100 pb-2 flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i> Règles d'Escalade
+                    </h3>
+                    <div class="space-y-2 overflow-y-auto">
+                        <div class="flex gap-3 items-start border-l-2 border-green-500 pl-3">
+                            <div class="mt-1"><span
+                                    class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded">WARN</span>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-800">Latence &gt; 500ms</p>
+                                <p class="text-[10px] text-gray-500">Action: Monitoring Lead analyse logs. Pas d'action
+                                    infra immédiate.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 items-start border-l-2 border-orange-500 pl-3">
+                            <div class="mt-1"><span
+                                    class="bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-0.5 rounded">ERROR</span>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-800">5xx Rate &gt; 1% OU CPU &gt; 85%</p>
+                                <p class="text-[10px] text-gray-500">Action: Ops Lead vérifie HPA. Check scaling limits.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 items-start border-l-2 border-red-600 pl-3 bg-red-50 p-2 rounded-r">
+                            <div class="mt-1"><span
+                                    class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">CRITICAL</span>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-red-900">Service Down OU Latence &gt; 2s</p>
+                                <p class="text-[10px] text-red-800">Action: <strong>Incident Commander</strong> déclare
+                                    SEV-1. Rollback ou Scale-out manuel forcé.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Column: Timeline (uniform flex-1) -->
+            <div class="flex-1 min-h-0 min-w-0 bg-white rounded-xl shadow-sm border border-gray-200 p-4 relative overflow-hidden flex flex-col">
+                <h3 class="font-bold text-aws-dark text-sm mb-2 flex items-center justify-between border-b border-gray-100 pb-2 z-10 bg-white flex-shrink-0">
+                    <span class="flex items-center"><i class="fas fa-history mr-2 text-aws-orange"></i> Timeline Jour 1</span>
+                    <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded">8h Simulation</span>
+                </h3>
+                <div class="flex-1 min-h-0 overflow-y-auto pr-2 relative">
+                    <div class="timeline-track"></div>
+                    <!-- Event 08:30 -->
+                    <div class="timeline-event">
+                        <div class="timeline-dot bg-dot-green"></div>
+                        <span class="text-[10px] font-bold text-gray-400 mb-1 block">08:30</span>
+                        <div class="bg-gray-50 p-2 rounded border border-gray-200">
+                            <p class="text-xs font-bold text-gray-800">Briefing &amp; Setup War Room</p>
+                            <p class="text-[10px] text-gray-600">Vérification des accès, ouverture dashboard Grafana,
+                                check santé initial.</p>
+                        </div>
+                    </div>
+                    <!-- Event 09:15 -->
+                    <div class="timeline-event">
+                        <div class="timeline-dot bg-dot-blue"></div>
+                        <span class="text-[10px] font-bold text-gray-400 mb-1 block">09:15</span>
+                        <div class="bg-blue-50 p-2 rounded border border-blue-100">
+                            <p class="text-xs font-bold text-blue-900">Démarrage Injection Charge (5K)</p>
+                            <p class="text-[10px] text-blue-700">Lancement scénario Locust "Warm-up". HPA commence à
+                                scaler les pods frontend.</p>
+                        </div>
+                    </div>
+                    <!-- Event 10:42 -->
+                    <div class="timeline-event">
+                        <div class="timeline-dot bg-dot-red"></div>
+                        <span class="text-[10px] font-bold text-gray-400 mb-1 block">10:42</span>
+                        <div class="bg-red-50 p-2 rounded border border-red-100 shadow-sm">
+                            <div class="flex justify-between items-start">
+                                <p class="text-xs font-bold text-red-900"><i class="fas fa-bomb mr-1"></i> Incident #1 :
+                                    Cart Service Crash</p>
+                                <span class="bg-red-200 text-red-800 text-[9px] px-1 rounded font-bold">SEV-2</span>
+                            </div>
+                            <p class="text-[10px] text-red-700 mt-1">Latence panier explose. Redis sature.
+                                <strong>Action:</strong> Restart déploiement + Flush Redis.</p>
+                        </div>
+                    </div>
+                    <!-- Event 14:30 -->
+                    <div class="timeline-event">
+                        <div class="timeline-dot bg-dot-orange"></div>
+                        <span class="text-[10px] font-bold text-gray-400 mb-1 block">14:30</span>
+                        <div class="bg-orange-50 p-2 rounded border border-orange-100">
+                            <p class="text-xs font-bold text-orange-900">Passage cap 50K Users</p>
+                            <p class="text-[10px] text-orange-800">Cluster Autoscaler déclenche 3 nouveaux nœuds
+                                workers. Latence stable à 300ms.</p>
+                        </div>
+                    </div>
+                    <!-- Event 15:15 -->
+                    <div class="timeline-event">
+                        <div class="timeline-dot bg-dot-red"></div>
+                        <span class="text-[10px] font-bold text-gray-400 mb-1 block">15:15</span>
+                        <div class="bg-red-50 p-2 rounded border border-red-100 shadow-sm">
+                            <div class="flex justify-between items-start">
+                                <p class="text-xs font-bold text-red-900"><i class="fas fa-bomb mr-1"></i> Incident #2 :
+                                    Network Partition</p>
+                                <span class="bg-red-200 text-red-800 text-[9px] px-1 rounded font-bold">SEV-1</span>
+                            </div>
+                            <p class="text-[10px] text-red-700 mt-1">Perte connectivité AZ-B. <strong>Action:</strong>
+                                Failover trafic via Route53 vers AZ-A et AZ-C.</p>
+                        </div>
+                    </div>
+                    <!-- Event 16:45 -->
+                    <div class="timeline-event">
+                        <div class="timeline-dot bg-dot-green"></div>
+                        <span class="text-[10px] font-bold text-gray-400 mb-1 block">16:45</span>
+                        <div class="bg-green-50 p-2 rounded border border-green-100">
+                            <p class="text-xs font-bold text-green-900">Pic Charge Atteint (92K)</p>
+                            <p class="text-[10px] text-green-700">Objectif validé. Infrastructure tient la charge. Début
+                                descale progressif.</p>
+                        </div>
+                    </div>
+                    <!-- Event 17:30 -->
+                    <div class="timeline-event">
+                        <div class="timeline-dot bg-dot-green"></div>
+                        <span class="text-[10px] font-bold text-gray-400 mb-1 block">17:30</span>
+                        <div class="bg-gray-50 p-2 rounded border border-gray-200">
+                            <p class="text-xs font-bold text-gray-800">Fin Simulation &amp; Debrief Chaud</p>
+                            <p class="text-[10px] text-gray-600">Arrêt injection charge. Export logs pour Post-Mortem.
+                                Extinction ressources non-critiques.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer: flex-shrink-0 keeps it visible at bottom -->
+        <div class="h-10 flex-shrink-0 bg-white border-t border-gray-200 flex justify-between items-center text-xs text-gray-400 font-medium z-10">
+            <p class="pl-4">HETIC - Projet Black Friday Survival</p>
+            <p class="pr-4">Page 8</p>
+        </div>
+    </div>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

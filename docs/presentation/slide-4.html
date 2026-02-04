@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-darker {
+            background-color: #131A22;
+        }
+
+        .bg-aws-light {
+            background-color: #F2F3F3;
+        }
+
+        .text-aws-dark {
+            color: #232F3E;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+
+        .dashed-border {
+            border-style: dashed;
+        }
+
+        /* Architecture Diagram Styles */
+        .arch-box {
+            background-color: white;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .arch-label {
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background-color: white;
+            padding: 0 8px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #6B7280;
+            text-transform: uppercase;
+        }
+
+        .connection-line {
+            position: absolute;
+            background-color: #CBD5E1;
+            z-index: 0;
+        }
+
+        .service-icon {
+            transition: transform 0.2s;
+        }
+
+        .service-icon:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-screen bg-white flex flex-col relative overflow-hidden">
+        <!-- Header Line -->
+        <div class="h-2 w-full bg-aws-orange flex-shrink-0"></div>
+        <!-- Header -->
+        <div class="bg-aws-dark text-white px-12 py-5 flex justify-between items-end shadow-md z-10 flex-shrink-0">
+            <div>
+                <h2 class="text-aws-orange font-bold uppercase tracking-widest text-xs mb-1">Architecture Technique</h2>
+                <h1 class="text-3xl font-bold">Architecture Déployée sur AWS</h1>
+            </div>
+            <div class="text-right">
+                <p class="text-gray-400 text-sm"><i class="fas fa-check-circle text-green-500 mr-2"></i>Infrastructure
+                    Opérationnelle</p>
+            </div>
+        </div>
+        <!-- Main Content: min-h-0 so it shrinks and footer stays visible -->
+        <div class="flex-1 min-h-0 p-6 bg-gray-50 flex gap-6 h-full">
+            <!-- Left Column: Architecture Diagram Area -->
+            <div class="flex-1 bg-white rounded-xl shadow-lg border border-gray-200 p-5 relative flex flex-col min-h-0">
+                <div class="flex justify-between items-center mb-3 border-b border-gray-100 pb-2 flex-shrink-0">
+                    <h3 class="font-bold text-aws-dark text-lg"><i
+                            class="fas fa-project-diagram mr-2 text-aws-orange"></i>Schéma d'Infrastructure</h3>
+                    <div class="flex gap-2">
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold">Region:
+                            eu-west-3</span>
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-bold">HA: 3 AZs</span>
+                    </div>
+                </div>
+                <!-- Diagram Visualization -->
+                <div
+                    class="flex-1 min-h-0 relative border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 overflow-hidden flex flex-col">
+                    <!-- AWS Cloud Container -->
+                    <div class="absolute top-2 left-2 text-gray-400 font-bold text-xs z-10"><i
+                            class="fab fa-aws mr-1"></i> AWS Cloud</div>
+                    <!-- Internet Gateway / Ingress -->
+                    <div class="flex justify-center mb-4 relative z-10 flex-shrink-0">
+                        <div
+                            class="bg-white border-2 border-aws-orange rounded-lg p-2 shadow-sm flex items-center gap-2 w-48 justify-center">
+                            <i class="fas fa-globe text-gray-500"></i>
+                            <div class="text-xs font-bold text-gray-700">Internet / Users</div>
+                            <i class="fas fa-long-arrow-alt-right text-gray-400"></i>
+                            <i class="fas fa-shield-alt text-red-500" title="WAF"></i>
+                            <div class="text-xs font-bold text-aws-dark">ALB Ingress</div>
+                        </div>
+                    </div>
+                    <!-- VPC Box: fills remaining space, min height for readability -->
+                    <div class="border-2 border-blue-200 rounded-lg p-4 flex-1 min-h-[220px] bg-blue-50/30 relative">
+                        <div class="arch-label text-blue-500">VPC (10.0.0.0/16)</div>
+                        <!-- 3 AZ Columns -->
+                        <div class="grid grid-cols-3 gap-4 h-full mt-2">
+                            <!-- AZ 1 -->
+                            <div
+                                class="border border-dashed border-blue-300 rounded bg-white/50 p-3 flex flex-col relative group hover:bg-white transition-colors">
+                                <div class="text-[10px] text-gray-500 font-bold text-center mb-2">AZ A (eu-west-3a)
+                                </div>
+                                <!-- Public Subnet -->
+                                <div class="bg-green-50 border border-green-200 rounded p-2 mb-2">
+                                    <div class="text-[9px] text-green-700 uppercase font-bold mb-1">Public Subnet</div>
+                                    <div class="flex justify-center"><i class="fas fa-route text-gray-600 text-lg"
+                                            title="NAT Gateway"></i></div>
+                                </div>
+                                <!-- Private Subnet (EKS Nodes) -->
+                                <div class="bg-blue-50 border border-blue-200 rounded p-2 flex-1 flex flex-col gap-2">
+                                    <div class="text-[9px] text-blue-700 uppercase font-bold">Private Subnet</div>
+                                    <div
+                                        class="bg-white border border-gray-200 rounded p-2 shadow-sm flex items-center gap-2 service-icon">
+                                        <i class="fas fa-cube text-aws-orange"></i>
+                                        <div>
+                                            <p class="text-[10px] font-bold">Node Group</p>
+                                            <p class="text-[8px] text-gray-500">t3.medium</p>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="bg-white border border-gray-200 rounded p-2 shadow-sm flex items-center gap-2 service-icon opacity-75">
+                                        <i class="fas fa-cube text-gray-400"></i>
+                                        <div>
+                                            <p class="text-[10px] font-bold">Spot Inst.</p>
+                                            <p class="text-[8px] text-gray-500">Auto-scaled</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- AZ 2 -->
+                            <div
+                                class="border border-dashed border-blue-300 rounded bg-white/50 p-3 flex flex-col relative group hover:bg-white transition-colors">
+                                <div class="text-[10px] text-gray-500 font-bold text-center mb-2">AZ B (eu-west-3b)
+                                </div>
+                                <div class="bg-green-50 border border-green-200 rounded p-2 mb-2">
+                                    <div class="text-[9px] text-green-700 uppercase font-bold mb-1">Public Subnet</div>
+                                    <div class="flex justify-center"><i class="fas fa-route text-gray-600 text-lg"
+                                            title="NAT Gateway"></i></div>
+                                </div>
+                                <div class="bg-blue-50 border border-blue-200 rounded p-2 flex-1 flex flex-col gap-2">
+                                    <div class="text-[9px] text-blue-700 uppercase font-bold">Private Subnet</div>
+                                    <div
+                                        class="bg-white border border-gray-200 rounded p-2 shadow-sm flex items-center gap-2 service-icon">
+                                        <i class="fas fa-cube text-aws-orange"></i>
+                                        <div>
+                                            <p class="text-[10px] font-bold">Node Group</p>
+                                            <p class="text-[8px] text-gray-500">t3.medium</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- AZ 3 -->
+                            <div
+                                class="border border-dashed border-blue-300 rounded bg-white/50 p-3 flex flex-col relative group hover:bg-white transition-colors">
+                                <div class="text-[10px] text-gray-500 font-bold text-center mb-2">AZ C (eu-west-3c)
+                                </div>
+                                <div class="bg-green-50 border border-green-200 rounded p-2 mb-2">
+                                    <div class="text-[9px] text-green-700 uppercase font-bold mb-1">Public Subnet</div>
+                                    <div class="flex justify-center"><i class="fas fa-route text-gray-600 text-lg"
+                                            title="NAT Gateway"></i></div>
+                                </div>
+                                <div class="bg-blue-50 border border-blue-200 rounded p-2 flex-1 flex flex-col gap-2">
+                                    <div class="text-[9px] text-blue-700 uppercase font-bold">Private Subnet</div>
+                                    <div
+                                        class="bg-white border border-gray-200 rounded p-2 shadow-sm flex items-center gap-2 service-icon">
+                                        <i class="fas fa-cube text-aws-orange"></i>
+                                        <div>
+                                            <p class="text-[10px] font-bold">Node Group</p>
+                                            <p class="text-[8px] text-gray-500">t3.medium</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Column: Specs & Components -->
+            <div class="w-[380px] flex flex-col gap-2">
+                <!-- Card 1: Compute Stack -->
+                <div class="bg-white rounded-xl shadow-lg border-l-4 border-aws-orange p-5">
+                    <h3 class="font-bold text-aws-dark mb-3 flex items-center">
+                        <i class="fas fa-server mr-2 text-aws-orange"></i> Compute (EKS)
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <div class="w-6 h-6 rounded bg-gray-100 flex items-center justify-center mr-3 mt-0.5">
+                                <i class="fas fa-layer-group text-xs text-gray-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">Version Kubernetes</p>
+                                <p class="text-xs text-gray-500">v1.27 (EKS Managed)</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-6 h-6 rounded bg-gray-100 flex items-center justify-center mr-3 mt-0.5">
+                                <i class="fas fa-microchip text-xs text-gray-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">Stratégie de Noeuds</p>
+                                <p class="text-xs text-gray-500">Managed Node Groups + Spot Instances</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-6 h-6 rounded bg-gray-100 flex items-center justify-center mr-3 mt-0.5">
+                                <i class="fas fa-expand-arrows-alt text-xs text-gray-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">Auto-Scaling</p>
+                                <p class="text-xs text-gray-500">Cluster Autoscaler &amp; Horizontal Pod Autoscaler
+                                    (HPA)</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Card 2: Security & Net -->
+                <div class="bg-white rounded-xl shadow-lg border-l-4 border-blue-500 p-5">
+                    <h3 class="font-bold text-aws-dark mb-3 flex items-center">
+                        <i class="fas fa-shield-alt mr-2 text-blue-500"></i> Sécurité &amp; Réseau
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-blue-50 p-2 rounded border border-blue-100">
+                            <p class="text-[10px] text-blue-500 font-bold uppercase">Réseau</p>
+                            <p class="text-xs font-bold text-gray-800">VPC CNI Plugin</p>
+                        </div>
+                        <div class="bg-blue-50 p-2 rounded border border-blue-100">
+                            <p class="text-[10px] text-blue-500 font-bold uppercase">Ingress</p>
+                            <p class="text-xs font-bold text-gray-800">AWS Load Balancer</p>
+                        </div>
+                        <div class="bg-blue-50 p-2 rounded border border-blue-100">
+                            <p class="text-[10px] text-blue-500 font-bold uppercase">Isolation</p>
+                            <p class="text-xs font-bold text-gray-800">Security Groups</p>
+                        </div>
+                        <div class="bg-blue-50 p-2 rounded border border-blue-100">
+                            <p class="text-[10px] text-blue-500 font-bold uppercase">Identité</p>
+                            <p class="text-xs font-bold text-gray-800">IAM OIDC Provider</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card 3: IaC -->
+                <div class="bg-aws-darker rounded-xl shadow-lg p-5 text-white flex-1 flex flex-col justify-center">
+                    <h3 class="font-bold mb-3 flex items-center text-sm uppercase tracking-wider text-gray-400">
+                        <i class="fas fa-code mr-2 text-white"></i> Déploiement
+                    </h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+                            <span class="text-sm"><i class="fab fa-github mr-2"></i>Infrastructure</span>
+                            <span
+                                class="text-xs bg-gray-700 px-2 py-0.5 rounded text-aws-orange font-mono">Terraform</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-1">
+                            <span class="text-sm"><i class="fas fa-box-open mr-2"></i>Applications</span>
+                            <span class="text-xs bg-gray-700 px-2 py-0.5 rounded text-blue-400 font-mono">Helm
+                                Charts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer: flex-shrink-0 keeps it at bottom; no horizontal padding -->
+        <div
+            class="h-10 flex-shrink-0 bg-white border-t border-gray-200 flex justify-between items-center text-xs text-gray-400 font-medium">
+            <p class="pl-4">HETIC - Projet Black Friday Survival</p>
+            <p class="pr-4">Page 4</p>
+        </div>
+    </div>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-darker {
+            background-color: #131A22;
+        }
+
+        .bg-aws-light {
+            background-color: #F2F3F3;
+        }
+
+        .text-aws-dark {
+            color: #232F3E;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+
+        .kpi-card {
+            transition: transform 0.2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-screen bg-white flex flex-col relative overflow-hidden">
+        <!-- Header Line -->
+        <div class="h-2 w-full bg-aws-orange"></div>
+        <!-- Header -->
+        <div class="bg-aws-dark text-white px-12 py-6 flex justify-between items-end shadow-md z-10">
+            <div>
+                <h2 class="text-aws-orange font-bold uppercase tracking-widest text-xs mb-1">Performance &amp;
+                    Scalabilité</h2>
+                <h1 class="text-3xl font-bold">Résultats des Tests de Charge</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div
+                    class="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg flex items-center animate-pulse">
+                    <i class="fas fa-check-circle mr-2"></i> OBJECTIF 90K VALIDÉ
+                </div>
+            </div>
+        </div>
+        <!-- Main Content: min-h-0 allows flex child to shrink inside viewport -->
+        <div class="flex-1 min-h-0 p-6 bg-gray-50 flex flex-col gap-4 overflow-hidden">
+            <!-- Top Row: KPI Cards (shrinkable, no flex-grow) -->
+            <div class="grid grid-cols-4 gap-4 flex-shrink-0">
+                <!-- KPI 1: Max Users -->
+                <div class="bg-white p-3 rounded-lg shadow border-l-4 border-aws-orange kpi-card">
+                    <div class="flex justify-between items-start mb-1">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Pic Utilisateurs</p>
+                        <i class="fas fa-users text-aws-orange bg-orange-100 p-1.5 rounded-full text-xs"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-800">92,450</p>
+                    <p class="text-[10px] text-green-600 font-medium mt-0.5"><i class="fas fa-arrow-up"></i> +2.7% vs
+                        Objectif (90k)</p>
+                </div>
+                <!-- KPI 2: Latency P95 -->
+                <div class="bg-white p-3 rounded-lg shadow border-l-4 border-blue-500 kpi-card">
+                    <div class="flex justify-between items-start mb-1">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Latence (P95)</p>
+                        <i class="fas fa-stopwatch text-blue-500 bg-blue-100 p-1.5 rounded-full text-xs"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-800">1,240 <span
+                            class="text-xs font-normal text-gray-500">ms</span></p>
+                    <p class="text-[10px] text-green-600 font-medium mt-0.5"><i class="fas fa-check"></i> Sous la limite
+                        (2s)</p>
+                </div>
+                <!-- KPI 3: Error Rate -->
+                <div class="bg-white p-3 rounded-lg shadow border-l-4 border-green-500 kpi-card">
+                    <div class="flex justify-between items-start mb-1">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Taux d'Erreur</p>
+                        <i class="fas fa-bug text-green-500 bg-green-100 p-1.5 rounded-full text-xs"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-800">0.08%</p>
+                    <p class="text-[10px] text-green-600 font-medium mt-0.5"><i class="fas fa-check"></i> Stable &lt; 1%
+                    </p>
+                </div>
+                <!-- KPI 4: Autoscaling Speed -->
+                <div class="bg-white p-3 rounded-lg shadow border-l-4 border-purple-500 kpi-card">
+                    <div class="flex justify-between items-start mb-1">
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Pods Max</p>
+                        <i class="fas fa-cubes text-purple-500 bg-purple-100 p-1.5 rounded-full text-xs"></i>
+                    </div>
+                    <p class="text-2xl font-bold text-gray-800">145</p>
+                    <p class="text-[10px] text-gray-500 font-medium mt-0.5">Sur 18 Noeuds (HPA actif)</p>
+                </div>
+            </div>
+            <!-- Bottom Row: Charts & Validation (flex-1 + min-h-0 so it shrinks) -->
+            <div class="flex-1 flex gap-4 min-h-0">
+                <!-- Main Chart: Load Ramp-up -->
+                <div class="flex-[2] bg-white rounded-xl shadow-lg border border-gray-200 p-3 flex flex-col min-h-0">
+                    <div class="flex justify-between items-center mb-2 flex-shrink-0">
+                        <h3 class="font-bold text-aws-dark text-sm flex items-center">
+                            <i class="fas fa-chart-area text-aws-orange mr-2"></i> Scénario de Montée en Charge (K6)
+                        </h3>
+                        <div class="flex gap-4 text-xs">
+                            <div class="flex items-center"><span class="w-3 h-3 bg-blue-500 rounded-full mr-1"></span>
+                                Utilisateurs (VUs)</div>
+                            <div class="flex items-center"><span class="w-3 h-3 bg-red-400 rounded-full mr-1"></span>
+                                Latence (ms)</div>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-h-0 relative w-full">
+                        <canvas id="loadChart"></canvas>
+                    </div>
+                </div>
+                <!-- Side Column: Validation Checklist & Error Distribution -->
+                <div class="flex-1 flex flex-col gap-4 min-h-0 min-w-0">
+                    <!-- Validation Checklist: overflow-auto so it scrolls if tight -->
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-4 flex-1 min-h-0 overflow-auto">
+                        <h3 class="font-bold text-aws-dark mb-2 border-b border-gray-100 pb-2 text-sm flex-shrink-0">
+                            <i class="fas fa-clipboard-check text-green-500 mr-2"></i> Critères de Succès
+                        </h3>
+                        <div class="space-y-2">
+                            <div
+                                class="flex items-center justify-between p-2 bg-green-50 rounded border border-green-100">
+                                <div class="flex items-center">
+                                    <div
+                                        class="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3">
+                                        <i class="fas fa-check"></i></div>
+                                    <span class="text-sm font-medium text-gray-700">Tenue charge &gt; 90K</span>
+                                </div>
+                                <span class="text-xs font-bold text-green-700">OK</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2 bg-green-50 rounded border border-green-100">
+                                <div class="flex items-center">
+                                    <div
+                                        class="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3">
+                                        <i class="fas fa-check"></i></div>
+                                    <span class="text-sm font-medium text-gray-700">Latence P95 &lt; 2000ms</span>
+                                </div>
+                                <span class="text-xs font-bold text-green-700">OK</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2 bg-green-50 rounded border border-green-100">
+                                <div class="flex items-center">
+                                    <div
+                                        class="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3">
+                                        <i class="fas fa-check"></i></div>
+                                    <span class="text-sm font-medium text-gray-700">Taux Erreurs &lt; 1%</span>
+                                </div>
+                                <span class="text-xs font-bold text-green-700">OK</span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2 bg-green-50 rounded border border-green-100">
+                                <div class="flex items-center">
+                                    <div
+                                        class="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3">
+                                        <i class="fas fa-check"></i></div>
+                                    <span class="text-sm font-medium text-gray-700">Zero Downtime</span>
+                                </div>
+                                <span class="text-xs font-bold text-green-700">OK</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Pod Autoscaling Viz (fixed height, does not grow) -->
+                    <div
+                        class="bg-aws-darker text-white rounded-xl shadow-lg p-4 flex flex-col justify-center flex-shrink-0 h-32">
+                        <h3 class="font-bold text-aws-orange text-sm mb-2 uppercase tracking-wide">Comportement
+                            Autoscaler</h3>
+                        <div class="flex items-center justify-between text-xs text-gray-400 mb-1">
+                            <span>Pods count</span>
+                            <span>CPU Usage</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2 mb-4 overflow-hidden">
+                            <div class="bg-blue-500 h-full rounded-full" style="width: 85%"></div>
+                        </div>
+                        <div class="flex gap-4 text-xs">
+                            <div>
+                                <p class="text-gray-400">Déclencheur HPA</p>
+                                <p class="font-bold text-white">CPU &gt; 70%</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400">Scale-up</p>
+                                <p class="font-bold text-green-400">~45 sec</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer: flex-shrink-0 keeps it at bottom; no horizontal padding -->
+
+        </div>
+        <div
+            class="h-10 flex-shrink-0 bg-white border-t border-gray-200 flex justify-between items-center text-xs text-gray-400 font-medium">
+            <p class="pl-4">HETIC - Projet Black Friday Survival</p>
+            <p class="pr-4">Page 5</p>
+        </div>
+        <script>
+            const ctx = document.getElementById('loadChart').getContext('2d');
+
+            // Gradient for users
+            const gradientUsers = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientUsers.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+            gradientUsers.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['0m', '5m', '10m', '15m', '20m', '25m', '30m', '35m', '40m', '45m'],
+                    datasets: [{
+                            label: 'Utilisateurs (VUs)',
+                            data: [1000, 5000, 15000, 45000, 75000, 92450, 91200, 88000, 45000, 10000],
+                            borderColor: '#3B82F6', // Blue
+                            backgroundColor: gradientUsers,
+                            borderWidth: 3,
+                            pointRadius: 0,
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Latence (ms)',
+                            data: [45, 52, 120, 350, 890, 1240, 1150, 980, 210, 55],
+                            borderColor: '#F87171', // Red
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(35, 47, 62, 0.9)',
+                            titleColor: '#FF9900',
+                            bodyColor: '#fff',
+                            padding: 10,
+                            cornerRadius: 4
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: "'Roboto', sans-serif",
+                                    size: 10
+                                }
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'VUs',
+                                color: '#3B82F6'
+                            },
+                            grid: {
+                                color: '#F3F4F6'
+                            },
+                            suggestedMax: 100000
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Latence (ms)',
+                                color: '#F87171'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            suggestedMax: 2500
+                        }
+                    }
+                }
+            });
+        </script>
+    </div>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

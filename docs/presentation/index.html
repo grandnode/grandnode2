@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Présentation</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    .frame-wrap {
+      width: 100%;
+      height: 100%;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .frame-wrap iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+      background: #232F3E;
+    }
+    .slide-info {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      color: rgba(255,255,255,0.6);
+      font-family: sans-serif;
+      font-size: 14px;
+      z-index: 10;
+    }
+    .slide-info kbd {
+      padding: 2px 6px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="frame-wrap">
+    <iframe id="slide" src="slide-1.html" title="Slide"></iframe>
+  </div>
+  <div class="slide-info" id="slideInfo">1 / 12 — <kbd>←</kbd> <kbd>→</kbd></div>
+
+  <script>
+    (function () {
+      var totalSlides = 12;
+      var current = 1;
+      var iframe = document.getElementById('slide');
+      var slideInfo = document.getElementById('slideInfo');
+
+      function goToSlide(n) {
+        if (n < 1 || n > totalSlides) return;
+        current = n;
+        iframe.src = 'slide-' + current + '.html';
+        slideInfo.textContent = current + ' / ' + totalSlides + ' — \u2329 \u232A';
+      }
+
+      function next() { goToSlide(current + 1); }
+      function prev() { goToSlide(current - 1); }
+
+      window.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+      });
+
+      window.addEventListener('message', function (e) {
+        if (e.data && e.data.type === 'slide-nav') {
+          if (e.data.key === 'ArrowRight') next();
+          else if (e.data.key === 'ArrowLeft') prev();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

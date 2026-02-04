@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-darker {
+            background-color: #131A22;
+        }
+
+        .bg-aws-light {
+            background-color: #F2F3F3;
+        }
+
+        .text-aws-dark {
+            color: #232F3E;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+
+        /* Timeline: line spans full content height */
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background-color: #E5E7EB;
+            z-index: 0;
+        }
+
+        .incident-card {
+            position: relative;
+            z-index: 10;
+        }
+
+        .sev-badge {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .sev-1 {
+            background-color: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+        }
+
+        .sev-2 {
+            background-color: #FFEDD5;
+            color: #9A3412;
+            border: 1px solid #FED7AA;
+        }
+
+        .sev-3 {
+            background-color: #FEF3C7;
+            color: #92400E;
+            border: 1px solid #FDE68A;
+        }
+
+        .kpi-stat-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-bottom: 3px solid transparent;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-screen bg-white flex flex-col relative overflow-hidden">
+        <!-- Header Line -->
+        <div class="h-2 w-full bg-aws-orange flex-shrink-0"></div>
+        <!-- Header -->
+        <div class="bg-aws-dark text-white px-12 py-4 flex justify-between items-end shadow-md z-10 flex-shrink-0">
+            <div>
+                <h2 class="text-aws-orange font-bold uppercase tracking-widest text-xs mb-1">Jours 1-2 Démo : BLACK FRIDAY</h2>
+                <h1 class="text-2xl font-bold">Incidents Traités &amp; KPIs Résilience</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-gray-700 px-4 py-2 rounded-lg flex items-center border border-gray-600">
+                    <i class="fas fa-fire-extinguisher text-2xl mr-3 text-red-400"></i>
+                    <div>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-wider">État Final</p>
+                        <p class="text-sm font-bold text-white">Tous Incidents Résolus</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content: min-h-0 so footer stays visible -->
+        <div class="flex-1 min-h-0 p-4 bg-gray-50 flex gap-4 overflow-hidden relative">
+            <!-- Left Column: Incident Timeline (uniform flex-1) -->
+            <div class="flex-1 min-h-0 min-w-0 flex flex-col relative z-10">
+                <div class="flex items-center justify-between mb-2 flex-shrink-0">
+                    <h3 class="font-bold text-aws-dark flex items-center text-sm">
+                        <i class="fas fa-history mr-2 text-aws-orange"></i> Journal des Incidents (Chronologie)
+                    </h3>
+                    <span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded font-mono">Filter: ALL</span>
+                </div>
+                <!-- Timeline: flex column, no scroll, cards share space equally -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 flex-1 min-h-0 flex flex-col gap-2 relative overflow-hidden">
+                    <div class="timeline-line"></div>
+                    <!-- Incident 1 -->
+                    <div class="flex gap-2 flex-1 min-h-0 incident-card">
+                        <div class="flex flex-col items-center flex-shrink-0">
+                            <div class="w-8 h-8 bg-red-100 rounded-full border-2 border-white shadow flex items-center justify-center z-10">
+                                <i class="fas fa-bomb text-red-600 text-xs"></i>
+                            </div>
+                            <span class="text-[9px] font-bold text-gray-500 mt-0.5">10:42</span>
+                        </div>
+                        <div class="flex-1 min-w-0 bg-white border border-red-100 rounded-lg shadow-sm p-2 relative overflow-hidden flex flex-col justify-center">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500"></div>
+                            <div class="flex justify-between items-start gap-2">
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="font-bold text-gray-800 text-[11px] leading-tight">Cart Service - Redis OOM</h4>
+                                    <p class="text-[9px] text-red-600 mt-0.5">Impact: panier indisponible</p>
+                                </div>
+                                <span class="sev-badge sev-1 flex-shrink-0">SEV-1</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5 mt-1.5 bg-gray-50 p-1.5 rounded text-[9px]">
+                                <div><span class="font-bold text-gray-500">Diagnostic:</span> <span class="text-gray-700">Redis saturé (pic).</span></div>
+                                <div><span class="font-bold text-gray-500">Résolution:</span> <span class="text-gray-700">Flush Redis + VPA.</span></div>
+                            </div>
+                            <div class="mt-1 flex justify-end"><span class="text-[9px] font-bold text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">MTTR: 8m30s</span></div>
+                        </div>
+                    </div>
+                    <!-- Incident 2 -->
+                    <div class="flex gap-2 flex-1 min-h-0 incident-card">
+                        <div class="flex flex-col items-center flex-shrink-0">
+                            <div class="w-8 h-8 bg-orange-100 rounded-full border-2 border-white shadow flex items-center justify-center z-10">
+                                <i class="fas fa-network-wired text-orange-600 text-xs"></i>
+                            </div>
+                            <span class="text-[9px] font-bold text-gray-500 mt-0.5">15:15</span>
+                        </div>
+                        <div class="flex-1 min-w-0 bg-white border border-orange-100 rounded-lg shadow-sm p-2 relative overflow-hidden flex flex-col justify-center">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-500"></div>
+                            <div class="flex justify-between items-start gap-2">
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="font-bold text-gray-800 text-[11px] leading-tight">Zone Failure - Partition AZ-B</h4>
+                                    <p class="text-[9px] text-orange-600 mt-0.5">Impact: 30% timeout</p>
+                                </div>
+                                <span class="sev-badge sev-2 flex-shrink-0">SEV-2</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5 mt-1.5 bg-gray-50 p-1.5 rounded text-[9px]">
+                                <div><span class="font-bold text-gray-500">Diagnostic:</span> <span class="text-gray-700">Perte eu-west-3b.</span></div>
+                                <div><span class="font-bold text-gray-500">Résolution:</span> <span class="text-gray-700">HPA AZ-A/C, AZ-B hors LB.</span></div>
+                            </div>
+                            <div class="mt-1 flex justify-end"><span class="text-[9px] font-bold text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">MTTR: 4m15s</span></div>
+                        </div>
+                    </div>
+                    <!-- Incident 3 -->
+                    <div class="flex gap-2 flex-1 min-h-0 incident-card">
+                        <div class="flex flex-col items-center flex-shrink-0">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-full border-2 border-white shadow flex items-center justify-center z-10">
+                                <i class="fas fa-server text-yellow-600 text-xs"></i>
+                            </div>
+                            <span class="text-[9px] font-bold text-gray-500 mt-0.5">16:45</span>
+                        </div>
+                        <div class="flex-1 min-w-0 bg-white border border-yellow-100 rounded-lg shadow-sm p-2 relative overflow-hidden flex flex-col justify-center">
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500"></div>
+                            <div class="flex justify-between items-start gap-2">
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="font-bold text-gray-800 text-[11px] leading-tight">Frontend - CPU Throttling</h4>
+                                    <p class="text-[9px] text-yellow-600 mt-0.5">Impact: chargement lent</p>
+                                </div>
+                                <span class="sev-badge sev-3 flex-shrink-0">SEV-3</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-1.5 mt-1.5 bg-gray-50 p-1.5 rounded text-[9px]">
+                                <div><span class="font-bold text-gray-500">Diagnostic:</span> <span class="text-gray-700">Limites CPU frontend.</span></div>
+                                <div><span class="font-bold text-gray-500">Résolution:</span> <span class="text-gray-700">resources.limits (patch).</span></div>
+                            </div>
+                            <div class="mt-1 flex justify-end"><span class="text-[9px] font-bold text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded">MTTR: 12min</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Column: KPIs & Measures (uniform flex-1) -->
+            <div class="flex-1 min-h-0 min-w-0 flex flex-col gap-4 z-10">
+                <!-- KPI Synthesis -->
+                <div class="flex-shrink-0">
+                    <h3 class="font-bold text-aws-dark flex items-center text-sm mb-2">
+                        <i class="fas fa-chart-pie mr-2 text-aws-orange"></i> Synthèse KPIs Incidents
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <!-- Total Incidents -->
+                        <div class="kpi-stat-card p-3 border-b-blue-500">
+                            <p class="text-[9px] font-bold text-gray-500 uppercase">Total Incidents</p>
+                            <p class="text-2xl font-bold text-aws-dark my-0.5">3</p>
+                            <p class="text-[9px] text-gray-400">Sur 8h simulation</p>
+                        </div>
+                        <!-- Availability -->
+                        <div class="kpi-stat-card p-3 border-b-green-500">
+                            <p class="text-[9px] font-bold text-gray-500 uppercase">Disponibilité</p>
+                            <p class="text-2xl font-bold text-aws-dark my-0.5">99.9%</p>
+                            <p class="text-[9px] text-green-600"><i class="fas fa-arrow-up"></i> Objectif atteint</p>
+                        </div>
+                        <!-- MTTA -->
+                        <div class="kpi-stat-card p-3 border-b-purple-500">
+                            <p class="text-[9px] font-bold text-gray-500 uppercase">MTTA (Moyen)</p>
+                            <p class="text-2xl font-bold text-aws-dark my-0.5">2m</p>
+                            <p class="text-[9px] text-gray-400">Détection &lt; 5 min</p>
+                        </div>
+                        <!-- MTTR -->
+                        <div class="kpi-stat-card p-3 border-b-orange-500">
+                            <p class="text-[9px] font-bold text-gray-500 uppercase">MTTR (Moyen)</p>
+                            <p class="text-2xl font-bold text-aws-dark my-0.5">8m</p>
+                            <p class="text-[9px] text-gray-400">Résolution rapide</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Sustainable Measures -->
+                <div class="flex-1 min-h-0 bg-aws-darker rounded-xl p-4 text-white flex flex-col shadow-sm overflow-hidden">
+                    <h3 class="font-bold text-aws-orange text-xs mb-2 uppercase tracking-wide border-b border-gray-700 pb-2 flex-shrink-0">
+                        <i class="fas fa-shield-alt mr-2"></i> Mesures Durables (Post-Incident)
+                    </h3>
+                    <div class="space-y-2 overflow-y-auto flex-1 min-h-0 pr-2">
+                        <div class="flex gap-2">
+                            <div class="mt-0.5 flex-shrink-0"><i class="fas fa-check-circle text-green-500 text-xs"></i></div>
+                            <div class="min-w-0">
+                                <h4 class="text-xs font-bold text-white">Redis Cluster Mode</h4>
+                                <p class="text-[10px] text-gray-400 mt-0.5">Redis Standalone → Cluster (éviter OOM).</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="mt-0.5 flex-shrink-0"><i class="fas fa-check-circle text-green-500 text-xs"></i></div>
+                            <div class="min-w-0">
+                                <h4 class="text-xs font-bold text-white">Circuit Breaker Pattern</h4>
+                                <p class="text-[10px] text-gray-400 mt-0.5">Istio : fail fast vers services dégradés.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="mt-0.5 flex-shrink-0"><i class="fas fa-check-circle text-green-500 text-xs"></i></div>
+                            <div class="min-w-0">
+                                <h4 class="text-xs font-bold text-white">Chaos Testing Automatisé</h4>
+                                <p class="text-[10px] text-gray-400 mt-0.5">Chaos Mesh en CI/CD, perte de zone hebdo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer: flex-shrink-0 keeps it visible at bottom -->
+        <div class="h-10 flex-shrink-0 bg-white border-t border-gray-200 flex justify-between items-center text-xs text-gray-400 font-medium z-10">
+            <p class="pl-4">HETIC - Projet Black Friday Survival</p>
+            <p class="pr-4">Page 9</p>
+        </div>
+    </div>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .bg-aws-dark {
+            background-color: #232F3E;
+        }
+
+        .bg-aws-light {
+            background-color: #F2F3F3;
+        }
+
+        .text-aws-dark {
+            color: #232F3E;
+        }
+
+        .text-aws-orange {
+            color: #FF9900;
+        }
+
+        .bg-aws-orange {
+            background-color: #FF9900;
+        }
+
+        .border-aws-orange {
+            border-color: #FF9900;
+        }
+
+        .list-bullet-icon {
+            min-width: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w-full h-full min-h-screen bg-white flex flex-col relative overflow-hidden">
+        <!-- Header Line -->
+        <div class="h-2 w-full bg-aws-orange"></div>
+        <!-- Header -->
+        <div class="bg-aws-dark text-white px-16 py-8 flex justify-between items-center shadow-md z-10">
+            <div>
+                <h2 class="text-aws-orange font-bold uppercase tracking-widest text-sm mb-1">Compétences Visées</h2>
+                <h1 class="text-4xl font-bold">Objectifs Pédagogiques</h1>
+            </div>
+            <!-- Icone contextuelle -->
+            <div class="opacity-80 text-aws-orange">
+                <i class="fas fa-graduation-cap text-4xl"></i>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="flex-1 flex p-16 pt-12 relative">
+            <!-- Background Watermark -->
+            <div class="absolute bottom-[-50px] right-[-50px] opacity-5 pointer-events-none">
+                <i class="fab fa-aws text-[400px] text-aws-dark"></i>
+            </div>
+            <div class="w-full flex gap-12 z-10">
+                <!-- Left Column: Main Objectives (Bullet Points) -->
+                <div class="flex-1 flex flex-col justify-start pt-2">
+                    <ul class="space-y-6">
+                        <li class="flex items-start group">
+                            <div
+                                class="mt-1 mr-5 text-white bg-aws-orange rounded-full w-8 h-8 flex items-center justify-center shadow-md flex-shrink-0">
+                                <i class="fas fa-code text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-aws-dark mb-1">Infrastructure as Code (IaC)</h3>
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Maîtrise de Terraform pour le déploiement automatisé et reproductible de
+                                    l'infrastructure Cloud.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div
+                                class="mt-1 mr-5 text-white bg-aws-orange rounded-full w-8 h-8 flex items-center justify-center shadow-md flex-shrink-0">
+                                <i class="fas fa-network-wired text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-aws-dark mb-1">Kubernetes &amp; Scalabilité</h3>
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Compréhension approfondie de l'auto-scaling (HPA, Cluster Autoscaler) et du load
+                                    balancing sur Amazon EKS.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div
+                                class="mt-1 mr-5 text-white bg-aws-orange rounded-full w-8 h-8 flex items-center justify-center shadow-md flex-shrink-0">
+                                <i class="fas fa-eye text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-aws-dark mb-1">Monitoring &amp; Observabilité</h3>
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Gestion proactive de la production avec CloudWatch, Prometheus et Grafana pour
+                                    détecter les incidents.
+                                </p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div
+                                class="mt-1 mr-5 text-white bg-aws-orange rounded-full w-8 h-8 flex items-center justify-center shadow-md flex-shrink-0">
+                                <i class="fas fa-shield-alt text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-aws-dark mb-1">Sécurité Cloud</h3>
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Implémentation d'une stratégie de sécurité "Defense in Depth" (IAM, Security Groups,
+                                    WAF, Secrets).
+                                </p>
+                            </div>
+                        </li>
+                        <li class="flex items-start group">
+                            <div
+                                class="mt-1 mr-5 text-white bg-aws-orange rounded-full w-8 h-8 flex items-center justify-center shadow-md flex-shrink-0">
+                                <i class="fas fa-coins text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-aws-dark mb-1">FinOps &amp; Optimisation</h3>
+                                <p class="text-gray-600 text-base leading-relaxed">
+                                    Optimisation des coûts cloud et utilisation stratégique des Spot Instances pour
+                                    respecter le budget.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Right Column: Sidebar / Tech Stack -->
+                <div class="w-[340px] flex flex-col gap-6 pt-2">
+                    <!-- Tech Stack Card -->
+                    <div class="bg-aws-dark text-white p-8 rounded-xl shadow-xl relative overflow-hidden flex-1">
+                        <!-- Decorative circle -->
+                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-gray-700 rounded-full opacity-30"></div>
+                        <h3
+                            class="text-aws-orange font-bold uppercase tracking-wider mb-6 pb-4 border-b border-gray-600 flex items-center">
+                            <i class="fas fa-layer-group mr-3"></i> Technologies
+                        </h3>
+                        <div class="space-y-5">
+                            <div class="flex items-center">
+                                <div class="w-8 flex justify-center mr-3 text-aws-orange"><i
+                                        class="fab fa-aws text-xl"></i></div>
+                                <p class="text-lg font-medium">AWS &amp; EKS</p>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-8 flex justify-center mr-3 text-aws-orange"><i
+                                        class="fas fa-cube text-xl"></i></div>
+                                <p class="text-lg font-medium">Terraform</p>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-8 flex justify-center mr-3 text-aws-orange"><i
+                                        class="fas fa-dharmachakra text-xl"></i></div>
+                                <p class="text-lg font-medium">Kubernetes / Helm</p>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-8 flex justify-center mr-3 text-aws-orange"><i
+                                        class="fas fa-chart-area text-xl"></i></div>
+                                <p class="text-lg font-medium">Grafana / Prometheus</p>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-8 flex justify-center mr-3 text-aws-orange"><i
+                                        class="fas fa-bug text-xl"></i></div>
+                                <p class="text-lg font-medium">K6 / Locust</p>
+                            </div>
+                        </div>
+                        <div class="mt-8 pt-6 border-t border-gray-600">
+                            <p class="text-gray-400 text-xs uppercase font-bold mb-2">Méthodologie</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 bg-gray-700 rounded text-xs text-white">DevOps</span>
+                                <span class="px-2 py-1 bg-gray-700 rounded text-xs text-white">GitOps</span>
+                                <span class="px-2 py-1 bg-gray-700 rounded text-xs text-white">Chaos Engineering</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <div
+            class="h-12 bg-gray-100 border-t border-gray-200 flex justify-between items-center px-16 text-sm text-gray-500 font-medium">
+            <p>HETIC - Projet Black Friday Survival</p>
+            <p>Page 3</p>
+        </div>
+    </div>
+    <script>
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'slide-nav',
+                            key: e.key
+                        }, '*');
+                    }
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>
