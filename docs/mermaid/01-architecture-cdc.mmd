@@ -1,0 +1,59 @@
+flowchart TB
+    subgraph Internet[" "]
+        U[Utilisateurs<br/>90K concurrents]
+    end
+
+    U --> WAF
+    WAF["AWS WAF"] --> ALB
+
+    subgraph AWS["AWS – Architecture CDC (cahier des charges)"]
+        subgraph Edge["Périmètre"]
+            ALB["ALB<br/>Multi-AZ"]
+        end
+
+        subgraph EKS["Compute : EKS (Kubernetes managé)"]
+            direction TB
+            subgraph CP["Control Plane managé AWS"]
+                API["API Server<br/>etcd, scheduler"]
+            end
+            subgraph NG["Node Groups – 3 AZ"]
+                N1["AZ-a : workers"]
+                N2["AZ-b : workers"]
+                N3["AZ-c : workers"]
+            end
+            subgraph Workload["Workload"]
+                APP["Online Boutique<br/>11 microservices<br/>Pods / Deployments"]
+                HPA["HPA<br/>Horizontal Pod Autoscaler"]
+                CA["Cluster Autoscaler<br/>scale nodes"]
+            end
+            CP -.-> NG
+            NG --> APP
+            APP --- HPA
+            HPA --- CA
+        end
+
+        subgraph Observability["Observabilité"]
+            PROM["Prometheus"]
+            GRAF["Grafana"]
+            JAEGER["Jaeger"]
+            CW["CloudWatch<br/>logs & métriques"]
+            PROM --> GRAF
+        end
+
+        subgraph Data["Données"]
+            DB[("Bases de données")]
+        end
+
+        subgraph IaC["Infra as Code"]
+            TF["Terraform<br/>EKS module"]
+        end
+    end
+
+    ALB --> APP
+    APP --> DB
+    APP --> PROM
+    APP --> JAEGER
+    APP --> CW
+    TF -.-> EKS
+    TF -.-> ALB
+    TF -.-> DB

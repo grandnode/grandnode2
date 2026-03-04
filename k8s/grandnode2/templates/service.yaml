@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grandnode2
+  namespace: grandnode2
+  labels:
+    app: grandnode2
+spec:
+  type: ClusterIP
+  selector:
+    app: grandnode2
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP

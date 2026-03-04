@@ -1,0 +1,34 @@
+replicaCount: 3
+
+image:
+  repository: "my-ecr-or-dockerhub/grandnode2" # TODO: Replace with your image repository.
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 80
+  targetPort: 8080
+
+container:
+  port: 8080
+
+ingress:
+  enabled: true
+  host: "" # Set domain for production (e.g. grandnode2.example.com). Keep empty for ALB DNS testing.
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "512Mi"
+  limits:
+    cpu: "1000m"
+    memory: "1Gi"
+
+env:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  DB_CONNECTION_STRING: "mongodb://grandnodeadmin:ChangeMeMongoPass123@mongodb.grandnode2.svc.cluster.local:27017/grandnode2?authSource=admin"
