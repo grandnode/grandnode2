@@ -31,4 +31,4 @@ resources:
 
 env:
   ASPNETCORE_ENVIRONMENT: "Production"
-  DB_CONNECTION_STRING: "mongodb://REPLACE_ME_USER:REPLACE_ME_PASSWORD@REPLACE_ME_HOST:27017/grandnode2?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+  DB_CONNECTION_STRING: "mongodb://grandnodeadmin:ChangeMeMongoPass123@mongodb.grandnode2.svc.cluster.local:27017/grandnode2?authSource=admin"

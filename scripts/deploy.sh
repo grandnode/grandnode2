@@ -56,8 +56,28 @@ fi
 kubectl get namespace grandnode2 >/dev/null 2>&1 || kubectl create namespace grandnode2
 
 ASPNETCORE_ENVIRONMENT="${ASPNETCORE_ENVIRONMENT:-Production}"
+MONGODB_ENABLED="${MONGODB_ENABLED:-true}"
+MONGODB_USERNAME="${MONGODB_USERNAME:-grandnodeadmin}"
+MONGODB_PASSWORD="${MONGODB_PASSWORD:-ChangeMeMongoPass123}"
+MONGODB_DATABASE="${MONGODB_DATABASE:-grandnode2}"
+
+if [[ "${MONGODB_ENABLED}" == "true" ]]; then
+  helm repo add bitnami https://charts.bitnami.com/bitnami >/dev/null 2>&1 || true
+  helm repo update >/dev/null 2>&1
+
+  helm upgrade --install mongodb bitnami/mongodb \
+    -n grandnode2 \
+    --set architecture=standalone \
+    --set auth.enabled=true \
+    --set auth.rootPassword="${MONGODB_PASSWORD}" \
+    --set auth.usernames[0]="${MONGODB_USERNAME}" \
+    --set auth.passwords[0]="${MONGODB_PASSWORD}" \
+    --set auth.databases[0]="${MONGODB_DATABASE}" \
+    --set persistence.enabled=false
+fi
+
 if [[ -z "${DB_CONNECTION_STRING:-}" ]]; then
-  DB_CONNECTION_STRING="$(terraform output -raw documentdb_connection_string)"
+  DB_CONNECTION_STRING="mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@mongodb.grandnode2.svc.cluster.local:27017/${MONGODB_DATABASE}?authSource=${MONGODB_DATABASE}"
 fi
 
 helm upgrade --install grandnode2 "${ROOT_DIR}/k8s/grandnode2" \

@@ -1,0 +1,49 @@
+{
+    "DBCluster": {
+        "AvailabilityZones": [
+            "eu-west-1c",
+            "eu-west-1a",
+            "eu-west-1b"
+        ],
+        "BackupRetentionPeriod": 7,
+        "DBClusterIdentifier": "black-friday-survival-dev-docdb",
+        "DBClusterParameterGroup": "bfs-docdb-no-tls",
+        "DBSubnetGroup": "black-friday-survival-dev-docdb-subnet-group",
+        "Status": "available",
+        "EarliestRestorableTime": "2026-03-04T09:10:31.514000+00:00",
+        "Endpoint": "black-friday-survival-dev-docdb.cluster-claw2q6eohy7.eu-west-1.docdb.amazonaws.com",
+        "ReaderEndpoint": "black-friday-survival-dev-docdb.cluster-ro-claw2q6eohy7.eu-west-1.docdb.amazonaws.com",
+        "MultiAZ": false,
+        "Engine": "docdb",
+        "EngineVersion": "5.0.0",
+        "LatestRestorableTime": "2026-03-04T12:45:34.191000+00:00",
+        "Port": 27017,
+        "MasterUsername": "grandnodeadmin",
+        "PreferredBackupWindow": "22:12-22:42",
+        "PreferredMaintenanceWindow": "sun:22:59-sun:23:29",
+        "ReadReplicaIdentifiers": [],
+        "DBClusterMembers": [
+            {
+                "DBInstanceIdentifier": "black-friday-survival-dev-docdb-1",
+                "IsClusterWriter": true,
+                "DBClusterParameterGroupStatus": "applying",
+                "PromotionTier": 0
+            }
+        ],
+        "VpcSecurityGroups": [
+            {
+                "VpcSecurityGroupId": "sg-05bea2df2cc3ca419",
+                "Status": "active"
+            }
+        ],
+        "HostedZoneId": "Z29HEUU7NL3S3J",
+        "StorageEncrypted": true,
+        "KmsKeyId": "arn:aws:kms:eu-west-1:622333992348:key/69b1b724-c6e7-44cb-a1e1-580f69cf43fa",
+        "DbClusterResourceId": "cluster-MWT62PQ3LHG7JS63CN3WQLWGLM",
+        "DBClusterArn": "arn:aws:rds:eu-west-1:622333992348:cluster:black-friday-survival-dev-docdb",
+        "AssociatedRoles": [],
+        "ClusterCreateTime": "2026-03-04T09:10:13.823000+00:00",
+        "DeletionProtection": false,
+        "NetworkType": "IPV4"
+    }
+}

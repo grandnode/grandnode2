@@ -76,7 +76,11 @@ Optional overrides:
 - `DOCKERFILE_PATH` (default `<repo>/Dockerfile`)
 - `BUILD_CONTEXT` (default repo root)
 - `ASPNETCORE_ENVIRONMENT`
-- `DB_CONNECTION_STRING` (optional; if omitted, deploy script uses Terraform output `documentdb_connection_string`)
+- `DB_CONNECTION_STRING` (optional; if omitted, deploy script uses in-cluster MongoDB service URI)
+- `MONGODB_ENABLED` (default `true`, installs Bitnami MongoDB chart in `grandnode2`)
+- `MONGODB_USERNAME` (default `grandnodeadmin`)
+- `MONGODB_PASSWORD` (default `ChangeMeMongoPass123`, change this)
+- `MONGODB_DATABASE` (default `grandnode2`)
 
 Example:
 

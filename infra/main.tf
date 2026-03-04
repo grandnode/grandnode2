@@ -51,20 +51,3 @@ module "eks" {
   cluster_log_retention_in_days = var.cluster_log_retention_in_days
   tags                          = local.common_tags
 }
-
-module "documentdb" {
-  source = "./modules/documentdb"
-
-  name                    = "${var.project_name}-${var.env}-docdb"
-  vpc_id                  = module.vpc.vpc_id
-  vpc_cidr                = var.vpc_cidr
-  subnet_ids              = module.vpc.private_subnet_ids
-  database_name           = var.documentdb_database_name
-  master_username         = var.documentdb_master_username
-  master_password         = var.documentdb_master_password
-  instance_class          = var.documentdb_instance_class
-  instance_count          = var.documentdb_instance_count
-  backup_retention_period = var.documentdb_backup_retention_period
-  skip_final_snapshot     = var.documentdb_skip_final_snapshot
-  tags                    = local.common_tags
-}

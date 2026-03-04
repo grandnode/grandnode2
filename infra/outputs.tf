@@ -27,14 +27,3 @@ output "eks_cluster_oidc_issuer_url" {
   description = "EKS OIDC issuer URL."
   value       = module.eks.cluster_oidc_issuer_url
 }
-
-output "documentdb_endpoint" {
-  description = "DocumentDB cluster endpoint."
-  value       = module.documentdb.endpoint
-}
-
-output "documentdb_connection_string" {
-  description = "Mongo-compatible connection string for GrandNode2 (sensitive)."
-  value       = module.documentdb.connection_string
-  sensitive   = true
-}
