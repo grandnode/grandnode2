@@ -20,7 +20,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            - containerPort: {{ .Values.container.port }}
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "{{ .Values.env.ASPNETCORE_ENVIRONMENT }}"

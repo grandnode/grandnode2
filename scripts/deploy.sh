@@ -49,14 +49,16 @@ if ! helm status aws-load-balancer-controller -n kube-system >/dev/null 2>&1; th
   helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
     -n kube-system \
     --set clusterName="${CLUSTER_NAME}" \
-    --set serviceAccount.create=false \
+    --set serviceAccount.create=true \
     --set serviceAccount.name=aws-load-balancer-controller
 fi
 
 kubectl get namespace grandnode2 >/dev/null 2>&1 || kubectl create namespace grandnode2
 
 ASPNETCORE_ENVIRONMENT="${ASPNETCORE_ENVIRONMENT:-Production}"
-DB_CONNECTION_STRING="${DB_CONNECTION_STRING:-Server=REPLACE_ME;Database=REPLACE_ME;User Id=REPLACE_ME;Password=REPLACE_ME;}"
+if [[ -z "${DB_CONNECTION_STRING:-}" ]]; then
+  DB_CONNECTION_STRING="$(terraform output -raw documentdb_connection_string)"
+fi
 
 helm upgrade --install grandnode2 "${ROOT_DIR}/k8s/grandnode2" \
   -n grandnode2 \

@@ -11,7 +11,9 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    - host: {{ .Values.ingress.host | quote }}
+    - {{- if .Values.ingress.host }}
+      host: {{ .Values.ingress.host | quote }}
+      {{- end }}
       http:
         paths:
           - path: /

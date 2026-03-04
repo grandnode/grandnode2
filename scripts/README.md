@@ -76,7 +76,7 @@ Optional overrides:
 - `DOCKERFILE_PATH` (default `<repo>/Dockerfile`)
 - `BUILD_CONTEXT` (default repo root)
 - `ASPNETCORE_ENVIRONMENT`
-- `DB_CONNECTION_STRING`
+- `DB_CONNECTION_STRING` (optional; if omitted, deploy script uses Terraform output `documentdb_connection_string`)
 
 Example:
 
@@ -86,7 +86,7 @@ export IMAGE_REPOSITORY=123456789012.dkr.ecr.eu-west-1.amazonaws.com/grandnode2
 export IMAGE_TAG=latest
 export BUILD_IMAGE=true
 export ASPNETCORE_ENVIRONMENT=Production
-export DB_CONNECTION_STRING='Server=...;Database=...;User Id=...;Password=...;'
+export DB_CONNECTION_STRING='mongodb://user:pass@host:27017/grandnode2?tls=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'
 ```
 
 ## 5) Check Helm Chart Placeholders
@@ -98,8 +98,8 @@ Review:
 Important placeholders:
 
 - `image.repository`
-- `ingress.host` (`grandnode2.example.com` by default)
-- `env.DB_CONNECTION_STRING` (if you do not override with `--set`/env)
+- `ingress.host` (empty by default for ALB DNS testing, set real host in production)
+- `env.DB_CONNECTION_STRING` (only used if you set a fixed value in chart values)
 
 ## 6) AWS Load Balancer Controller Prerequisite
 
@@ -142,11 +142,3 @@ Get ALB DNS from ingress output and test the app URL.
 ```
 
 For `prod`, the script asks for confirmation.
-
-
-
-export AWS_REGION=eu-west-1
-export IMAGE_REPOSITORY=622333992348.dkr.ecr.eu-west-1.amazonaws.com/grandnode2
-export IMAGE_TAG=test-1
-export BUILD_IMAGE=true
-./scripts/deploy.sh dev

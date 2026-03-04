@@ -74,3 +74,46 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "documentdb_database_name" {
+  description = "Mongo-compatible database name for GrandNode2."
+  type        = string
+  default     = "grandnode2"
+}
+
+variable "documentdb_master_username" {
+  description = "Master username for DocumentDB."
+  type        = string
+  default     = "grandnodeadmin"
+}
+
+variable "documentdb_master_password" {
+  description = "Optional master password for DocumentDB. If null, Terraform generates one."
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "documentdb_instance_class" {
+  description = "Instance class for DocumentDB instances."
+  type        = string
+  default     = "db.t3.medium"
+}
+
+variable "documentdb_instance_count" {
+  description = "Number of DocumentDB instances in the cluster."
+  type        = number
+  default     = 1
+}
+
+variable "documentdb_backup_retention_period" {
+  description = "Backup retention period in days."
+  type        = number
+  default     = 7
+}
+
+variable "documentdb_skip_final_snapshot" {
+  description = "Whether to skip final snapshot when destroying DocumentDB."
+  type        = bool
+  default     = true
+}
