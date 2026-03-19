@@ -209,9 +209,6 @@ public class BlogViewModelService : IBlogViewModelService
     public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(
         BlogProductModel.AddProductModel model, int pageIndex, int pageSize)
     {
-        //limit for store manager
-        if (!string.IsNullOrEmpty(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
             model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);
