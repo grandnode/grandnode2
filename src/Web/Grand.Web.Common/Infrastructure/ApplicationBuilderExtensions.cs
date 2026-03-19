@@ -222,7 +222,7 @@ public static class ApplicationBuilderExtensions
                 builder.AddUpgradeInsecureRequests();
                 builder.AddDefaultSrc().Self();
                 builder.AddConnectSrc().From("*");
-                builder.AddFontSrc().From("*");
+                builder.AddFontSrc().From("*").Data();
                 builder.AddFrameAncestors().From("*");
                 builder.AddFrameSrc().From("*");
                 builder.AddMediaSrc().From("*");
