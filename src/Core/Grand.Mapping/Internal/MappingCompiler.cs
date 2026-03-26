@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -8,195 +7,179 @@ internal static class MappingCompiler
 {
     public static Action<TSource, TDest> Compile<TSource, TDest>(List<MemberConfig> configs)
     {
-        var steps = new List<Action<TSource, TDest>>();
+        var src = Expression.Parameter(typeof(TSource), "src");
+        var dst = Expression.Parameter(typeof(TDest), "dst");
+        var body = new List<Expression>();
 
-        var directConfigs = new Dictionary<string, MemberConfig>(StringComparer.Ordinal);
+        var direct = new Dictionary<string, MemberConfig>(StringComparer.Ordinal);
         foreach (var c in configs.Where(c => !c.IsPath))
-            directConfigs[c.MemberName] = c;
+            direct[c.MemberName] = c;
 
-        var srcProps = typeof(TSource)
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.CanRead)
-            .ToDictionary(p => p.Name);
-
-        foreach (var destProp in typeof(TDest)
+        foreach (var dp in typeof(TDest)
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.CanWrite))
         {
-            if (directConfigs.TryGetValue(destProp.Name, out var mc))
+            var destAccess = Expression.Property(dst, dp);
+
+            if (direct.TryGetValue(dp.Name, out var mc))
             {
                 if (mc.IsIgnored) continue;
 
-                var dp = destProp;
-                var cond = mc.ConditionExpression != null
-                    ? (Func<TSource, bool>)mc.ConditionExpression.Compile()
-                    : null;
+                Expression? value = mc.MapFromExpression != null
+                    ? Expression.Invoke(mc.MapFromExpression, src)
+                    : SourceProp(src, dp.Name);
 
-                if (mc.MapFromExpression != null)
-                {
-                    var getter = ToObjectGetter<TSource>(mc.MapFromExpression);
-                    steps.Add((src, dst) =>
-                    {
-                        if (cond != null && !cond(src)) return;
-                        dp.SetValue(dst, ConvertValue(getter(src), dp.PropertyType));
-                    });
-                }
-                else if (srcProps.TryGetValue(destProp.Name, out var sp))
-                {
-                    var srcProp = sp;
-                    steps.Add((src, dst) =>
-                    {
-                        if (cond != null && !cond(src)) return;
-                        dp.SetValue(dst, ConvertValue(srcProp.GetValue(src), dp.PropertyType));
-                    });
-                }
+                if (value == null) continue;
+                value = Coerce(value, dp.PropertyType);
+                if (value == null) continue;
+
+                var assign = Expression.Assign(destAccess, value);
+                body.Add(mc.ConditionExpression != null
+                    ? Expression.IfThen(Expression.Invoke(mc.ConditionExpression, src), assign)
+                    : (Expression)assign);
             }
-            else if (srcProps.TryGetValue(destProp.Name, out var srcProp))
+            else
             {
-                var dp = destProp;
-                var sp = srcProp;
-                steps.Add((src, dst) => dp.SetValue(dst, ConvertValue(sp.GetValue(src), dp.PropertyType)));
+                var value = Coerce(SourceProp(src, dp.Name), dp.PropertyType);
+                if (value != null)
+                    body.Add(Expression.Assign(destAccess, value));
             }
         }
 
-        // ForPath steps
+        // ForPath configs
         foreach (var pc in configs.Where(c => c.IsPath && !c.IsIgnored
             && c.MapFromExpression != null && c.DestinationPathExpression != null))
         {
-            var setter = BuildPathSetter(pc.DestinationPathExpression!);
-            if (setter == null) continue;
+            var destAccess = SubstitutePath(pc.DestinationPathExpression!, dst);
+            if (destAccess == null) continue;
 
-            var getter = ToObjectGetter<TSource>(pc.MapFromExpression!);
-            var cond = pc.ConditionExpression != null
-                ? (Func<TSource, bool>)pc.ConditionExpression.Compile()
-                : null;
+            var value = Coerce(Expression.Invoke(pc.MapFromExpression!, src), destAccess.Type);
+            if (value == null) continue;
 
-            steps.Add((src, dst) =>
-            {
-                if (cond != null && !cond(src)) return;
-                setter(dst, getter(src));
-            });
+            var assign = Expression.Assign(destAccess, value);
+            body.Add(pc.ConditionExpression != null
+                ? Expression.IfThen(Expression.Invoke(pc.ConditionExpression, src), assign)
+                : (Expression)assign);
         }
 
-        return (src, dst) => { foreach (var s in steps) s(src, dst); };
+        return Expression.Lambda<Action<TSource, TDest>>(
+            body.Count > 0 ? (Expression)Expression.Block(body) : Expression.Empty(),
+            src, dst).Compile();
     }
 
-    // Compiles Expression<Func<TSource, TValue>> → Func<TSource, object?> to avoid DynamicInvoke.
-    private static Func<TSource, object?> ToObjectGetter<TSource>(LambdaExpression expr)
+    // Returns Expression for same-named readable property on src, or null.
+    private static Expression? SourceProp(ParameterExpression src, string name)
     {
-        var param = Expression.Parameter(typeof(TSource), "s");
-        var body = Expression.Convert(Expression.Invoke(expr, param), typeof(object));
-        return Expression.Lambda<Func<TSource, object?>>(body, param).Compile();
+        var sp = src.Type.GetProperty(name, BindingFlags.Public | BindingFlags.Instance);
+        return sp?.CanRead == true ? Expression.Property(src, sp) : null;
     }
 
-    private static Action<object, object?>? BuildPathSetter(LambdaExpression pathExpr)
+    // Rebuilds (TDest d) => d.Outer.Inner with our dst parameter — no ExpressionVisitor needed.
+    private static MemberExpression? SubstitutePath(LambdaExpression pathExpr, ParameterExpression dst)
     {
-        var members = new List<PropertyInfo>();
+        var chain = new List<PropertyInfo>();
         var node = pathExpr.Body;
         while (node is MemberExpression me && me.Member is PropertyInfo pi)
         {
-            members.Insert(0, pi);
+            chain.Insert(0, pi);
             node = me.Expression!;
         }
-        if (members.Count == 0) return null;
-        var finalProp = members[^1];
-        if (!finalProp.CanWrite) return null;
-        var navigators = members.Take(members.Count - 1).ToArray();
+        if (chain.Count == 0 || node is not ParameterExpression) return null;
 
-        return (dst, val) =>
-        {
-            object? target = dst;
-            foreach (var nav in navigators)
-            {
-                target = nav.GetValue(target);
-                if (target == null) return;
-            }
-            finalProp.SetValue(target, ConvertValue(val, finalProp.PropertyType));
-        };
+        Expression result = dst;
+        foreach (var pi in chain)
+            result = Expression.Property(result, pi);
+        return result as MemberExpression;
     }
 
-    // Runtime type coercion — mirrors AutoMapper defaults (AllowNullCollections=false).
-    internal static object? ConvertValue(object? val, Type targetType)
+    // Build-time type coercion inside Expression Tree. Returns null → skip property.
+    private static Expression? Coerce(Expression? expr, Type target)
     {
-        if (val == null)
-            return CreateEmptyCollection(targetType);   // null → empty collection or null
+        if (expr == null) return null;
+        if (expr.Type == target) return expr;
 
-        var srcType = val.GetType();
-        if (targetType == srcType) return val;
+        // T → Nullable<T>
+        var underlyingTarget = Nullable.GetUnderlyingType(target);
+        if (underlyingTarget == expr.Type)
+            return Expression.Convert(expr, target);
 
-        // T → Nullable<T>: SetValue boxes it correctly, just return the value
-        var underlying = Nullable.GetUnderlyingType(targetType);
-        if (underlying != null)
-        {
-            if (underlying == srcType || underlying.IsAssignableFrom(srcType)) return val;
-            try { return Convert.ChangeType(val, underlying); } catch { return null; }
-        }
+        // Nullable<T> → T
+        var underlyingSource = Nullable.GetUnderlyingType(expr.Type);
+        if (underlyingSource == target)
+            return Expression.Convert(expr, target);
 
-        // Direct upcast / interface assignment
-        if (targetType.IsAssignableFrom(srcType))
-        {
-            // Concrete collection into an interface slot needs a List<T> copy
-            // (e.g. string[] → IList<string> must become List<string>)
-            if (targetType.IsInterface && GetCollectionElementType(targetType) != null)
-                return CopyToList(val, GetCollectionElementType(targetType)!);
-            return val;
-        }
-
-        // Cross-collection coercions: string[] ↔ List<string>, IList<T> → T[], etc.
-        var srcElem = GetCollectionElementType(srcType);
-        var dstElem = GetCollectionElementType(targetType);
+        // Collection coercions with null guard (AutoMapper AllowNullCollections=false behaviour).
+        // Runs before IsAssignableFrom to avoid IList<T>/T[] cross-type issues.
+        var srcElem = CollectionElementType(expr.Type);
+        var dstElem = CollectionElementType(target);
         if (srcElem != null && dstElem != null && srcElem == dstElem)
-            return CopyCollection(val, targetType, dstElem);
+            return BuildCollectionCoerce(expr, target, dstElem);
 
-        // Numeric / enum / primitive conversion
-        try { return Convert.ChangeType(val, targetType); } catch { return val; }
+        // Direct upcast (no Convert node needed for reference types / value subtypes)
+        if (target.IsAssignableFrom(expr.Type)) return expr;
+
+        // Numeric / enum value-type conversion
+        if (IsNumericOrEnum(expr.Type) && IsNumericOrEnum(target))
+            try { return Expression.Convert(expr, target); } catch { return null; }
+
+        // User-defined conversion operator only (Method != null prevents reference downcast)
+        try { var c = Expression.Convert(expr, target); return c.Method != null ? c : null; }
+        catch { return null; }
     }
 
-    private static object? CreateEmptyCollection(Type t)
+    // null source → empty collection; non-null source → ToArray/ToList copy.
+    private static Expression BuildCollectionCoerce(Expression src, Type target, Type elem)
     {
-        if (t.IsArray && t.GetArrayRank() == 1)
-            return Array.CreateInstance(t.GetElementType()!, 0);
-        var elem = GetCollectionElementType(t);
-        if (elem != null)
-            return Activator.CreateInstance(typeof(List<>).MakeGenericType(elem));
-        return null;
-    }
+        var iEnum = typeof(IEnumerable<>).MakeGenericType(elem);
+        var srcCast = src.Type == iEnum ? src : Expression.Convert(src, iEnum);
 
-    private static object CopyToList(object val, Type elemType)
-    {
-        var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elemType))!;
-        foreach (var item in (IEnumerable)val) list.Add(item);
-        return list;
-    }
-
-    private static object CopyCollection(object val, Type targetType, Type elemType)
-    {
-        var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elemType))!;
-        foreach (var item in (IEnumerable)val) list.Add(item);
-        if (targetType.IsArray)
+        Expression filled, empty;
+        if (target.IsArray)
         {
-            var arr = Array.CreateInstance(elemType, list.Count);
-            list.CopyTo(arr, 0);
-            return arr;
+            var toArray = typeof(Enumerable).GetMethod(nameof(Enumerable.ToArray))!.MakeGenericMethod(elem);
+            filled = Expression.Call(toArray, srcCast);
+            empty = Expression.NewArrayBounds(elem, Expression.Constant(0));
         }
-        return list;
+        else
+        {
+            var listType = typeof(List<>).MakeGenericType(elem);
+            var toList = typeof(Enumerable).GetMethod(nameof(Enumerable.ToList))!.MakeGenericMethod(elem);
+            filled = Expression.Call(toList, srcCast);
+            empty = Expression.New(listType);
+        }
+
+        if (src.Type.IsValueType) return filled;
+        return Expression.Condition(
+            Expression.ReferenceEqual(src, Expression.Constant(null, src.Type)),
+            empty, filled);
     }
 
-    private static Type? GetCollectionElementType(Type type)
+    private static Type? CollectionElementType(Type t)
     {
-        if (type == typeof(string)) return null;
-        if (type.IsArray && type.GetArrayRank() == 1) return type.GetElementType();
-        if (type.IsGenericType)
+        if (t == typeof(string)) return null;
+        if (t.IsArray && t.GetArrayRank() == 1) return t.GetElementType();
+        if (t.IsGenericType)
         {
-            var def = type.GetGenericTypeDefinition();
+            var def = t.GetGenericTypeDefinition();
             if (def == typeof(List<>) || def == typeof(IList<>) || def == typeof(ICollection<>)
                 || def == typeof(IEnumerable<>) || def == typeof(IReadOnlyList<>)
                 || def == typeof(IReadOnlyCollection<>))
-                return type.GetGenericArguments()[0];
+                return t.GetGenericArguments()[0];
         }
-        foreach (var iface in type.GetInterfaces())
+        foreach (var iface in t.GetInterfaces())
             if (iface.IsGenericType && iface.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 return iface.GetGenericArguments()[0];
         return null;
+    }
+
+    private static bool IsNumericOrEnum(Type t)
+    {
+        t = Nullable.GetUnderlyingType(t) ?? t;
+        return t.IsEnum || t == typeof(byte) || t == typeof(sbyte)
+            || t == typeof(short) || t == typeof(ushort)
+            || t == typeof(int) || t == typeof(uint)
+            || t == typeof(long) || t == typeof(ulong)
+            || t == typeof(float) || t == typeof(double)
+            || t == typeof(decimal);
     }
 }
