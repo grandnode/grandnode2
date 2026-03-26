@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Business.Catalog.Services.Categories;
 using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Common.Services.Security;

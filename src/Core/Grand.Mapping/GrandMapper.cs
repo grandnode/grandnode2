@@ -1,0 +1,22 @@
+namespace Grand.Mapping;
+
+internal sealed class GrandMapper : IMapper
+{
+    private readonly Dictionary<(Type, Type), Delegate> _mappings;
+
+    internal GrandMapper(Dictionary<(Type, Type), Delegate> mappings) => _mappings = mappings;
+
+    public TDest Map<TSource, TDest>(TSource source)
+    {
+        var dest = (TDest)Activator.CreateInstance(typeof(TDest))!;
+        return Map(source, dest);
+    }
+
+    public TDest Map<TSource, TDest>(TSource source, TDest destination)
+    {
+        if (source is null || destination is null) return destination!;
+        if (_mappings.TryGetValue((typeof(TSource), typeof(TDest)), out var del))
+            ((Action<TSource, TDest>)del)(source, destination);
+        return destination;
+    }
+}

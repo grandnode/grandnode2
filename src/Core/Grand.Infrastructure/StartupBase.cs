@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using Grand.Data;
+﻿using Grand.Data;
+using Grand.Mapping;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Mapper;

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Infrastructure.Mapper;
 using Shipping.ShippingPoint.Domain;
 using Shipping.ShippingPoint.Models;

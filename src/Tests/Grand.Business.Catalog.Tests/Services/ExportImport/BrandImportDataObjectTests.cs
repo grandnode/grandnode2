@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Business.Catalog.Services.Brands;
 using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Common.Services.Seo;

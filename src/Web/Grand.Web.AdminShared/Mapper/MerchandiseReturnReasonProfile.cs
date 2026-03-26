@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.AdminShared.Models.Settings;

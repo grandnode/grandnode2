@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.AdminShared.Models.Permissions;
