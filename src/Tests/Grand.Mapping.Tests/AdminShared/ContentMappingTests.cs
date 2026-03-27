@@ -1,4 +1,4 @@
-using AutoMapper;
+using Grand.Mapping;
 using Grand.Domain.Blogs;
 using Grand.Domain.Courses;
 using Grand.Domain.Knowledgebase;

@@ -1,4 +1,4 @@
-using AutoMapper;
+using Grand.Mapping;
 using Grand.Business.Catalog.Services.ExportImport.Mapper;
 using Grand.Business.Core.Dto;
 using Grand.Domain.Catalog;

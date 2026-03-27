@@ -1,4 +1,4 @@
-using AutoMapper;
+using Grand.Mapping;
 using Grand.Domain.Catalog;
 using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Catalog;

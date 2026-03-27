@@ -10,10 +10,18 @@ public sealed class MapperConfiguration
     {
         var expr = new MapperConfigurationExpressionImpl();
         configure(expr);
-        foreach (var config in expr.GetConfigurations())
+        var configs = expr.GetConfigurations().ToList();
+
+        // First pass: register all type-pair keys so nested mappings can detect
+        // forward/cross references during compilation.
+        foreach (var config in configs)
+            _mappings[config.GetTypes()] = null!;
+
+        // Second pass: compile all delegates (all keys are now registered).
+        foreach (var config in configs)
         {
             var key = config.GetTypes();
-            _mappings[key] = config.CompileDelegate();
+            _mappings[key] = config.CompileDelegate(_mappings);
         }
     }
 

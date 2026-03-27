@@ -1,4 +1,4 @@
-using AutoMapper;
+using Grand.Mapping;
 using Grand.Domain.Admin;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;

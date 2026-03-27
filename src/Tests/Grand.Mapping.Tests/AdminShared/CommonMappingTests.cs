@@ -1,4 +1,4 @@
-using AutoMapper;
+using Grand.Mapping;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Documents;

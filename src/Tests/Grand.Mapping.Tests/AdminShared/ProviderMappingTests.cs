@@ -1,4 +1,4 @@
-using AutoMapper;
+using Grand.Mapping;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
@@ -47,7 +47,7 @@ public class ProviderMappingTests : VerifyBase
         mock.Setup(x => x.SystemName).Returns("Payments.CashOnDelivery");
         mock.Setup(x => x.Priority).Returns(1);
 
-        return Verify(_mapper.Map<PaymentMethodModel>(mock.Object));
+        return Verify(_mapper.Map<IPaymentProvider, PaymentMethodModel>(mock.Object));
     }
 
     // ── TaxProvider ───────────────────────────────────────────────────────────
@@ -59,7 +59,7 @@ public class ProviderMappingTests : VerifyBase
         mock.Setup(x => x.FriendlyName).Returns("Fixed Rate");
         mock.Setup(x => x.SystemName).Returns("Tax.FixedRate");
 
-        return Verify(_mapper.Map<TaxProviderModel>(mock.Object));
+        return Verify(_mapper.Map<ITaxProvider, TaxProviderModel>(mock.Object));
     }
 
     // ── ShippingRateComputationMethod ─────────────────────────────────────────
@@ -73,7 +73,7 @@ public class ProviderMappingTests : VerifyBase
         mock.Setup(x => x.Priority).Returns(5);
         mock.Setup(x => x.ConfigurationUrl).Returns("../ShippingFixedRate/Configure");
 
-        return Verify(_mapper.Map<ShippingRateComputationMethodModel>(mock.Object));
+        return Verify(_mapper.Map<IShippingRateCalculationProvider, ShippingRateComputationMethodModel>(mock.Object));
     }
 
     // ── WidgetPlugin ──────────────────────────────────────────────────────────
@@ -86,7 +86,7 @@ public class ProviderMappingTests : VerifyBase
         mock.Setup(x => x.SystemName).Returns("Widgets.Slider");
         mock.Setup(x => x.Priority).Returns(0);
 
-        return Verify(_mapper.Map<WidgetModel>(mock.Object));
+        return Verify(_mapper.Map<IWidgetProvider, WidgetModel>(mock.Object));
     }
 
     // ── ExternalAuthentication ────────────────────────────────────────────────
@@ -99,7 +99,7 @@ public class ProviderMappingTests : VerifyBase
         mock.Setup(x => x.SystemName).Returns("ExternalAuth.Facebook");
         mock.Setup(x => x.Priority).Returns(0);
 
-        return Verify(_mapper.Map<AuthenticationMethodModel>(mock.Object));
+        return Verify(_mapper.Map<IExternalAuthenticationProvider, AuthenticationMethodModel>(mock.Object));
     }
 
     // ── PluginDescriptor ──────────────────────────────────────────────────────

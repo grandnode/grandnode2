@@ -9,6 +9,6 @@ internal sealed class MappingConfiguration<TSource, TDest> : IMappingConfigurati
 
     public (Type Source, Type Dest) GetTypes() => (typeof(TSource), typeof(TDest));
 
-    public Delegate CompileDelegate()
-        => MappingCompiler.Compile<TSource, TDest>(_expression.MemberConfigs);
+    public Delegate CompileDelegate(Dictionary<(Type, Type), Delegate> mappings)
+        => MappingCompiler.Compile<TSource, TDest>(_expression.MemberConfigs, mappings);
 }

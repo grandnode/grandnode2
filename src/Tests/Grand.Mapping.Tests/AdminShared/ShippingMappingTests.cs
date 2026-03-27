@@ -1,4 +1,4 @@
-using AutoMapper;
+using Grand.Mapping;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;

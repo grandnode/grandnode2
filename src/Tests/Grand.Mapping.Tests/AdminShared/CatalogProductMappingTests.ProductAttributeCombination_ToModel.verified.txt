@@ -6,6 +6,5 @@
   Gtin: 1234567890,
   OverriddenPrice: 95.0,
   NotifyAdminForQuantityBelow: 2,
-  Attributes: System.Collections.Generic.List`1[Grand.Domain.Common.CustomAttribute],
   UseMultipleWarehouses: false
 }

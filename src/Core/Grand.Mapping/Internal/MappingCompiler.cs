@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -5,7 +7,9 @@ namespace Grand.Mapping.Internal;
 
 internal static class MappingCompiler
 {
-    public static Action<TSource, TDest> Compile<TSource, TDest>(List<MemberConfig> configs)
+    public static Action<TSource, TDest> Compile<TSource, TDest>(
+        List<MemberConfig> configs,
+        Dictionary<(Type, Type), Delegate> mappings)
     {
         var src = Expression.Parameter(typeof(TSource), "src");
         var dst = Expression.Parameter(typeof(TDest), "dst");
@@ -30,19 +34,38 @@ internal static class MappingCompiler
                     : SourceProp(src, dp.Name);
 
                 if (value == null) continue;
-                value = Coerce(value, dp.PropertyType);
-                if (value == null) continue;
 
-                var assign = Expression.Assign(destAccess, value);
-                body.Add(mc.ConditionExpression != null
-                    ? Expression.IfThen(Expression.Invoke(mc.ConditionExpression, src), assign)
-                    : (Expression)assign);
+                var coerced = Coerce(value, dp.PropertyType);
+                if (coerced != null)
+                {
+                    var assign = Expression.Assign(destAccess, coerced);
+                    body.Add(mc.ConditionExpression != null
+                        ? Expression.IfThen(Expression.Invoke(mc.ConditionExpression, src), assign)
+                        : (Expression)assign);
+                }
+                else
+                {
+                    // Fallback: delegate cross-type mapping to a registered profile
+                    var nested = BuildNestedMapping(value, destAccess, dp.PropertyType,
+                        mc.ConditionExpression, src, mappings);
+                    if (nested != null) body.Add(nested);
+                }
             }
             else
             {
-                var value = Coerce(SourceProp(src, dp.Name), dp.PropertyType);
+                var srcExpr = SourceProp(src, dp.Name);
+                if (srcExpr == null) continue;
+
+                var value = Coerce(srcExpr, dp.PropertyType);
                 if (value != null)
                     body.Add(Expression.Assign(destAccess, value));
+                else
+                {
+                    // Fallback: delegate cross-type mapping to a registered profile
+                    var nested = BuildNestedMapping(srcExpr, destAccess, dp.PropertyType,
+                        null, src, mappings);
+                    if (nested != null) body.Add(nested);
+                }
             }
         }
 
@@ -65,6 +88,131 @@ internal static class MappingCompiler
         return Expression.Lambda<Action<TSource, TDest>>(
             body.Count > 0 ? (Expression)Expression.Block(body) : Expression.Empty(),
             src, dst).Compile();
+    }
+
+    /// <summary>
+    /// Generates an expression that maps srcValueExpr → destAccess using a registered
+    /// profile mapping. Handles both single objects (A → B) and collections (IList&lt;A&gt; → IList&lt;B&gt;).
+    /// Returns null when no applicable registered mapping exists.
+    /// </summary>
+    private static Expression? BuildNestedMapping(
+        Expression srcValueExpr,
+        Expression destAccess,
+        Type destType,
+        LambdaExpression? condition,
+        ParameterExpression srcParam,
+        Dictionary<(Type, Type), Delegate> mappings)
+    {
+        var srcType = srcValueExpr.Type;
+
+        // Case 1: A → B (both non-value, non-collection reference types with registered mapping)
+        if (!srcType.IsValueType && !destType.IsValueType
+            && CollectionElementType(srcType) == null
+            && CollectionElementType(destType) == null
+            && destType.GetConstructor(Type.EmptyTypes) != null
+            && mappings.ContainsKey((srcType, destType)))
+        {
+            // Capture the dictionary so the delegate can be looked up at runtime
+            // (when all delegates are guaranteed to be compiled).
+            var delConst = Expression.Constant(mappings);
+            var keyConst = Expression.Constant((srcType, destType));
+            var getDel = Expression.Call(
+                delConst,
+                typeof(Dictionary<(Type, Type), Delegate>).GetMethod("get_Item")!,
+                keyConst);
+            var castDel = Expression.Convert(
+                getDel,
+                typeof(Action<,>).MakeGenericType(srcType, destType));
+
+            // Cache source value to avoid double-evaluation (e.g. when srcValueExpr is Invoke)
+            var srcVar = Expression.Variable(srcType, "ns");
+            var tmpVar = Expression.Variable(destType, "nd");
+
+            var innerBlock = Expression.Block(
+                new[] { srcVar, tmpVar },
+                Expression.Assign(srcVar, srcValueExpr),
+                Expression.IfThen(
+                    Expression.ReferenceNotEqual(srcVar, Expression.Constant(null, srcType)),
+                    Expression.Block(
+                        Expression.Assign(tmpVar, Expression.New(destType)),
+                        Expression.Invoke(castDel, srcVar, tmpVar),
+                        Expression.Assign(destAccess, tmpVar))));
+
+            return condition != null
+                ? Expression.IfThen(Expression.Invoke(condition, srcParam), innerBlock)
+                : (Expression)innerBlock;
+        }
+
+        // Case 2: IList<A> → IList<B> / A[] → B[] where A→B mapping is registered
+        var srcElem = CollectionElementType(srcType);
+        var dstElem = CollectionElementType(destType);
+        if (srcElem != null && dstElem != null && srcElem != dstElem
+            && mappings.ContainsKey((srcElem, dstElem)))
+        {
+            var converted = BuildCrossTypeCollectionCoerce(srcValueExpr, destType, srcElem, dstElem, mappings);
+            Expression assignExpr = Expression.Assign(destAccess, converted);
+            return condition != null
+                ? Expression.IfThen(Expression.Invoke(condition, srcParam), assignExpr)
+                : assignExpr;
+        }
+
+        return null;
+    }
+
+    private static Expression BuildCrossTypeCollectionCoerce(
+        Expression src,
+        Type destType,
+        Type srcElem,
+        Type dstElem,
+        Dictionary<(Type, Type), Delegate> mappings)
+    {
+        var delConst = Expression.Constant(mappings);
+        var keyConst = Expression.Constant((srcElem, dstElem));
+        var getDel = Expression.Call(
+            delConst,
+            typeof(Dictionary<(Type, Type), Delegate>).GetMethod("get_Item")!,
+            keyConst);
+        var castDel = Expression.Convert(getDel, typeof(Action<,>).MakeGenericType(srcElem, dstElem));
+
+        // x => { var tmp = new DstElem(); del(x, tmp); return tmp; }
+        var xParam = Expression.Parameter(srcElem, "x");
+        var tmpVar = Expression.Variable(dstElem, "tmp");
+        var selectorBody = Expression.Block(
+            new[] { tmpVar },
+            Expression.Assign(tmpVar, Expression.New(dstElem)),
+            Expression.Invoke(castDel, xParam, tmpVar),
+            tmpVar);
+        var selector = Expression.Lambda(selectorBody, xParam);
+
+        var iEnumSrc = typeof(IEnumerable<>).MakeGenericType(srcElem);
+        var srcCast = src.Type == iEnumSrc ? src : Expression.Convert(src, iEnumSrc);
+
+        var selectMethod = typeof(Enumerable)
+            .GetMethods()
+            .First(m => m.Name == nameof(Enumerable.Select) && m.GetParameters().Length == 2)
+            .MakeGenericMethod(srcElem, dstElem);
+
+        Expression filled;
+        if (destType.IsArray)
+        {
+            var toArray = typeof(Enumerable).GetMethod(nameof(Enumerable.ToArray))!.MakeGenericMethod(dstElem);
+            filled = Expression.Call(toArray, Expression.Call(selectMethod, srcCast, selector));
+        }
+        else
+        {
+            var toList = typeof(Enumerable).GetMethod(nameof(Enumerable.ToList))!.MakeGenericMethod(dstElem);
+            filled = Expression.Call(toList, Expression.Call(selectMethod, srcCast, selector));
+        }
+
+        Expression emptyExpr = destType.IsArray
+            ? Expression.NewArrayBounds(dstElem, Expression.Constant(0))
+            : (Expression)Expression.New(typeof(List<>).MakeGenericType(dstElem));
+
+        if (src.Type.IsValueType) return filled;
+        return Expression.Condition(
+            Expression.ReferenceEqual(src, Expression.Constant(null, src.Type)),
+            emptyExpr,
+            filled);
     }
 
     // Returns Expression for same-named readable property on src, or null.

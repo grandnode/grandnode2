@@ -1,4 +1,4 @@
-using AutoMapper;
+using Grand.Mapping;
 using Grand.Domain.Admin;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
