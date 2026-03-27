@@ -284,4 +284,56 @@ public class SystemMappingTests : VerifyBase
         };
         return Verify(_mapper.Map<VendorSettings>(model));
     }
+
+    [TestMethod]
+    public Task VendorSettings_ToModel_WithAddressSettings()
+    {
+        var source = new VendorSettings {
+            VendorsBlockItemsToDisplay = 5,
+            CityEnabled = true,
+            CityRequired = false,
+            CompanyEnabled = true,
+            CompanyRequired = true,
+            CountryEnabled = true,
+            FaxEnabled = false,
+            FaxRequired = false,
+            PhoneEnabled = true,
+            PhoneRequired = false,
+            StateProvinceEnabled = true,
+            StreetAddress2Enabled = true,
+            StreetAddress2Required = false,
+            StreetAddressEnabled = true,
+            StreetAddressRequired = true,
+            ZipPostalCodeEnabled = true,
+            ZipPostalCodeRequired = false
+        };
+        return Verify(_mapper.Map<VendorSettingsModel>(source));
+    }
+
+    [TestMethod]
+    public Task VendorSettingsModel_ToDomain_WithAddressSettings()
+    {
+        var model = new VendorSettingsModel {
+            VendorsBlockItemsToDisplay = 5,
+            AddressSettings = new VendorSettingsModel.AddressSettingsModel {
+                CityEnabled = true,
+                CityRequired = false,
+                CompanyEnabled = true,
+                CompanyRequired = true,
+                CountryEnabled = true,
+                FaxEnabled = false,
+                FaxRequired = false,
+                PhoneEnabled = true,
+                PhoneRequired = false,
+                StateProvinceEnabled = true,
+                StreetAddress2Enabled = true,
+                StreetAddress2Required = false,
+                StreetAddressEnabled = true,
+                StreetAddressRequired = true,
+                ZipPostalCodeEnabled = true,
+                ZipPostalCodeRequired = false
+            }
+        };
+        return Verify(_mapper.Map<VendorSettings>(model));
+    }
 }

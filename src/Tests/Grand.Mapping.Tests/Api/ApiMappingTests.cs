@@ -238,6 +238,34 @@ public class ApiMappingTests : VerifyBase
         return Verify(_mapper.Map<CustomerDto>(entity));
     }
 
+    [TestMethod]
+    public Task Customer_ToDto_WithUserFields()
+    {
+        var entity = new Customer {
+            Id = "cust-1",
+            Email = "customer@example.com",
+            Username = "customer1",
+            Active = true,
+            UserFields = [
+                new UserField { Key = "FirstName", Value = "John", StoreId = "" },
+                new UserField { Key = "LastName", Value = "Doe", StoreId = "" },
+                new UserField { Key = "Gender", Value = "M", StoreId = "" },
+                new UserField { Key = "City", Value = "New York", StoreId = "" },
+                new UserField { Key = "Company", Value = "Acme Corp", StoreId = "" },
+                new UserField { Key = "StreetAddress", Value = "123 Main St", StoreId = "" },
+                new UserField { Key = "StreetAddress2", Value = "Apt 4", StoreId = "" },
+                new UserField { Key = "ZipPostalCode", Value = "10001", StoreId = "" },
+                new UserField { Key = "CountryId", Value = "country-001", StoreId = "" },
+                new UserField { Key = "StateProvinceId", Value = "state-001", StoreId = "" },
+                new UserField { Key = "Phone", Value = "+1-555-0123", StoreId = "" },
+                new UserField { Key = "Fax", Value = "+1-555-0124", StoreId = "" },
+                new UserField { Key = "VatNumber", Value = "VAT123456", StoreId = "" },
+                new UserField { Key = "VatNumberStatusId", Value = "20", StoreId = "" }
+            ]
+        };
+        return Verify(_mapper.Map<CustomerDto>(entity));
+    }
+
     // ── Picture ───────────────────────────────────────────────────────────────
 
     [TestMethod]

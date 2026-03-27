@@ -93,6 +93,31 @@ public class CatalogProductMappingTests : VerifyBase
         return Verify(_mapper.Map<Product>(model));
     }
 
+    [TestMethod]
+    public Task Product_ToModel_WithCalendarData()
+    {
+        var source = new Product {
+            Id = "prod-002",
+            Name = "Calendar Product",
+            Sku = "CAL-001",
+            IncBothDate = true
+        };
+        return Verify(_mapper.Map<ProductModel>(source));
+    }
+
+    [TestMethod]
+    public Task ProductModel_ToDomain_WithCalendarData()
+    {
+        var model = new ProductModel {
+            Name = "Calendar Product",
+            Sku = "CAL-001",
+            CalendarModel = new ProductModel.GenerateCalendarModel {
+                IncBothDate = true
+            }
+        };
+        return Verify(_mapper.Map<Product>(model));
+    }
+
     // ── TierPrice ─────────────────────────────────────────────────────────────
 
     [TestMethod]
