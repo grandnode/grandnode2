@@ -1,0 +1,19 @@
+﻿{
+  Name: Nike,
+  Description: Sports brand,
+  BrandLayoutId: layout-1,
+  MetaTitle: Nike,
+  PageSize: 12,
+  AllowCustomersToSelectPageSize: true,
+  PageSizeOptions: 6, 12, 24,
+  ShowOnHomePage: true,
+  IncludeInMenu: true,
+  ExternalId: ext-001,
+  Published: true,
+  DisplayOrder: 1,
+  LimitedToGroups: false,
+  SeName: nike,
+  LimitedToStores: false,
+  UpdatedOnUtc: DateTime_1,
+  Id: brand-export-1
+}

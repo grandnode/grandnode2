@@ -1,0 +1,9 @@
+﻿{
+  Id: pac-v-1,
+  StockQuantity: 5,
+  AllowOutOfStockOrders: false,
+  Sku: COMB-SKU,
+  NotifyAdminForQuantityBelow: 1,
+  Attributes: System.Collections.Generic.List`1[Grand.Domain.Common.CustomAttribute],
+  UseMultipleWarehouses: false
+}

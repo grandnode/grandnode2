@@ -1,0 +1,15 @@
+﻿{
+  Name: Partial Category,
+  AllowCustomersToSelectPageSize: false,
+  ShowOnHomePage: false,
+  FeaturedProductsOnHomePage: false,
+  ShowOnSearchBox: false,
+  IncludeInMenu: false,
+  Published: false,
+  DefaultSort: -1,
+  HideOnCatalog: false,
+  LimitedToGroups: false,
+  LimitedToStores: false,
+  UpdatedOnUtc: DateTime_1,
+  Id: ObjectId_1
+}

@@ -1,0 +1,8 @@
+﻿{
+  Enabled: true,
+  ExchangeRate: 0.01,
+  PointsForRegistration: 100,
+  ReduceLoyaltyPointsAfterCancelOrder: false,
+  DisplayHowMuchWillBeEarned: false,
+  PointsAccumulatedForAllStores: false
+}

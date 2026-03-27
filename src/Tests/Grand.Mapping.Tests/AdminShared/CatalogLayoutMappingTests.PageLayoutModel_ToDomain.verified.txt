@@ -1,0 +1,6 @@
+﻿{
+  Name: PageDefault,
+  ViewPath: PageTemplate.Default,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

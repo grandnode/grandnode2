@@ -1,0 +1,16 @@
+﻿{
+  Name: Preferred Contact,
+  IsRequired: false,
+  AttributeControlTypeId: 1,
+  DisplayOrder: 1,
+  AttributeControlType: DropdownList,
+  LimitedToGroups: true,
+  CustomerGroups: [
+    grp-001
+  ],
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

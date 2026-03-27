@@ -1,0 +1,12 @@
+﻿{
+  Number: INV-001,
+  Name: Invoice #001,
+  Published: true,
+  DisplayOrder: 1,
+  CustomerId: cust-001,
+  ReferenceId: 10,
+  DocumentTypeId: dt-001,
+  CurrencyCode: USD,
+  TotalAmount: 500.0,
+  Id: doc-001
+}

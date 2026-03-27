@@ -1,0 +1,7 @@
+﻿{
+  BankCode: CHASE123,
+  BankName: Chase,
+  SwiftCode: CHASUS33,
+  AccountNumber: 123456789,
+  Id: ObjectId_1
+}

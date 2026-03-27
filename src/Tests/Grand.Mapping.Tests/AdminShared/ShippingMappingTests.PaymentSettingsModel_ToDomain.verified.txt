@@ -1,0 +1,7 @@
+﻿{
+  AllowRePostingPayments: true,
+  SkipPaymentIfOnlyOne: false,
+  ShowPaymentIfCartIsZero: false,
+  ShowPaymentDescriptions: true,
+  SkipPaymentInfo: false
+}

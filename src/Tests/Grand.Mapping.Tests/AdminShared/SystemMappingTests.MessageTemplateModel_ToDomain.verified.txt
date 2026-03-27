@@ -1,0 +1,12 @@
+﻿{
+  Name: OrderPlaced.CustomerNotification,
+  Subject: Your order has been placed,
+  Body: Order body,
+  IsActive: true,
+  EmailAccountId: ea-001,
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

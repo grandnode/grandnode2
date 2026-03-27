@@ -1,0 +1,12 @@
+﻿{
+  ProductAttributeId: pa-1,
+  TextPrompt: Choose size,
+  IsRequired: true,
+  ShowOnCatalogPage: false,
+  AttributeControlTypeId: DropdownList,
+  Combination: false,
+  ShouldHaveValues: false,
+  ValidationRulesAllowed: false,
+  ConditionAllowed: false,
+  Id: pam-v-1
+}

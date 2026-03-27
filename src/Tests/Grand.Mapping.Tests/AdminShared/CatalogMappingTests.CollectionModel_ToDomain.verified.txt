@@ -1,0 +1,18 @@
+﻿{
+  Name: Summer Sale,
+  Description: Summer collection,
+  CollectionLayoutId: layout-002,
+  PageSize: 5,
+  AllowCustomersToSelectPageSize: false,
+  ShowOnHomePage: false,
+  FeaturedProductsOnHomePage: false,
+  IncludeInMenu: false,
+  Published: true,
+  DisplayOrder: 3,
+  LimitedToGroups: false,
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

@@ -1,0 +1,5 @@
+﻿{
+  Name: Beginner,
+  DisplayOrder: 1,
+  Id: cl-001
+}

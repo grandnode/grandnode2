@@ -1,0 +1,8 @@
+﻿{
+  Name: Blue,
+  PriceAdjustment: 3.0,
+  Cost: 1.0,
+  IsPreSelected: false,
+  DisplayOrder: 2,
+  Id: ObjectId_1
+}

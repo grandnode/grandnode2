@@ -1,0 +1,6 @@
+﻿{
+  Enabled: true,
+  StopOnError: false,
+  TimeInterval: 60,
+  Id: ObjectId_1
+}

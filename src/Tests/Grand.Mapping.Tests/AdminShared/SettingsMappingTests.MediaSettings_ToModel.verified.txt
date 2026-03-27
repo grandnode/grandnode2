@@ -1,0 +1,18 @@
+﻿{
+  ProductThumbPictureSize: 415,
+  ProductDetailsPictureSize: 550,
+  ProductThumbPictureSizeOnProductDetailsPage: 100,
+  AssociatedProductPictureSize: 220,
+  CategoryThumbPictureSize: 450,
+  BrandThumbPictureSize: 450,
+  CollectionThumbPictureSize: 450,
+  VendorThumbPictureSize: 450,
+  CartThumbPictureSize: 80,
+  MaximumImageSize: 1980,
+  ImageQuality: 100,
+  DefaultPictureZoomEnabled: false,
+  AutoCompleteSearchThumbPictureSize: 20,
+  FileManagerEnabledCommands: abort,open,file,mkdir,mkfile,parents,tmb,dim,paste,duplicate,get,rm,ls,put,size,rename,tree,resize,search,upload,
+  FileManagerDisabledUICommands: ping,hide,archive,extract,netmount,netunmount,zipdl,
+  DefaultImageName: no-image.png
+}

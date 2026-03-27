@@ -1,0 +1,9 @@
+﻿{
+  Name: Grand Store,
+  Url: https://grandstore.com,
+  SslEnabled: true,
+  DefaultLanguageId: lang-001,
+  DisplayOrder: 1,
+  CompanyName: Grand LLC,
+  Id: ObjectId_1
+}

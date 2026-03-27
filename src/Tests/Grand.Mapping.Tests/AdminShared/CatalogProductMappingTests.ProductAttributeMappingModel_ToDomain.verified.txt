@@ -1,0 +1,10 @@
+﻿{
+  ProductAttributeId: pa-001,
+  TextPrompt: Choose color,
+  IsRequired: true,
+  ShowOnCatalogPage: false,
+  Combination: false,
+  AttributeControlTypeId: DropdownList,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

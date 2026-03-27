@@ -1,0 +1,7 @@
+﻿{
+  Enabled: true,
+  AllowNotRegisteredUsersToLeaveComments: false,
+  NotifyAboutNewNewsComments: false,
+  ShowNewsOnMainPage: true,
+  MainPageNewsCount: 3
+}

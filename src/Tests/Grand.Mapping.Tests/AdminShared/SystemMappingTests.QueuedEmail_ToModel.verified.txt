@@ -1,0 +1,13 @@
+﻿{
+  Id: qe-001,
+  From: from@store.com,
+  FromName: Store,
+  To: customer@example.com,
+  ToName: Customer,
+  ReplyTo: ,
+  CC: ,
+  Bcc: ,
+  Subject: Order Confirmation,
+  Body: <p>Thank you!</p>,
+  SendImmediately: false
+}

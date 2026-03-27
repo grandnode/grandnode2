@@ -1,0 +1,7 @@
+﻿{
+  Name: Custom Field,
+  IsRequired: true,
+  AttributeControlTypeId: 1,
+  DisplayOrder: 1,
+  Id: aa-001
+}

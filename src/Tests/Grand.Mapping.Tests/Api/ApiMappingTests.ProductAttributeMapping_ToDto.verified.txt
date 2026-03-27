@@ -1,0 +1,7 @@
+﻿{
+  ProductAttributeId: pa-1,
+  TextPrompt: Choose color,
+  IsRequired: true,
+  AttributeControlTypeId: DropdownList,
+  Id: pam-1
+}

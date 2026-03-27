@@ -1,0 +1,12 @@
+﻿{
+  Name: English,
+  LanguageCulture: en-US,
+  UniqueSeoCode: en,
+  FlagImageFileName: us.png,
+  Rtl: false,
+  DefaultCurrencyId: cur-001,
+  Published: true,
+  DisplayOrder: 1,
+  Search: {},
+  Id: lang-001
+}

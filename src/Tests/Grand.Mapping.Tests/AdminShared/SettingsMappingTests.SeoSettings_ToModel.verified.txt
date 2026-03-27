@@ -1,0 +1,14 @@
+﻿{
+  PageTitleSeparator:  | ,
+  PageTitleSeoAdjustment: true,
+  DefaultTitle: Grand Store,
+  DefaultMetaKeywords: store, online,
+  DefaultMetaDescription: Best online store,
+  GenerateProductMetaDescription: true,
+  ConvertNonWesternChars: false,
+  CanonicalUrlsEnabled: false,
+  TwitterMetaTags: false,
+  OpenGraphMetaTags: false,
+  AllowSlashChar: false,
+  AllowUnicodeCharsInUrls: true
+}

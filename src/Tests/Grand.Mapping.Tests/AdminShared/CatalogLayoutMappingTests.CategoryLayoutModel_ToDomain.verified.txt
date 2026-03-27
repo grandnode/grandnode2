@@ -1,0 +1,6 @@
+﻿{
+  Name: DefaultLayout,
+  ViewPath: CategoryTemplate.Simple,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

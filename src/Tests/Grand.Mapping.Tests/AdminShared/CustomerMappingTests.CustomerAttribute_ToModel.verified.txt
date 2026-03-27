@@ -1,0 +1,8 @@
+﻿{
+  Name: Newsletter Preference,
+  IsRequired: false,
+  IsReadOnly: false,
+  AttributeControlTypeId: 2,
+  DisplayOrder: 1,
+  Id: ca-001
+}

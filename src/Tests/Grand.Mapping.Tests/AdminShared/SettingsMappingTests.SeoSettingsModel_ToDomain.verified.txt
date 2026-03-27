@@ -1,0 +1,12 @@
+﻿{
+  PageTitleSeparator:  | ,
+  PageTitleSeoAdjustment: false,
+  DefaultTitle: Grand Store,
+  GenerateProductMetaDescription: false,
+  ConvertNonWesternChars: false,
+  AllowSlashChar: false,
+  AllowUnicodeCharsInUrls: true,
+  CanonicalUrlsEnabled: false,
+  TwitterMetaTags: false,
+  OpenGraphMetaTags: false
+}

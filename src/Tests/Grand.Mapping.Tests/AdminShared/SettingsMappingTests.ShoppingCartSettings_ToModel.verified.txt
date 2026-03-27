@@ -1,0 +1,23 @@
+﻿{
+  DisplayCartAfterAddingProduct: true,
+  DisplayWishlistAfterAddingProduct: false,
+  MaximumShoppingCartItems: 1000,
+  MaximumWishlistItems: 1000,
+  AllowOutOfStockItemsToBeAddedToWishlist: true,
+  MoveItemsFromWishlistToCart: true,
+  ShowProductImagesOnShoppingCart: true,
+  ShowProductImagesOnWishList: true,
+  ShowDiscountBox: true,
+  ShowGiftVoucherBox: true,
+  CrossSellsNumber: 4,
+  EmailWishlistEnabled: true,
+  AllowAnonymousUsersToEmailWishlist: false,
+  MiniShoppingCartEnabled: false,
+  ShowImagesInsidebarCart: false,
+  AllowCartItemEditing: false,
+  SharedCartBetweenStores: false,
+  AllowOnHoldCart: false,
+  AllowToSelectWarehouse: false,
+  GroupTierPrices: false,
+  RoundPrices: false
+}

@@ -1,0 +1,17 @@
+﻿{
+  Name: Nike,
+  Description: Sports brand,
+  MetaTitle: Nike,
+  PageSize: 12,
+  AllowCustomersToSelectPageSize: true,
+  PageSizeOptions: 6, 12, 24,
+  ShowOnHomePage: true,
+  IncludeInMenu: false,
+  DefaultSort: -1,
+  Published: true,
+  DisplayOrder: 1,
+  LimitedToGroups: false,
+  SeName: nike,
+  LimitedToStores: false,
+  Id: brand-1
+}

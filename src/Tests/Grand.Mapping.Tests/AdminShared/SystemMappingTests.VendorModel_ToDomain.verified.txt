@@ -1,0 +1,14 @@
+﻿{
+  Name: Best Vendor,
+  Email: vendor@example.com,
+  Description: Top vendor,
+  Active: false,
+  Deleted: false,
+  PageSize: 5,
+  AllowCustomersToSelectPageSize: false,
+  AllowCustomerReviews: false,
+  Address: {
+    Id: ObjectId_1
+  },
+  Id: ObjectId_1
+}

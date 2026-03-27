@@ -1,0 +1,15 @@
+﻿{
+  Name: OrderPlaced.CustomerNotification,
+  BccEmailAddresses: ,
+  Subject: Your order has been placed,
+  Body: Order body,
+  IsActive: true,
+  SendImmediately: false,
+  DelayBeforeSend: 0,
+  HasAttachedDownload: false,
+  EmailAccountId: ea-001,
+  Stores: [
+    store-001
+  ],
+  Id: mt-001
+}
