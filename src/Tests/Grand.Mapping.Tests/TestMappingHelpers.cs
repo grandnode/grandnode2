@@ -14,7 +14,7 @@ internal static class TestMappingHelpers
         => cfg.AddProfile(new T());
 
     // Preserves: _mapper.Map<TDest>(source)
-    public static TDest Map<TDest>(this IMapper mapper, object source)
+    public static TDest Map<TDest>(this IMapper mapper, object source) where TDest : new()
     {
         if (source is null) return default!;
         var mapMethod = typeof(IMapper)
