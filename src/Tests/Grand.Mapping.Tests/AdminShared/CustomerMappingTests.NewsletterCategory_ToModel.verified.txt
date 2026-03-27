@@ -1,0 +1,7 @@
+﻿{
+  Name: Tech Updates,
+  Description: Technology newsletter,
+  Selected: false,
+  DisplayOrder: 1,
+  Id: nlc-001
+}

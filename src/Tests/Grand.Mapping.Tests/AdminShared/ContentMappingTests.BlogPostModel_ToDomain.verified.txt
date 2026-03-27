@@ -1,0 +1,12 @@
+﻿{
+  Title: First Post,
+  Body: Content body,
+  BodyOverview: Overview,
+  AllowComments: true,
+  Tags: tech,blog,
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

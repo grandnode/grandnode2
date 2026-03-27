@@ -1,0 +1,11 @@
+﻿{
+  Name: Introduction,
+  ShortDescription: Lesson overview,
+  DisplayOrder: 1,
+  CourseId: course-001,
+  SubjectId: subj-001,
+  VideoFile: intro.mp4,
+  AttachmentId: attach-001,
+  Published: true,
+  Id: lesson-001
+}

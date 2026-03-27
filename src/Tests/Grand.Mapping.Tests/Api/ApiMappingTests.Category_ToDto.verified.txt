@@ -1,0 +1,15 @@
+﻿{
+  Name: Electronics,
+  Description: Electronic items,
+  MetaTitle: Electronics,
+  SeName: electronics,
+  PageSize: 9,
+  AllowCustomersToSelectPageSize: true,
+  ShowOnHomePage: false,
+  FeaturedProductsOnHomePage: false,
+  IncludeInMenu: false,
+  Published: true,
+  HideOnCatalog: false,
+  ShowOnSearchBox: false,
+  Id: cat-1
+}

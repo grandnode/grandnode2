@@ -1,0 +1,9 @@
+﻿{
+  Name: Color,
+  Description: Product color,
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

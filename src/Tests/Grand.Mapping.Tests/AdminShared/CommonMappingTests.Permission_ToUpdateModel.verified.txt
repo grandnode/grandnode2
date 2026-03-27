@@ -1,0 +1,7 @@
+﻿{
+  Name: Manage Products,
+  SystemName: ManageProducts,
+  Area: Admin,
+  Category: Catalog,
+  Id: perm-001
+}

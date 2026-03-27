@@ -1,0 +1,7 @@
+﻿{
+  FriendlyName: Fixed Rate Shipping,
+  SystemName: Shipping.FixedRate,
+  DisplayOrder: 5,
+  IsActive: false,
+  ConfigurationUrl: ../ShippingFixedRate/Configure
+}

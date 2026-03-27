@@ -1,0 +1,20 @@
+﻿{
+  SystemName: about-us,
+  IncludeInSitemap: true,
+  IncludeInMenu: false,
+  IncludeInFooterRow1: false,
+  IncludeInFooterRow2: false,
+  IncludeInFooterRow3: false,
+  DisplayOrder: 1,
+  AccessibleWhenStoreClosed: false,
+  IsPasswordProtected: false,
+  Published: true,
+  Title: About Us,
+  Body: <p>About us page</p>,
+  PageLayoutId: pl-001,
+  MetaKeywords: about,
+  MetaDescription: About us,
+  MetaTitle: About Us,
+  SeName: about-us,
+  Id: page-001
+}

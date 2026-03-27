@@ -1,0 +1,11 @@
+﻿{
+  Name: Main Store Pickup,
+  Description: Pickup at main store,
+  AdminComment: Note,
+  DisplayOrder: 1,
+  StoreId: store-001,
+  PickupFee: 2.0,
+  Latitude: 40.7128,
+  Longitude: -74.006,
+  Id: pp-001
+}

@@ -1,0 +1,13 @@
+﻿{
+  Amount: 50.0,
+  CurrencyCode: USD,
+  IsGiftVoucherActivated: true,
+  Code: GIFT50,
+  RecipientName: John Doe,
+  RecipientEmail: john@example.com,
+  SenderName: Jane,
+  SenderEmail: jane@example.com,
+  Message: Happy Birthday!,
+  IsRecipientNotified: false,
+  Id: gv-001
+}

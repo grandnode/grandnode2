@@ -1,0 +1,10 @@
+﻿{
+  Id: psa-001,
+  SpecificationAttributeId: sa-001,
+  AttributeTypeId: 1,
+  SpecificationAttributeOptionId: sao-001,
+  CustomValue: Custom,
+  AllowFiltering: true,
+  ShowOnProductPage: true,
+  DisplayOrder: 2
+}

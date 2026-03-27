@@ -1,0 +1,7 @@
+﻿{
+  StoreId: ,
+  CustomerGroupId: ,
+  Quantity: 10,
+  Price: 9.99,
+  Id: tp-1
+}

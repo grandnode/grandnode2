@@ -1,0 +1,11 @@
+﻿{
+  CustomerId: cust-001,
+  ProductId: prod-001,
+  IsApproved: true,
+  Title: Great product,
+  ReviewText: Really impressed!,
+  ReplyText: Thank you!,
+  ConfirmedPurchase: false,
+  Rating: 5,
+  Id: ObjectId_1
+}

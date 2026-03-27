@@ -1,0 +1,6 @@
+﻿{
+  Email: subscriber@example.com,
+  Active: true,
+  Categories: System.Collections.Generic.List`1[System.String],
+  Id: nls-001
+}

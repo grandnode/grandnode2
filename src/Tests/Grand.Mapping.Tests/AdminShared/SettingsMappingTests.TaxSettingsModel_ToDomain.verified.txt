@@ -1,0 +1,21 @@
+﻿{
+  TaxDisplayType: 1,
+  DefaultTaxAddress: {
+    Id: ObjectId_1
+  },
+  DisplayTaxRates: false,
+  PricesIncludeTax: false,
+  AllowCustomersToSelectTaxDisplayType: false,
+  HideZeroTax: false,
+  HideTaxInOrderSummary: false,
+  ForceTaxExclusionFromOrderSubtotal: false,
+  ShippingIsTaxable: false,
+  ShippingPriceIncludesTax: false,
+  PaymentMethodAdditionalFeeIsTaxable: false,
+  PaymentMethodAdditionalFeeIncludesTax: false,
+  EuVatEnabled: false,
+  EuVatAllowVatExemption: false,
+  EuVatUseWebService: false,
+  EuVatAssumeValid: false,
+  CalculateRoundPrice: 2
+}

@@ -1,0 +1,6 @@
+﻿{
+  Name: Invoice,
+  Description: An invoice document,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

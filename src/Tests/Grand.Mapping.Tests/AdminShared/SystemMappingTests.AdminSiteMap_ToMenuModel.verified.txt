@@ -1,0 +1,12 @@
+﻿{
+  SystemName: Dashboard,
+  ResourceName: Admin.Dashboard,
+  ControllerName: Admin,
+  ActionName: Dashboard,
+  Url: /Admin/Dashboard,
+  IconClass: fa fa-home,
+  DisplayOrder: 1,
+  OpenUrlInNewTab: false,
+  AllPermissions: false,
+  Id: menu-001
+}

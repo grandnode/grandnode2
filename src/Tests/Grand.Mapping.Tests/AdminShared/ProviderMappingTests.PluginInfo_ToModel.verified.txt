@@ -1,0 +1,8 @@
+﻿{
+  Group: Widgets,
+  FriendlyName: Bootstrap Slider,
+  SystemName: Widgets.Slider,
+  Version: 2.1.2,
+  Author: grandnode team,
+  Installed: true
+}

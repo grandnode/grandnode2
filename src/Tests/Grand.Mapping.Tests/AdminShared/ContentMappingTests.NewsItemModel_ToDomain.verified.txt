@@ -1,0 +1,16 @@
+﻿{
+  Title: Breaking News,
+  Short: Short text,
+  Full: Full news content,
+  Published: true,
+  AllowComments: true,
+  LimitedToGroups: true,
+  CustomerGroups: [
+    grp-001
+  ],
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

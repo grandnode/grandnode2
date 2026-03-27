@@ -1,0 +1,6 @@
+﻿{
+  Name: Color,
+  Description: Product color,
+  LimitedToStores: false,
+  Id: pa-1
+}

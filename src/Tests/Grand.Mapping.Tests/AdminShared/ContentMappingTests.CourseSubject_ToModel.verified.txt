@@ -1,0 +1,6 @@
+﻿{
+  Name: Chapter 1,
+  DisplayOrder: 1,
+  CourseId: course-001,
+  Id: subj-001
+}

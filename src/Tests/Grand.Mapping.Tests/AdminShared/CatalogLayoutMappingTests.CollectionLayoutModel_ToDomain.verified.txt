@@ -1,0 +1,6 @@
+﻿{
+  Name: CollectionDefault,
+  ViewPath: CollectionTemplate.Simple,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

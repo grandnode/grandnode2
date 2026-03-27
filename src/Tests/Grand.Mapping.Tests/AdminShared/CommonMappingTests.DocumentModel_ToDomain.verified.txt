@@ -1,0 +1,15 @@
+﻿{
+  Number: INV-001,
+  Name: Invoice #001,
+  Published: true,
+  DocumentTypeId: dt-001,
+  LimitedToGroups: true,
+  CustomerGroups: [
+    grp-001
+  ],
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}

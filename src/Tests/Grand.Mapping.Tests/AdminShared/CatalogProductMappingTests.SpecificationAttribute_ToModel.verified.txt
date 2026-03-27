@@ -1,0 +1,6 @@
+﻿{
+  Name: Screen Size,
+  SeName: screen-size,
+  DisplayOrder: 1,
+  Id: sattr-001
+}

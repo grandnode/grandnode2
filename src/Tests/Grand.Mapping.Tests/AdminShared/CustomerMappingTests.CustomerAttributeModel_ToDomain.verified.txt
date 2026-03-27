@@ -1,0 +1,8 @@
+﻿{
+  Name: Newsletter Preference,
+  IsRequired: false,
+  IsReadOnly: false,
+  AttributeControlTypeId: RadioList,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

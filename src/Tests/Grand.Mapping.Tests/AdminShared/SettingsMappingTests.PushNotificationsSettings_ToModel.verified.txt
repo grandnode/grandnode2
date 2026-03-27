@@ -1,0 +1,11 @@
+﻿{
+  Enabled: false,
+  PushApiKey: ,
+  SenderId: ,
+  AuthDomain: ,
+  DatabaseUrl: ,
+  ProjectId: ,
+  StorageBucket: ,
+  AppId: ,
+  AllowGuestNotifications: true
+}
