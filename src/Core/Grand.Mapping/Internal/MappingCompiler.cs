@@ -7,8 +7,12 @@ namespace Grand.Mapping.Internal;
 
 internal static class MappingCompiler
 {
+    private static readonly MethodInfo _dictGetItemMethod =
+        typeof(Dictionary<(Type, Type), Delegate>).GetMethod("get_Item")!;
+
     public static Action<TSource, TDest> Compile<TSource, TDest>(
         List<MemberConfig> configs,
+        HashSet<(Type, Type)> registeredTypes,
         Dictionary<(Type, Type), Delegate> mappings)
     {
         var src = Expression.Parameter(typeof(TSource), "src");
@@ -30,7 +34,7 @@ internal static class MappingCompiler
                 if (mc.IsIgnored) continue;
 
                 Expression? value = mc.MapFromExpression != null
-                    ? Expression.Invoke(mc.MapFromExpression, src)
+                    ? InlineLambda(mc.MapFromExpression, src)
                     : SourceProp(src, dp.Name);
 
                 if (value == null) continue;
@@ -40,14 +44,14 @@ internal static class MappingCompiler
                 {
                     var assign = Expression.Assign(destAccess, coerced);
                     body.Add(mc.ConditionExpression != null
-                        ? Expression.IfThen(Expression.Invoke(mc.ConditionExpression, src), assign)
+                        ? Expression.IfThen(InlineLambda(mc.ConditionExpression, src), assign)
                         : (Expression)assign);
                 }
                 else
                 {
                     // Fallback: delegate cross-type mapping to a registered profile
                     var nested = BuildNestedMapping(value, destAccess, dp.PropertyType,
-                        mc.ConditionExpression, src, mappings);
+                        mc.ConditionExpression, src, registeredTypes, mappings);
                     if (nested != null) body.Add(nested);
                 }
             }
@@ -63,7 +67,7 @@ internal static class MappingCompiler
                 {
                     // Fallback: delegate cross-type mapping to a registered profile
                     var nested = BuildNestedMapping(srcExpr, destAccess, dp.PropertyType,
-                        null, src, mappings);
+                        null, src, registeredTypes, mappings);
                     if (nested != null) body.Add(nested);
                 }
             }
@@ -76,12 +80,12 @@ internal static class MappingCompiler
             var destAccess = SubstitutePath(pc.DestinationPathExpression!, dst);
             if (destAccess == null) continue;
 
-            var value = Coerce(Expression.Invoke(pc.MapFromExpression!, src), destAccess.Type);
+            var value = Coerce(InlineLambda(pc.MapFromExpression!, src), destAccess.Type);
             if (value == null) continue;
 
             var assign = Expression.Assign(destAccess, value);
             body.Add(pc.ConditionExpression != null
-                ? Expression.IfThen(Expression.Invoke(pc.ConditionExpression, src), assign)
+                ? Expression.IfThen(InlineLambda(pc.ConditionExpression, src), assign)
                 : (Expression)assign);
         }
 
@@ -101,6 +105,7 @@ internal static class MappingCompiler
         Type destType,
         LambdaExpression? condition,
         ParameterExpression srcParam,
+        HashSet<(Type, Type)> registeredTypes,
         Dictionary<(Type, Type), Delegate> mappings)
     {
         var srcType = srcValueExpr.Type;
@@ -110,7 +115,7 @@ internal static class MappingCompiler
             && CollectionElementType(srcType) == null
             && CollectionElementType(destType) == null
             && destType.GetConstructor(Type.EmptyTypes) != null
-            && mappings.ContainsKey((srcType, destType)))
+            && registeredTypes.Contains((srcType, destType)))
         {
             // Capture the dictionary so the delegate can be looked up at runtime
             // (when all delegates are guaranteed to be compiled).
@@ -118,7 +123,7 @@ internal static class MappingCompiler
             var keyConst = Expression.Constant((srcType, destType));
             var getDel = Expression.Call(
                 delConst,
-                typeof(Dictionary<(Type, Type), Delegate>).GetMethod("get_Item")!,
+                _dictGetItemMethod,
                 keyConst);
             var castDel = Expression.Convert(
                 getDel,
@@ -139,7 +144,7 @@ internal static class MappingCompiler
                         Expression.Assign(destAccess, tmpVar))));
 
             return condition != null
-                ? Expression.IfThen(Expression.Invoke(condition, srcParam), innerBlock)
+                ? Expression.IfThen(InlineLambda(condition, srcParam), innerBlock)
                 : (Expression)innerBlock;
         }
 
@@ -147,12 +152,12 @@ internal static class MappingCompiler
         var srcElem = CollectionElementType(srcType);
         var dstElem = CollectionElementType(destType);
         if (srcElem != null && dstElem != null && srcElem != dstElem
-            && mappings.ContainsKey((srcElem, dstElem)))
+            && registeredTypes.Contains((srcElem, dstElem)))
         {
             var converted = BuildCrossTypeCollectionCoerce(srcValueExpr, destType, srcElem, dstElem, mappings);
             Expression assignExpr = Expression.Assign(destAccess, converted);
             return condition != null
-                ? Expression.IfThen(Expression.Invoke(condition, srcParam), assignExpr)
+                ? Expression.IfThen(InlineLambda(condition, srcParam), assignExpr)
                 : assignExpr;
         }
 
@@ -170,7 +175,7 @@ internal static class MappingCompiler
         var keyConst = Expression.Constant((srcElem, dstElem));
         var getDel = Expression.Call(
             delConst,
-            typeof(Dictionary<(Type, Type), Delegate>).GetMethod("get_Item")!,
+            _dictGetItemMethod,
             keyConst);
         var castDel = Expression.Convert(getDel, typeof(Action<,>).MakeGenericType(srcElem, dstElem));
 
@@ -214,6 +219,11 @@ internal static class MappingCompiler
             emptyExpr,
             filled);
     }
+
+    // Inlines a single-parameter lambda body by substituting the parameter,
+    // avoiding an Expression.Invoke delegate-call wrapper in the compiled tree.
+    private static Expression InlineLambda(LambdaExpression lambda, Expression arg)
+        => new ParameterReplacer(lambda.Parameters[0], arg).Visit(lambda.Body);
 
     // Returns Expression for same-named readable property on src, or null.
     private static Expression? SourceProp(ParameterExpression src, string name)

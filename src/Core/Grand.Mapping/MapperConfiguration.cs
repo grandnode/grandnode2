@@ -14,14 +14,15 @@ public sealed class MapperConfiguration
 
         // First pass: register all type-pair keys so nested mappings can detect
         // forward/cross references during compilation.
+        var registeredTypes = new HashSet<(Type, Type)>(configs.Count);
         foreach (var config in configs)
-            _mappings[config.GetTypes()] = null!;
+            registeredTypes.Add(config.GetTypes());
 
         // Second pass: compile all delegates (all keys are now registered).
         foreach (var config in configs)
         {
             var key = config.GetTypes();
-            _mappings[key] = config.CompileDelegate(_mappings);
+            _mappings[key] = config.CompileDelegate(registeredTypes, _mappings);
         }
     }
 
