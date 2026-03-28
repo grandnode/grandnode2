@@ -7,8 +7,5 @@ internal sealed class MapperConfigurationExpressionImpl : IMapperConfigurationEx
     public void AddProfile(Profile profile)
         => _configurations.AddRange(profile.GetConfigurations());
 
-    public void AddProfile(Type profileType)
-        => AddProfile((Profile)Activator.CreateInstance(profileType)!);
-
     internal IEnumerable<IMappingConfiguration> GetConfigurations() => _configurations;
 }
