@@ -12,7 +12,7 @@
     <PackageVersion Include="Scalar.AspNetCore" Version="2.11.10" />
     <PackageVersion Include="Scryber.Core" Version="9.2.0.2" />
     <PackageVersion Include="Scryber.Core.OpenType" Version="9.2.0" />
-    <PackageVersion Include="MailKit" Version="4.14.1" />
+    <PackageVersion Include="MailKit" Version="4.15.1" />
     <PackageVersion Include="AWSSDK.Core" Version="4.0.3.6" />
     <PackageVersion Include="AWSSDK.S3" Version="4.0.16.1" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.26.0" />
