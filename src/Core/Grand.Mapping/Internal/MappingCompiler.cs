@@ -261,10 +261,14 @@ internal static class MappingCompiler
         if (underlyingTarget == expr.Type)
             return Expression.Convert(expr, target);
 
-        // Nullable<T> → T
+        // Nullable<T> → T: use HasValue check to avoid InvalidOperationException on null values.
+        // Maps to default(T) when the source nullable is null (same behaviour as AutoMapper).
         var underlyingSource = Nullable.GetUnderlyingType(expr.Type);
         if (underlyingSource == target)
-            return Expression.Convert(expr, target);
+            return Expression.Condition(
+                Expression.Property(expr, nameof(Nullable<int>.HasValue)),
+                Expression.Property(expr, nameof(Nullable<int>.Value)),
+                Expression.Default(target));
 
         // Collection coercions with null guard (AutoMapper AllowNullCollections=false behaviour).
         // Runs before IsAssignableFrom to avoid IList<T>/T[] cross-type issues.

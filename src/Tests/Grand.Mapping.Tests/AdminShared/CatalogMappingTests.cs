@@ -267,6 +267,40 @@ public class CatalogMappingTests : VerifyBase
     }
 
     [TestMethod]
+    public Task Discount_ToModel_NullableFields_WithValues()
+    {
+        var source = new Discount {
+            Id = "disc-002",
+            Name = "Summer Sale",
+            DiscountTypeId = (DiscountType)1,
+            MaximumDiscountAmount = 50.0,
+            StartDateUtc = new DateTime(2024, 6, 1, 0, 0, 0, DateTimeKind.Utc),
+            EndDateUtc = new DateTime(2024, 8, 31, 23, 59, 59, DateTimeKind.Utc),
+            IsEnabled = true
+        };
+        var result = _mapper.Map<DiscountModel>(source);
+        return Verify(result);
+    }
+
+    [TestMethod]
+    public Task Discount_ToModel_NullableFields_WithNull()
+    {
+        // Regression: Nullable<T> → T coercion threw InvalidOperationException
+        // when the source nullable was null (e.g. MaximumDiscountAmount, StartDateUtc).
+        var source = new Discount {
+            Id = "disc-003",
+            Name = "No Dates Discount",
+            DiscountTypeId = (DiscountType)1,
+            // MaximumDiscountAmount = null  (double?)
+            // StartDateUtc          = null  (DateTime?)
+            // EndDateUtc            = null  (DateTime?)
+            IsEnabled = true
+        };
+        var result = _mapper.Map<DiscountModel>(source);
+        return Verify(result);
+    }
+
+    [TestMethod]
     public Task DiscountModel_ToDomain()
     {
         var model = new DiscountModel {
