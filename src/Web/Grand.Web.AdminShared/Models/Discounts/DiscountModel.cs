@@ -47,11 +47,11 @@ public class DiscountModel : BaseEntityModel, IStoreLinkModel
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.StartDate")]
     [UIHint("DateTimeNullable")]
-    public DateTime StartDate { get; set; }
+    public DateTime? StartDate { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.EndDate")]
     [UIHint("DateTimeNullable")]
-    public DateTime EndDate { get; set; }
+    public DateTime? EndDate { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.Fields.RequiresCouponCode")]
     public bool RequiresCouponCode { get; set; }
