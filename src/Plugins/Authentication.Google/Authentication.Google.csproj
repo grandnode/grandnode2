@@ -1,62 +1,65 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-  <Import Project="..\..\Build\Grand.Common.props" />
-  <PropertyGroup>
-    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-	<StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\Web\Grand.Web\Plugins\Authentication.Google</OutputPath>
-    <OutDir>$(OutputPath)</OutDir>
-  </PropertyGroup>
+	<Import Project="..\..\Build\Grand.Common.props" />
+	<PropertyGroup>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+		<StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\..\Web\Grand.Web\Plugins\Authentication.Google</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\Web\Grand.Web\Plugins\Authentication.Google</OutputPath>
-    <OutDir>$(OutputPath)</OutDir>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath>..\..\Web\Grand.Web\Plugins\Authentication.Google</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
+	</ItemGroup>
 
-  <Target Name="CopyFile" AfterTargets="AfterBuild">
-    <ItemGroup>
-      <CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.google\10.0.1\lib\net10.0\*.dll" />
-    </ItemGroup>
-    <Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Authentication.Google\" />
-  </Target>
+	<Target Name="CopyFile" AfterTargets="AfterBuild">
+		<ItemGroup>
+			<CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.google\10.0.1\lib\net10.0\*.dll" />
+		</ItemGroup>
+		<Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Authentication.Google\" />
+	</Target>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj">
-      <Private>false</Private>
-      <ExcludeAssets>all</ExcludeAssets>
-    </ProjectReference>
-	<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
-	  <Private>false</Private>
-	</ProjectReference>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.Mapping\Grand.Mapping.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj">
+			<Private>false</Private>
+			<ExcludeAssets>all</ExcludeAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Assets\googlestyles.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Assets\Images\google-signing.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="logo.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="Assets\googlestyles.css">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Assets\Images\google-signing.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="logo.jpg">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>
