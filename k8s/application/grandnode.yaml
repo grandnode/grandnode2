@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:7
+        ports:
+        - containerPort: 27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: default
+spec:
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grandnode
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grandnode
+  template:
+    metadata:
+      labels:
+        app: grandnode
+    spec:
+      containers:
+      - name: grandnode
+        image: grandnode/grandnode2:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ConnectionStrings__Mongodb
+          value: "mongodb://mongodb:27017/grandnode"
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grandnode
+  namespace: default
+spec:
+  type: LoadBalancer
+  selector:
+    app: grandnode
+  ports:
+  - port: 80
+    targetPort: 8080
