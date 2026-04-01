@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Permissions;
-using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
@@ -27,7 +26,6 @@ public class PaymentTransactionController : BaseAdminController
         ITranslationService translationService,
         IPaymentTransactionService paymentTransactionService,
         IOrderService orderService,
-        IContextAccessor contextAccessor,
         IDateTimeService dateTimeService,
         IMediator mediator,
         IEnumTranslationService enumTranslationService)
@@ -35,7 +33,6 @@ public class PaymentTransactionController : BaseAdminController
         _translationService = translationService;
         _paymentTransactionService = paymentTransactionService;
         _orderService = orderService;
-        _contextAccessor = contextAccessor;
         _dateTimeService = dateTimeService;
         _mediator = mediator;
         _enumTranslationService = enumTranslationService;
@@ -48,7 +45,6 @@ public class PaymentTransactionController : BaseAdminController
     private readonly IPaymentTransactionService _paymentTransactionService;
     private readonly IOrderService _orderService;
     private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
     private readonly IDateTimeService _dateTimeService;
     private readonly IMediator _mediator;
     private readonly IEnumTranslationService _enumTranslationService;
