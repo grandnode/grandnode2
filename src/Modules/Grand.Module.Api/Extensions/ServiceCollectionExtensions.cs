@@ -13,30 +13,12 @@ using Grand.Module.Api.DTOs.Shipping;
 using Grand.Module.Api.Queries.Handlers.Common;
 using Grand.Module.Api.Queries.Models.Common;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Grand.Module.Api.Infrastructure.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter(this IServiceCollection services)
-        {
-            var builder = new ServiceCollection()
-                .AddLogging()
-                .AddMvc()
-                .AddNewtonsoftJson()
-                .Services.BuildServiceProvider();
-
-            return builder
-                .GetRequiredService<IOptions<MvcOptions>>()
-                .Value
-                .InputFormatters
-                .OfType<NewtonsoftJsonPatchInputFormatter>()
-                .First();
-        }
         public static void RegisterRequestHandler(this IServiceCollection services)
         {
             var handlerTypes = new (Type dto, Type entity)[]
