@@ -14,6 +14,6 @@
     "webpack-remove-empty-scripts": "^0.8.1"
   },
   "dependencies": {
-    "lodash": "^4.17.20"
+    "lodash": "^4.18.1"
   }
 }
