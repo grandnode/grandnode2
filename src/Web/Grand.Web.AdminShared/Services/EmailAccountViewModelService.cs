@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
 using Grand.Web.AdminShared.Extensions.Mapping;
@@ -13,13 +14,15 @@ public class EmailAccountViewModelService : IEmailAccountViewModelService
     private readonly IEmailAccountService _emailAccountService;
     private readonly IEmailSender _emailSender;
     private readonly IStoreService _storeService;
+    private readonly ITranslationService _translationService;
 
     public EmailAccountViewModelService(IEmailAccountService emailAccountService, IEmailSender emailSender,
-        IStoreService storeService)
+        IStoreService storeService, ITranslationService translationService)
     {
         _emailAccountService = emailAccountService;
         _emailSender = emailSender;
         _storeService = storeService;
+        _translationService = translationService;
     }
 
     public virtual async Task<EmailAccountModel> PrepareEmailAccountModel()
@@ -68,7 +71,7 @@ public class EmailAccountViewModelService : IEmailAccountViewModelService
     {
         model.AvailableStores.Add(new SelectListItem {
             Value = "",
-            Text = "-- Global (all stores) --"
+            Text = _translationService.GetResource("Admin.Settings.StoreScope.AllStores")
         });
         foreach (var store in await _storeService.GetAllStores())
             model.AvailableStores.Add(new SelectListItem {

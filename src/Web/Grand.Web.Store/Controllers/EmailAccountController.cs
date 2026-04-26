@@ -121,7 +121,7 @@ public class EmailAccountController(
         try
         {
             if (string.IsNullOrWhiteSpace(model.SendTestEmailTo))
-                throw new GrandException("Enter test email address");
+                throw new GrandException(translationService.GetResource("Admin.Configuration.EmailAccounts.EnterTestEmail"));
             if (ModelState.IsValid)
             {
                 await emailAccountViewModelService.SendTestEmail(emailAccount, model);
