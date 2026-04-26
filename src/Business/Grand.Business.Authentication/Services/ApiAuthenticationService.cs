@@ -5,7 +5,6 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 
@@ -35,7 +34,7 @@ public class ApiAuthenticationService : IApiAuthenticationService
         if (string.IsNullOrEmpty(authHeader))
             return null;
 
-        if (IsApiFrontAuthenticated())
+        if (await IsApiFrontAuthenticated())
         {
             customer = await ApiCustomer();
             return customer;
@@ -56,13 +55,10 @@ public class ApiAuthenticationService : IApiAuthenticationService
 
         return customer;
     }
-    private bool IsApiFrontAuthenticated()
+    private async Task<bool> IsApiFrontAuthenticated()
     {
-        var endpoint = _httpContextAccessor.HttpContext.GetEndpoint();
-        if (endpoint == null) return false;
-
-        var authorizeAttributes = endpoint.Metadata.GetOrderedMetadata<AuthorizeAttribute>();
-        return authorizeAttributes.Any(attr => attr.AuthenticationSchemes?.Contains(FrontendAPIConfig.AuthenticationScheme) == true);
+        var authResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(FrontendAPIConfig.AuthenticationScheme);
+        return authResult.Succeeded;
     }
     
 
