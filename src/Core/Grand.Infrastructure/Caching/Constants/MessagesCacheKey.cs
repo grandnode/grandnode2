@@ -51,6 +51,14 @@ public static partial class CacheKey
     public static string EMAILACCOUNT_ALL_KEY => "Grand.emailaccount.all";
 
     /// <summary>
+    ///     Key for caching email accounts by store
+    /// </summary>
+    /// <remarks>
+    ///     {0} : store ID
+    /// </remarks>
+    public static string EMAILACCOUNT_BY_STORE_KEY => "Grand.emailaccount.store-{0}";
+
+    /// <summary>
     ///     Key pattern to clear cache
     /// </summary>
     public static string EMAILACCOUNT_PATTERN_KEY => "Grand.emailaccount.";

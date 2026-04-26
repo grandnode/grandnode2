@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.AdminShared.Models.Messages;
 
@@ -34,4 +35,9 @@ public class EmailAccountModel : BaseEntityModel
 
     [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.SendTestEmailTo")]
     public string SendTestEmailTo { get; set; }
+
+    [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.Store")]
+    public string StoreId { get; set; }
+
+    public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 }

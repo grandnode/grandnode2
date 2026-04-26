@@ -93,13 +93,14 @@ public class MessageProviderService : IMessageProviderService
     }
 
     protected virtual async Task<EmailAccount> GetEmailAccountOfMessageTemplate(MessageTemplate messageTemplate,
-        string languageId)
+        string languageId, string storeId = "")
     {
         var emailAccounId = messageTemplate.GetTranslation(mt => mt.EmailAccountId, languageId);
-        var emailAccount = (await _emailAccountService.GetEmailAccountById(emailAccounId) ??
-                            await _emailAccountService.GetEmailAccountById(_emailAccountSettings
-                                .DefaultEmailAccountId)) ??
-                           (await _emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
+        var emailAccount = await _emailAccountService.GetEmailAccountById(emailAccounId);
+        emailAccount ??= await _emailAccountService.GetEmailAccountById(_emailAccountSettings.DefaultEmailAccountId);
+        if (emailAccount == null && !string.IsNullOrEmpty(storeId))
+            emailAccount = (await _emailAccountService.GetEmailAccountsByStore(storeId)).FirstOrDefault();
+        emailAccount ??= (await _emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
         return emailAccount;
     }
 

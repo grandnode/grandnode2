@@ -78,9 +78,9 @@ public class EmailAccountController : BaseAdminController
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        var model = _emailAccountViewModelService.PrepareEmailAccountModel();
+        var model = await _emailAccountViewModelService.PrepareEmailAccountModel();
         return View(model);
     }
 
@@ -108,7 +108,9 @@ public class EmailAccountController : BaseAdminController
             //No email account found with the specified id
             return RedirectToAction("List");
 
-        return View(emailAccount.ToModel());
+        var model = emailAccount.ToModel();
+        await _emailAccountViewModelService.PrepareAvailableStores(model);
+        return View(model);
     }
 
     [HttpPost]

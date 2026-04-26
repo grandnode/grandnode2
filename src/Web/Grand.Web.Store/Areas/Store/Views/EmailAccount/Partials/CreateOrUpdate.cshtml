@@ -1,10 +1,10 @@
-﻿@using Grand.Business.Core.Enums.Messages
+@using Grand.Business.Core.Enums.Messages
 @model EmailAccountModel
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
+<input asp-for="StoreId" type="hidden"/>
 <div class="form-horizontal">
-    <vc:admin-widget widget-zone="email_account_details_top" additional-data="Model"/>
     <div class="form-body">
         <div class="form-group">
             <admin-label asp-for="Email"/>
@@ -68,12 +68,6 @@
                 <admin-select asp-for="SecureSocketOptionsId" asp-items="EnumTranslationService.ToSelectList((SecureSocketOptions)Model.SecureSocketOptionsId)"/>
             </div>
         </div>
-        <div class="form-group">
-            <admin-label asp-for="StoreId"/>
-            <div class="col-md-9 col-sm-9">
-                <select asp-for="StoreId" asp-items="Model.AvailableStores" class="form-control"></select>
-            </div>
-        </div>
         @if (!string.IsNullOrEmpty(Model.Id))
         {
             <div class="form-group">
@@ -94,5 +88,4 @@
             </div>
         }
     </div>
-    <vc:admin-widget widget-zone="email_account_details_bottom" additional-data="Model"/>
 </div>

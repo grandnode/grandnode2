@@ -146,4 +146,24 @@ public class EmailAccountService : IEmailAccountService
             return await Task.FromResult(query.ToList());
         });
     }
+
+    /// <summary>
+    ///     Gets email accounts belonging to the specified store.
+    /// </summary>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>Email accounts for the given store</returns>
+    public virtual async Task<IList<EmailAccount>> GetEmailAccountsByStore(string storeId)
+    {
+        if (string.IsNullOrEmpty(storeId))
+            return await GetAllEmailAccounts();
+
+        var key = string.Format(CacheKey.EMAILACCOUNT_BY_STORE_KEY, storeId);
+        return await _cacheBase.GetAsync(key, async () =>
+        {
+            var query = from ea in _emailAccountRepository.Table
+                where ea.StoreId == storeId
+                select ea;
+            return await Task.FromResult(query.ToList());
+        });
+    }
 }

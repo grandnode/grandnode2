@@ -34,4 +34,11 @@ public interface IEmailAccountService
     /// </summary>
     /// <returns>Email accounts list</returns>
     Task<IList<EmailAccount>> GetAllEmailAccounts();
+
+    /// <summary>
+    ///     Gets email accounts belonging to the specified store.
+    /// </summary>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>Email accounts for the given store</returns>
+    Task<IList<EmailAccount>> GetEmailAccountsByStore(string storeId);
 }

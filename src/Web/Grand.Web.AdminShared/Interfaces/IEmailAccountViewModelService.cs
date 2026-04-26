@@ -5,7 +5,8 @@ namespace Grand.Web.AdminShared.Interfaces;
 
 public interface IEmailAccountViewModelService
 {
-    EmailAccountModel PrepareEmailAccountModel();
+    Task<EmailAccountModel> PrepareEmailAccountModel();
+    Task PrepareAvailableStores(EmailAccountModel model);
     Task<EmailAccount> InsertEmailAccountModel(EmailAccountModel model);
     Task<EmailAccount> UpdateEmailAccountModel(EmailAccount emailAccount, EmailAccountModel model);
     Task SendTestEmail(EmailAccount emailAccount, EmailAccountModel model);
