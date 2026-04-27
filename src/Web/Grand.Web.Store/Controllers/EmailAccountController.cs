@@ -133,7 +133,7 @@ public class EmailAccountController(
                 Error(ModelState);
             }
         }
-        catch (Exception exc)
+        catch (GrandException exc)
         {
             Error(exc.Message);
         }
