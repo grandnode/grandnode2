@@ -45,10 +45,12 @@ public class EmailAccountController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public async Task<IActionResult> Create()
+    public IActionResult Create()
     {
-        var model = await emailAccountViewModelService.PrepareEmailAccountModel();
-        model.StoreId = CurrentStoreId;
+        var model = new EmailAccountModel {
+            Port = 25,
+            StoreId = CurrentStoreId
+        };
         return View(model);
     }
 
@@ -69,7 +71,6 @@ public class EmailAccountController(
                 : RedirectToAction("List");
         }
 
-        await emailAccountViewModelService.PrepareAvailableStores(model);
         return View(model);
     }
 
@@ -81,7 +82,6 @@ public class EmailAccountController(
             return RedirectToAction("List");
 
         var model = emailAccount.ToModel();
-        await emailAccountViewModelService.PrepareAvailableStores(model);
         return View(model);
     }
 
@@ -106,7 +106,6 @@ public class EmailAccountController(
                 : RedirectToAction("List");
         }
 
-        await emailAccountViewModelService.PrepareAvailableStores(model);
         return View(model);
     }
 
