@@ -163,7 +163,7 @@ public class EmailAccountController(
 
             return RedirectToAction("List");
         }
-        catch (Exception exc)
+        catch (GrandException exc)
         {
             Error(exc);
             return RedirectToAction("Edit", new { id = emailAccount.Id });
