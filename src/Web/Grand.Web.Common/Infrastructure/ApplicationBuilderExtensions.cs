@@ -1,5 +1,4 @@
-﻿using Grand.Data;
-using Grand.Infrastructure.Configuration;
+﻿using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Endpoints;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
@@ -39,64 +38,48 @@ public static class ApplicationBuilderExtensions
             //get detailed exceptions for developing and testing purposes
             application.UseDeveloperExceptionPage();
         else
-            //or use special exception handler
+            //use registered IExceptionHandler services first; fall back to /errorpage.htm for non-API requests
             application.UseExceptionHandler("/errorpage.htm");
-
-        //log errors
-        application.UseExceptionHandler(handler =>
-        {
-            handler.Run(async context =>
-            {
-                var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
-                if (exception == null)
-                    return;
-
-                string authHeader = context.Request.Headers["Authorization"];
-                var apiRequest = authHeader != null && authHeader.Split(' ')[0] == "Bearer";
-                if (apiRequest)
-                {
-                    await context.Response.WriteAsync(exception.Message);
-                    return;
-                }
-
-                if (DataSettingsManager.DatabaseIsInstalled())
-                {
-                    var logger = context.RequestServices.GetRequiredService<ILoggerFactory>()
-                        .CreateLogger("UseExceptionHandler");
-                    // Log the error
-                    logger.LogError(exception, exception.Message);
-                }
-
-            });
-        });
     }
 
     /// <summary>
-    ///     Adds a special handler that checks for responses with the 404 status code that do not have a body
+    ///     Adds a special handler that checks for responses with the 404 status code that do not have a body.
+    ///     Re-executes the pipeline at /page-not-found (preserving the original 404 status code) while
+    ///     skipping the re-execution for API and static-resource requests.
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
     public static void UsePageNotFound(this WebApplication application)
     {
-        application.UseStatusCodePages(async context =>
+        // UseStatusCodePagesWithReExecute sets IStatusCodePagesFeature.Enabled = true and re-executes
+        // the pipeline at the specified path when a 404 occurs, preserving the original 404 status code.
+        application.UseStatusCodePagesWithReExecute("/page-not-found");
+
+        // Disable status code pages for API (Bearer) requests and static resource requests so that
+        // those callers receive the original response rather than the HTML not-found page.
+        application.Use(async (context, next) =>
         {
-            //handle 404 Not Found
-            if (context.HttpContext.Response.StatusCode == 404)
+            string authHeader = context.Request.Headers[HeaderNames.Authorization];
+            var apiRequest = authHeader != null &&
+                             authHeader.Split(' ')[0] == JwtBearerDefaults.AuthenticationScheme;
+
+            if (apiRequest)
             {
-                string authHeader = context.HttpContext.Request.Headers[HeaderNames.Authorization];
-                var apiRequest = authHeader != null &&
-                                 authHeader.Split(' ')[0] == JwtBearerDefaults.AuthenticationScheme;
-
+                var feature = context.Features.Get<IStatusCodePagesFeature>();
+                if (feature != null)
+                    feature.Enabled = false;
+            }
+            else
+            {
                 var contentTypeProvider = new FileExtensionContentTypeProvider();
-                var staticResource = contentTypeProvider.TryGetContentType(context.HttpContext.Request.Path, out _);
-
-                if (!apiRequest && !staticResource)
+                if (contentTypeProvider.TryGetContentType(context.Request.Path, out _))
                 {
-                    const string location = "/page-not-found";
-                    context.HttpContext.Response.Redirect(context.HttpContext.Request.PathBase + location);
+                    var feature = context.Features.Get<IStatusCodePagesFeature>();
+                    if (feature != null)
+                        feature.Enabled = false;
                 }
             }
 
-            await Task.CompletedTask;
+            await next(context);
         });
     }
 

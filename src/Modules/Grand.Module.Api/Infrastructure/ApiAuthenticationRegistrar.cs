@@ -4,6 +4,7 @@ using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -32,10 +33,17 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                 OnAuthenticationFailed = async context =>
                 {
                     context.NoResult();
-                    context.Response.StatusCode = 401;
-                    context.Response.ContentType = "text/plain";
-                    await context.Response.WriteAsync(context.Exception.Message);
-                },                
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    var problemDetailsService = context.HttpContext.RequestServices.GetService<IProblemDetailsService>();
+                    if (problemDetailsService != null)
+                        await problemDetailsService.WriteAsync(new ProblemDetailsContext {
+                            HttpContext = context.HttpContext,
+                            ProblemDetails = new ProblemDetails {
+                                Status = StatusCodes.Status401Unauthorized,
+                                Title = "Authentication failed"
+                            }
+                        });
+                },
                 OnTokenValidated = async context =>
                 {
                     try
@@ -52,9 +60,9 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                             throw new Exception("API is disable");
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        throw new Exception(ex.Message);
+                        throw;
                     }
                 }
             };
@@ -80,10 +88,17 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                 OnAuthenticationFailed = async context =>
                 {
                     context.NoResult();
-                    context.Response.StatusCode = 401;
-                    context.Response.ContentType = "text/plain";
-                    await context.Response.WriteAsync(context.Exception.Message);
-                },                
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    var problemDetailsService = context.HttpContext.RequestServices.GetService<IProblemDetailsService>();
+                    if (problemDetailsService != null)
+                        await problemDetailsService.WriteAsync(new ProblemDetailsContext {
+                            HttpContext = context.HttpContext,
+                            ProblemDetails = new ProblemDetails {
+                                Status = StatusCodes.Status401Unauthorized,
+                                Title = "Authentication failed"
+                            }
+                        });
+                },
                 OnTokenValidated = async context =>
                 {
                     try
@@ -101,9 +116,9 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                             throw new Exception("API is disable");
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        throw new Exception(ex.Message);
+                        throw;
                     }
                 }
             };

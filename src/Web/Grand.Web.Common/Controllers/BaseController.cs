@@ -116,7 +116,7 @@ public abstract class BaseController : Controller
     private void LogException(Exception exception)
     {
         var logger = HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("BaseController");
-        logger.LogError(exception, exception.Message);
+        logger.LogError(exception, "An error occurred");
     }
 
     /// <summary>
