@@ -49,7 +49,7 @@ public class HtmlToPdfService : IPdfService
             new ValueTuple<IList<Order>, string>(orders, vendorId));
         try
         {
-            TextReader sr = new StringReader(html);
+            using var sr = new StringReader(html);
             using var doc = Document.ParseDocument(sr, ParseSourceType.DynamicContent);
             doc.SaveAsPDF(stream);
         }
