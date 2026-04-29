@@ -63,8 +63,9 @@ public class ViewRenderService : IViewRenderService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error rendering view '{ViewPath}'. Partial HTML output: {PartialHtml}",
-                viewPath, sw.ToString());
+            var partialHtmlLength = sw.GetStringBuilder().Length;
+            _logger.LogError(ex, "Error rendering view '{ViewPath}'. Partial HTML length: {PartialHtmlLength}",
+                viewPath, partialHtmlLength);
             throw;
         }
 
