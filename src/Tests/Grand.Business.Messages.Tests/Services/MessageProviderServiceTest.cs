@@ -51,7 +51,7 @@ public class MessageProviderServiceTest
                 new List<Language> { new() { Name = "English" }, new() { Name = "Polish" } } as IList<Language>));
 
         _emailAccountServiceMock = new Mock<IEmailAccountService>();
-        _emailAccountServiceMock.Setup(x => x.GetAllEmailAccounts())
+        _emailAccountServiceMock.Setup(x => x.GetAllEmailAccounts(It.IsAny<string>()))
             .Returns(Task.FromResult(
                 new List<EmailAccount> { new() { Email = "sdfsdf@mail.com" } } as IList<EmailAccount>));
 

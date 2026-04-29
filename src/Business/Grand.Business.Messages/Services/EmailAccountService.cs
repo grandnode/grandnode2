@@ -134,30 +134,22 @@ public class EmailAccountService : IEmailAccountService
     }
 
     /// <summary>
-    ///     Gets all email accounts
+    ///     Gets all email accounts, optionally filtered by store.
     /// </summary>
+    /// <param name="storeId">Store identifier; pass empty string to return all accounts</param>
     /// <returns>Email accounts list</returns>
-    public virtual async Task<IList<EmailAccount>> GetAllEmailAccounts()
+    public virtual async Task<IList<EmailAccount>> GetAllEmailAccounts(string storeId = "")
     {
-        return await _cacheBase.GetAsync(CacheKey.EMAILACCOUNT_ALL_KEY, async () =>
+        var accounts = await _cacheBase.GetAsync(CacheKey.EMAILACCOUNT_ALL_KEY, async () =>
         {
             var query = from ea in _emailAccountRepository.Table
                 select ea;
             return await Task.FromResult(query.ToList());
         });
-    }
 
-    /// <summary>
-    ///     Gets email accounts belonging to the specified store.
-    /// </summary>
-    /// <param name="storeId">Store identifier</param>
-    /// <returns>Email accounts for the given store</returns>
-    public virtual async Task<IList<EmailAccount>> GetEmailAccountsByStore(string storeId)
-    {
-        var allAccounts = await GetAllEmailAccounts();
         if (string.IsNullOrEmpty(storeId))
-            return allAccounts;
+            return accounts;
 
-        return allAccounts.Where(ea => ea.StoreId == storeId).ToList();
+        return accounts.Where(ea => ea.StoreId == storeId).ToList();
     }
 }

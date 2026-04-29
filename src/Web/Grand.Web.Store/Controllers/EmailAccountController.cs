@@ -32,7 +32,7 @@ public class EmailAccountController(
     [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> List(DataSourceRequest command)
     {
-        var emailAccountModels = (await emailAccountService.GetEmailAccountsByStore(CurrentStoreId))
+        var emailAccountModels = (await emailAccountService.GetAllEmailAccounts(CurrentStoreId))
             .Select(x => x.ToModel())
             .ToList();
 
