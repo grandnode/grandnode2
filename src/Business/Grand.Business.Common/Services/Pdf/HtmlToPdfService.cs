@@ -92,7 +92,7 @@ public class HtmlToPdfService : IPdfService
         var html = await _viewRenderService.RenderToStringAsync(ShipmentsTemplate, shipments);
         try
         {
-            TextReader sr = new StringReader(html);
+            using TextReader sr = new StringReader(html);
             using var doc = Document.ParseDocument(sr, ParseSourceType.DynamicContent);
             doc.SaveAsPDF(stream);
         }
