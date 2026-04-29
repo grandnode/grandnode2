@@ -6,7 +6,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
 using Scryber;
 using Scryber.Components;
 using Path = System.IO.Path;
@@ -22,21 +21,18 @@ public class HtmlToPdfService : IPdfService
     private const string ShipmentsTemplate = "~/Views/PdfTemplates/ShipmentPdfTemplate.cshtml";
     private readonly IRepository<Download> _downloadRepository;
     private readonly ILanguageService _languageService;
-    private readonly ILogger<HtmlToPdfService> _logger;
     private readonly IStoreFilesContext _storeFilesContext;
     private readonly IViewRenderService _viewRenderService;
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     public HtmlToPdfService(IViewRenderService viewRenderService, IRepository<Download> downloadRepository,
-        ILanguageService languageService, IStoreFilesContext storeFilesContext, IWebHostEnvironment webHostEnvironment,
-        ILogger<HtmlToPdfService> logger)
+        ILanguageService languageService, IStoreFilesContext storeFilesContext, IWebHostEnvironment webHostEnvironment)
     {
         _viewRenderService = viewRenderService;
         _languageService = languageService;
         _downloadRepository = downloadRepository;
         _storeFilesContext = storeFilesContext;
         _webHostEnvironment = webHostEnvironment;
-        _logger = logger;
     }
 
     public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "",
@@ -47,17 +43,9 @@ public class HtmlToPdfService : IPdfService
 
         var html = await _viewRenderService.RenderToStringAsync(OrderTemplate,
             new ValueTuple<IList<Order>, string>(orders, vendorId));
-        try
-        {
-            TextReader sr = new StringReader(html);
-            using var doc = Document.ParseDocument(sr, ParseSourceType.DynamicContent);
-            doc.SaveAsPDF(stream);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating PDF from order HTML. HTML content: {Html}", html);
-            throw;
-        }
+        TextReader sr = new StringReader(html);
+        using var doc = Document.ParseDocument(sr, ParseSourceType.DynamicContent);
+        doc.SaveAsPDF(stream);
     }
 
     public async Task<string> PrintOrderToPdf(Order order, string languageId, string vendorId = "")
@@ -90,17 +78,9 @@ public class HtmlToPdfService : IPdfService
             throw new ArgumentException($"Cannot load language. ID={languageId}");
 
         var html = await _viewRenderService.RenderToStringAsync(ShipmentsTemplate, shipments);
-        try
-        {
-            TextReader sr = new StringReader(html);
-            using var doc = Document.ParseDocument(sr, ParseSourceType.DynamicContent);
-            doc.SaveAsPDF(stream);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error generating PDF from shipment HTML. HTML content: {Html}", html);
-            throw;
-        }
+        TextReader sr = new StringReader(html);
+        using var doc = Document.ParseDocument(sr, ParseSourceType.DynamicContent);
+        doc.SaveAsPDF(stream);
     }
 
     public async Task<string> SaveOrderToBinary(Order order, string languageId, string vendorId = "")

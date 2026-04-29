@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Common.ViewRender;
 
@@ -16,7 +15,6 @@ namespace Grand.Web.Common.ViewRender;
 /// </summary>
 public class ViewRenderService : IViewRenderService
 {
-    private readonly ILogger<ViewRenderService> _logger;
     private readonly IRazorViewEngine _razorViewEngine;
     private readonly IServiceProvider _serviceProvider;
     private readonly ITempDataProvider _tempDataProvider;
@@ -24,13 +22,11 @@ public class ViewRenderService : IViewRenderService
 
     public ViewRenderService(IRazorViewEngine razorViewEngine,
         ITempDataProvider tempDataProvider,
-        IServiceProvider serviceProvider,
-        ILogger<ViewRenderService> logger)
+        IServiceProvider serviceProvider)
     {
         _razorViewEngine = razorViewEngine;
         _tempDataProvider = tempDataProvider;
         _serviceProvider = serviceProvider;
-        _logger = logger;
     }
 
 
@@ -57,18 +53,7 @@ public class ViewRenderService : IViewRenderService
             new HtmlHelperOptions()
         );
 
-        try
-        {
-            await viewResult.View.RenderAsync(viewContext);
-        }
-        catch (Exception ex)
-        {
-            var partialHtmlLength = sw.GetStringBuilder().Length;
-            _logger.LogError(ex, "Error rendering view '{ViewPath}'. Partial HTML length: {PartialHtmlLength}",
-                viewPath, partialHtmlLength);
-            throw;
-        }
-
+        await viewResult.View.RenderAsync(viewContext);
         return sw.ToString();
     }
 }
