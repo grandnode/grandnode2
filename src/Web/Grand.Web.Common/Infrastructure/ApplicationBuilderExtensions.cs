@@ -60,7 +60,7 @@ public static class ApplicationBuilderExtensions
         {
             string authHeader = context.Request.Headers[HeaderNames.Authorization];
             var apiRequest = authHeader != null &&
-                             authHeader.Split(' ')[0] == JwtBearerDefaults.AuthenticationScheme;
+                             authHeader.StartsWith(JwtBearerDefaults.AuthenticationScheme + " ", StringComparison.OrdinalIgnoreCase);
 
             if (apiRequest)
             {
@@ -96,7 +96,7 @@ public static class ApplicationBuilderExtensions
                 return Task.CompletedTask;
 
             string authHeader = context.HttpContext.Request.Headers[HeaderNames.Authorization];
-            var apiRequest = authHeader != null && authHeader.Split(' ')[0] == JwtBearerDefaults.AuthenticationScheme;
+            var apiRequest = authHeader != null && authHeader.StartsWith(JwtBearerDefaults.AuthenticationScheme + " ", StringComparison.OrdinalIgnoreCase);
 
             if (apiRequest) return Task.CompletedTask;
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>()

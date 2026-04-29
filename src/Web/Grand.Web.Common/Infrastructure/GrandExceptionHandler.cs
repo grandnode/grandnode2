@@ -37,7 +37,7 @@ public class GrandExceptionHandler : IExceptionHandler
         // Only write a JSON response for API (Bearer) requests; let the configured
         // exception page handle HTML responses so the developer page / error page works.
         string authHeader = httpContext.Request.Headers["Authorization"];
-        var apiRequest = authHeader != null && authHeader.Split(' ')[0] == "Bearer";
+        var apiRequest = authHeader != null && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase);
         if (!apiRequest)
             return false;
 
