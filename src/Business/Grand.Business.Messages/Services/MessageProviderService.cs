@@ -93,13 +93,11 @@ public class MessageProviderService : IMessageProviderService
     }
 
     protected virtual async Task<EmailAccount> GetEmailAccountOfMessageTemplate(MessageTemplate messageTemplate,
-        string languageId, string storeId = null)
+        string languageId)
     {
         var emailAccounId = messageTemplate.GetTranslation(mt => mt.EmailAccountId, languageId);
         var emailAccount = await _emailAccountService.GetEmailAccountById(emailAccounId);
         emailAccount ??= await _emailAccountService.GetEmailAccountById(_emailAccountSettings.DefaultEmailAccountId);
-        if (emailAccount == null && !string.IsNullOrEmpty(storeId))
-            emailAccount = (await _emailAccountService.GetAllEmailAccounts(storeId)).FirstOrDefault();
         emailAccount ??= (await _emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
         return emailAccount;
     }
@@ -156,7 +154,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -322,7 +320,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var liquidBuilder = new LiquidObjectBuilder(_mediator);
         liquidBuilder.AddStoreTokens(store, language, emailAccount)
@@ -453,7 +451,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -532,7 +530,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = order.CustomerId });
 
@@ -597,7 +595,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = order.CustomerId });
 
@@ -640,7 +638,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = order.CustomerId });
 
@@ -709,7 +707,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -754,7 +752,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -796,7 +794,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
 
         var builder = new LiquidObjectBuilder(_mediator);
@@ -835,7 +833,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -912,7 +910,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = merchandiseReturn.CustomerId });
 
@@ -969,7 +967,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = merchandiseReturn.CustomerId });
 
@@ -1011,7 +1009,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = merchandiseReturn.CustomerId });
 
@@ -1053,7 +1051,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = merchandiseReturn.CustomerId });
 
@@ -1099,7 +1097,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator).AddStoreTokens(store, language, emailAccount)
             .AddCustomerTokens(customer, store, CurrentHost, language)
@@ -1134,7 +1132,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -1172,7 +1170,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -1206,7 +1204,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = productReview.CustomerId });
 
@@ -1246,7 +1244,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
         //customer
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = vendorReview.CustomerId });
         //vendor
@@ -1288,7 +1286,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -1325,7 +1323,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -1360,7 +1358,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -1391,7 +1389,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -1432,7 +1430,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -1470,7 +1468,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount)
@@ -1509,7 +1507,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddStoreTokens(store, language, emailAccount);
@@ -1552,7 +1550,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         string fromEmail;
         string fromName;
@@ -1630,7 +1628,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         //email account
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         string fromEmail;
         string fromName;
@@ -1701,7 +1699,7 @@ public class MessageProviderService : IMessageProviderService
         if (messageTemplate == null)
             return 0;
 
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddAuctionTokens(product, bid)
@@ -1736,7 +1734,7 @@ public class MessageProviderService : IMessageProviderService
         if (messageTemplate == null)
             return 0;
 
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddAuctionTokens(product, bid)
@@ -1781,7 +1779,7 @@ public class MessageProviderService : IMessageProviderService
             return 0;
 
         var language = await EnsureLanguageIsActive(languageId, store.Id);
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddProductTokens(product, language, store, CurrentHost)
@@ -1838,7 +1836,7 @@ public class MessageProviderService : IMessageProviderService
             if (messageTemplate == null)
                 return 0;
 
-            emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+            emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
             builder.AddAuctionTokens(product, bid)
                 .AddCustomerTokens(customer, store, CurrentHost, language)
                 .AddStoreTokens(store, language, emailAccount);
@@ -1851,7 +1849,7 @@ public class MessageProviderService : IMessageProviderService
             if (messageTemplate == null)
                 return 0;
 
-            emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+            emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
             builder.AddProductTokens(product, language, store, CurrentHost);
         }
 
@@ -1890,7 +1888,7 @@ public class MessageProviderService : IMessageProviderService
         if (messageTemplate == null)
             return 0;
 
-        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id, store?.Id);
+        var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
         var builder = new LiquidObjectBuilder(_mediator);
         builder.AddAuctionTokens(product, bid)
