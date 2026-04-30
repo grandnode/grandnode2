@@ -25,6 +25,13 @@ namespace Grand.Web.Common.Infrastructure;
 /// </summary>
 public static class ApplicationBuilderExtensions
 {
+    internal static bool IsApiRequest(HttpRequest request)
+    {
+        string authHeader = request.Headers[HeaderNames.Authorization];
+        return authHeader != null &&
+               authHeader.StartsWith(JwtBearerDefaults.AuthenticationScheme + " ", StringComparison.OrdinalIgnoreCase);
+    }
+
     /// <summary>
     ///     Add exception handling
     /// </summary>
@@ -58,11 +65,7 @@ public static class ApplicationBuilderExtensions
         // those callers receive the original response rather than the HTML not-found page.
         application.Use(async (context, next) =>
         {
-            string authHeader = context.Request.Headers[HeaderNames.Authorization];
-            var apiRequest = authHeader != null &&
-                             authHeader.StartsWith(JwtBearerDefaults.AuthenticationScheme + " ", StringComparison.OrdinalIgnoreCase);
-
-            if (apiRequest)
+            if (IsApiRequest(context.Request))
             {
                 var feature = context.Features.Get<IStatusCodePagesFeature>();
                 if (feature != null)
@@ -95,10 +98,7 @@ public static class ApplicationBuilderExtensions
             if (context.HttpContext.Response.StatusCode != StatusCodes.Status400BadRequest)
                 return Task.CompletedTask;
 
-            string authHeader = context.HttpContext.Request.Headers[HeaderNames.Authorization];
-            var apiRequest = authHeader != null && authHeader.StartsWith(JwtBearerDefaults.AuthenticationScheme + " ", StringComparison.OrdinalIgnoreCase);
-
-            if (apiRequest) return Task.CompletedTask;
+            if (IsApiRequest(context.HttpContext.Request)) return Task.CompletedTask;
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>()
                 .CreateLogger("UseBadRequestResult");
             logger.LogError("Error 400. Bad request");
