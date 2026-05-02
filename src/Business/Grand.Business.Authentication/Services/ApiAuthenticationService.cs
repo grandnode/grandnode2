@@ -3,6 +3,8 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using Grand.SharedKernel.Attributes;
+using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -61,8 +63,8 @@ public class ApiAuthenticationService : IApiAuthenticationService
         var endpoint = _httpContextAccessor.HttpContext.GetEndpoint();
         if (endpoint == null) return false;
 
-        var authorizeAttributes = endpoint.Metadata.GetOrderedMetadata<AuthorizeAttribute>();
-        return authorizeAttributes.Any(attr => attr.AuthenticationSchemes?.Contains(FrontendAPIConfig.AuthenticationScheme) == true);
+        var apiGroupAttr = endpoint.Metadata.GetOrderedMetadata<ApiGroupAttribute>();
+        return apiGroupAttr.Any(attr => attr.GroupName == ApiConstants.ApiGroupNameV2);
     }
     
 
