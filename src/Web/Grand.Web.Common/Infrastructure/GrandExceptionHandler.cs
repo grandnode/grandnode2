@@ -10,8 +10,7 @@ namespace Grand.Web.Common.Infrastructure;
 /// <summary>
 ///     Handles unhandled exceptions according to ASP.NET Core best practices.
 ///     For API requests (Bearer token) it writes an RFC 7807 ProblemDetails JSON response.
-///     For regular web requests it only logs the error and returns false so the configured
-///     error page (or developer exception page) can handle the response.
+///     For regular web (Razor/MVC) requests it redirects to the static error page (/errorpage.htm).
 /// </summary>
 public class GrandExceptionHandler : IExceptionHandler
 {
@@ -34,10 +33,14 @@ public class GrandExceptionHandler : IExceptionHandler
         if (DataSettingsManager.DatabaseIsInstalled())
             _logger.LogError(exception, "An unhandled exception has occurred");
 
-        // Only write a JSON response for API (Bearer) requests; let the configured
-        // exception page handle HTML responses so the developer page / error page works.
         if (!ApplicationBuilderExtensions.IsApiRequest(httpContext.Request))
-            return false;
+        {
+            // For Razor/MVC web requests, redirect to the static error page so the
+            // browser always sees a user-friendly page (the path-based re-execution
+            // fallback in UseExceptionHandler is unreliable in an MVC pipeline).
+            httpContext.Response.Redirect("/errorpage.htm", permanent: false);
+            return true;
+        }
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
 

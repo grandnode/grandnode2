@@ -53,8 +53,8 @@ public static class ApplicationBuilderExtensions
             //get detailed exceptions for developing and testing purposes
             application.UseDeveloperExceptionPage();
         else
-            //use registered IExceptionHandler services first; fall back to /errorpage.htm for non-API requests
-            application.UseExceptionHandler("/errorpage.htm");
+            //use registered IExceptionHandler services (GrandExceptionHandler handles both API and web requests)
+            application.UseExceptionHandler();
     }
 
     /// <summary>
