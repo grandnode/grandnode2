@@ -1,4 +1,4 @@
-﻿using Grand.Module.Api.Infrastructure.Extensions;
+using Grand.Module.Api.Infrastructure.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
@@ -36,6 +36,7 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     var problemDetailsService = context.HttpContext.RequestServices.GetService<IProblemDetailsService>();
                     if (problemDetailsService != null)
+                    {
                         await problemDetailsService.WriteAsync(new ProblemDetailsContext {
                             HttpContext = context.HttpContext,
                             ProblemDetails = new ProblemDetails {
@@ -43,26 +44,28 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                                 Title = "Authentication failed"
                             }
                         });
+                    }
+                    else
+                    {
+                        context.Response.ContentType = "application/problem+json";
+                        await context.Response.WriteAsJsonAsync(new ProblemDetails {
+                            Status = StatusCodes.Status401Unauthorized,
+                            Title = "Authentication failed"
+                        });
+                    }
                 },
                 OnTokenValidated = async context =>
                 {
-                    try
+                    if (config.Enabled)
                     {
-                        if (config.Enabled)
-                        {
-                            var jwtAuthentication = context.HttpContext.RequestServices
-                                .GetRequiredService<IJwtBearerAuthenticationService>();
-                            if (!await jwtAuthentication.Valid(context))
-                                throw new Exception(await jwtAuthentication.ErrorMessage());
-                        }
-                        else
-                        {
-                            throw new Exception("API is disable");
-                        }
+                        var jwtAuthentication = context.HttpContext.RequestServices
+                            .GetRequiredService<IJwtBearerAuthenticationService>();
+                        if (!await jwtAuthentication.Valid(context))
+                            throw new Exception(await jwtAuthentication.ErrorMessage());
                     }
-                    catch (Exception)
+                    else
                     {
-                        throw;
+                        throw new Exception("API is disabled");
                     }
                 }
             };
@@ -91,6 +94,7 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     var problemDetailsService = context.HttpContext.RequestServices.GetService<IProblemDetailsService>();
                     if (problemDetailsService != null)
+                    {
                         await problemDetailsService.WriteAsync(new ProblemDetailsContext {
                             HttpContext = context.HttpContext,
                             ProblemDetails = new ProblemDetails {
@@ -98,27 +102,29 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                                 Title = "Authentication failed"
                             }
                         });
+                    }
+                    else
+                    {
+                        context.Response.ContentType = "application/problem+json";
+                        await context.Response.WriteAsJsonAsync(new ProblemDetails {
+                            Status = StatusCodes.Status401Unauthorized,
+                            Title = "Authentication failed"
+                        });
+                    }
                 },
                 OnTokenValidated = async context =>
                 {
-                    try
+                    if (config.Enabled)
                     {
-                        if (config.Enabled)
-                        {
-                            var jwtAuthentication = context.HttpContext.RequestServices
-                                .GetRequiredService<IJwtBearerCustomerAuthenticationService>();
-                            var isValid = await jwtAuthentication.Valid(context);
-                            if (!isValid)
-                                throw new Exception(await jwtAuthentication.ErrorMessage());
-                        }
-                        else
-                        {
-                            throw new Exception("API is disable");
-                        }
+                        var jwtAuthentication = context.HttpContext.RequestServices
+                            .GetRequiredService<IJwtBearerCustomerAuthenticationService>();
+                        var isValid = await jwtAuthentication.Valid(context);
+                        if (!isValid)
+                            throw new Exception(await jwtAuthentication.ErrorMessage());
                     }
-                    catch (Exception)
+                    else
                     {
-                        throw;
+                        throw new Exception("API is disabled");
                     }
                 }
             };

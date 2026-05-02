@@ -25,11 +25,19 @@ namespace Grand.Web.Common.Infrastructure;
 /// </summary>
 public static class ApplicationBuilderExtensions
 {
+    // Reused across requests — FileExtensionContentTypeProvider is stateless and thread-safe
+    private static readonly FileExtensionContentTypeProvider ContentTypeProvider = new();
+
     internal static bool IsApiRequest(HttpRequest request)
     {
         string authHeader = request.Headers[HeaderNames.Authorization];
         return authHeader != null &&
                authHeader.StartsWith(JwtBearerDefaults.AuthenticationScheme + " ", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsStaticFileRequest(PathString path)
+    {
+        return ContentTypeProvider.TryGetContentType(path, out _);
     }
 
     /// <summary>
@@ -63,26 +71,28 @@ public static class ApplicationBuilderExtensions
 
         // Disable status code pages for API (Bearer) requests and static resource requests so that
         // those callers receive the original response rather than the HTML not-found page.
+        // For all other requests, also restrict re-execution to actual 404 responses so that
+        // 400/401/403/405/500 etc. are not mistakenly routed to /page-not-found.
         application.Use(async (context, next) =>
         {
-            if (IsApiRequest(context.Request))
+            if (IsApiRequest(context.Request) || IsStaticFileRequest(context.Request.Path))
+            {
+                var feature = context.Features.Get<IStatusCodePagesFeature>();
+                if (feature != null)
+                    feature.Enabled = false;
+                await next(context);
+                return;
+            }
+
+            await next(context);
+
+            // Only re-execute for 404 Not Found; all other error codes are handled elsewhere.
+            if (context.Response.StatusCode != StatusCodes.Status404NotFound)
             {
                 var feature = context.Features.Get<IStatusCodePagesFeature>();
                 if (feature != null)
                     feature.Enabled = false;
             }
-            else
-            {
-                var contentTypeProvider = new FileExtensionContentTypeProvider();
-                if (contentTypeProvider.TryGetContentType(context.Request.Path, out _))
-                {
-                    var feature = context.Features.Get<IStatusCodePagesFeature>();
-                    if (feature != null)
-                        feature.Enabled = false;
-                }
-            }
-
-            await next(context);
         });
     }
 
