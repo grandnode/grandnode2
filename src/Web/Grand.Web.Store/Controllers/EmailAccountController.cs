@@ -32,13 +32,12 @@ public class EmailAccountController(
     [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> List(DataSourceRequest command)
     {
-        var emailAccountModels = (await emailAccountService.GetAllEmailAccounts(CurrentStoreId))
-            .Select(x => x.ToModel())
-            .ToList();
+        var emailAccounts = await emailAccountService.GetAllEmailAccounts(CurrentStoreId, pageIndex: command.Page - 1, pageSize: command.PageSize);
+        var emailAccountModels = emailAccounts.Select(x => x.ToModel()).ToList();
 
         var gridModel = new DataSourceResult {
             Data = emailAccountModels,
-            Total = emailAccountModels.Count
+            Total = emailAccounts.TotalCount
         };
 
         return Json(gridModel);
