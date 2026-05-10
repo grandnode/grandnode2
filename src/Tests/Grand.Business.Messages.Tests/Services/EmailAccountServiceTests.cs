@@ -48,8 +48,7 @@ public class EmailAccountServiceTests
     [TestMethod]
     public async Task DeleteEmailAccount_InvokeExpectedMethods()
     {
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<EmailAccount>>>>()))
-            .Returns(Task.FromResult(new List<EmailAccount> { new(), new() }));
+        _repository.Setup(r => r.Table).Returns(new List<EmailAccount> { new(), new() }.AsQueryable());
         await _service.DeleteEmailAccount(new EmailAccount());
         _repository.Verify(c => c.DeleteAsync(It.IsAny<EmailAccount>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<EmailAccount>>(), default), Times.Once);
@@ -57,11 +56,10 @@ public class EmailAccountServiceTests
     }
 
     [TestMethod]
-    public void DeleteEmailAccount_ExistOnlyOneAccount_ThrowException()
+    public async Task DeleteEmailAccount_ExistOnlyOneAccount_ThrowException()
     {
         //we can't delete account if exist only one
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<EmailAccount>>>>()))
-            .Returns(Task.FromResult(new List<EmailAccount> { new() }));
-        Assert.ThrowsExactlyAsync<GrandException>(async () => await _service.DeleteEmailAccount(new EmailAccount()));
+        _repository.Setup(r => r.Table).Returns(new List<EmailAccount> { new() }.AsQueryable());
+        await Assert.ThrowsExactlyAsync<GrandException>(async () => await _service.DeleteEmailAccount(new EmailAccount()));
     }
 }
