@@ -18,12 +18,6 @@ namespace Grand.Web.Store.Controllers;
 [PermissionAuthorize(PermissionSystemName.Pages)]
 public class PageController : BaseStoreController
 {
-    #region Constants
-
-    private const string NoAccessToPageMessage = "You don't have access to this page";
-
-    #endregion
-
     #region Constructors
 
     public PageController(
@@ -134,8 +128,7 @@ public class PageController : BaseStoreController
         if (page == null)
             return RedirectToAction("List");
 
-        if (!page.LimitedToStores || (page.LimitedToStores &&
-                                      page.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
+        if (!page.LimitedToStores || (page.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
                                       page.Stores.Count > 1))
         {
             Warning(_translationService.GetResource("Admin.Content.Pages.Permissions"));
@@ -207,15 +200,9 @@ public class PageController : BaseStoreController
         if (!page.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             return RedirectToAction("List");
 
-        if (ModelState.IsValid)
-        {
-            await _pageViewModelService.DeletePage(page);
-            Success(_translationService.GetResource("Admin.Content.Pages.Deleted"));
-            return RedirectToAction("List");
-        }
-
-        Error(ModelState);
-        return RedirectToAction("Edit", new { id });
+        await _pageViewModelService.DeletePage(page);
+        Success(_translationService.GetResource("Admin.Content.Pages.Deleted"));
+        return RedirectToAction("List");
     }
 
     #endregion
