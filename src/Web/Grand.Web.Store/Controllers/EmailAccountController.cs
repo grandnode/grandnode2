@@ -131,7 +131,7 @@ public class EmailAccountController(
                 Error(ModelState);
             }
         }
-        catch (GrandException exc)
+        catch (Exception exc)
         {
             Error(exc.Message);
         }
