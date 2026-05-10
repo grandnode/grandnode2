@@ -1,5 +1,4 @@
-﻿using Grand.Data;
-using Grand.Infrastructure.Configuration;
+﻿using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Endpoints;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
@@ -26,6 +25,21 @@ namespace Grand.Web.Common.Infrastructure;
 /// </summary>
 public static class ApplicationBuilderExtensions
 {
+    // Reused across requests — FileExtensionContentTypeProvider is stateless and thread-safe
+    private static readonly FileExtensionContentTypeProvider ContentTypeProvider = new();
+
+    internal static bool IsApiRequest(HttpRequest request)
+    {
+        string authHeader = request.Headers[HeaderNames.Authorization];
+        return authHeader != null &&
+               authHeader.StartsWith(JwtBearerDefaults.AuthenticationScheme + " ", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsStaticFileRequest(PathString path)
+    {
+        return ContentTypeProvider.TryGetContentType(path, out _);
+    }
+
     /// <summary>
     ///     Add exception handling
     /// </summary>
@@ -39,64 +53,46 @@ public static class ApplicationBuilderExtensions
             //get detailed exceptions for developing and testing purposes
             application.UseDeveloperExceptionPage();
         else
-            //or use special exception handler
-            application.UseExceptionHandler("/errorpage.htm");
-
-        //log errors
-        application.UseExceptionHandler(handler =>
-        {
-            handler.Run(async context =>
-            {
-                var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
-                if (exception == null)
-                    return;
-
-                string authHeader = context.Request.Headers["Authorization"];
-                var apiRequest = authHeader != null && authHeader.Split(' ')[0] == "Bearer";
-                if (apiRequest)
-                {
-                    await context.Response.WriteAsync(exception.Message);
-                    return;
-                }
-
-                if (DataSettingsManager.DatabaseIsInstalled())
-                {
-                    var logger = context.RequestServices.GetRequiredService<ILoggerFactory>()
-                        .CreateLogger("UseExceptionHandler");
-                    // Log the error
-                    logger.LogError(exception, exception.Message);
-                }
-
-            });
-        });
+            //use registered IExceptionHandler services (GrandExceptionHandler handles both API and web requests)
+            application.UseExceptionHandler();
     }
 
     /// <summary>
-    ///     Adds a special handler that checks for responses with the 404 status code that do not have a body
+    ///     Adds a special handler that checks for responses with the 404 status code that do not have a body.
+    ///     Re-executes the pipeline at /page-not-found (preserving the original 404 status code) while
+    ///     skipping the re-execution for API and static-resource requests.
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
     public static void UsePageNotFound(this WebApplication application)
     {
-        application.UseStatusCodePages(async context =>
+        // UseStatusCodePagesWithReExecute sets IStatusCodePagesFeature.Enabled = true and re-executes
+        // the pipeline at the specified path when a 404 occurs, preserving the original 404 status code.
+        application.UseStatusCodePagesWithReExecute("/page-not-found");
+
+        // Disable status code pages for API (Bearer) requests and static resource requests so that
+        // those callers receive the original response rather than the HTML not-found page.
+        // For all other requests, also restrict re-execution to actual 404 responses so that
+        // 400/401/403/405/500 etc. are not mistakenly routed to /page-not-found.
+        application.Use(async (context, next) =>
         {
-            //handle 404 Not Found
-            if (context.HttpContext.Response.StatusCode == 404)
+            if (IsApiRequest(context.Request) || IsStaticFileRequest(context.Request.Path))
             {
-                string authHeader = context.HttpContext.Request.Headers[HeaderNames.Authorization];
-                var apiRequest = authHeader != null &&
-                                 authHeader.Split(' ')[0] == JwtBearerDefaults.AuthenticationScheme;
-
-                var contentTypeProvider = new FileExtensionContentTypeProvider();
-                var staticResource = contentTypeProvider.TryGetContentType(context.HttpContext.Request.Path, out _);
-
-                if (!apiRequest && !staticResource)
-                {
-                    const string location = "/page-not-found";
-                    context.HttpContext.Response.Redirect(context.HttpContext.Request.PathBase + location);
-                }
+                var feature = context.Features.Get<IStatusCodePagesFeature>();
+                if (feature != null)
+                    feature.Enabled = false;
+                await next(context);
+                return;
             }
 
-            await Task.CompletedTask;
+            await next(context);
+
+            // Only re-execute for 404 Not Found; all other error codes are handled elsewhere.
+            if (context.Response.StatusCode != StatusCodes.Status404NotFound)
+            {
+                var feature = context.Features.Get<IStatusCodePagesFeature>();
+                if (feature != null)
+                    feature.Enabled = false;
+            }
         });
     }
 
@@ -112,10 +108,7 @@ public static class ApplicationBuilderExtensions
             if (context.HttpContext.Response.StatusCode != StatusCodes.Status400BadRequest)
                 return Task.CompletedTask;
 
-            string authHeader = context.HttpContext.Request.Headers[HeaderNames.Authorization];
-            var apiRequest = authHeader != null && authHeader.Split(' ')[0] == JwtBearerDefaults.AuthenticationScheme;
-
-            if (apiRequest) return Task.CompletedTask;
+            if (IsApiRequest(context.HttpContext.Request)) return Task.CompletedTask;
             var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>()
                 .CreateLogger("UseBadRequestResult");
             logger.LogError("Error 400. Bad request");
