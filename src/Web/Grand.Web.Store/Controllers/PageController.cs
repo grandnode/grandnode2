@@ -224,7 +224,7 @@ public class PageController : BaseStoreController
         if (storePages.Any(p => p.Id != page.Id &&
                                 p.SystemName.Equals(page.SystemName, StringComparison.OrdinalIgnoreCase)))
         {
-            Error("A page with the same system name already exists for this store.");
+            Error(_translationService.GetResource("Admin.Content.Pages.Copy.DuplicateSystemName"));
             return RedirectToAction("Edit", new { id });
         }
 
