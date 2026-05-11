@@ -140,6 +140,7 @@ public class PageController : BaseStoreController
         }
 
         ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
+        ViewBag.ShowCopyButton = !page.LimitedToStores || page.Stores.Count > 1;
         var model = page.ToModel(_dateTimeService);
         model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) }, "http");
         await _pageViewModelService.PrepareLayoutsModel(model);
@@ -203,6 +204,49 @@ public class PageController : BaseStoreController
         await _pageViewModelService.DeletePage(page);
         Success(_translationService.GetResource("Admin.Content.Pages.Deleted"));
         return RedirectToAction("List");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    [HttpPost]
+    public async Task<IActionResult> Copy(string id)
+    {
+        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+        var page = await _pageService.GetPageById(id);
+        if (page == null)
+            return RedirectToAction("List");
+
+        // Only allow copy for multistore or store-unrestricted topics
+        if (page.LimitedToStores && page.Stores.Count <= 1)
+            return RedirectToAction("Edit", new { id });
+
+        // Check if a page with the same SystemName already exists for the current store
+        var storePages = await _pageService.GetAllPages(storeId, true);
+        if (storePages.Any(p => p.Id != page.Id &&
+                                p.SystemName.Equals(page.SystemName, StringComparison.OrdinalIgnoreCase)))
+        {
+            Error("A page with the same system name already exists for this store.");
+            return RedirectToAction("Edit", new { id });
+        }
+
+        // Build copy model from original page
+        var model = page.ToModel(_dateTimeService);
+        model.Id = "";
+        model.Stores = [storeId];
+
+        // Preserve localized content
+        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.Title = page.GetTranslation(x => x.Title, languageId, false);
+            locale.Body = page.GetTranslation(x => x.Body, languageId, false);
+            locale.MetaKeywords = page.GetTranslation(x => x.MetaKeywords, languageId, false);
+            locale.MetaDescription = page.GetTranslation(x => x.MetaDescription, languageId, false);
+            locale.MetaTitle = page.GetTranslation(x => x.MetaTitle, languageId, false);
+            locale.SeName = page.GetSeName(languageId, false);
+        });
+
+        var newPage = await _pageViewModelService.InsertPageModel(model);
+        Success(_translationService.GetResource("Admin.Content.Pages.Added"));
+        return RedirectToAction("Edit", new { id = newPage.Id });
     }
 
     #endregion
