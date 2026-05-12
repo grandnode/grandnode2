@@ -175,7 +175,7 @@
         sendImmediately();
         $(".SearchTokens").on("input", function (e) { SearchTokens(e); })
         $("input").click(function (e) {
-            onInputFocus = $(e.target);
+            var onInputFocus = $(e.target);
         });
     });
 
