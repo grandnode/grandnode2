@@ -97,6 +97,10 @@
                 title: "@Loc["Admin.Content.Pages.Fields.SystemName"]",
                 template: '<a class="k-link" href="Edit/#=Id#">#=SystemName#</a>',
             }, {
+                field: "Title",
+                title: "@Loc["Admin.Content.Pages.Fields.Title"]",
+                template: '#=kendo.htmlEncode(Title == null ? "" : Title)#',
+            }, {
                 field: "IsPasswordProtected",
                 title: "@Loc["Admin.Content.Pages.Fields.IsPasswordProtected"]",
                 width: 100,
