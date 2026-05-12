@@ -241,6 +241,9 @@ public class PageController : BaseStoreController
         if (page == null)
             return RedirectToAction("List");
 
+        if (!page.AccessToEntityByStore(storeId))
+            return RedirectToAction("List");
+
         // Only allow copy for multistore or store-unrestricted topics
         if (page.LimitedToStores && page.Stores.Count <= 1)
             return RedirectToAction("Edit", new { id });
