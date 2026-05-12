@@ -168,7 +168,7 @@ public class PageController : BaseStoreController
         ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         ViewBag.ShowCopyButton = !page.LimitedToStores || page.Stores.Count > 1;
         var model = page.ToModel(_dateTimeService);
-        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) }, "http");
+        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) }, Request.Scheme);
         await _pageViewModelService.PrepareLayoutsModel(model);
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
@@ -239,6 +239,9 @@ public class PageController : BaseStoreController
         var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var page = await _pageService.GetPageById(id);
         if (page == null)
+            return RedirectToAction("List");
+
+        if (!page.AccessToEntityByStore(storeId))
             return RedirectToAction("List");
 
         // Only allow copy for multistore or store-unrestricted topics
