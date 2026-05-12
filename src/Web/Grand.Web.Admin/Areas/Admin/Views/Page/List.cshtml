@@ -101,19 +101,19 @@
                 title: "@Loc["Admin.Content.Pages.Fields.Title"]",
                 template: '#=kendo.htmlEncode(Title == null ? "" : Title)#',
             }, {
-                field: "IsPasswordProtected",
-                title: "@Loc["Admin.Content.Pages.Fields.IsPasswordProtected"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(IsPasswordProtected) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
                 field: "IncludeInMenu",
                 title: "@Loc["Admin.Content.Pages.Fields.IncludeInMenu"]",
                 width: 100,
                 headerAttributes: { style: "text-align:center" },
                 attributes: { style: "text-align:center" },
                 template: '# if(IncludeInMenu) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }, {
+                field: "Published",
+                title: "@Loc["Admin.Content.Pages.Fields.Published"]",
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
             }, {
                 field: "DisplayOrder",
                 title: "@Loc["Admin.Content.Pages.Fields.DisplayOrder"]",
