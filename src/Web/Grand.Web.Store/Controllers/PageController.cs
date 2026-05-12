@@ -81,7 +81,9 @@ public class PageController : BaseStoreController
 
         foreach (var page in pageModels) page.Body = "";
 
-        return Json(new DataSourceResult { Data = pageModels, Total = pageModels.Count });
+        var total = pageModels.Count;
+        var pagedData = pageModels.Skip((command.Page - 1) * command.PageSize).Take(command.PageSize).ToList();
+        return Json(new DataSourceResult { Data = pagedData, Total = total });
     }
 
     [PermissionAuthorizeAction(PermissionActionName.List)]
@@ -104,7 +106,9 @@ public class PageController : BaseStoreController
 
         foreach (var page in pageModels) page.Body = "";
 
-        return Json(new DataSourceResult { Data = pageModels, Total = pageModels.Count });
+        var total = pageModels.Count;
+        var pagedData = pageModels.Skip((command.Page - 1) * command.PageSize).Take(command.PageSize).ToList();
+        return Json(new DataSourceResult { Data = pagedData, Total = total });
     }
 
     #endregion
