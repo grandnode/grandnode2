@@ -232,7 +232,7 @@ public class PageController : BaseStoreController
         return RedirectToAction("List");
     }
 
-    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     public async Task<IActionResult> Copy(string id)
     {
