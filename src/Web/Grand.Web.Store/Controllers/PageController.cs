@@ -197,6 +197,8 @@ public class PageController : BaseStoreController
         if (ModelState.IsValid)
         {
             model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
+            model.LimitedToGroups = page.LimitedToGroups;
+            model.CustomerGroups = page.CustomerGroups;
             page = await _pageViewModelService.UpdatePageModel(page, model);
             Success(_translationService.GetResource("Admin.Content.Pages.Updated"));
 
