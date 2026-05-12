@@ -63,11 +63,14 @@ public class PageController : BaseStoreController
 
     [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpPost]
-    public async Task<IActionResult> List(DataSourceRequest command, PageListModel model)
+    public async Task<IActionResult> StorePagesList(DataSourceRequest command, PageListModel model)
     {
         var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var pages = await _pageService.GetAllPages(storeId, true);
+
+        // Store-specific: exclusively assigned to this one store
         var pageModels = pages
+            .Where(x => x.LimitedToStores && x.Stores.Count == 1)
             .Select(x => x.ToModel(_dateTimeService))
             .ToList();
 
@@ -78,11 +81,30 @@ public class PageController : BaseStoreController
 
         foreach (var page in pageModels) page.Body = "";
 
-        var gridModel = new DataSourceResult {
-            Data = pageModels,
-            Total = pageModels.Count
-        };
-        return Json(gridModel);
+        return Json(new DataSourceResult { Data = pageModels, Total = pageModels.Count });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    [HttpPost]
+    public async Task<IActionResult> GlobalPagesList(DataSourceRequest command, PageListModel model)
+    {
+        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+        var pages = await _pageService.GetAllPages(storeId, true);
+
+        // Global: no store restriction, or shared across multiple stores
+        var pageModels = pages
+            .Where(x => !x.LimitedToStores || x.Stores.Count > 1)
+            .Select(x => x.ToModel(_dateTimeService))
+            .ToList();
+
+        if (!string.IsNullOrEmpty(model.Name))
+            pageModels = pageModels.Where(x =>
+                x.SystemName.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
+                (x.Title != null && x.Title.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()))).ToList();
+
+        foreach (var page in pageModels) page.Body = "";
+
+        return Json(new DataSourceResult { Data = pageModels, Total = pageModels.Count });
     }
 
     #endregion

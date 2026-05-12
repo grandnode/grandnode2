@@ -40,7 +40,20 @@
                         </div>
                     </div>
                     <div class="x_content">
-                        <div id="pages-grid"></div>
+                        <admin-tabstrip name="pages-list-tabs" BindGrid="true">
+                            <items>
+                                <tabstrip-item text="@Loc["Admin.Content.Pages.List.StorePages"]" tab-index="0">
+                                    <content>
+                                        <div id="store-pages-grid"></div>
+                                    </content>
+                                </tabstrip-item>
+                                <tabstrip-item text="@Loc["Admin.Content.Pages.List.GlobalPages"]" tab-index="1">
+                                    <content>
+                                        <div id="global-pages-grid"></div>
+                                    </content>
+                                </tabstrip-item>
+                            </items>
+                        </admin-tabstrip>
                     </div>
                 </div>
             </div>
@@ -50,11 +63,40 @@
 
 <script>
     $(document).ready(function () {
-        $("#pages-grid").kendoGrid({
-            dataSource: {
+        var gridColumns = [{
+            field: "SystemName",
+            title: "@Loc["Admin.Content.Pages.Fields.SystemName"]",
+            template: '<a class="k-link" href="Edit/#=Id#">#=SystemName#</a>',
+        }, {
+            field: "Title",
+            title: "@Loc["Admin.Content.Pages.Fields.Title"]",
+            width: 300,
+            template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Title == null ? "" : Title)#</a>',
+        }, {
+            field: "IncludeInMenu",
+            title: "@Loc["Admin.Content.Pages.Fields.IncludeInMenu"]",
+            width: 100,
+            headerAttributes: { style: "text-align:center" },
+            attributes: { style: "text-align:center" },
+            template: '# if(IncludeInMenu) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+        }, {
+            field: "Published",
+            title: "@Loc["Admin.Content.Pages.Fields.Published"]",
+            width: 100,
+            headerAttributes: { style: "text-align:center" },
+            attributes: { style: "text-align:center" },
+            template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+        }, {
+            field: "DisplayOrder",
+            title: "@Loc["Admin.Content.Pages.Fields.DisplayOrder"]",
+            width: 100
+        }];
+
+        function makeDataSource(url) {
+            return {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("List", "Page", new { area = Constants.AreaStore }))",
+                        url: url,
                         type: "POST",
                         dataType: "json",
                         data: additionalData
@@ -73,53 +115,37 @@
                 serverPaging: true,
                 serverFiltering: true,
                 serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "SystemName",
-                title: "@Loc["Admin.Content.Pages.Fields.SystemName"]",
-                template: '<a class="k-link" href="Edit/#=Id#">#=SystemName#</a>',
-            }, {
-                field: "Title",
-                title: "@Loc["Admin.Content.Pages.Fields.Title"]",
-                width: 300,
-                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Title == null ? "" : Title)#</a>',
-            }, {
-                field: "IncludeInMenu",
-                title: "@Loc["Admin.Content.Pages.Fields.IncludeInMenu"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(IncludeInMenu) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
-                field: "Published",
-                title: "@Loc["Admin.Content.Pages.Fields.Published"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
-                field: "DisplayOrder",
-                title: "@Loc["Admin.Content.Pages.Fields.DisplayOrder"]",
-                width: 100
-            }]
-        });
+            };
+        }
+
+        function makeGrid(selector, url) {
+            $(selector).kendoGrid({
+                dataSource: makeDataSource(url),
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: gridColumns
+            });
+        }
+
+        makeGrid("#store-pages-grid", "@Html.Raw(Url.Action("StorePagesList",  "Page", new { area = Constants.AreaStore }))");
+        makeGrid("#global-pages-grid", "@Html.Raw(Url.Action("GlobalPagesList", "Page", new { area = Constants.AreaStore }))");
     });
 </script>
 
 <script>
     $(document).ready(function () {
         $('#search-pages').click(function () {
-            var grid = $('#pages-grid').data('kendoGrid');
-            grid.dataSource.read();
+            var sg = $('#store-pages-grid').data('kendoGrid');
+            if (sg) sg.dataSource.read();
+            var gg = $('#global-pages-grid').data('kendoGrid');
+            if (gg) gg.dataSource.read();
             return false;
         });
 
