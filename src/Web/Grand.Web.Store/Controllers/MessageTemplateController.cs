@@ -266,7 +266,7 @@ public class MessageTemplateController(
             Success(translationService.GetResource("Admin.Content.MessageTemplates.Copied"));
             return RedirectToAction("Edit", new { id = newMessageTemplate.Id });
         }
-        catch (Exception exc)
+        catch (GrandException exc)
         {
             Error(exc.Message);
             return RedirectToAction("List");
