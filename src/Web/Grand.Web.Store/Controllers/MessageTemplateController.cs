@@ -96,6 +96,18 @@ public class MessageTemplateController(
     {
         if (ModelState.IsValid)
         {
+            // Prevent duplicate: check if a template with this name already exists for the current store
+            var existing = await messageTemplateService.GetMessageTemplateByName(model.Name, CurrentStoreId);
+            if (existing != null)
+            {
+                ModelState.AddModelError("Name", translationService.GetResource("Admin.Content.MessageTemplates.Fields.Name.AlreadyExists"));
+                model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
+                model.AllowedTokens = messageTokenProvider.GetListOfAllowedTokens();
+                foreach (var ea in await emailAccountService.GetAllEmailAccounts(CurrentStoreId))
+                    model.AvailableEmailAccounts.Add(ea.ToModel());
+                return View(model);
+            }
+
             var messageTemplate = model.ToEntity();
             if (!model.HasAttachedDownload)
                 messageTemplate.AttachedDownloadId = "";
