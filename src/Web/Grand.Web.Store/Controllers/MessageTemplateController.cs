@@ -256,6 +256,14 @@ public class MessageTemplateController(
         if (messageTemplate == null)
             return RedirectToAction("List");
 
+        // Prevent duplicate: check if a template with the same name already exists for the current store
+        var existingTemplate = await messageTemplateService.GetMessageTemplateByName(messageTemplate.Name, CurrentStoreId);
+        if (existingTemplate != null)
+        {
+            Error(translationService.GetResource("Admin.Content.MessageTemplates.Fields.Name.AlreadyExists"));
+            return RedirectToAction("List");
+        }
+
         try
         {
             var newMessageTemplate = await messageTemplateService.CopyMessageTemplate(messageTemplate);
