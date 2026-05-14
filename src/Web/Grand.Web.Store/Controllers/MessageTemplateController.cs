@@ -106,9 +106,15 @@ public class MessageTemplateController(
     {
         if (ModelState.IsValid)
         {
-            // Prevent duplicate: check if a template with this name already exists for the current store
-            var existing = await messageTemplateService.GetMessageTemplateByName(model.Name, CurrentStoreId);
-            if (existing != null)
+            // Prevent duplicate: check only for store-specific templates with this name for the current store.
+            // GetMessageTemplateByName uses ACL and returns global templates too, so we use GetAllMessageTemplates("")
+            // and filter explicitly to avoid false positives on global templates sharing the same name.
+            var allTemplates = await messageTemplateService.GetAllMessageTemplates("");
+            var existingStoreTemplate = allTemplates.FirstOrDefault(t =>
+                t.Name == model.Name &&
+                t.LimitedToStores &&
+                t.Stores.Contains(CurrentStoreId));
+            if (existingStoreTemplate != null)
             {
                 ModelState.AddModelError("Name", translationService.GetResource("Admin.Content.MessageTemplates.Fields.Name.AlreadyExists"));
                 model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
