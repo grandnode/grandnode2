@@ -174,9 +174,6 @@
         toggleHasAttachedDownload();
         sendImmediately();
         $(".SearchTokens").on("input", function (e) { SearchTokens(e); })
-        $("input").click(function (e) {
-            var onInputFocus = $(e.target);
-        });
     });
 
     function toggleHasAttachedDownload() {
