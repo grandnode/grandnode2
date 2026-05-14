@@ -2,7 +2,6 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.Messages;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
@@ -261,12 +260,8 @@ public class MessageTemplateController(
             return RedirectToAction("List");
 
         // Prevent duplicate: check if a store-specific template with the same name already exists for the current store
-        var allTemplates = await messageTemplateService.GetAllMessageTemplates("");
-        var existingStoreTemplate = allTemplates.FirstOrDefault(t =>
-            t.Name == messageTemplate.Name &&
-            t.LimitedToStores &&
-            t.Stores.Contains(CurrentStoreId));
-        if (existingStoreTemplate != null)
+        var existing = await messageTemplateService.GetMessageTemplateByName(messageTemplate.Name, CurrentStoreId);
+        if (existing != null)
         {
             Error(translationService.GetResource("Admin.Content.MessageTemplates.Fields.Name.AlreadyExists"));
             return RedirectToAction("List");
