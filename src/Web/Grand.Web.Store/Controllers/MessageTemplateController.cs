@@ -45,11 +45,16 @@ public class MessageTemplateController(
             .Where(t => !t.LimitedToStores)
             .ToList();
 
-        var items = globalTemplates.Select(x => x.ToModel()).ToList();
+        var total = globalTemplates.Count;
+        var items = globalTemplates
+            .Skip((command.Page - 1) * command.PageSize)
+            .Take(command.PageSize)
+            .Select(x => x.ToModel())
+            .ToList();
 
         var gridModel = new DataSourceResult {
             Data = items,
-            Total = items.Count
+            Total = total
         };
 
         return Json(gridModel);
@@ -64,11 +69,16 @@ public class MessageTemplateController(
             .Where(t => t.LimitedToStores && t.Stores.Contains(CurrentStoreId))
             .ToList();
 
-        var items = storeTemplates.Select(x => x.ToModel()).ToList();
+        var total = storeTemplates.Count;
+        var items = storeTemplates
+            .Skip((command.Page - 1) * command.PageSize)
+            .Take(command.PageSize)
+            .Select(x => x.ToModel())
+            .ToList();
 
         var gridModel = new DataSourceResult {
             Data = items,
-            Total = items.Count
+            Total = total
         };
 
         return Json(gridModel);

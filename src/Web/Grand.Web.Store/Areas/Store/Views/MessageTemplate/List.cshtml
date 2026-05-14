@@ -1,3 +1,4 @@
+@inject AdminAreaSettings adminAreaSettings
 @{
     ViewBag.Title = Loc["Admin.Content.MessageTemplates"];
     Layout = Constants.LayoutStore;
@@ -57,15 +58,14 @@
                     display_kendoui_grid_error(e);
                     this.cancelChanges();
                 },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
                 serverPaging: true,
                 serverFiltering: true,
                 serverSorting: true
             },
             pageable: {
                 refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
             },
             scrollable: false,
             columns: [{
@@ -106,15 +106,14 @@
                     display_kendoui_grid_error(e);
                     this.cancelChanges();
                 },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
                 serverPaging: true,
                 serverFiltering: true,
                 serverSorting: true
             },
             pageable: {
                 refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
             },
             scrollable: false,
             columns: [{
