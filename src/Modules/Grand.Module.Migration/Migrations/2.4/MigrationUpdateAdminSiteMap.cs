@@ -44,7 +44,7 @@ public class MigrationUpdateAdminSiteMap : IMigration
 
             repository.Update(sitemapSettings);
         }
-        catch (Exception ex)
+        catch (InvalidOperationException ex)
         {
             logService.LogError(ex, "UpgradeProcess - UpdateAdminSiteMap (2.4)");
         }
