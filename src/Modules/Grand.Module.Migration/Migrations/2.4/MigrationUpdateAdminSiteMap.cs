@@ -5,12 +5,12 @@ using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Grand.Module.Migration.Migrations._2._5;
+namespace Grand.Module.Migration.Migrations._2._4;
 
 public class MigrationUpdateAdminSiteMap : IMigration
 {
-    public int Priority => 0;
-    public DbVersion Version => new(2, 5);
+    public int Priority => 1;
+    public DbVersion Version => new(2, 4);
     public Guid Identity => new("B7C3D8E2-F1A4-4B9E-8C62-197E3F5A4D21");
     public string Name => "Update standard admin site map - restrict Push notifications, Admin search, System settings to System permission";
 
@@ -46,7 +46,7 @@ public class MigrationUpdateAdminSiteMap : IMigration
         }
         catch (Exception ex)
         {
-            logService.LogError(ex, "UpgradeProcess - UpdateAdminSiteMap (2.5)");
+            logService.LogError(ex, "UpgradeProcess - UpdateAdminSiteMap (2.4)");
         }
 
         return true;
