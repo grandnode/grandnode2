@@ -64,7 +64,7 @@ public class MessageTemplateController(
     [HttpPost]
     public async Task<IActionResult> ListStore(DataSourceRequest command)
     {
-        var allTemplates = await messageTemplateService.GetAllMessageTemplates(CurrentStoreId);
+        var allTemplates = await messageTemplateService.GetAllMessageTemplates("");
         var storeTemplates = allTemplates
             .Where(t => t.LimitedToStores && t.Stores.Contains(CurrentStoreId))
             .ToList();
