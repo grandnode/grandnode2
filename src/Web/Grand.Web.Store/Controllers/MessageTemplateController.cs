@@ -107,13 +107,12 @@ public class MessageTemplateController(
         if (ModelState.IsValid)
         {
             // Prevent duplicate: check only for store-specific templates with this name for the current store.
-            // GetMessageTemplateByName uses ACL and returns global templates too, so we use GetAllMessageTemplates("")
-            // and filter explicitly to avoid false positives on global templates sharing the same name.
-            var allTemplates = await messageTemplateService.GetAllMessageTemplates("");
-            var existingStoreTemplate = allTemplates.FirstOrDefault(t =>
-                t.Name == model.Name &&
-                t.LimitedToStores &&
-                t.Stores.Contains(CurrentStoreId));
+            // Pass keywords to pre-filter by name at the DB level, then verify exact match and store ownership.
+            var existingStoreTemplate = (await messageTemplateService.GetAllMessageTemplates("", keywords: model.Name))
+                .FirstOrDefault(t =>
+                    t.Name == model.Name &&
+                    t.LimitedToStores &&
+                    t.Stores.Contains(CurrentStoreId));
             if (existingStoreTemplate != null)
             {
                 ModelState.AddModelError("Name", translationService.GetResource("Admin.Content.MessageTemplates.Fields.Name.AlreadyExists"));
@@ -276,7 +275,8 @@ public class MessageTemplateController(
             return RedirectToAction("List");
 
         // Prevent duplicate: check if a store-specific template with the same name already exists for the current store
-        var existing = await messageTemplateService.GetMessageTemplateByName(messageTemplate.Name, CurrentStoreId);
+        var existing = (await messageTemplateService.GetAllMessageTemplates("", keywords: messageTemplate.Name))
+            .FirstOrDefault(t => t.Name == messageTemplate.Name && t.LimitedToStores && t.Stores.Contains(CurrentStoreId));
         if (existing != null)
         {
             Error(translationService.GetResource("Admin.Content.MessageTemplates.Fields.Name.AlreadyExists"));
