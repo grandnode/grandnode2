@@ -137,7 +137,7 @@ public class MessageTemplateService : IMessageTemplateService
     ///     Gets all message templates
     /// </summary>
     /// <param name="storeId">Store identifier; pass "" to load all records</param>
-    /// <param name="keywords">Keywords to filter by name; pass "" to skip</param>
+    /// <param name="keywords">Keywords to filter by name or subject; pass "" to skip</param>
     /// <param name="pageIndex">Page index (0-based)</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Paged list of message templates</returns>
@@ -153,7 +153,11 @@ public class MessageTemplateService : IMessageTemplateService
                 select p;
 
         if (!string.IsNullOrEmpty(keywords))
-            query = query.Where(t => t.Name.ToLower().Contains(keywords.ToLower()));
+        {
+            var lowerKeywords = keywords.ToLower();
+            query = query.Where(t => t.Name.ToLower().Contains(lowerKeywords) ||
+                                     (t.Subject != null && t.Subject.ToLower().Contains(lowerKeywords)));
+        }
 
         query = query.OrderBy(t => t.Name);
 

@@ -45,7 +45,7 @@ public interface IMessageTemplateService
     ///     Gets all message templates
     /// </summary>
     /// <param name="storeId">Store identifier; pass "" to load all records</param>
-    /// <param name="keywords">Keywords to filter by name; pass "" to skip</param>
+    /// <param name="keywords">Keywords to filter by name or subject; pass "" to skip</param>
     /// <param name="pageIndex">Page index (0-based)</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Paged list of message templates</returns>
