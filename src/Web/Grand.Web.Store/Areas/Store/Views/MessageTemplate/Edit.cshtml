@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = Loc["Admin.Content.MessageTemplates.EditMessageTemplateDetails"];
     Layout = Constants.LayoutStore;
+    var isReadOnly = (bool)(ViewBag.IsReadOnly ?? false);
 }
 <form asp-area="@Constants.AreaStore" asp-controller="MessageTemplate" asp-action="Edit" method="post">
 
@@ -18,7 +19,7 @@
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            @if (!(bool)(ViewBag.IsReadOnly ?? false))
+                            @if (!isReadOnly)
                             {
                                 <button class="btn btn-success" type="submit" name="save">
                                     <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
@@ -41,7 +42,7 @@
         </div>
     </div>
 </form>
-@if (!(bool)(ViewBag.IsReadOnly ?? false))
+@if (!isReadOnly)
 {
     <admin-delete-confirmation button-id="message-template-delete"/>
 }
