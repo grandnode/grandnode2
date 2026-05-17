@@ -153,7 +153,7 @@ public class MessageTemplateService : IMessageTemplateService
                 select p;
 
         if (!string.IsNullOrEmpty(keywords))
-            query = query.Where(t => t.Name.Contains(keywords));
+            query = query.Where(t => t.Name.ToLower().Contains(keywords.ToLower()));
 
         query = query.OrderBy(t => t.Name);
 
