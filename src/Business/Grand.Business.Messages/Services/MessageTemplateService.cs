@@ -156,7 +156,7 @@ public class MessageTemplateService : IMessageTemplateService
         {
             var lowerKeywords = keywords.ToLower();
             query = query.Where(t => t.Name.ToLower().Contains(lowerKeywords) ||
-                                     (t.Subject != null && t.Subject.ToLower().Contains(lowerKeywords)));
+                                     (t.Subject != null && t.Subject.Contains(lowerKeywords, StringComparison.CurrentCultureIgnoreCase)));
         }
 
         query = query.OrderBy(t => t.Name);
