@@ -119,7 +119,8 @@
             columns: [{
                 field: "Name",
                 title: "@Loc["Admin.Content.MessageTemplates.Fields.Name"]",
-                width: 300
+                width: 300,
+                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>'
             }, {
                 field: "Subject",
                 title: "@Loc["Admin.Content.MessageTemplates.Fields.Subject"]",

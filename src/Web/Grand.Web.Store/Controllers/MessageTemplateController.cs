@@ -161,9 +161,12 @@ public class MessageTemplateController(
         if (messageTemplate == null)
             return RedirectToAction("List");
 
-        // Only allow editing store-specific templates belonging to this store
-        if (!messageTemplate.LimitedToStores || !messageTemplate.Stores.Contains(CurrentStoreId))
+        // Block access to templates that belong to a different store
+        if (messageTemplate.LimitedToStores && !messageTemplate.Stores.Contains(CurrentStoreId))
             return RedirectToAction("List");
+
+        // Global templates (LimitedToStores=false) are shown read-only
+        ViewBag.IsReadOnly = !messageTemplate.LimitedToStores;
 
         var model = messageTemplate.ToModel();
         model.SendImmediately = !model.DelayBeforeSend.HasValue;
