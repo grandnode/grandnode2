@@ -62,8 +62,9 @@ public interface IMerchandiseReturnService
     /// <summary>
     ///     Gets all merchandise return actions
     /// </summary>
+    /// <param name="storeId">Store identifier; empty to load all entries</param>
     /// <returns>Merchandise return actions</returns>
-    Task<IList<MerchandiseReturnAction>> GetAllMerchandiseReturnActions();
+    Task<IList<MerchandiseReturnAction>> GetAllMerchandiseReturnActions(string storeId = "");
 
     /// <summary>
     ///     Gets a merchandise return action
@@ -93,8 +94,9 @@ public interface IMerchandiseReturnService
     /// <summary>
     ///     Gets all merchandise return reasons
     /// </summary>
+    /// <param name="storeId">Store identifier; empty to load all entries</param>
     /// <returns>Merchandise return reasons</returns>
-    Task<IList<MerchandiseReturnReason>> GetAllMerchandiseReturnReasons();
+    Task<IList<MerchandiseReturnReason>> GetAllMerchandiseReturnReasons(string storeId = "");
 
     /// <summary>
     ///     Gets a merchandise return reasons
