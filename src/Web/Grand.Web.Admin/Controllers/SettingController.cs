@@ -318,7 +318,10 @@ public class SettingController(
     //create
     public async Task<IActionResult> MerchandiseReturnReasonCreate()
     {
-        var model = new MerchandiseReturnReasonModel();
+        var storeId = await GetActiveStore();
+        var model = new MerchandiseReturnReasonModel {
+            Stores = !string.IsNullOrEmpty(storeId) ? [storeId] : []
+        };
         //locales
         await AddLocales(languageService, model.Locales);
         return View(model);
@@ -430,7 +433,10 @@ public class SettingController(
     //create
     public async Task<IActionResult> MerchandiseReturnActionCreate()
     {
-        var model = new MerchandiseReturnActionModel();
+        var storeId = await GetActiveStore();
+        var model = new MerchandiseReturnActionModel {
+            Stores = !string.IsNullOrEmpty(storeId) ? [storeId] : []
+        };
         //locales
         await AddLocales(languageService, model.Locales);
         return View(model);

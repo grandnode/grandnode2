@@ -54,6 +54,15 @@ public class SettingController(
 
     private string GetStoreScope() => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
+    /// <summary>
+    /// Returns true if the store owner is allowed to access (edit/delete) the given store-linked item.
+    /// Store owners can only access items that are explicitly assigned to their store
+    /// (LimitedToStores = true and their storeId is in the Stores collection).
+    /// Items available to all stores (LimitedToStores = false) are not editable by store owners.
+    /// </summary>
+    private static bool IsStoreOwnerAccessAllowed(string storeId, bool limitedToStores, ICollection<string> stores)
+        => string.IsNullOrEmpty(storeId) || (limitedToStores && stores.Contains(storeId));
+
     #endregion
 
     #region General common settings
@@ -355,7 +364,7 @@ public class SettingController(
         if (rrr == null) return RedirectToAction("MerchandiseReturnReasonList");
 
         var storeId = GetStoreScope();
-        if (!string.IsNullOrEmpty(storeId) && rrr.LimitedToStores && !rrr.Stores.Contains(storeId))
+        if (!IsStoreOwnerAccessAllowed(storeId, rrr.LimitedToStores, rrr.Stores))
             return RedirectToAction("MerchandiseReturnReasonList");
 
         var model = rrr.ToModel();
@@ -374,7 +383,7 @@ public class SettingController(
         if (rrr == null) return RedirectToAction("MerchandiseReturnReasonList");
 
         var storeId = GetStoreScope();
-        if (!string.IsNullOrEmpty(storeId) && rrr.LimitedToStores && !rrr.Stores.Contains(storeId))
+        if (!IsStoreOwnerAccessAllowed(storeId, rrr.LimitedToStores, rrr.Stores))
             return RedirectToAction("MerchandiseReturnReasonList");
 
         if (ModelState.IsValid)
@@ -401,7 +410,7 @@ public class SettingController(
         if (rrr == null) return RedirectToAction("MerchandiseReturnReasonList");
 
         var storeId = GetStoreScope();
-        if (!string.IsNullOrEmpty(storeId) && rrr.LimitedToStores && !rrr.Stores.Contains(storeId))
+        if (!IsStoreOwnerAccessAllowed(storeId, rrr.LimitedToStores, rrr.Stores))
             return RedirectToAction("MerchandiseReturnReasonList");
 
         await merchandiseReturnService.DeleteMerchandiseReturnReason(rrr);
@@ -467,7 +476,7 @@ public class SettingController(
         if (rra == null) return RedirectToAction("MerchandiseReturnActionList");
 
         var storeId = GetStoreScope();
-        if (!string.IsNullOrEmpty(storeId) && rra.LimitedToStores && !rra.Stores.Contains(storeId))
+        if (!IsStoreOwnerAccessAllowed(storeId, rra.LimitedToStores, rra.Stores))
             return RedirectToAction("MerchandiseReturnActionList");
 
         var model = rra.ToModel();
@@ -486,7 +495,7 @@ public class SettingController(
         if (rra == null) return RedirectToAction("MerchandiseReturnActionList");
 
         var storeId = GetStoreScope();
-        if (!string.IsNullOrEmpty(storeId) && rra.LimitedToStores && !rra.Stores.Contains(storeId))
+        if (!IsStoreOwnerAccessAllowed(storeId, rra.LimitedToStores, rra.Stores))
             return RedirectToAction("MerchandiseReturnActionList");
 
         if (ModelState.IsValid)
@@ -513,7 +522,7 @@ public class SettingController(
         if (rra == null) return RedirectToAction("MerchandiseReturnActionList");
 
         var storeId = GetStoreScope();
-        if (!string.IsNullOrEmpty(storeId) && rra.LimitedToStores && !rra.Stores.Contains(storeId))
+        if (!IsStoreOwnerAccessAllowed(storeId, rra.LimitedToStores, rra.Stores))
             return RedirectToAction("MerchandiseReturnActionList");
 
         await merchandiseReturnService.DeleteMerchandiseReturnAction(rra);
