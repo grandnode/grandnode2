@@ -354,6 +354,10 @@ public class SettingController(
         var rrr = await merchandiseReturnService.GetMerchandiseReturnReasonById(id);
         if (rrr == null) return RedirectToAction("MerchandiseReturnReasonList");
 
+        var storeId = GetStoreScope();
+        if (!string.IsNullOrEmpty(storeId) && rrr.LimitedToStores && !rrr.Stores.Contains(storeId))
+            return RedirectToAction("MerchandiseReturnReasonList");
+
         var model = rrr.ToModel();
         await AddLocales(languageService, model.Locales, (locale, languageId) => {
             locale.Name = rrr.GetTranslation(x => x.Name, languageId, false);
@@ -368,6 +372,10 @@ public class SettingController(
     {
         var rrr = await merchandiseReturnService.GetMerchandiseReturnReasonById(model.Id);
         if (rrr == null) return RedirectToAction("MerchandiseReturnReasonList");
+
+        var storeId = GetStoreScope();
+        if (!string.IsNullOrEmpty(storeId) && rrr.LimitedToStores && !rrr.Stores.Contains(storeId))
+            return RedirectToAction("MerchandiseReturnReasonList");
 
         if (ModelState.IsValid)
         {
@@ -390,6 +398,12 @@ public class SettingController(
     public async Task<IActionResult> MerchandiseReturnReasonDelete(string id)
     {
         var rrr = await merchandiseReturnService.GetMerchandiseReturnReasonById(id);
+        if (rrr == null) return RedirectToAction("MerchandiseReturnReasonList");
+
+        var storeId = GetStoreScope();
+        if (!string.IsNullOrEmpty(storeId) && rrr.LimitedToStores && !rrr.Stores.Contains(storeId))
+            return RedirectToAction("MerchandiseReturnReasonList");
+
         await merchandiseReturnService.DeleteMerchandiseReturnReason(rrr);
         Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Deleted"));
         return RedirectToAction("MerchandiseReturnReasonList");
@@ -452,6 +466,10 @@ public class SettingController(
         var rra = await merchandiseReturnService.GetMerchandiseReturnActionById(id);
         if (rra == null) return RedirectToAction("MerchandiseReturnActionList");
 
+        var storeId = GetStoreScope();
+        if (!string.IsNullOrEmpty(storeId) && rra.LimitedToStores && !rra.Stores.Contains(storeId))
+            return RedirectToAction("MerchandiseReturnActionList");
+
         var model = rra.ToModel();
         await AddLocales(languageService, model.Locales, (locale, languageId) => {
             locale.Name = rra.GetTranslation(x => x.Name, languageId, false);
@@ -466,6 +484,10 @@ public class SettingController(
     {
         var rra = await merchandiseReturnService.GetMerchandiseReturnActionById(model.Id);
         if (rra == null) return RedirectToAction("MerchandiseReturnActionList");
+
+        var storeId = GetStoreScope();
+        if (!string.IsNullOrEmpty(storeId) && rra.LimitedToStores && !rra.Stores.Contains(storeId))
+            return RedirectToAction("MerchandiseReturnActionList");
 
         if (ModelState.IsValid)
         {
@@ -488,6 +510,12 @@ public class SettingController(
     public async Task<IActionResult> MerchandiseReturnActionDelete(string id)
     {
         var rra = await merchandiseReturnService.GetMerchandiseReturnActionById(id);
+        if (rra == null) return RedirectToAction("MerchandiseReturnActionList");
+
+        var storeId = GetStoreScope();
+        if (!string.IsNullOrEmpty(storeId) && rra.LimitedToStores && !rra.Stores.Contains(storeId))
+            return RedirectToAction("MerchandiseReturnActionList");
+
         await merchandiseReturnService.DeleteMerchandiseReturnAction(rra);
         Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Deleted"));
         return RedirectToAction("MerchandiseReturnActionList");
