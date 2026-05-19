@@ -391,7 +391,11 @@ public class SettingController(
 
         if (ModelState.IsValid)
         {
+            var existingStores = rrr.Stores;
+            var existingLimitedToStores = rrr.LimitedToStores;
             rrr = model.ToEntity(rrr);
+            rrr.Stores = existingStores;
+            rrr.LimitedToStores = existingLimitedToStores;
             await merchandiseReturnService.UpdateMerchandiseReturnReason(rrr);
             Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Updated"));
             if (continueEditing)
@@ -506,7 +510,11 @@ public class SettingController(
 
         if (ModelState.IsValid)
         {
+            var existingStores = rra.Stores;
+            var existingLimitedToStores = rra.LimitedToStores;
             rra = model.ToEntity(rra);
+            rra.Stores = existingStores;
+            rra.LimitedToStores = existingLimitedToStores;
             await merchandiseReturnService.UpdateMerchandiseReturnAction(rra);
             Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Updated"));
             if (continueEditing)
