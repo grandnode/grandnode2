@@ -347,6 +347,9 @@ public class SettingController(
     {
         if (ModelState.IsValid)
         {
+            var storeId = GetStoreScope();
+            if (!string.IsNullOrEmpty(storeId))
+                model.Stores = [storeId];
             var rrr = model.ToEntity();
             await merchandiseReturnService.InsertMerchandiseReturnReason(rrr);
             Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Added"));
@@ -458,6 +461,9 @@ public class SettingController(
     {
         if (ModelState.IsValid)
         {
+            var storeId = GetStoreScope();
+            if (!string.IsNullOrEmpty(storeId))
+                model.Stores = [storeId];
             var rra = model.ToEntity();
             await merchandiseReturnService.InsertMerchandiseReturnAction(rra);
             await ClearCache();
