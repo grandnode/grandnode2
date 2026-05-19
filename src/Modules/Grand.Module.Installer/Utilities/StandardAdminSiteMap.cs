@@ -967,6 +967,7 @@ public static class StandardAdminSiteMap
                 new() {
                     SystemName = "Vendor settings",
                     ResourceName = "Admin.Settings.Vendor",
+                    PermissionNames = new List<string> { PermissionSystemName.System },
                     ControllerName = "Setting",
                     ActionName = "Vendor",
                     DisplayOrder = 6,
