@@ -240,6 +240,9 @@ public class MerchandiseReturnService : IMerchandiseReturnService
 
         //event notification
         await _mediator.EntityDeleted(merchandiseReturnAction);
+
+        //clear cache
+        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_ACTIONS_PATTERN_KEY);
     }
 
     /// <summary>
