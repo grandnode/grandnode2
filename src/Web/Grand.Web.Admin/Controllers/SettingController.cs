@@ -306,7 +306,8 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> MerchandiseReturnReasonList(DataSourceRequest command)
     {
-        var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons();
+        var storeId = await GetActiveStore();
+        var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons(storeId);
         var gridModel = new DataSourceResult {
             Data = reasons.Select(x => x.ToModel()),
             Total = reasons.Count
@@ -417,7 +418,8 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> MerchandiseReturnActionList(DataSourceRequest command)
     {
-        var actions = await merchandiseReturnService.GetAllMerchandiseReturnActions();
+        var storeId = await GetActiveStore();
+        var actions = await merchandiseReturnService.GetAllMerchandiseReturnActions(storeId);
         var gridModel = new DataSourceResult {
             Data = actions.Select(x => x.ToModel()),
             Total = actions.Count
