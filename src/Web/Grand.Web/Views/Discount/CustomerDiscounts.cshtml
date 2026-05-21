@@ -4,7 +4,13 @@
     Layout = "_TwoColumns";
     pagebuilder.AddTitleParts(Loc["Account.CustomerDiscounts"]);
 }
-<div class="page customer-discounts-page col-12 px-0">
+
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Discounts })
+}
+
+<section class="page account-page customer-discounts-page pl-lg-3 pt-lg-0 pt-3">
     <h1 class="h2 generalTitle">@Loc["Account.CustomerDiscounts"]</h1>
     @if (Model.Any())
     {
@@ -63,4 +69,4 @@
     {
         <p class="text-muted">@Loc["Account.CustomerDiscounts.NoDiscounts"]</p>
     }
-</div>
+</section>
