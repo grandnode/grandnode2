@@ -1,0 +1,66 @@
+@model IList<CustomerDiscountModel>
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+    pagebuilder.AddTitleParts(Loc["Account.CustomerDiscounts"]);
+}
+<div class="page customer-discounts-page col-12 px-0">
+    <h1 class="h2 generalTitle">@Loc["Account.CustomerDiscounts"]</h1>
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>@Loc["Account.CustomerDiscounts.Name"]</th>
+                        <th>@Loc["Account.CustomerDiscounts.Discount"]</th>
+                        <th>@Loc["Account.CustomerDiscounts.ValidUntil"]</th>
+                        <th>@Loc["Account.CustomerDiscounts.CouponRequired"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var discount in Model)
+                    {
+                        <tr>
+                            <td>@discount.Name</td>
+                            <td>
+                                @if (discount.UsePercentage)
+                                {
+                                    <span>@discount.DiscountPercentage%</span>
+                                }
+                                else
+                                {
+                                    <span>@discount.DiscountAmount @discount.CurrencyCode</span>
+                                }
+                            </td>
+                            <td>
+                                @if (discount.EndDateUtc.HasValue)
+                                {
+                                    @discount.EndDateUtc.Value.ToString("d")
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (discount.RequiresCouponCode)
+                                {
+                                    <b-icon icon="check-circle" class="text-success"></b-icon>
+                                }
+                                else
+                                {
+                                    <b-icon icon="dash-circle" class="text-muted"></b-icon>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">@Loc["Account.CustomerDiscounts.NoDiscounts"]</p>
+    }
+</div>
