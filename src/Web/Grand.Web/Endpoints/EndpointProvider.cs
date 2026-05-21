@@ -161,6 +161,10 @@ public class EndpointProvider : IEndpointProvider
             pattern + "account/downloadableproducts",
             new { controller = "Account", action = "DownloadableProducts" });
 
+        endpointRouteBuilder.MapControllerRoute("CustomerDiscounts",
+            pattern + "discounts/",
+            new { controller = "Discount", action = "CustomerDiscounts" });
+
         endpointRouteBuilder.MapControllerRoute("CustomerChangePassword",
             pattern + "account/changepassword",
             new { controller = "Account", action = "ChangePassword" });
