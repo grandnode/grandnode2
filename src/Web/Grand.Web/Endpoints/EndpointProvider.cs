@@ -162,7 +162,7 @@ public class EndpointProvider : IEndpointProvider
             new { controller = "Account", action = "DownloadableProducts" });
 
         endpointRouteBuilder.MapControllerRoute("CustomerDiscounts",
-            pattern + "discounts/",
+            pattern + "account/discounts/",
             new { controller = "Discount", action = "CustomerDiscounts" });
 
         endpointRouteBuilder.MapControllerRoute("CustomerChangePassword",

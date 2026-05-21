@@ -181,6 +181,11 @@ public class CustomerSettings : ISettings
     public bool HideCoursesTab { get; set; }
 
     /// <summary>
+    ///     Gets or sets a value indicating whether to hide 'Discounts' tab on 'My account' page
+    /// </summary>
+    public bool HideDiscountsTab { get; set; }
+
+    /// <summary>
     ///     Gets or sets a value indicating whether 'Two factor authentication'  is enabled
     /// </summary>
     public bool TwoFactorAuthenticationEnabled { get; set; }

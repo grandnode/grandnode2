@@ -40,7 +40,7 @@ public class GetNavigationHandler : IRequestHandler<GetNavigation, CustomerNavig
             HideReviews = _customerSettings.HideReviewsTab,
             HideCourses = _customerSettings.HideCoursesTab,
             HideSubAccounts = _customerSettings.HideSubAccountsTab || !string.IsNullOrEmpty(request.Customer.OwnerId),
-            HideDiscounts = false,
+            HideDiscounts = _customerSettings.HideDiscountsTab,
             SelectedTab = (AccountNavigationEnum)request.SelectedTabId
         };
 
