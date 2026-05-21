@@ -28,6 +28,7 @@ public class DiscountController : BasePublicController
     public virtual async Task<IActionResult> CustomerDiscounts()
     {
         var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
+        // GetActiveDiscountsByContext requires a non-null DiscountType; use GetDiscountsQuery to get all types
         var allDiscounts = await _discountService.GetDiscountsQuery(discountType: null, storeId: storeId);
 
         var now = DateTime.UtcNow;
@@ -35,6 +36,7 @@ public class DiscountController : BasePublicController
             .Where(d => d.IsEnabled
                 && (d.StartDateUtc == null || d.StartDateUtc <= now)
                 && (d.EndDateUtc == null || d.EndDateUtc >= now))
+            .Take(200)
             .Select(d => new CustomerDiscountModel {
                 Name = d.Name,
                 UsePercentage = d.UsePercentage,
