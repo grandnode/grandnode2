@@ -128,6 +128,18 @@
     </div>
     <div class="form-group">
         <div class="col-6 col-md-6 col-sm-6">
+            <admin-label asp-for="CustomerSettings.HideDiscountsTab" class="control-label"/>
+        </div>
+        <div class="col-6 col-md-6 col-sm-6">
+            <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                <admin-input asp-for="CustomerSettings.HideDiscountsTab"/>
+                <div class="control__indicator"></div>
+            </label>
+            <span asp-validation-for="CustomerSettings.HideDiscountsTab"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-6 col-md-6 col-sm-6">
             <admin-label asp-for="CustomerSettings.HideSubaccountsTab" class="control-label"/>
         </div>
         <div class="col-6 col-md-6 col-sm-6">

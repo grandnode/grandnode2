@@ -174,6 +174,9 @@ public class CustomerSettingsModel : BaseModel
         [GrandResourceDisplayName("Admin.Settings.Customer.HideCoursesTab")]
         public bool HideCoursesTab { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.Customer.HideDiscountsTab")]
+        public bool HideDiscountsTab { get; set; }
+
         [GrandResourceDisplayName("Admin.Settings.Customer.TwoFactorAuthenticationEnabled")]
         public bool TwoFactorAuthenticationEnabled { get; set; }
 
