@@ -14,4 +14,28 @@ public class ProductNewBadgeTests
         model.ShowNewBadge = true;
         Assert.IsTrue(model.ShowNewBadge);
     }
+
+    [TestMethod]
+    public void BadgeLogic_ProductCreatedToday_IsTrue()
+    {
+        var createdOnUtc = DateTime.UtcNow;
+        var result = createdOnUtc >= DateTime.UtcNow.AddDays(-30);
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void BadgeLogic_ProductCreatedWithin30Days_IsTrue()
+    {
+        var createdOnUtc = DateTime.UtcNow.AddDays(-29);
+        var result = createdOnUtc >= DateTime.UtcNow.AddDays(-30);
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void BadgeLogic_ProductCreated31DaysAgo_IsFalse()
+    {
+        var createdOnUtc = DateTime.UtcNow.AddDays(-31);
+        var result = createdOnUtc >= DateTime.UtcNow.AddDays(-30);
+        Assert.IsFalse(result);
+    }
 }
