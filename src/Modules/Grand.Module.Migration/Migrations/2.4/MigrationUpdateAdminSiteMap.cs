@@ -12,7 +12,7 @@ public class MigrationUpdateAdminSiteMap : IMigration
     public int Priority => 1;
     public DbVersion Version => new(2, 4);
     public Guid Identity => new("B7C3D8E2-F1A4-4B9E-8C62-197E3F5A4D21");
-    public string Name => "Update standard admin site map - restrict Push notifications, Admin search, System settings to System permission";
+    public string Name => "Update standard admin site map - restrict Vendor, Push notifications, Admin search, System settings to System permission";
 
     /// <summary>
     ///     Upgrade process
@@ -30,6 +30,7 @@ public class MigrationUpdateAdminSiteMap : IMigration
             if (sitemapSettings == null) return true;
 
             var adminOnlyItems = new[] {
+                "Vendor settings",
                 "Push notifications settings",
                 "Admin search settings",
                 "System settings"
