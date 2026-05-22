@@ -127,9 +127,9 @@ public class MerchandiseReturnService : IMerchandiseReturnService
             var query = from rra in _merchandiseReturnActionRepository.Table
                 orderby rra.DisplayOrder
                 select rra;
-            var actions = query.ToList();
             if (!string.IsNullOrEmpty(storeId))
-                actions = actions.Where(x => !x.LimitedToStores || x.Stores.Contains(storeId)).ToList();
+                query = query.Where(x => !x.LimitedToStores || x.Stores.Contains(storeId));
+            var actions = query.ToList();
             return await Task.FromResult(actions);
         });
     }
@@ -275,9 +275,9 @@ public class MerchandiseReturnService : IMerchandiseReturnService
             var query = from rra in _merchandiseReturnReasonRepository.Table
                 orderby rra.DisplayOrder
                 select rra;
-            var reasons = query.ToList();
             if (!string.IsNullOrEmpty(storeId))
-                reasons = reasons.Where(x => !x.LimitedToStores || x.Stores.Contains(storeId)).ToList();
+                query = query.Where(x => !x.LimitedToStores || x.Stores.Contains(storeId));
+            var reasons = query.ToList();
             return await Task.FromResult(reasons);
         });
     }
