@@ -276,7 +276,9 @@ public class SettingController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> Sales(SalesSettingsModel model)
+    public async Task<IActionResult> Sales(SalesSettingsModel model,
+        [FromServices] IOrderStatusService orderStatusService,
+        [FromServices] ICurrencyService currencyService)
     {
         var storeScope = GetStoreScope();
 
@@ -295,18 +297,32 @@ public class SettingController(
             await settingService.SaveSetting(orderSettings, storeScope);
 
             await ClearCache();
+            Success(translationService.GetResource("Admin.Configuration.Updated"));
+            await SaveSelectedTabIndex();
+            return RedirectToAction("Sales");
         }
         else
         {
             foreach (var modelState in ModelState.Values)
                 foreach (var error in modelState.Errors)
                     Error(error.ErrorMessage);
-        }
 
-        await SaveSelectedTabIndex();
-        await ClearCache();
-        Success(translationService.GetResource("Admin.Configuration.Updated"));
-        return RedirectToAction("Sales");
+            var currencySettings = await settingService.LoadSetting<CurrencySettings>();
+            var currency = await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId);
+            model.LoyaltyPointsSettings.PrimaryStoreCurrencyCode = currency?.CurrencyCode;
+            model.OrderSettings.PrimaryStoreCurrencyCode = currency?.CurrencyCode;
+
+            var status = await orderStatusService.GetAll();
+            model.LoyaltyPointsSettings.PointsForPurchases_Awarded_OrderStatuses = status
+                .Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
+            model.OrderSettings.GiftVouchers_Activated_OrderStatuses = status
+                .Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
+            model.OrderSettings.GiftVouchers_Activated_OrderStatuses.Insert(0,
+                new SelectListItem { Text = "---", Value = "0" });
+
+            model.ActiveStore = storeScope;
+            return View(model);
+        }
     }
 
     #region Merchandise return reasons
