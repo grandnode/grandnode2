@@ -1,11 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
-using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Web.Common.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using DomainStore = Grand.Domain.Stores.Store;
 
 namespace Grand.Web.Common.Tests.Services.Admin;
 
@@ -28,8 +28,8 @@ public class AdminStoreServiceTests
     public async Task GetActiveStore_ShouldReturnSingleStoreId_WhenOnlyOneStoreExists()
     {
         // Arrange
-        var store = new Store { Id = "store1" };
-        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> { store });
+        var store = new DomainStore { Id = "store1" };
+        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<DomainStore> { store });
 
         // Act
         var result = await _adminStoreService.GetActiveStore();
@@ -42,7 +42,7 @@ public class AdminStoreServiceTests
     public async Task GetActiveStore_ShouldReturnStoreIdFromContext_WhenMultipleStoresExist()
     {
         // Arrange
-        var stores = new List<Store> { new Store { Id = "store1" }, new Store { Id = "store2" } };
+        var stores = new List<DomainStore> { new DomainStore { Id = "store1" }, new DomainStore { Id = "store2" } };
         var customer = new Customer { CustomerGuid = Guid.NewGuid() };
         customer.UserFields.Add(new UserField() {
             Key = SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration,
@@ -52,7 +52,7 @@ public class AdminStoreServiceTests
 
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(stores);
         _contextAccessorMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(customer);
-        _storeServiceMock.Setup(s => s.GetStoreById("store2")).ReturnsAsync(new Store { Id = "store2" });
+        _storeServiceMock.Setup(s => s.GetStoreById("store2")).ReturnsAsync(new DomainStore { Id = "store2" });
 
         // Act
         var result = await _adminStoreService.GetActiveStore();
@@ -65,7 +65,7 @@ public class AdminStoreServiceTests
     public async Task GetActiveStore_ShouldReturnEmptyString_WhenStoreFromContextDoesNotExist()
     {
         // Arrange
-        var stores = new List<Store> { new Store { Id = "store1" }, new Store { Id = "store2" } };
+        var stores = new List<DomainStore> { new DomainStore { Id = "store1" }, new DomainStore { Id = "store2" } };
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(stores);
 
         var customer = new Customer { CustomerGuid = Guid.NewGuid() };
@@ -75,7 +75,7 @@ public class AdminStoreServiceTests
             StoreId = ""
         });
         _contextAccessorMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(customer);
-        _storeServiceMock.Setup(s => s.GetStoreById("store3")).ReturnsAsync((Store)null);
+        _storeServiceMock.Setup(s => s.GetStoreById("store3")).ReturnsAsync((DomainStore)null);
 
         // Act
         var result = await _adminStoreService.GetActiveStore();
