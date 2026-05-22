@@ -2,9 +2,11 @@
 
 ## Application
 
-GrandNode2 is an open-source e-commerce platform.
+GrandNode2 is an open-source e-commerce platform built on ASP.NET Core and MongoDB.
 
-The application is a monolith with modular/plugin-based areas.
+The application follows a monolithic architecture with modular/plugin-based areas.
+
+This repository is being prepared for AI-powered delivery using Superpowers workflows and AI-assisted engineering practices.
 
 ## Main Technology Stack
 
@@ -16,21 +18,45 @@ The application is a monolith with modular/plugin-based areas.
 - Docker
 - Plugin architecture
 
-## Repository Areas
+## Repository Structure
 
-Expected important areas:
+Important repository areas:
 
-- `src/Web` — web application and Razor views
-- `src/Grand.Domain` — domain entities
-- `src/Grand.Business` — business services
-- `src/Grand.Infrastructure` — shared infrastructure
+- `src/Web` — web application, controllers, Razor views, UI rendering
+- `src/Grand.Domain` — domain entities and core business models
+- `src/Grand.Business` — business services and application logic
+- `src/Grand.Infrastructure` — infrastructure and shared utilities
 - `src/Plugins` — plugin implementations
-- `test` or related test projects — automated tests
+- test projects — automated tests and validation
+
+The exact structure should always be verified before implementation.
+
+## Build and Validation
+
+Typical commands:
+
+    dotnet restore GrandNode.sln
+    dotnet build GrandNode.sln
+    dotnet test GrandNode.sln
+
+Some tests or integrations may require additional local setup.
 
 ## AI Delivery Notes
 
-AI agents should inspect the actual project structure before changing files.
+AI assistants working in this repository should:
 
-Do not assume architecture details without checking the repository.
+- inspect existing patterns before changing code
+- prefer minimal and focused implementations
+- avoid unrelated refactoring
+- follow existing architecture and naming conventions
+- use TDD where practical
+- document assumptions during implementation
 
-Prefer existing patterns over introducing new abstractions.
+## Current Feature Focus
+
+Current feature under development:
+
+New Product Badge
+
+Goal:
+Display a simple “New” badge on the product details page for recently created products.
