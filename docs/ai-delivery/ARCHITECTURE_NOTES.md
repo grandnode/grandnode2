@@ -115,6 +115,72 @@ Guidance:
 - Check whether a feature belongs in core Web code, a theme, or a plugin.
 - Avoid changing multiple plugins unless the feature requires it.
 
+## CQRS / MediatR Handler Pattern
+
+The Web layer uses a CQRS-style handler pattern built on MediatR. Controllers do not populate view models directly — they dispatch requests through `IMediator`, and dedicated handler classes build and return the view model.
+
+Handler location:
+
+    src/Web/Grand.Web/Features/Handlers/
+
+Each handler implements `IRequestHandler<TRequest, TResponse>`. Request objects (the queries) live alongside the handlers in:
+
+    src/Web/Grand.Web/Features/Models/
+
+For the product details page, the relevant handler is:
+
+    src/Web/Grand.Web/Features/Handlers/Products/GetProductDetailsPageHandler.cs
+
+This handler receives a `GetProductDetailsPage` request and returns a fully populated `ProductDetailsModel`. It is the correct place to set computed display properties for the product details page.
+
+**When adding a display property to the product details page:**
+
+1. Add the property to `ProductDetailsModel` (`src/Web/Grand.Web/Models/Catalog/ProductDetailsModel.cs`).
+2. Populate it inside `GetProductDetailsPageHandler`.
+3. Render it in the Razor view.
+
+Do not add product-display logic to `ProductController` directly or to business service classes.
+
+## Product Details Data Flow
+
+The confirmed request flow for a product details page:
+
+    HTTP request
+    → ProductController  (src/Web/Grand.Web/Controllers/ProductController.cs)
+    → _mediator.Send(new GetProductDetailsPage { ... })
+    → GetProductDetailsPageHandler  (src/Web/Grand.Web/Features/Handlers/Products/GetProductDetailsPageHandler.cs)
+    → ProductDetailsModel  (src/Web/Grand.Web/Models/Catalog/ProductDetailsModel.cs)
+    → ProductLayout.Simple.cshtml  (src/Web/Grand.Web/Views/Product/ProductLayout.Simple.cshtml)
+
+The controller passes the resolved `Product` entity and store context into the request object. The handler performs all mapping, pricing, and enrichment. The resulting model is passed directly to the Razor view.
+
+## Cache Impact
+
+`GetProductDetailsPageHandler` uses `ICacheBase` to cache sub-components of the product details model (for example, product collections). Computed display properties added directly to `ProductDetailsModel` in the handler's main mapping block are **not** independently cached — they are evaluated on each request.
+
+However, if the handler caches the full model or a sub-section that includes the new property, stale values may be served until the cache expires or is cleared.
+
+Guidance:
+
+- Do not change cache keys or invalidation logic unless the feature implementation proves it is necessary.
+- If a property is not appearing during local testing, restart the application or clear the cache before debugging the logic.
+- Verify which code path sets the property and whether it falls inside or outside a cached delegate.
+
+## Theme and View Override Notes
+
+Core Razor views for the storefront are under:
+
+    src/Web/Grand.Web/Views/
+
+The repository includes a `Theme.Modern` plugin (`src/Plugins/Theme.Modern/`) and potentially other themes. Active themes may override core views. If a theme provides its own version of `ProductLayout.Simple.cshtml` or a product partial, edits to the core view file will have no effect for stores using that theme.
+
+Before editing a Razor view:
+
+1. Confirm which theme is active for the store being tested.
+2. Check whether the theme contains a matching override of the view you intend to edit.
+3. Edit only the view that is actually served — typically the core view if no theme override exists.
+4. Avoid changing multiple themes unless the feature explicitly requires it.
+
 ## Legacy Safety Rules
 
 AI agents must treat this repository as a legacy monolith.
