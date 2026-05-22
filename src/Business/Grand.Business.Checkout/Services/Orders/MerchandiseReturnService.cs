@@ -124,7 +124,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
         var key = string.Format(CacheKey.MERCHANDISE_RETURN_ACTIONS_ALL_KEY, storeId);
         return await _cacheBase.GetAsync(key, async () =>
         {
-            var query = from rra in _merchandiseReturnActionRepository.Table
+            IQueryable<MerchandiseReturnAction> query = from rra in _merchandiseReturnActionRepository.Table
                 orderby rra.DisplayOrder
                 select rra;
             if (!string.IsNullOrEmpty(storeId))
@@ -272,7 +272,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
         var key = string.Format(CacheKey.MERCHANDISE_RETURN_REASONS_ALL_KEY, storeId);
         return await _cacheBase.GetAsync(key, async () =>
         {
-            var query = from rra in _merchandiseReturnReasonRepository.Table
+            IQueryable<MerchandiseReturnReason> query = from rra in _merchandiseReturnReasonRepository.Table
                 orderby rra.DisplayOrder
                 select rra;
             if (!string.IsNullOrEmpty(storeId))
