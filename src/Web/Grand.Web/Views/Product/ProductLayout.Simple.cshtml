@@ -67,6 +67,12 @@
                                     <div class="badge badge-info">@Model.Flag</div>
                                 </div>
                             }
+                            @if (Model.ShowNewBadge)
+                            {
+                                <div class="product-label">
+                                    <div class="badge badge-success">New</div>
+                                </div>
+                            }
                             <partial name="Partials/Unavailable" model="Model"/>
                             <h1 class="generalTitle" itemprop="name">
                                 @Model.Name

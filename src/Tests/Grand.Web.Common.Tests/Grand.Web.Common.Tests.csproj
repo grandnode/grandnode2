@@ -20,6 +20,9 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
         <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj" />
+        <ProjectReference Include="..\..\Web\Grand.Web\Grand.Web.csproj">
+            <Aliases>GrandWebAlias</Aliases>
+        </ProjectReference>
     </ItemGroup>
 	<ItemGroup>		
 		<None Update="App_Data\Settings.cfg">
