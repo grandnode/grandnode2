@@ -25,6 +25,7 @@ public class ProductDetailsModel : BaseEntityModel
     public bool ShowSku { get; set; }
     public string Sku { get; set; }
     public string Flag { get; set; }
+    public bool ShowNewBadge { get; set; }
     public bool ShowMpn { get; set; }
     public string Mpn { get; set; }
     public bool ShowGtin { get; set; }
