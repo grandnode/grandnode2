@@ -78,6 +78,14 @@
                     template: '# if(LimitedToStores) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
                 },
                 {
+                    field: "Published",
+                    title: "@Loc["Admin.Configuration.Languages.Fields.Published"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                },
+                {
                     field: "IsDefaultStoreLanguage",
                     title: "@Loc["Admin.Configuration.Languages.SetDefaultLanguage"]",
                     width: 200,
