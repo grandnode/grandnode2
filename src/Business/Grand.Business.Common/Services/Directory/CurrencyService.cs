@@ -130,6 +130,15 @@ public class CurrencyService : ICurrencyService
     }
 
     /// <summary>
+    ///     Gets all published currencies without store filtering
+    /// </summary>
+    /// <returns>Published currencies</returns>
+    public virtual Task<IList<Currency>> GetAllPublishedCurrencies()
+    {
+        return GetAllCurrencies(showHidden: false);
+    }
+
+    /// <summary>
     ///     Inserts a currency
     /// </summary>
     /// <param name="currency">Currency</param>

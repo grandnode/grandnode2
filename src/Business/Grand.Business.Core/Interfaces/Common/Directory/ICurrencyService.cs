@@ -42,6 +42,12 @@ public interface ICurrencyService
     Task<IList<Currency>> GetAllCurrencies(bool showHidden = false, string storeId = "");
 
     /// <summary>
+    ///     Gets all published currencies without store filtering
+    /// </summary>
+    /// <returns>Published currencies</returns>
+    Task<IList<Currency>> GetAllPublishedCurrencies();
+
+    /// <summary>
     ///     Inserts a currency
     /// </summary>
     /// <param name="currency">Currency</param>
