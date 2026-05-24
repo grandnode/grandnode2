@@ -36,7 +36,6 @@ public class LanguageController(
     public async Task<IActionResult> ListData()
     {
         var storeId = CurrentStoreId;
-        var primaryStoreLanguageId = languageSettings.PrimaryStoreLanguageId;
 
         var store = await storeService.GetStoreById(storeId);
         var defaultLanguageId = store?.DefaultLanguageId;
@@ -53,7 +52,6 @@ public class LanguageController(
                 DisplayOrder = l.DisplayOrder,
                 LimitedToStores = l.LimitedToStores,
                 IsAssignedToCurrentStore = !l.LimitedToStores || l.Stores.Contains(storeId),
-                IsPrimaryStoreLanguage = l.Id == primaryStoreLanguageId,
                 IsDefaultStoreLanguage = l.Id == defaultLanguageId,
                 CanManage = l.LimitedToStores
             })
@@ -98,9 +96,6 @@ public class LanguageController(
 
         if (!language.LimitedToStores)
             return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Languages.CannotModifyGlobal") });
-
-        if (language.Id == languageSettings.PrimaryStoreLanguageId)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Languages.CantDeletePrimary") });
 
         var storeId = CurrentStoreId;
 

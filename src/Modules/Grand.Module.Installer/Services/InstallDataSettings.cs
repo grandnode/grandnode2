@@ -241,7 +241,6 @@ public partial class InstallationService
 
         await _settingRepository.SaveSetting(new LanguageSettings {
             DefaultAdminLanguageId = _languageRepository.Table.Single(l => l.Name == "English").Id,
-            PrimaryStoreLanguageId = _languageRepository.Table.Single(l => l.Name == "English").Id,
             AutomaticallyDetectLanguage = false,
             IgnoreRtlPropertyForAdminArea = false
         });
