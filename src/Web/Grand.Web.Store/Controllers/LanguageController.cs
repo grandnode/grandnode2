@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.Common.DataSource;
@@ -13,7 +12,6 @@ namespace Grand.Web.Store.Controllers;
 [PermissionAuthorize(PermissionSystemName.Languages)]
 public class LanguageController(
     ILanguageService languageService,
-    LanguageSettings languageSettings,
     ITranslationService translationService,
     IStoreService storeService,
     IContextAccessor contextAccessor) : BaseStoreController
