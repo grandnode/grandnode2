@@ -42,7 +42,7 @@ public class CurrencyController(
         var store = await storeService.GetStoreById(storeId);
         var defaultCurrencyId = store?.DefaultCurrencyId;
 
-        var currencies = await currencyService.GetAllPublishedCurrencies();
+        var currencies = await currencyService.GetAllCurrencies(showHidden: false);
 
         var items = currencies
             .Select(c => new StoreCurrencyModel {
