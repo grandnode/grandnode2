@@ -131,4 +131,26 @@ public class CurrencyController(
 
         return Json(new { success = true });
     }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> UnsetDefaultCurrency(string id)
+    {
+        var currency = await currencyService.GetCurrencyById(id);
+        if (currency == null)
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.NotFound") });
+
+        var storeId = CurrentStoreId;
+        var store = await storeService.GetStoreById(storeId);
+        if (store == null)
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Stores.NotFound") });
+
+        if (store.DefaultCurrencyId != currency.Id)
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.NotDefaultCurrency") });
+
+        store.DefaultCurrencyId = string.Empty;
+        await storeService.UpdateStore(store);
+
+        return Json(new { success = true });
+    }
 }

@@ -96,7 +96,8 @@
                     attributes: { style: "text-align:center" },
                     template: function (dataItem) {
                         if (dataItem.IsDefaultStoreCurrency) {
-                            return '<span class="badge badge-info"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]</span>';
+                            return '<span class="badge badge-info"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]</span> ' +
+                                   '<a onclick="unsetDefaultCurrency(\'' + dataItem.Id + '\')" class="btn btn-sm btn-warning" title="@Loc["Admin.Configuration.Currencies.UnsetDefaultCurrency"]"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.UnsetDefaultCurrency"]</a>';
                         }
                         if (dataItem.IsAssignedToCurrentStore) {
                             return '<a onclick="setDefaultCurrency(\'' + dataItem.Id + '\')" class="btn btn-sm btn-info" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]</a>';
@@ -186,6 +187,29 @@
             },
             error: function () {
                 alert('Failed to set default currency');
+            }
+        });
+    }
+
+    function unsetDefaultCurrency(id) {
+        if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("UnsetDefaultCurrency", "Currency", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#currencies-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to unset default currency');
             }
         });
     }
