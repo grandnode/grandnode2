@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Directory;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -13,6 +14,7 @@ namespace Grand.Web.Store.Controllers;
 public class CurrencyController(
     ICurrencyService currencyService,
     CurrencySettings currencySettings,
+    ITranslationService translationService,
     IContextAccessor contextAccessor) : BaseStoreController
 {
     private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
@@ -65,10 +67,10 @@ public class CurrencyController(
     {
         var currency = await currencyService.GetCurrencyById(id);
         if (currency == null)
-            return Json(new { success = false, message = "Currency not found" });
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.NotFound") });
 
         if (!currency.LimitedToStores)
-            return Json(new { success = false, message = "Cannot modify a globally available currency" });
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.CannotModifyGlobal") });
 
         var storeId = CurrentStoreId;
         if (!currency.Stores.Contains(storeId))
@@ -86,13 +88,13 @@ public class CurrencyController(
     {
         var currency = await currencyService.GetCurrencyById(id);
         if (currency == null)
-            return Json(new { success = false, message = "Currency not found" });
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.NotFound") });
 
         if (!currency.LimitedToStores)
-            return Json(new { success = false, message = "Cannot modify a globally available currency" });
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.CannotModifyGlobal") });
 
         if (currency.Id == currencySettings.PrimaryStoreCurrencyId)
-            return Json(new { success = false, message = "Cannot unassign the primary store currency" });
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.CantDeletePrimary") });
 
         var storeId = CurrentStoreId;
         if (currency.Stores.Remove(storeId))

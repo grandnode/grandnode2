@@ -59,7 +59,7 @@
                     template: function (dataItem) {
                         var name = kendo.htmlEncode(dataItem.Name);
                         if (dataItem.IsPrimaryStoreCurrency) {
-                            name += ' <span class="badge badge-warning" title="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]"><i class="fa fa-star"></i> @Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]</span>';
+                            name += ' <span class="badge badge-warning" title="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]"><i class="fa fa-star"></i></span>';
                         }
                         return name;
                     }
