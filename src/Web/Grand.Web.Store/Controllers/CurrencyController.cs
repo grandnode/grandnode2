@@ -34,7 +34,7 @@ public class CurrencyController(
 
     [HttpPost]
     [PermissionAuthorizeAction(PermissionActionName.List)]
-    public async Task<IActionResult> ListData(DataSourceRequest command)
+    public async Task<IActionResult> ListData()
     {
         var storeId = CurrentStoreId;
         var primaryStoreCurrencyId = currencySettings.PrimaryStoreCurrencyId;
