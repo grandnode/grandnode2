@@ -94,15 +94,58 @@
                         if (!dataItem.CanManage) {
                             return '<span class="text-muted">-</span>';
                         }
-                        var tokenValue = $('input[name=__RequestVerificationToken]').first().val();
-                        var af = '<input type="hidden" name="__RequestVerificationToken" value="' + tokenValue + '"/>';
                         if (dataItem.IsAssignedToCurrentStore) {
-                            return '<form method="post" action="@Url.Action("UnassignStore", "Currency", new { area = Constants.AreaStore })" style="display:inline"><input type="hidden" name="id" value="' + dataItem.Id + '"/>' + af + '<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'@Loc["Admin.Common.AreYouSure"]\')" title="@Loc["Admin.Configuration.Currencies.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Currencies.UnassignStore"]</button></form>';
+                            return '<a onclick="unassignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-danger" title="@Loc["Admin.Configuration.Currencies.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Currencies.UnassignStore"]</a>';
                         }
-                        return '<form method="post" action="@Url.Action("AssignStore", "Currency", new { area = Constants.AreaStore })" style="display:inline"><input type="hidden" name="id" value="' + dataItem.Id + '"/>' + af + '<button type="submit" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Currencies.AssignStore"]</button></form>';
+                        return '<a onclick="assignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Currencies.AssignStore"]</a>';
                     }
                 }
             ]
         });
     });
+
+    function assignStore(id) {
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("AssignStore", "Currency", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#currencies-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to update currency');
+            }
+        });
+    }
+
+    function unassignStore(id) {
+        if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("UnassignStore", "Currency", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#currencies-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to update currency');
+            }
+        });
+    }
 </script>
