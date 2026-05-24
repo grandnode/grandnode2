@@ -64,9 +64,6 @@
                         if (dataItem.IsAssignedToCurrentStore) {
                             name += ' <span class="badge badge-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-check"></i></span>';
                         }
-                        if (dataItem.IsDefaultStoreCurrency) {
-                            name += ' <span class="badge badge-info" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]"><i class="fa fa-home"></i></span>';
-                        }
                         return name;
                     }
                 },
@@ -92,24 +89,34 @@
                     template: '# if(LimitedToStores) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
                 },
                 {
+                    field: "IsDefaultStoreCurrency",
+                    title: "@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]",
+                    width: 180,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: function (dataItem) {
+                        if (dataItem.IsDefaultStoreCurrency) {
+                            return '<span class="badge badge-info"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]</span>';
+                        }
+                        if (dataItem.IsAssignedToCurrentStore) {
+                            return '<a onclick="setDefaultCurrency(\'' + dataItem.Id + '\')" class="btn btn-sm btn-info" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]</a>';
+                        }
+                        return '<span class="text-muted">-</span>';
+                    }
+                },
+                {
                     title: "@Loc["Admin.Common.Actions"]",
-                    width: 300,
+                    width: 220,
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
                     template: function (dataItem) {
                         if (!dataItem.CanManage) {
                             return '<span class="text-muted">-</span>';
                         }
-                        var html = '';
                         if (dataItem.IsAssignedToCurrentStore) {
-                            if (!dataItem.IsDefaultStoreCurrency) {
-                                html += '<a onclick="setDefaultCurrency(\'' + dataItem.Id + '\')" class="btn btn-sm btn-info" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]</a> ';
-                            }
-                            html += '<a onclick="unassignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-danger" title="@Loc["Admin.Configuration.Currencies.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Currencies.UnassignStore"]</a>';
-                        } else {
-                            html += '<a onclick="assignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Currencies.AssignStore"]</a>';
+                            return '<a onclick="unassignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-danger" title="@Loc["Admin.Configuration.Currencies.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Currencies.UnassignStore"]</a>';
                         }
-                        return html;
+                        return '<a onclick="assignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Currencies.AssignStore"]</a>';
                     }
                 }
             ]
