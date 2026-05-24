@@ -103,6 +103,11 @@ public class CurrencyController(
             return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.CantDeletePrimary") });
 
         var storeId = CurrentStoreId;
+
+        var store = await storeService.GetStoreById(storeId);
+        if (store?.DefaultCurrencyId == currency.Id)
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.CantUnassignDefault") });
+
         if (currency.Stores.Remove(storeId))
             await currencyService.UpdateCurrency(currency);
 
