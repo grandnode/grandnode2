@@ -1,0 +1,103 @@
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Domain.Directory;
+using Grand.Domain.Permissions;
+using Grand.Infrastructure;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Store.Models;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Grand.Web.Store.Controllers;
+
+[PermissionAuthorize(PermissionSystemName.Currencies)]
+public class CurrencyController(
+    ICurrencyService currencyService,
+    CurrencySettings currencySettings,
+    IContextAccessor contextAccessor) : BaseStoreController
+{
+    private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+
+    public IActionResult Index()
+    {
+        return RedirectToAction("List");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    public IActionResult List()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    public async Task<IActionResult> ListData(DataSourceRequest command)
+    {
+        var storeId = CurrentStoreId;
+        var primaryStoreCurrencyId = currencySettings.PrimaryStoreCurrencyId;
+
+        var currencies = await currencyService.GetAllCurrencies(showHidden: true);
+
+        var items = currencies
+            .Select(c => new StoreCurrencyModel {
+                Id = c.Id,
+                Name = c.Name,
+                CurrencyCode = c.CurrencyCode,
+                Published = c.Published,
+                DisplayOrder = c.DisplayOrder,
+                LimitedToStores = c.LimitedToStores,
+                IsAssignedToCurrentStore = c.LimitedToStores && c.Stores.Contains(storeId),
+                IsPrimaryStoreCurrency = c.Id == primaryStoreCurrencyId,
+                CanManage = c.LimitedToStores
+            })
+            .ToList();
+
+        var gridModel = new DataSourceResult {
+            Data = items,
+            Total = items.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> AssignStore(string id)
+    {
+        var currency = await currencyService.GetCurrencyById(id);
+        if (currency == null)
+            return Json(new { success = false, message = "Currency not found" });
+
+        if (!currency.LimitedToStores)
+            return Json(new { success = false, message = "Cannot modify a globally available currency" });
+
+        var storeId = CurrentStoreId;
+        if (!currency.Stores.Contains(storeId))
+        {
+            currency.Stores.Add(storeId);
+            await currencyService.UpdateCurrency(currency);
+        }
+
+        return Json(new { success = true });
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> UnassignStore(string id)
+    {
+        var currency = await currencyService.GetCurrencyById(id);
+        if (currency == null)
+            return Json(new { success = false, message = "Currency not found" });
+
+        if (!currency.LimitedToStores)
+            return Json(new { success = false, message = "Cannot modify a globally available currency" });
+
+        if (currency.Id == currencySettings.PrimaryStoreCurrencyId)
+            return Json(new { success = false, message = "Cannot unassign the primary store currency" });
+
+        var storeId = CurrentStoreId;
+        if (currency.Stores.Remove(storeId))
+            await currencyService.UpdateCurrency(currency);
+
+        return Json(new { success = true });
+    }
+}

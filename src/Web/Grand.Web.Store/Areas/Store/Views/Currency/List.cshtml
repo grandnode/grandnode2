@@ -1,0 +1,107 @@
+@inject AdminAreaSettings adminAreaSettings
+@{
+    ViewBag.Title = Loc["Admin.Configuration.Currencies"];
+    Layout = Constants.LayoutStore;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-money"></i>
+                    @Loc["Admin.Configuration.Currencies"]
+                </div>
+            </div>
+            <div class="x_content form">
+                <div id="currencies-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#currencies-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ListData", "Currency", new { area = Constants.AreaStore }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            scrollable: false,
+            columns: [
+                {
+                    field: "Name",
+                    title: "@Loc["Admin.Configuration.Currencies.Fields.Name"]",
+                    width: 200,
+                    template: function (dataItem) {
+                        var name = kendo.htmlEncode(dataItem.Name);
+                        if (dataItem.IsPrimaryStoreCurrency) {
+                            name += ' <span class="badge badge-warning" title="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]"><i class="fa fa-star"></i> @Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]</span>';
+                        }
+                        return name;
+                    }
+                },
+                {
+                    field: "CurrencyCode",
+                    title: "@Loc["Admin.Configuration.Currencies.Fields.CurrencyCode"]",
+                    width: 100
+                },
+                {
+                    field: "Published",
+                    title: "@Loc["Admin.Configuration.Currencies.Fields.Published"]",
+                    width: 80,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                },
+                {
+                    field: "LimitedToStores",
+                    title: "@Loc["Admin.Configuration.Currencies.Fields.LimitedToStores"]",
+                    width: 120,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(LimitedToStores) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                },
+                {
+                    title: "@Loc["Admin.Common.Actions"]",
+                    width: 200,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: function (dataItem) {
+                        if (!dataItem.CanManage) {
+                            return '<span class="text-muted">-</span>';
+                        }
+                        var af = '@Html.Raw(Html.AntiForgeryToken().ToString().Replace("'", "\\'"))';
+                        if (dataItem.IsAssignedToCurrentStore) {
+                            return '<form method="post" action="@Url.Action("UnassignStore", "Currency", new { area = Constants.AreaStore })" style="display:inline"><input type="hidden" name="id" value="' + dataItem.Id + '"/><button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'@Loc["Admin.Common.AreYouSure"]\')" title="@Loc["Admin.Configuration.Currencies.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Currencies.UnassignStore"]</button>' + af + '</form>';
+                        }
+                        return '<form method="post" action="@Url.Action("AssignStore", "Currency", new { area = Constants.AreaStore })" style="display:inline"><input type="hidden" name="id" value="' + dataItem.Id + '"/><button type="submit" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Currencies.AssignStore"]</button>' + af + '</form>';
+                    }
+                }
+            ]
+        });
+    });
+</script>
