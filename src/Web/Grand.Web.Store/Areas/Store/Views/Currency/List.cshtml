@@ -61,6 +61,9 @@
                         if (dataItem.IsPrimaryStoreCurrency) {
                             name += ' <span class="badge badge-warning" title="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]"><i class="fa fa-star"></i></span>';
                         }
+                        if (dataItem.IsAssignedToCurrentStore) {
+                            name += ' <span class="badge badge-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-check"></i></span>';
+                        }
                         return name;
                     }
                 },
