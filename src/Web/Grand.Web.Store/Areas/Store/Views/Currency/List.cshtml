@@ -64,6 +64,9 @@
                         if (dataItem.IsAssignedToCurrentStore) {
                             name += ' <span class="badge badge-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-check"></i></span>';
                         }
+                        if (dataItem.IsDefaultStoreCurrency) {
+                            name += ' <span class="badge badge-info" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]"><i class="fa fa-home"></i></span>';
+                        }
                         return name;
                     }
                 },
@@ -90,17 +93,23 @@
                 },
                 {
                     title: "@Loc["Admin.Common.Actions"]",
-                    width: 200,
+                    width: 300,
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
                     template: function (dataItem) {
                         if (!dataItem.CanManage) {
                             return '<span class="text-muted">-</span>';
                         }
+                        var html = '';
                         if (dataItem.IsAssignedToCurrentStore) {
-                            return '<a onclick="unassignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-danger" title="@Loc["Admin.Configuration.Currencies.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Currencies.UnassignStore"]</a>';
+                            if (!dataItem.IsDefaultStoreCurrency) {
+                                html += '<a onclick="setDefaultCurrency(\'' + dataItem.Id + '\')" class="btn btn-sm btn-info" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]</a> ';
+                            }
+                            html += '<a onclick="unassignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-danger" title="@Loc["Admin.Configuration.Currencies.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Currencies.UnassignStore"]</a>';
+                        } else {
+                            html += '<a onclick="assignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Currencies.AssignStore"]</a>';
                         }
-                        return '<a onclick="assignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Currencies.AssignStore"]</a>';
+                        return html;
                     }
                 }
             ]
@@ -148,6 +157,28 @@
             },
             error: function () {
                 alert('Failed to update currency');
+            }
+        });
+    }
+
+    function setDefaultCurrency(id) {
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("SetDefaultCurrency", "Currency", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#currencies-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to set default currency');
             }
         });
     }

@@ -10,5 +10,6 @@ public class StoreCurrencyModel
     public bool LimitedToStores { get; set; }
     public bool IsAssignedToCurrentStore { get; set; }
     public bool IsPrimaryStoreCurrency { get; set; }
+    public bool IsDefaultStoreCurrency { get; set; }
     public bool CanManage { get; set; }
 }

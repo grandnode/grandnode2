@@ -1,5 +1,6 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Directory;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -15,6 +16,7 @@ public class CurrencyController(
     ICurrencyService currencyService,
     CurrencySettings currencySettings,
     ITranslationService translationService,
+    IStoreService storeService,
     IContextAccessor contextAccessor) : BaseStoreController
 {
     private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
@@ -37,6 +39,9 @@ public class CurrencyController(
         var storeId = CurrentStoreId;
         var primaryStoreCurrencyId = currencySettings.PrimaryStoreCurrencyId;
 
+        var store = await storeService.GetStoreById(storeId);
+        var defaultCurrencyId = store?.DefaultCurrencyId;
+
         var currencies = await currencyService.GetAllCurrencies(showHidden: false);
 
         var items = currencies
@@ -49,6 +54,7 @@ public class CurrencyController(
                 LimitedToStores = c.LimitedToStores,
                 IsAssignedToCurrentStore = c.LimitedToStores && c.Stores.Contains(storeId),
                 IsPrimaryStoreCurrency = c.Id == primaryStoreCurrencyId,
+                IsDefaultStoreCurrency = c.Id == defaultCurrencyId,
                 CanManage = c.LimitedToStores
             })
             .ToList();
@@ -99,6 +105,25 @@ public class CurrencyController(
         var storeId = CurrentStoreId;
         if (currency.Stores.Remove(storeId))
             await currencyService.UpdateCurrency(currency);
+
+        return Json(new { success = true });
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> SetDefaultCurrency(string id)
+    {
+        var currency = await currencyService.GetCurrencyById(id);
+        if (currency == null)
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.NotFound") });
+
+        var storeId = CurrentStoreId;
+        var store = await storeService.GetStoreById(storeId);
+        if (store == null)
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Stores.NotFound") });
+
+        store.DefaultCurrencyId = currency.Id;
+        await storeService.UpdateStore(store);
 
         return Json(new { success = true });
     }
