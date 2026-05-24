@@ -52,7 +52,7 @@ public class CurrencyController(
                 Published = c.Published,
                 DisplayOrder = c.DisplayOrder,
                 LimitedToStores = c.LimitedToStores,
-                IsAssignedToCurrentStore = c.LimitedToStores && c.Stores.Contains(storeId),
+                IsAssignedToCurrentStore = !c.LimitedToStores || c.Stores.Contains(storeId),
                 IsPrimaryStoreCurrency = c.Id == primaryStoreCurrencyId,
                 IsDefaultStoreCurrency = c.Id == defaultCurrencyId,
                 CanManage = c.LimitedToStores
