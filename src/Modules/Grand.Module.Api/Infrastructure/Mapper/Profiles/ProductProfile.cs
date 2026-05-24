@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Mapper;

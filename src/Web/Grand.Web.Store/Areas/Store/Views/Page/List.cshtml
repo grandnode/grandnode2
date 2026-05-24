@@ -1,0 +1,166 @@
+@model PageListModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Pages"];
+    Layout = Constants.LayoutStore;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-fw fa-file-o"></i>
+                    @Loc["Admin.Content.Pages"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                </div>
+            </div>
+            <div class="x_content">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="row align-items-end mb-1">
+                            <div class="col-md-9 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="Name" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                    <admin-input asp-for="Name"/>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
+                                <div class="form-actions">
+                                    <button class="btn btn-success filter-submit" id="search-pages">
+                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="x_content">
+                        <admin-tabstrip name="pages-list-tabs" BindGrid="true">
+                            <items>
+                                <tabstrip-item text="@Loc["Admin.Content.Pages.List.StorePages"]" tab-index="0">
+                                    <content>
+                                        <div id="store-pages-grid"></div>
+                                    </content>
+                                </tabstrip-item>
+                                <tabstrip-item text="@Loc["Admin.Content.Pages.List.GlobalPages"]" tab-index="1">
+                                    <content>
+                                        <div id="global-pages-grid"></div>
+                                    </content>
+                                </tabstrip-item>
+                            </items>
+                        </admin-tabstrip>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var gridColumns = [{
+            field: "SystemName",
+            title: "@Loc["Admin.Content.Pages.Fields.SystemName"]",
+            template: '<a class="k-link" href="Edit/#=Id#">#=SystemName#</a>',
+        }, {
+            field: "Title",
+            title: "@Loc["Admin.Content.Pages.Fields.Title"]",
+            template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Title == null ? "" : Title)#</a>',
+        }, {
+            field: "IncludeInMenu",
+            title: "@Loc["Admin.Content.Pages.Fields.IncludeInMenu"]",
+            width: 100,
+            headerAttributes: { style: "text-align:center" },
+            attributes: { style: "text-align:center" },
+            template: '# if(IncludeInMenu) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+        }, {
+            field: "Published",
+            title: "@Loc["Admin.Content.Pages.Fields.Published"]",
+            width: 100,
+            headerAttributes: { style: "text-align:center" },
+            attributes: { style: "text-align:center" },
+            template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+        }, {
+            field: "DisplayOrder",
+            title: "@Loc["Admin.Content.Pages.Fields.DisplayOrder"]",
+            width: 100
+        }];
+
+        function makeDataSource(url) {
+            return {
+                transport: {
+                    read: {
+                        url: url,
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            };
+        }
+
+        function makeGrid(selector, url) {
+            $(selector).kendoGrid({
+                dataSource: makeDataSource(url),
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: gridColumns
+            });
+        }
+
+        makeGrid("#store-pages-grid", "@Html.Raw(Url.Action("StorePagesList",  "Page", new { area = Constants.AreaStore }))");
+        makeGrid("#global-pages-grid", "@Html.Raw(Url.Action("GlobalPagesList", "Page", new { area = Constants.AreaStore }))");
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('#search-pages').click(function () {
+            var sg = $('#store-pages-grid').data('kendoGrid');
+            if (sg) sg.dataSource.read();
+            var gg = $('#global-pages-grid').data('kendoGrid');
+            if (gg) gg.dataSource.read();
+            return false;
+        });
+
+        $("#@Html.IdFor(model => model.Name)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-pages").click();
+                return false;
+            }
+        });
+    });
+
+    function additionalData() {
+        var data = {
+            Name: $('#@Html.IdFor(model => model.Name)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+</script>

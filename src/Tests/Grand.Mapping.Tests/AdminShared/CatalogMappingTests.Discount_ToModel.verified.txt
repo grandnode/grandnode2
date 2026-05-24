@@ -1,0 +1,19 @@
+﻿{
+  Name: 10% Off,
+  DiscountTypeId: 1,
+  UsePercentage: true,
+  DiscountPercentage: 10.0,
+  CurrencyCode: USD,
+  CalculateByPlugin: false,
+  MaximumDiscountAmount: 100.0,
+  RequiresCouponCode: true,
+  Reused: false,
+  IsCumulative: false,
+  LimitationTimes: 100,
+  MaximumDiscountedQuantity: 5,
+  IsEnabled: true,
+  Stores: [
+    store-001
+  ],
+  Id: disc-001
+}

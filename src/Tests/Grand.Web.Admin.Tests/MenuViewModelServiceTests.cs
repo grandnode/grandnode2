@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Domain.Admin;
 using Grand.Infrastructure.Mapper;

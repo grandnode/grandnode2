@@ -1,0 +1,20 @@
+﻿{
+  Name: Summer 2025,
+  Description: Summer items,
+  CollectionLayoutId: layout-1,
+  MetaTitle: Summer 2025,
+  PageSize: 12,
+  AllowCustomersToSelectPageSize: true,
+  PageSizeOptions: 6, 12, 24,
+  ShowOnHomePage: true,
+  FeaturedProductsOnHomePage: false,
+  IncludeInMenu: true,
+  Published: true,
+  DisplayOrder: 3,
+  ExternalId: ext-col-001,
+  LimitedToGroups: false,
+  SeName: summer-2025,
+  LimitedToStores: false,
+  UpdatedOnUtc: DateTime_1,
+  Id: col-export-1
+}

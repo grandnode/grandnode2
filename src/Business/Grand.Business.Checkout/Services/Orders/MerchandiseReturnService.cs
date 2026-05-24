@@ -117,15 +117,20 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// <summary>
     ///     Gets all merchandise return actions
     /// </summary>
+    /// <param name="storeId">Store identifier; empty to load all entries</param>
     /// <returns>Merchandise return actions</returns>
-    public virtual async Task<IList<MerchandiseReturnAction>> GetAllMerchandiseReturnActions()
+    public virtual async Task<IList<MerchandiseReturnAction>> GetAllMerchandiseReturnActions(string storeId = "")
     {
-        return await _cacheBase.GetAsync(CacheKey.MERCHANDISE_RETURN_ACTIONS_ALL_KEY, async () =>
+        var key = string.Format(CacheKey.MERCHANDISE_RETURN_ACTIONS_ALL_KEY, storeId);
+        return await _cacheBase.GetAsync(key, async () =>
         {
-            var query = from rra in _merchandiseReturnActionRepository.Table
+            IQueryable<MerchandiseReturnAction> query = from rra in _merchandiseReturnActionRepository.Table
                 orderby rra.DisplayOrder
                 select rra;
-            return await Task.FromResult(query.ToList());
+            if (!string.IsNullOrEmpty(storeId))
+                query = query.Where(x => !x.LimitedToStores || x.Stores.Contains(storeId));
+            var actions = query.ToList();
+            return await Task.FromResult(actions);
         });
     }
 
@@ -203,7 +208,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
         await _mediator.EntityInserted(merchandiseReturnAction);
 
         //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_ACTIONS_ALL_KEY);
+        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_ACTIONS_PATTERN_KEY);
     }
 
     /// <summary>
@@ -220,7 +225,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
         await _mediator.EntityUpdated(merchandiseReturnAction);
 
         //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_ACTIONS_ALL_KEY);
+        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_ACTIONS_PATTERN_KEY);
     }
 
     /// <summary>
@@ -235,6 +240,9 @@ public class MerchandiseReturnService : IMerchandiseReturnService
 
         //event notification
         await _mediator.EntityDeleted(merchandiseReturnAction);
+
+        //clear cache
+        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_ACTIONS_PATTERN_KEY);
     }
 
     /// <summary>
@@ -251,21 +259,26 @@ public class MerchandiseReturnService : IMerchandiseReturnService
         await _mediator.EntityDeleted(merchandiseReturnReason);
 
         //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_REASONS_ALL_KEY);
+        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_REASONS_PATTERN_KEY);
     }
 
     /// <summary>
     ///     Gets all merchandise return reasons
     /// </summary>
+    /// <param name="storeId">Store identifier; empty to load all entries</param>
     /// <returns>Merchandise return reasons</returns>
-    public virtual async Task<IList<MerchandiseReturnReason>> GetAllMerchandiseReturnReasons()
+    public virtual async Task<IList<MerchandiseReturnReason>> GetAllMerchandiseReturnReasons(string storeId = "")
     {
-        return await _cacheBase.GetAsync(CacheKey.MERCHANDISE_RETURN_REASONS_ALL_KEY, async () =>
+        var key = string.Format(CacheKey.MERCHANDISE_RETURN_REASONS_ALL_KEY, storeId);
+        return await _cacheBase.GetAsync(key, async () =>
         {
-            var query = from rra in _merchandiseReturnReasonRepository.Table
+            IQueryable<MerchandiseReturnReason> query = from rra in _merchandiseReturnReasonRepository.Table
                 orderby rra.DisplayOrder
                 select rra;
-            return await Task.FromResult(query.ToList());
+            if (!string.IsNullOrEmpty(storeId))
+                query = query.Where(x => !x.LimitedToStores || x.Stores.Contains(storeId));
+            var reasons = query.ToList();
+            return await Task.FromResult(reasons);
         });
     }
 
@@ -293,7 +306,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
         await _mediator.EntityInserted(merchandiseReturnReason);
 
         //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_REASONS_ALL_KEY);
+        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_REASONS_PATTERN_KEY);
     }
 
     /// <summary>
@@ -310,7 +323,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
         await _mediator.EntityUpdated(merchandiseReturnReason);
 
         //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_REASONS_ALL_KEY);
+        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_REASONS_PATTERN_KEY);
     }
 
     #region Merchandise return notes

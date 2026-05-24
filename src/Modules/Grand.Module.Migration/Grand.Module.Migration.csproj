@@ -17,6 +17,9 @@
 		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
 			<Private>False</Private>
 		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.Mapping\Grand.Mapping.csproj">
+			<Private>False</Private>
+		</ProjectReference>
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

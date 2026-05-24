@@ -1,0 +1,26 @@
+﻿{
+  Name: Grand Store,
+  Url: https://grandstore.com,
+  SslEnabled: true,
+  DisplayOrder: 1,
+  CompanyName: Grand LLC,
+  CompanyAddress: 123 Commerce St,
+  CompanyPhoneNumber: +1-555-9999,
+  CompanyVat: US123456,
+  DefaultLanguageId: lang-001,
+  DefaultCountryId: country-001,
+  DefaultCurrencyId: cur-001,
+  Domains: [
+    {
+      Url: https://grandstore.com,
+      Primary: true,
+      Id: dh-001
+    }
+  ],
+  BankAccount: {
+    BankCode: CHASUSU,
+    BankName: Chase,
+    Id: ObjectId_1
+  },
+  Id: store-001
+}

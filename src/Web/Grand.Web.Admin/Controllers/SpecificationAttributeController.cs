@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
-using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.Common.DataSource;
@@ -22,14 +21,12 @@ public class SpecificationAttributeController : BaseAdminController
         ISpecificationAttributeService specificationAttributeService,
         ILanguageService languageService,
         ITranslationService translationService,
-        IContextAccessor contextAccessor,
         IProductService productService,
         SeoSettings seoSettings)
     {
         _specificationAttributeService = specificationAttributeService;
         _languageService = languageService;
         _translationService = translationService;
-        _contextAccessor = contextAccessor;
         _productService = productService;
         _seoSettings = seoSettings;
     }
@@ -96,7 +93,6 @@ public class SpecificationAttributeController : BaseAdminController
     private readonly IProductService _productService;
     private readonly ILanguageService _languageService;
     private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
     private readonly SeoSettings _seoSettings;
 
     #endregion Fields

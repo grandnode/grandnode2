@@ -1,0 +1,6 @@
+﻿{
+  Name: BrandDefault,
+  ViewPath: BrandTemplate.Simple,
+  DisplayOrder: 2,
+  Id: bl-001
+}

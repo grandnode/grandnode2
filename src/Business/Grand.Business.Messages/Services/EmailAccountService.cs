@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Data;
+using Grand.Domain;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
@@ -109,8 +110,7 @@ public class EmailAccountService : IEmailAccountService
     public virtual async Task DeleteEmailAccount(EmailAccount emailAccount)
     {
         ArgumentNullException.ThrowIfNull(emailAccount);
-        var emailAccounts = await GetAllEmailAccounts();
-        if (emailAccounts.Count == 1)
+        if (_emailAccountRepository.Table.Take(2).Count() <= 1)
             throw new GrandException("You cannot delete this email account. At least one account is required.");
 
         await _emailAccountRepository.DeleteAsync(emailAccount);
@@ -134,16 +134,20 @@ public class EmailAccountService : IEmailAccountService
     }
 
     /// <summary>
-    ///     Gets all email accounts
+    ///     Gets all email accounts, optionally filtered by store, with pagination support.
     /// </summary>
-    /// <returns>Email accounts list</returns>
-    public virtual async Task<IList<EmailAccount>> GetAllEmailAccounts()
+    /// <param name="storeId">Store identifier; pass empty string to return all accounts</param>
+    /// <param name="pageIndex">Page index (0-based)</param>
+    /// <param name="pageSize">Page size</param>
+    /// <returns>Paged list of email accounts</returns>
+    public virtual async Task<IPagedList<EmailAccount>> GetAllEmailAccounts(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
-        return await _cacheBase.GetAsync(CacheKey.EMAILACCOUNT_ALL_KEY, async () =>
-        {
-            var query = from ea in _emailAccountRepository.Table
-                select ea;
-            return await Task.FromResult(query.ToList());
-        });
+        var query = from ea in _emailAccountRepository.Table
+            select ea;
+
+        if (!string.IsNullOrEmpty(storeId))
+            query = query.Where(ea => ea.StoreId == storeId);
+
+        return await PagedList<EmailAccount>.Create(query, pageIndex, pageSize);
     }
 }

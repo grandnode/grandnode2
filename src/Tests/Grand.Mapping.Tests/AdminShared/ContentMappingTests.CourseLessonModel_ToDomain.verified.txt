@@ -1,0 +1,9 @@
+﻿{
+  Name: Introduction,
+  ShortDescription: Lesson overview,
+  DisplayOrder: 1,
+  CourseId: course-001,
+  SubjectId: subj-001,
+  Published: true,
+  Id: ObjectId_1
+}

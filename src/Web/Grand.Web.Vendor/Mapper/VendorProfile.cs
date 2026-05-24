@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Business.Core.Extensions;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Vendor.Models.Vendor;

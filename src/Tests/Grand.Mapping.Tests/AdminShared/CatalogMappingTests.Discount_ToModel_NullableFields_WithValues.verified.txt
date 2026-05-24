@@ -1,0 +1,12 @@
+﻿{
+  Name: Summer Sale,
+  DiscountTypeId: 1,
+  UsePercentage: false,
+  CalculateByPlugin: false,
+  MaximumDiscountAmount: 50.0,
+  RequiresCouponCode: false,
+  Reused: false,
+  IsCumulative: false,
+  IsEnabled: true,
+  Id: disc-002
+}

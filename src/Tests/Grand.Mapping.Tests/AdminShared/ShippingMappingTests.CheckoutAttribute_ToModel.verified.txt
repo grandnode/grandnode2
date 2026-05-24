@@ -1,0 +1,12 @@
+﻿{
+  Name: Gift Wrapping,
+  TextPrompt: Add gift wrapping?,
+  IsRequired: false,
+  ShippableProductRequired: false,
+  IsTaxExempt: false,
+  TaxCategoryId: tc-001,
+  AttributeControlTypeId: 4,
+  DisplayOrder: 1,
+  ConditionAllowed: false,
+  Id: ca-001
+}

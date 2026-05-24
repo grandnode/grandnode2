@@ -1,0 +1,22 @@
+﻿{
+  Name: Summer Sale,
+  Description: Summer collection,
+  BottomDescription: End of summer,
+  CollectionLayoutId: layout-002,
+  MetaKeywords: summer, sale,
+  MetaDescription: Summer sales,
+  MetaTitle: Summer Collection,
+  SeName: summer-sale,
+  PictureId: pic-002,
+  PageSize: 10,
+  AllowCustomersToSelectPageSize: true,
+  PageSizeOptions: 10, 20,
+  ShowOnHomePage: false,
+  FeaturedProductsOnHomePage: false,
+  IncludeInMenu: false,
+  DefaultSort: -1,
+  Published: true,
+  DisplayOrder: 3,
+  ExternalId: ext-col-001,
+  Id: col-001
+}

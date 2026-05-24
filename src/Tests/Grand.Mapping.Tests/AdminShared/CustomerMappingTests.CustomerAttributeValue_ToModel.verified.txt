@@ -1,0 +1,6 @@
+﻿{
+  Name: Weekly,
+  IsPreSelected: false,
+  DisplayOrder: 1,
+  Id: cav-001
+}

@@ -11,8 +11,8 @@ public static class DiscountMappingExtensions
     public static DiscountModel ToModel(this Discount entity, IDateTimeService dateTimeService)
     {
         var discount = entity.MapTo<Discount, DiscountModel>();
-        discount.StartDate = (DateTime)entity.StartDateUtc.ConvertToUserTime(dateTimeService);
-        discount.EndDate = (DateTime)entity.EndDateUtc.ConvertToUserTime(dateTimeService);
+        discount.StartDate = entity.StartDateUtc.ConvertToUserTime(dateTimeService);
+        discount.EndDate = entity.EndDateUtc.ConvertToUserTime(dateTimeService);
         return discount;
     }
 

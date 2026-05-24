@@ -1,0 +1,11 @@
+﻿{
+  Name: C# Fundamentals,
+  ShortDescription: Learn C#,
+  Description: Full course,
+  DisplayOrder: 1,
+  Published: true,
+  LevelId: cl-001,
+  SeName: csharp-fundamentals,
+  ProductId: prod-001,
+  Id: course-001
+}

@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Directory;
-using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Controllers;
@@ -12,11 +11,9 @@ public class HomeController : BaseVendorController
     #region Ctor
 
     public HomeController(
-        IContextAccessor contextAccessor,
         ILogger<HomeController> logger,
         IGrandAuthenticationService authenticationService)
     {
-        _contextAccessor = contextAccessor;
         _logger = logger;
         _authenticationService = authenticationService;
     }
@@ -25,7 +22,6 @@ public class HomeController : BaseVendorController
 
     #region Fields
 
-    private readonly IContextAccessor _contextAccessor;
     private readonly ILogger<HomeController> _logger;
     private readonly IGrandAuthenticationService _authenticationService;
 

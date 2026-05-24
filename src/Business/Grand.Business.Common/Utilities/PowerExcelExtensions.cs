@@ -7,6 +7,7 @@ namespace Grand.Business.Common.Utilities;
 
 internal static class PowerExcelExtensions
 {
+    [Obsolete("This method is obsolete. Use the new method instead.")]
     internal static IEnumerable<IRow> Rows(this ISheet sheet)
     {
         var e = sheet.GetRowEnumerator();

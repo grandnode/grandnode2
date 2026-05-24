@@ -1,10 +1,13 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Settings;
 
-public class MerchandiseReturnActionModel : BaseEntityModel, ILocalizedModel<MerchandiseReturnActionLocalizedModel>
+public class MerchandiseReturnActionModel : BaseEntityModel, ILocalizedModel<MerchandiseReturnActionLocalizedModel>,
+    IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.Name")]
 
@@ -15,6 +18,10 @@ public class MerchandiseReturnActionModel : BaseEntityModel, ILocalizedModel<Mer
 
     public IList<MerchandiseReturnActionLocalizedModel> Locales { get; set; } =
         new List<MerchandiseReturnActionLocalizedModel>();
+
+    [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.LimitedToStores")]
+    [UIHint("Stores")]
+    public string[] Stores { get; set; }
 }
 
 public class MerchandiseReturnActionLocalizedModel : ILocalizedModelLocal

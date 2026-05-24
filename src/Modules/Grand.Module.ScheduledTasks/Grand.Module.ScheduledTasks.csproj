@@ -9,6 +9,10 @@
             <Private>False</Private>
             <ExcludeAssets>runtime</ExcludeAssets>
         </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.Mapping\Grand.Mapping.csproj">
+            <Private>False</Private>
+            <ExcludeAssets>runtime</ExcludeAssets>
+        </ProjectReference>
         <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
             <Private>False</Private>
             <ExcludeAssets>runtime</ExcludeAssets>

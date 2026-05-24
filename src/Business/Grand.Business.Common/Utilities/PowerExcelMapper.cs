@@ -289,8 +289,7 @@ public class PowerExcelMapper : ExcelMapper
             case CellType.Boolean:
                 return cell.BooleanCellValue;
             case CellType.Error:
-                return cell.ErrorCellValue;
-            case CellType.Unknown:
+                return cell.ErrorCellValue;            
             case CellType.Blank:
             case CellType.String:
             default:

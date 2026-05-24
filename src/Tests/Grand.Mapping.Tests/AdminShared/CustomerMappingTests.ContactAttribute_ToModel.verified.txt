@@ -1,0 +1,9 @@
+﻿{
+  Name: Preferred Contact,
+  TextPrompt: How would you like to be contacted?,
+  IsRequired: false,
+  AttributeControlTypeId: 1,
+  DisplayOrder: 1,
+  ConditionAllowed: false,
+  Id: coa-001
+}

@@ -1,0 +1,11 @@
+﻿{
+  Name: No Dates Discount,
+  DiscountTypeId: 1,
+  UsePercentage: false,
+  CalculateByPlugin: false,
+  RequiresCouponCode: false,
+  Reused: false,
+  IsCumulative: false,
+  IsEnabled: true,
+  Id: disc-002
+}

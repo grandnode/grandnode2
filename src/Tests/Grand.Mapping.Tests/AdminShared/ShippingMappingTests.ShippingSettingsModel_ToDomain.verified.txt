@@ -1,0 +1,11 @@
+﻿{
+  AllowPickUpInStore: true,
+  FreeShippingOverXEnabled: true,
+  FreeShippingOverXValue: 100.0,
+  FreeShippingOverXIncludingTax: false,
+  EstimateShippingEnabled: true,
+  DisplayShipmentEventsToCustomers: false,
+  DisplayShipmentEventsToStoreOwner: false,
+  SkipShippingMethodSelectionIfOnlyOne: false,
+  AdditionalShippingChargeByQty: false
+}

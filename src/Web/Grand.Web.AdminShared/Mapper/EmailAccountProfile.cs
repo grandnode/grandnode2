@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Grand.Mapping;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.AdminShared.Models.Messages;
@@ -12,7 +12,8 @@ public class EmailAccountProfile : Profile, IAutoMapperProfile
         CreateMap<EmailAccount, EmailAccountModel>()
             .ForMember(dest => dest.Password, mo => mo.Ignore())
             .ForMember(dest => dest.IsDefaultEmailAccount, mo => mo.Ignore())
-            .ForMember(dest => dest.SendTestEmailTo, mo => mo.Ignore());
+            .ForMember(dest => dest.SendTestEmailTo, mo => mo.Ignore())
+            .ForMember(dest => dest.AvailableStores, mo => mo.Ignore());
 
         CreateMap<EmailAccountModel, EmailAccount>()
             .ForMember(dest => dest.Id, mo => mo.Ignore())

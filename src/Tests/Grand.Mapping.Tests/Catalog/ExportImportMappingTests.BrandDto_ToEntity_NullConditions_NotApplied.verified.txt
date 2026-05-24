@@ -1,0 +1,12 @@
+﻿{
+  Name: Partial Brand,
+  AllowCustomersToSelectPageSize: false,
+  ShowOnHomePage: false,
+  IncludeInMenu: false,
+  DefaultSort: -1,
+  Published: false,
+  LimitedToGroups: false,
+  LimitedToStores: false,
+  UpdatedOnUtc: DateTime_1,
+  Id: ObjectId_1
+}

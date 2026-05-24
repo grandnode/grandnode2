@@ -22,7 +22,7 @@
 
 	<Target Name="CopyFile" AfterTargets="AfterBuild">
 		<ItemGroup>
-			<CopyFiles Include="$(NuGetPackageRoot)\braintree\5.38.0\lib\netstandard2.0\*.*" />
+			<CopyFiles Include="$(NuGetPackageRoot)\braintree\5.39.0\lib\netstandard2.0\*.*" />
 			<CopyFiles Include="$(NuGetPackageRoot)\system.xml.xpath.xmldocument\4.7.0\lib\netstandard2.0\*.*" />
 		</ItemGroup>
 		<Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Payments.BrainTree\" />
@@ -33,6 +33,9 @@
 			<Private>false</Private>
 		</ProjectReference>
 		<ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.Mapping\Grand.Mapping.csproj">
 			<Private>false</Private>
 		</ProjectReference>
 		<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">

@@ -1,0 +1,5 @@
+﻿{
+  FriendlyName: Facebook authentication,
+  SystemName: ExternalAuth.Facebook,
+  IsActive: false
+}

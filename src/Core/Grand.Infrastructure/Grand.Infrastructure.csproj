@@ -8,7 +8,6 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" />
-    <PackageReference Include="AutoMapper" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
     <PackageReference Include="MediatR" />
@@ -20,5 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Grand.Data\Grand.Data.csproj" />
     <ProjectReference Include="..\Grand.Domain\Grand.Domain.csproj" />
+    <ProjectReference Include="..\Grand.Mapping\Grand.Mapping.csproj" />
   </ItemGroup>
 </Project>

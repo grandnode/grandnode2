@@ -47,15 +47,14 @@ public class EmailAccountController : BaseAdminController
     [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> List(DataSourceRequest command)
     {
-        var emailAccountModels = (await _emailAccountService.GetAllEmailAccounts())
-            .Select(x => x.ToModel())
-            .ToList();
+        var emailAccounts = await _emailAccountService.GetAllEmailAccounts(pageIndex: command.Page - 1, pageSize: command.PageSize);
+        var emailAccountModels = emailAccounts.Select(x => x.ToModel()).ToList();
         foreach (var eam in emailAccountModels)
             eam.IsDefaultEmailAccount = eam.Id == _emailAccountSettings.DefaultEmailAccountId;
 
         var gridModel = new DataSourceResult {
             Data = emailAccountModels,
-            Total = emailAccountModels.Count
+            Total = emailAccounts.TotalCount
         };
 
         return Json(gridModel);
@@ -78,9 +77,9 @@ public class EmailAccountController : BaseAdminController
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        var model = _emailAccountViewModelService.PrepareEmailAccountModel();
+        var model = await _emailAccountViewModelService.PrepareEmailAccountModel();
         return View(model);
     }
 
@@ -108,7 +107,9 @@ public class EmailAccountController : BaseAdminController
             //No email account found with the specified id
             return RedirectToAction("List");
 
-        return View(emailAccount.ToModel());
+        var model = emailAccount.ToModel();
+        await _emailAccountViewModelService.PrepareAvailableStores(model);
+        return View(model);
     }
 
     [HttpPost]

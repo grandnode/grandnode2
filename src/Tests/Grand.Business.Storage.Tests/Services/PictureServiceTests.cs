@@ -13,6 +13,23 @@ using Moq;
 
 namespace Grand.Business.Storage.Tests.Services;
 
+/// <summary>
+/// Exposes the protected GetThumbUrl method for testing.
+/// </summary>
+public class TestablePictureService(
+    IRepository<Picture> pictureRepository,
+    ILogger<PictureService> logger,
+    IMediator mediator,
+    ICacheBase cacheBase,
+    IMediaFileStore mediaFileStore,
+    MediaSettings mediaSettings,
+    StorageSettings storageSettings)
+    : PictureService(pictureRepository, logger, mediator, cacheBase, mediaFileStore, mediaSettings, storageSettings)
+{
+    public string GetThumbUrlPublic(string thumbFileName, string storeLocation = null)
+        => GetThumbUrl(thumbFileName, storeLocation);
+}
+
 [TestClass]
 public class PictureServiceTests
 {
@@ -22,6 +39,7 @@ public class PictureServiceTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IRepository<Picture>> _repoMock;
     private PictureService _service;
+    private TestablePictureService _testablePictureService;
 
     private MediaSettings _settings;
     private StorageSettings _storagesettings;
@@ -42,6 +60,8 @@ public class PictureServiceTests
         _storagesettings = new StorageSettings();
         _service = new PictureService(_repoMock.Object, _logerMock.Object, _mediatorMock.Object, _cacheMock.Object,
             _mediaFileStoreMock.Object, _settings, _storagesettings);
+        _testablePictureService = new TestablePictureService(_repoMock.Object, _logerMock.Object,
+            _mediatorMock.Object, _cacheMock.Object, _mediaFileStoreMock.Object, _settings, _storagesettings);
     }
 
     [TestMethod]
@@ -138,5 +158,29 @@ public class PictureServiceTests
         await _service.DeletePicture(new Picture());
         _repoMock.Verify(c => c.DeleteAsync(It.IsAny<Picture>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<Picture>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public void GetThumbUrl_WithAbsoluteStoreLocation_ReturnsValidAbsoluteUrl()
+    {
+        const string storeLocation = "https://example.com/";
+        const string thumbFileName = "sample_123.jpeg";
+
+        var result = _testablePictureService.GetThumbUrlPublic(thumbFileName, storeLocation);
+
+        Assert.IsTrue(result.StartsWith("https://"), $"Expected URL to start with 'https://' but got: {result}");
+        Assert.IsTrue(result.Contains(thumbFileName), $"Expected URL to contain thumb filename but got: {result}");
+        Assert.IsFalse(result.StartsWith("/https://"), $"URL must not have a leading slash before the scheme: {result}");
+    }
+
+    [TestMethod]
+    public void GetThumbUrl_WithNoStoreLocation_ReturnsRelativePath()
+    {
+        const string thumbFileName = "sample_123.jpeg";
+
+        var result = _testablePictureService.GetThumbUrlPublic(thumbFileName);
+
+        Assert.IsTrue(result.StartsWith("/"), $"Expected relative path to start with '/' but got: {result}");
+        Assert.IsTrue(result.Contains(thumbFileName), $"Expected path to contain thumb filename but got: {result}");
     }
 }

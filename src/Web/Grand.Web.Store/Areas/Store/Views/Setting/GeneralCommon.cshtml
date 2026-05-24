@@ -1,0 +1,67 @@
+@model GeneralCommonSettingsModel
+@{
+    ViewBag.Title = Loc["Admin.Settings.GeneralCommon"];
+}
+<form asp-area="@Constants.AreaStore" asp-controller="Setting" asp-action="GeneralCommon" method="post">
+    <div asp-validation-summary="All"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-fw fa-sliders"></i>
+                        @Loc["Admin.Settings.GeneralCommon"]
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <admin-tabstrip name="generalsettings-edit">
+                        <items>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.StoreInformationSettings"]" tab-index="0">
+                                <content>
+                                    <div>
+                                        <partial name="Partials/GeneralCommon.TabStoreInformationSettings" model="Model"/>
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.SEOSettings"]" tab-index="1">
+                                <content>
+                                    <div>
+                                        <partial name="Partials/GeneralCommon.TabSEOSettings" model="Model"/>
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.SecuritySettings"]" tab-index="2">
+                                <content>
+                                    <div>
+                                        <partial name="Partials/GeneralCommon.TabSecuritySettings" model="Model"/>
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.PdfSettings"]" tab-index="3">
+                                <content>
+                                    <div>
+                                        <partial name="Partials/GeneralCommon.TabPdfSettings" model="Model"/>
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.DisplayMenu"]" tab-index="4">
+                                <content>
+                                    <div>
+                                        <partial name="Partials/GeneralCommon.TabMenuSettings" model="Model"/>
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                        </items>
+                    </admin-tabstrip>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,13 @@
+﻿{
+  StoreInDatabaseContactUsForm: true,
+  SubjectFieldOnContactUsForm: false,
+  UseSystemEmailForContactUsForm: false,
+  SitemapEnabled: true,
+  SitemapIncludeCategories: false,
+  SitemapIncludeBrands: false,
+  SitemapIncludeProducts: false,
+  SitemapIncludeImage: false,
+  PopupForTermsOfServiceLinks: false,
+  AllowToSelectStore: false,
+  AllowEditProductEndedAuction: false
+}

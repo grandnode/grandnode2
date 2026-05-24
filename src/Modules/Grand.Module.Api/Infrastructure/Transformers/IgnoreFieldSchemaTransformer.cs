@@ -11,8 +11,8 @@ public class IgnoreFieldSchemaTransformer : IOpenApiSchemaTransformer
     {
 
         var type = context.JsonTypeInfo.Type;
-        if (!schema.Properties.Any() || type == null) return Task.CompletedTask;
-
+        if (type == null || schema.Properties == null || !schema.Properties.Any()) return Task.CompletedTask;
+        
         var excludedPropertyNames = type
             .GetProperties()
             .Where(
@@ -26,7 +26,7 @@ public class IgnoreFieldSchemaTransformer : IOpenApiSchemaTransformer
                 ap => excludedPropertyNames.Any(
                     pn => pn.Equals(ap.Key, StringComparison.InvariantCultureIgnoreCase)
                 )
-            ).Select(ap => ap.Key);
+            ).Select(ap => ap.Key).ToList();
 
         foreach (var propertyToExclude in excludedSchemaPropertyKey) schema.Properties.Remove(propertyToExclude);
 

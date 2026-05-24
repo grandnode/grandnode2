@@ -967,6 +967,7 @@ public static class StandardAdminSiteMap
                 new() {
                     SystemName = "Vendor settings",
                     ResourceName = "Admin.Settings.Vendor",
+                    PermissionNames = new List<string> { PermissionSystemName.System },
                     ControllerName = "Setting",
                     ActionName = "Vendor",
                     DisplayOrder = 6,
@@ -975,6 +976,7 @@ public static class StandardAdminSiteMap
                 new() {
                     SystemName = "Push notifications settings",
                     ResourceName = "Admin.Settings.PushNotifications",
+                    PermissionNames = new List<string> { PermissionSystemName.System },
                     ControllerName = "Setting",
                     ActionName = "PushNotifications",
                     DisplayOrder = 7,
@@ -983,6 +985,7 @@ public static class StandardAdminSiteMap
                 new() {
                     SystemName = "Admin search settings",
                     ResourceName = "Admin.Settings.AdminSearch",
+                    PermissionNames = new List<string> { PermissionSystemName.System },
                     ControllerName = "Setting",
                     ActionName = "AdminSearch",
                     DisplayOrder = 8,
@@ -991,6 +994,7 @@ public static class StandardAdminSiteMap
                 new() {
                     SystemName = "System settings",
                     ResourceName = "Admin.Settings.System",
+                    PermissionNames = new List<string> { PermissionSystemName.System },
                     ControllerName = "Setting",
                     ActionName = "SystemSetting",
                     DisplayOrder = 9,

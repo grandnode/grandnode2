@@ -1,0 +1,8 @@
+﻿{
+  Name: Yes,
+  DisplayColorSquaresRgb: false,
+  PriceAdjustment: 3.99,
+  IsPreSelected: false,
+  DisplayOrder: 1,
+  Id: cav-001
+}

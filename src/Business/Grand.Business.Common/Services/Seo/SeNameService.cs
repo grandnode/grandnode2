@@ -43,7 +43,7 @@ public class SeNameService(ISlugService slugService, ILanguageService languageSe
                                                    entityUrl.EntityName.Equals(entityName,
                                                        StringComparison.OrdinalIgnoreCase));
 
-            var reserved2 = seoSettings.ReservedEntityUrlSlugs.Contains(tempSeName, StringComparer.OrdinalIgnoreCase);
+            var reserved2 = seoSettings.ReservedEntityUrlSlugs?.Contains(tempSeName, StringComparer.OrdinalIgnoreCase) ?? false;
             var reserved3 = (await languageService.GetAllLanguages(true)).Any(language =>
                 language.UniqueSeoCode.Equals(tempSeName, StringComparison.OrdinalIgnoreCase));
 

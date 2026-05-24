@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Messages;
 using Grand.Business.Messages.Services;
+using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -51,9 +52,9 @@ public class MessageProviderServiceTest
                 new List<Language> { new() { Name = "English" }, new() { Name = "Polish" } } as IList<Language>));
 
         _emailAccountServiceMock = new Mock<IEmailAccountService>();
-        _emailAccountServiceMock.Setup(x => x.GetAllEmailAccounts())
-            .Returns(Task.FromResult(
-                new List<EmailAccount> { new() { Email = "sdfsdf@mail.com" } } as IList<EmailAccount>));
+        _emailAccountServiceMock.Setup(x => x.GetAllEmailAccounts(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(Task.FromResult<IPagedList<EmailAccount>>(
+                new PagedList<EmailAccount>(new List<EmailAccount> { new() { Email = "sdfsdf@mail.com" } }, 0, int.MaxValue)));
 
         _messageTokenProviderMock = new Mock<IMessageTokenProvider>();
 

@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using Grand.Data;
+﻿using Grand.Data;
+using Grand.Mapping;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Mapper;
@@ -67,7 +67,7 @@ public static class StartupBase
         //create AutoMapper configuration
         var config = new MapperConfiguration(cfg =>
         {
-            foreach (var instance in instances) cfg.AddProfile(instance.GetType());
+            foreach (var instance in instances) cfg.AddProfile((Grand.Mapping.Profile)instance);
         });
 
         //register automapper

@@ -1,0 +1,10 @@
+﻿{
+  Name: Main Store Pickup,
+  Address: {
+    Id: ObjectId_1
+  },
+  StoreId: store-001,
+  PickupFee: 2.0,
+  DisplayOrder: 1,
+  Id: ObjectId_1
+}

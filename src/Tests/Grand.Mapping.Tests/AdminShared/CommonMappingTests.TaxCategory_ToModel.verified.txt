@@ -1,0 +1,5 @@
+﻿{
+  Name: Standard Rate,
+  DisplayOrder: 1,
+  Id: tc-001
+}

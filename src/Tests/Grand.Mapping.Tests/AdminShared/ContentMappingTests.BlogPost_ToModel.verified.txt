@@ -1,0 +1,12 @@
+﻿{
+  Title: First Post,
+  Body: Content body,
+  BodyOverview: Overview,
+  AllowComments: true,
+  Tags: tech,blog,
+  MetaKeywords: blog,
+  MetaDescription: Blog post,
+  MetaTitle: First Post,
+  SeName: first-post,
+  Id: bp-001
+}

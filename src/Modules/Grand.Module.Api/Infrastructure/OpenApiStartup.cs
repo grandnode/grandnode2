@@ -54,11 +54,6 @@ public class OpenApiStartup : IStartupApplication
             //register RequestHandler
             services.RegisterRequestHandler();
 
-            //Add JsonPatchInputFormatter
-            services.AddControllers(options =>
-            {
-                options.InputFormatters.Insert(0, services.GetJsonPatchInputFormatter());
-            });
             services.AddScoped<ModelValidationAttribute>();
         }
     }

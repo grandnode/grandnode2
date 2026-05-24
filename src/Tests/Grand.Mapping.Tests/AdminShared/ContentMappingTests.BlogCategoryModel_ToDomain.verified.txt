@@ -1,0 +1,10 @@
+﻿{
+  Name: Tech News,
+  SeName: tech-news,
+  DisplayOrder: 1,
+  LimitedToStores: true,
+  Stores: [
+    store-001
+  ],
+  Id: ObjectId_1
+}
