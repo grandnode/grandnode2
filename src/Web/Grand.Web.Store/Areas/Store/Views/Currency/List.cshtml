@@ -94,11 +94,12 @@
                         if (!dataItem.CanManage) {
                             return '<span class="text-muted">-</span>';
                         }
-                        var af = '@Html.Raw(Html.AntiForgeryToken().ToString().Replace("'", "\\'"))';
+                        var tokenValue = $('input[name=__RequestVerificationToken]').first().val();
+                        var af = '<input type="hidden" name="__RequestVerificationToken" value="' + tokenValue + '"/>';
                         if (dataItem.IsAssignedToCurrentStore) {
-                            return '<form method="post" action="@Url.Action("UnassignStore", "Currency", new { area = Constants.AreaStore })" style="display:inline"><input type="hidden" name="id" value="' + dataItem.Id + '"/><button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'@Loc["Admin.Common.AreYouSure"]\')" title="@Loc["Admin.Configuration.Currencies.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Currencies.UnassignStore"]</button>' + af + '</form>';
+                            return '<form method="post" action="@Url.Action("UnassignStore", "Currency", new { area = Constants.AreaStore })" style="display:inline"><input type="hidden" name="id" value="' + dataItem.Id + '"/>' + af + '<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'@Loc["Admin.Common.AreYouSure"]\')" title="@Loc["Admin.Configuration.Currencies.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Currencies.UnassignStore"]</button></form>';
                         }
-                        return '<form method="post" action="@Url.Action("AssignStore", "Currency", new { area = Constants.AreaStore })" style="display:inline"><input type="hidden" name="id" value="' + dataItem.Id + '"/><button type="submit" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Currencies.AssignStore"]</button>' + af + '</form>';
+                        return '<form method="post" action="@Url.Action("AssignStore", "Currency", new { area = Constants.AreaStore })" style="display:inline"><input type="hidden" name="id" value="' + dataItem.Id + '"/>' + af + '<button type="submit" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Currencies.AssignStore"]</button></form>';
                     }
                 }
             ]
