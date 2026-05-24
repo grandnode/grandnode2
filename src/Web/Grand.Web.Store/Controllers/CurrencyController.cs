@@ -118,6 +118,10 @@ public class CurrencyController(
             return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.NotFound") });
 
         var storeId = CurrentStoreId;
+
+        if (currency.LimitedToStores && !currency.Stores.Contains(storeId))
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.NotAssignedToStore") });
+
         var store = await storeService.GetStoreById(storeId);
         if (store == null)
             return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Stores.NotFound") });
