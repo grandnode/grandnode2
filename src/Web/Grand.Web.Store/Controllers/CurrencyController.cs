@@ -122,6 +122,9 @@ public class CurrencyController(
         if (currency == null)
             return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.NotFound") });
 
+        if (!currency.Published)
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.NotPublished") });
+
         var storeId = CurrentStoreId;
 
         if (currency.LimitedToStores && !currency.Stores.Contains(storeId))
