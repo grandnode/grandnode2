@@ -1,4 +1,3 @@
-@inject AdminAreaSettings adminAreaSettings
 @{
     ViewBag.Title = Loc["Admin.Configuration.Languages"];
     Layout = Constants.LayoutStore;
@@ -41,14 +40,9 @@
                     display_kendoui_grid_error(e);
                     this.cancelChanges();
                 },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
                 serverPaging: false,
                 serverFiltering: false,
                 serverSorting: false
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
             },
             scrollable: false,
             columns: [

@@ -38,7 +38,7 @@ public class LanguageController(
         var store = await storeService.GetStoreById(storeId);
         var defaultLanguageId = store?.DefaultLanguageId;
 
-        var languages = await languageService.GetAllLanguages(showHidden: true);
+        var languages = await languageService.GetAllLanguages(showHidden: false);
 
         var items = languages
             .Select(l => new StoreLanguageModel {
