@@ -1,0 +1,216 @@
+@inject AdminAreaSettings adminAreaSettings
+@{
+    ViewBag.Title = Loc["Admin.Configuration.Languages"];
+    Layout = Constants.LayoutStore;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-language"></i>
+                    @Loc["Admin.Configuration.Languages"]
+                </div>
+            </div>
+            <div class="x_content form">
+                <div id="languages-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#languages-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ListData", "Language", new { area = Constants.AreaStore }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: false,
+                serverFiltering: false,
+                serverSorting: false
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            scrollable: false,
+            columns: [
+                {
+                    field: "Name",
+                    title: "@Loc["Admin.Configuration.Languages.Fields.Name"]",
+                    width: 200,
+                    template: function (dataItem) {
+                        var name = kendo.htmlEncode(dataItem.Name);
+                        if (dataItem.IsPrimaryStoreLanguage) {
+                            name += ' <span class="badge badge-warning" title="@Loc["Admin.Configuration.Languages.Fields.IsPrimaryStoreLanguage"]"><i class="fa fa-star"></i></span>';
+                        }
+                        if (dataItem.IsAssignedToCurrentStore) {
+                            name += ' <span class="badge badge-success" title="@Loc["Admin.Configuration.Languages.AssignStore"]"><i class="fa fa-check"></i></span>';
+                        }
+                        return name;
+                    }
+                },
+                {
+                    field: "LanguageCulture",
+                    title: "@Loc["Admin.Configuration.Languages.Fields.LanguageCulture"]",
+                    width: 120
+                },
+                {
+                    field: "Published",
+                    title: "@Loc["Admin.Configuration.Languages.Fields.Published"]",
+                    width: 80,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                },
+                {
+                    field: "LimitedToStores",
+                    title: "@Loc["Admin.Configuration.Languages.Fields.LimitedToStores"]",
+                    width: 120,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(LimitedToStores) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                },
+                {
+                    field: "IsDefaultStoreLanguage",
+                    title: "@Loc["Admin.Configuration.Languages.SetDefaultLanguage"]",
+                    width: 200,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: function (dataItem) {
+                        if (dataItem.IsDefaultStoreLanguage) {
+                            return '<span class="badge badge-info"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Languages.SetDefaultLanguage"]</span> ' +
+                                   '<a onclick="unsetDefaultLanguage(\'' + dataItem.Id + '\')" class="btn btn-sm btn-warning" title="@Loc["Admin.Configuration.Languages.UnsetDefaultLanguage"]"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Languages.UnsetDefaultLanguage"]</a>';
+                        }
+                        if (dataItem.IsAssignedToCurrentStore) {
+                            return '<a onclick="setDefaultLanguage(\'' + dataItem.Id + '\')" class="btn btn-sm btn-info" title="@Loc["Admin.Configuration.Languages.SetDefaultLanguage"]"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Languages.SetDefaultLanguage"]</a>';
+                        }
+                        return '<span class="text-muted">-</span>';
+                    }
+                },
+                {
+                    title: "@Loc["Admin.Common.Actions"]",
+                    width: 220,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: function (dataItem) {
+                        if (!dataItem.CanManage) {
+                            return '<span class="text-muted">-</span>';
+                        }
+                        if (dataItem.IsAssignedToCurrentStore) {
+                            return '<a onclick="unassignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-danger" title="@Loc["Admin.Configuration.Languages.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Languages.UnassignStore"]</a>';
+                        }
+                        return '<a onclick="assignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Languages.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Languages.AssignStore"]</a>';
+                    }
+                }
+            ]
+        });
+    });
+
+    function assignStore(id) {
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("AssignStore", "Language", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#languages-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to update language');
+            }
+        });
+    }
+
+    function unassignStore(id) {
+        if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("UnassignStore", "Language", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#languages-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to update language');
+            }
+        });
+    }
+
+    function setDefaultLanguage(id) {
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("SetDefaultLanguage", "Language", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#languages-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to set default language');
+            }
+        });
+    }
+
+    function unsetDefaultLanguage(id) {
+        if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("UnsetDefaultLanguage", "Language", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#languages-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to unset default language');
+            }
+        });
+    }
+</script>

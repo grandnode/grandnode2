@@ -10,6 +10,11 @@ public class LanguageSettings : ISettings
     public string DefaultAdminLanguageId { get; set; }
 
     /// <summary>
+    ///     Primary store language identifier
+    /// </summary>
+    public string PrimaryStoreLanguageId { get; set; }
+
+    /// <summary>
     ///     A value indicating whether we should detect the current language by a customer region (browser settings)
     /// </summary>
     public bool AutomaticallyDetectLanguage { get; set; }
