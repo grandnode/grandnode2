@@ -51,16 +51,20 @@ public class PickupPointService : IPickupPointService
     /// <summary>
     ///     Gets all pickup points
     /// </summary>
+    /// <param name="storeId">Store identifier; empty to return all pickup points</param>
     /// <returns>Warehouses</returns>
-    public virtual async Task<IList<PickupPoint>> GetAllPickupPoints()
+    public virtual async Task<IList<PickupPoint>> GetAllPickupPoints(string storeId = "")
     {
-        return await _cacheBase.GetAsync(CacheKey.PICKUPPOINTS_ALL, async () =>
+        var all = await _cacheBase.GetAsync(CacheKey.PICKUPPOINTS_ALL, async () =>
         {
             var query = from pp in _pickupPointsRepository.Table
                 orderby pp.DisplayOrder
                 select pp;
             return await Task.FromResult(query.ToList());
         });
+        if (string.IsNullOrEmpty(storeId))
+            return all;
+        return all.Where(pp => string.IsNullOrEmpty(pp.StoreId) || pp.StoreId == storeId).ToList();
     }
 
     /// <summary>

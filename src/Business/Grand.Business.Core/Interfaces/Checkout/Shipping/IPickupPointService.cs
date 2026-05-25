@@ -14,8 +14,9 @@ public interface IPickupPointService
     /// <summary>
     ///     Gets all pickup points
     /// </summary>
+    /// <param name="storeId">Store identifier; empty to return all pickup points</param>
     /// <returns>PickupPoints</returns>
-    Task<IList<PickupPoint>> GetAllPickupPoints();
+    Task<IList<PickupPoint>> GetAllPickupPoints(string storeId = "");
 
     /// <summary>
     ///     Gets active pickup points

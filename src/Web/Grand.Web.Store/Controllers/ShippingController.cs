@@ -1,11 +1,18 @@
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Directory;
 using Grand.Domain.Permissions;
+using Grand.Domain.Shipping;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Models.Common;
+using Grand.Web.AdminShared.Models.Shipping;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Web.Store.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Store.Controllers;
 
@@ -14,10 +21,54 @@ public class ShippingController(
     IDeliveryDateService deliveryDateService,
     IWarehouseService warehouseService,
     IPickupPointService pickupPointService,
+    ICountryService countryService,
+    ILanguageService languageService,
     ITranslationService translationService,
     IContextAccessor contextAccessor) : BaseStoreController
 {
     private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+
+    #region Utilities
+
+    private async Task PrepareAddressModel(AddressModel model, string selectedCountryId)
+    {
+        model.AvailableCountries.Add(new SelectListItem { Text = translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+        foreach (var c in await countryService.GetAllCountries(showHidden: true))
+            model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == selectedCountryId });
+
+        var states = !string.IsNullOrEmpty(selectedCountryId)
+            ? (await countryService.GetCountryById(selectedCountryId))?.StateProvinces
+            : new List<StateProvince>();
+        if (states?.Count > 0)
+            foreach (var s in states)
+                model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.StateProvinceId });
+
+        model.CountryEnabled = true;
+        model.StateProvinceEnabled = true;
+        model.CityEnabled = true;
+        model.StreetAddressEnabled = true;
+        model.ZipPostalCodeEnabled = true;
+        model.ZipPostalCodeRequired = true;
+        model.PhoneEnabled = true;
+        model.FaxEnabled = true;
+        model.CompanyEnabled = true;
+    }
+
+    private async Task PrepareWarehouseModel(WarehouseModel model)
+    {
+        await PrepareAddressModel(model.Address, model.Address.CountryId);
+    }
+
+    private async Task PreparePickupPointModel(PickupPointModel model)
+    {
+        await PrepareAddressModel(model.Address, model.Address.CountryId);
+
+        model.AvailableWarehouses.Add(new SelectListItem { Text = translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectWarehouse"), Value = "" });
+        foreach (var w in await warehouseService.GetAllWarehouses(CurrentStoreId))
+            model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id, Selected = w.Id == model.WarehouseId });
+    }
+
+    #endregion
 
     #region Delivery dates
 
@@ -31,66 +82,90 @@ public class ShippingController(
     public async Task<IActionResult> DeliveryDatesListData()
     {
         var storeId = CurrentStoreId;
-
-        var deliveryDates = await deliveryDateService.GetAllDeliveryDates();
-
-        // Show only global (empty StoreId) and delivery dates assigned to this store.
-        var items = deliveryDates
-            .Where(d => string.IsNullOrEmpty(d.StoreId) || d.StoreId == storeId)
-            .Select(d => new StoreDeliveryDateModel {
-                Id = d.Id,
-                Name = d.Name,
-                DisplayOrder = d.DisplayOrder,
-                StoreId = d.StoreId,
-                IsAssignedToCurrentStore = d.StoreId == storeId
-            })
+        var deliveryDates = (await deliveryDateService.GetAllDeliveryDates())
+            .Where(d => d.StoreId == storeId)
             .ToList();
-
         var gridModel = new DataSourceResult {
-            Data = items,
-            Total = items.Count
+            Data = deliveryDates.Select(d => d.ToModel()),
+            Total = deliveryDates.Count
         };
-
         return Json(gridModel);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public async Task<IActionResult> CreateDeliveryDate()
+    {
+        var model = new DeliveryDateModel { ColorSquaresRgb = "#000000" };
+        await AddLocales(languageService, model.Locales);
+        return View(model);
+    }
+
     [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> CreateDeliveryDate(DeliveryDateModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
+        {
+            var deliveryDate = model.ToEntity();
+            deliveryDate.StoreId = CurrentStoreId;
+            await deliveryDateService.InsertDeliveryDate(deliveryDate);
+            Success(translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Added"));
+            return continueEditing
+                ? RedirectToAction("EditDeliveryDate", new { id = deliveryDate.Id })
+                : RedirectToAction("DeliveryDates");
+        }
+        return View(model);
+    }
+
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> AssignDeliveryDate(string id)
+    public async Task<IActionResult> EditDeliveryDate(string id)
     {
         var deliveryDate = await deliveryDateService.GetDeliveryDateById(id);
-        if (deliveryDate == null)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.NotFound") });
+        if (deliveryDate == null || deliveryDate.StoreId != CurrentStoreId)
+            return RedirectToAction("DeliveryDates");
 
-        var storeId = CurrentStoreId;
-        if (!string.IsNullOrEmpty(deliveryDate.StoreId) && deliveryDate.StoreId != storeId)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.AlreadyAssignedToOtherStore") });
-
-        if (deliveryDate.StoreId != storeId)
-        {
-            deliveryDate.StoreId = storeId;
-            await deliveryDateService.UpdateDeliveryDate(deliveryDate);
-        }
-
-        return Json(new { success = true });
+        var model = deliveryDate.ToModel();
+        if (string.IsNullOrEmpty(model.ColorSquaresRgb)) model.ColorSquaresRgb = "#000000";
+        await AddLocales(languageService, model.Locales, (locale, languageId) => {
+            locale.Name = deliveryDate.GetTranslation(x => x.Name, languageId, false);
+        });
+        return View(model);
     }
 
     [HttpPost]
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> UnassignDeliveryDate(string id)
+    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> EditDeliveryDate(DeliveryDateModel model, bool continueEditing)
+    {
+        var deliveryDate = await deliveryDateService.GetDeliveryDateById(model.Id);
+        if (deliveryDate == null || deliveryDate.StoreId != CurrentStoreId)
+            return RedirectToAction("DeliveryDates");
+
+        if (ModelState.IsValid)
+        {
+            deliveryDate = model.ToEntity(deliveryDate);
+            deliveryDate.StoreId = CurrentStoreId;
+            await deliveryDateService.UpdateDeliveryDate(deliveryDate);
+            Success(translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Updated"));
+            return continueEditing
+                ? RedirectToAction("EditDeliveryDate", new { id = deliveryDate.Id })
+                : RedirectToAction("DeliveryDates");
+        }
+        return View(model);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    public async Task<IActionResult> DeleteDeliveryDate(string id)
     {
         var deliveryDate = await deliveryDateService.GetDeliveryDateById(id);
-        if (deliveryDate == null)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.NotFound") });
+        if (deliveryDate == null || deliveryDate.StoreId != CurrentStoreId)
+            return RedirectToAction("DeliveryDates");
 
-        var storeId = CurrentStoreId;
-        if (deliveryDate.StoreId != storeId)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.NotAssignedToStore") });
-
-        deliveryDate.StoreId = string.Empty;
-        await deliveryDateService.UpdateDeliveryDate(deliveryDate);
-
-        return Json(new { success = true });
+        await deliveryDateService.DeleteDeliveryDate(deliveryDate);
+        Success(translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Deleted"));
+        return RedirectToAction("DeliveryDates");
     }
 
     #endregion
@@ -107,67 +182,91 @@ public class ShippingController(
     public async Task<IActionResult> WarehousesListData()
     {
         var storeId = CurrentStoreId;
-
-        var warehouses = await warehouseService.GetAllWarehouses();
-
-        // Show only global (empty StoreId) and warehouses assigned to this store.
-        var items = warehouses
-            .Where(w => string.IsNullOrEmpty(w.StoreId) || w.StoreId == storeId)
-            .Select(w => new StoreWarehouseModel {
-                Id = w.Id,
-                Name = w.Name,
-                Code = w.Code,
-                DisplayOrder = w.DisplayOrder,
-                StoreId = w.StoreId,
-                IsAssignedToCurrentStore = w.StoreId == storeId
-            })
+        var warehouses = (await warehouseService.GetAllWarehouses())
+            .Where(w => w.StoreId == storeId)
             .ToList();
-
         var gridModel = new DataSourceResult {
-            Data = items,
-            Total = items.Count
+            Data = warehouses.Select(w => w.ToModel()),
+            Total = warehouses.Count
         };
-
         return Json(gridModel);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public async Task<IActionResult> CreateWarehouse()
+    {
+        var model = new WarehouseModel();
+        await PrepareWarehouseModel(model);
+        return View(model);
+    }
+
     [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> CreateWarehouse(WarehouseModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
+        {
+            var warehouse = model.ToEntity();
+            warehouse.Address = model.Address.ToEntity();
+            warehouse.StoreId = CurrentStoreId;
+            await warehouseService.InsertWarehouse(warehouse);
+            Success(translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Added"));
+            return continueEditing
+                ? RedirectToAction("EditWarehouse", new { id = warehouse.Id })
+                : RedirectToAction("Warehouses");
+        }
+        await PrepareWarehouseModel(model);
+        return View(model);
+    }
+
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> AssignWarehouse(string id)
+    public async Task<IActionResult> EditWarehouse(string id)
     {
         var warehouse = await warehouseService.GetWarehouseById(id);
-        if (warehouse == null)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.Warehouses.NotFound") });
+        if (warehouse == null || warehouse.StoreId != CurrentStoreId)
+            return RedirectToAction("Warehouses");
 
-        var storeId = CurrentStoreId;
-        if (!string.IsNullOrEmpty(warehouse.StoreId) && warehouse.StoreId != storeId)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.Warehouses.AlreadyAssignedToOtherStore") });
-
-        if (warehouse.StoreId != storeId)
-        {
-            warehouse.StoreId = storeId;
-            await warehouseService.UpdateWarehouse(warehouse);
-        }
-
-        return Json(new { success = true });
+        var model = warehouse.ToModel();
+        await PrepareWarehouseModel(model);
+        return View(model);
     }
 
     [HttpPost]
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> UnassignWarehouse(string id)
+    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> EditWarehouse(WarehouseModel model, bool continueEditing)
+    {
+        var warehouse = await warehouseService.GetWarehouseById(model.Id);
+        if (warehouse == null || warehouse.StoreId != CurrentStoreId)
+            return RedirectToAction("Warehouses");
+
+        if (ModelState.IsValid)
+        {
+            warehouse = model.ToEntity(warehouse);
+            warehouse.Address = model.Address.ToEntity();
+            warehouse.StoreId = CurrentStoreId;
+            await warehouseService.UpdateWarehouse(warehouse);
+            Success(translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Updated"));
+            return continueEditing
+                ? RedirectToAction("EditWarehouse", new { id = warehouse.Id })
+                : RedirectToAction("Warehouses");
+        }
+        await PrepareWarehouseModel(model);
+        return View(model);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    public async Task<IActionResult> DeleteWarehouse(string id)
     {
         var warehouse = await warehouseService.GetWarehouseById(id);
-        if (warehouse == null)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.Warehouses.NotFound") });
+        if (warehouse == null || warehouse.StoreId != CurrentStoreId)
+            return RedirectToAction("Warehouses");
 
-        var storeId = CurrentStoreId;
-        if (warehouse.StoreId != storeId)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.Warehouses.NotAssignedToStore") });
-
-        warehouse.StoreId = string.Empty;
-        await warehouseService.UpdateWarehouse(warehouse);
-
-        return Json(new { success = true });
+        await warehouseService.DeleteWarehouse(warehouse);
+        Success(translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Deleted"));
+        return RedirectToAction("Warehouses");
     }
 
     #endregion
@@ -184,67 +283,89 @@ public class ShippingController(
     public async Task<IActionResult> PickupPointsListData()
     {
         var storeId = CurrentStoreId;
-
-        var pickupPoints = await pickupPointService.GetAllPickupPoints();
-
-        // Only show pickup points that are global (empty StoreId) or belong to this store.
-        // Pickup points assigned to other stores are not visible to this store's manager.
-        var items = pickupPoints
-            .Where(p => string.IsNullOrEmpty(p.StoreId) || p.StoreId == storeId)
-            .Select(p => new StorePickupPointModel {
-                Id = p.Id,
-                Name = p.Name,
-                DisplayOrder = p.DisplayOrder,
-                IsAssignedToCurrentStore = p.StoreId == storeId,
-                CanManage = true
-            })
+        var pickupPoints = (await pickupPointService.GetAllPickupPoints())
+            .Where(p => p.StoreId == storeId)
             .ToList();
-
         var gridModel = new DataSourceResult {
-            Data = items,
-            Total = items.Count
+            Data = pickupPoints.Select(p => p.ToModel()),
+            Total = pickupPoints.Count
         };
-
         return Json(gridModel);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public async Task<IActionResult> CreatePickupPoint()
+    {
+        var model = new PickupPointModel();
+        await PreparePickupPointModel(model);
+        return View(model);
+    }
+
     [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> CreatePickupPoint(PickupPointModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
+        {
+            var pickupPoint = model.ToEntity();
+            pickupPoint.StoreId = CurrentStoreId;
+            await pickupPointService.InsertPickupPoint(pickupPoint);
+            Success(translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Added"));
+            return continueEditing
+                ? RedirectToAction("EditPickupPoint", new { id = pickupPoint.Id })
+                : RedirectToAction("PickupPoints");
+        }
+        await PreparePickupPointModel(model);
+        return View(model);
+    }
+
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> AssignPickupPoint(string id)
+    public async Task<IActionResult> EditPickupPoint(string id)
     {
         var pickupPoint = await pickupPointService.GetPickupPointById(id);
-        if (pickupPoint == null)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.NotFound") });
+        if (pickupPoint == null || pickupPoint.StoreId != CurrentStoreId)
+            return RedirectToAction("PickupPoints");
 
-        var storeId = CurrentStoreId;
-        if (!string.IsNullOrEmpty(pickupPoint.StoreId) && pickupPoint.StoreId != storeId)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.AlreadyAssignedToOtherStore") });
-
-        if (pickupPoint.StoreId != storeId)
-        {
-            pickupPoint.StoreId = storeId;
-            await pickupPointService.UpdatePickupPoint(pickupPoint);
-        }
-
-        return Json(new { success = true });
+        var model = pickupPoint.ToModel();
+        await PreparePickupPointModel(model);
+        return View(model);
     }
 
     [HttpPost]
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> UnassignPickupPoint(string id)
+    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> EditPickupPoint(PickupPointModel model, bool continueEditing)
+    {
+        var pickupPoint = await pickupPointService.GetPickupPointById(model.Id);
+        if (pickupPoint == null || pickupPoint.StoreId != CurrentStoreId)
+            return RedirectToAction("PickupPoints");
+
+        if (ModelState.IsValid)
+        {
+            pickupPoint = model.ToEntity(pickupPoint);
+            pickupPoint.StoreId = CurrentStoreId;
+            await pickupPointService.UpdatePickupPoint(pickupPoint);
+            Success(translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Updated"));
+            return continueEditing
+                ? RedirectToAction("EditPickupPoint", new { id = pickupPoint.Id })
+                : RedirectToAction("PickupPoints");
+        }
+        await PreparePickupPointModel(model);
+        return View(model);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    public async Task<IActionResult> DeletePickupPoint(string id)
     {
         var pickupPoint = await pickupPointService.GetPickupPointById(id);
-        if (pickupPoint == null)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.NotFound") });
+        if (pickupPoint == null || pickupPoint.StoreId != CurrentStoreId)
+            return RedirectToAction("PickupPoints");
 
-        var storeId = CurrentStoreId;
-        if (pickupPoint.StoreId != storeId)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.NotAssignedToStore") });
-
-        pickupPoint.StoreId = string.Empty;
-        await pickupPointService.UpdatePickupPoint(pickupPoint);
-
-        return Json(new { success = true });
+        await pickupPointService.DeletePickupPoint(pickupPoint);
+        Success(translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Deleted"));
+        return RedirectToAction("PickupPoints");
     }
 
     #endregion
