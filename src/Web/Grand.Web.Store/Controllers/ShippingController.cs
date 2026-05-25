@@ -185,6 +185,8 @@ public class ShippingController(
 
         var pickupPoints = await pickupPointService.GetAllPickupPoints();
 
+        // Only show pickup points that are global (empty StoreId) or belong to this store.
+        // Pickup points assigned to other stores are not visible to this store's manager.
         var items = pickupPoints
             .Where(p => string.IsNullOrEmpty(p.StoreId) || p.StoreId == storeId)
             .Select(p => new StorePickupPointModel {
@@ -192,7 +194,9 @@ public class ShippingController(
                 Name = p.Name,
                 DisplayOrder = p.DisplayOrder,
                 IsAssignedToCurrentStore = p.StoreId == storeId,
-                CanManage = string.IsNullOrEmpty(p.StoreId) || p.StoreId == storeId
+                // Unlike delivery dates and warehouses (which use LimitedToStores/Stores),
+                // pickup points use a single StoreId: empty = global, non-empty = store-specific.
+                CanManage = true
             })
             .ToList();
 
