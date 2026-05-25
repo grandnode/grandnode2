@@ -196,8 +196,6 @@ public class ShippingController(
                 Name = p.Name,
                 DisplayOrder = p.DisplayOrder,
                 IsAssignedToCurrentStore = p.StoreId == storeId,
-                // Unlike delivery dates and warehouses (which use LimitedToStores/Stores),
-                // pickup points use a single StoreId: empty = global, non-empty = store-specific.
                 CanManage = true
             })
             .ToList();
