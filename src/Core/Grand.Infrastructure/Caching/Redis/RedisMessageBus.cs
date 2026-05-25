@@ -46,12 +46,7 @@ public sealed class RedisMessageBus : IMessageBus
         {
             try
             {
-                MessageEventClient message = null;
-                if (!redisValue.IsNull)
-                {
-                    // Use the string overload explicitly to resolve ambiguity
-                    message = JsonSerializer.Deserialize<MessageEventClient>(redisValue.ToString());
-                }
+                var message = JsonSerializer.Deserialize<MessageEventClient>((string)redisValue);
                 if (message != null && message.ClientId != ClientId)
                     OnSubscriptionChanged(message);
             }

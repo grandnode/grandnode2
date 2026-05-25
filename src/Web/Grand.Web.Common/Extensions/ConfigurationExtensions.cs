@@ -12,6 +12,7 @@ public static class ConfigurationExtensions
     public static void AddAppSettingsJsonFile(this IConfigurationManager configuration, string[] args)
     {
         configuration.AddJsonFile("App_Data/appsettings.json");
+        configuration.AddJsonFile("App_Data/appsettings.local.json", optional: true);
         configuration.AddEnvironmentVariables();
         if (args.Any())
         {
