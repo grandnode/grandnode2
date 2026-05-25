@@ -11,14 +11,34 @@ public class GetShipmentsQueryHandlerTests
 {
     private GetShipmentsQueryHandler _handler;
     private MongoDBRepositoryTest<Shipment> _repository;
+    private DateTime _baseDate;
 
     [TestInitialize]
     public void Init()
     {
         _repository = new MongoDBRepositoryTest<Shipment>();
-        _repository.Insert(new Shipment { StoreId = "store1", VendorId = "vendor1", OrderId = "order1", TrackingNumber = "TN-001", ShippedDateUtc = DateTime.UtcNow, CreatedOnUtc = DateTime.UtcNow.AddDays(-3), ShipmentItems = new List<ShipmentItem> { new ShipmentItem { WarehouseId = "wh1" } } });
-        _repository.Insert(new Shipment { StoreId = "store1", VendorId = "vendor2", OrderId = "order2", TrackingNumber = "TN-002", ShippedDateUtc = null,              CreatedOnUtc = DateTime.UtcNow.AddDays(-1), ShipmentItems = new List<ShipmentItem> { new ShipmentItem { WarehouseId = "wh2" } } });
-        _repository.Insert(new Shipment { StoreId = "store2", VendorId = "vendor1", OrderId = "order3", TrackingNumber = "TN-003", ShippedDateUtc = DateTime.UtcNow, CreatedOnUtc = DateTime.UtcNow.AddDays(-2), ShipmentItems = new List<ShipmentItem> { new ShipmentItem { WarehouseId = "wh1" } } });
+
+        _baseDate = DateTime.UtcNow;
+
+        // Insert then Update to persist custom CreatedOnUtc (Insert always overwrites with UtcNow)
+        var shipment1 = new Shipment { StoreId = "store1", VendorId = "vendor1", OrderId = "order1", TrackingNumber = "TN-001", ShippedDateUtc = _baseDate };
+        shipment1.ShipmentItems.Add(new ShipmentItem { WarehouseId = "wh1" });
+        _repository.Insert(shipment1);
+        shipment1.CreatedOnUtc = _baseDate.AddDays(-3);
+        _repository.Update(shipment1);
+
+        var shipment2 = new Shipment { StoreId = "store1", VendorId = "vendor2", OrderId = "order2", TrackingNumber = "TN-002", ShippedDateUtc = null };
+        shipment2.ShipmentItems.Add(new ShipmentItem { WarehouseId = "wh2" });
+        _repository.Insert(shipment2);
+        shipment2.CreatedOnUtc = _baseDate.AddDays(-1);
+        _repository.Update(shipment2);
+
+        var shipment3 = new Shipment { StoreId = "store2", VendorId = "vendor1", OrderId = "order3", TrackingNumber = "TN-003", ShippedDateUtc = _baseDate };
+        shipment3.ShipmentItems.Add(new ShipmentItem { WarehouseId = "wh1" });
+        _repository.Insert(shipment3);
+        shipment3.CreatedOnUtc = _baseDate.AddDays(-2);
+        _repository.Update(shipment3);
+
         _handler = new GetShipmentsQueryHandler(_repository);
     }
 
@@ -80,18 +100,18 @@ public class GetShipmentsQueryHandlerTests
     [TestMethod]
     public async Task Handle_FilterByCreatedFromUtc_ReturnsShipmentsAfterDate()
     {
-        var cutoff = DateTime.UtcNow.AddDays(-2).AddHours(-1);
+        var cutoff = _baseDate.AddDays(-1).AddHours(-1);
         var result = await _handler.Handle(new GetShipmentsQuery { CreatedFromUtc = cutoff }, CancellationToken.None);
-        Assert.AreEqual(2, result.Count());
+        Assert.AreEqual(1, result.Count());
         Assert.IsTrue(result.All(s => s.CreatedOnUtc >= cutoff));
     }
 
     [TestMethod]
     public async Task Handle_FilterByCreatedToUtc_ReturnsShipmentsBeforeDate()
     {
-        var cutoff = DateTime.UtcNow.AddDays(-2).AddHours(1);
+        var cutoff = _baseDate.AddDays(-2).AddHours(1);
         var result = await _handler.Handle(new GetShipmentsQuery { CreatedToUtc = cutoff }, CancellationToken.None);
-        Assert.AreEqual(1, result.Count());
+        Assert.AreEqual(2, result.Count()); // shipment1 (-3days) and shipment3 (-2days) are both <= cutoff (-2days+1hr)
         Assert.IsTrue(result.All(s => s.CreatedOnUtc <= cutoff));
     }
 
