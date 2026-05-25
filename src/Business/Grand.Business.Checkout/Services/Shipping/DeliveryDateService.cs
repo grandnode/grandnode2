@@ -51,16 +51,20 @@ public class DeliveryDateService : IDeliveryDateService
     /// <summary>
     ///     Gets all delivery dates
     /// </summary>
+    /// <param name="storeId">Store identifier; empty to return all delivery dates</param>
     /// <returns>Delivery dates</returns>
-    public virtual async Task<IList<DeliveryDate>> GetAllDeliveryDates()
+    public virtual async Task<IList<DeliveryDate>> GetAllDeliveryDates(string storeId = "")
     {
-        return await _cacheBase.GetAsync(CacheKey.DELIVERYDATE_ALL, async () =>
+        var all = await _cacheBase.GetAsync(CacheKey.DELIVERYDATE_ALL, async () =>
         {
             var query = from dd in _deliveryDateRepository.Table
                 orderby dd.DisplayOrder
                 select dd;
             return await Task.FromResult(query.ToList());
         });
+        if (string.IsNullOrEmpty(storeId))
+            return all;
+        return all.Where(dd => string.IsNullOrEmpty(dd.StoreId) || dd.StoreId == storeId).ToList();
     }
 
     /// <summary>

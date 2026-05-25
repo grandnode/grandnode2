@@ -1,12 +1,11 @@
 using Grand.Domain.Localization;
-using Grand.Domain.Stores;
 
 namespace Grand.Domain.Shipping;
 
 /// <summary>
 ///     Represents a delivery date
 /// </summary>
-public class DeliveryDate : BaseEntity, ITranslationEntity, IStoreLinkEntity
+public class DeliveryDate : BaseEntity, ITranslationEntity
 {
     /// <summary>
     ///     Gets or sets the name
@@ -29,12 +28,7 @@ public class DeliveryDate : BaseEntity, ITranslationEntity, IStoreLinkEntity
     public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the entity is limited to certain stores
+    ///     Gets or sets the store identifier. Empty means available to all stores.
     /// </summary>
-    public bool LimitedToStores { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the stores the delivery date is limited to
-    /// </summary>
-    public IList<string> Stores { get; set; } = new List<string>();
+    public string StoreId { get; set; }
 }

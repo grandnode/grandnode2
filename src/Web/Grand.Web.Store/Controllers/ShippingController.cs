@@ -34,14 +34,15 @@ public class ShippingController(
 
         var deliveryDates = await deliveryDateService.GetAllDeliveryDates();
 
+        // Show only global (empty StoreId) and delivery dates assigned to this store.
         var items = deliveryDates
+            .Where(d => string.IsNullOrEmpty(d.StoreId) || d.StoreId == storeId)
             .Select(d => new StoreDeliveryDateModel {
                 Id = d.Id,
                 Name = d.Name,
                 DisplayOrder = d.DisplayOrder,
-                LimitedToStores = d.LimitedToStores,
-                IsAssignedToCurrentStore = !d.LimitedToStores || d.Stores.Contains(storeId),
-                CanManage = d.LimitedToStores
+                StoreId = d.StoreId,
+                IsAssignedToCurrentStore = d.StoreId == storeId
             })
             .ToList();
 
@@ -61,13 +62,13 @@ public class ShippingController(
         if (deliveryDate == null)
             return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.NotFound") });
 
-        if (!deliveryDate.LimitedToStores)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.CannotModifyGlobal") });
-
         var storeId = CurrentStoreId;
-        if (!deliveryDate.Stores.Contains(storeId))
+        if (!string.IsNullOrEmpty(deliveryDate.StoreId) && deliveryDate.StoreId != storeId)
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.AlreadyAssignedToOtherStore") });
+
+        if (deliveryDate.StoreId != storeId)
         {
-            deliveryDate.Stores.Add(storeId);
+            deliveryDate.StoreId = storeId;
             await deliveryDateService.UpdateDeliveryDate(deliveryDate);
         }
 
@@ -82,12 +83,12 @@ public class ShippingController(
         if (deliveryDate == null)
             return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.NotFound") });
 
-        if (!deliveryDate.LimitedToStores)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.CannotModifyGlobal") });
-
         var storeId = CurrentStoreId;
-        if (deliveryDate.Stores.Remove(storeId))
-            await deliveryDateService.UpdateDeliveryDate(deliveryDate);
+        if (deliveryDate.StoreId != storeId)
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.NotAssignedToStore") });
+
+        deliveryDate.StoreId = string.Empty;
+        await deliveryDateService.UpdateDeliveryDate(deliveryDate);
 
         return Json(new { success = true });
     }
@@ -109,15 +110,16 @@ public class ShippingController(
 
         var warehouses = await warehouseService.GetAllWarehouses();
 
+        // Show only global (empty StoreId) and warehouses assigned to this store.
         var items = warehouses
+            .Where(w => string.IsNullOrEmpty(w.StoreId) || w.StoreId == storeId)
             .Select(w => new StoreWarehouseModel {
                 Id = w.Id,
                 Name = w.Name,
                 Code = w.Code,
                 DisplayOrder = w.DisplayOrder,
-                LimitedToStores = w.LimitedToStores,
-                IsAssignedToCurrentStore = !w.LimitedToStores || w.Stores.Contains(storeId),
-                CanManage = w.LimitedToStores
+                StoreId = w.StoreId,
+                IsAssignedToCurrentStore = w.StoreId == storeId
             })
             .ToList();
 
@@ -137,13 +139,13 @@ public class ShippingController(
         if (warehouse == null)
             return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.Warehouses.NotFound") });
 
-        if (!warehouse.LimitedToStores)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.Warehouses.CannotModifyGlobal") });
-
         var storeId = CurrentStoreId;
-        if (!warehouse.Stores.Contains(storeId))
+        if (!string.IsNullOrEmpty(warehouse.StoreId) && warehouse.StoreId != storeId)
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.Warehouses.AlreadyAssignedToOtherStore") });
+
+        if (warehouse.StoreId != storeId)
         {
-            warehouse.Stores.Add(storeId);
+            warehouse.StoreId = storeId;
             await warehouseService.UpdateWarehouse(warehouse);
         }
 
@@ -158,12 +160,12 @@ public class ShippingController(
         if (warehouse == null)
             return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.Warehouses.NotFound") });
 
-        if (!warehouse.LimitedToStores)
-            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.Warehouses.CannotModifyGlobal") });
-
         var storeId = CurrentStoreId;
-        if (warehouse.Stores.Remove(storeId))
-            await warehouseService.UpdateWarehouse(warehouse);
+        if (warehouse.StoreId != storeId)
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Shipping.Warehouses.NotAssignedToStore") });
+
+        warehouse.StoreId = string.Empty;
+        await warehouseService.UpdateWarehouse(warehouse);
 
         return Json(new { success = true });
     }

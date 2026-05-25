@@ -14,8 +14,9 @@ public interface IDeliveryDateService
     /// <summary>
     ///     Gets all delivery dates
     /// </summary>
+    /// <param name="storeId">Store identifier; empty to return all delivery dates</param>
     /// <returns>Delivery dates</returns>
-    Task<IList<DeliveryDate>> GetAllDeliveryDates();
+    Task<IList<DeliveryDate>> GetAllDeliveryDates(string storeId = "");
 
     /// <summary>
     ///     Inserts a delivery date

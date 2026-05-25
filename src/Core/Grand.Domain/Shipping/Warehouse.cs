@@ -1,12 +1,11 @@
 using Grand.Domain.Common;
-using Grand.Domain.Stores;
 
 namespace Grand.Domain.Shipping;
 
 /// <summary>
 ///     Represents a shipment
 /// </summary>
-public class Warehouse : BaseEntity, IStoreLinkEntity
+public class Warehouse : BaseEntity
 {
     /// <summary>
     ///     Gets or sets the warehouse code
@@ -44,12 +43,7 @@ public class Warehouse : BaseEntity, IStoreLinkEntity
     public int DisplayOrder { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the entity is limited to certain stores
+    ///     Gets or sets the store identifier. Empty means available to all stores.
     /// </summary>
-    public bool LimitedToStores { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the stores the warehouse is limited to
-    /// </summary>
-    public IList<string> Stores { get; set; } = new List<string>();
+    public string StoreId { get; set; }
 }

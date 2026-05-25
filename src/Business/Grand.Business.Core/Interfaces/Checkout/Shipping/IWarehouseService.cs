@@ -14,8 +14,9 @@ public interface IWarehouseService
     /// <summary>
     ///     Gets all warehouses
     /// </summary>
+    /// <param name="storeId">Store identifier; empty to return all warehouses</param>
     /// <returns>Warehouses</returns>
-    Task<IList<Warehouse>> GetAllWarehouses();
+    Task<IList<Warehouse>> GetAllWarehouses(string storeId = "");
 
     /// <summary>
     ///     Inserts a warehouse

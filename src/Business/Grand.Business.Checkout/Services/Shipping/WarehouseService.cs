@@ -51,16 +51,20 @@ public class WarehouseService : IWarehouseService
     /// <summary>
     ///     Gets all warehouses
     /// </summary>
+    /// <param name="storeId">Store identifier; empty to return all warehouses</param>
     /// <returns>Warehouses</returns>
-    public virtual async Task<IList<Warehouse>> GetAllWarehouses()
+    public virtual async Task<IList<Warehouse>> GetAllWarehouses(string storeId = "")
     {
-        return await _cacheBase.GetAsync(CacheKey.WAREHOUSES_ALL, async () =>
+        var all = await _cacheBase.GetAsync(CacheKey.WAREHOUSES_ALL, async () =>
         {
             var query = from wh in _warehouseRepository.Table
                 orderby wh.DisplayOrder
                 select wh;
             return await Task.FromResult(query.ToList());
         });
+        if (string.IsNullOrEmpty(storeId))
+            return all;
+        return all.Where(wh => string.IsNullOrEmpty(wh.StoreId) || wh.StoreId == storeId).ToList();
     }
 
     /// <summary>

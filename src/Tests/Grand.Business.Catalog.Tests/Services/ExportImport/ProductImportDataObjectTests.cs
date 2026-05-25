@@ -117,7 +117,7 @@ public class ProductImportDataObjectTests
 
         _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>()))
             .Returns(Task.FromResult(new DeliveryDate()));
-        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates())
+        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates(It.IsAny<string>()))
             .Returns(Task.FromResult<IList<DeliveryDate>>(new List<DeliveryDate> { new() }));
 
         _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>()))
@@ -127,7 +127,7 @@ public class ProductImportDataObjectTests
 
         _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>()))
             .Returns(Task.FromResult(new Warehouse()));
-        _warehouseServiceMock.Setup(c => c.GetAllWarehouses())
+        _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Warehouse>>(new List<Warehouse> { new() }));
 
         _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>()))
@@ -180,7 +180,7 @@ public class ProductImportDataObjectTests
 
         _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>()))
             .Returns(Task.FromResult(new DeliveryDate()));
-        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates())
+        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates(It.IsAny<string>()))
             .Returns(Task.FromResult<IList<DeliveryDate>>(new List<DeliveryDate> { new() }));
 
         _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>()))
@@ -190,7 +190,7 @@ public class ProductImportDataObjectTests
 
         _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>()))
             .Returns(Task.FromResult(new Warehouse()));
-        _warehouseServiceMock.Setup(c => c.GetAllWarehouses())
+        _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Warehouse>>(new List<Warehouse> { new() }));
 
         _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>()))
@@ -234,7 +234,7 @@ public class ProductImportDataObjectTests
 
         _deliveryDateServiceMock.Setup(c => c.GetDeliveryDateById(It.IsAny<string>()))
             .Returns(Task.FromResult(new DeliveryDate()));
-        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates())
+        _deliveryDateServiceMock.Setup(c => c.GetAllDeliveryDates(It.IsAny<string>()))
             .Returns(Task.FromResult<IList<DeliveryDate>>(new List<DeliveryDate> { new() }));
 
         _taxServiceMock.Setup(c => c.GetTaxCategoryById(It.IsAny<string>()))
@@ -244,7 +244,7 @@ public class ProductImportDataObjectTests
 
         _warehouseServiceMock.Setup(c => c.GetWarehouseById(It.IsAny<string>()))
             .Returns(Task.FromResult(new Warehouse()));
-        _warehouseServiceMock.Setup(c => c.GetAllWarehouses())
+        _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Warehouse>>(new List<Warehouse> { new() }));
 
         _measureServiceMock.Setup(c => c.GetMeasureUnitById(It.IsAny<string>()))
