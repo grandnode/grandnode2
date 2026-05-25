@@ -94,6 +94,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{776DB681-3FC0-4EE0-A0F9-3F69874314D6}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		CLAUDE.md = CLAUDE.md
+		.claude\settings.json = .claude\settings.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{B7D07028-26CB-45F0-B097-88C1D7D5CBD2}"
@@ -140,6 +142,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.AppHost", "src\Aspire\Aspire.AppHost\Aspire.AppHost.csproj", "{FFA85947-690E-496B-B21E-DB1800F0DCA9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.ServiceDefaults", "src\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj", "{591950E4-6377-4ECA-A386-8BD3FFE302F1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".claude", ".claude", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+	ProjectSection(SolutionItems) = preProject
+		.claude\settings.json = .claude\settings.json
+		CLAUDE.md = CLAUDE.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

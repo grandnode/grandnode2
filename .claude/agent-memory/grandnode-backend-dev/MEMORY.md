@@ -1,0 +1,1 @@
+- [Project Build Baseline](project_build_baseline.md) — Known pre-existing NU19xx warnings and format violations; distinguishes old issues from new ones introduced by an agent

@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Local developer settings (connection strings, secrets) — never commit
+**/appsettings.local.json
+
 # User-specific files
 *.rsuser
 *.suo

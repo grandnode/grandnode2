@@ -46,7 +46,7 @@ public sealed class RedisMessageBus : IMessageBus
         {
             try
             {
-                var message = JsonSerializer.Deserialize<MessageEventClient>(redisValue);
+                var message = JsonSerializer.Deserialize<MessageEventClient>((string)redisValue);
                 if (message != null && message.ClientId != ClientId)
                     OnSubscriptionChanged(message);
             }
