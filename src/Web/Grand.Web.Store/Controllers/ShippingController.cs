@@ -82,7 +82,7 @@ public class ShippingController(
     public async Task<IActionResult> DeliveryDatesListData()
     {
         var storeId = CurrentStoreId;
-        var deliveryDates = (await deliveryDateService.GetAllDeliveryDates())
+        var deliveryDates = (await deliveryDateService.GetAllDeliveryDates(storeId))
             .Where(d => d.StoreId == storeId)
             .ToList();
         var gridModel = new DataSourceResult {
@@ -182,7 +182,7 @@ public class ShippingController(
     public async Task<IActionResult> WarehousesListData()
     {
         var storeId = CurrentStoreId;
-        var warehouses = (await warehouseService.GetAllWarehouses())
+        var warehouses = (await warehouseService.GetAllWarehouses(storeId))
             .Where(w => w.StoreId == storeId)
             .ToList();
         var gridModel = new DataSourceResult {
@@ -283,7 +283,7 @@ public class ShippingController(
     public async Task<IActionResult> PickupPointsListData()
     {
         var storeId = CurrentStoreId;
-        var pickupPoints = (await pickupPointService.GetAllPickupPoints())
+        var pickupPoints = (await pickupPointService.GetAllPickupPoints(storeId))
             .Where(p => p.StoreId == storeId)
             .ToList();
         var gridModel = new DataSourceResult {
