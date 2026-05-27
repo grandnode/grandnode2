@@ -97,10 +97,11 @@ public class ShippingController(
         var states = originAddress != null && !string.IsNullOrEmpty(originAddress.CountryId)
             ? (await countryService.GetCountryById(originAddress.CountryId))?.StateProvinces ?? []
             : new List<StateProvince>();
+        var selectedStateProvinceId = originAddress?.StateProvinceId;
         if (states?.Count > 0)
             foreach (var s in states)
                 model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem
-                    { Text = s.Name, Value = s.Id, Selected = s.Id == originAddress.StateProvinceId });
+                    { Text = s.Name, Value = s.Id, Selected = s.Id == selectedStateProvinceId });
 
         model.ShippingOriginAddress.CountryEnabled = true;
         model.ShippingOriginAddress.StateProvinceEnabled = true;
