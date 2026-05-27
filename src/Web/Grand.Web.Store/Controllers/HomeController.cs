@@ -95,11 +95,10 @@ public class HomeController : BaseStoreController
             else
             {
                 //some country is selected
-                if (result.Any())
+                if (result.Any() && addSelectStateItem.HasValue && addSelectStateItem.Value)
                     //country has some states
-                    if (addSelectStateItem.HasValue && addSelectStateItem.Value)
-                        result.Insert(0,
-                            new { id = "", name = translationService.GetResource("Admin.Address.SelectState") });
+                    result.Insert(0,
+                        new { id = "", name = translationService.GetResource("Admin.Address.SelectState") });
             }
         }
 
