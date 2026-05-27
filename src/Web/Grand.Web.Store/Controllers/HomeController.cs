@@ -1,4 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Business.Common.Services.Localization;
+using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
@@ -62,6 +64,47 @@ public class HomeController : BaseStoreController
         return Redirect(returnUrl);
     }
 
+    [AcceptVerbs("Get")]
+    public async Task<IActionResult> GetStatesByCountryId([FromServices] ICountryService countryService,
+        [FromServices] ITranslationService translationService,
+        string countryId, bool? addSelectStateItem, bool? addAsterisk)
+    {
+        // This action method gets called via an ajax request
+        if (string.IsNullOrEmpty(countryId))
+            return Json(new List<dynamic>
+                { new { id = "", name = translationService.GetResource("Address.SelectState") } });
+
+        var country = await countryService.GetCountryById(countryId);
+        var states = country != null ? country.StateProvinces.ToList() : [];
+        var result = (from s in states
+                      select new { id = s.Id, name = s.Name }).ToList();
+        if (addAsterisk.HasValue && addAsterisk.Value)
+        {
+            //asterisk
+            result.Insert(0, new { id = "", name = "*" });
+        }
+        else
+        {
+            if (country == null)
+            {
+                //country is not selected ("choose country" item)
+                if (addSelectStateItem.HasValue && addSelectStateItem.Value)
+                    result.Insert(0,
+                        new { id = "", name = translationService.GetResource("Admin.Address.SelectState") });
+            }
+            else
+            {
+                //some country is selected
+                if (result.Any())
+                    //country has some states
+                    if (addSelectStateItem.HasValue && addSelectStateItem.Value)
+                        result.Insert(0,
+                            new { id = "", name = translationService.GetResource("Admin.Address.SelectState") });
+            }
+        }
+
+        return Json(result);
+    }
     public IActionResult AccessDenied()
     {
         _logger.LogInformation("Access denied");
