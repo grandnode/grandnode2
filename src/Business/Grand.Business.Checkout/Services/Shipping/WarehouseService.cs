@@ -59,9 +59,11 @@ public class WarehouseService : IWarehouseService
     public virtual async Task<IPagedList<Warehouse>> GetAllWarehouses(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = _warehouseRepository.Table;
+        
         if (!string.IsNullOrEmpty(storeId))
-            query = query.Where(wh => string.IsNullOrEmpty(wh.StoreId) || wh.StoreId == storeId);
+            query = query.Where(wh => wh.StoreId == storeId);
         query = query.OrderBy(wh => wh.DisplayOrder);
+
         return await PagedList<Warehouse>.Create(query, pageIndex, pageSize);
     }
 

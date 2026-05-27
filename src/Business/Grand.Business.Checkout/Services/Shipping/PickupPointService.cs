@@ -59,8 +59,10 @@ public class PickupPointService : IPickupPointService
     public virtual async Task<IPagedList<PickupPoint>> GetAllPickupPoints(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = _pickupPointsRepository.Table;
+        
         if (!string.IsNullOrEmpty(storeId))
-            query = query.Where(pp => string.IsNullOrEmpty(pp.StoreId) || pp.StoreId == storeId);
+            query = query.Where(pp => pp.StoreId == storeId);
+
         query = query.OrderBy(pp => pp.DisplayOrder);
         return await PagedList<PickupPoint>.Create(query, pageIndex, pageSize);
     }

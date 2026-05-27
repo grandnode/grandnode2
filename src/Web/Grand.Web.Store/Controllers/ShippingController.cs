@@ -81,9 +81,7 @@ public class ShippingController(
     [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> DeliveryDatesListData()
     {
-        var storeId = CurrentStoreId;
-        var deliveryDates = (await deliveryDateService.GetAllDeliveryDates(storeId))
-            .Where(d => d.StoreId == storeId)
+        var deliveryDates = (await deliveryDateService.GetAllDeliveryDates(CurrentStoreId))
             .ToList();
         var gridModel = new DataSourceResult {
             Data = deliveryDates.Select(d => d.ToModel()),
@@ -181,10 +179,9 @@ public class ShippingController(
     [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> WarehousesListData()
     {
-        var storeId = CurrentStoreId;
-        var warehouses = (await warehouseService.GetAllWarehouses(storeId))
-            .Where(w => w.StoreId == storeId)
+        var warehouses = (await warehouseService.GetAllWarehouses(CurrentStoreId))
             .ToList();
+
         var gridModel = new DataSourceResult {
             Data = warehouses.Select(w => w.ToModel()),
             Total = warehouses.Count
@@ -282,10 +279,9 @@ public class ShippingController(
     [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> PickupPointsListData()
     {
-        var storeId = CurrentStoreId;
-        var pickupPoints = (await pickupPointService.GetAllPickupPoints(storeId))
-            .Where(p => p.StoreId == storeId)
+        var pickupPoints = (await pickupPointService.GetAllPickupPoints(CurrentStoreId))
             .ToList();
+
         var gridModel = new DataSourceResult {
             Data = pickupPoints.Select(p => p.ToModel()),
             Total = pickupPoints.Count
