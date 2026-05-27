@@ -77,10 +77,9 @@ public class ShippingController(
 
     public async Task<IActionResult> Settings()
     {
-        var storeScope = CurrentStoreId;
-        var shippingSettings = await settingService.LoadSetting<ShippingSettings>(storeScope);
+        var shippingSettings = await settingService.LoadSetting<ShippingSettings>(CurrentStoreId);
         var model = shippingSettings.ToModel();
-        model.ActiveStore = storeScope;
+        model.ActiveStore = CurrentStoreId;
 
         var originAddress = shippingSettings.ShippingOriginAddress;
         if (originAddress != null)
