@@ -18,8 +18,9 @@ public interface IShippingMethodService
     /// </summary>
     /// <param name="filterByCountryId">The country identifier to filter by</param>
     /// <param name="customer"></param>
+    /// <param name="storeId">The store identifier to filter by</param>
     /// <returns>Shipping methods</returns>
-    Task<IList<ShippingMethod>> GetAllShippingMethods(string filterByCountryId = "", Customer customer = null);
+    Task<IList<ShippingMethod>> GetAllShippingMethods(string filterByCountryId = "", Customer customer = null, string storeId = "");
 
     /// <summary>
     ///     Inserts a shipping method

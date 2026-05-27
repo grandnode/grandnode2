@@ -21,6 +21,7 @@ namespace Grand.Web.Store.Controllers;
 [PermissionAuthorize(PermissionSystemName.ShippingSettings)]
 public class ShippingController(
     IShippingService shippingService,
+    IShippingMethodService shippingMethodService,
     IDeliveryDateService deliveryDateService,
     IWarehouseService warehouseService,
     IPickupPointService pickupPointService,
@@ -179,6 +180,104 @@ public class ShippingController(
         await settingService.SaveSetting(shippingSettings, storeScope);
         Success(translationService.GetResource("Admin.Configuration.Updated"));
         return RedirectToAction("Settings");
+    }
+
+    #endregion
+
+    #region Shipping methods
+
+    public IActionResult Methods()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    public async Task<IActionResult> MethodsListData()
+    {
+        var methods = (await shippingMethodService.GetAllShippingMethods(storeId: CurrentStoreId))
+            .ToList();
+        var gridModel = new DataSourceResult {
+            Data = methods.Select(m => m.ToModel()),
+            Total = methods.Count
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public async Task<IActionResult> CreateMethod()
+    {
+        var model = new ShippingMethodModel();
+        await AddLocales(languageService, model.Locales);
+        return View(model);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> CreateMethod(ShippingMethodModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
+        {
+            var sm = model.ToEntity();
+            sm.StoreId = CurrentStoreId;
+            await shippingMethodService.InsertShippingMethod(sm);
+            Success(translationService.GetResource("Admin.Configuration.Shipping.Methods.Added"));
+            return continueEditing
+                ? RedirectToAction("EditMethod", new { id = sm.Id })
+                : RedirectToAction("Methods");
+        }
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> EditMethod(string id)
+    {
+        var sm = await shippingMethodService.GetShippingMethodById(id);
+        if (sm == null || sm.StoreId != CurrentStoreId)
+            return RedirectToAction("Methods");
+
+        var model = sm.ToModel();
+        await AddLocales(languageService, model.Locales, (locale, languageId) => {
+            locale.Name = sm.GetTranslation(x => x.Name, languageId, false);
+            locale.Description = sm.GetTranslation(x => x.Description, languageId, false);
+        });
+        return View(model);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> EditMethod(ShippingMethodModel model, bool continueEditing)
+    {
+        var sm = await shippingMethodService.GetShippingMethodById(model.Id);
+        if (sm == null || sm.StoreId != CurrentStoreId)
+            return RedirectToAction("Methods");
+
+        if (ModelState.IsValid)
+        {
+            sm = model.ToEntity(sm);
+            sm.StoreId = CurrentStoreId;
+            await shippingMethodService.UpdateShippingMethod(sm);
+            Success(translationService.GetResource("Admin.Configuration.Shipping.Methods.Updated"));
+            return continueEditing
+                ? RedirectToAction("EditMethod", new { id = sm.Id })
+                : RedirectToAction("Methods");
+        }
+        return View(model);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    public async Task<IActionResult> DeleteMethod(string id)
+    {
+        var sm = await shippingMethodService.GetShippingMethodById(id);
+        if (sm == null || sm.StoreId != CurrentStoreId)
+            return RedirectToAction("Methods");
+
+        await shippingMethodService.DeleteShippingMethod(sm);
+        Success(translationService.GetResource("Admin.Configuration.Shipping.Methods.Deleted"));
+        return RedirectToAction("Methods");
     }
 
     #endregion

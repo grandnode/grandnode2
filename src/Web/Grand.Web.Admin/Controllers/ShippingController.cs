@@ -120,6 +120,17 @@ public class ShippingController : BaseAdminController
             });
     }
 
+    protected virtual async Task PrepareShippingMethodModel(ShippingMethodModel model)
+    {
+        model.AvailableStores.Add(new SelectListItem {
+            Text = _translationService.GetResource("Admin.Configuration.Shipping.Methods.SelectStore"), Value = ""
+        });
+        foreach (var s in await _storeService.GetAllStores())
+            model.AvailableStores.Add(new SelectListItem {
+                Text = s.Shortcut, Value = s.Id, Selected = s.Id == model.StoreId
+            });
+    }
+
     protected virtual async Task PreparePickupPointModel(PickupPointModel model)
     {
         model.Address.AvailableCountries.Add(new SelectListItem
@@ -252,6 +263,7 @@ public class ShippingController : BaseAdminController
         var model = new ShippingMethodModel();
         //locales
         await AddLocales(_languageService, model.Locales);
+        await PrepareShippingMethodModel(model);
         return View(model);
     }
 
@@ -269,6 +281,7 @@ public class ShippingController : BaseAdminController
         }
 
         //If we got this far, something failed, redisplay form
+        await PrepareShippingMethodModel(model);
         return View(model);
     }
 
@@ -286,7 +299,7 @@ public class ShippingController : BaseAdminController
             locale.Name = sm.GetTranslation(x => x.Name, languageId, false);
             locale.Description = sm.GetTranslation(x => x.Description, languageId, false);
         });
-
+        await PrepareShippingMethodModel(model);
         return View(model);
     }
 
@@ -309,6 +322,7 @@ public class ShippingController : BaseAdminController
         }
 
         //If we got this far, something failed, redisplay form
+        await PrepareShippingMethodModel(model);
         return View(model);
     }
 
