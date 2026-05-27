@@ -43,11 +43,6 @@ public class ShippingMethod : BaseEntity, ITranslationEntity
     }
 
     /// <summary>
-    ///     Gets or sets the store identifier
-    /// </summary>
-    public string StoreId { get; set; }
-
-    /// <summary>
     ///     Gets or sets the collection of locales
     /// </summary>
     public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();

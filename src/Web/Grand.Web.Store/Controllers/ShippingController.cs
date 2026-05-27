@@ -10,8 +10,6 @@ using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Extensions.Mapping.Settings;
 using Grand.Web.AdminShared.Models.Common;
-using Grand.Web.AdminShared.Models.Customers;
-using Grand.Web.AdminShared.Models.Directory;
 using Grand.Web.AdminShared.Models.Shipping;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
@@ -23,12 +21,10 @@ namespace Grand.Web.Store.Controllers;
 [PermissionAuthorize(PermissionSystemName.ShippingSettings)]
 public class ShippingController(
     IShippingService shippingService,
-    IShippingMethodService shippingMethodService,
     IDeliveryDateService deliveryDateService,
     IWarehouseService warehouseService,
     IPickupPointService pickupPointService,
     ICountryService countryService,
-    IGroupService groupService,
     ILanguageService languageService,
     ITranslationService translationService,
     ISettingService settingService,
@@ -479,141 +475,6 @@ public class ShippingController(
         await pickupPointService.DeletePickupPoint(pickupPoint);
         Success(translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Deleted"));
         return RedirectToAction("PickupPoints");
-    }
-
-    #endregion
-
-    #region Restrictions
-
-    public async Task<IActionResult> Restrictions()
-    {
-        var model = new ShippingMethodRestrictionModel();
-
-        var countries = await countryService.GetAllCountries(showHidden: true);
-        var shippingMethods = await shippingMethodService.GetAllShippingMethods(storeId: CurrentStoreId);
-        var customerGroups = await groupService.GetAllCustomerGroups();
-
-        foreach (var country in countries)
-            model.AvailableCountries.Add(new CountryModel {
-                Id = country.Id,
-                Name = country.Name
-            });
-        foreach (var sm in shippingMethods)
-            model.AvailableShippingMethods.Add(new ShippingMethodModel {
-                Id = sm.Id,
-                Name = sm.Name
-            });
-        foreach (var r in customerGroups)
-            model.AvailableCustomerGroups.Add(new CustomerGroupModel { Id = r.Id, Name = r.Name });
-
-        foreach (var country in countries)
-        foreach (var shippingMethod in shippingMethods)
-        {
-            var restricted = shippingMethod.CountryRestrictionExists(country.Id);
-            if (!model.Restricted.ContainsKey(country.Id))
-                model.Restricted[country.Id] = new Dictionary<string, bool>();
-            model.Restricted[country.Id][shippingMethod.Id] = restricted;
-        }
-
-        foreach (var role in customerGroups)
-        foreach (var shippingMethod in shippingMethods)
-        {
-            var restricted = shippingMethod.CustomerGroupRestrictionExists(role.Id);
-            if (!model.RestictedGroup.ContainsKey(role.Id))
-                model.RestictedGroup[role.Id] = new Dictionary<string, bool>();
-            model.RestictedGroup[role.Id][shippingMethod.Id] = restricted;
-        }
-
-        return View(model);
-    }
-
-    [HttpPost]
-    [ActionName("Restrictions")]
-    [RequestFormLimits(ValueCountLimit = 2048)]
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> RestrictionSave(IDictionary<string, string[]> model)
-    {
-        var countries = await countryService.GetAllCountries(showHidden: true);
-        var shippingMethods = await shippingMethodService.GetAllShippingMethods(storeId: CurrentStoreId);
-        var customerGroups = await groupService.GetAllCustomerGroups();
-        foreach (var shippingMethod in shippingMethods)
-        {
-            await SaveRestrictedCountries(model, shippingMethod, countries);
-            await SaveRestrictedGroup(model, shippingMethod, customerGroups);
-        }
-
-        Success(translationService.GetResource("Admin.Configuration.Shipping.Restrictions.Updated"));
-        await SaveSelectedTabIndex();
-        return RedirectToAction("Restrictions");
-    }
-
-    private async Task SaveRestrictedGroup(IDictionary<string, string[]> model, ShippingMethod shippingMethod,
-        Grand.Domain.IPagedList<Grand.Domain.Customers.CustomerGroup> customerGroups)
-    {
-        if (model.TryGetValue($"restrictgroup_{shippingMethod.Id}", out var roleIds))
-        {
-            var roleIdsToRestrict = roleIds.ToList();
-            foreach (var role in customerGroups)
-            {
-                var restrict = roleIdsToRestrict.Contains(role.Id);
-                if (restrict)
-                {
-                    if (shippingMethod.RestrictedGroups.FirstOrDefault(c => c == role.Id) == null)
-                    {
-                        shippingMethod.RestrictedGroups.Add(role.Id);
-                        await shippingMethodService.UpdateShippingMethod(shippingMethod);
-                    }
-                }
-                else
-                {
-                    if (shippingMethod.RestrictedGroups.FirstOrDefault(c => c == role.Id) != null)
-                    {
-                        shippingMethod.RestrictedGroups.Remove(role.Id);
-                        await shippingMethodService.UpdateShippingMethod(shippingMethod);
-                    }
-                }
-            }
-        }
-        else
-        {
-            shippingMethod.RestrictedGroups.Clear();
-            await shippingMethodService.UpdateShippingMethod(shippingMethod);
-        }
-    }
-
-    private async Task SaveRestrictedCountries(IDictionary<string, string[]> model, ShippingMethod shippingMethod,
-        IList<Grand.Domain.Directory.Country> countries)
-    {
-        if (model.TryGetValue($"restrict_{shippingMethod.Id}", out var countryIds))
-        {
-            var countryIdsToRestrict = countryIds.ToList();
-            foreach (var country in countries)
-            {
-                var restrict = countryIdsToRestrict.Contains(country.Id);
-                if (restrict)
-                {
-                    if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) == null)
-                    {
-                        shippingMethod.RestrictedCountries.Add(country);
-                        await shippingMethodService.UpdateShippingMethod(shippingMethod);
-                    }
-                }
-                else
-                {
-                    if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) != null)
-                    {
-                        shippingMethod.RestrictedCountries.Remove(
-                            shippingMethod.RestrictedCountries.FirstOrDefault(x => x.Id == country.Id));
-                        await shippingMethodService.UpdateShippingMethod(shippingMethod);
-                    }
-                }
-            }
-        }
-        else
-        {
-            shippingMethod.RestrictedCountries.Clear();
-            await shippingMethodService.UpdateShippingMethod(shippingMethod);
-        }
     }
 
     #endregion

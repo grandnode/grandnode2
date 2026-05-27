@@ -160,17 +160,6 @@ public class ShippingController : BaseAdminController
             model.AvailableWarehouses.Add(new SelectListItem { Text = c.Name, Value = c.Id });
     }
 
-    protected virtual async Task PrepareShippingMethodModel(ShippingMethodModel model)
-    {
-        model.AvailableStores.Add(new SelectListItem {
-            Text = _translationService.GetResource("Admin.Configuration.Shipping.Methods.SelectStore"), Value = ""
-        });
-        foreach (var s in await _storeService.GetAllStores())
-            model.AvailableStores.Add(new SelectListItem {
-                Text = s.Shortcut, Value = s.Id, Selected = s.Id == model.StoreId
-            });
-    }
-
     #endregion
 
     #region Shipping rate  methods
@@ -246,8 +235,7 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> Methods(DataSourceRequest command)
     {
-        var storeScope = await GetActiveStore();
-        var shippingMethodsModel = (await _shippingMethodService.GetAllShippingMethods(storeId: storeScope))
+        var shippingMethodsModel = (await _shippingMethodService.GetAllShippingMethods())
             .Select(x => x.ToModel())
             .ToList();
         var gridModel = new DataSourceResult {
@@ -264,7 +252,6 @@ public class ShippingController : BaseAdminController
         var model = new ShippingMethodModel();
         //locales
         await AddLocales(_languageService, model.Locales);
-        await PrepareShippingMethodModel(model);
         return View(model);
     }
 
@@ -282,7 +269,6 @@ public class ShippingController : BaseAdminController
         }
 
         //If we got this far, something failed, redisplay form
-        await PrepareShippingMethodModel(model);
         return View(model);
     }
 
@@ -300,7 +286,7 @@ public class ShippingController : BaseAdminController
             locale.Name = sm.GetTranslation(x => x.Name, languageId, false);
             locale.Description = sm.GetTranslation(x => x.Description, languageId, false);
         });
-        await PrepareShippingMethodModel(model);
+
         return View(model);
     }
 
@@ -323,7 +309,6 @@ public class ShippingController : BaseAdminController
         }
 
         //If we got this far, something failed, redisplay form
-        await PrepareShippingMethodModel(model);
         return View(model);
     }
 
@@ -731,9 +716,8 @@ public class ShippingController : BaseAdminController
     {
         var model = new ShippingMethodRestrictionModel();
 
-        var storeScope = await GetActiveStore();
         var countries = await _countryService.GetAllCountries(showHidden: true);
-        var shippingMethods = await _shippingMethodService.GetAllShippingMethods(storeId: storeScope);
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
         var customerGroups = await _groupService.GetAllCustomerGroups();
 
         foreach (var country in countries)
@@ -776,9 +760,8 @@ public class ShippingController : BaseAdminController
     [RequestFormLimits(ValueCountLimit = 2048)]
     public async Task<IActionResult> RestrictionSave(IDictionary<string, string[]> model)
     {
-        var storeScope = await GetActiveStore();
         var countries = await _countryService.GetAllCountries(showHidden: true);
-        var shippingMethods = await _shippingMethodService.GetAllShippingMethods(storeId: storeScope);
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
         var customerGroups = await _groupService.GetAllCustomerGroups();
         foreach (var shippingMethod in shippingMethods)
         {
