@@ -83,10 +83,9 @@ public class ShippingController(
         model.ActiveStore = storeScope;
 
         var originAddress = shippingSettings.ShippingOriginAddress;
-        if (originAddress != null)
-            model.ShippingOriginAddress = await originAddress.ToModel(countryService);
-        else
-            model.ShippingOriginAddress = new AddressModel();
+        model.ShippingOriginAddress = originAddress != null
+            ? await originAddress.ToModel(countryService)
+            : new AddressModel();
 
         model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem
             { Text = translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
