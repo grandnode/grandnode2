@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Data;
+using Grand.Domain;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
@@ -52,16 +53,16 @@ public class DeliveryDateService : IDeliveryDateService
     ///     Gets all delivery dates
     /// </summary>
     /// <param name="storeId">Store identifier; empty to return all delivery dates</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
     /// <returns>Delivery dates</returns>
-    public virtual async Task<IList<DeliveryDate>> GetAllDeliveryDates(string storeId = "")
+    public virtual async Task<IPagedList<DeliveryDate>> GetAllDeliveryDates(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
-        var query = from dd in _deliveryDateRepository.Table
-            orderby dd.DisplayOrder
-            select dd;
-        var all = await Task.FromResult(query.ToList());
-        if (string.IsNullOrEmpty(storeId))
-            return all;
-        return all.Where(dd => string.IsNullOrEmpty(dd.StoreId) || dd.StoreId == storeId).ToList();
+        var query = _deliveryDateRepository.Table;
+        if (!string.IsNullOrEmpty(storeId))
+            query = query.Where(dd => string.IsNullOrEmpty(dd.StoreId) || dd.StoreId == storeId);
+        query = query.OrderBy(dd => dd.DisplayOrder);
+        return await PagedList<DeliveryDate>.Create(query, pageIndex, pageSize);
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Shipping;
+﻿using Grand.Domain;
+using Grand.Domain.Shipping;
 
 namespace Grand.Business.Core.Interfaces.Checkout.Shipping;
 
@@ -15,8 +16,10 @@ public interface IDeliveryDateService
     ///     Gets all delivery dates
     /// </summary>
     /// <param name="storeId">Store identifier; empty to return all delivery dates</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
     /// <returns>Delivery dates</returns>
-    Task<IList<DeliveryDate>> GetAllDeliveryDates(string storeId = "");
+    Task<IPagedList<DeliveryDate>> GetAllDeliveryDates(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Inserts a delivery date

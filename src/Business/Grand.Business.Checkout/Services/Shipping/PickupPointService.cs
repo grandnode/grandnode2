@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Data;
+using Grand.Domain;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
@@ -52,19 +53,16 @@ public class PickupPointService : IPickupPointService
     ///     Gets all pickup points
     /// </summary>
     /// <param name="storeId">Store identifier; empty to return all pickup points</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
     /// <returns>Warehouses</returns>
-    public virtual async Task<IList<PickupPoint>> GetAllPickupPoints(string storeId = "")
+    public virtual async Task<IPagedList<PickupPoint>> GetAllPickupPoints(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
-        var all = await _cacheBase.GetAsync(CacheKey.PICKUPPOINTS_ALL, async () =>
-        {
-            var query = from pp in _pickupPointsRepository.Table
-                orderby pp.DisplayOrder
-                select pp;
-            return await Task.FromResult(query.ToList());
-        });
-        if (string.IsNullOrEmpty(storeId))
-            return all;
-        return all.Where(pp => string.IsNullOrEmpty(pp.StoreId) || pp.StoreId == storeId).ToList();
+        var query = _pickupPointsRepository.Table;
+        if (!string.IsNullOrEmpty(storeId))
+            query = query.Where(pp => string.IsNullOrEmpty(pp.StoreId) || pp.StoreId == storeId);
+        query = query.OrderBy(pp => pp.DisplayOrder);
+        return await PagedList<PickupPoint>.Create(query, pageIndex, pageSize);
     }
 
     /// <summary>

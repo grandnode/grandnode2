@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Data;
+using Grand.Domain;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
@@ -52,19 +53,16 @@ public class WarehouseService : IWarehouseService
     ///     Gets all warehouses
     /// </summary>
     /// <param name="storeId">Store identifier; empty to return all warehouses</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
     /// <returns>Warehouses</returns>
-    public virtual async Task<IList<Warehouse>> GetAllWarehouses(string storeId = "")
+    public virtual async Task<IPagedList<Warehouse>> GetAllWarehouses(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
-        var all = await _cacheBase.GetAsync(CacheKey.WAREHOUSES_ALL, async () =>
-        {
-            var query = from wh in _warehouseRepository.Table
-                orderby wh.DisplayOrder
-                select wh;
-            return await Task.FromResult(query.ToList());
-        });
-        if (string.IsNullOrEmpty(storeId))
-            return all;
-        return all.Where(wh => string.IsNullOrEmpty(wh.StoreId) || wh.StoreId == storeId).ToList();
+        var query = _warehouseRepository.Table;
+        if (!string.IsNullOrEmpty(storeId))
+            query = query.Where(wh => string.IsNullOrEmpty(wh.StoreId) || wh.StoreId == storeId);
+        query = query.OrderBy(wh => wh.DisplayOrder);
+        return await PagedList<Warehouse>.Create(query, pageIndex, pageSize);
     }
 
     /// <summary>

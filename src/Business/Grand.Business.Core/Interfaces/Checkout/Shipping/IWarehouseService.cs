@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Shipping;
+﻿using Grand.Domain;
+using Grand.Domain.Shipping;
 
 namespace Grand.Business.Core.Interfaces.Checkout.Shipping;
 
@@ -15,8 +16,10 @@ public interface IWarehouseService
     ///     Gets all warehouses
     /// </summary>
     /// <param name="storeId">Store identifier; empty to return all warehouses</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
     /// <returns>Warehouses</returns>
-    Task<IList<Warehouse>> GetAllWarehouses(string storeId = "");
+    Task<IPagedList<Warehouse>> GetAllWarehouses(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Inserts a warehouse
