@@ -1,5 +1,6 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Directory;
@@ -7,6 +8,7 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Extensions.Mapping.Settings;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Shipping;
 using Grand.Web.Common.DataSource;
@@ -24,6 +26,7 @@ public class ShippingController(
     ICountryService countryService,
     ILanguageService languageService,
     ITranslationService translationService,
+    ISettingService settingService,
     IContextAccessor contextAccessor) : BaseStoreController
 {
     private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
@@ -66,6 +69,59 @@ public class ShippingController(
         model.AvailableWarehouses.Add(new SelectListItem { Text = translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectWarehouse"), Value = "" });
         foreach (var w in await warehouseService.GetAllWarehouses(CurrentStoreId))
             model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id, Selected = w.Id == model.WarehouseId });
+    }
+
+    #endregion
+
+    #region Shipping settings
+
+    public async Task<IActionResult> Settings()
+    {
+        var storeScope = CurrentStoreId;
+        var shippingSettings = await settingService.LoadSetting<ShippingSettings>(storeScope);
+        var model = shippingSettings.ToModel();
+        model.ActiveStore = storeScope;
+
+        var originAddress = shippingSettings.ShippingOriginAddress;
+        if (originAddress != null)
+            model.ShippingOriginAddress = await originAddress.ToModel(countryService);
+        else
+            model.ShippingOriginAddress = new AddressModel();
+
+        model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem
+            { Text = translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+        foreach (var c in await countryService.GetAllCountries(showHidden: true))
+            model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem
+                { Text = c.Name, Value = c.Id, Selected = originAddress != null && c.Id == originAddress.CountryId });
+
+        var states = originAddress != null && !string.IsNullOrEmpty(originAddress.CountryId)
+            ? (await countryService.GetCountryById(originAddress.CountryId))?.StateProvinces ?? []
+            : new List<StateProvince>();
+        if (states?.Count > 0)
+            foreach (var s in states)
+                model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem
+                    { Text = s.Name, Value = s.Id, Selected = s.Id == originAddress.StateProvinceId });
+
+        model.ShippingOriginAddress.CountryEnabled = true;
+        model.ShippingOriginAddress.StateProvinceEnabled = true;
+        model.ShippingOriginAddress.CityEnabled = true;
+        model.ShippingOriginAddress.StreetAddressEnabled = true;
+        model.ShippingOriginAddress.ZipPostalCodeEnabled = true;
+        model.ShippingOriginAddress.ZipPostalCodeRequired = true;
+        model.ShippingOriginAddress.AddressTypeEnabled = false;
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Settings(ShippingSettingsModel model)
+    {
+        var storeScope = CurrentStoreId;
+        var shippingSettings = await settingService.LoadSetting<ShippingSettings>(storeScope);
+        shippingSettings = model.ToEntity(shippingSettings);
+        await settingService.SaveSetting(shippingSettings, storeScope);
+        Success(translationService.GetResource("Admin.Configuration.Updated"));
+        return RedirectToAction("Settings");
     }
 
     #endregion
