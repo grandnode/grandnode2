@@ -99,6 +99,25 @@ public class ShippingController : BaseAdminController
         model.Address.PhoneEnabled = true;
         model.Address.FaxEnabled = true;
         model.Address.CompanyEnabled = true;
+
+        model.AvailableStores.Add(new SelectListItem {
+            Text = _translationService.GetResource("Admin.Configuration.Shipping.Warehouses.SelectStore"), Value = ""
+        });
+        foreach (var s in await _storeService.GetAllStores())
+            model.AvailableStores.Add(new SelectListItem {
+                Text = s.Shortcut, Value = s.Id, Selected = s.Id == model.StoreId
+            });
+    }
+
+    protected virtual async Task PrepareDeliveryDateModel(DeliveryDateModel model)
+    {
+        model.AvailableStores.Add(new SelectListItem {
+            Text = _translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.SelectStore"), Value = ""
+        });
+        foreach (var s in await _storeService.GetAllStores())
+            model.AvailableStores.Add(new SelectListItem {
+                Text = s.Shortcut, Value = s.Id, Selected = s.Id == model.StoreId
+            });
     }
 
     protected virtual async Task PreparePickupPointModel(PickupPointModel model)
@@ -131,7 +150,7 @@ public class ShippingController : BaseAdminController
             Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectStore"), Value = ""
         });
         foreach (var c in await _storeService.GetAllStores())
-            model.AvailableStores.Add(new SelectListItem { Text = c.Shortcut, Value = c.Id });
+            model.AvailableStores.Add(new SelectListItem { Text = c.Shortcut, Value = c.Id, Selected = c.Id == model.StoreId });
 
         model.AvailableWarehouses.Add(new SelectListItem {
             Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectWarehouse"),
@@ -395,6 +414,7 @@ public class ShippingController : BaseAdminController
         };
         //locales
         await AddLocales(_languageService, model.Locales);
+        await PrepareDeliveryDateModel(model);
         return View(model);
     }
 
@@ -413,6 +433,7 @@ public class ShippingController : BaseAdminController
         }
 
         //If we got this far, something failed, redisplay form
+        await PrepareDeliveryDateModel(model);
         return View(model);
     }
 
@@ -433,6 +454,7 @@ public class ShippingController : BaseAdminController
             locale.Name = deliveryDate.GetTranslation(x => x.Name, languageId, false);
         });
 
+        await PrepareDeliveryDateModel(model);
         return View(model);
     }
 
@@ -456,8 +478,8 @@ public class ShippingController : BaseAdminController
                 : RedirectToAction("DeliveryDates");
         }
 
-
         //If we got this far, something failed, redisplay form
+        await PrepareDeliveryDateModel(model);
         return View(model);
     }
 
