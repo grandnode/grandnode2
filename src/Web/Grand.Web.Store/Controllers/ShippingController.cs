@@ -20,6 +20,7 @@ namespace Grand.Web.Store.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.ShippingSettings)]
 public class ShippingController(
+    IShippingService shippingService,
     IDeliveryDateService deliveryDateService,
     IWarehouseService warehouseService,
     IPickupPointService pickupPointService,
@@ -73,6 +74,63 @@ public class ShippingController(
 
     #endregion
 
+    #region Providers
+
+    public IActionResult Providers()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    public async Task<IActionResult> Providers(DataSourceRequest command)
+    {
+        var shippingProviderSettings = await settingService.LoadSetting<ShippingProviderSettings>(CurrentStoreId);
+        var shippingProvidersModel = shippingService.LoadAllShippingRateCalculationProviders()
+            .Select(p => {
+                var m = p.ToModel();
+                m.IsActive = p.IsShippingRateMethodActive(shippingProviderSettings);
+                return m;
+            })
+            .ToList();
+
+        var gridModel = new DataSourceResult {
+            Data = shippingProvidersModel,
+            Total = shippingProvidersModel.Count
+        };
+        return Json(gridModel);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProviderUpdate(ShippingRateComputationMethodModel model)
+    {
+        var shippingProviderSettings = await settingService.LoadSetting<ShippingProviderSettings>(CurrentStoreId);
+        var srcm = shippingService.LoadShippingRateCalculationProviderBySystemName(model.SystemName);
+        if (srcm == null)
+            return new JsonResult("");
+
+        if (srcm.IsShippingRateMethodActive(shippingProviderSettings))
+        {
+            if (!model.IsActive)
+            {
+                shippingProviderSettings.ActiveSystemNames.Remove(srcm.SystemName);
+                await settingService.SaveSetting(shippingProviderSettings, CurrentStoreId);
+            }
+        }
+        else
+        {
+            if (model.IsActive)
+            {
+                shippingProviderSettings.ActiveSystemNames.Add(srcm.SystemName);
+                await settingService.SaveSetting(shippingProviderSettings, CurrentStoreId);
+            }
+        }
+        return new JsonResult("");
+    }
+
+    #endregion
+
     #region Shipping settings
 
     public async Task<IActionResult> Settings()
@@ -82,10 +140,9 @@ public class ShippingController(
         model.ActiveStore = CurrentStoreId;
 
         var originAddress = shippingSettings.ShippingOriginAddress;
-        if (originAddress != null)
-            model.ShippingOriginAddress = await originAddress.ToModel(countryService);
-        else
-            model.ShippingOriginAddress = new AddressModel();
+        model.ShippingOriginAddress = originAddress != null
+            ? await originAddress.ToModel(countryService)
+            : new AddressModel();
 
         model.ShippingOriginAddress.AvailableCountries.Add(new SelectListItem
             { Text = translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
@@ -96,10 +153,11 @@ public class ShippingController(
         var states = originAddress != null && !string.IsNullOrEmpty(originAddress.CountryId)
             ? (await countryService.GetCountryById(originAddress.CountryId))?.StateProvinces ?? []
             : new List<StateProvince>();
+        var selectedStateProvinceId = originAddress?.StateProvinceId;
         if (states?.Count > 0)
             foreach (var s in states)
                 model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem
-                    { Text = s.Name, Value = s.Id, Selected = s.Id == originAddress.StateProvinceId });
+                    { Text = s.Name, Value = s.Id, Selected = s.Id == selectedStateProvinceId });
 
         model.ShippingOriginAddress.CountryEnabled = true;
         model.ShippingOriginAddress.StateProvinceEnabled = true;
