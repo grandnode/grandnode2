@@ -1,6 +1,7 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.AdminShared.Models.Shipping;
 
@@ -16,6 +17,11 @@ public class ShippingMethodModel : BaseEntityModel, ILocalizedModel<ShippingMeth
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Methods.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
+
+    [GrandResourceDisplayName("Admin.Configuration.Shipping.Methods.Fields.Store")]
+    public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
+
+    public string StoreId { get; set; }
 
     public IList<ShippingMethodLocalizedModel> Locales { get; set; } = new List<ShippingMethodLocalizedModel>();
 }
