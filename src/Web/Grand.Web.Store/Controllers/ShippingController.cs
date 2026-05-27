@@ -20,6 +20,7 @@ namespace Grand.Web.Store.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.ShippingSettings)]
 public class ShippingController(
+    IShippingService shippingService,
     IDeliveryDateService deliveryDateService,
     IWarehouseService warehouseService,
     IPickupPointService pickupPointService,
@@ -69,6 +70,63 @@ public class ShippingController(
         model.AvailableWarehouses.Add(new SelectListItem { Text = translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectWarehouse"), Value = "" });
         foreach (var w in await warehouseService.GetAllWarehouses(CurrentStoreId))
             model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id, Selected = w.Id == model.WarehouseId });
+    }
+
+    #endregion
+
+    #region Providers
+
+    public IActionResult Providers()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    public async Task<IActionResult> Providers(DataSourceRequest command)
+    {
+        var shippingProviderSettings = await settingService.LoadSetting<ShippingProviderSettings>(CurrentStoreId);
+        var shippingProvidersModel = shippingService.LoadAllShippingRateCalculationProviders()
+            .Select(p => {
+                var m = p.ToModel();
+                m.IsActive = p.IsShippingRateMethodActive(shippingProviderSettings);
+                return m;
+            })
+            .ToList();
+
+        var gridModel = new DataSourceResult {
+            Data = shippingProvidersModel,
+            Total = shippingProvidersModel.Count
+        };
+        return Json(gridModel);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProviderUpdate(ShippingRateComputationMethodModel model)
+    {
+        var shippingProviderSettings = await settingService.LoadSetting<ShippingProviderSettings>(CurrentStoreId);
+        var srcm = shippingService.LoadShippingRateCalculationProviderBySystemName(model.SystemName);
+        if (srcm == null)
+            return new JsonResult("");
+
+        if (srcm.IsShippingRateMethodActive(shippingProviderSettings))
+        {
+            if (!model.IsActive)
+            {
+                shippingProviderSettings.ActiveSystemNames.Remove(srcm.SystemName);
+                await settingService.SaveSetting(shippingProviderSettings, CurrentStoreId);
+            }
+        }
+        else
+        {
+            if (model.IsActive)
+            {
+                shippingProviderSettings.ActiveSystemNames.Add(srcm.SystemName);
+                await settingService.SaveSetting(shippingProviderSettings, CurrentStoreId);
+            }
+        }
+        return new JsonResult("");
     }
 
     #endregion
