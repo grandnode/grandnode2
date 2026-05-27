@@ -55,13 +55,10 @@ public class DeliveryDateService : IDeliveryDateService
     /// <returns>Delivery dates</returns>
     public virtual async Task<IList<DeliveryDate>> GetAllDeliveryDates(string storeId = "")
     {
-        var all = await _cacheBase.GetAsync(CacheKey.DELIVERYDATE_ALL, async () =>
-        {
-            var query = from dd in _deliveryDateRepository.Table
-                orderby dd.DisplayOrder
-                select dd;
-            return await Task.FromResult(query.ToList());
-        });
+        var query = from dd in _deliveryDateRepository.Table
+            orderby dd.DisplayOrder
+            select dd;
+        var all = await Task.FromResult(query.ToList());
         if (string.IsNullOrEmpty(storeId))
             return all;
         return all.Where(dd => string.IsNullOrEmpty(dd.StoreId) || dd.StoreId == storeId).ToList();
