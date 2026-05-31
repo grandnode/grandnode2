@@ -1,11 +1,10 @@
-﻿@model ShippingMethodRestrictionModel
+@model ShippingMethodRestrictionModel
 
 @{
-    //page title
     ViewBag.Title = Loc["Admin.Configuration.Shipping.Restrictions"];
+    Layout = Constants.LayoutStore;
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Shipping" asp-action="Restrictions" method="post">
-    <input type="hidden" asp-for="StoreId" />
+<form asp-area="@Constants.AreaStore" asp-controller="Shipping" asp-action="Restrictions" method="post">
 
     <div class="row">
         <div class="col-md-12">
@@ -19,26 +18,9 @@
                         <button class="btn btn-success" type="submit" name="save">
                             <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
                         </button>
-                        <vc:admin-widget widget-zone="shipping_restriction_list_buttons" additional-data="null"/>
                     </div>
                 </div>
                 <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="form-group">
-                                <label class="col-md-3 control-label">@Loc["Admin.Configuration.Shipping.Methods.Fields.Store"]</label>
-                                <div class="col-md-9 col-sm-9">
-                                    <select id="storeFilter" class="form-control"
-                                            onchange="window.location='@Url.Action("Restrictions", "Shipping", new { area = Constants.AreaAdmin })' + '?storeId=' + this.value">
-                                        @foreach (var s in Model.AvailableStores)
-                                        {
-                                            <option selected="@s.Selected" value="@s.Value">@s.Text</option>
-                                        }
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <admin-tabstrip name="shippingrestriction-edit">
                         <items>
                             <tabstrip-item text="@Loc["Admin.Configuration.Shipping.Restrictions.Country"]" tab-index="0">
@@ -55,7 +37,6 @@
                                     </div>
                                 </content>
                             </tabstrip-item>
-                            <vc:admin-widget widget-zone="shipping_restriction_details_tabs" additional-data="Model"/>
                         </items>
                     </admin-tabstrip>
                 </div>

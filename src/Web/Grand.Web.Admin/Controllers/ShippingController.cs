@@ -246,8 +246,13 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> Methods(DataSourceRequest command)
     {
+        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
         var shippingMethodsModel = (await _shippingMethodService.GetAllShippingMethods())
-            .Select(x => x.ToModel())
+            .Select(x => {
+                var m = x.ToModel();
+                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name) ? name : "";
+                return m;
+            })
             .ToList();
         var gridModel = new DataSourceResult {
             Data = shippingMethodsModel,
@@ -741,12 +746,18 @@ public class ShippingController : BaseAdminController
 
     #region Restrictions
 
-    public async Task<IActionResult> Restrictions()
+    public async Task<IActionResult> Restrictions(string storeId = "")
     {
         var model = new ShippingMethodRestrictionModel();
 
+        var stores = await _storeService.GetAllStores();
+        model.StoreId = storeId;
+        model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
+        foreach (var s in stores)
+            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id, Selected = s.Id == storeId });
+
         var countries = await _countryService.GetAllCountries(showHidden: true);
-        var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods(storeId);
         var customerGroups = await _groupService.GetAllCustomerGroups();
 
         foreach (var country in countries)
@@ -787,10 +798,10 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     [ActionName("Restrictions")]
     [RequestFormLimits(ValueCountLimit = 2048)]
-    public async Task<IActionResult> RestrictionSave(IDictionary<string, string[]> model)
+    public async Task<IActionResult> RestrictionSave(IDictionary<string, string[]> model, string storeId = "")
     {
         var countries = await _countryService.GetAllCountries(showHidden: true);
-        var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods(storeId);
         var customerGroups = await _groupService.GetAllCustomerGroups();
         foreach (var shippingMethod in shippingMethods)
         {
@@ -802,7 +813,7 @@ public class ShippingController : BaseAdminController
         //selected tab
         await SaveSelectedTabIndex();
 
-        return RedirectToAction("Restrictions");
+        return RedirectToAction("Restrictions", new { storeId });
     }
 
     private async Task SaveRestrictedGroup(IDictionary<string, string[]> model, ShippingMethod shippingMethod,
