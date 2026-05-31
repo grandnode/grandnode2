@@ -24,6 +24,8 @@ public class ShippingMethodModel : BaseEntityModel, ILocalizedModel<ShippingMeth
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
     public string StoreId { get; set; }
+
+    public string StoreName { get; set; }
 }
 
 public class ShippingMethodLocalizedModel : ILocalizedModelLocal
