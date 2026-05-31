@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Catalog;
+using Grand.Domain.Discounts;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions;
@@ -59,6 +60,15 @@ public class DiscountController : BaseStoreController
 
     private string CurrentStoreId =>
         _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+
+    private string BuildStoreRequirementUrl(IDiscountRule discountRequirementRule, Discount discount, string discountRequirementId)
+    {
+        var storeLocation = _contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/');
+        var configUrl = discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId);
+        if (configUrl.StartsWith("Admin/", StringComparison.OrdinalIgnoreCase))
+            configUrl = "Store/" + configUrl[6..];
+        return $"{storeLocation}/{configUrl}";
+    }
 
     #endregion
 
@@ -297,8 +307,7 @@ public class DiscountController : BaseStoreController
 
         var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x =>
             x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase));
-        var url = _discountViewModelService.GetRequirementUrlInternal(singleRequirement, discount,
-            discountRequirementId);
+        var url = BuildStoreRequirementUrl(singleRequirement, discount, discountRequirementId);
         return Json(new { url });
     }
 
@@ -325,8 +334,7 @@ public class DiscountController : BaseStoreController
 
         var discountRequirementRule = discountPlugin.GetRequirementRules()
             .First(x => x.SystemName == discountRequirement.DiscountRequirementRuleSystemName);
-        var url = _discountViewModelService.GetRequirementUrlInternal(discountRequirementRule, discount,
-            discountRequirementId);
+        var url = BuildStoreRequirementUrl(discountRequirementRule, discount, discountRequirementId);
         var ruleName = discountRequirementRule.FriendlyName;
 
         return Json(new { url, ruleName });
