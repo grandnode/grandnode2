@@ -56,9 +56,9 @@
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="StoreId"/>
+            <admin-label asp-for="AvailableStores"/>
             <div class="col-md-9 col-sm-9">
-                <select asp-for="StoreId" asp-items="Model.AvailableStores" class="form-control"></select>
+                <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
                 <span asp-validation-for="StoreId"></span>
             </div>
         </div>
