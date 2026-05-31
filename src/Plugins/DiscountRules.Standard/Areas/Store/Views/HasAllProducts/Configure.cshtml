@@ -77,12 +77,9 @@
                         //return false to don't reload a page
                         return false;
                     });
-                });
 
-                $(document).ready(function () {
                     loadDiscountRequirementProductFriendlyNames@(Model.RequirementId)();
-                });
-                $(document).ready(function () {
+
                     $('#@Html.IdFor(model => model.Products)')
                         .data('timeout', null)
                         .keyup(function() {
@@ -91,6 +88,7 @@
                             $(this).data('timeout', setTimeout(loadDiscountRequirementProductFriendlyNames@(Model.RequirementId), 1000));
                     });
                 });
+
                 function loadDiscountRequirementProductFriendlyNames@(Model.RequirementId)() {
                     var inputValue = $('#@Html.IdFor(model => model.Products)').val();
                     if (inputValue) {
