@@ -410,11 +410,11 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> DeliveryDates(DataSourceRequest command)
     {
-        var stores = await _storeService.GetAllStores();
+        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
         var deliveryDatesModel = (await _deliveryDateService.GetAllDeliveryDates())
             .Select(x => {
                 var m = x.ToModel();
-                m.StoreName = stores.FirstOrDefault(s => s.Id == x.StoreId)?.Shortcut ?? "";
+                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name) ? name : "";
                 return m;
             })
             .ToList();
@@ -533,11 +533,11 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> Warehouses(DataSourceRequest command)
     {
-        var stores = await _storeService.GetAllStores();
+        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
         var warehousesModel = (await _warehouseService.GetAllWarehouses())
             .Select(x => {
                 var m = x.ToModel();
-                m.StoreName = stores.FirstOrDefault(s => s.Id == x.StoreId)?.Shortcut ?? "";
+                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name) ? name : "";
                 return m;
             })
             .ToList();
@@ -640,11 +640,11 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> PickupPoints(DataSourceRequest command)
     {
-        var stores = await _storeService.GetAllStores();
+        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
         var pickupPointsModel = (await _pickupPointService.GetAllPickupPoints())
             .Select(x => {
                 var m = x.ToModel();
-                m.StoreName = stores.FirstOrDefault(s => s.Id == x.StoreId)?.Shortcut ?? "";
+                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name) ? name : "";
                 return m;
             })
             .ToList();
