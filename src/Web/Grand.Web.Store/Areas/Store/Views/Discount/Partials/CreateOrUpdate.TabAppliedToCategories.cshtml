@@ -1,0 +1,107 @@
+@model DiscountModel
+@{
+    if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="categories-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <a id="btnAddNewCategory" href="@(Url.Action("CategoryAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCategories", formId = "discount-form", area = Constants.AreaStore }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCategories.AddNew"]</a>
+                <input type="submit" id="btnRefreshCategories" style="display: none"/>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $('#btnAddNewCategory').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    midClick: true,
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
+                $("#categories-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("CategoryList", "Discount", new { discountId = Model.Id, area = Constants.AreaStore }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("CategoryDelete", "Discount", new { discountId = Model.Id, area = Constants.AreaStore }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "CategoryId",
+                                fields: {
+                                    CategoryName: {editable: false, type: "string" },
+                                    CategoryId: {editable: false, type: "string" }
+                                }
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: false,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "CategoryName",
+                        title: "@Loc["admin.marketing.Discounts.AppliedToCategories.Category"]",
+                        template: '<a class="k-link" href="@Url.Action("Edit", "Category", new { area = Constants.AreaStore })/#=CategoryId#">#=kendo.htmlEncode(CategoryName)#</a>',
+                    }, {
+                        command: [{
+                            name: "destroy",
+                            text: "@Loc["Admin.Common.Delete"]"
+                        }],
+                        width: 150
+                    }]
+                });
+            });
+        </script>
+
+        <script>
+            $(document).ready(function () {
+                $('#btnRefreshCategories').click(function () {
+                    var grid = $("#categories-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                    return false;
+                });
+            });
+        </script>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["admin.marketing.Discounts.AppliedToCategories.SaveBeforeEdit"]
+        </div>
+    }
+}
