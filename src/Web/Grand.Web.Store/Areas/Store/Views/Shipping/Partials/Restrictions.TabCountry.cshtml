@@ -60,7 +60,8 @@
                                 </td>
                                 @foreach (var sm in Model.AvailableShippingMethods)
                                 {
-                                    var restricted = Model.Restricted.ContainsKey(c.Id) && Model.Restricted[c.Id][sm.Id];
+                                    var restrictedByCountryExists = Model.Restricted.TryGetValue(c.Id, out var restrictedByCountry);
+                                    var restricted = restrictedByCountryExists && restrictedByCountry[sm.Id];
                                     var checkedValue = restricted ? "checked" : null;
                                     <td style="text-align:center">
                                         <label class='mt-checkbox mt-checkbox-outline control control-checkbox'>
