@@ -131,8 +131,9 @@ public class ProductController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> Create()
     {
-        var model = new ProductModel();
-        model.StoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+        var model = new ProductModel {
+            StoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId
+        };
         await _productViewModelService.PrepareProductModel(model, null, true, true);
         await AddLocales(_languageService, model.Locales);
         return View(model);

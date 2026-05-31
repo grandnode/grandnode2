@@ -30,7 +30,6 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net;
-using System.Text;
 using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
 
 namespace Grand.Web.AdminShared.Services;
@@ -249,8 +248,7 @@ public class ProductViewModelService(
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        model.PrimaryStoreCurrencyCode =
-            (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
+        model.PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
         model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId))?.Name;
         model.BaseDimensionIn = (await measureService.GetMeasureDimensionById(measureSettings.BaseDimensionId))?.Name;
 
@@ -307,7 +305,7 @@ public class ProductViewModelService(
             Text = translationService.GetResource("Admin.Catalog.Products.Fields.DeliveryDate.None"),
             Value = ""
         });
-        var deliveryDates = await deliveryDateService.GetAllDeliveryDates();
+        var deliveryDates = await deliveryDateService.GetAllDeliveryDates(model.StoreId);
         foreach (var deliveryDate in deliveryDates)
             model.AvailableDeliveryDates.Add(new SelectListItem {
                 Text = deliveryDate.Name,
@@ -315,7 +313,7 @@ public class ProductViewModelService(
             });
 
         //warehouses
-        var warehouses = await warehouseService.GetAllWarehouses();
+        var warehouses = await warehouseService.GetAllWarehouses(model.StoreId);
         model.AvailableWarehouses.Add(new SelectListItem {
             Text = translationService.GetResource("Admin.Catalog.Products.Fields.Warehouse.None"),
             Value = ""
@@ -438,7 +436,7 @@ public class ProductViewModelService(
         if (!product.UseMultipleWarehouses)
             return;
 
-        var warehouses = await warehouseService.GetAllWarehouses();
+        var warehouses = await warehouseService.GetAllWarehouses(product.Stores.Count == 1 ? product.Stores.First() : null);
 
         foreach (var warehouse in warehouses)
         {
@@ -705,8 +703,6 @@ public class ProductViewModelService(
 
         //warehouses
         await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
-
-
 
         await productService.UpdateProduct(product);
 
