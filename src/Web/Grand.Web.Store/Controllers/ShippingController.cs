@@ -591,7 +591,8 @@ public class ShippingController(
         var model = new ShippingMethodRestrictionModel();
 
         var countries = await countryService.GetAllCountries(showHidden: true);
-        var shippingMethods = await shippingMethodService.GetAllShippingMethods(CurrentStoreId);
+        var shippingMethods = (await shippingMethodService.GetAllShippingMethods(CurrentStoreId))
+            .Where(sm => sm.StoreId == CurrentStoreId).ToList();
         var customerGroups = await groupService.GetAllCustomerGroups();
 
         foreach (var country in countries)
@@ -635,7 +636,8 @@ public class ShippingController(
     public async Task<IActionResult> RestrictionSave(IDictionary<string, string[]> model)
     {
         var countries = await countryService.GetAllCountries(showHidden: true);
-        var shippingMethods = await shippingMethodService.GetAllShippingMethods(CurrentStoreId);
+        var shippingMethods = (await shippingMethodService.GetAllShippingMethods(CurrentStoreId))
+            .Where(sm => sm.StoreId == CurrentStoreId).ToList();
         var customerGroups = await groupService.GetAllCustomerGroups();
         foreach (var shippingMethod in shippingMethods)
         {
