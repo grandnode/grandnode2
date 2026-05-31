@@ -742,7 +742,7 @@ public static class StandardAdminSiteMap
                         new() {
                             SystemName = "Payment method restrictions",
                             ResourceName = "Admin.Configuration.Payment.MethodRestrictions",
-                            PermissionNames = new List<string> { PermissionSystemName.PaymentMethods },
+                            PermissionNames = new List<string> { PermissionSystemName.PaymentMethods, PermissionSystemName.System },
                             ControllerName = "Payment",
                             ActionName = "MethodRestrictions",
                             DisplayOrder = 2,
@@ -776,6 +776,7 @@ public static class StandardAdminSiteMap
                         new() {
                             SystemName = "Shipping method restrictions",
                             ResourceName = "Admin.Configuration.Shipping.Restrictions",
+                            PermissionNames = new List<string> { PermissionSystemName.System },
                             ControllerName = "Shipping",
                             ActionName = "Restrictions",
                             DisplayOrder = 2,
