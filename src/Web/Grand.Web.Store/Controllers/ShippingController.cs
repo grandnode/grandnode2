@@ -650,36 +650,37 @@ public class ShippingController(
     }
 
     private async Task SaveRestrictedGroup(IDictionary<string, string[]> model, ShippingMethod shippingMethod,
-        IPagedList<Grand.Domain.Customers.CustomerGroup> customerGroups)
+        IPagedList<CustomerGroup> customerGroups)
     {
         if (model.TryGetValue($"restrictgroup_{shippingMethod.Id}", out var roleIds))
         {
             var roleIdsToRestrict = roleIds.ToList();
+            var changed = false;
             foreach (var role in customerGroups)
             {
                 var restrict = roleIdsToRestrict.Contains(role.Id);
-                if (restrict)
+                var alreadyRestricted = shippingMethod.RestrictedGroups.Contains(role.Id);
+                if (restrict && !alreadyRestricted)
                 {
-                    if (shippingMethod.RestrictedGroups.FirstOrDefault(c => c == role.Id) == null)
-                    {
-                        shippingMethod.RestrictedGroups.Add(role.Id);
-                        await shippingMethodService.UpdateShippingMethod(shippingMethod);
-                    }
+                    shippingMethod.RestrictedGroups.Add(role.Id);
+                    changed = true;
                 }
-                else
+                else if (!restrict && alreadyRestricted)
                 {
-                    if (shippingMethod.RestrictedGroups.FirstOrDefault(c => c == role.Id) != null)
-                    {
-                        shippingMethod.RestrictedGroups.Remove(role.Id);
-                        await shippingMethodService.UpdateShippingMethod(shippingMethod);
-                    }
+                    shippingMethod.RestrictedGroups.Remove(role.Id);
+                    changed = true;
                 }
             }
+            if (changed)
+                await shippingMethodService.UpdateShippingMethod(shippingMethod);
         }
         else
         {
-            shippingMethod.RestrictedGroups.Clear();
-            await shippingMethodService.UpdateShippingMethod(shippingMethod);
+            if (shippingMethod.RestrictedGroups.Count > 0)
+            {
+                shippingMethod.RestrictedGroups.Clear();
+                await shippingMethodService.UpdateShippingMethod(shippingMethod);
+            }
         }
     }
 
@@ -689,32 +690,33 @@ public class ShippingController(
         if (model.TryGetValue($"restrict_{shippingMethod.Id}", out var countryIds))
         {
             var countryIdsToRestrict = countryIds.ToList();
+            var changed = false;
             foreach (var country in countries)
             {
                 var restrict = countryIdsToRestrict.Contains(country.Id);
-                if (restrict)
+                var alreadyRestricted = shippingMethod.RestrictedCountries.Any(c => c.Id == country.Id);
+                if (restrict && !alreadyRestricted)
                 {
-                    if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) == null)
-                    {
-                        shippingMethod.RestrictedCountries.Add(country);
-                        await shippingMethodService.UpdateShippingMethod(shippingMethod);
-                    }
+                    shippingMethod.RestrictedCountries.Add(country);
+                    changed = true;
                 }
-                else
+                else if (!restrict && alreadyRestricted)
                 {
-                    if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) != null)
-                    {
-                        shippingMethod.RestrictedCountries.Remove(
-                            shippingMethod.RestrictedCountries.FirstOrDefault(x => x.Id == country.Id));
-                        await shippingMethodService.UpdateShippingMethod(shippingMethod);
-                    }
+                    shippingMethod.RestrictedCountries.Remove(
+                        shippingMethod.RestrictedCountries.First(c => c.Id == country.Id));
+                    changed = true;
                 }
             }
+            if (changed)
+                await shippingMethodService.UpdateShippingMethod(shippingMethod);
         }
         else
         {
-            shippingMethod.RestrictedCountries.Clear();
-            await shippingMethodService.UpdateShippingMethod(shippingMethod);
+            if (shippingMethod.RestrictedCountries.Count > 0)
+            {
+                shippingMethod.RestrictedCountries.Clear();
+                await shippingMethodService.UpdateShippingMethod(shippingMethod);
+            }
         }
     }
 
