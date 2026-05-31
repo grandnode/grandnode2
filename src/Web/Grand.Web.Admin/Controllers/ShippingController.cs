@@ -410,8 +410,13 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> DeliveryDates(DataSourceRequest command)
     {
+        var stores = await _storeService.GetAllStores();
         var deliveryDatesModel = (await _deliveryDateService.GetAllDeliveryDates())
-            .Select(x => x.ToModel())
+            .Select(x => {
+                var m = x.ToModel();
+                m.StoreName = stores.FirstOrDefault(s => s.Id == x.StoreId)?.Shortcut ?? "";
+                return m;
+            })
             .ToList();
         var gridModel = new DataSourceResult {
             Data = deliveryDatesModel,
@@ -528,8 +533,13 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> Warehouses(DataSourceRequest command)
     {
+        var stores = await _storeService.GetAllStores();
         var warehousesModel = (await _warehouseService.GetAllWarehouses())
-            .Select(x => x.ToModel())
+            .Select(x => {
+                var m = x.ToModel();
+                m.StoreName = stores.FirstOrDefault(s => s.Id == x.StoreId)?.Shortcut ?? "";
+                return m;
+            })
             .ToList();
         var gridModel = new DataSourceResult {
             Data = warehousesModel,
@@ -630,8 +640,13 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> PickupPoints(DataSourceRequest command)
     {
+        var stores = await _storeService.GetAllStores();
         var pickupPointsModel = (await _pickupPointService.GetAllPickupPoints())
-            .Select(x => x.ToModel())
+            .Select(x => {
+                var m = x.ToModel();
+                m.StoreName = stores.FirstOrDefault(s => s.Id == x.StoreId)?.Shortcut ?? "";
+                return m;
+            })
             .ToList();
 
         var gridModel = new DataSourceResult {

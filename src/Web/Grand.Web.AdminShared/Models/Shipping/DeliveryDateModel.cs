@@ -24,6 +24,8 @@ public class DeliveryDateModel : BaseEntityModel, ILocalizedModel<DeliveryDateLo
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
     public string StoreId { get; set; }
+
+    public string StoreName { get; set; }
 }
 
 public class DeliveryDateLocalizedModel : ILocalizedModelLocal
