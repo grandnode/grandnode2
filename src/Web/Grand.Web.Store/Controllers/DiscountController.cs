@@ -61,13 +61,6 @@ public class DiscountController : BaseStoreController
     private string CurrentStoreId =>
         _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
-    private string BuildStoreRequirementUrl(IDiscountRule discountRequirementRule, Discount discount, string discountRequirementId)
-    {
-        var storeLocation = _contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/');
-        var configUrl = discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId, "Store");
-        return $"{storeLocation}/{configUrl}";
-    }
-
     #endregion
 
     #region Discounts
@@ -305,7 +298,7 @@ public class DiscountController : BaseStoreController
 
         var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x =>
             x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase));
-        var url = BuildStoreRequirementUrl(singleRequirement, discount, discountRequirementId);
+        var url = _discountViewModelService.GetRequirementUrlInternal(singleRequirement, discount, discountRequirementId);
         return Json(new { url });
     }
 
@@ -332,7 +325,7 @@ public class DiscountController : BaseStoreController
 
         var discountRequirementRule = discountPlugin.GetRequirementRules()
             .First(x => x.SystemName == discountRequirement.DiscountRequirementRuleSystemName);
-        var url = BuildStoreRequirementUrl(discountRequirementRule, discount, discountRequirementId);
+        var url = _discountViewModelService.GetRequirementUrlInternal(discountRequirementRule, discount, discountRequirementId);
         var ruleName = discountRequirementRule.FriendlyName;
 
         return Json(new { url, ruleName });
