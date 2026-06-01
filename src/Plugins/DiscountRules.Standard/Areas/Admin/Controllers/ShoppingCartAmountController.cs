@@ -9,8 +9,6 @@ using System.Globalization;
 
 namespace DiscountRules.Standard.Areas.Admin.Controllers;
 
-[Route("Admin/ShoppingCartAmount/[action]")]
-[Route("Store/ShoppingCartAmount/[action]")]
 public class ShoppingCartAmountController : BaseDiscountRulePluginController
 {
     private readonly IDiscountService _discountService;

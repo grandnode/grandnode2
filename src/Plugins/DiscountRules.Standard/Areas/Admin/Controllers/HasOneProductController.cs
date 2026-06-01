@@ -18,8 +18,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DiscountRules.Standard.Areas.Admin.Controllers;
 
-[Route("Admin/HasOneProduct/[action]")]
-[Route("Store/HasOneProduct/[action]")]
 public class HasOneProductController : BaseDiscountRulePluginController
 {
     private readonly IDiscountService _discountService;

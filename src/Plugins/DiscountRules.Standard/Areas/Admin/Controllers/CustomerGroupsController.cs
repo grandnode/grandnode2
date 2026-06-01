@@ -10,8 +10,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DiscountRules.Standard.Areas.Admin.Controllers;
 
-[Route("Admin/CustomerGroups/[action]")]
-[Route("Store/CustomerGroups/[action]")]
 public class CustomerGroupsController : BaseDiscountRulePluginController
 {
     private readonly IDiscountService _discountService;

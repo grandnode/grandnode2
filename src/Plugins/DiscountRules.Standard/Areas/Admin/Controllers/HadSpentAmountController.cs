@@ -9,8 +9,6 @@ using System.Globalization;
 
 namespace DiscountRules.Standard.Areas.Admin.Controllers;
 
-[Route("Admin/HadSpentAmount/[action]")]
-[Route("Store/HadSpentAmount/[action]")]
 public class HadSpentAmountController : BaseDiscountRulePluginController
 {
     private readonly IDiscountService _discountService;
