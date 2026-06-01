@@ -64,9 +64,7 @@ public class DiscountController : BaseStoreController
     private string BuildStoreRequirementUrl(IDiscountRule discountRequirementRule, Discount discount, string discountRequirementId)
     {
         var storeLocation = _contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/');
-        var configUrl = discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId);
-        if (configUrl.StartsWith("Admin/", StringComparison.OrdinalIgnoreCase))
-            configUrl = "Store/" + configUrl[6..];
+        var configUrl = discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId, "Store");
         return $"{storeLocation}/{configUrl}";
     }
 

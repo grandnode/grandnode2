@@ -1,4 +1,5 @@
-﻿using DiscountRules.Standard.Models;
+using DiscountRules.Standard.Controllers;
+using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -9,7 +10,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
-using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +17,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DiscountRules.Standard.Areas.Admin.Controllers;
 
-public class HasAllProductsController : BaseAdminPluginController
+[Route("Admin/HasAllProducts/[action]")]
+[Route("Store/HasAllProducts/[action]")]
+public class HasAllProductsController : BaseDiscountRulePluginController
 {
     private readonly IDiscountService _discountService;
     private readonly IPermissionService _permissionService;
@@ -28,7 +30,7 @@ public class HasAllProductsController : BaseAdminPluginController
     private readonly IContextAccessor _contextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
 
-
+    private string CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
     public HasAllProductsController(IDiscountService discountService,
         IPermissionService permissionService,
         IContextAccessor contextAccessor,
@@ -127,21 +129,29 @@ public class HasAllProductsController : BaseAdminPluginController
             IsLoggedInAsVendor = _contextAccessor.WorkContext.CurrentVendor != null
         };
 
-        //stores
-        model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-        foreach (var s in await _storeService.GetAllStores())
-            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        //stores - when acting as a store manager, scope to their store
+        if (!string.IsNullOrEmpty(CurrentStoreId))
+        {
+            var store = await _storeService.GetStoreById(CurrentStoreId);
+            if (store != null)
+                model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
+        }
+        else
+        {
+            model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
+            foreach (var s in await _storeService.GetAllStores())
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
-        //vendors
-        model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-        foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-            model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
+            //vendors (only shown to admins)
+            model.AvailableVendors.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
+            foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
+        }
 
         //product types
         model.AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-
 
         ViewBag.productIdsInput = productIdsInput;
         ViewBag.btnId = btnId;
@@ -159,6 +169,9 @@ public class HasAllProductsController : BaseAdminPluginController
 
         //a vendor should have access only to his products
         if (_contextAccessor.WorkContext.CurrentVendor != null) model.SearchVendorId = _contextAccessor.WorkContext.CurrentVendor.Id;
+        //a store manager should only search within their store
+        if (!string.IsNullOrEmpty(CurrentStoreId)) model.SearchStoreId = CurrentStoreId;
+
         var searchCategoryIds = new List<string>();
         if (!string.IsNullOrEmpty(model.SearchCategoryId))
             searchCategoryIds.Add(model.SearchCategoryId);

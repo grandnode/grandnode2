@@ -38,10 +38,10 @@ public class CustomerGroupDiscountRule : IDiscountRule
     /// <param name="discountId">Discount identifier</param>
     /// <param name="discountRequirementId">Discount requirement identifier (if editing)</param>
     /// <returns>URL</returns>
-    public string GetConfigurationUrl(string discountId, string discountRequirementId)
+    public string GetConfigurationUrl(string discountId, string discountRequirementId, string area = "Admin")
     {
         //configured 
-        var result = "Admin/CustomerGroups/Configure/?discountId=" + discountId;
+        var result = $"{area}/CustomerGroups/Configure/?discountId=" + discountId;
         if (!string.IsNullOrEmpty(discountRequirementId))
             result += $"&discountRequirementId={discountRequirementId}";
         return result;

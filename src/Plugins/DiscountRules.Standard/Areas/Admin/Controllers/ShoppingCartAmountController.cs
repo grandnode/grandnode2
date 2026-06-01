@@ -1,15 +1,17 @@
-﻿using DiscountRules.Standard.Models;
+using DiscountRules.Standard.Controllers;
+using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Discounts;
-using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 
 namespace DiscountRules.Standard.Areas.Admin.Controllers;
 
-public class ShoppingCartAmountController : BaseAdminPluginController
+[Route("Admin/ShoppingCartAmount/[action]")]
+[Route("Store/ShoppingCartAmount/[action]")]
+public class ShoppingCartAmountController : BaseDiscountRulePluginController
 {
     private readonly IDiscountService _discountService;
     private readonly IPermissionService _permissionService;

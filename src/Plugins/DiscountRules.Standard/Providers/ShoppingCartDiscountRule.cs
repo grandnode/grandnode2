@@ -83,10 +83,10 @@ public class ShoppingCartDiscountRule : IDiscountRule
     /// <param name="discountId">Discount identifier</param>
     /// <param name="discountRequirementId">Discount requirement identifier (if editing)</param>
     /// <returns>URL</returns>
-    public string GetConfigurationUrl(string discountId, string discountRequirementId)
+    public string GetConfigurationUrl(string discountId, string discountRequirementId, string area = "Admin")
     {
         //configured 
-        var result = "Admin/ShoppingCartAmount/Configure/?discountId=" + discountId;
+        var result = $"{area}/ShoppingCartAmount/Configure/?discountId=" + discountId;
         if (!string.IsNullOrEmpty(discountRequirementId))
             result += $"&discountRequirementId={discountRequirementId}";
         return result;
