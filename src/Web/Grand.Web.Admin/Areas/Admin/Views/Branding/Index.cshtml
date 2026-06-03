@@ -1,6 +1,5 @@
 @model BrandingSettingsModel
 @{
-    Layout = "_AdminLayout";
     ViewBag.Title = Loc["Admin.Design.Branding"];
 }
 
@@ -8,12 +7,14 @@
     <h1 class="float-left">@Loc["Admin.Design.Branding"]</h1>
 </div>
 
-<form asp-action="Index" method="post">
+<form asp-area="@Constants.AreaAdmin" asp-controller="Branding" asp-action="Index" method="post">
     <div asp-validation-summary="All"></div>
     <div class="row">
         <div class="col-md-12">
 
             <input asp-for="ActiveStore" type="hidden"/>
+
+            @await Component.InvokeAsync("StoreScope")
 
             @* Colors panel *@
             <div class="x_panel light form-fit">
@@ -22,9 +23,17 @@
                         <i class="fa fa-fw fa-paint-brush"></i>
                         @Loc["Admin.Design.Branding.Colors"]
                     </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                        </div>
+                    </div>
                     <div class="tools">
                         <a href="javascript:;" class="collapse"></a>
                     </div>
+                    <div class="clearfix"></div>
                 </div>
                 <div class="x_content form">
                     <div class="form-horizontal">
@@ -101,6 +110,7 @@
                                 </div>
                                 <div class="col-8 col-sm-9">
                                     <admin-input asp-for="LogoPictureId"/>
+                                    <span asp-validation-for="LogoPictureId"></span>
                                 </div>
                             </div>
 
@@ -110,6 +120,7 @@
                                 </div>
                                 <div class="col-8 col-sm-9">
                                     <admin-input asp-for="FaviconPictureId"/>
+                                    <span asp-validation-for="FaviconPictureId"></span>
                                 </div>
                             </div>
 
@@ -119,24 +130,10 @@
                                 </div>
                                 <div class="col-8 col-sm-9">
                                     <admin-input asp-for="BannerPictureId"/>
+                                    <span asp-validation-for="BannerPictureId"></span>
                                 </div>
                             </div>
 
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            @* Save button panel *@
-            <div class="x_panel light form-fit">
-                <div class="x_content form">
-                    <div class="form-horizontal">
-                        <div class="form-body">
-                            <div class="form-group row">
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-primary">@Loc["Admin.Common.Save"]</button>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
