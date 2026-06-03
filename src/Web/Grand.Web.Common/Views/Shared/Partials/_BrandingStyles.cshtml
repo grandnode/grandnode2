@@ -1,0 +1,55 @@
+@using Grand.Business.Core.Interfaces.Common.Configuration
+@using Grand.Business.Core.Interfaces.Storage
+@using Grand.Domain.Stores
+@using Grand.Infrastructure
+@inject ISettingService settingService
+@inject IContextAccessor contextAccessor
+@inject IPictureService pictureService
+@{
+    var storeId = contextAccessor.StoreContext.CurrentStore.Id;
+    var branding = await settingService.LoadSetting<BrandingSettings>(storeId);
+
+    var hasColors = !string.IsNullOrEmpty(branding.PrimaryColor)
+        || !string.IsNullOrEmpty(branding.SecondaryColor)
+        || !string.IsNullOrEmpty(branding.AccentColor)
+        || !string.IsNullOrEmpty(branding.BackgroundColor)
+        || !string.IsNullOrEmpty(branding.TextColor)
+        || !string.IsNullOrEmpty(branding.BannerPictureId);
+
+    var faviconUrl = !string.IsNullOrEmpty(branding.FaviconPictureId)
+        ? await pictureService.GetPictureUrl(branding.FaviconPictureId)
+        : null;
+
+    var bannerUrl = !string.IsNullOrEmpty(branding.BannerPictureId)
+        ? await pictureService.GetPictureUrl(branding.BannerPictureId)
+        : null;
+}
+@if (hasColors)
+{
+    <style>
+        :root {
+            @if (!string.IsNullOrEmpty(branding.PrimaryColor)) {
+                <text>--brand-primary: @branding.PrimaryColor;</text>
+            }
+            @if (!string.IsNullOrEmpty(branding.SecondaryColor)) {
+                <text>--brand-secondary: @branding.SecondaryColor;</text>
+            }
+            @if (!string.IsNullOrEmpty(branding.AccentColor)) {
+                <text>--brand-accent: @branding.AccentColor;</text>
+            }
+            @if (!string.IsNullOrEmpty(branding.BackgroundColor)) {
+                <text>--brand-background: @branding.BackgroundColor;</text>
+            }
+            @if (!string.IsNullOrEmpty(branding.TextColor)) {
+                <text>--brand-text: @branding.TextColor;</text>
+            }
+            @if (!string.IsNullOrEmpty(bannerUrl)) {
+                <text>--brand-banner: url('@bannerUrl');</text>
+            }
+        }
+    </style>
+}
+@if (!string.IsNullOrEmpty(faviconUrl))
+{
+    <link rel="shortcut icon" href="@faviconUrl" type="image/x-icon"/>
+}
