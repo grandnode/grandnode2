@@ -1,4 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@inject Grand.Domain.Stores.BrandingSettings _brandingSettings
+@inject Grand.Business.Core.Interfaces.Storage.IPictureService _brandingPictureSvc
+@inject Grand.Infrastructure.IContextAccessor _brandingCtx
+@{
+    var _brandingLogoUrl = !string.IsNullOrEmpty(_brandingSettings.LogoPictureId)
+        ? await _brandingPictureSvc.GetPictureUrl(_brandingSettings.LogoPictureId)
+        : null;
+}
+<!DOCTYPE html>
 <html use-lang="true">
 <head>
     <title asp-default-title="true"></title>
@@ -14,6 +22,7 @@
     <canonical-urls>
     @*Favicon - upload favicon.ico file to the wwwroot directory*@
     <partial name="Partials/Favicons"/>
+    <partial name="Partials/_BrandingStyles"/>
     <resources asp-type="HeadLink"/>
     <resources asp-type="HeadScript"/>
     @await RenderSectionAsync("head", false)
@@ -35,7 +44,16 @@
                 <div class="container px-0">
                     <partial name="Header"/>
                     <div class="header-nav-bottom">
-                        <partial name="Partials/Logo"/>
+                        @if (!string.IsNullOrEmpty(_brandingLogoUrl))
+                        {
+                            <a class="navbar-brand store-logo mx-lg-0 mx-auto" href="@Url.RouteUrl("HomePage")">
+                                <img src="@_brandingLogoUrl" alt="@_brandingCtx.StoreContext.CurrentStore.Name"/>
+                            </a>
+                        }
+                        else
+                        {
+                            <partial name="Partials/Logo"/>
+                        }
                         @await Component.InvokeAsync("SearchBox")
                         <ul class="navbar-nav top-header-items">
                             <template>
