@@ -7,16 +7,11 @@
         ? await pictureService.GetPictureUrl(branding.FaviconPictureId)
         : null;
 
-    var bannerUrl = !string.IsNullOrEmpty(branding.BannerPictureId)
-        ? await pictureService.GetPictureUrl(branding.BannerPictureId)
-        : null;
-
     var hasCssVars = !string.IsNullOrEmpty(branding.PrimaryColor)
         || !string.IsNullOrEmpty(branding.SecondaryColor)
         || !string.IsNullOrEmpty(branding.AccentColor)
         || !string.IsNullOrEmpty(branding.BackgroundColor)
-        || !string.IsNullOrEmpty(branding.TextColor)
-        || !string.IsNullOrEmpty(bannerUrl);
+        || !string.IsNullOrEmpty(branding.TextColor);
 }
 @if (hasCssVars)
 {
@@ -36,9 +31,6 @@
             }
             @if (!string.IsNullOrEmpty(branding.TextColor)) {
                 <text>--brand-text: @branding.TextColor;</text>
-            }
-            @if (!string.IsNullOrEmpty(bannerUrl)) {
-                <text>--brand-banner: url("@bannerUrl");</text>
             }
         }
     </style>
