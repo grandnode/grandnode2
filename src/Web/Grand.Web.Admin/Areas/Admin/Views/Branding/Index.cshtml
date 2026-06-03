@@ -1,0 +1,147 @@
+@model BrandingSettingsModel
+@{
+    Layout = "_AdminLayout";
+    ViewBag.Title = Loc["Admin.Design.Branding"];
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">@Loc["Admin.Design.Branding"]</h1>
+</div>
+
+<form asp-action="Index" method="post">
+    <div asp-validation-summary="All"></div>
+    <div class="row">
+        <div class="col-md-12">
+
+            <input asp-for="ActiveStore" type="hidden"/>
+
+            @* Colors panel *@
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-fw fa-paint-brush"></i>
+                        @Loc["Admin.Design.Branding.Colors"]
+                    </div>
+                    <div class="tools">
+                        <a href="javascript:;" class="collapse"></a>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+
+                            <div class="form-group row">
+                                <div class="col-4 col-sm-3 text-right">
+                                    <admin-label asp-for="PrimaryColor" class="control-label"/>
+                                </div>
+                                <div class="col-8 col-sm-9">
+                                    <input type="color" asp-for="PrimaryColor" class="form-control" style="width:80px; padding:2px;"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4 col-sm-3 text-right">
+                                    <admin-label asp-for="SecondaryColor" class="control-label"/>
+                                </div>
+                                <div class="col-8 col-sm-9">
+                                    <input type="color" asp-for="SecondaryColor" class="form-control" style="width:80px; padding:2px;"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4 col-sm-3 text-right">
+                                    <admin-label asp-for="AccentColor" class="control-label"/>
+                                </div>
+                                <div class="col-8 col-sm-9">
+                                    <input type="color" asp-for="AccentColor" class="form-control" style="width:80px; padding:2px;"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4 col-sm-3 text-right">
+                                    <admin-label asp-for="BackgroundColor" class="control-label"/>
+                                </div>
+                                <div class="col-8 col-sm-9">
+                                    <input type="color" asp-for="BackgroundColor" class="form-control" style="width:80px; padding:2px;"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4 col-sm-3 text-right">
+                                    <admin-label asp-for="TextColor" class="control-label"/>
+                                </div>
+                                <div class="col-8 col-sm-9">
+                                    <input type="color" asp-for="TextColor" class="form-control" style="width:80px; padding:2px;"/>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Images panel *@
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-fw fa-image"></i>
+                        @Loc["Admin.Design.Branding.Images"]
+                    </div>
+                    <div class="tools">
+                        <a href="javascript:;" class="collapse"></a>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+
+                            <div class="form-group row">
+                                <div class="col-4 col-sm-3 text-right">
+                                    <admin-label asp-for="LogoPictureId" class="control-label"/>
+                                </div>
+                                <div class="col-8 col-sm-9">
+                                    <admin-input asp-for="LogoPictureId"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4 col-sm-3 text-right">
+                                    <admin-label asp-for="FaviconPictureId" class="control-label"/>
+                                </div>
+                                <div class="col-8 col-sm-9">
+                                    <admin-input asp-for="FaviconPictureId"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-4 col-sm-3 text-right">
+                                    <admin-label asp-for="BannerPictureId" class="control-label"/>
+                                </div>
+                                <div class="col-8 col-sm-9">
+                                    <admin-input asp-for="BannerPictureId"/>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* Save button panel *@
+            <div class="x_panel light form-fit">
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group row">
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">@Loc["Admin.Common.Save"]</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
