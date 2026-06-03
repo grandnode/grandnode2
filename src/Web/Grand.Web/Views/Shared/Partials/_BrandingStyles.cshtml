@@ -1,21 +1,8 @@
-@using Grand.Business.Core.Interfaces.Common.Configuration
 @using Grand.Business.Core.Interfaces.Storage
 @using Grand.Domain.Stores
-@using Grand.Infrastructure
-@inject ISettingService settingService
-@inject IContextAccessor contextAccessor
+@inject BrandingSettings branding
 @inject IPictureService pictureService
 @{
-    var storeId = contextAccessor.StoreContext.CurrentStore.Id;
-    var branding = await settingService.LoadSetting<BrandingSettings>(storeId);
-
-    var hasColors = !string.IsNullOrEmpty(branding.PrimaryColor)
-        || !string.IsNullOrEmpty(branding.SecondaryColor)
-        || !string.IsNullOrEmpty(branding.AccentColor)
-        || !string.IsNullOrEmpty(branding.BackgroundColor)
-        || !string.IsNullOrEmpty(branding.TextColor)
-        || !string.IsNullOrEmpty(branding.BannerPictureId);
-
     var faviconUrl = !string.IsNullOrEmpty(branding.FaviconPictureId)
         ? await pictureService.GetPictureUrl(branding.FaviconPictureId)
         : null;
@@ -23,8 +10,15 @@
     var bannerUrl = !string.IsNullOrEmpty(branding.BannerPictureId)
         ? await pictureService.GetPictureUrl(branding.BannerPictureId)
         : null;
+
+    var hasCssVars = !string.IsNullOrEmpty(branding.PrimaryColor)
+        || !string.IsNullOrEmpty(branding.SecondaryColor)
+        || !string.IsNullOrEmpty(branding.AccentColor)
+        || !string.IsNullOrEmpty(branding.BackgroundColor)
+        || !string.IsNullOrEmpty(branding.TextColor)
+        || !string.IsNullOrEmpty(bannerUrl);
 }
-@if (hasColors)
+@if (hasCssVars)
 {
     <style>
         :root {
@@ -44,7 +38,7 @@
                 <text>--brand-text: @branding.TextColor;</text>
             }
             @if (!string.IsNullOrEmpty(bannerUrl)) {
-                <text>--brand-banner: url('@bannerUrl');</text>
+                <text>--brand-banner: url("@bannerUrl");</text>
             }
         }
     </style>

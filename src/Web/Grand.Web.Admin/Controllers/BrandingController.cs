@@ -54,11 +54,11 @@ public class BrandingController : BaseAdminController
         var storeScope = await GetActiveStore();
         var settings = await _settingService.LoadSetting<BrandingSettings>(storeScope);
 
-        settings.PrimaryColor = model.PrimaryColor;
-        settings.SecondaryColor = model.SecondaryColor;
-        settings.AccentColor = model.AccentColor;
-        settings.BackgroundColor = model.BackgroundColor;
-        settings.TextColor = model.TextColor;
+        settings.PrimaryColor = SanitizeColor(model.PrimaryColor);
+        settings.SecondaryColor = SanitizeColor(model.SecondaryColor);
+        settings.AccentColor = SanitizeColor(model.AccentColor);
+        settings.BackgroundColor = SanitizeColor(model.BackgroundColor);
+        settings.TextColor = SanitizeColor(model.TextColor);
         settings.LogoPictureId = model.LogoPictureId;
         settings.FaviconPictureId = model.FaviconPictureId;
         settings.BannerPictureId = model.BannerPictureId;
@@ -68,5 +68,11 @@ public class BrandingController : BaseAdminController
 
         Success(_translationService.GetResource("Admin.Configuration.Updated"));
         return RedirectToAction("Index");
+    }
+
+    private static string SanitizeColor(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return null;
+        return System.Text.RegularExpressions.Regex.IsMatch(value, @"^#[0-9a-fA-F]{3,8}$") ? value : null;
     }
 }
