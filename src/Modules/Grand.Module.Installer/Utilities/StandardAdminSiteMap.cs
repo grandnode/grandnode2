@@ -572,11 +572,28 @@ public static class StandardAdminSiteMap
         },
 
         new AdminSiteMap {
+            SystemName = "Design",
+            ResourceName = "Admin.Design",
+            IconClass = "fa fa-paint-brush",
+            DisplayOrder = 6,
+            ChildNodes = new List<AdminSiteMap> {
+                new() {
+                    SystemName = "Branding",
+                    ResourceName = "Admin.Design.Branding",
+                    ControllerName = "Branding",
+                    ActionName = "Index",
+                    DisplayOrder = 0,
+                    IconClass = "fa fa-dot-circle-o"
+                }
+            }
+        },
+
+        new AdminSiteMap {
             SystemName = "Reports",
             ResourceName = "Admin.Reports",
             PermissionNames = new List<string> { PermissionSystemName.Reports },
             IconClass = "icon-bar-chart",
-            DisplayOrder = 6,
+            DisplayOrder = 7,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
                     SystemName = "Low stock report",
@@ -640,7 +657,7 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.Widgets, PermissionSystemName.Stores, PermissionSystemName.Maintenance
             },
             IconClass = "icon-settings",
-            DisplayOrder = 7,
+            DisplayOrder = 8,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
                     SystemName = "Stores",
@@ -914,7 +931,7 @@ public static class StandardAdminSiteMap
             PermissionNames = new List<string> { PermissionSystemName.Settings },
             ResourceName = "Admin.Settings",
             IconClass = "icon-wrench",
-            DisplayOrder = 8,
+            DisplayOrder = 9,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
                     SystemName = "General and common settings",
@@ -1011,7 +1028,7 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.ExternalAuthenticationMethods
             },
             IconClass = "icon-puzzle",
-            DisplayOrder = 9,
+            DisplayOrder = 10,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
                     SystemName = "External authentication methods",
@@ -1051,7 +1068,7 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks, PermissionSystemName.System
             },
             IconClass = "icon-info",
-            DisplayOrder = 10,
+            DisplayOrder = 11,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
                     SystemName = "System information",
@@ -1160,7 +1177,7 @@ public static class StandardAdminSiteMap
             SystemName = "Help",
             ResourceName = "Admin.Help",
             IconClass = "icon-question",
-            DisplayOrder = 11,
+            DisplayOrder = 12,
             ChildNodes = new List<AdminSiteMap> {
                 new() {
                     SystemName = "Community forums",
@@ -1186,7 +1203,7 @@ public static class StandardAdminSiteMap
         new AdminSiteMap {
             SystemName = "Third party plugins",
             ResourceName = "Admin.Plugins",
-            DisplayOrder = 12
+            DisplayOrder = 13
         }
     ];
 }
