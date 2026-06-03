@@ -37,7 +37,7 @@ public class DiscountRuleValidTest : IDiscountRule
         return await Task.FromResult(result);
     }
 
-    public string GetConfigurationUrl(string discountId, string discountRequirementId, string area = "Admin")
+    public string GetConfigurationUrl(string discountId, string discountRequirementId)
     {
         throw new NotImplementedException();
     }

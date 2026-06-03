@@ -3,5 +3,5 @@ using Grand.Web.Common.Filters;
 
 namespace DiscountRules.Standard.Controllers;
 
-[AuthorizeMenu]
+[AuthorizeAdminOrStore]
 public abstract class BaseDiscountRulePluginController : BaseController;
