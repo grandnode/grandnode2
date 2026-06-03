@@ -11,16 +11,16 @@
     <PackageVersion Include="Scalar.AspNetCore" Version="2.14.14" />
     <PackageVersion Include="Scryber.Core" Version="9.5.0" />
     <PackageVersion Include="Scryber.Core.OpenType" Version="9.2.0" />
-    <PackageVersion Include="MailKit" Version="4.16.0" />
-    <PackageVersion Include="AWSSDK.Core" Version="4.0.7.1" />
-    <PackageVersion Include="AWSSDK.S3" Version="4.0.23.3" />
+    <PackageVersion Include="MailKit" Version="4.17.0" />
+    <PackageVersion Include="AWSSDK.Core" Version="4.0.7.5" />
+    <PackageVersion Include="AWSSDK.S3" Version="4.0.24" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.28.0" />
     <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.12" />
-    <PackageVersion Include="SkiaSharp" Version="3.119.2" />
-    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.2" />
+    <PackageVersion Include="SkiaSharp" Version="3.119.4" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.4" />
     <PackageVersion Include="LiteDB" Version="5.0.21" />
-    <PackageVersion Include="MongoDB.Bson" Version="3.8.1" />
-    <PackageVersion Include="MongoDB.Driver" Version="3.8.1" />
+    <PackageVersion Include="MongoDB.Bson" Version="3.9.0" />
+    <PackageVersion Include="MongoDB.Driver" Version="3.9.0" />
     <PackageVersion Include="DotLiquid" Version="2.3.197" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageVersion Include="GoogleAuthenticator" Version="3.2.0" />
@@ -33,7 +33,7 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="5.3.0" />
     <PackageVersion Include="MediatR" Version="12.5.0" />
     <PackageVersion Include="Scrutor" Version="7.0.0" />
-    <PackageVersion Include="StackExchange.Redis" Version="2.13.1" />
+    <PackageVersion Include="StackExchange.Redis" Version="2.13.17" />
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="Microsoft.AspNetCore.JsonPatch.SystemTextJson" Version="10.0.8" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="10.0.8" />
@@ -55,15 +55,15 @@
     <PackageVersion Include="NetEscapades.AspNetCore.SecurityHeaders" Version="1.3.1" />
     <PackageVersion Include="Wangkanai.Detection" Version="8.20.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.8" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.6.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="MSTest.TestAdapter" Version="4.2.3" />
     <PackageVersion Include="MSTest.TestFramework" Version="4.2.3" />
-    <PackageVersion Include="coverlet.collector" Version="10.0.0" />
-    <PackageVersion Include="NUnit" Version="4.6.0" />
-    <PackageVersion Include="Verify.MSTest" Version="31.16.3" />
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.3.3" />
-    <PackageVersion Include="Aspire.Hosting.MongoDB" Version="13.3.3" />
+    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
+    <PackageVersion Include="NUnit" Version="4.6.1" />
+    <PackageVersion Include="Verify.MSTest" Version="31.19.0" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.4.1" />
+    <PackageVersion Include="Aspire.Hosting.MongoDB" Version="13.4.1" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.6.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.6.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.3" />
@@ -75,7 +75,7 @@
     <PackageVersion Include="Aspire.Hosting.Orchestration.$(NETCoreSdkRuntimeIdentifier)" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Update="Aspire.Dashboard.Sdk.win-x64" Version="13.3.3" />
-    <PackageVersion Update="Aspire.Hosting.Orchestration.win-x64" Version="13.3.3" />
+    <PackageVersion Update="Aspire.Dashboard.Sdk.win-x64" Version="13.4.1" />
+    <PackageVersion Update="Aspire.Hosting.Orchestration.win-x64" Version="13.4.1" />
   </ItemGroup>
 </Project>
