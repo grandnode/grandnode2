@@ -250,10 +250,7 @@ public class DiscountViewModelService : IDiscountViewModelService
         ArgumentNullException.ThrowIfNull(discountRequirementRule);
         ArgumentNullException.ThrowIfNull(discount);
 
-        var storeLocation = _contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/');
-
-        var url =
-            $"{storeLocation}/{discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId)}";
+        var url = discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId);
         return url;
     }
 

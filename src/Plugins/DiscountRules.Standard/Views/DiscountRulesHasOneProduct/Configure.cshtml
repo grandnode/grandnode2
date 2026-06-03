@@ -21,7 +21,7 @@
             $.ajax({
                 cache:false,
                 type: "POST",
-                url: "@Url.Action("Configure", "HasOneProduct")",
+                url: "@Url.Action("Configure", "DiscountRulesHasOneProduct")",
                 data: postData,
                 success: function (data) {
                     $('#pnl-save-requirement-result@(Model.RequirementId)').fadeIn("slow").delay(1000).fadeOut("slow");

@@ -28,7 +28,6 @@ public interface IDiscountRule
     /// </summary>
     /// <param name="discountId">Discount id</param>
     /// <param name="discountRequirementId">Discount requirement id</param>
-    /// <param name="area">Area name (e.g. "Admin" or "Store")</param>
     /// <returns>URL</returns>
-    string GetConfigurationUrl(string discountId, string discountRequirementId, string area = "Admin");
+    string GetConfigurationUrl(string discountId, string discountRequirementId);
 }

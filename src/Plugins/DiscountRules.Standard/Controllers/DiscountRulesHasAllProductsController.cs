@@ -1,4 +1,3 @@
-using DiscountRules.Standard.Controllers;
 using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -9,16 +8,15 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Permissions;
-using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace DiscountRules.Standard.Areas.Admin.Controllers;
+namespace DiscountRules.Standard.Controllers;
 
-public class HasOneProductController : BaseDiscountRulePluginController
+public class DiscountRulesHasAllProductsController : BaseDiscountRulePluginController
 {
     private readonly IDiscountService _discountService;
     private readonly IPermissionService _permissionService;
@@ -29,10 +27,8 @@ public class HasOneProductController : BaseDiscountRulePluginController
     private readonly IContextAccessor _contextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
 
-    private Vendor CurrentVendor => _contextAccessor.WorkContext.CurrentVendor;
     private string CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
-    public HasOneProductController(IDiscountService discountService,
+    public DiscountRulesHasAllProductsController(IDiscountService discountService,
         IPermissionService permissionService,
         IContextAccessor contextAccessor,
         ITranslationService translationService,
@@ -51,29 +47,17 @@ public class HasOneProductController : BaseDiscountRulePluginController
         _enumTranslationService = enumTranslationService;
     }
 
-    private async Task<IActionResult> AuthorizeAsync(Permission permission)
-    {
-        if (!await _permissionService.Authorize(permission))
-            return Content("Access denied");
-        return null;
-    }
-
-    private async Task<Discount> GetDiscountAsync(string discountId)
-    {
-        var discount = await _discountService.GetDiscountById(discountId);
-        if (discount == null)
-            throw new ArgumentException("Discount could not be loaded");
-        return discount;
-    }
-
     public async Task<IActionResult> Configure(string discountId, string discountRequirementId)
     {
-        var authResult = await AuthorizeAsync(StandardPermission.ManageDiscounts);
-        if (authResult != null) return authResult;
+        if (!await AuthorizeManageDiscounts())
+            return Content("Access denied");
 
-        var discount = await GetDiscountAsync(discountId);
+        var discount = await GetDiscountById(discountId);
+        if (discount == null)
+            throw new ArgumentException("Discount could not be loaded");
 
         var restrictedProductIds = string.Empty;
+
         if (!string.IsNullOrEmpty(discountRequirementId))
         {
             var discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
@@ -83,7 +67,7 @@ public class HasOneProductController : BaseDiscountRulePluginController
             restrictedProductIds = discountRequirement.Metadata;
         }
 
-        var model = new RequirementOneProductModel {
+        var model = new RequirementAllProductsModel {
             RequirementId = !string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "",
             DiscountId = discountId,
             Products = restrictedProductIds
@@ -91,7 +75,7 @@ public class HasOneProductController : BaseDiscountRulePluginController
 
         //add a prefix
         ViewData.TemplateInfo.HtmlFieldPrefix =
-            $"DiscountRulesHasOneProduct{discount.Id}-{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
+            $"DiscountRulesHasAllProducts{discount.Id}-{(!string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "")}";
 
         return View(model);
     }
@@ -100,12 +84,15 @@ public class HasOneProductController : BaseDiscountRulePluginController
     [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Configure(string discountId, string discountRequirementId, string productIds)
     {
-        var authResult = await AuthorizeAsync(StandardPermission.ManageDiscounts);
-        if (authResult != null) return authResult;
+        if (!await AuthorizeManageDiscounts())
+            return Content("Access denied");
 
-        var discount = await GetDiscountAsync(discountId);
+        var discount = await GetDiscountById(discountId);
+        if (discount == null)
+            throw new ArgumentException("Discount could not be loaded");
 
         DiscountRule discountRequirement = null;
+
         if (!string.IsNullOrEmpty(discountRequirementId))
             discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
 
@@ -119,7 +106,7 @@ public class HasOneProductController : BaseDiscountRulePluginController
         {
             //save new rule
             discountRequirement = new DiscountRule {
-                DiscountRequirementRuleSystemName = "DiscountRules.HasOneProduct",
+                DiscountRequirementRuleSystemName = "DiscountRules.HasAllProducts",
                 Metadata = productIds
             };
             discount.DiscountRules.Add(discountRequirement);
@@ -131,12 +118,12 @@ public class HasOneProductController : BaseDiscountRulePluginController
 
     public async Task<IActionResult> ProductAddPopup(string btnId, string productIdsInput)
     {
-        var authResult = await AuthorizeAsync(StandardPermission.ManageProducts);
-        if (authResult != null) return authResult;
+        if (!await AuthorizeManageProducts())
+            return Content("Access denied");
 
-        var model = new RequirementOneProductModel.AddProductModel {
+        var model = new RequirementAllProductsModel.AddProductModel {
             //a vendor should have access only to his products
-            IsLoggedInAsVendor = CurrentVendor != null
+            IsLoggedInAsVendor = _contextAccessor.WorkContext.CurrentVendor != null
         };
 
         //stores - when acting as a store manager, scope to their store
@@ -172,13 +159,13 @@ public class HasOneProductController : BaseDiscountRulePluginController
     [HttpPost]
     [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command,
-        RequirementOneProductModel.AddProductModel model)
+        RequirementAllProductsModel.AddProductModel model)
     {
-        var authResult = await AuthorizeAsync(StandardPermission.ManageProducts);
-        if (authResult != null) return authResult;
+        if (!await AuthorizeManageProducts())
+            return Content("Access denied");
 
         //a vendor should have access only to his products
-        if (CurrentVendor != null) model.SearchVendorId = CurrentVendor.Id;
+        if (_contextAccessor.WorkContext.CurrentVendor != null) model.SearchVendorId = _contextAccessor.WorkContext.CurrentVendor.Id;
         //a store manager should only search within their store
         if (!string.IsNullOrEmpty(CurrentStoreId)) model.SearchStoreId = CurrentStoreId;
 
@@ -198,7 +185,7 @@ public class HasOneProductController : BaseDiscountRulePluginController
             showHidden: true
         )).products;
         var gridModel = new DataSourceResult {
-            Data = products.Select(x => new RequirementOneProductModel.ProductModel {
+            Data = products.Select(x => new RequirementAllProductsModel.ProductModel {
                 Id = x.Id,
                 Name = x.Name,
                 Published = x.Published
@@ -213,20 +200,58 @@ public class HasOneProductController : BaseDiscountRulePluginController
     [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> LoadProductFriendlyNames(string productIds)
     {
-        var authResult = await AuthorizeAsync(StandardPermission.ManageProducts);
-        if (authResult != null) return authResult;
-
         var result = "";
 
+        if (!await AuthorizeManageProducts())
+            return new JsonResult(new { Text = result });
+
         if (string.IsNullOrWhiteSpace(productIds)) return new JsonResult(new { Text = result });
-        var ids = productIds
-            .Split(',', StringSplitOptions.RemoveEmptyEntries)
-            .Select(x => x.Split(':')[0].Trim())
+        var ids = new List<string>();
+        var rangeArray = productIds
+            .Split([','], StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => x.Trim())
             .ToList();
 
+        //we support three ways of specifying products:
+        //1. The comma-separated list of product identifiers (e.g. 77, 123, 156).
+        //2. The comma-separated list of product identifiers with quantities.
+        //      {Product ID}:{Quantity}. For example, 77:1, 123:2, 156:3
+        //3. The comma-separated list of product identifiers with quantity range.
+        //      {Product ID}:{Min quantity}-{Max quantity}. For example, 77:1-3, 123:2-5, 156:3-8
+        foreach (var str1 in rangeArray)
+        {
+            var str2 = str1;
+            //we do not display specified quantities and ranges
+            //parse only product names
+            if (str2.Contains(':'))
+                str2 = str2[..str2.IndexOf(":", StringComparison.Ordinal)];
+
+            ids.Add(str2);
+        }
+
         var products = await _productService.GetProductsByIds(ids.ToArray(), true);
-        result = string.Join(", ", products.Select(p => p.Name));
+        for (var i = 0; i <= products.Count - 1; i++)
+        {
+            result += products[i].Name;
+            if (i != products.Count - 1)
+                result += ", ";
+        }
 
         return new JsonResult(new { Text = result });
+    }
+
+    private async Task<bool> AuthorizeManageDiscounts()
+    {
+        return await _permissionService.Authorize(StandardPermission.ManageDiscounts);
+    }
+
+    private async Task<bool> AuthorizeManageProducts()
+    {
+        return await _permissionService.Authorize(StandardPermission.ManageProducts);
+    }
+
+    private async Task<Discount> GetDiscountById(string discountId)
+    {
+        return await _discountService.GetDiscountById(discountId);
     }
 }

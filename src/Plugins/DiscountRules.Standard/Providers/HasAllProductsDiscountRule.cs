@@ -121,10 +121,10 @@ public class HasAllProductsDiscountRule : IDiscountRule
     /// <param name="discountId">Discount identifier</param>
     /// <param name="discountRequirementId">Discount requirement identifier (if editing)</param>
     /// <returns>URL</returns>
-    public string GetConfigurationUrl(string discountId, string discountRequirementId, string area = "Admin")
+    public string GetConfigurationUrl(string discountId, string discountRequirementId)
     {
         //configured 
-        var result = $"{area}/HasAllProducts/Configure/?discountId=" + discountId;
+        var result = $"/DiscountRulesHasAllProducts/Configure/?discountId=" + discountId;
         if (!string.IsNullOrEmpty(discountRequirementId))
             result += $"&discountRequirementId={discountRequirementId}";
         return result;
