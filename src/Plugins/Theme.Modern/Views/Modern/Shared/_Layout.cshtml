@@ -1,6 +1,5 @@
 ﻿@inject Grand.Domain.Stores.BrandingSettings _brandingSettings
 @inject Grand.Business.Core.Interfaces.Storage.IPictureService _brandingPictureSvc
-@inject Grand.Infrastructure.IContextAccessor _brandingCtx
 @{
     var _brandingLogoUrl = !string.IsNullOrEmpty(_brandingSettings.LogoPictureId)
         ? await _brandingPictureSvc.GetPictureUrl(_brandingSettings.LogoPictureId)
@@ -47,7 +46,7 @@
                         @if (!string.IsNullOrEmpty(_brandingLogoUrl))
                         {
                             <a class="navbar-brand store-logo mx-lg-0 mx-auto" href="@Url.RouteUrl("HomePage")">
-                                <img src="@_brandingLogoUrl" alt="@_brandingCtx.StoreContext.CurrentStore.Name"/>
+                                <img src="@_brandingLogoUrl" alt=""/>
                             </a>
                         }
                         else
