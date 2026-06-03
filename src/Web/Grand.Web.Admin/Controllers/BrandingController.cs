@@ -1,20 +1,31 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
+using Grand.Infrastructure.Caching;
 using Grand.Web.AdminShared.Models.Settings;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
+[PermissionAuthorize(PermissionSystemName.Settings)]
 public class BrandingController : BaseAdminController
 {
     private readonly ISettingService _settingService;
     private readonly ITranslationService _translationService;
+    private readonly ICacheBase _cacheBase;
 
-    public BrandingController(ISettingService settingService, ITranslationService translationService)
+    public BrandingController(ISettingService settingService, ITranslationService translationService, ICacheBase cacheBase)
     {
         _settingService = settingService;
         _translationService = translationService;
+        _cacheBase = cacheBase;
+    }
+
+    protected async Task ClearCache()
+    {
+        await _cacheBase.Clear();
     }
 
     public async Task<IActionResult> Index()
@@ -53,6 +64,7 @@ public class BrandingController : BaseAdminController
         settings.BannerPictureId = model.BannerPictureId;
 
         await _settingService.SaveSetting(settings, storeScope);
+        await ClearCache();
 
         Success(_translationService.GetResource("Admin.Configuration.Updated"));
         return RedirectToAction("Index");
