@@ -59,11 +59,10 @@ public class AuthorizeAdminOrStoreAttribute : TypeFilterAttribute
             var hasStaffStore = !string.IsNullOrEmpty(customer.StaffStoreId);
 
             // Store manager path: user belongs to the store manager group with an active store assignment
-            if (isStoreManager || hasStaffStore)
+            if (isStoreManager)
             {
-                if (!await permissionService.Authorize(StandardPermission.ManageAccessStoreManagerPanel))
+                if (!hasStaffStore || !await permissionService.Authorize(StandardPermission.ManageAccessStoreManagerPanel))
                     filterContext.Result = new RedirectToRouteResult("StoreLogin", new RouteValueDictionary());
-
                 return;
             }
 
