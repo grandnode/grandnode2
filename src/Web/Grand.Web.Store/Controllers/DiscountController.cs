@@ -259,7 +259,7 @@ public class DiscountController : BaseStoreController
         if (!discount.AccessToEntityByStore(CurrentStoreId))
             return new JsonResult(new DataSourceResult { Errors = "Access denied" });
 
-        couponCode = couponCode.ToUpper();
+        couponCode = couponCode.ToUpperInvariant();
 
         if (await _discountService.GetDiscountByCouponCode(couponCode) != null)
             return new JsonResult(new DataSourceResult { Errors = "Coupon code exists" });
