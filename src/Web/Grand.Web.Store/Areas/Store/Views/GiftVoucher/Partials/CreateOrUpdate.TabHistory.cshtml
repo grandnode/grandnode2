@@ -1,0 +1,58 @@
+@model GiftVoucherModel
+@inject AdminAreaSettings adminAreaSettings
+
+<div id="usagehistory-grid"></div>
+<script>
+    $(document).ready(function () {
+        $("#usagehistory-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("UsageHistoryList", "GiftVoucher", new { giftVoucherId = Model.Id, area = Constants.AreaStore }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "CreatedOn",
+                title: "@Loc["Admin.GiftVouchers.History.CreatedOn"]",
+                width: 200,
+                type: "date",
+                format: "{0:G}"
+            }, {
+                field: "OrderId",
+                title: "@Loc["Admin.GiftVouchers.History.Order"]",
+                width: 200,
+                template: '<a href="@Url.Action("Edit", "Order", new { area = Constants.AreaStore })/#=OrderId#" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Common.View"] #=OrderNumber#</a>'
+            }, {
+                field: "UsedValue",
+                title: "@Loc["Admin.GiftVouchers.History.UsedValue"]",
+                width: 200
+            }]
+        });
+    });
+</script>

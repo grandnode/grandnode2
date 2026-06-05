@@ -78,7 +78,7 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
     }
 
     public virtual async Task<(IEnumerable<GiftVoucherModel> giftVoucherModels, int totalCount)>
-        PrepareGiftVoucherModel(GiftVoucherListModel model, int pageIndex, int pageSize)
+        PrepareGiftVoucherModel(GiftVoucherListModel model, int pageIndex, int pageSize, string storeId = "")
     {
         bool? isGiftVoucherActivated = null;
         switch (model.ActivatedId)
@@ -92,6 +92,7 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
         }
 
         var giftVouchers = await _giftVoucherService.GetAllGiftVouchers(
+            storeId: storeId,
             isGiftVoucherActivated: isGiftVoucherActivated,
             giftVoucherCouponCode: model.CouponCode,
             recipientName: model.RecipientName,

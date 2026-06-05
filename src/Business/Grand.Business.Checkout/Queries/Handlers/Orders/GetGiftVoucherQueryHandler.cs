@@ -22,6 +22,9 @@ public class GetGiftVoucherQueryHandler : IRequestHandler<GetGiftVoucherQuery, I
         if (!string.IsNullOrEmpty(request.GiftVoucherId))
             query = query.Where(gc => gc.Id == request.GiftVoucherId);
 
+        if (!string.IsNullOrEmpty(request.StoreId))
+            query = query.Where(gc => gc.StoreId == request.StoreId || gc.StoreId == null || gc.StoreId == "");
+
         if (!string.IsNullOrEmpty(request.PurchasedWithOrderItemId))
             query = query.Where(gc => gc.PurchasedWithOrderItem.Id == request.PurchasedWithOrderItemId);
 

@@ -9,7 +9,7 @@ public interface IGiftVoucherViewModelService
     Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucherModel model = null);
 
     Task<(IEnumerable<GiftVoucherModel> giftVoucherModels, int totalCount)> PrepareGiftVoucherModel(
-        GiftVoucherListModel model, int pageIndex, int pageSize);
+        GiftVoucherListModel model, int pageIndex, int pageSize, string storeId = "");
 
     Task<GiftVoucherModel> FillGiftVoucherModel(GiftVoucher giftVoucher, GiftVoucherModel model);
     Task NotifyRecipient(GiftVoucher giftVoucher);
