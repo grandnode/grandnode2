@@ -81,7 +81,7 @@ public class ContactAttributeController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> Create()
     {
-        var model = new ContactAttributeModel();
+        var model = new ContactAttributeStoreModel();
         await AddLocales(_languageService, model.Locales);
         await _contactAttributeViewModelService.PrepareConditionAttributes(model, null);
         return View(model);
@@ -90,7 +90,7 @@ public class ContactAttributeController : BaseStoreController
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public async Task<IActionResult> Create(ContactAttributeModel model, bool continueEditing)
+    public async Task<IActionResult> Create(ContactAttributeStoreModel model, bool continueEditing)
     {
         if (ModelState.IsValid)
         {
