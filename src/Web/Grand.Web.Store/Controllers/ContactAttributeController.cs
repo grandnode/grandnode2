@@ -5,10 +5,12 @@ using Grand.Domain.Messages;
 using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Messages;
+using Grand.Web.Store.Models.Messages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
@@ -111,7 +113,8 @@ public class ContactAttributeController : BaseStoreController
         if (contactAttribute == null || !IsVisibleToStore(contactAttribute))
             return RedirectToAction("List");
 
-        var model = contactAttribute.ToModel();
+        var model = contactAttribute.MapTo<ContactAttribute, ContactAttributeStoreModel>();
+        model.IsReadOnly = !contactAttribute.AccessToEntityByStore(CurrentStoreId);
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
         {
             locale.Name = contactAttribute.GetTranslation(x => x.Name, languageId, false);
@@ -119,7 +122,6 @@ public class ContactAttributeController : BaseStoreController
         });
         await _contactAttributeViewModelService.PrepareConditionAttributes(model, contactAttribute);
 
-        ViewBag.IsReadOnly = !contactAttribute.AccessToEntityByStore(CurrentStoreId);
         return View(model);
     }
 
@@ -149,9 +151,10 @@ public class ContactAttributeController : BaseStoreController
             return RedirectToAction("List");
         }
 
-        await _contactAttributeViewModelService.PrepareConditionAttributes(model, contactAttribute);
-        ViewBag.IsReadOnly = false;
-        return View(model);
+        var storeModel = contactAttribute.MapTo<ContactAttribute, ContactAttributeStoreModel>();
+        storeModel.IsReadOnly = false;
+        await _contactAttributeViewModelService.PrepareConditionAttributes(storeModel, contactAttribute);
+        return View(storeModel);
     }
 
     [HttpPost]

@@ -1,6 +1,6 @@
-@model ContactAttributeModel
+@model ContactAttributeStoreModel
 @{
-    var isReadOnly = (bool)(ViewBag.IsReadOnly ?? false);
+    var isReadOnly = Model.IsReadOnly;
     ViewBag.Title = isReadOnly
         ? Loc["Admin.Catalog.Attributes.ContactAttributes.EditAttributeDetails"]
         : Loc["Admin.Catalog.Attributes.ContactAttributes.EditAttributeDetails"];

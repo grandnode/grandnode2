@@ -1,7 +1,7 @@
 @using Microsoft.AspNetCore.Mvc.Razor
-@model ContactAttributeModel
+@model ContactAttributeStoreModel
 @{
-    var isReadOnly = (bool)(ViewBag.IsReadOnly ?? false);
+    var isReadOnly = Model.IsReadOnly;
 }
 
 <script>

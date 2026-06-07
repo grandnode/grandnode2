@@ -1,6 +1,6 @@
-@model ContactAttributeModel
+@model ContactAttributeStoreModel
 @{
-    var isReadOnly = (bool)(ViewBag.IsReadOnly ?? false);
+    var isReadOnly = Model.IsReadOnly;
 
     if (!string.IsNullOrEmpty(Model.Id))
     {
