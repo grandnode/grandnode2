@@ -1,9 +1,7 @@
 @model ContactAttributeStoreModel
 @{
     var isReadOnly = Model.IsReadOnly;
-    ViewBag.Title = isReadOnly
-        ? Loc["Admin.Catalog.Attributes.ContactAttributes.EditAttributeDetails"]
-        : Loc["Admin.Catalog.Attributes.ContactAttributes.EditAttributeDetails"];
+    ViewBag.Title = Loc["Admin.Catalog.Attributes.ContactAttributes.EditAttributeDetails"];
 }
 <form asp-area="@Constants.AreaStore" asp-controller="ContactAttribute" asp-action="Edit" method="post" id="contactattribute-form">
 
