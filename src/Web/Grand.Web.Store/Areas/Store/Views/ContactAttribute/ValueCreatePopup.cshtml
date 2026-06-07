@@ -1,0 +1,54 @@
+@using Grand.Web.Common.Extensions
+@model ContactAttributeValueModel
+@{
+    Layout = "";
+}
+<form id="ValueCreatePopup" asp-area="@Constants.AreaStore" asp-controller="ContactAttribute" asp-action="ValueCreatePopup"
+      asp-route-contactAttributeId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["contactAttributeId"])">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-list-alt"></i>
+                        @Loc["Admin.Catalog.Attributes.ContactAttributes.Values.AddNew"]
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <partial name="Partials/CreateOrUpdateValue" model="Model"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#ValueCreatePopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefresh').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</form>
