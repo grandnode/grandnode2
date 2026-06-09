@@ -1,7 +1,7 @@
-@model TaxCategoryListModel
+@model Grand.Web.Store.Models.TaxCategoryListModel
 @{
-    //page title
     ViewBag.Title = Loc["Admin.Configuration.Tax.Categories"];
+    Layout = Constants.LayoutStore;
 }
 
 <div class="row">
@@ -12,7 +12,6 @@
                     <i class="fa fa-money"></i>
                     @Loc["Admin.Configuration.Tax.Categories"]
                 </div>
-                <vc:admin-widget widget-zone="tax_category_list_buttons" additional-data="null"/>
             </div>
             <div class="x_content form">
                 <div class="form-horizontal">
@@ -28,34 +27,32 @@
 </div>
 
 <script>
-    var storesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
-        Model.AvailableStores.Select(s => new { text = s.Text, value = s.Value })
-    ));
+    var currentStoreId = '@Model.StoreId';
 
     $(document).ready(function () {
-        $("#tax-categories-grid").kendoGrid({
+        var grid = $("#tax-categories-grid").kendoGrid({
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("Categories", "Tax", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("Categories", "Tax", new { area = Constants.AreaStore }))",
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
                     },
                     create: {
-                        url: "@Html.Raw(Url.Action("CategoryAdd", "Tax", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("CategoryAdd", "Tax", new { area = Constants.AreaStore }))",
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
                     },
                     update: {
-                        url: "@Html.Raw(Url.Action("CategoryUpdate", "Tax", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("CategoryUpdate", "Tax", new { area = Constants.AreaStore }))",
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
                     },
                     destroy: {
-                        url: "@Html.Raw(Url.Action("CategoryDelete", "Tax", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("CategoryDelete", "Tax", new { area = Constants.AreaStore }))",
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
@@ -70,9 +67,8 @@
                         fields: {
                             Name: { editable: true, type: "string" },
                             DisplayOrder: { editable: true, type: "number" },
-                            StoreId: { editable: true, type: "string", defaultValue: "" },
-                            StoreName: { editable: false, type: "string" },
-                            Id: { editable: false, type: "string" }
+                            Id: { editable: false, type: "string" },
+                            StoreId: { editable: false, type: "string", defaultValue: "" }
                         }
                     }
                 },
@@ -101,29 +97,24 @@
                 mode: "inline"
             },
             scrollable: false,
+            dataBound: function () {
+                var g = this;
+                g.tbody.find("tr[data-uid]").each(function () {
+                    var dataItem = g.dataItem(this);
+                    if (dataItem && dataItem.StoreId !== "" && dataItem.StoreId !== currentStoreId) {
+                        $(this).find(".k-grid-edit, .k-grid-delete").hide();
+                    }
+                });
+            },
             columns: [{
                 field: "Name",
                 title: "@Loc["Admin.Configuration.Tax.Categories.Fields.Name"]",
-                width: 250
+                width: 300
             }, {
                 field: "DisplayOrder",
                 title: "@Loc["Admin.Configuration.Tax.Categories.Fields.DisplayOrder"]",
                 format: "{0:0}",
                 width: 100
-            }, {
-                field: "StoreId",
-                title: "@Loc["Admin.Common.Store"]",
-                width: 200,
-                template: "#=StoreName#",
-                editor: function (container, options) {
-                    $('<input name="' + options.field + '"/>')
-                        .appendTo(container)
-                        .kendoDropDownList({
-                            dataTextField: "text",
-                            dataValueField: "value",
-                            dataSource: storesData
-                        });
-                }
             }, {
                 command: [{
                     name: "edit",
@@ -138,6 +129,6 @@
                 }],
                 width: 200
             }]
-        });
+        }).data("kendoGrid");
     });
 </script>
