@@ -312,6 +312,7 @@ public class OrderCalculationService : IOrderCalculationService
 
         //get the customer 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        var store = _contextAccessor.StoreContext.CurrentStore;
 
         //sub totals
         double subTotalExclTaxWithoutDiscount = 0;
@@ -325,10 +326,10 @@ public class OrderCalculationService : IOrderCalculationService
             var subtotal = await _pricingService.GetSubTotal(shoppingCartItem, product);
             var sciSubTotal = subtotal.subTotal;
 
-            var pricesExcl = await _taxService.GetProductPrice(product, sciSubTotal, false, customer);
+            var pricesExcl = await _taxService.GetProductPrice(product, sciSubTotal, false, customer, store);
             var sciExclTax = pricesExcl.productprice;
 
-            var (sciInclTax, taxRate) = await _taxService.GetProductPrice(product, sciSubTotal, true, customer);
+            var (sciInclTax, taxRate) = await _taxService.GetProductPrice(product, sciSubTotal, true, customer, store);
 
             subTotalExclTaxWithoutDiscount += sciExclTax;
             subTotalInclTaxWithoutDiscount += sciInclTax;
@@ -345,25 +346,15 @@ public class OrderCalculationService : IOrderCalculationService
         //checkout attributes
         if (customer != null)
         {
-            var checkoutAttributes =
-                customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
-                    _contextAccessor.StoreContext.CurrentStore.Id);
+            var checkoutAttributes = customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, store.Id);
             var attributeValues = await _checkoutAttributeParser.ParseCheckoutAttributeValue(checkoutAttributes);
             foreach (var attributeValue in attributeValues)
             {
-                var checkoutAttributePriceExclTax =
-                    await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, false,
-                        customer);
-                var caExclTax =
-                    await _currencyService.ConvertFromPrimaryStoreCurrency(
-                        checkoutAttributePriceExclTax.checkoutPrice, _contextAccessor.WorkContext.WorkingCurrency);
-
-                var (checkoutPrice, taxRate) =
-                    await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, true,
-                        customer);
-                var caInclTax =
-                    await _currencyService.ConvertFromPrimaryStoreCurrency(checkoutPrice,
-                        _contextAccessor.WorkContext.WorkingCurrency);
+                var checkoutAttributePriceExclTax = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, false, customer, store);
+                
+                var caExclTax = await _currencyService.ConvertFromPrimaryStoreCurrency(checkoutAttributePriceExclTax.checkoutPrice, _contextAccessor.WorkContext.WorkingCurrency);
+                var (checkoutPrice, taxRate) = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, true, customer, store);
+                var caInclTax = await _currencyService.ConvertFromPrimaryStoreCurrency(checkoutPrice, _contextAccessor.WorkContext.WorkingCurrency);
 
                 subTotalExclTaxWithoutDiscount += caExclTax;
                 subTotalInclTaxWithoutDiscount += caInclTax;
@@ -385,8 +376,7 @@ public class OrderCalculationService : IOrderCalculationService
             subTotalWithoutDiscount = 0;
 
         if (_shoppingCartSettings.RoundPrices)
-            subTotalWithoutDiscount =
-                RoundingHelper.RoundPrice(subTotalWithoutDiscount, _contextAccessor.WorkContext.WorkingCurrency);
+            subTotalWithoutDiscount = RoundingHelper.RoundPrice(subTotalWithoutDiscount, _contextAccessor.WorkContext.WorkingCurrency);
 
         //We calculate discount amount on order subtotal excl tax (discount first)
         //calculate discount amount ('Applied to order subtotal' discount)
@@ -573,6 +563,7 @@ public class OrderCalculationService : IOrderCalculationService
         double taxRate = 0;
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        var store = _contextAccessor.StoreContext.CurrentStore;
         var currency = await _currencyService.GetPrimaryExchangeRateCurrency();
 
         var isFreeShipping = await IsFreeShipping(cart);
@@ -646,7 +637,7 @@ public class OrderCalculationService : IOrderCalculationService
         if (_shoppingCartSettings.RoundPrices)
             shippingTotal = RoundingHelper.RoundPrice(shippingTotal.Value, currency);
 
-        var shippingPrice = await _taxService.GetShippingPrice(shippingTotal.Value, includingTax, customer);
+        var shippingPrice = await _taxService.GetShippingPrice(shippingTotal.Value, includingTax, customer, store);
         double? shippingTotalTaxed = shippingPrice.shippingPrice;
         taxRate = shippingPrice.taxRate;
 
@@ -674,6 +665,8 @@ public class OrderCalculationService : IOrderCalculationService
         var taxRates = new SortedDictionary<double, double>();
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        var store = _contextAccessor.StoreContext.CurrentStore;
+
         var paymentMethodSystemName = "";
         if (customer != null)
             paymentMethodSystemName = customer.GetUserFieldFromEntity<string>(
@@ -732,12 +725,11 @@ public class OrderCalculationService : IOrderCalculationService
                 await _paymentService.GetAdditionalHandlingFee(cart, paymentMethodSystemName);
 
             var additionalFeeExclTax =
-                await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, false, customer);
+                await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, false, customer, store);
             var paymentMethodAdditionalFeeExclTax = additionalFeeExclTax.paymentPrice;
 
             var (paymentMethodAdditionalFeeInclTax, taxRate) =
-                await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, true, customer);
-
+                await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, true, customer, store);
             paymentMethodAdditionalFeeTax = paymentMethodAdditionalFeeInclTax - paymentMethodAdditionalFeeExclTax;
             //ensure that tax is equal or greater than zero
             if (paymentMethodAdditionalFeeTax < 0)
@@ -806,7 +798,7 @@ public class OrderCalculationService : IOrderCalculationService
                 await _paymentService.GetAdditionalHandlingFee(cart, paymentMethodSystemName);
             paymentMethodAdditionalFeeWithoutTax =
                 (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, false,
-                    _contextAccessor.WorkContext.CurrentCustomer))
+                    _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore))
                 .paymentPrice;
         }
 

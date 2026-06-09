@@ -101,7 +101,7 @@ public class GetShippingAddressHandler : IRequestHandler<GetShippingAddress, Che
                 };
                 if (pickupPoint.PickupFee > 0)
                 {
-                    var amount = (await _taxService.GetShippingPrice(pickupPoint.PickupFee, request.Customer))
+                    var amount = (await _taxService.GetShippingPrice(pickupPoint.PickupFee, request.Customer, request.Store))
                         .shippingPrice;
                     amount = await _currencyService.ConvertFromPrimaryStoreCurrency(amount, request.Currency);
                     pickupPointModel.PickupFee = _priceFormatter.FormatPrice(amount, request.Currency);

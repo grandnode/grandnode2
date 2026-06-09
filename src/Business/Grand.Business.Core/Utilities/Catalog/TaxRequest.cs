@@ -1,6 +1,7 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Utilities.Catalog;
 
@@ -23,6 +24,11 @@ public class TaxRequest
     ///     Gets or sets an address
     /// </summary>
     public Address Address { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the store in which the tax is being calculated
+    /// </summary>
+    public Store Store { get; set; }
 
     /// <summary>
     ///     Gets or sets a tax category identifier

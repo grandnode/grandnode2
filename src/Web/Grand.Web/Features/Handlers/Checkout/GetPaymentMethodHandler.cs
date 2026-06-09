@@ -89,7 +89,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
             //payment method additional fee
             var paymentMethodAdditionalFee =
                 await _paymentService.GetAdditionalHandlingFee(request.Cart, pm.SystemName);
-            var rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer))
+            var rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer, request.Store))
                 .paymentPrice;
             if (rate > 0)
                 pmModel.Fee = _priceFormatter.FormatPrice(rate, request.Currency);

@@ -64,7 +64,7 @@ public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, Check
                 var shippingTotal = (await _orderTotalCalculationService.AdjustShippingRate(
                     shippingOption.Rate, request.Cart)).shippingRate;
 
-                var rateBase = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
+                var rateBase = (await _taxService.GetShippingPrice(shippingTotal, request.Customer, request.Store)).shippingPrice;
                 soModel.Fee = _priceFormatter.FormatPrice(rateBase);
 
                 model.ShippingMethods.Add(soModel);

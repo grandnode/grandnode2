@@ -1,7 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Tax.CountryStateZip.Infrastructure.Cache;
 using Tax.CountryStateZip.Services;
@@ -15,18 +14,15 @@ public class CountryStateZipTaxProvider : ITaxProvider
     private readonly CountryStateZipTaxSettings _countryStateZipTaxSettings;
     private readonly ITaxRateService _taxRateService;
     private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
 
 
     public CountryStateZipTaxProvider(ITranslationService translationService,
         ICacheBase cacheBase,
-        IContextAccessor contextAccessor,
         ITaxRateService taxRateService,
         CountryStateZipTaxSettings countryStateZipTaxSettings)
     {
         _translationService = translationService;
         _cacheBase = cacheBase;
-        _contextAccessor = contextAccessor;
         _taxRateService = taxRateService;
         _countryStateZipTaxSettings = countryStateZipTaxSettings;
     }
@@ -61,7 +57,7 @@ public class CountryStateZipTaxProvider : ITaxProvider
         var allTaxRates = await GetAllTaxRatesFromCache();
 
         var address = calculateTaxRequest.Address;
-        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
+        var storeId = calculateTaxRequest.Store?.Id ?? string.Empty;
         var zip = address.ZipPostalCode?.Trim() ?? string.Empty;
 
         var byCountryAndCategory = allTaxRates

@@ -7,6 +7,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using System.Net;
@@ -42,6 +43,7 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     /// </summary>
     /// <param name="customAttributes">Attributes</param>
     /// <param name="customer">Customer</param>
+    /// <param name="store">Store</param>
     /// <param name="separator">Separator</param>
     /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
     /// <param name="renderPrices">A value indicating whether to render prices</param>
@@ -49,6 +51,7 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     /// <returns>Attributes</returns>
     public virtual async Task<string> FormatAttributes(IList<CustomAttribute> customAttributes,
         Customer customer,
+        Store store,
         string separator = "<br />",
         bool htmlEncode = true,
         bool renderPrices = true,
@@ -128,7 +131,7 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
                         if (renderPrices)
                         {
                             var priceAdjustmentBase =
-                                (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue, customer))
+                                (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue, customer, store))
                                 .checkoutPrice;
                             var priceAdjustment =
                                 await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase,

@@ -120,7 +120,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         var paymentMethodAdditionalFee =
             await _paymentService.GetAdditionalHandlingFee(request.Cart, paymentMethodSystemName);
         var paymentMethodAdditionalFeeWithTaxBase =
-            (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer))
+            (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer, request.Store))
             .paymentPrice;
         if (paymentMethodAdditionalFeeWithTaxBase > 0)
         {

@@ -238,7 +238,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
                                 //calculate prices
                                 var finalPrice = (await _taxService.GetProductPrice(minPriceProduct,
                                         minPossiblePrice.Value, priceIncludesTax,
-                                        _contextAccessor.WorkContext.CurrentCustomer))
+                                        _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore))
                                     .productprice;
 
                                 priceModel.OldPrice = null;
@@ -346,9 +346,9 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
                             var minPossiblePrice = infoPrice.finalPrice;
 
                             var oldPriceBase = (await _taxService.GetProductPrice(product, product.OldPrice,
-                                priceIncludesTax, _contextAccessor.WorkContext.CurrentCustomer)).productprice;
+                                priceIncludesTax, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
                             var finalPrice = (await _taxService.GetProductPrice(product, minPossiblePrice,
-                                priceIncludesTax, _contextAccessor.WorkContext.CurrentCustomer)).productprice;
+                                priceIncludesTax, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)).productprice;
 
                             var oldPrice =
                                 await _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase,
