@@ -52,11 +52,10 @@ public class TaxCategoryService : ITaxCategoryService
         var key = string.Format(CacheKey.TAXCATEGORIES_ALL_KEY, storeId);
         return await _cacheBase.GetAsync(key, async () =>
         {
-            var query = _taxCategoryRepository.Table.OrderBy(tc => tc.DisplayOrder);
+            var query = _taxCategoryRepository.Table.AsQueryable();
             if (!string.IsNullOrEmpty(storeId))
-                query = query.Where(tc => tc.StoreId == storeId || string.IsNullOrEmpty(tc.StoreId))
-                             .OrderBy(tc => tc.DisplayOrder);
-            return await Task.FromResult(query.ToList());
+                query = query.Where(tc => tc.StoreId == storeId || string.IsNullOrEmpty(tc.StoreId));
+            return await Task.FromResult(query.OrderBy(tc => tc.DisplayOrder).ToList());
         });
     }
 
