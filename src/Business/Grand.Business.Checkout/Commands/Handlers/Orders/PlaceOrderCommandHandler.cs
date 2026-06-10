@@ -619,7 +619,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         var (scSubTotal, discountAmount, scDiscounts) = await _pricingService.GetSubTotal(sc, product);
 
         var prices = await _taxService.GetTaxProductPrice(product, details.Customer,
-            _contextAccessor.StoreContext.CurrentStore, scUnitPrice,
+            details.Store, scUnitPrice,
             scUnitPriceWithoutDisc, sc.Quantity, scSubTotal, discountAmount, _taxSettings.PricesIncludeTax);
         var scUnitPriceWithoutDiscInclTax = prices.UnitPriceWithoutDiscInclTax;
         var scUnitPriceWithoutDiscExclTax = prices.UnitPriceWithoutDiscExclTax;
