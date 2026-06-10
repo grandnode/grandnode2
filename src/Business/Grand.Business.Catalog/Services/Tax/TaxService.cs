@@ -518,8 +518,7 @@ public class TaxService : ITaxService
         if (!_taxSettings.PaymentMethodAdditionalFeeIsTaxable) return (price, 0);
         var taxClassId = _taxSettings.PaymentMethodAdditionalFeeTaxCategoryId;
         var priceIncludesTax = _taxSettings.PaymentMethodAdditionalFeeIncludesTax;
-        var prices = await GetProductPrice(null, taxClassId, price, includingTax, customer,
-            store ?? _contextAccessor.StoreContext.CurrentStore, priceIncludesTax);
+        var prices = await GetProductPrice(null, taxClassId, price, includingTax, customer, store, priceIncludesTax);
         return (prices.productprice, prices.taxRate);
     }
 
