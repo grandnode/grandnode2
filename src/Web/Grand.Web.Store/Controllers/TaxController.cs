@@ -127,7 +127,7 @@ public class TaxController(
         if (states?.Count > 0)
             foreach (var s in states)
                 model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem
-                    { Text = s.Name, Value = s.Id, Selected = s.Id == defaultAddress.StateProvinceId });
+                    { Text = s.Name, Value = s.Id, Selected = s.Id == defaultAddress?.StateProvinceId });
 
         model.DefaultTaxAddress.CountryEnabled = true;
         model.DefaultTaxAddress.StateProvinceEnabled = true;
