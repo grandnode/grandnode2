@@ -1,9 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Permissions;
+using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,46 +12,62 @@ using Tax.CountryStateZip.Domain;
 using Tax.CountryStateZip.Models;
 using Tax.CountryStateZip.Services;
 
-namespace Tax.CountryStateZip.Areas.Admin.Controllers;
+namespace Tax.CountryStateZip.Areas.Store.Controllers;
 
+/// <summary>
+///     Store-manager configuration of the country/state/zip tax provider.
+///     A store owner can add, edit and delete tax rates, but only the ones that
+///     belong to his own store (<see cref="CurrentStoreId" />). Records owned by
+///     other stores or global (store = *) records are never returned nor mutated.
+/// </summary>
+[Area("Store")]
+[AuthorizeStore]
+[AuthorizeMenu]
+[AutoValidateAntiforgeryToken]
 [PermissionAuthorize(PermissionSystemName.TaxSettings)]
-public class TaxCountryStateZipController : BaseAdminPluginController
+public class TaxCountryStateZipController : BaseController
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly ICountryService _countryService;
-    private readonly IStoreService _storeService;
     private readonly ITaxCategoryService _taxCategoryService;
     private readonly ITaxRateService _taxRateService;
 
     public TaxCountryStateZipController(ITaxCategoryService taxCategoryService,
         ICountryService countryService,
         ITaxRateService taxRateService,
-        IStoreService storeService)
+        IContextAccessor contextAccessor)
     {
         _taxCategoryService = taxCategoryService;
         _countryService = countryService;
         _taxRateService = taxRateService;
-        _storeService = storeService;
+        _contextAccessor = contextAccessor;
     }
+
+    /// <summary>
+    ///     The store the current staff/store-manager is bound to.
+    /// </summary>
+    private string CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
     public async Task<IActionResult> Configure()
     {
-        var taxCategories = await _taxCategoryService.GetAllTaxCategories();
+        var taxCategories = await _taxCategoryService.GetAllTaxCategories(CurrentStoreId);
         if (taxCategories.Count == 0)
             return Content("No tax categories can be loaded");
 
-        var model = new TaxRateListModel();
-        //stores
-        model.AvailableStores.Add(new SelectListItem { Text = "*", Value = "" });
-        var stores = await _storeService.GetAllStores();
-        foreach (var s in stores)
-            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        var model = new TaxRateListModel {
+            //the store owner can only add records for his own store, so no store selector is offered
+            AddStoreId = CurrentStoreId
+        };
+
         //tax categories
         foreach (var tc in taxCategories)
             model.AvailableTaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id });
+
         //countries
         var countries = await _countryService.GetAllCountries(showHidden: true);
         foreach (var c in countries)
             model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id });
+
         //states
         model.AvailableStates.Add(new SelectListItem { Text = "*", Value = "" });
         var defaultCountry = countries.FirstOrDefault();
@@ -65,10 +82,12 @@ public class TaxCountryStateZipController : BaseAdminPluginController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
+    [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> RatesList(DataSourceRequest command)
     {
-        var records = await _taxRateService.GetAllTaxRates(pageIndex: command.Page - 1, pageSize: command.PageSize);
+        //only the current store records - filtered and paged in the service layer
+        var records = await _taxRateService.GetAllTaxRates(CurrentStoreId, command.Page - 1, command.PageSize);
+
         var taxRatesModel = new List<TaxRateModel>();
         foreach (var x in records)
         {
@@ -81,9 +100,6 @@ public class TaxCountryStateZipController : BaseAdminPluginController
                 Zip = x.Zip,
                 Percentage = x.Percentage
             };
-            //store
-            var store = await _storeService.GetStoreById(x.StoreId);
-            m.StoreName = store != null ? store.Shortcut : "*";
             //tax category
             var tc = await _taxCategoryService.GetTaxCategoryById(x.TaxCategoryId);
             m.TaxCategoryName = tc != null ? tc.Name : "";
@@ -107,10 +123,14 @@ public class TaxCountryStateZipController : BaseAdminPluginController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> RateUpdate(TaxRateModel model)
     {
         var taxRate = await _taxRateService.GetTaxRateById(model.Id);
+        //guard: a store owner can only edit his own store records
+        if (taxRate == null || taxRate.StoreId != CurrentStoreId)
+            return new JsonResult("");
+
         taxRate.Zip = model.Zip == "*" ? null : model.Zip;
         taxRate.Percentage = model.Percentage;
         await _taxRateService.UpdateTaxRate(taxRate);
@@ -119,22 +139,26 @@ public class TaxCountryStateZipController : BaseAdminPluginController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
     public async Task<IActionResult> RateDelete(string id)
     {
         var taxRate = await _taxRateService.GetTaxRateById(id);
-        if (taxRate != null)
-            await _taxRateService.DeleteTaxRate(taxRate);
+        //guard: a store owner can only delete his own store records
+        if (taxRate == null || taxRate.StoreId != CurrentStoreId)
+            return new JsonResult("");
+
+        await _taxRateService.DeleteTaxRate(taxRate);
 
         return new JsonResult("");
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> AddTaxRate(TaxRateListModel model)
     {
         var taxRate = new TaxRate {
-            StoreId = model.AddStoreId,
+            //force the current store - the owner cannot create records for another store
+            StoreId = CurrentStoreId,
             TaxCategoryId = model.AddTaxCategoryId,
             CountryId = model.AddCountryId,
             StateProvinceId = model.AddStateProvinceId,

@@ -33,7 +33,7 @@ public class TaxRateService : ITaxRateService
 
     #region Constants
 
-    private const string TAXRATE_ALL_KEY = "Grand.taxrate.all-{0}-{1}";
+    private const string TAXRATE_ALL_KEY = "Grand.taxrate.all-{0}-{1}-{2}";
     private const string TAXRATE_PATTERN_KEY = "Grand.taxrate.";
 
     #endregion
@@ -68,15 +68,22 @@ public class TaxRateService : ITaxRateService
     ///     Gets all tax rates
     /// </summary>
     /// <returns>Tax rates</returns>
-    public virtual async Task<IPagedList<TaxRate>> GetAllTaxRates(int pageIndex = 0, int pageSize = int.MaxValue)
+    public virtual async Task<IPagedList<TaxRate>> GetAllTaxRates(string storeId = "", int pageIndex = 0,
+        int pageSize = int.MaxValue)
     {
-        var key = string.Format(TAXRATE_ALL_KEY, pageIndex, pageSize);
+        var key = string.Format(TAXRATE_ALL_KEY, storeId, pageIndex, pageSize);
         return await _cacheBase.GetAsync(key, async () =>
         {
-            var query = from tr in _taxRateRepository.Table
-                orderby tr.StoreId, tr.CountryId, tr.StateProvinceId, tr.Zip, tr.TaxCategoryId
-                select tr;
-            return await Task.FromResult(new PagedList<TaxRate>(query, pageIndex, pageSize));
+            var query = _taxRateRepository.Table.AsQueryable();
+            //filter by store when requested; an empty storeId returns rates of all stores
+            if (!string.IsNullOrEmpty(storeId))
+                query = query.Where(tr => tr.StoreId == storeId);
+
+            var ordered = query
+                .OrderBy(tr => tr.StoreId).ThenBy(tr => tr.CountryId).ThenBy(tr => tr.StateProvinceId)
+                .ThenBy(tr => tr.Zip).ThenBy(tr => tr.TaxCategoryId);
+
+            return await Task.FromResult(new PagedList<TaxRate>(ordered, pageIndex, pageSize));
         });
     }
 
