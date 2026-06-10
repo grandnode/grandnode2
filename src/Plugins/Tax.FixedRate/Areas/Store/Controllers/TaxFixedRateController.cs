@@ -51,8 +51,6 @@ public class TaxFixedRateController : BaseController
     [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> Configure(DataSourceRequest command)
     {
-        var allSettings = _settingService.GetAllSettings();
-
         var taxRateModels = new List<FixedTaxRateModel>();
         foreach (var taxCategory in await _taxCategoryService.GetAllTaxCategories(CurrentStoreId))
         {
