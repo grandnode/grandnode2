@@ -120,7 +120,7 @@ public class PaymentController(
         var model = new PaymentMethodRestrictionModel();
         var paymentMethods = await paymentService.LoadAllPaymentMethods(storeId: CurrentStoreId);
         var countries = await countryService.GetAllCountries(showHidden: true);
-        var shippings = await shippingMethodService.GetAllShippingMethods(CurrentStoreId);
+        var shippings = await shippingMethodService.GetAllShippingMethods(storeId: CurrentStoreId);
 
         foreach (var pm in paymentMethods) model.AvailablePaymentMethods.Add(await pm.ToModel());
         foreach (var c in countries) model.AvailableCountries.Add(c.ToModel());
@@ -162,7 +162,7 @@ public class PaymentController(
     {
         var paymentMethods = await paymentService.LoadAllPaymentMethods(storeId: CurrentStoreId);
         var countries = await countryService.GetAllCountries(showHidden: true);
-        var shippings = await shippingMethodService.GetAllShippingMethods(CurrentStoreId);
+        var shippings = await shippingMethodService.GetAllShippingMethods(storeId: CurrentStoreId);
 
         foreach (var pm in paymentMethods)
         {

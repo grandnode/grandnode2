@@ -147,6 +147,8 @@ public class PaymentController : BaseAdminController
 
     public async Task<IActionResult> MethodRestrictions()
     {
+        var storeScope = await GetActiveStore();
+
         var model = new PaymentMethodRestrictionModel();
         var paymentMethods = await _paymentService.LoadAllPaymentMethods();
         var countries = await _countryService.GetAllCountries(showHidden: true);
@@ -162,7 +164,7 @@ public class PaymentController : BaseAdminController
 
         foreach (var pm in paymentMethods)
         {
-            var restictedCountries = await _paymentService.GetRestrictedCountryIds(pm);
+            var restictedCountries = await _paymentService.GetRestrictedCountryIds(pm, storeScope);
             foreach (var c in countries)
             {
                 var resticted = restictedCountries.Contains(c.Id);
@@ -171,7 +173,7 @@ public class PaymentController : BaseAdminController
                 model.Resticted[pm.SystemName][c.Id] = resticted;
             }
 
-            var restictedShipping = await _paymentService.GetRestrictedShippingIds(pm);
+            var restictedShipping = await _paymentService.GetRestrictedShippingIds(pm, storeScope);
             foreach (var s in shippings)
             {
                 var resticted = restictedShipping.Contains(s.Name);
@@ -189,6 +191,8 @@ public class PaymentController : BaseAdminController
     [RequestFormLimits(ValueCountLimit = 2048)]
     public async Task<IActionResult> MethodRestrictionsSave(IDictionary<string, string[]> model)
     {
+        var storeScope = await GetActiveStore();
+
         var paymentMethods = await _paymentService.LoadAllPaymentMethods();
         var countries = await _countryService.GetAllCountries(showHidden: true);
         var shippings = await _shippingMethodService.GetAllShippingMethods();
@@ -200,22 +204,22 @@ public class PaymentController : BaseAdminController
                 var countryIdsToRestrict = countryIds.ToList();
                 var newCountryIds =
                     (from c in countries where countryIdsToRestrict.Contains(c.Id) select c.Id).ToList();
-                await _paymentService.SaveRestrictedCountryIds(pm, newCountryIds);
+                await _paymentService.SaveRestrictedCountryIds(pm, newCountryIds, storeScope);
             }
             else
             {
-                await _paymentService.SaveRestrictedCountryIds(pm, new List<string>());
+                await _paymentService.SaveRestrictedCountryIds(pm, new List<string>(), storeScope);
             }
 
             if (model.TryGetValue($"restrictship_{pm.SystemName.Replace(".", "")}", out var shipIds))
             {
                 var shipIdsToRestrict = shipIds.ToList();
                 var newShipIds = (from s in shippings where shipIdsToRestrict.Contains(s.Name) select s.Name).ToList();
-                await _paymentService.SaveRestrictedShippingIds(pm, newShipIds);
+                await _paymentService.SaveRestrictedShippingIds(pm, newShipIds, storeScope);
             }
             else
             {
-                await _paymentService.SaveRestrictedShippingIds(pm, new List<string>());
+                await _paymentService.SaveRestrictedShippingIds(pm, new List<string>(), storeScope);
             }
         }
 
