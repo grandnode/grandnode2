@@ -366,7 +366,7 @@ public class ProductViewModelService(
         }
 
         //tax categories
-        var taxCategories = await taxCategoryService.GetAllTaxCategories();
+        var taxCategories = await taxCategoryService.GetAllTaxCategories(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
         model.AvailableTaxCategories.Add(new SelectListItem {
             Text = translationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"),
             Value = ""
@@ -400,7 +400,7 @@ public class ProductViewModelService(
             model.AvailableUnits.Add(new SelectListItem { Text = un.Name, Value = un.Id, Selected = product != null && un.Id == product.UnitId });
 
         //discounts
-        model.AvailableDiscounts = (await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus, model.StoreId))
+        model.AvailableDiscounts = (await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus, contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             .Select(d => d.ToModel(dateTimeService))
             .ToList();
         if (!excludeProperties && product != null) model.SelectedDiscountIds = product.AppliedDiscounts.ToArray();
@@ -529,7 +529,7 @@ public class ProductViewModelService(
             model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
         //warehouses
         model.AvailableWarehouses.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var wh in await warehouseService.GetAllWarehouses())
+        foreach (var wh in await warehouseService.GetAllWarehouses(storeId))
             model.AvailableWarehouses.Add(new SelectListItem { Text = wh.Name, Value = wh.Id });
 
         //product types
