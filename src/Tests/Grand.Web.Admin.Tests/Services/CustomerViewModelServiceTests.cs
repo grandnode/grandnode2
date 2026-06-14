@@ -50,6 +50,8 @@ public class CustomerViewModelServiceTests
     private Mock<IDateTimeService> _dateTimeServiceMock;
     private Mock<IDownloadService> _downloadServiceMock;
     private Mock<INewsLetterSubscriptionService> _newsLetterSubscriptionServiceMock;
+    private Mock<ITranslationService> _translationServiceMock;
+    private Customer _currentCustomer;
     private CustomerViewModelService _customerViewModelService;
 
     [TestInitialize]
@@ -68,12 +70,15 @@ public class CustomerViewModelServiceTests
         _dateTimeServiceMock = new Mock<IDateTimeService>();
         _downloadServiceMock = new Mock<IDownloadService>();
         _newsLetterSubscriptionServiceMock = new Mock<INewsLetterSubscriptionService>();
+        _translationServiceMock = new Mock<ITranslationService>();
+        _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);
 
         _dateTimeServiceMock.Setup(d => d.ConvertToUserTime(It.IsAny<DateTime>(), It.IsAny<DateTimeKind>()))
             .Returns<DateTime, DateTimeKind>((dt, _) => dt);
 
+        _currentCustomer = new Customer { Id = CurrentCustomerId };
         var workContextMock = new Mock<IWorkContext>();
-        workContextMock.Setup(w => w.CurrentCustomer).Returns(new Customer { Id = CurrentCustomerId });
+        workContextMock.Setup(w => w.CurrentCustomer).Returns(_currentCustomer);
         var storeContextMock = new Mock<IStoreContext>();
         storeContextMock.Setup(s => s.CurrentStore).Returns(new Grand.Domain.Stores.Store { Id = CurrentStoreId });
         var contextAccessorMock = new Mock<IContextAccessor>();
@@ -129,7 +134,7 @@ public class CustomerViewModelServiceTests
             _customerProductServiceMock.Object,
             _newsLetterSubscriptionServiceMock.Object,
             _dateTimeServiceMock.Object,
-            new Mock<ITranslationService>().Object,
+            _translationServiceMock.Object,
             _loyaltyPointsServiceMock.Object,
             new Mock<ICountryService>().Object,
             contextAccessorMock.Object,
@@ -517,7 +522,106 @@ public class CustomerViewModelServiceTests
     }
 
     [TestMethod]
+    public async Task PrepareCustomerListModel_MapsSettingsGroupsAndTags()
+    {
+        var registered = new CustomerGroup { Id = "reg", Name = "Registered" };
+        var guests = new CustomerGroup { Id = "gst", Name = "Guests" };
+        _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(It.IsAny<string>()))
+            .ReturnsAsync(registered);
+        _groupServiceMock
+            .Setup(g => g.GetAllCustomerGroups(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync(new PagedList<CustomerGroup> { registered, guests });
+        _customerTagServiceMock.Setup(t => t.GetAllCustomerTags())
+            .ReturnsAsync(new List<CustomerTag> { new() { Id = "t1", Name = "VIP" } });
+
+        var model = await _customerViewModelService.PrepareCustomerListModel();
+
+        Assert.AreEqual(2, model.AvailableCustomerGroups.Count);
+        Assert.IsTrue(model.AvailableCustomerGroups.Any(x => x.Value == "gst" && !x.Selected));
+        Assert.IsTrue(model.AvailableCustomerTags.Any(x => x.Value == "t1" && x.Text == "VIP"));
+        Assert.AreEqual(new CustomerSettings().UsernamesEnabled, model.UsernamesEnabled);
+        Assert.AreEqual(new CustomerSettings().CompanyEnabled, model.CompanyEnabled);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerListModel_RegisteredGroupMissing_NullSearchGroupId()
+    {
+        _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(It.IsAny<string>()))
+            .ReturnsAsync(new CustomerGroup { Id = "reg" });
+        _groupServiceMock
+            .Setup(g => g.GetAllCustomerGroups(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync(new PagedList<CustomerGroup> { new() { Id = "other" } });
+        _customerTagServiceMock.Setup(t => t.GetAllCustomerTags()).ReturnsAsync(new List<CustomerTag>());
+
+        var model = await _customerViewModelService.PrepareCustomerListModel();
+
+        //registered group is not among the available groups -> the search id resolves to null
+        Assert.AreEqual(1, model.SearchCustomerGroupIds.Count);
+        Assert.IsNull(model.SearchCustomerGroupIds.First());
+        Assert.IsFalse(model.AvailableCustomerGroups.Any(x => x.Selected));
+    }
+
+    [TestMethod]
     public async Task PrepareCustomerList_MapsCustomers()
+    {
+        SetupGetAllCustomers(new PagedList<Customer>
+            { new() { Id = "c1", Email = "customer@example.com", Active = true } });
+
+        var (list, _) = await _customerViewModelService.PrepareCustomerList(
+            new CustomerListModel(), new[] { "grp" }, new[] { "tag" }, 1, 10);
+
+        var items = list.ToList();
+        Assert.AreEqual(1, items.Count);
+        Assert.AreEqual("c1", items[0].Id);
+        Assert.AreEqual("customer@example.com", items[0].Email);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerList_FiltersBySalesEmployeeAndPaging()
+    {
+        _currentCustomer.SeId = "se-1";
+        SetupGetAllCustomers(new PagedList<Customer>());
+
+        await _customerViewModelService.PrepareCustomerList(
+            new CustomerListModel(), new[] { "grp" }, new[] { "tag" }, 2, 15);
+
+        //salesEmployeeId comes from the current customer, pageIndex is zero-based
+        _customerServiceMock.Verify(c => c.GetAllCustomers(
+            It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<string>(), "se-1",
+            It.Is<string[]>(g => g.SequenceEqual(new[] { "grp" })),
+            It.Is<string[]>(t => t.SequenceEqual(new[] { "tag" })),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
+            It.IsAny<ShoppingCartType?>(), 1, 15,
+            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerList_GuestCustomer_UsesGuestResource()
+    {
+        SetupGetAllCustomers(new PagedList<Customer> { new() { Id = "guest", Email = "", Active = true } });
+
+        var (list, _) = await _customerViewModelService.PrepareCustomerList(
+            new CustomerListModel(), Array.Empty<string>(), Array.Empty<string>(), 1, 10);
+
+        Assert.AreEqual("Admin.Customers.Guest", list.First().Email);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerList_NoCustomers_ReturnsEmpty()
+    {
+        SetupGetAllCustomers(new PagedList<Customer>());
+
+        var (list, _) = await _customerViewModelService.PrepareCustomerList(
+            new CustomerListModel(), Array.Empty<string>(), Array.Empty<string>(), 1, 10);
+
+        Assert.AreEqual(0, list.Count());
+    }
+
+    private void SetupGetAllCustomers(IPagedList<Customer> result)
     {
         _customerServiceMock
             .Setup(c => c.GetAllCustomers(
@@ -527,15 +631,6 @@ public class CustomerViewModelServiceTests
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<bool>(), It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
                 It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()))
-            .ReturnsAsync(new PagedList<Customer>
-                { new() { Id = "c1", Email = "customer@example.com", Active = true } });
-
-        var (list, _) = await _customerViewModelService.PrepareCustomerList(
-            new CustomerListModel(), new[] { "grp" }, new[] { "tag" }, 1, 10);
-
-        var items = list.ToList();
-        Assert.AreEqual(1, items.Count);
-        Assert.AreEqual("c1", items[0].Id);
-        Assert.AreEqual("customer@example.com", items[0].Email);
+            .ReturnsAsync(result);
     }
 }
