@@ -290,9 +290,12 @@ public class CustomerServiceTests
         await _repository.InsertAsync(customer);
         //Act
         customer.AdminComment = "test";
+        customer.StoreId = "store-1";
         await _customerService.UpdateCustomerInAdminPanel(customer);
         //Assert
-        Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == customer.Id).AdminComment);
+        var updated = _repository.Table.FirstOrDefault(x => x.Id == customer.Id);
+        Assert.AreEqual("test", updated.AdminComment);
+        Assert.AreEqual("store-1", updated.StoreId);
     }
 
     [TestMethod]
