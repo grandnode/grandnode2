@@ -190,6 +190,7 @@ public class CustomerViewModelService : ICustomerViewModelService
                 model.Username = customer.Username;
                 model.VendorId = customer.VendorId;
                 model.StaffStoreId = customer.StaffStoreId;
+                model.StoreId = customer.StoreId;
                 model.SeId = customer.SeId;
                 model.AdminComment = customer.AdminComment;
                 model.IsTaxExempt = customer.IsTaxExempt;
@@ -385,7 +386,7 @@ public class CustomerViewModelService : ICustomerViewModelService
             IsTaxExempt = model.IsTaxExempt,
             FreeShipping = model.FreeShipping,
             Active = model.Active,
-            StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
+            StoreId = model.StoreId,
             OwnerId = ownerId,
             Attributes = model.Attributes,
             LastActivityDateUtc = DateTime.UtcNow
@@ -544,6 +545,9 @@ public class CustomerViewModelService : ICustomerViewModelService
 
         //staff store
         customer.StaffStoreId = model.StaffStoreId;
+
+        //store
+        customer.StoreId = model.StoreId;
 
         //sales employee
         customer.SeId = model.SeId;

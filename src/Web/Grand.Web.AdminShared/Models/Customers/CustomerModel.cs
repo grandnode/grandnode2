@@ -50,6 +50,9 @@ public class CustomerModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.StaffStore")]
     public string StaffStoreId { get; set; }
 
+    [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Store")]
+    public string StoreId { get; set; }
+
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
     //form fields & properties
