@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
@@ -13,9 +14,11 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
+using Grand.Domain.Messages;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Services;
@@ -41,6 +44,12 @@ public class CustomerViewModelServiceTests
     private Mock<IVendorService> _vendorServiceMock;
     private Mock<IEnumTranslationService> _enumTranslationServiceMock;
     private Mock<ICustomerNoteService> _customerNoteServiceMock;
+    private Mock<ICustomerProductService> _customerProductServiceMock;
+    private Mock<ILoyaltyPointsService> _loyaltyPointsServiceMock;
+    private Mock<IProductService> _productServiceMock;
+    private Mock<IDateTimeService> _dateTimeServiceMock;
+    private Mock<IDownloadService> _downloadServiceMock;
+    private Mock<INewsLetterSubscriptionService> _newsLetterSubscriptionServiceMock;
     private CustomerViewModelService _customerViewModelService;
 
     [TestInitialize]
@@ -53,6 +62,15 @@ public class CustomerViewModelServiceTests
         _vendorServiceMock = new Mock<IVendorService>();
         _enumTranslationServiceMock = new Mock<IEnumTranslationService>();
         _customerNoteServiceMock = new Mock<ICustomerNoteService>();
+        _customerProductServiceMock = new Mock<ICustomerProductService>();
+        _loyaltyPointsServiceMock = new Mock<ILoyaltyPointsService>();
+        _productServiceMock = new Mock<IProductService>();
+        _dateTimeServiceMock = new Mock<IDateTimeService>();
+        _downloadServiceMock = new Mock<IDownloadService>();
+        _newsLetterSubscriptionServiceMock = new Mock<INewsLetterSubscriptionService>();
+
+        _dateTimeServiceMock.Setup(d => d.ConvertToUserTime(It.IsAny<DateTime>(), It.IsAny<DateTimeKind>()))
+            .Returns<DateTime, DateTimeKind>((dt, _) => dt);
 
         var workContextMock = new Mock<IWorkContext>();
         workContextMock.Setup(w => w.CurrentCustomer).Returns(new Customer { Id = CurrentCustomerId });
@@ -68,6 +86,18 @@ public class CustomerViewModelServiceTests
         var customerAttributeServiceMock = new Mock<ICustomerAttributeService>();
         customerAttributeServiceMock.Setup(c => c.GetAllCustomerAttributes())
             .ReturnsAsync(new List<CustomerAttribute>());
+
+        //http context with a service provider that resolves the external authentication service
+        var externalAuthServiceMock = new Mock<IExternalAuthenticationService>();
+        externalAuthServiceMock.Setup(e => e.GetExternalIdentifiers(It.IsAny<Customer>()))
+            .ReturnsAsync(new List<ExternalAuthentication>());
+        var serviceProviderMock = new Mock<IServiceProvider>();
+        serviceProviderMock.Setup(s => s.GetService(typeof(IExternalAuthenticationService)))
+            .Returns(externalAuthServiceMock.Object);
+        var httpContextMock = new Mock<HttpContext>();
+        httpContextMock.Setup(c => c.RequestServices).Returns(serviceProviderMock.Object);
+        var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
+        httpContextAccessorMock.Setup(a => a.HttpContext).Returns(httpContextMock.Object);
 
         _customerServiceMock.Setup(c => c.InsertCustomer(It.IsAny<Customer>())).Returns(Task.CompletedTask);
         _customerServiceMock.Setup(c => c.UpdateCustomerInAdminPanel(It.IsAny<Customer>())).Returns(Task.CompletedTask);
@@ -90,14 +120,17 @@ public class CustomerViewModelServiceTests
         _customerNoteServiceMock.Setup(c => c.InsertCustomerNote(It.IsAny<CustomerNote>()))
             .Returns(Task.CompletedTask);
 
+        _groupServiceMock.Setup(g => g.GetAllByIds(It.IsAny<string[]>()))
+            .ReturnsAsync(new List<CustomerGroup>());
+
         _customerViewModelService = new CustomerViewModelService(
             _customerServiceMock.Object,
             _groupServiceMock.Object,
-            new Mock<ICustomerProductService>().Object,
-            new Mock<INewsLetterSubscriptionService>().Object,
-            new Mock<IDateTimeService>().Object,
+            _customerProductServiceMock.Object,
+            _newsLetterSubscriptionServiceMock.Object,
+            _dateTimeServiceMock.Object,
             new Mock<ITranslationService>().Object,
-            new Mock<ILoyaltyPointsService>().Object,
+            _loyaltyPointsServiceMock.Object,
             new Mock<ICountryService>().Object,
             contextAccessorMock.Object,
             _vendorServiceMock.Object,
@@ -108,11 +141,11 @@ public class CustomerViewModelServiceTests
             new Mock<IAddressAttributeService>().Object,
             new Mock<IAffiliateService>().Object,
             _customerTagServiceMock.Object,
-            new Mock<IProductService>().Object,
+            _productServiceMock.Object,
             salesEmployeeServiceMock.Object,
             _customerNoteServiceMock.Object,
-            new Mock<IDownloadService>().Object,
-            new Mock<IHttpContextAccessor>().Object,
+            _downloadServiceMock.Object,
+            httpContextAccessorMock.Object,
             new CustomerSettings(),
             new TaxSettings(),
             new LoyaltyPointsSettings(),
@@ -141,6 +174,17 @@ public class CustomerViewModelServiceTests
         await _customerViewModelService.PrepareCustomerModel(model, null, false);
 
         Assert.AreEqual(CurrentStoreId, model.StoreId);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerModel_ExistingCustomer_MapsStoreIdFromEntity()
+    {
+        var customer = new Customer { Id = "c1", Email = "customer@example.com", StoreId = "store-9" };
+        var model = new CustomerModel();
+
+        await _customerViewModelService.PrepareCustomerModel(model, customer, false);
+
+        Assert.AreEqual("store-9", model.StoreId);
     }
 
     [TestMethod]
@@ -241,5 +285,257 @@ public class CustomerViewModelServiceTests
         _customerNoteServiceMock.Verify(
             c => c.InsertCustomerNote(It.Is<CustomerNote>(x => x.CustomerId == "c1" && x.Title == "title")),
             Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteCustomerNote_DeletesNoteAndAttachment()
+    {
+        var note = new CustomerNote { Id = "n1", DownloadId = "d1" };
+        var download = new Download { Id = "d1" };
+        _customerNoteServiceMock.Setup(c => c.GetCustomerNote("n1")).ReturnsAsync(note);
+        _customerNoteServiceMock.Setup(c => c.DeleteCustomerNote(It.IsAny<CustomerNote>())).Returns(Task.CompletedTask);
+        _downloadServiceMock.Setup(d => d.GetDownloadById("d1")).ReturnsAsync(download);
+        _downloadServiceMock.Setup(d => d.DeleteDownload(It.IsAny<Download>())).Returns(Task.CompletedTask);
+
+        await _customerViewModelService.DeleteCustomerNote("n1", "c1");
+
+        _customerNoteServiceMock.Verify(c => c.DeleteCustomerNote(note), Times.Once);
+        _downloadServiceMock.Verify(d => d.DeleteDownload(download), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteCustomerNote_NotFound_Throws()
+    {
+        _customerNoteServiceMock.Setup(c => c.GetCustomerNote(It.IsAny<string>()))
+            .ReturnsAsync((CustomerNote)null);
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => _customerViewModelService.DeleteCustomerNote("missing", "c1"));
+    }
+
+    [TestMethod]
+    public async Task PrepareLoyaltyPointsHistoryModel_MapsHistory()
+    {
+        _loyaltyPointsServiceMock
+            .Setup(l => l.GetLoyaltyPointsHistory(It.IsAny<string>(), It.IsAny<string>(), true))
+            .ReturnsAsync(new List<LoyaltyPointsHistory> {
+                new() { StoreId = "store-1", Points = 5, PointsBalance = 10, Message = "added" }
+            });
+        _storeServiceMock.Setup(s => s.GetStoreById("store-1"))
+            .ReturnsAsync(new Grand.Domain.Stores.Store { Id = "store-1", Shortcut = "Store 1" });
+
+        var result = (await _customerViewModelService.PrepareLoyaltyPointsHistoryModel("c1")).ToList();
+
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("Store 1", result[0].StoreName);
+        Assert.AreEqual(5, result[0].Points);
+    }
+
+    [TestMethod]
+    public async Task InsertLoyaltyPointsHistory_DelegatesToService()
+    {
+        var history = new LoyaltyPointsHistory();
+        _loyaltyPointsServiceMock
+            .Setup(l => l.AddLoyaltyPointsHistory("c1", 10, "store-1", "msg", It.IsAny<string>(), It.IsAny<double>()))
+            .ReturnsAsync(history);
+
+        var result = await _customerViewModelService.InsertLoyaltyPointsHistory(
+            new Customer { Id = "c1" }, "store-1", 10, "msg");
+
+        Assert.AreSame(history, result);
+        _loyaltyPointsServiceMock.Verify(
+            l => l.AddLoyaltyPointsHistory("c1", 10, "store-1", "msg", It.IsAny<string>(), It.IsAny<double>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteAddress_RemovesAddressAndUpdatesCustomer()
+    {
+        var address = new Address { Id = "a1" };
+        var customer = new Customer();
+        customer.Addresses.Add(address);
+
+        await _customerViewModelService.DeleteAddress(customer, address);
+
+        Assert.IsFalse(customer.Addresses.Any(a => a.Id == "a1"));
+        _customerServiceMock.Verify(c => c.UpdateCustomerInAdminPanel(customer), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UpdateProductPrice_UpdatesWhenFound()
+    {
+        var price = new CustomerProductPrice { Id = "pp1", Price = 1 };
+        _customerProductServiceMock.Setup(c => c.GetCustomerProductPriceById("pp1")).ReturnsAsync(price);
+        _customerProductServiceMock.Setup(c => c.UpdateCustomerProductPrice(It.IsAny<CustomerProductPrice>()))
+            .Returns(Task.CompletedTask);
+
+        await _customerViewModelService.UpdateProductPrice(
+            new CustomerModel.ProductPriceModel { Id = "pp1", Price = 99 });
+
+        _customerProductServiceMock.Verify(
+            c => c.UpdateCustomerProductPrice(It.Is<CustomerProductPrice>(x => x.Price == 99)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteProductPrice_DeletesWhenFound()
+    {
+        var price = new CustomerProductPrice { Id = "pp1" };
+        _customerProductServiceMock.Setup(c => c.GetCustomerProductPriceById("pp1")).ReturnsAsync(price);
+        _customerProductServiceMock.Setup(c => c.DeleteCustomerProductPrice(It.IsAny<CustomerProductPrice>()))
+            .Returns(Task.CompletedTask);
+
+        await _customerViewModelService.DeleteProductPrice("pp1");
+
+        _customerProductServiceMock.Verify(c => c.DeleteCustomerProductPrice(price), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteProductPrice_NotFound_Throws()
+    {
+        _customerProductServiceMock.Setup(c => c.GetCustomerProductPriceById(It.IsAny<string>()))
+            .ReturnsAsync((CustomerProductPrice)null);
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => _customerViewModelService.DeleteProductPrice("missing"));
+    }
+
+    [TestMethod]
+    public async Task UpdatePersonalizedProduct_UpdatesWhenFound()
+    {
+        var customerProduct = new CustomerProduct { Id = "cp1", DisplayOrder = 1 };
+        _customerProductServiceMock.Setup(c => c.GetCustomerProduct("cp1")).ReturnsAsync(customerProduct);
+        _customerProductServiceMock.Setup(c => c.UpdateCustomerProduct(It.IsAny<CustomerProduct>()))
+            .Returns(Task.CompletedTask);
+
+        await _customerViewModelService.UpdatePersonalizedProduct(
+            new CustomerModel.ProductModel { Id = "cp1", DisplayOrder = 7 });
+
+        _customerProductServiceMock.Verify(
+            c => c.UpdateCustomerProduct(It.Is<CustomerProduct>(x => x.DisplayOrder == 7)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeletePersonalizedProduct_NotFound_Throws()
+    {
+        _customerProductServiceMock.Setup(c => c.GetCustomerProduct(It.IsAny<string>()))
+            .ReturnsAsync((CustomerProduct)null);
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => _customerViewModelService.DeletePersonalizedProduct("missing"));
+    }
+
+    [TestMethod]
+    public async Task PrepareProductPriceModel_MapsItems()
+    {
+        _customerProductServiceMock
+            .Setup(c => c.GetProductsPriceByCustomer(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<CustomerProductPrice> { new() { Id = "pp1", ProductId = "p1", Price = 3 } });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false))
+            .ReturnsAsync(new Product { Id = "p1", Name = "Prod 1" });
+
+        var (items, _) = await _customerViewModelService.PrepareProductPriceModel("c1", 1, 10);
+
+        var list = items.ToList();
+        Assert.AreEqual(1, list.Count);
+        Assert.AreEqual("Prod 1", list[0].ProductName);
+        Assert.AreEqual(3, list[0].Price);
+    }
+
+    [TestMethod]
+    public async Task InsertCustomerAddProductModel_Personalized_InsertsCustomerProduct()
+    {
+        _productServiceMock.Setup(p => p.GetProductById("p1", false))
+            .ReturnsAsync(new Product { Id = "p1", Price = 5 });
+        _customerProductServiceMock.Setup(c => c.GetCustomerProduct("c1", "p1")).ReturnsAsync((CustomerProduct)null);
+        _customerProductServiceMock.Setup(c => c.InsertCustomerProduct(It.IsAny<CustomerProduct>()))
+            .Returns(Task.CompletedTask);
+
+        await _customerViewModelService.InsertCustomerAddProductModel("c1", true,
+            new CustomerModel.AddProductModel { SelectedProductIds = new[] { "p1" } });
+
+        _customerProductServiceMock.Verify(
+            c => c.InsertCustomerProduct(It.Is<CustomerProduct>(x => x.CustomerId == "c1" && x.ProductId == "p1")),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task InsertCustomerAddProductModel_NotPersonalized_InsertsProductPrice()
+    {
+        _productServiceMock.Setup(p => p.GetProductById("p1", false))
+            .ReturnsAsync(new Product { Id = "p1", Price = 5 });
+        _customerProductServiceMock.Setup(c => c.GetPriceByCustomerProduct("c1", "p1"))
+            .ReturnsAsync((double?)null);
+        _customerProductServiceMock.Setup(c => c.InsertCustomerProductPrice(It.IsAny<CustomerProductPrice>()))
+            .Returns(Task.CompletedTask);
+
+        await _customerViewModelService.InsertCustomerAddProductModel("c1", false,
+            new CustomerModel.AddProductModel { SelectedProductIds = new[] { "p1" } });
+
+        _customerProductServiceMock.Verify(
+            c => c.InsertCustomerProductPrice(
+                It.Is<CustomerProductPrice>(x => x.CustomerId == "c1" && x.ProductId == "p1" && x.Price == 5)),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PreparePersonalizedProducts_MapsItems()
+    {
+        _customerProductServiceMock
+            .Setup(c => c.GetProductsByCustomer(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<CustomerProduct>
+                { new() { Id = "cp1", ProductId = "p1", DisplayOrder = 2 } });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false))
+            .ReturnsAsync(new Product { Id = "p1", Name = "Prod 1" });
+
+        var (items, _) = await _customerViewModelService.PreparePersonalizedProducts("c1", 1, 10);
+
+        var list = items.ToList();
+        Assert.AreEqual(1, list.Count);
+        Assert.AreEqual("Prod 1", list[0].ProductName);
+        Assert.AreEqual(2, list[0].DisplayOrder);
+    }
+
+    [TestMethod]
+    public async Task DeleteCustomer_RemovesNewsletterSubscriptions()
+    {
+        var customer = new Customer { Id = "c1", Email = "customer@example.com" };
+        var subscription = new NewsLetterSubscription { Id = "s1", Email = customer.Email, StoreId = "store-1" };
+        _storeServiceMock.Setup(s => s.GetAllStores())
+            .ReturnsAsync(new List<Grand.Domain.Stores.Store> { new() { Id = "store-1" } });
+        _newsLetterSubscriptionServiceMock
+            .Setup(n => n.GetNewsLetterSubscriptionByEmailAndStoreId(customer.Email, "store-1"))
+            .ReturnsAsync(subscription);
+        _newsLetterSubscriptionServiceMock
+            .Setup(n => n.DeleteNewsLetterSubscription(It.IsAny<NewsLetterSubscription>(), It.IsAny<bool>()))
+            .Returns(Task.CompletedTask);
+
+        await _customerViewModelService.DeleteCustomer(customer);
+
+        _customerServiceMock.Verify(c => c.DeleteCustomer(customer), Times.Once);
+        _newsLetterSubscriptionServiceMock.Verify(
+            n => n.DeleteNewsLetterSubscription(subscription, It.IsAny<bool>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerList_MapsCustomers()
+    {
+        _customerServiceMock
+            .Setup(c => c.GetAllCustomers(
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>(),
+                It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<bool>(), It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()))
+            .ReturnsAsync(new PagedList<Customer>
+                { new() { Id = "c1", Email = "customer@example.com", Active = true } });
+
+        var (list, _) = await _customerViewModelService.PrepareCustomerList(
+            new CustomerListModel(), new[] { "grp" }, new[] { "tag" }, 1, 10);
+
+        var items = list.ToList();
+        Assert.AreEqual(1, items.Count);
+        Assert.AreEqual("c1", items[0].Id);
+        Assert.AreEqual("customer@example.com", items[0].Email);
     }
 }
