@@ -30,6 +30,17 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
         RuleFor(x => x.Email).NotEmpty().EmailAddress()
             .WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Email.Required"));
 
+        //store
+        RuleFor(x => x.StoreId).NotEmpty()
+            .WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Store.Required"));
+
+        //a store manager can only assign a customer to his own store
+        RuleFor(x => x.StoreId).MustAsync(async (storeId, _) =>
+                !await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer) ||
+                storeId == contextAccessor.StoreContext.CurrentStore.Id)
+            .WithMessage(
+                translationService.GetResource("Admin.Customers.Customers.Fields.Store.MustBeCurrentStore"));
+
         //form fields
         if (customerSettings.CountryEnabled && customerSettings.CountryRequired)
             RuleFor(x => x.CountryId)
