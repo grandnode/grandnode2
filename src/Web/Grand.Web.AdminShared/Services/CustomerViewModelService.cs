@@ -265,6 +265,10 @@ public class CustomerViewModelService : ICustomerViewModelService
         else
         {
             model.SeId = _contextAccessor.WorkContext.CurrentCustomer.SeId;
+
+            //a store manager can only create customers for his own store - preset it
+            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
+                model.StoreId = _contextAccessor.StoreContext.CurrentStore.Id;
         }
 
         model.UsernamesEnabled = _customerSettings.UsernamesEnabled;

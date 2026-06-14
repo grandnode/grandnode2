@@ -28,6 +28,8 @@ namespace Grand.Web.Admin.Tests.Services;
 [TestClass]
 public class CustomerViewModelServiceTests
 {
+    private const string CurrentStoreId = "store-current";
+
     private Mock<ICustomerService> _customerServiceMock;
     private Mock<IGroupService> _groupServiceMock;
     private Mock<IStoreService> _storeServiceMock;
@@ -39,6 +41,21 @@ public class CustomerViewModelServiceTests
         _customerServiceMock = new Mock<ICustomerService>();
         _groupServiceMock = new Mock<IGroupService>();
         _storeServiceMock = new Mock<IStoreService>();
+
+        var workContextMock = new Mock<IWorkContext>();
+        workContextMock.Setup(w => w.CurrentCustomer).Returns(new Customer());
+        var storeContextMock = new Mock<IStoreContext>();
+        storeContextMock.Setup(s => s.CurrentStore).Returns(new Grand.Domain.Stores.Store { Id = CurrentStoreId });
+        var contextAccessorMock = new Mock<IContextAccessor>();
+        contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
+        contextAccessorMock.Setup(c => c.StoreContext).Returns(storeContextMock.Object);
+
+        var salesEmployeeServiceMock = new Mock<ISalesEmployeeService>();
+        salesEmployeeServiceMock.Setup(s => s.GetAll()).ReturnsAsync(new List<SalesEmployee>());
+
+        var customerAttributeServiceMock = new Mock<ICustomerAttributeService>();
+        customerAttributeServiceMock.Setup(c => c.GetAllCustomerAttributes())
+            .ReturnsAsync(new List<CustomerAttribute>());
 
         _customerServiceMock.Setup(c => c.InsertCustomer(It.IsAny<Customer>())).Returns(Task.CompletedTask);
         _customerServiceMock.Setup(c => c.UpdateCustomerInAdminPanel(It.IsAny<Customer>())).Returns(Task.CompletedTask);
@@ -67,17 +84,17 @@ public class CustomerViewModelServiceTests
             new Mock<ITranslationService>().Object,
             new Mock<ILoyaltyPointsService>().Object,
             new Mock<ICountryService>().Object,
-            new Mock<IContextAccessor>().Object,
+            contextAccessorMock.Object,
             new Mock<IVendorService>().Object,
             _storeServiceMock.Object,
             new Mock<ICustomerAttributeParser>().Object,
-            new Mock<ICustomerAttributeService>().Object,
+            customerAttributeServiceMock.Object,
             new Mock<IAddressAttributeParser>().Object,
             new Mock<IAddressAttributeService>().Object,
             new Mock<IAffiliateService>().Object,
             new Mock<ICustomerTagService>().Object,
             new Mock<IProductService>().Object,
-            new Mock<ISalesEmployeeService>().Object,
+            salesEmployeeServiceMock.Object,
             new Mock<ICustomerNoteService>().Object,
             new Mock<IDownloadService>().Object,
             new Mock<IHttpContextAccessor>().Object,
@@ -98,6 +115,28 @@ public class CustomerViewModelServiceTests
 
         Assert.AreEqual("store-1", customer.StoreId);
         _customerServiceMock.Verify(c => c.InsertCustomer(It.Is<Customer>(x => x.StoreId == "store-1")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerModel_StoreManager_PresetsCurrentStoreId()
+    {
+        _groupServiceMock.Setup(g => g.IsStoreManager(It.IsAny<Customer>())).ReturnsAsync(true);
+
+        var model = new CustomerModel();
+        await _customerViewModelService.PrepareCustomerModel(model, null, false);
+
+        Assert.AreEqual(CurrentStoreId, model.StoreId);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerModel_NonStoreManager_DoesNotPresetStoreId()
+    {
+        _groupServiceMock.Setup(g => g.IsStoreManager(It.IsAny<Customer>())).ReturnsAsync(false);
+
+        var model = new CustomerModel();
+        await _customerViewModelService.PrepareCustomerModel(model, null, false);
+
+        Assert.IsTrue(string.IsNullOrEmpty(model.StoreId));
     }
 
     [TestMethod]
