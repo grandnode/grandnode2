@@ -5,6 +5,7 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Validators.Customers;
@@ -50,7 +51,8 @@ public class CustomerValidatorTests
             contextAccessorMock.Object,
             new Mock<ICustomerService>().Object,
             _groupServiceMock.Object,
-            new CustomerSettings());
+            new CustomerSettings(),
+            new CustomerConfig());
     }
 
     private static CustomerModel BuildModel(string storeId) =>

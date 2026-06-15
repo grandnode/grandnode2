@@ -1,0 +1,60 @@
+@model CustomerModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="outofstock-subscriptions-grid"></div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#outofstock-subscriptions-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("OutOfStockSubscriptionList", "Customer", new { customerId = Model.Id, area = Constants.AreaStore }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                autoBind: false,
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [
+                {
+                    field: "ProductId",
+                    title: "@Loc["Admin.Customers.Customers.OutOfStockSubscriptions.Product"]",
+                    width: 300,
+                    template: '<a href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/#=ProductId#">#:ProductName#</a>'
+                },{
+                    field: "CreatedOn",
+                    title: "@Loc["Admin.Customers.Customers.OutOfStockSubscriptions.CreatedOn"]",
+                    width: 200,
+                    type: "date",
+                    format: "{0:G}"
+                }]
+            });
+        });
+</script>}

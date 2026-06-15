@@ -1,0 +1,72 @@
+@model CustomerModel
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+
+<admin-tabstrip name="customer-edit" SetTabPos="true" BindGrid="true">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Customers.Customers.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (!string.IsNullOrEmpty(Model.Id))
+        {
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.Orders"]" tab-index="1">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabOrders" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.Reviews"]" tab-index="2">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabReviews" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.Addresses"]" tab-index="3">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabAddresses" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.ShoppingCartWishlist"]" tab-index="4">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabCurrentShoppingCart" model="Model"/>
+                        <partial name="Partials/CreateOrUpdate.TabCurrentWishlist" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.PersonalizedProduct"]" tab-index="5">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabProduct" model="Model"/>
+                        <partial name="Partials/CreateOrUpdate.TabProductPrice" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.OutOfStockSubscriptions"]" tab-index="6">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabOutOfStockSubscriptions" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            @if (Model.DisplayLoyaltyPointsHistory)
+            {
+                <tabstrip-item text="@Loc["Admin.Customers.Customers.LoyaltyPoints"]" tab-index="7">
+                    <content>
+                        <div>
+                            <partial name="Partials/CreateOrUpdate.TabLoyaltyPoints" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+            }
+        }
+    </items>
+</admin-tabstrip>

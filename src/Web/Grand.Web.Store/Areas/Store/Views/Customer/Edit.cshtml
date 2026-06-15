@@ -1,0 +1,50 @@
+@model CustomerModel
+@{
+    ViewBag.Title = Loc["Admin.Customers.Customers.EditCustomerDetails"];
+}
+<form asp-area="@Constants.AreaStore" asp-controller="Customer" asp-action="Edit" method="post" id="customer-form">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-user"></i>
+                        @Loc["Admin.Customers.Customers.EditCustomerDetails"] - @Model.LastName @Model.FirstName
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Customers.Customers.BackToList"], "List")
+                        </small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
+                            <button class="btn btn-info" type="submit" id="sendemail"><i class="fa fa-paper-plane" aria-hidden="true"></i> &nbsp;@Loc["Admin.Customers.Customers.SendEmail"] </button>
+                            @if (Model.AllowSendingOfWelcomeMessage)
+                            {
+                                <button class="btn btn-primary" type="submit" name="send-welcome-message" asp-action="SendWelcomeMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="k-icon k-i-rotate"></span> &nbsp;@Loc["Admin.Customers.Customers.SendWelcomeMessage"] </button>
+                            }
+                            @if (Model.AllowReSendingOfActivationMessage)
+                            {
+                                <button class="btn btn-primary" type="submit" name="resend-activation-message" asp-action="ReSendActivationMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="k-icon k-i-rotate"></span> &nbsp;@Loc["Admin.Customers.Customers.ReSendActivationMessage"] </button>
+                            }
+                            <span id="customer-delete" class="btn red">
+                                <i class="fa fa-trash-o"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.Delete"]</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="customer-delete"/>
+
+<partial name="Partials/SendEmail" model="Model.SendEmail"/>

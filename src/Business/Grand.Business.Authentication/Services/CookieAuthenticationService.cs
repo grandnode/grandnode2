@@ -48,6 +48,10 @@ public class CookieAuthenticationService : IGrandAuthenticationService
 
     private string CustomerCookieName => $"{_securityConfig.CookiePrefix}Customer";
 
+    //claim carrying the customer's stable id, so the authenticated session can be re-resolved unambiguously
+    //(works regardless of per-store customer identity - the id is globally unique, unlike e-mail/username)
+    private const string CustomerIdClaimType = "grand:customerId";
+
     #endregion
 
     #region Fields
@@ -82,6 +86,12 @@ public class CookieAuthenticationService : IGrandAuthenticationService
 
         if (!string.IsNullOrEmpty(customer.Email))
             claims.Add(new Claim(ClaimTypes.Email, customer.Email, ClaimValueTypes.Email,
+                _securityConfig.CookieClaimsIssuer));
+
+        //store the customer's stable id so the session is re-resolved by id (GetCustomerById) rather than by
+        //e-mail/username, which is not unique when per-store customer identity is enabled
+        if (!string.IsNullOrEmpty(customer.Id))
+            claims.Add(new Claim(CustomerIdClaimType, customer.Id, ClaimValueTypes.String,
                 _securityConfig.CookieClaimsIssuer));
 
         //add token
@@ -154,6 +164,16 @@ public class CookieAuthenticationService : IGrandAuthenticationService
 
     private async Task<Customer> RetrieveCustomer(ClaimsPrincipal principal)
     {
+        //prefer the stable customer id - unambiguous even with per-store customer identity
+        var customerId = principal.FindFirst(claim =>
+            claim.Type == CustomerIdClaimType &&
+            claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase))
+            ?.Value;
+
+        if (!string.IsNullOrEmpty(customerId))
+            return await _customerService.GetCustomerById(customerId);
+
+        //fallback for sessions issued before the id claim existed (resolved globally, as before)
         if (_customerSettings.UsernamesEnabled)
         {
             var username = principal.FindFirst(claim =>

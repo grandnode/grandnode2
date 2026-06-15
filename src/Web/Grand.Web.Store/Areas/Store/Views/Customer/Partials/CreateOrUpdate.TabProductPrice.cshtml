@@ -1,0 +1,121 @@
+@model CustomerModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    <strong>@Loc["Admin.Customers.Customers.ProductPrice"]</strong>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="productprice-grid"></div>
+        </div>
+        <div class="panel-footer">
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshProducts", formId = "customer-form", area = Constants.AreaStore }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.Customers.ProductPrice.AddNew"]</a>
+            <input type="submit" id="btnRefreshProducts" style="display: none"/>
+        </div>
+    </div>
+    <div class="note note-info">
+        @Loc["Admin.Customers.Customers.ProductPrice.Price.Warning"]
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#btnAddNewProduct').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+            $("#productprice-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ProductsPrice", "Customer", new { customerId = Model.Id, area = Constants.AreaStore }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        update: {
+                            url:"@Html.Raw(Url.Action("UpdateProductPrice", "Customer", new { area = Constants.AreaStore }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("DeleteProductPrice", "Customer", new { area = Constants.AreaStore }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                ProductName: {editable: false, type: "string" },
+                                Price: {editable: true, type: "number", format:"{0:c2}" },
+                            }
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                autoBind: false,
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "ProductName",
+                    title: "@Loc["Admin.Customers.Customers.ProductPrice.ProductName"]",
+                    width: 300,
+                    template: '<a href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/#=ProductId#" target="_blank">#=kendo.htmlEncode(ProductName)#</a>'
+                }, {
+                    field: "Price",
+                    title: "@Loc["Admin.Customers.Customers.ProductPrice.Price"]",
+                    width: 100,
+                    type: "number",
+
+                }, {
+                command: [{
+                    name: "edit",
+                    text: {
+                        edit: "@Loc["Admin.Common.Edit"]",
+                    update: "@Loc["Admin.Common.Update"]",
+                cancel: "@Loc["Admin.Common.Cancel"]"} }, {
+                    name: "destroy",
+                    text: "@Loc["Admin.Common.Delete"]"
+                    }],
+                width: 200
+                }]
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#btnRefreshProducts').click(function () {
+                var grid = $("#productprice-grid").data('kendoGrid');
+                grid.dataSource.read();
+                return false;
+            });
+        });
+    </script>
+}

@@ -78,11 +78,11 @@ public class CustomerManagerService : ICustomerManagerService
     /// <param name="usernameOrEmail">Username or email</param>
     /// <param name="password">Password</param>
     /// <returns>Result</returns>
-    public virtual async Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password)
+    public virtual async Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password, string storeId = "")
     {
         var customer = _customerSettings.UsernamesEnabled
-            ? await _customerService.GetCustomerByUsername(usernameOrEmail)
-            : await _customerService.GetCustomerByEmail(usernameOrEmail);
+            ? await _customerService.GetCustomerByUsername(usernameOrEmail, storeId)
+            : await _customerService.GetCustomerByEmail(usernameOrEmail, storeId);
 
         var pwd = customer.PasswordFormatId switch {
             PasswordFormat.Clear => password,
@@ -168,11 +168,11 @@ public class CustomerManagerService : ICustomerManagerService
     ///     Change password
     /// </summary>
     /// <param name="request">Request</param>
-    public virtual async Task ChangePassword(ChangePasswordRequest request)
+    public virtual async Task ChangePassword(ChangePasswordRequest request, string storeId = "")
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var customer = await _customerService.GetCustomerByEmail(request.Email);
+        var customer = await _customerService.GetCustomerByEmail(request.Email, storeId);
         ArgumentNullException.ThrowIfNull(customer);
 
         switch (request.PasswordFormat)

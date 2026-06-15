@@ -153,11 +153,13 @@ public class CustomerViewModelService : ICustomerViewModelService
 
     public virtual async Task<(IEnumerable<CustomerModel> customerModelList, int totalCount)> PrepareCustomerList(
         CustomerListModel model,
-        string[] searchCustomerGroupIds, string[] searchCustomerTagIds, int pageIndex, int pageSize)
+        string[] searchCustomerGroupIds, string[] searchCustomerTagIds, int pageIndex, int pageSize,
+        string storeId = "")
     {
         var salesEmployeeId = _contextAccessor.WorkContext.CurrentCustomer.SeId;
 
         var customers = await _customerService.GetAllCustomers(
+            storeId: storeId,
             customerGroupIds: searchCustomerGroupIds,
             customerTagIds: searchCustomerTagIds,
             email: model.SearchEmail,

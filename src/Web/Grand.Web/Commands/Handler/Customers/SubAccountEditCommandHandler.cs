@@ -34,11 +34,11 @@ public class SubAccountEditCommandHandler : IRequestHandler<SubAccountEditComman
             await _customerService.UpdateCustomerField(customer, x => x.Email, request.EditModel.Email);
         }
 
-        //update password
+        //update password (scope the lookup to the sub-account's store - safe with or without per-store identity)
         if (!string.IsNullOrEmpty(request.EditModel.Password))
             await _customerManagerService.ChangePassword(
                 new ChangePasswordRequest(customer.Email, _customerSettings.DefaultPasswordFormat,
-                    request.EditModel.Password));
+                    request.EditModel.Password), customer.StoreId);
 
         //update active
         customer.Active = request.EditModel.Active;

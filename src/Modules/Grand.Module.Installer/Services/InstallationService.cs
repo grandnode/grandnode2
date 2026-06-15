@@ -494,6 +494,12 @@ public partial class InstallationService : IInstallationService
             "CustomerGuid_1");
         await dbContext.CreateIndex(_customerRepository, OrderBuilder<Customer>.Create().Ascending(x => x.Email),
             "Email_1");
+        //compound lookup indexes supporting per-store customer identity (uniqueness of Email/Username + StoreId
+        //is enforced at the application layer, gated by the "Customer:RegisterCustomersPerStore" setting)
+        await dbContext.CreateIndex(_customerRepository,
+            OrderBuilder<Customer>.Create().Ascending(x => x.Email).Ascending(x => x.StoreId), "Email_StoreId");
+        await dbContext.CreateIndex(_customerRepository,
+            OrderBuilder<Customer>.Create().Ascending(x => x.Username).Ascending(x => x.StoreId), "Username_StoreId");
         await dbContext.CreateIndex(_customerRepository,
             OrderBuilder<Customer>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 

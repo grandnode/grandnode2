@@ -224,9 +224,15 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="email">Email</param>
     /// <returns>Customer</returns>
-    public virtual Task<Customer> GetCustomerByEmail(string email)
+    public virtual Task<Customer> GetCustomerByEmail(string email, string storeId = "")
     {
-        return string.IsNullOrWhiteSpace(email) ? Task.FromResult<Customer>(null) : _customerRepository.GetOneAsync(x => x.Email == email.ToLowerInvariant());
+        if (string.IsNullOrWhiteSpace(email))
+            return Task.FromResult<Customer>(null);
+
+        var loweredEmail = email.ToLowerInvariant();
+        return string.IsNullOrEmpty(storeId)
+            ? _customerRepository.GetOneAsync(x => x.Email == loweredEmail)
+            : _customerRepository.GetOneAsync(x => x.Email == loweredEmail && x.StoreId == storeId);
     }
 
     /// <summary>
@@ -249,12 +255,15 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="username">Username</param>
     /// <returns>Customer</returns>
-    public virtual Task<Customer> GetCustomerByUsername(string username)
+    public virtual Task<Customer> GetCustomerByUsername(string username, string storeId = "")
     {
         if (string.IsNullOrWhiteSpace(username))
             return Task.FromResult<Customer>(null);
 
-        return _customerRepository.GetOneAsync(x => x.Username == username.ToLowerInvariant());
+        var loweredUsername = username.ToLowerInvariant();
+        return string.IsNullOrEmpty(storeId)
+            ? _customerRepository.GetOneAsync(x => x.Username == loweredUsername)
+            : _customerRepository.GetOneAsync(x => x.Username == loweredUsername && x.StoreId == storeId);
     }
 
     /// <summary>

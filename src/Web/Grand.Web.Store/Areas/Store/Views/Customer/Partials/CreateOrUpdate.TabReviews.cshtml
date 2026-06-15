@@ -1,0 +1,125 @@
+@model CustomerModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="review-grid"></div>
+        </div>
+    </div>
+    <style>
+        .rating {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 83px;
+            height: 19px;
+            line-height: 1;
+            font-size: 20px;
+            margin: 5px 0;
+        }
+
+        .rating .rating-ghost {
+            z-index: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 19px;
+            white-space: nowrap;
+            color: #f0ad4e;
+        }
+
+        .rating .rating-real {
+            z-index: 2;
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: #f0ad4e;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $("#review-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ReviewList", "Customer", new { customerId = Model.Id, area = Constants.AreaStore }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("ReviewDelete", "Customer", new { area = Constants.AreaStore }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        model: {
+                            id: "Id",
+                            fields: {
+                                CreatedOn: { type: "date" }
+                            }
+                        },
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                autoBind: false,
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "ProductName",
+                    title: "@Loc["Admin.Customers.Customers.Reviews.Product"]",
+                    width: 90,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
+                }, {
+                    field: "Title",
+                    title: "@Loc["Admin.Customers.Customers.Reviews.Title"]",
+                    template: '<a class="k-link" href="@Url.Action("Edit", "ProductReview", new { area = Constants.AreaStore })/#=Id#">#:kendo.htmlEncode(Title)#</a>',
+                    width: 120
+                }, {
+                    field: "Rating",
+                    title: "@Loc["Admin.Customers.Customers.Reviews.Rating"]",
+                    width: 100,
+                    encoded: false,
+                    template: "#=ratingCellTemplate(Rating)#"
+                }, {
+                    field: "CreatedOn",
+                    title: "@Loc["Admin.Catalog.ProductReviews.Fields.CreatedOn"]",
+                    width: 150,
+                    type: "date",
+                    format: "{0:G}",
+                    minScreenWidth: 500,
+                }, {
+                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                    title: "@Loc["Admin.Common.Delete"]",
+                    width: 100
+                }]
+            });
+        });
+
+        function ratingCellTemplate(rating) {
+            return '<div class="rating"><div class="rating-ghost">&#x2606;&#x2606;&#x2606;&#x2606;&#x2606;</div><div class="rating-real" style="width: ' + rating * 20 + '%">&#9733;&#9733;&#9733;&#9733;&#9733;</div></div>'
+        }
+    </script>
+}
