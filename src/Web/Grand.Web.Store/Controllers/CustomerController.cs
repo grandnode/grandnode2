@@ -13,6 +13,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.AdminShared.Extensions;
@@ -25,6 +26,8 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Models;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Grand.Web.Store.Controllers;
 
@@ -54,7 +57,8 @@ public class CustomerController : BaseStoreController
         IGroupService groupService,
         ITranslationService translationService,
         IContextAccessor contextAccessor,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        CustomerConfig customerConfig)
     {
         _customerService = customerService;
         _customerViewModelService = customerViewModelService;
@@ -71,6 +75,7 @@ public class CustomerController : BaseStoreController
         _translationService = translationService;
         _contextAccessor = contextAccessor;
         _customerSettings = customerSettings;
+        _customerConfig = customerConfig;
     }
 
     #endregion
@@ -92,6 +97,26 @@ public class CustomerController : BaseStoreController
     private readonly ITranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly CustomerSettings _customerSettings;
+    private readonly CustomerConfig _customerConfig;
+
+    #endregion
+
+    #region Per-store gate
+
+    //managing customers from the store panel only makes sense when customer identity is scoped per store
+    //(Customer:RegisterCustomersPerStore). When it's off the whole controller is disabled and every action
+    //is routed to the PerStoreDisabled page that explains how to enable the setting.
+    public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    {
+        if (!_customerConfig.RegisterCustomersPerStore &&
+            context.ActionDescriptor is ControllerActionDescriptor { ActionName: not nameof(PerStoreDisabled) })
+        {
+            context.Result = RedirectToAction(nameof(PerStoreDisabled));
+            return;
+        }
+
+        await next();
+    }
 
     #endregion
 
@@ -196,6 +221,14 @@ public class CustomerController : BaseStoreController
     {
         var model = await _customerViewModelService.PrepareCustomerListModel();
         return View(model);
+    }
+
+    /// <summary>
+    ///     Shown instead of the panel when per-store customer identity is disabled (see the gate below).
+    /// </summary>
+    public IActionResult PerStoreDisabled()
+    {
+        return View();
     }
 
     [PermissionAuthorizeAction(PermissionActionName.List)]
