@@ -136,6 +136,44 @@ public class CustomerServiceTests
     }
 
     [TestMethod]
+    public async Task GetCustomerByEmail_WithStoreId_ReturnsOnlyMatchingStore()
+    {
+        //Arrange - same e-mail in two stores (per-store customer identity)
+        const string email = "shared@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-1" });
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-2" });
+        //Act
+        var result = await _customerService.GetCustomerByEmail(email, "store-2");
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-2", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_WithStoreId_NoMatch_ReturnsNull()
+    {
+        //Arrange
+        await _repository.InsertAsync(new Customer { Email = "shared@email.com", StoreId = "store-1" });
+        //Act
+        var result = await _customerService.GetCustomerByEmail("shared@email.com", "other-store");
+        //Assert
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByUsername_WithStoreId_ReturnsOnlyMatchingStore()
+    {
+        //Arrange - same username in two stores
+        await _repository.InsertAsync(new Customer { Username = "user", StoreId = "store-1" });
+        await _repository.InsertAsync(new Customer { Username = "user", StoreId = "store-2" });
+        //Act
+        var result = await _customerService.GetCustomerByUsername("user", "store-1");
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    [TestMethod]
     public async Task InsertGuestCustomerTest()
     {
         //Arrange

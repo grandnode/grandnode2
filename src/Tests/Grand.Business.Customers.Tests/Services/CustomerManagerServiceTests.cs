@@ -67,6 +67,35 @@ public class CustomerManagerServiceTests
     }
 
     [TestMethod]
+    public async Task LoginCustomer_PassesStoreIdToLookup()
+    {
+        //Arrange
+        var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("admin@admin.com", "store-1"))
+            .ReturnsAsync(customer);
+        _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
+        //Act
+        var result = await _customerManagerService.LoginCustomer("admin@admin.com", "123456", "store-1");
+        //Assert
+        Assert.AreEqual(CustomerLoginResults.Successful, result);
+        _customerServiceMock.Verify(c => c.GetCustomerByEmail("admin@admin.com", "store-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ChangePassword_PassesStoreIdToLookup()
+    {
+        //Arrange
+        var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("admin@admin.com", "store-1"))
+            .ReturnsAsync(customer);
+        var changepassword = new ChangePasswordRequest("admin@admin.com", PasswordFormat.Clear, "zxcvbn", "123456");
+        //Act
+        await _customerManagerService.ChangePassword(changepassword, "store-1");
+        //Assert
+        _customerServiceMock.Verify(c => c.GetCustomerByEmail("admin@admin.com", "store-1"), Times.Once);
+    }
+
+    [TestMethod]
     public async Task ChangePasswordTest_Success()
     {
         //Arrange
