@@ -150,7 +150,7 @@ public class CustomerController : BaseStoreController
         model.StaffStoreId = "";
         model.SeId = "";
         var registered = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
-        model.CustomerGroups = registered != null ? [registered.Id] : [];
+        model.CustomerGroups = registered != null ? new[] { registered.Id } : Array.Empty<string>();
     }
 
     private async Task<IList<CustomAttribute>> ParseCustomCustomerAttributes(IList<CustomAttributeModel> model)

@@ -1,6 +1,14 @@
 @model CustomerModel
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
+<input asp-for="StoreId" type="hidden" />
+@foreach (var item in Model.CustomerGroups.Select((value, index) => new { value, index }))
+{
+    <input type="hidden"
+           name="CustomerGroups[@item.index]"
+           value="@item.value" />
+}
+
 
 <admin-tabstrip name="customer-edit" SetTabPos="true" BindGrid="true">
     <items>
