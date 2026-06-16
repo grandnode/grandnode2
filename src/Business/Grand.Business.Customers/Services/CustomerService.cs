@@ -8,6 +8,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
@@ -26,11 +27,13 @@ public class CustomerService : ICustomerService
     public CustomerService(
         IRepository<Customer> customerRepository,
         IMediator mediator,
-        ICacheBase cacheBase)
+        ICacheBase cacheBase,
+        CustomerConfig customerConfig)
     {
         _customerRepository = customerRepository;
         _mediator = mediator;
         _cacheBase = cacheBase;
+        _customerConfig = customerConfig;
     }
 
     #endregion
@@ -40,6 +43,7 @@ public class CustomerService : ICustomerService
     private readonly IRepository<Customer> _customerRepository;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
+    private readonly CustomerConfig _customerConfig;
 
     #endregion
 
@@ -224,15 +228,27 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="email">Email</param>
     /// <returns>Customer</returns>
-    public virtual Task<Customer> GetCustomerByEmail(string email, string storeId = "")
+    public virtual async Task<Customer> GetCustomerByEmail(string email, string storeId = "")
     {
         if (string.IsNullOrWhiteSpace(email))
-            return Task.FromResult<Customer>(null);
+            return null;
 
         var loweredEmail = email.ToLowerInvariant();
-        return string.IsNullOrEmpty(storeId)
-            ? _customerRepository.GetOneAsync(x => x.Email == loweredEmail)
-            : _customerRepository.GetOneAsync(x => x.Email == loweredEmail && x.StoreId == storeId);
+        if (!string.IsNullOrEmpty(storeId))
+            return await _customerRepository.GetOneAsync(x => x.Email == loweredEmail && x.StoreId == storeId);
+
+        //global (store-independent) lookup. With per-store identity the same email may exist in several
+        //stores, so prefer the store-independent account (system/admin/back-office created without a store)
+        //to make sure e.g. admin panel login is not shadowed by a store customer that reused the email.
+        if (_customerConfig.RegisterCustomersPerStore)
+        {
+            var storeless = await _customerRepository.GetOneAsync(x =>
+                x.Email == loweredEmail && (x.StoreId == null || x.StoreId == ""));
+            if (storeless != null)
+                return storeless;
+        }
+
+        return await _customerRepository.GetOneAsync(x => x.Email == loweredEmail);
     }
 
     /// <summary>
@@ -255,15 +271,25 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="username">Username</param>
     /// <returns>Customer</returns>
-    public virtual Task<Customer> GetCustomerByUsername(string username, string storeId = "")
+    public virtual async Task<Customer> GetCustomerByUsername(string username, string storeId = "")
     {
         if (string.IsNullOrWhiteSpace(username))
-            return Task.FromResult<Customer>(null);
+            return null;
 
         var loweredUsername = username.ToLowerInvariant();
-        return string.IsNullOrEmpty(storeId)
-            ? _customerRepository.GetOneAsync(x => x.Username == loweredUsername)
-            : _customerRepository.GetOneAsync(x => x.Username == loweredUsername && x.StoreId == storeId);
+        if (!string.IsNullOrEmpty(storeId))
+            return await _customerRepository.GetOneAsync(x => x.Username == loweredUsername && x.StoreId == storeId);
+
+        //global (store-independent) lookup - prefer the store-independent account (see GetCustomerByEmail)
+        if (_customerConfig.RegisterCustomersPerStore)
+        {
+            var storeless = await _customerRepository.GetOneAsync(x =>
+                x.Username == loweredUsername && (x.StoreId == null || x.StoreId == ""));
+            if (storeless != null)
+                return storeless;
+        }
+
+        return await _customerRepository.GetOneAsync(x => x.Username == loweredUsername);
     }
 
     /// <summary>

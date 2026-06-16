@@ -30,8 +30,11 @@ public class CustomerServiceTests
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
-        _customerService = new CustomerService(_repository, _mediatorMock.Object, _cacheBase);
+        _customerService = new CustomerService(_repository, _mediatorMock.Object, _cacheBase,
+            _customerConfig);
     }
+
+    private readonly CustomerConfig _customerConfig = new() { RegisterCustomersPerStore = true };
 
 
     [TestMethod]
@@ -171,6 +174,20 @@ public class CustomerServiceTests
         //Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_GlobalLookup_PrefersStorelessAccount()
+    {
+        //Arrange - a store customer reused the same email as the store-independent admin account
+        const string email = "admin@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-2" });
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "" }); //admin / back-office
+        //Act - global lookup (e.g. back-office login) must not be shadowed by the store customer
+        var result = await _customerService.GetCustomerByEmail(email);
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("", result.StoreId);
     }
 
     [TestMethod]
