@@ -11,6 +11,7 @@ using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Localization;
 using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Interfaces;
@@ -41,6 +42,7 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
     private readonly IAddressAttributeService _addressAttributeService;
     private readonly IAddressAttributeParser _addressAttributeParser;
     private readonly IEnumTranslationService _enumTranslationService;
+    private readonly CustomerConfig _customerConfig;
 
     #endregion Fields
 
@@ -61,8 +63,9 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
         ICountryService countryService,
         IAddressAttributeService addressAttributeService,
         IAddressAttributeParser addressAttributeParser,
-        OrderSettings orderSettings, 
-        IEnumTranslationService enumTranslationService)
+        OrderSettings orderSettings,
+        IEnumTranslationService enumTranslationService,
+        CustomerConfig customerConfig)
     {
         _orderService = orderService;
         _contextAccessor = contextAccessor;
@@ -80,6 +83,7 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
         _addressAttributeParser = addressAttributeParser;
         _orderSettings = orderSettings;
         _enumTranslationService = enumTranslationService;
+        _customerConfig = customerConfig;
     }
 
     #endregion
@@ -139,7 +143,12 @@ public class MerchandiseReturnViewModelService : IMerchandiseReturnViewModelServ
         var customerId = string.Empty;
         if (!string.IsNullOrEmpty(model.SearchCustomerEmail))
         {
-            var customer = await _customerService.GetCustomerByEmail(model.SearchCustomerEmail);
+            //with per-store customer identity the same e-mail may exist in several stores - scope the
+            //lookup to the current store so the search matches this store's customer
+            var storeId = _customerConfig.RegisterCustomersPerStore
+                ? _contextAccessor.StoreContext.CurrentStore.Id
+                : "";
+            var customer = await _customerService.GetCustomerByEmail(model.SearchCustomerEmail, storeId);
             customerId = customer != null ? customer.Id : "00000000-0000-0000-0000-000000000000";
         }
 
