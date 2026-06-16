@@ -235,7 +235,16 @@ public class CustomerService : ICustomerService
 
         var loweredEmail = email.ToLowerInvariant();
         if (!string.IsNullOrEmpty(storeId))
-            return await _customerRepository.GetOneAsync(x => x.Email == loweredEmail && x.StoreId == storeId);
+        {
+            var inStore = await _customerRepository.GetOneAsync(x => x.Email == loweredEmail && x.StoreId == storeId);
+            if (inStore != null || !_customerConfig.RegisterCustomersPerStore)
+                return inStore;
+
+            //a store-scoped lookup (e.g. storefront login) must still reach the store-independent
+            //system/back-office account (administrator, created without a store) so it can sign in too
+            return await _customerRepository.GetOneAsync(x =>
+                x.Email == loweredEmail && (x.StoreId == null || x.StoreId == ""));
+        }
 
         //global (store-independent) lookup. With per-store identity the same email may exist in several
         //stores, so prefer the store-independent account (system/admin/back-office created without a store)
@@ -278,7 +287,15 @@ public class CustomerService : ICustomerService
 
         var loweredUsername = username.ToLowerInvariant();
         if (!string.IsNullOrEmpty(storeId))
-            return await _customerRepository.GetOneAsync(x => x.Username == loweredUsername && x.StoreId == storeId);
+        {
+            var inStore = await _customerRepository.GetOneAsync(x => x.Username == loweredUsername && x.StoreId == storeId);
+            if (inStore != null || !_customerConfig.RegisterCustomersPerStore)
+                return inStore;
+
+            //a store-scoped lookup must still reach the store-independent system/back-office account
+            return await _customerRepository.GetOneAsync(x =>
+                x.Username == loweredUsername && (x.StoreId == null || x.StoreId == ""));
+        }
 
         //global (store-independent) lookup - prefer the store-independent account (see GetCustomerByEmail)
         if (_customerConfig.RegisterCustomersPerStore)

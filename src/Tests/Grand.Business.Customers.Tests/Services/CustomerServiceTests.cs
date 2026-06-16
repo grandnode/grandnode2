@@ -177,6 +177,33 @@ public class CustomerServiceTests
     }
 
     [TestMethod]
+    public async Task GetCustomerByEmail_StoreScoped_FallsBackToStorelessAccount()
+    {
+        //Arrange - only the store-independent admin account exists (no customer for this store)
+        const string email = "admin@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "" });
+        //Act - storefront login scoped to a store must still find the storeless admin
+        var result = await _customerService.GetCustomerByEmail(email, "store-1");
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_StoreScoped_PrefersStoreCustomerOverStoreless()
+    {
+        //Arrange - both a store customer and the storeless admin share the email
+        const string email = "admin@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "" });
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-1" });
+        //Act
+        var result = await _customerService.GetCustomerByEmail(email, "store-1");
+        //Assert - the store's own customer wins within that store
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    [TestMethod]
     public async Task GetCustomerByEmail_GlobalLookup_PrefersStorelessAccount()
     {
         //Arrange - a store customer reused the same email as the store-independent admin account
