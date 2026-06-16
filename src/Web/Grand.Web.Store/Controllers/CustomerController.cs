@@ -368,7 +368,7 @@ public class CustomerController : BaseStoreController
             Error(ModelState);
             return RedirectToAction("Edit", new { id = customer.Id });
         }
-        catch (Exception exc)
+        catch (GrandException exc)
         {
             Error(exc.Message);
             return RedirectToAction("Edit", new { id = customer.Id });
