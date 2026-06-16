@@ -331,7 +331,7 @@ public class CustomerController : BaseStoreController
 
                 return RedirectToAction("List");
             }
-            catch (Exception exc)
+            catch (GrandException exc)
             {
                 Error(exc.Message);
             }
