@@ -456,7 +456,7 @@ public class CustomerController : BaseStoreController
             await _customerViewModelService.SendEmail(customer, model);
             Success(_translationService.GetResource("Admin.Customers.Customers.SendEmail.Queued"));
         }
-        catch (Exception exc)
+        catch (GrandException exc)
         {
             Error(exc.Message);
         }
