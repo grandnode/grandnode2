@@ -176,10 +176,9 @@ public class CustomerController : BaseStoreController
                 {
                     var cblAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                     if (!string.IsNullOrEmpty(cblAttributes))
-                        foreach (var item in cblAttributes.Split(','))
-                            if (!string.IsNullOrEmpty(item))
-                                customAttributes = _customerAttributeParser
-                                    .AddCustomerAttribute(customAttributes, attribute, item).ToList();
+                        foreach (var item in cblAttributes.Split(',').Where(x => !string.IsNullOrEmpty(x)))
+                            customAttributes = _customerAttributeParser
+                                .AddCustomerAttribute(customAttributes, attribute, item).ToList();
                 }
                     break;
                 case AttributeControlType.ReadonlyCheckboxes:
