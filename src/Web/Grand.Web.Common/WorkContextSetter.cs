@@ -40,7 +40,6 @@ public class WorkContextSetter : IWorkContextSetter
 
     private readonly TaxSettings _taxSettings;
     private readonly AppConfig _config;
-    private readonly CustomerConfig _customerConfig;
 
     private Customer _originalCustomerIfImpersonated;
 
@@ -58,8 +57,7 @@ public class WorkContextSetter : IWorkContextSetter
         IAclService aclService,
         IVendorService vendorService,
         TaxSettings taxSettings,
-        AppConfig config,
-        CustomerConfig customerConfig)
+        AppConfig config)
     {
         _httpContextAccessor = httpContextAccessor;
         _authenticationService = authenticationService;
@@ -72,7 +70,6 @@ public class WorkContextSetter : IWorkContextSetter
         _vendorService = vendorService;
         _taxSettings = taxSettings;
         _config = config;
-        _customerConfig = customerConfig;
     }
 
     #endregion
@@ -177,7 +174,7 @@ public class WorkContextSetter : IWorkContextSetter
         customer = await GetAllowAnonymousCustomer();
         if (customer != null) return customer;
 
-        customer = await GetCookieAuthenticatedCustomer(store);
+        customer = await GetCookieAuthenticatedCustomer();
         if (customer != null) return customer;
 
         customer = await GetGuestCustomer();
@@ -210,19 +207,10 @@ public class WorkContextSetter : IWorkContextSetter
         return await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
     }
 
-    private async Task<Customer> GetCookieAuthenticatedCustomer(Store store)
+    private async Task<Customer> GetCookieAuthenticatedCustomer()
     {
         var customer = await _authenticationService.GetAuthenticatedCustomer();
         if (customer == null) return null;
-
-        //per-store customer identity: a storefront shopper account belongs to a single store and must not be
-        //treated as logged-in on a different store. This is defense in depth on top of the host-only auth
-        //cookie (it also covers shared parent-domain cookies or several stores served from the same host).
-        //Back-office accounts (admin/store manager/sales/vendor) are global and are never store-isolated here.
-        if (_customerConfig.RegisterCustomersPerStore && store != null
-            && !string.IsNullOrEmpty(customer.StoreId) && customer.StoreId != store.Id
-            && await IsStorefrontShopper(customer))
-            return null;
 
         var impersonatedCustomer = await ImpersonatedCustomer(customer);
         if (impersonatedCustomer != null)
@@ -231,20 +219,6 @@ public class WorkContextSetter : IWorkContextSetter
             return impersonatedCustomer;
         }
         return customer;
-    }
-
-    /// <summary>
-    ///     A storefront shopper is a registered customer that is not a back-office account. Per-store identity
-    ///     only applies to such accounts; admins, store managers, sales managers and vendors stay global.
-    /// </summary>
-    private async Task<bool> IsStorefrontShopper(Customer customer)
-    {
-        if (!string.IsNullOrEmpty(customer.VendorId)) return false;
-        if (await _groupService.IsAdmin(customer)) return false;
-        if (await _groupService.IsStoreManager(customer)) return false;
-        if (await _groupService.IsSalesManager(customer)) return false;
-        if (await _groupService.IsVendor(customer)) return false;
-        return true;
     }
 
     private async Task<Customer> GetApiUserCustomer()
