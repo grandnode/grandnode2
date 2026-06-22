@@ -606,7 +606,7 @@ public class CustomerController : BaseStoreController
         {
             var customAttributes =
                 await model.Address.ParseCustomAddressAttributes(_addressAttributeParser, _addressAttributeService);
-            address = await _customerViewModelService.UpdateAddressModel(customer, address, model, customAttributes);
+            await _customerViewModelService.UpdateAddressModel(customer, address, model, customAttributes);
             Success(_translationService.GetResource("Admin.Customers.Customers.Addresses.Updated"));
             return RedirectToAction("AddressEdit", new { addressId = model.Address.Id, customerId = model.CustomerId });
         }
