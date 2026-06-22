@@ -237,11 +237,15 @@ public class CustomerService : ICustomerService
         if (!string.IsNullOrEmpty(storeId))
         {
             var inStore = await _customerRepository.GetOneAsync(x => x.Email == loweredEmail && x.StoreId == storeId);
-            if (inStore != null || !_customerConfig.RegisterCustomersPerStore)
+            if (inStore != null)
                 return inStore;
 
-            //a store-scoped lookup (e.g. storefront login) must still reach the store-independent
-            //system/back-office account (administrator, created without a store) so it can sign in too
+            //no customer for this store: without per-store identity the e-mail is store-exact (no fallback);
+            //with per-store identity a store-scoped lookup (e.g. storefront login) must still reach the
+            //store-independent system/back-office account (administrator, created without a store)
+            if (!_customerConfig.RegisterCustomersPerStore)
+                return null;
+
             return await _customerRepository.GetOneAsync(x =>
                 x.Email == loweredEmail && (x.StoreId == null || x.StoreId == ""));
         }
@@ -289,10 +293,14 @@ public class CustomerService : ICustomerService
         if (!string.IsNullOrEmpty(storeId))
         {
             var inStore = await _customerRepository.GetOneAsync(x => x.Username == loweredUsername && x.StoreId == storeId);
-            if (inStore != null || !_customerConfig.RegisterCustomersPerStore)
+            if (inStore != null)
                 return inStore;
 
-            //a store-scoped lookup must still reach the store-independent system/back-office account
+            //no customer for this store: without per-store identity there is no fallback; with it, a
+            //store-scoped lookup must still reach the store-independent system/back-office account
+            if (!_customerConfig.RegisterCustomersPerStore)
+                return null;
+
             return await _customerRepository.GetOneAsync(x =>
                 x.Username == loweredUsername && (x.StoreId == null || x.StoreId == ""));
         }
