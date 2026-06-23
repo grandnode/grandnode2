@@ -35,9 +35,11 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
         RuleFor(x => x.Email).NotEmpty().EmailAddress()
             .WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Email.Required"));
 
-        //store
+        //store - required only when the editor is not an administrator (admins may manage store-independent
+        //back-office/system accounts that have no store)
         RuleFor(x => x.StoreId).NotEmpty()
-            .WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Store.Required"));
+            .WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Store.Required"))
+            .WhenAsync(async (_, _) => !await groupService.IsAdmin(contextAccessor.WorkContext.CurrentCustomer));
 
         //a store manager can only assign a customer to his own store
         RuleFor(x => x.StoreId).MustAsync(async (storeId, _) =>

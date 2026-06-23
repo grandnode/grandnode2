@@ -67,6 +67,17 @@ public class CustomerValidatorTests
     }
 
     [TestMethod]
+    public async Task StoreId_Empty_Admin_DoesNotFailRequired()
+    {
+        //an administrator may manage a store-independent (storeless) account
+        _groupServiceMock.Setup(g => g.IsAdmin(It.IsAny<Customer>())).ReturnsAsync(true);
+
+        var result = await _validator.ValidateAsync(BuildModel(string.Empty));
+
+        Assert.IsFalse(result.Errors.Any(e => e.ErrorMessage == RequiredMessage));
+    }
+
+    [TestMethod]
     public async Task StoreManager_WrongStore_Fails()
     {
         _groupServiceMock.Setup(g => g.IsStoreManager(It.IsAny<Customer>())).ReturnsAsync(true);
