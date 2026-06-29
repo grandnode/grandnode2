@@ -29,10 +29,10 @@ public class JwtBearerCustomerAuthenticationService : IJwtBearerCustomerAuthenti
     public async Task<bool> Valid(TokenValidatedContext context)
     {
         if (context.Principal == null) return false;
-        var customerId = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "CustomerId")?.Value;
-        var email = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
-        var passwordToken = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Token")?.Value;
-        var refreshId = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "RefreshId")?.Value;
+        var customerId = context.Principal.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var email = context.Principal.Claims.FirstOrDefault(x => x.Type == "Email")?.Value;
+        var passwordToken = context.Principal.Claims.FirstOrDefault(x => x.Type == "Token")?.Value;
+        var refreshId = context.Principal.Claims.FirstOrDefault(x => x.Type == "RefreshId")?.Value;
         Customer customer = null;
         if (!string.IsNullOrEmpty(customerId))
         {

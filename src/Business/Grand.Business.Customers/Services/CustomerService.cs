@@ -240,9 +240,6 @@ public class CustomerService : ICustomerService
             if (inStore != null)
                 return inStore;
 
-            //no customer for this store: without per-store identity the e-mail is store-exact (no fallback);
-            //with per-store identity a store-scoped lookup (e.g. storefront login) must still reach the
-            //store-independent system/back-office account (administrator, created without a store)
             if (!_customerConfig.RegisterCustomersPerStore)
                 return null;
 

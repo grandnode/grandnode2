@@ -122,9 +122,9 @@ public class TokenWebController : ControllerBase
         try
         {
             principal = _refreshTokenService.GetPrincipalFromToken(tokenDto.AccessToken);
-            customerId = principal.Claims.ToList().FirstOrDefault(x => x.Type == "CustomerId")?.Value;
-            email = principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
-            guid = principal.Claims.ToList().FirstOrDefault(x => x.Type == "Guid")?.Value;
+            customerId = principal.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+            email = principal.Claims.FirstOrDefault(x => x.Type == "Email")?.Value;
+            guid = principal.Claims.FirstOrDefault(x => x.Type == "Guid")?.Value;
         }
         catch (Exception)
         {
