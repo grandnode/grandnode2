@@ -218,7 +218,7 @@ public class CustomerController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> List()
     {
-        var model = await _customerViewModelService.PrepareCustomerListModel();
+        var model = new CustomerListModel();
         return View(model);
     }
 
