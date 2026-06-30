@@ -181,7 +181,8 @@ public class CustomerViewModelService : ICustomerViewModelService
 
     public virtual async Task PrepareCustomerModel(CustomerModel model, Customer customer, bool excludeProperties)
     {
-        var allStores = await _storeService.GetAllStores();
+        var hasStaffStore = !string.IsNullOrEmpty(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var allStores = hasStaffStore ? [await _storeService.GetStoreById(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)] : await _storeService.GetAllStores();
         if (customer != null)
         {
             model.Id = customer.Id;

@@ -1,4 +1,3 @@
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
@@ -165,38 +164,38 @@ public class CustomerController : BaseStoreController
             {
                 case AttributeControlType.DropdownList:
                 case AttributeControlType.RadioList:
-                {
-                    var ctrlAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                    if (!string.IsNullOrEmpty(ctrlAttributes))
-                        customAttributes = _customerAttributeParser
-                            .AddCustomerAttribute(customAttributes, attribute, ctrlAttributes).ToList();
-                }
+                    {
+                        var ctrlAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (!string.IsNullOrEmpty(ctrlAttributes))
+                            customAttributes = _customerAttributeParser
+                                .AddCustomerAttribute(customAttributes, attribute, ctrlAttributes).ToList();
+                    }
                     break;
                 case AttributeControlType.Checkboxes:
-                {
-                    var cblAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                    if (!string.IsNullOrEmpty(cblAttributes))
-                        foreach (var item in cblAttributes.Split(',').Where(x => !string.IsNullOrEmpty(x)))
-                            customAttributes = _customerAttributeParser
-                                .AddCustomerAttribute(customAttributes, attribute, item).ToList();
-                }
+                    {
+                        var cblAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (!string.IsNullOrEmpty(cblAttributes))
+                            foreach (var item in cblAttributes.Split(',').Where(x => !string.IsNullOrEmpty(x)))
+                                customAttributes = _customerAttributeParser
+                                    .AddCustomerAttribute(customAttributes, attribute, item).ToList();
+                    }
                     break;
                 case AttributeControlType.ReadonlyCheckboxes:
-                {
-                    foreach (var selectedAttributeId in attribute.CustomerAttributeValues
-                                 .Where(v => v.IsPreSelected).Select(v => v.Id).ToList())
-                        customAttributes = _customerAttributeParser
-                            .AddCustomerAttribute(customAttributes, attribute, selectedAttributeId).ToList();
-                }
+                    {
+                        foreach (var selectedAttributeId in attribute.CustomerAttributeValues
+                                     .Where(v => v.IsPreSelected).Select(v => v.Id).ToList())
+                            customAttributes = _customerAttributeParser
+                                .AddCustomerAttribute(customAttributes, attribute, selectedAttributeId).ToList();
+                    }
                     break;
                 case AttributeControlType.TextBox:
                 case AttributeControlType.MultilineTextbox:
-                {
-                    var ctrlAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                    if (!string.IsNullOrEmpty(ctrlAttributes))
-                        customAttributes = _customerAttributeParser
-                            .AddCustomerAttribute(customAttributes, attribute, ctrlAttributes.Trim()).ToList();
-                }
+                    {
+                        var ctrlAttributes = model.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        if (!string.IsNullOrEmpty(ctrlAttributes))
+                            customAttributes = _customerAttributeParser
+                                .AddCustomerAttribute(customAttributes, attribute, ctrlAttributes.Trim()).ToList();
+                    }
                     break;
                 default:
                     break;
