@@ -406,6 +406,9 @@ public partial class InstallationService : IInstallationService
     private readonly IWebHostEnvironment _hostingEnvironment;
     private readonly IServiceProvider _serviceProvider;
 
+    private const string CustomerId = "CustomerId";
+    private const string ProductCategoriesCategoryId = "ProductCategories.CategoryId";
+
     #endregion
 
     #region Utilities
@@ -494,6 +497,12 @@ public partial class InstallationService : IInstallationService
             "CustomerGuid_1");
         await dbContext.CreateIndex(_customerRepository, OrderBuilder<Customer>.Create().Ascending(x => x.Email),
             "Email_1");
+        //compound lookup indexes supporting per-store customer identity (uniqueness of Email/Username + StoreId
+        //is enforced at the application layer, gated by the "Customer:RegisterCustomersPerStore" setting)
+        await dbContext.CreateIndex(_customerRepository,
+            OrderBuilder<Customer>.Create().Ascending(x => x.Email).Ascending(x => x.StoreId), "Email_StoreId");
+        await dbContext.CreateIndex(_customerRepository,
+            OrderBuilder<Customer>.Create().Ascending(x => x.Username).Ascending(x => x.StoreId), "Username_StoreId");
         await dbContext.CreateIndex(_customerRepository,
             OrderBuilder<Customer>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
@@ -551,12 +560,12 @@ public partial class InstallationService : IInstallationService
         //customer history password
         await dbContext.CreateIndex(_customerHistoryPasswordRepository,
             OrderBuilder<CustomerHistoryPassword>.Create().Ascending(x => x.CustomerId).Descending(x => x.CreatedOnUtc),
-            "CustomerId");
+            CustomerId);
 
         //customer note
         await dbContext.CreateIndex(_customerNoteRepository,
             OrderBuilder<CustomerNote>.Create().Ascending(x => x.CustomerId).Descending(x => x.CreatedOnUtc),
-            "CustomerId");
+            CustomerId);
         await dbContext.CreateIndex(_customerNoteRepository,
             OrderBuilder<CustomerNote>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
@@ -638,23 +647,23 @@ public partial class InstallationService : IInstallationService
             OrderBuilder<Product>.Create().Ascending("ProductCategories.DisplayOrder"), "CategoryId_1_DisplayOrder_1");
         await dbContext.CreateIndex(_productRepository,
             OrderBuilder<Product>.Create().Ascending(x => x.Published).Ascending(x => x.VisibleIndividually)
-                .Ascending(x => x.DisplayOrderCategory).Ascending("ProductCategories.CategoryId"),
+                .Ascending(x => x.DisplayOrderCategory).Ascending(ProductCategoriesCategoryId),
             "ProductCategories.CategoryId_1_OrderCategory_1");
         await dbContext.CreateIndex(_productRepository,
             OrderBuilder<Product>.Create().Ascending(x => x.Published).Ascending(x => x.VisibleIndividually)
-                .Ascending(x => x.Name).Ascending("ProductCategories.CategoryId"),
+                .Ascending(x => x.Name).Ascending(ProductCategoriesCategoryId),
             "ProductCategories.CategoryId_1_Name_1");
         await dbContext.CreateIndex(_productRepository,
             OrderBuilder<Product>.Create().Ascending(x => x.Published).Ascending(x => x.VisibleIndividually)
-                .Ascending(x => x.Price).Ascending("ProductCategories.CategoryId"),
+                .Ascending(x => x.Price).Ascending(ProductCategoriesCategoryId),
             "ProductCategories.CategoryId_1_Price_1");
         await dbContext.CreateIndex(_productRepository,
             OrderBuilder<Product>.Create().Ascending(x => x.Published).Ascending(x => x.VisibleIndividually)
-                .Ascending(x => x.Sold).Ascending("ProductCategories.CategoryId"),
+                .Ascending(x => x.Sold).Ascending(ProductCategoriesCategoryId),
             "ProductCategories.CategoryId_1_Sold_1");
         await dbContext.CreateIndex(_productRepository,
             OrderBuilder<Product>.Create().Ascending(x => x.Published).Ascending(x => x.VisibleIndividually)
-                .Ascending("ProductCategories.CategoryId").Ascending("ProductCategories.IsFeaturedProduct"),
+                .Ascending(ProductCategoriesCategoryId).Ascending("ProductCategories.IsFeaturedProduct"),
             "ProductCategories.CategoryId_1_IsFeaturedProduct_1");
         await dbContext.CreateIndex(_productRepository,
             OrderBuilder<Product>.Create().Ascending("ProductCollections.CollectionId").Ascending(x => x.Published)
@@ -794,7 +803,7 @@ public partial class InstallationService : IInstallationService
             OrderBuilder<DiscountCoupon>.Create().Ascending(x => x.DiscountId), "DiscountId");
 
         await dbContext.CreateIndex(_discountusageRepository,
-            OrderBuilder<DiscountUsageHistory>.Create().Ascending(x => x.CustomerId), "CustomerId");
+            OrderBuilder<DiscountUsageHistory>.Create().Ascending(x => x.CustomerId), CustomerId);
         await dbContext.CreateIndex(_discountusageRepository,
             OrderBuilder<DiscountUsageHistory>.Create().Ascending(x => x.DiscountId), "DiscountId");
         await dbContext.CreateIndex(_discountusageRepository,
@@ -830,7 +839,7 @@ public partial class InstallationService : IInstallationService
 
         //newsletter
         await dbContext.CreateIndex(_newslettersubscriptionRepository,
-            OrderBuilder<NewsLetterSubscription>.Create().Ascending(x => x.CustomerId), "CustomerId");
+            OrderBuilder<NewsLetterSubscription>.Create().Ascending(x => x.CustomerId), CustomerId);
         await dbContext.CreateIndex(_newslettersubscriptionRepository,
             OrderBuilder<NewsLetterSubscription>.Create().Ascending(x => x.Email), "Email");
 
@@ -843,7 +852,7 @@ public partial class InstallationService : IInstallationService
 
         //loyalty points
         await dbContext.CreateIndex(_loyaltypointshistoryRepository,
-            OrderBuilder<LoyaltyPointsHistory>.Create().Ascending(x => x.CustomerId), "CustomerId");
+            OrderBuilder<LoyaltyPointsHistory>.Create().Ascending(x => x.CustomerId), CustomerId);
         await dbContext.CreateIndex(_loyaltypointshistoryRepository,
             OrderBuilder<LoyaltyPointsHistory>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
@@ -914,7 +923,7 @@ public partial class InstallationService : IInstallationService
 
         //externalauth
         await dbContext.CreateIndex(_externalAuthenticationRepository,
-            OrderBuilder<ExternalAuthentication>.Create().Ascending(x => x.CustomerId), "CustomerId");
+            OrderBuilder<ExternalAuthentication>.Create().Ascending(x => x.CustomerId), CustomerId);
 
         //merchandise return
         await dbContext.CreateIndex(_merchandiseReturnRepository,

@@ -214,6 +214,7 @@ public static class StartupBase
             });
 
         services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
+        services.StartupConfig<CustomerConfig>(configuration.GetSection("Customer"));
         services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
         services.StartupConfig<SecurityConfig>(configuration.GetSection("Security"));
         services.StartupConfig<ExtensionsConfig>(configuration.GetSection("Extensions"));

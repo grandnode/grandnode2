@@ -1,0 +1,117 @@
+@model CustomerModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    <strong>@Html.Raw(Loc["Admin.Customers.Customers.PersonalizedProduct"])</strong>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="personalizedproduct-grid"></div>
+        </div>
+        <div class="panel-footer">
+            <a id="btnAddNewPersonalizedProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshPersonalizedProducts", formId = "customer-form", personalized = "true", area = Constants.AreaStore }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.Customers.PersonalizedProduct.AddNew"]</a>
+            <input type="submit" id="btnRefreshPersonalizedProducts" style="display: none"/>
+        </div>
+    </div>
+    <script>
+    $(document).ready(function () {
+             $('#btnAddNewPersonalizedProduct').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    midClick: true,
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+             });
+            $("#personalizedproduct-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("PersonalizedProducts", "Customer", new { customerId = Model.Id, area = Constants.AreaStore }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        update: {
+                            url:"@Html.Raw(Url.Action("UpdatePersonalizedProduct", "Customer", new { area = Constants.AreaStore }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("DeletePersonalizedProduct", "Customer", new { area = Constants.AreaStore }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                ProductName: {editable: false, type: "string" },
+                                DisplayOrder: {editable: true, type: "number", format:"{0:n2}" },
+                            }
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                autoBind: false,
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "ProductName",
+                    title: "@Loc["Admin.Customers.Customers.PersonalizedProduct.ProductName"]",
+                    width: 300,
+                    template: '<a href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/#=ProductId#" target="_blank">#=kendo.htmlEncode(ProductName)#</a>'
+                }, {
+                    field: "DisplayOrder",
+                    title: "@Loc["Admin.Customers.Customers.PersonalizedProduct.DisplayOrder"]",
+                    width: 100,
+                    type: "number",
+
+                }, {
+                command: [{
+                    name: "edit",
+                    text: {
+                        edit: "@Loc["Admin.Common.Edit"]",
+                    update: "@Loc["Admin.Common.Update"]",
+                cancel: "@Loc["Admin.Common.Cancel"]"} }, {
+                    name: "destroy",
+                    text: "@Loc["Admin.Common.Delete"]"
+                    }],
+                width: 200
+                }]
+            });
+        });
+</script>
+    <script>
+            $(document).ready(function () {
+                $('#btnRefreshPersonalizedProducts').click(function () {
+                    var grid = $("#personalizedproduct-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                    return false;
+                });
+            });
+    </script>
+}

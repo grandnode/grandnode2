@@ -153,11 +153,13 @@ public class CustomerViewModelService : ICustomerViewModelService
 
     public virtual async Task<(IEnumerable<CustomerModel> customerModelList, int totalCount)> PrepareCustomerList(
         CustomerListModel model,
-        string[] searchCustomerGroupIds, string[] searchCustomerTagIds, int pageIndex, int pageSize)
+        string[] searchCustomerGroupIds, string[] searchCustomerTagIds, int pageIndex, int pageSize,
+        string storeId = "")
     {
         var salesEmployeeId = _contextAccessor.WorkContext.CurrentCustomer.SeId;
 
         var customers = await _customerService.GetAllCustomers(
+            storeId: storeId,
             customerGroupIds: searchCustomerGroupIds,
             customerTagIds: searchCustomerTagIds,
             email: model.SearchEmail,
@@ -179,7 +181,8 @@ public class CustomerViewModelService : ICustomerViewModelService
 
     public virtual async Task PrepareCustomerModel(CustomerModel model, Customer customer, bool excludeProperties)
     {
-        var allStores = await _storeService.GetAllStores();
+        var hasStaffStore = !string.IsNullOrEmpty(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var allStores = hasStaffStore ? [await _storeService.GetStoreById(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)] : await _storeService.GetAllStores();
         if (customer != null)
         {
             model.Id = customer.Id;

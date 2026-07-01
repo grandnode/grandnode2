@@ -260,7 +260,7 @@ public class CustomerController : BaseAdminController
             {
                 var changePassRequest = new ChangePasswordRequest(model.Email, _customerSettings.DefaultPasswordFormat,
                     model.Password);
-                await _customerManagerService.ChangePassword(changePassRequest);
+                await _customerManagerService.ChangePassword(changePassRequest, customer.StoreId);
             }
 
             Success(_translationService.GetResource("Admin.Customers.Customers.Added"));
@@ -308,7 +308,7 @@ public class CustomerController : BaseAdminController
                 {
                     var changePassRequest = new ChangePasswordRequest(model.Email,
                         _customerSettings.DefaultPasswordFormat, model.Password);
-                    await _customerManagerService.ChangePassword(changePassRequest);
+                    await _customerManagerService.ChangePassword(changePassRequest, customer.StoreId);
                 }
 
                 Success(_translationService.GetResource("Admin.Customers.Customers.Updated"));

@@ -47,10 +47,16 @@ public class ApiAuthenticationService : IApiAuthenticationService
         if (!authenticateResult.Succeeded)
             return null;
 
-        //try to get customer by email
-        var emailClaim = authenticateResult.Principal.Claims.FirstOrDefault(claim => claim.Type == "Email");
-        if (emailClaim != null)
-            customer = await _customerService.GetCustomerByEmail(emailClaim.Value);
+        //prefer the stable customer id (unambiguous with per-store identity), fall back to e-mail for old tokens
+        var customerIdClaim = authenticateResult.Principal.Claims.FirstOrDefault(claim => claim.Type == "CustomerId");
+        if (customerIdClaim != null)
+            customer = await _customerService.GetCustomerById(customerIdClaim.Value);
+        else
+        {
+            var emailClaim = authenticateResult.Principal.Claims.FirstOrDefault(claim => claim.Type == "Email");
+            if (emailClaim != null)
+                customer = await _customerService.GetCustomerByEmail(emailClaim.Value);
+        }
 
         //whether the found customer is available
         if (customer is not { Active: true } || customer.Deleted || !await _groupService.IsRegistered(customer))
@@ -75,8 +81,14 @@ public class ApiAuthenticationService : IApiAuthenticationService
         if (!authResult.Succeeded)
             return await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
 
+        var customerId = authResult.Principal.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
         var email = authResult.Principal.Claims.FirstOrDefault(x => x.Type == "Email")?.Value;
-        if (email is null)
+        if (!string.IsNullOrEmpty(customerId))
+        {
+            //prefer the stable customer id - unambiguous with per-store identity
+            customer = await _customerService.GetCustomerById(customerId);
+        }
+        else if (email is null)
         {
             //guest
             var id = authResult.Principal.Claims.FirstOrDefault(x => x.Type == "Guid")?.Value;

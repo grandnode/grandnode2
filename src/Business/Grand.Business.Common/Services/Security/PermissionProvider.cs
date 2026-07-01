@@ -209,6 +209,7 @@ public class PermissionProvider : IPermissionProvider
                     StandardPermission.ManagePaymentTransactions,
                     StandardPermission.ManageShipments,
                     StandardPermission.ManageMerchandiseReturns,
+                    StandardPermission.ManageCustomers,
                     StandardPermission.ManageReports
                 ]
             },

@@ -6,6 +6,8 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
@@ -22,9 +24,14 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         ICustomerService customerService, IGroupService groupService, IEncryptionService encryptionService,
         ITranslationService translationService, CustomerSettings customerSettings, CaptchaSettings captchaSettings,
-        IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator)
+        IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
+        IContextAccessor workContextAccessor, CustomerConfig customerConfig)
         : base(validators)
     {
+        var storeId = customerConfig.RegisterCustomersPerStore
+            ? workContextAccessor.StoreContext.CurrentStore.Id
+            : "";
+
         if (!customerSettings.UsernamesEnabled)
         {
             RuleFor(x => x.Email).NotEmpty()
@@ -44,8 +51,8 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             var customer = customerSettings.UsernamesEnabled
-                ? await customerService.GetCustomerByUsername(x.Username)
-                : await customerService.GetCustomerByEmail(x.Email);
+                ? await customerService.GetCustomerByUsername(x.Username, storeId)
+                : await customerService.GetCustomerByEmail(x.Email, storeId);
 
             switch (customer)
             {

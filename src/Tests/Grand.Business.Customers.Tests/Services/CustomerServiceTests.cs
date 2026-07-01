@@ -30,8 +30,16 @@ public class CustomerServiceTests
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
-        _customerService = new CustomerService(_repository, _mediatorMock.Object, _cacheBase);
+        _customerService = new CustomerService(_repository, _mediatorMock.Object, _cacheBase,
+            _customerConfig);
     }
+
+    private readonly CustomerConfig _customerConfig = new() { RegisterCustomersPerStore = true };
+
+    //builds a service over the same in-memory repository with the per-store flag explicitly set
+    private CustomerService CreateService(bool registerCustomersPerStore) =>
+        new(_repository, _mediatorMock.Object, _cacheBase,
+            new CustomerConfig { RegisterCustomersPerStore = registerCustomersPerStore });
 
 
     [TestMethod]
@@ -134,6 +142,174 @@ public class CustomerServiceTests
         //Assert
         Assert.IsNotNull(result);
     }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_WithStoreId_ReturnsOnlyMatchingStore()
+    {
+        //Arrange - same e-mail in two stores (per-store customer identity)
+        const string email = "shared@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-1" });
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-2" });
+        //Act
+        var result = await _customerService.GetCustomerByEmail(email, "store-2");
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-2", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_WithStoreId_NoMatch_ReturnsNull()
+    {
+        //Arrange
+        await _repository.InsertAsync(new Customer { Email = "shared@email.com", StoreId = "store-1" });
+        //Act
+        var result = await _customerService.GetCustomerByEmail("shared@email.com", "other-store");
+        //Assert
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByUsername_WithStoreId_ReturnsOnlyMatchingStore()
+    {
+        //Arrange - same username in two stores
+        await _repository.InsertAsync(new Customer { Username = "user", StoreId = "store-1" });
+        await _repository.InsertAsync(new Customer { Username = "user", StoreId = "store-2" });
+        //Act
+        var result = await _customerService.GetCustomerByUsername("user", "store-1");
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_StoreScoped_FallsBackToStorelessAccount()
+    {
+        //Arrange - only the store-independent admin account exists (no customer for this store)
+        const string email = "admin@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "" });
+        //Act - storefront login scoped to a store must still find the storeless admin
+        var result = await _customerService.GetCustomerByEmail(email, "store-1");
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_StoreScoped_PrefersStoreCustomerOverStoreless()
+    {
+        //Arrange - both a store customer and the storeless admin share the email
+        const string email = "admin@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "" });
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-1" });
+        //Act
+        var result = await _customerService.GetCustomerByEmail(email, "store-1");
+        //Assert - the store's own customer wins within that store
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_GlobalLookup_PrefersStorelessAccount()
+    {
+        //Arrange - a store customer reused the same email as the store-independent admin account
+        const string email = "admin@email.com";
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "store-2" });
+        await _repository.InsertAsync(new Customer { Email = email, StoreId = "" }); //admin / back-office
+        //Act - global lookup (e.g. back-office login) must not be shadowed by the store customer
+        var result = await _customerService.GetCustomerByEmail(email);
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("", result.StoreId);
+    }
+
+    #region GetCustomerByEmail - full branch coverage
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_NullEmail_ReturnsNull()
+    {
+        await _repository.InsertAsync(new Customer { Email = "user@email.com" });
+        var result = await _customerService.GetCustomerByEmail(null);
+        Assert.IsNull(result);
+    }
+
+    [DataTestMethod]
+    [DataRow("")]
+    [DataRow("   ")]
+    public async Task GetCustomerByEmail_EmptyOrWhitespaceEmail_ReturnsNull(string email)
+    {
+        await _repository.InsertAsync(new Customer { Email = "user@email.com" });
+        var result = await _customerService.GetCustomerByEmail(email);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_IsCaseInsensitive()
+    {
+        //stored lowercased; the lookup must lowercase the input
+        await _repository.InsertAsync(new Customer { Email = "user@email.com", StoreId = "" });
+        var result = await _customerService.GetCustomerByEmail("USER@Email.COM");
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_StoreScoped_FallsBackToAccountWithNullStoreId()
+    {
+        //admin created without a store leaves StoreId null (not just "") - the fallback must match it too
+        await _repository.InsertAsync(new Customer { Email = "admin@email.com" });
+        var result = await _customerService.GetCustomerByEmail("admin@email.com", "store-1");
+        Assert.IsNotNull(result);
+        Assert.IsTrue(string.IsNullOrEmpty(result.StoreId));
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_PerStoreOn_Global_NoStoreless_FallsBackToAnyMatch()
+    {
+        //only a store customer exists (no store-independent account) - global lookup still returns it
+        await _repository.InsertAsync(new Customer { Email = "user@email.com", StoreId = "store-1" });
+        var result = await _customerService.GetCustomerByEmail("user@email.com");
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_PerStoreOn_StoreScoped_NoMatchAndNoStoreless_ReturnsNull()
+    {
+        await _repository.InsertAsync(new Customer { Email = "user@email.com", StoreId = "store-1" });
+        var result = await _customerService.GetCustomerByEmail("user@email.com", "store-2");
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_PerStoreOff_StoreScoped_ReturnsExactStoreMatch()
+    {
+        var service = CreateService(registerCustomersPerStore: false);
+        await _repository.InsertAsync(new Customer { Email = "user@email.com", StoreId = "store-1" });
+        var result = await service.GetCustomerByEmail("user@email.com", "store-1");
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_PerStoreOff_StoreScoped_DoesNotFallBackToStoreless()
+    {
+        var service = CreateService(registerCustomersPerStore: false);
+        //a store-independent account exists, but with the flag off there is no fallback
+        await _repository.InsertAsync(new Customer { Email = "admin@email.com", StoreId = "" });
+        var result = await service.GetCustomerByEmail("admin@email.com", "store-1");
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByEmail_PerStoreOff_Global_ReturnsMatch()
+    {
+        var service = CreateService(registerCustomersPerStore: false);
+        await _repository.InsertAsync(new Customer { Email = "user@email.com", StoreId = "store-1" });
+        var result = await service.GetCustomerByEmail("user@email.com");
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
+    }
+
+    #endregion
 
     [TestMethod]
     public async Task InsertGuestCustomerTest()

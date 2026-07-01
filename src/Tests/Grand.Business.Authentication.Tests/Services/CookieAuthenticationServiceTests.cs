@@ -114,6 +114,27 @@ public class CookieAuthenticationServiceTests
     }
 
     [TestMethod]
+    public async Task GetAuthenticatedCustomer_WithCustomerIdClaim_ResolvesById_ReturnCustomer()
+    {
+        var expectedCustomer = new Customer { Id = "cust-1", Email = "john@grand.com", Active = true };
+        var claims = new List<Claim> {
+            new("grand:customerId", "cust-1", ClaimValueTypes.String, "grandnode")
+        };
+        var principals =
+            new ClaimsPrincipal(new ClaimsIdentity(claims, GrandCookieAuthenticationDefaults.AuthenticationScheme));
+        _authServiceMock.Setup(c => c.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
+            .Returns(() => Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principals, ""))));
+        _customerServiceMock.Setup(c => c.GetCustomerById("cust-1")).ReturnsAsync(expectedCustomer);
+        _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
+
+        var customer = await _cookieAuthService.GetAuthenticatedCustomer();
+
+        Assert.IsNotNull(customer);
+        Assert.AreEqual("cust-1", customer.Id);
+        _customerServiceMock.Verify(c => c.GetCustomerById("cust-1"), Times.Once);
+    }
+
+    [TestMethod]
     public async Task GetAuthenticatedCustomer_UsernameEnableGuests_ReturnNull()
     {
         var expectedCustomer = new Customer { Username = "John", Active = true };
