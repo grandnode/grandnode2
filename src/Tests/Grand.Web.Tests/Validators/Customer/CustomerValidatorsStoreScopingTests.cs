@@ -82,7 +82,7 @@ public class CustomerValidatorsStoreScopingTests
         mediator.Setup(m => m.Send(It.IsAny<GetParseCustomAttributes>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CustomAttribute>());
         var attrParser = new Mock<ICustomerAttributeParser>();
-        attrParser.Setup(p => p.GetAttributeWarnings(It.IsAny<IList<CustomAttribute>>()))
+        attrParser.Setup(p => p.GetAttributeWarnings(It.IsAny<IList<CustomAttribute>>(), It.IsAny<string>()))
             .ReturnsAsync(new List<string>());
 
         var validator = new RegisterValidator(
@@ -139,7 +139,7 @@ public class CustomerValidatorsStoreScopingTests
         mediator.Setup(m => m.Send(It.IsAny<GetParseCustomAttributes>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CustomAttribute>());
         var attrParser = new Mock<ICustomerAttributeParser>();
-        attrParser.Setup(p => p.GetAttributeWarnings(It.IsAny<IList<CustomAttribute>>()))
+        attrParser.Setup(p => p.GetAttributeWarnings(It.IsAny<IList<CustomAttribute>>(), It.IsAny<string>()))
             .ReturnsAsync(new List<string>());
 
         var validator = new CustomerInfoValidator(

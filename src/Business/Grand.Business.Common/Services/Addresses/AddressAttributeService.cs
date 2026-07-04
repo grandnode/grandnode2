@@ -3,6 +3,7 @@ using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 
@@ -21,13 +22,16 @@ public class AddressAttributeService : IAddressAttributeService
     /// <param name="cacheBase">Cache manager</param>
     /// <param name="addressAttributeRepository">Address attribute repository</param>
     /// <param name="mediator">Mediator</param>
+    /// <param name="accessControlConfig">Access control config</param>
     public AddressAttributeService(ICacheBase cacheBase,
         IRepository<AddressAttribute> addressAttributeRepository,
-        IMediator mediator)
+        IMediator mediator,
+        AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _addressAttributeRepository = addressAttributeRepository;
         _mediator = mediator;
+        _accessControlConfig = accessControlConfig;
     }
 
     #endregion
@@ -37,6 +41,7 @@ public class AddressAttributeService : IAddressAttributeService
     private readonly IRepository<AddressAttribute> _addressAttributeRepository;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
+    private readonly AccessControlConfig _accessControlConfig;
 
     #endregion
 
@@ -48,12 +53,32 @@ public class AddressAttributeService : IAddressAttributeService
     /// <returns>Address attributes</returns>
     public virtual async Task<IList<AddressAttribute>> GetAllAddressAttributes()
     {
-        var key = CacheKey.ADDRESSATTRIBUTES_ALL_KEY;
+        return await GetAllAddressAttributes(string.Empty);
+    }
+
+    /// <summary>
+    ///     Gets all address attributes for the specified store
+    /// </summary>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>Address attributes</returns>
+    public virtual async Task<IList<AddressAttribute>> GetAllAddressAttributes(string storeId)
+    {
+        var key = string.IsNullOrEmpty(storeId)
+            ? CacheKey.ADDRESSATTRIBUTES_ALL_KEY
+            : $"{CacheKey.ADDRESSATTRIBUTES_ALL_KEY}.{storeId}";
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from aa in _addressAttributeRepository.Table
-                orderby aa.DisplayOrder
                 select aa;
+
+            query = query.OrderBy(aa => aa.DisplayOrder);
+
+            //Store acl
+            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
+                query = from aa in query
+                    where !aa.LimitedToStores || aa.Stores.Contains(storeId)
+                    select aa;
+
             return await Task.FromResult(query.ToList());
         });
     }

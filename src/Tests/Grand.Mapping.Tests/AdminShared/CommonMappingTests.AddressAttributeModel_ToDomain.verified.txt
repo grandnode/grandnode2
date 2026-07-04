@@ -4,5 +4,6 @@
   AttributeControlTypeId: 1,
   DisplayOrder: 1,
   AttributeControlType: DropdownList,
+  LimitedToStores: false,
   Id: ObjectId_1
 }

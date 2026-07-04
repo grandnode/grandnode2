@@ -1,10 +1,13 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Customers;
 
-public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerAttributeLocalizedModel>
+public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerAttributeLocalizedModel>,
+    IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.Name")]
     public string Name { get; set; }
@@ -25,6 +28,10 @@ public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerA
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
 
+    //Store acl
+    [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.LimitedToStores")]
+    [UIHint("Stores")]
+    public string[] Stores { get; set; }
 
     public IList<CustomerAttributeLocalizedModel> Locales { get; set; } = new List<CustomerAttributeLocalizedModel>();
 }

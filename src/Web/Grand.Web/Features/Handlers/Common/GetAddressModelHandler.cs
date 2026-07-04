@@ -50,7 +50,7 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
 
         //customer attribute services
         await PrepareCustomAddressAttributes(model, request.Address, request.Language,
-            request.OverrideAttributes);
+            request.OverrideAttributes, request.Store?.Id);
 
         if (request.Address != null)
             model.FormattedCustomAddressAttributes =
@@ -173,9 +173,9 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
     }
 
     private async Task PrepareCustomAddressAttributes(AddressModel model, Address address,
-        Language language, IList<CustomAttribute> overrideAttributes)
+        Language language, IList<CustomAttribute> overrideAttributes, string storeId)
     {
-        var attributes = await _addressAttributeService.GetAllAddressAttributes();
+        var attributes = await _addressAttributeService.GetAllAddressAttributes(storeId ?? string.Empty);
         foreach (var attribute in attributes)
         {
             var attributeModel = new AddressAttributeModel {

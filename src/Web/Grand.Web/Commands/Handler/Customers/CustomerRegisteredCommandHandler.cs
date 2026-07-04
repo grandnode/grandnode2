@@ -170,7 +170,7 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
             FaxNumber = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Fax)
         };
 
-        if (await IsAddressValid(defaultAddress))
+        if (await IsAddressValid(defaultAddress, request.Store?.Id))
         {
             //set default address
             request.Customer.Addresses.Add(defaultAddress);
@@ -197,8 +197,9 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
     ///     Gets a value indicating whether address is valid (can be saved)
     /// </summary>
     /// <param name="address">Address to validate</param>
+    /// <param name="storeId">Store identifier</param>
     /// <returns>Result</returns>
-    private async Task<bool> IsAddressValid(Address address)
+    private async Task<bool> IsAddressValid(Address address, string storeId)
     {
         ArgumentNullException.ThrowIfNull(address);
 
@@ -276,7 +277,7 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
             string.IsNullOrWhiteSpace(address.FaxNumber))
             return false;
 
-        var attributes = await _addressAttributeService.GetAllAddressAttributes();
+        var attributes = await _addressAttributeService.GetAllAddressAttributes(storeId ?? string.Empty);
         return !attributes.Any(x => x.IsRequired);
     }
 }

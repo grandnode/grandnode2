@@ -3,6 +3,7 @@ using Grand.Data;
 using Grand.Data.Mongo;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel.Extensions;
 using MediatR;
@@ -27,7 +28,8 @@ public class AddressAttributeServiceTests
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<MongoRepository<AddressAttribute>>(Mock.Of<IAuditInfoProvider>());
         _mediatorMock = new Mock<IMediator>();
-        _service = new AddressAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object);
+        _service = new AddressAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object,
+            new AccessControlConfig());
     }
 
     [TestMethod]

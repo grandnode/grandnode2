@@ -1,12 +1,13 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
+using Grand.Domain.Stores;
 
 namespace Grand.Domain.Common;
 
 /// <summary>
 ///     Represents an address attribute
 /// </summary>
-public class AddressAttribute : BaseEntity, ITranslationEntity
+public class AddressAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntity
 {
     private ICollection<AddressAttributeValue> _addressAttributeValues;
 
@@ -51,4 +52,11 @@ public class AddressAttribute : BaseEntity, ITranslationEntity
     ///     Gets or sets the collection of locales
     /// </summary>
     public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the entity is limited/restricted to certain stores
+    /// </summary>
+    public bool LimitedToStores { get; set; }
+
+    public IList<string> Stores { get; set; } = new List<string>();
 }

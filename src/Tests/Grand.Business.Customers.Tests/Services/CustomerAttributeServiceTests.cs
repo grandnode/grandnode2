@@ -2,6 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,7 +24,8 @@ public class CustomerAttributeServiceTests
         _cacheMock = new Mock<ICacheBase>();
         _repositoryMock = new Mock<IRepository<CustomerAttribute>>();
         _mediatorMock = new Mock<IMediator>();
-        _atrService = new CustomerAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object);
+        _atrService = new CustomerAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object,
+            new AccessControlConfig());
     }
 
     [TestMethod]
