@@ -17,6 +17,7 @@ public class AddressAttributeProfile : Profile, IAutoMapperProfile
             .ForMember(dest => dest.Id, mo => mo.Ignore())
             .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()))
             .ForMember(dest => dest.AttributeControlType, mo => mo.Ignore())
+            .ForMember(dest => dest.LimitedToStores, mo => mo.MapFrom(x => x.Stores != null && x.Stores.Any()))
             .ForMember(dest => dest.AddressAttributeValues, mo => mo.Ignore());
     }
 

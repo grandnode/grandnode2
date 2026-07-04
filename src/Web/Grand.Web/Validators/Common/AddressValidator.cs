@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
@@ -17,7 +18,8 @@ public class AddressValidator : BaseGrandValidator<AddressModel>
         IMediator mediator, IAddressAttributeParser addressAttributeParser,
         ITranslationService translationService,
         ICountryService countryService,
-        AddressSettings addressSettings)
+        AddressSettings addressSettings,
+        IContextAccessor contextAccessor)
         : base(validators)
     {
         RuleFor(x => x.FirstName)
@@ -79,7 +81,8 @@ public class AddressValidator : BaseGrandValidator<AddressModel>
         {
             var customAttributes = await mediator.Send(new GetParseCustomAddressAttributes
                 { SelectedAttributes = x.SelectedAttributes });
-            var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes);
+            var customAttributeWarnings = await addressAttributeParser.GetAttributeWarnings(customAttributes,
+                contextAccessor.StoreContext.CurrentStore.Id);
             foreach (var error in customAttributeWarnings) context.AddFailure(error);
         });
     }

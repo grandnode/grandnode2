@@ -93,13 +93,25 @@ public class AddressAttributeParser : IAddressAttributeParser
     /// <returns>Warnings</returns>
     public virtual async Task<IList<string>> GetAttributeWarnings(IList<CustomAttribute> customAttributes)
     {
+        return await GetAttributeWarnings(customAttributes, string.Empty);
+    }
+
+    /// <summary>
+    ///     Validates address attributes limited to the specified store
+    /// </summary>
+    /// <param name="customAttributes">Attributes</param>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>Warnings</returns>
+    public virtual async Task<IList<string>> GetAttributeWarnings(IList<CustomAttribute> customAttributes,
+        string storeId)
+    {
         var warnings = new List<string>();
 
         //ensure it's our attributes
         var attributes1 = await ParseAddressAttributes(customAttributes);
 
         //validate required address attributes (whether they're chosen/selected/entered)
-        var attributes2 = await _addressAttributeService.GetAllAddressAttributes();
+        var attributes2 = await _addressAttributeService.GetAllAddressAttributes(storeId ?? string.Empty);
         foreach (var a2 in attributes2)
         {
             if (!a2.IsRequired) continue;

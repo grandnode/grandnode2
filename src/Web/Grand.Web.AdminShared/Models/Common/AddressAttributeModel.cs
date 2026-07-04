@@ -1,10 +1,13 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Common;
 
-public class AddressAttributeModel : BaseEntityModel, ILocalizedModel<AddressAttributeLocalizedModel>
+public class AddressAttributeModel : BaseEntityModel, ILocalizedModel<AddressAttributeLocalizedModel>,
+    IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Address.AddressAttributes.Fields.Name")]
 
@@ -23,6 +26,10 @@ public class AddressAttributeModel : BaseEntityModel, ILocalizedModel<AddressAtt
     [GrandResourceDisplayName("Admin.Address.AddressAttributes.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
 
+    //Store acl
+    [GrandResourceDisplayName("Admin.Address.AddressAttributes.Fields.LimitedToStores")]
+    [UIHint("Stores")]
+    public string[] Stores { get; set; }
 
     public IList<AddressAttributeLocalizedModel> Locales { get; set; } = new List<AddressAttributeLocalizedModel>();
 }

@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.Common;
 using MediatR;
 
@@ -11,13 +12,16 @@ public class
 {
     private readonly IAddressAttributeParser _addressAttributeParser;
     private readonly IAddressAttributeService _addressAttributeService;
+    private readonly IContextAccessor _contextAccessor;
 
     public GetParseCustomAddressAttributesHandler(
         IAddressAttributeService addressAttributeService,
-        IAddressAttributeParser addressAttributeParser)
+        IAddressAttributeParser addressAttributeParser,
+        IContextAccessor contextAccessor)
     {
         _addressAttributeService = addressAttributeService;
         _addressAttributeParser = addressAttributeParser;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<IList<CustomAttribute>> Handle(GetParseCustomAddressAttributes request,
@@ -26,7 +30,8 @@ public class
         ArgumentNullException.ThrowIfNull(request.SelectedAttributes);
 
         var customAttributes = new List<CustomAttribute>();
-        var attributes = await _addressAttributeService.GetAllAddressAttributes();
+        var attributes =
+            await _addressAttributeService.GetAllAddressAttributes(_contextAccessor.StoreContext.CurrentStore.Id);
         foreach (var attribute in attributes)
             switch (attribute.AttributeControlType)
             {

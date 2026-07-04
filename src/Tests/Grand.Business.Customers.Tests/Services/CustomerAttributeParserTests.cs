@@ -99,7 +99,7 @@ public class CustomerAttributeParserTests
     [TestMethod]
     public async Task GetAttributeWarnings_Return_NoWarning()
     {
-        _customerAtrServiceMock.Setup(c => c.GetAllCustomerAttributes())
+        _customerAtrServiceMock.Setup(c => c.GetAllCustomerAttributes(It.IsAny<string>()))
             .Returns(() => Task.FromResult((IList<CustomerAttribute>)_customerAtr));
         _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>())).Returns((string w) =>
             Task.FromResult(_customerAtr.FirstOrDefault(a => a.Id.Equals(w))));
@@ -111,7 +111,7 @@ public class CustomerAttributeParserTests
     public async Task GetAttributeWarnings_Return_WithWarning()
     {
         _customerAtr.FirstOrDefault(x => x.Id == "key5").IsRequired = true;
-        _customerAtrServiceMock.Setup(c => c.GetAllCustomerAttributes())
+        _customerAtrServiceMock.Setup(c => c.GetAllCustomerAttributes(It.IsAny<string>()))
             .Returns(() => Task.FromResult((IList<CustomerAttribute>)_customerAtr));
         _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>())).Returns((string w) =>
             Task.FromResult(_customerAtr.FirstOrDefault(a => a.Id.Equals(w))));

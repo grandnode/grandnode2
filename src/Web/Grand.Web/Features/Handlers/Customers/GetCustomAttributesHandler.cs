@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
@@ -12,12 +13,15 @@ public class GetCustomAttributesHandler : IRequestHandler<GetCustomAttributes, I
 {
     private readonly ICustomerAttributeParser _customerAttributeParser;
     private readonly ICustomerAttributeService _customerAttributeService;
+    private readonly IContextAccessor _contextAccessor;
 
     public GetCustomAttributesHandler(ICustomerAttributeService customerAttributeService,
-        ICustomerAttributeParser customerAttributeParser)
+        ICustomerAttributeParser customerAttributeParser,
+        IContextAccessor contextAccessor)
     {
         _customerAttributeService = customerAttributeService;
         _customerAttributeParser = customerAttributeParser;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<IList<CustomerAttributeModel>> Handle(GetCustomAttributes request,
@@ -25,7 +29,8 @@ public class GetCustomAttributesHandler : IRequestHandler<GetCustomAttributes, I
     {
         var result = new List<CustomerAttributeModel>();
 
-        var customerAttributes = await _customerAttributeService.GetAllCustomerAttributes();
+        var customerAttributes =
+            await _customerAttributeService.GetAllCustomerAttributes(_contextAccessor.StoreContext.CurrentStore.Id);
         foreach (var attribute in customerAttributes)
         {
             var attributeModel = new CustomerAttributeModel {

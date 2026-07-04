@@ -3,6 +3,7 @@ using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 
@@ -21,13 +22,16 @@ public class CustomerAttributeService : ICustomerAttributeService
     /// <param name="cacheBase">Cache manager</param>
     /// <param name="customerAttributeRepository">Customer attribute repository</param>
     /// <param name="mediator">Mediator</param>
+    /// <param name="accessControlConfig">Access control config</param>
     public CustomerAttributeService(ICacheBase cacheBase,
         IRepository<CustomerAttribute> customerAttributeRepository,
-        IMediator mediator)
+        IMediator mediator,
+        AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _customerAttributeRepository = customerAttributeRepository;
         _mediator = mediator;
+        _accessControlConfig = accessControlConfig;
     }
 
     #endregion
@@ -37,6 +41,7 @@ public class CustomerAttributeService : ICustomerAttributeService
     private readonly IRepository<CustomerAttribute> _customerAttributeRepository;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
+    private readonly AccessControlConfig _accessControlConfig;
 
     #endregion
 
@@ -48,12 +53,32 @@ public class CustomerAttributeService : ICustomerAttributeService
     /// <returns>Customer attributes</returns>
     public virtual async Task<IList<CustomerAttribute>> GetAllCustomerAttributes()
     {
-        var key = CacheKey.CUSTOMERATTRIBUTES_ALL_KEY;
+        return await GetAllCustomerAttributes(string.Empty);
+    }
+
+    /// <summary>
+    ///     Gets all customer attributes for the specified store
+    /// </summary>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>Customer attributes</returns>
+    public virtual async Task<IList<CustomerAttribute>> GetAllCustomerAttributes(string storeId)
+    {
+        var key = string.IsNullOrEmpty(storeId)
+            ? CacheKey.CUSTOMERATTRIBUTES_ALL_KEY
+            : $"{CacheKey.CUSTOMERATTRIBUTES_ALL_KEY}.{storeId}";
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from ca in _customerAttributeRepository.Table
-                orderby ca.DisplayOrder
                 select ca;
+
+            query = query.OrderBy(ca => ca.DisplayOrder);
+
+            //Store acl
+            if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
+                query = from ca in query
+                    where !ca.LimitedToStores || ca.Stores.Contains(storeId)
+                    select ca;
+
             return await Task.FromResult(query.ToList());
         });
     }

@@ -137,7 +137,8 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             var customerAttributes = await mediator.Send(new GetParseCustomAttributes { SelectedAttributes = x.SelectedAttributes }, _);
-            var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
+            var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes,
+                contextAccessor.StoreContext.CurrentStore.Id);
             foreach (var error in customerAttributeWarnings) context.AddFailure(error);
 
             if (await groupService.IsRegistered(contextAccessor.WorkContext.CurrentCustomer))
