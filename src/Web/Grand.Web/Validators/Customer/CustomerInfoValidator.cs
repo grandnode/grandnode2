@@ -122,7 +122,8 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
         {
             var customerAttributes = await mediator.Send(new GetParseCustomAttributes
                 { SelectedAttributes = x.SelectedAttributes }, _);
-            var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes, storeId);
+            var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes,
+                contextAccessor.StoreContext.CurrentStore.Id);
             foreach (var error in customerAttributeWarnings) context.AddFailure(error);
 
             if (contextAccessor.WorkContext.CurrentCustomer.Email != x.Email.ToLower() && customerSettings.AllowUsersToChangeEmail)

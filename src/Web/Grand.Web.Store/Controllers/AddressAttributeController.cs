@@ -151,6 +151,10 @@ public class AddressAttributeController : BaseStoreController
 
         var storeModel = addressAttribute.MapTo<AddressAttribute, AddressAttributeStoreModel>();
         storeModel.IsGlobalAttribute = false;
+        await AddLocales(_languageService, storeModel.Locales, (locale, languageId) =>
+        {
+            locale.Name = addressAttribute.GetTranslation(x => x.Name, languageId, false);
+        });
         return View(storeModel);
     }
 
@@ -277,7 +281,8 @@ public class AddressAttributeController : BaseStoreController
 
         var cav = addressAttribute.AddressAttributeValues.FirstOrDefault(x => x.Id == model.Id);
         if (cav == null)
-            throw new ArgumentException("No address attribute value found with the specified id");
+            return new JsonResult(new DataSourceResult
+                { Errors = "No address attribute value found with the specified id" });
 
         if (ModelState.IsValid)
         {

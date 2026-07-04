@@ -150,6 +150,10 @@ public class CustomerAttributeController : BaseStoreController
 
         var storeModel = customerAttribute.MapTo<CustomerAttribute, CustomerAttributeStoreModel>();
         storeModel.IsGlobalAttribute = false;
+        await AddLocales(_languageService, storeModel.Locales, (locale, languageId) =>
+        {
+            locale.Name = customerAttribute.GetTranslation(x => x.Name, languageId, false);
+        });
         return View(storeModel);
     }
 
@@ -272,6 +276,10 @@ public class CustomerAttributeController : BaseStoreController
         var customerAttribute = await _customerAttributeService.GetCustomerAttributeById(model.CustomerAttributeId);
         if (customerAttribute == null || !customerAttribute.AccessToEntityByStore(CurrentStoreId))
             return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        if (customerAttribute.CustomerAttributeValues.All(x => x.Id != model.Id))
+            return new JsonResult(new DataSourceResult
+                { Errors = "No customer attribute value found with the specified id" });
 
         if (ModelState.IsValid)
         {
