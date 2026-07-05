@@ -106,6 +106,9 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         var actionParameters = apiDescription.ActionDescriptor.Parameters;
         foreach (var param in actionParameters)
         {
+            if (IsServiceParameter(param))
+                continue;
+
             var paramType = param.ParameterType;
             if (!IsSimpleType(paramType))
             {
@@ -139,6 +142,9 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         var actionParameters = apiDescription.ActionDescriptor.Parameters;
         foreach (var param in actionParameters)
         {
+            if (IsServiceParameter(param))
+                continue;
+
             apiDescription.ParameterDescriptions.Add(new ApiParameterDescription {
                 Name = param.Name,
                 ModelMetadata = GetModel(param),
@@ -161,6 +167,14 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         }
 
         return metadata;
+    }
+    private static bool IsServiceParameter(ParameterDescriptor param)
+    {
+        if (param.BindingInfo?.BindingSource == BindingSource.Services)
+            return true;
+
+        return param is ControllerParameterDescriptor controllerParameterDescriptor &&
+               controllerParameterDescriptor.ParameterInfo.GetCustomAttribute<FromServicesAttribute>() != null;
     }
     private static bool IsSimpleType(Type type)
     {
