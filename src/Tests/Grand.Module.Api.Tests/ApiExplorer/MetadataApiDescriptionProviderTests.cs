@@ -177,6 +177,54 @@ public class MetadataApiDescriptionProviderTests
         Assert.AreEqual("model", apiDescription.ParameterDescriptions[0].Name);
     }
 
+    [TestMethod]
+    public void OnProvidersExecuting_FormFileParameter_SetsParameterDescriptor()
+    {
+        var provider = CreateProvider();
+        var methodInfo = typeof(TestApiController).GetMethod(nameof(TestApiController.PostActionWithFormFile))!;
+
+        var action = CreateActionDescriptor(methodInfo, "POST", [
+            CreateControllerParameter(methodInfo.GetParameters()[0], BindingSource.FormFile)
+        ]);
+
+        var context = new ApiDescriptionProviderContext([action]);
+
+        provider.OnProvidersExecuting(context);
+
+        Assert.AreEqual(1, context.Results.Count);
+        var apiDescription = context.Results[0];
+        Assert.AreEqual(1, apiDescription.ParameterDescriptions.Count);
+        var parameter = apiDescription.ParameterDescriptions[0];
+        Assert.AreEqual(BindingSource.FormFile, parameter.Source);
+        Assert.IsNotNull(parameter.ParameterDescriptor);
+        Assert.AreEqual("file", parameter.ParameterDescriptor.Name);
+    }
+
+    [TestMethod]
+    public void OnProvidersExecuting_AllParameterDescriptions_HaveParameterDescriptor()
+    {
+        var provider = CreateProvider();
+        var postMethod = typeof(TestApiController).GetMethod(nameof(TestApiController.PostActionWithReturnUrl))!;
+        var getMethod = typeof(TestApiController).GetMethod(nameof(TestApiController.GetActionWithComplexModel))!;
+
+        var context = new ApiDescriptionProviderContext([
+            CreateActionDescriptor(postMethod, "POST", [
+                CreateControllerParameter(postMethod.GetParameters()[0], null),
+                CreateControllerParameter(postMethod.GetParameters()[1], null)
+            ]),
+            CreateActionDescriptor(getMethod, "GET", [
+                CreateControllerParameter(getMethod.GetParameters()[0], null)
+            ])
+        ]);
+
+        provider.OnProvidersExecuting(context);
+
+        var parameters = context.Results.SelectMany(x => x.ParameterDescriptions).ToList();
+        Assert.IsTrue(parameters.Count > 0);
+        foreach (var parameter in parameters)
+            Assert.IsNotNull(parameter.ParameterDescriptor, $"ParameterDescriptor missing for '{parameter.Name}'");
+    }
+
     private static MetadataApiDescriptionProvider CreateProvider()
     {
         return new MetadataApiDescriptionProvider(
@@ -236,6 +284,18 @@ public class MetadataApiDescriptionProviderTests
 
         [HttpPost]
         public IActionResult PostActionWithCancellation(CancellationToken cancellationToken, TestModel model)
+        {
+            return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult PostActionWithFormFile(Microsoft.AspNetCore.Http.IFormFile file)
+        {
+            return Ok();
+        }
+
+        [HttpGet]
+        public IActionResult GetActionWithComplexModel(TestModel model)
         {
             return Ok();
         }

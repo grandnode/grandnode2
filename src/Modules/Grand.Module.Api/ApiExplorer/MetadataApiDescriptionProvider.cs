@@ -124,7 +124,11 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                         Name = property.Name,
                         ModelMetadata = _modelMetadataProvider.GetMetadataForType(property.PropertyType),
                         Source = BindingSource.Query,
-                        Type = property.PropertyType
+                        Type = property.PropertyType,
+                        ParameterDescriptor = new ParameterDescriptor {
+                            Name = property.Name,
+                            ParameterType = property.PropertyType
+                        }
                     });
                 }
             }
@@ -133,7 +137,8 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                     Name = param.Name,
                     ModelMetadata = GetModel(param),
                     Source = BindingSource.Query,
-                    Type = param.ParameterType
+                    Type = param.ParameterType,
+                    ParameterDescriptor = param
                 });
         }
     }
@@ -154,7 +159,8 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                 Name = param.Name,
                 ModelMetadata = GetModel(param),
                 Source = parameterBindingSource,
-                Type = param.ParameterType
+                Type = param.ParameterType,
+                ParameterDescriptor = param
             });
         }
     }
