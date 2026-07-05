@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Catalog;
@@ -45,6 +46,7 @@ public class CustomerController : BaseStoreController
         ICustomerService customerService,
         ICustomerViewModelService customerViewModelService,
         ICustomerManagerService customerManagerService,
+        ICustomerProductService customerProductService,
         IProductReviewService productReviewService,
         IProductReviewViewModelService productReviewViewModelService,
         IProductViewModelService productViewModelService,
@@ -62,6 +64,7 @@ public class CustomerController : BaseStoreController
         _customerService = customerService;
         _customerViewModelService = customerViewModelService;
         _customerManagerService = customerManagerService;
+        _customerProductService = customerProductService;
         _productReviewService = productReviewService;
         _productReviewViewModelService = productReviewViewModelService;
         _productViewModelService = productViewModelService;
@@ -84,6 +87,7 @@ public class CustomerController : BaseStoreController
     private readonly ICustomerService _customerService;
     private readonly ICustomerViewModelService _customerViewModelService;
     private readonly ICustomerManagerService _customerManagerService;
+    private readonly ICustomerProductService _customerProductService;
     private readonly IProductReviewService _productReviewService;
     private readonly IProductReviewViewModelService _productReviewViewModelService;
     private readonly IProductViewModelService _productViewModelService;
@@ -827,30 +831,52 @@ public class CustomerController : BaseStoreController
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> UpdateProductPrice(CustomerModel.ProductPriceModel model)
     {
+        var productPrice = await _customerProductService.GetCustomerProductPriceById(model.Id);
+        if (productPrice == null || await GetStoreCustomer(productPrice.CustomerId) == null)
+            return new JsonResult("");
+
         await _customerViewModelService.UpdateProductPrice(model);
         return new JsonResult("");
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> DeleteProductPrice(string id)
     {
-        await _customerViewModelService.DeleteProductPrice(id);
+        var productPrice = await _customerProductService.GetCustomerProductPriceById(id);
+        if (productPrice == null || await GetStoreCustomer(productPrice.CustomerId) == null)
+            return new JsonResult("");
+
+        //delete the already-resolved entity to avoid a redundant reload / TOCTOU throw
+        await _customerProductService.DeleteCustomerProductPrice(productPrice);
         return new JsonResult("");
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> UpdatePersonalizedProduct(CustomerModel.ProductModel model)
     {
+        var customerProduct = await _customerProductService.GetCustomerProduct(model.Id);
+        if (customerProduct == null || await GetStoreCustomer(customerProduct.CustomerId) == null)
+            return new JsonResult("");
+
         await _customerViewModelService.UpdatePersonalizedProduct(model);
         return new JsonResult("");
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> DeletePersonalizedProduct(string id)
     {
-        await _customerViewModelService.DeletePersonalizedProduct(id);
+        var customerProduct = await _customerProductService.GetCustomerProduct(id);
+        if (customerProduct == null || await GetStoreCustomer(customerProduct.CustomerId) == null)
+            return new JsonResult("");
+
+        //delete the already-resolved entity to avoid a redundant reload / TOCTOU throw
+        await _customerProductService.DeleteCustomerProduct(customerProduct);
         return new JsonResult("");
     }
 
