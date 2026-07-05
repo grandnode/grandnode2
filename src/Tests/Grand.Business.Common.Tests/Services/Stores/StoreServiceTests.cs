@@ -2,6 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -87,6 +88,8 @@ public class StoreServiceTests
 
         // Assert
         Assert.AreEqual(store1, result);
+        _cacheMock.Verify(c => c.GetAsync(string.Format(CacheKey.STORES_BY_HOST_KEY, "store1.com"),
+            It.IsAny<Func<Task<Store>>>()), Times.Once);
     }
 
     [TestMethod]
@@ -124,5 +127,6 @@ public class StoreServiceTests
         var result = await _service.GetFirstStore();
 
         Assert.AreEqual(store2, result);
+        _cacheMock.Verify(c => c.GetAsync(CacheKey.STORES_FIRST_KEY, It.IsAny<Func<Task<Store>>>()), Times.Once);
     }
 }

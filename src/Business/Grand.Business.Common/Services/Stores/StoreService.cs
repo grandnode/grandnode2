@@ -119,7 +119,7 @@ public class StoreService : IStoreService
     {
         ArgumentNullException.ThrowIfNull(store);
 
-        if (_storeRepository.Table.Count() == 1)
+        if (!_storeRepository.Table.Skip(1).Any())
             throw new Exception("You cannot delete the only configured store");
 
         await _storeRepository.DeleteAsync(store);
