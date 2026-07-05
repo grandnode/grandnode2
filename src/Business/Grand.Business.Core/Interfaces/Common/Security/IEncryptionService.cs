@@ -22,6 +22,35 @@ public interface IEncryptionService
         HashedPasswordFormat passwordFormat = HashedPasswordFormat.SHA1);
 
     /// <summary>
+    ///     Creates a strong, self-describing password hash for the current default algorithm (PBKDF2/HMAC-SHA256).
+    ///     The salt and parameters are embedded in the returned value, so a separate salt field is not needed and
+    ///     verification never depends on a global setting. Store the result in <c>Customer.Password</c> with
+    ///     <see cref="PasswordFormat.Hashed" />.
+    /// </summary>
+    /// <param name="password">Plain-text password</param>
+    /// <returns>Self-describing hash string</returns>
+    string HashPassword(string password);
+
+    /// <summary>
+    ///     Verifies an entered password against a stored credential in a format-aware, constant-time way.
+    ///     Handles Clear, Encrypted, the modern PBKDF2 hash and legacy SHA-x hashes transparently.
+    /// </summary>
+    /// <param name="enteredPassword">Plain-text password supplied by the user</param>
+    /// <param name="passwordFormat">Stored password format (<c>Customer.PasswordFormatId</c>)</param>
+    /// <param name="storedPassword">Stored password/hash (<c>Customer.Password</c>)</param>
+    /// <param name="storedSalt">Stored salt (<c>Customer.PasswordSalt</c>); ignored for PBKDF2</param>
+    /// <param name="legacyHashedFormat">Hash algorithm used by legacy SHA hashes (global setting)</param>
+    /// <returns>True when the password matches</returns>
+    bool VerifyPassword(string enteredPassword, PasswordFormat passwordFormat, string storedPassword,
+        string storedSalt, HashedPasswordFormat legacyHashedFormat);
+
+    /// <summary>
+    ///     Indicates whether a stored credential uses a weak/legacy format (Clear, Encrypted or a non-PBKDF2 hash)
+    ///     and should be transparently re-hashed to the modern format after the next successful authentication.
+    /// </summary>
+    bool PasswordHashNeedsUpgrade(PasswordFormat passwordFormat, string storedPassword);
+
+    /// <summary>
     ///     Encrypt text
     /// </summary>
     /// <param name="plainText">Text to encrypt</param>

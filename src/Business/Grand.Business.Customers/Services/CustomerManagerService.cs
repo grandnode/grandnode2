@@ -61,14 +61,9 @@ public class CustomerManagerService : ICustomerManagerService
     public virtual bool PasswordMatch(PasswordFormat passwordFormat, string oldPassword, string newPassword,
         string passwordSalt)
     {
-        var newPwd = passwordFormat switch {
-            PasswordFormat.Clear => newPassword,
-            PasswordFormat.Encrypted => _encryptionService.EncryptText(newPassword, passwordSalt),
-            PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(newPassword, passwordSalt,
-                _customerSettings.HashedPasswordFormat),
-            _ => throw new Exception("PasswordFormat not supported")
-        };
-        return oldPassword.Equals(newPwd);
+        //oldPassword is the stored credential, newPassword is the plain-text candidate being checked against it
+        return _encryptionService.VerifyPassword(newPassword, passwordFormat, oldPassword, passwordSalt,
+            _customerSettings.HashedPasswordFormat);
     }
 
 
@@ -84,16 +79,14 @@ public class CustomerManagerService : ICustomerManagerService
             ? await _customerService.GetCustomerByUsername(usernameOrEmail, storeId)
             : await _customerService.GetCustomerByEmail(usernameOrEmail, storeId);
 
-        var pwd = customer.PasswordFormatId switch {
-            PasswordFormat.Clear => password,
-            PasswordFormat.Encrypted => _encryptionService.EncryptText(password, customer.PasswordSalt),
-            PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(password, customer.PasswordSalt,
-                _customerSettings.HashedPasswordFormat),
-            _ => throw new Exception("PasswordFormat not supported")
-        };
-        var isValid = pwd == customer.Password;
+        var isValid = _encryptionService.VerifyPassword(password, customer.PasswordFormatId, customer.Password,
+            customer.PasswordSalt, _customerSettings.HashedPasswordFormat);
         if (!isValid)
             return CustomerLoginResults.WrongPassword;
+
+        //transparently migrate weak/legacy hashes (SHA-x, Clear, Encrypted) to the modern PBKDF2 format
+        if (_encryptionService.PasswordHashNeedsUpgrade(customer.PasswordFormatId, customer.Password))
+            await UpgradePasswordHash(customer, password);
 
         //2fa required
         if (customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled) &&
@@ -134,10 +127,9 @@ public class CustomerManagerService : ICustomerManagerService
                     _encryptionService.EncryptText(request.Password, request.Customer.PasswordSalt);
                 break;
             case PasswordFormat.Hashed:
-                var saltKey = _encryptionService.CreateSaltKey(5);
-                request.Customer.PasswordSalt = saltKey;
-                request.Customer.Password = _encryptionService.CreatePasswordHash(request.Password, saltKey,
-                    _customerSettings.HashedPasswordFormat);
+                //modern self-describing PBKDF2 hash - salt and parameters are embedded in the value itself
+                request.Customer.PasswordSalt = string.Empty;
+                request.Customer.Password = _encryptionService.HashPassword(request.Password);
                 break;
         }
 
@@ -190,10 +182,9 @@ public class CustomerManagerService : ICustomerManagerService
                 break;
             case PasswordFormat.Hashed:
             {
-                var saltKey = _encryptionService.CreateSaltKey(5);
-                customer.PasswordSalt = saltKey;
-                customer.Password = _encryptionService.CreatePasswordHash(request.NewPassword, saltKey,
-                    _customerSettings.HashedPasswordFormat);
+                //modern self-describing PBKDF2 hash - salt and parameters are embedded in the value itself
+                customer.PasswordSalt = string.Empty;
+                customer.Password = _encryptionService.HashPassword(request.NewPassword);
             }
                 break;
         }
@@ -206,6 +197,19 @@ public class CustomerManagerService : ICustomerManagerService
 
         //create new login token
         await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordToken, Guid.NewGuid().ToString());
+    }
+
+    /// <summary>
+    ///     Re-hashes an already-verified plain-text password to the modern PBKDF2 format and persists it.
+    ///     Called right after a successful authentication against a weak/legacy credential, so no password reset is
+    ///     required and no schema change is involved (the value simply moves to the self-describing hash format).
+    /// </summary>
+    private async Task UpgradePasswordHash(Customer customer, string plainPassword)
+    {
+        customer.Password = _encryptionService.HashPassword(plainPassword);
+        customer.PasswordSalt = string.Empty;
+        customer.PasswordFormatId = PasswordFormat.Hashed;
+        await _customerService.UpdateCustomer(customer);
     }
 
     #endregion

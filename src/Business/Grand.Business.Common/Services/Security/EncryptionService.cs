@@ -1,11 +1,27 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Configuration;
 using System.Security.Cryptography;
 
 namespace Grand.Business.Common.Services.Security;
 
 public class EncryptionService : IEncryptionService
 {
+    private const string Pbkdf2Prefix = "PBKDF2";
+    private const int Pbkdf2SaltSize = 16;
+    private const int Pbkdf2HashSize = 32;
+    private const int DefaultIterations = 210_000;
+
+    private readonly SecurityConfig _securityConfig;
+
+    public EncryptionService(SecurityConfig securityConfig = null)
+    {
+        _securityConfig = securityConfig ?? new SecurityConfig();
+    }
+
+    private int Iterations =>
+        _securityConfig.PasswordHashIterations > 0 ? _securityConfig.PasswordHashIterations : DefaultIterations;
+
     /// <summary>
     ///     Create salt key
     /// </summary>
@@ -91,6 +107,93 @@ public class EncryptionService : IEncryptionService
 
         var buffer = Convert.FromBase64String(cipherText);
         return DecryptTextFromMemory(buffer, tDes.Key, tDes.IV);
+    }
+
+    /// <summary>
+    ///     Creates a strong, self-describing PBKDF2 (HMAC-SHA256) password hash.
+    ///     Format: PBKDF2$1$&lt;iterations&gt;$&lt;saltBase64&gt;$&lt;hashBase64&gt;
+    /// </summary>
+    public virtual string HashPassword(string password)
+    {
+        ArgumentNullException.ThrowIfNull(password);
+
+        var salt = RandomNumberGenerator.GetBytes(Pbkdf2SaltSize);
+        var iterations = Iterations;
+        var hash = Rfc2898DeriveBytes.Pbkdf2(
+            PepperedPassword(password), salt, iterations, HashAlgorithmName.SHA256, Pbkdf2HashSize);
+
+        return string.Join('$',
+            Pbkdf2Prefix, "1", iterations.ToString(), Convert.ToBase64String(salt), Convert.ToBase64String(hash));
+    }
+
+    public virtual bool VerifyPassword(string enteredPassword, PasswordFormat passwordFormat, string storedPassword,
+        string storedSalt, HashedPasswordFormat legacyHashedFormat)
+    {
+        if (enteredPassword == null || storedPassword == null)
+            return false;
+
+        switch (passwordFormat)
+        {
+            case PasswordFormat.Clear:
+                return FixedTimeEquals(enteredPassword, storedPassword);
+            case PasswordFormat.Encrypted:
+                return FixedTimeEquals(EncryptText(enteredPassword, storedSalt), storedPassword);
+            case PasswordFormat.Hashed:
+                return IsPbkdf2Hash(storedPassword)
+                    ? VerifyPbkdf2(enteredPassword, storedPassword)
+                    : FixedTimeEquals(CreatePasswordHash(enteredPassword, storedSalt, legacyHashedFormat),
+                        storedPassword);
+            default:
+                return false;
+        }
+    }
+
+    public virtual bool PasswordHashNeedsUpgrade(PasswordFormat passwordFormat, string storedPassword)
+    {
+        //only a current-strength PBKDF2 hash is considered up to date; everything else is upgraded on next login
+        return !(passwordFormat == PasswordFormat.Hashed && IsPbkdf2Hash(storedPassword));
+    }
+
+    private static bool IsPbkdf2Hash(string storedPassword)
+    {
+        return storedPassword != null && storedPassword.StartsWith(Pbkdf2Prefix + "$", StringComparison.Ordinal);
+    }
+
+    private bool VerifyPbkdf2(string enteredPassword, string storedPassword)
+    {
+        //PBKDF2$1$<iterations>$<saltBase64>$<hashBase64>
+        var parts = storedPassword.Split('$');
+        if (parts.Length != 5 || !int.TryParse(parts[2], out var iterations))
+            return false;
+
+        byte[] salt;
+        byte[] expected;
+        try
+        {
+            salt = Convert.FromBase64String(parts[3]);
+            expected = Convert.FromBase64String(parts[4]);
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+
+        var actual = Rfc2898DeriveBytes.Pbkdf2(
+            PepperedPassword(enteredPassword), salt, iterations, HashAlgorithmName.SHA256, expected.Length);
+        return CryptographicOperations.FixedTimeEquals(actual, expected);
+    }
+
+    private byte[] PepperedPassword(string password)
+    {
+        var pepper = _securityConfig.PasswordHashKey;
+        //a NUL separator prevents ambiguity between password and pepper boundaries
+        return Encoding.UTF8.GetBytes(string.IsNullOrEmpty(pepper) ? password : password + "\0" + pepper);
+    }
+
+    private static bool FixedTimeEquals(string a, string b)
+    {
+        return CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(a), Encoding.UTF8.GetBytes(b));
     }
 
     #region Utilities
