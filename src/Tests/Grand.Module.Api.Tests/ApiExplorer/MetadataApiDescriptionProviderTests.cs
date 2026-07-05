@@ -115,6 +115,6 @@ public class MetadataApiDescriptionProviderTests
 
     private class TestModel
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }
