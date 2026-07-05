@@ -61,6 +61,53 @@ public class MetadataApiDescriptionProviderTests
         Assert.AreEqual("searchTerm", apiDescription.ParameterDescriptions[0].Name);
     }
 
+    [TestMethod]
+    public void OnProvidersExecuting_PostAction_WithComplexAndSimpleParameter_UsesBodyAndQuerySources()
+    {
+        var provider = CreateProvider();
+        var methodInfo = typeof(TestApiController).GetMethod(nameof(TestApiController.PostActionWithReturnUrl))!;
+
+        var action = CreateActionDescriptor(methodInfo, "POST", [
+            CreateControllerParameter(methodInfo.GetParameters()[0], null),
+            CreateControllerParameter(methodInfo.GetParameters()[1], null)
+        ]);
+
+        var context = new ApiDescriptionProviderContext([action]);
+
+        provider.OnProvidersExecuting(context);
+
+        Assert.AreEqual(1, context.Results.Count);
+        var apiDescription = context.Results[0];
+        Assert.AreEqual(2, apiDescription.ParameterDescriptions.Count);
+
+        var modelParameter = apiDescription.ParameterDescriptions.Single(x => x.Name == "model");
+        Assert.AreEqual(BindingSource.Body, modelParameter.Source);
+
+        var returnUrlParameter = apiDescription.ParameterDescriptions.Single(x => x.Name == "returnUrl");
+        Assert.AreEqual(BindingSource.Query, returnUrlParameter.Source);
+    }
+
+    [TestMethod]
+    public void OnProvidersExecuting_PostAction_IgnoresFromServicesAttribute_WhenBindingSourceIsMissing()
+    {
+        var provider = CreateProvider();
+        var methodInfo = typeof(TestApiController).GetMethod(nameof(TestApiController.PostAction))!;
+
+        var action = CreateActionDescriptor(methodInfo, "POST", [
+            CreateControllerParameter(methodInfo.GetParameters()[0], null),
+            CreateControllerParameter(methodInfo.GetParameters()[1], BindingSource.Body)
+        ]);
+
+        var context = new ApiDescriptionProviderContext([action]);
+
+        provider.OnProvidersExecuting(context);
+
+        Assert.AreEqual(1, context.Results.Count);
+        var apiDescription = context.Results[0];
+        Assert.AreEqual(1, apiDescription.ParameterDescriptions.Count);
+        Assert.AreEqual("model", apiDescription.ParameterDescriptions[0].Name);
+    }
+
     private static MetadataApiDescriptionProvider CreateProvider()
     {
         return new MetadataApiDescriptionProvider(
@@ -93,7 +140,7 @@ public class MetadataApiDescriptionProviderTests
             Name = parameterInfo.Name,
             ParameterType = parameterInfo.ParameterType,
             ParameterInfo = parameterInfo,
-            BindingInfo = new BindingInfo { BindingSource = bindingSource }
+            BindingInfo = bindingSource == null ? null : new BindingInfo { BindingSource = bindingSource }
         };
     }
 
@@ -108,6 +155,12 @@ public class MetadataApiDescriptionProviderTests
 
         [HttpGet]
         public IActionResult GetAction([FromServices] IServiceProvider serviceProvider, string searchTerm)
+        {
+            return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult PostActionWithReturnUrl(TestModel model, string returnUrl)
         {
             return Ok();
         }

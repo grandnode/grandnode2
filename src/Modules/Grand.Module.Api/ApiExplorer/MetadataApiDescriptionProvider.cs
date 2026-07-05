@@ -148,10 +148,17 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             apiDescription.ParameterDescriptions.Add(new ApiParameterDescription {
                 Name = param.Name,
                 ModelMetadata = GetModel(param),
-                Source = BindingSource.Body,
+                Source = GetPostParameterBindingSource(param),
                 Type = param.ParameterType
             });
         }
+    }
+    private static BindingSource GetPostParameterBindingSource(ParameterDescriptor param)
+    {
+        if (param.BindingInfo?.BindingSource != null)
+            return param.BindingInfo.BindingSource;
+
+        return IsSimpleType(param.ParameterType) ? BindingSource.Query : BindingSource.Body;
     }
     private ModelMetadata GetModel(ParameterDescriptor param)
     {
