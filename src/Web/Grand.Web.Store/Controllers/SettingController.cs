@@ -285,7 +285,13 @@ public class SettingController(
         if (ModelState.IsValid)
         {
             var loyaltyPointsSettings = await settingService.LoadSetting<LoyaltyPointsSettings>(storeScope);
+
+            // Cross-store accumulation is managed by the administrator - store owners cannot change it
+            var pointsAccumulatedForAllStores = loyaltyPointsSettings.PointsAccumulatedForAllStores;
+
             loyaltyPointsSettings = model.LoyaltyPointsSettings.ToEntity(loyaltyPointsSettings);
+            loyaltyPointsSettings.PointsAccumulatedForAllStores = pointsAccumulatedForAllStores;
+
             await settingService.SaveSetting(loyaltyPointsSettings, storeScope);
 
             var shoppingCartSettings = await settingService.LoadSetting<ShoppingCartSettings>(storeScope);
@@ -625,7 +631,14 @@ public class SettingController(
         var customerSettings = await settingService.LoadSetting<CustomerSettings>(storeScope);
         var addressSettings = await settingService.LoadSetting<AddressSettings>(storeScope);
 
+        // Password storage formats are managed by the administrator - store owners cannot change them
+        var defaultPasswordFormat = customerSettings.DefaultPasswordFormat;
+        var hashedPasswordFormat = customerSettings.HashedPasswordFormat;
+
         customerSettings = model.CustomerSettings.ToEntity(customerSettings);
+        customerSettings.DefaultPasswordFormat = defaultPasswordFormat;
+        customerSettings.HashedPasswordFormat = hashedPasswordFormat;
+
         await settingService.SaveSetting(customerSettings, storeScope);
 
         addressSettings = model.AddressSettings.ToEntity(addressSettings);

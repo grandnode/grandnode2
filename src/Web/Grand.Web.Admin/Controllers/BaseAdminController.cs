@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -24,23 +23,21 @@ public abstract class BaseAdminController : BaseController
     {
         var storeService = HttpContext.RequestServices.GetRequiredService<IStoreService>();
         var workContext = HttpContext.RequestServices.GetRequiredService<IContextAccessor>().WorkContext;
-        var groupService = HttpContext.RequestServices.GetRequiredService<IGroupService>();
 
         var stores = await storeService.GetAllStores();
         if (stores.Count < 2)
             return stores.FirstOrDefault()?.Id;
 
-        if (await groupService.IsStoreManager(workContext.CurrentCustomer)) return workContext.CurrentCustomer.StaffStoreId;
-
         var storeId =
             workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames
                 .AdminAreaStoreScopeConfiguration);
+        //empty scope means "all stores" - settings are loaded from/saved to the global scope
         if (string.IsNullOrEmpty(storeId))
         {
-            return stores.First()?.Id;
+            return "";
         }
 
         var store = await storeService.GetStoreById(storeId);
-        return store != null ? store.Id : stores.First()?.Id;
+        return store != null ? store.Id : "";
     }
 }
