@@ -76,7 +76,7 @@ public class MessageProviderService : IMessageProviderService
 
     protected virtual async Task<Store> GetStore(string storeId)
     {
-        return await _storeService.GetStoreById(storeId) ?? (await _storeService.GetAllStores()).FirstOrDefault();
+        return await _storeService.GetStoreById(storeId) ?? await _storeService.GetFirstStore();
     }
 
     protected virtual async Task<MessageTemplate> GetMessageTemplate(string messageTemplateName, string storeId)
@@ -1161,7 +1161,7 @@ public class MessageProviderService : IMessageProviderService
 
         Store store = null;
         if (order != null) store = await _storeService.GetStoreById(order.StoreId);
-        store ??= (await _storeService.GetAllStores()).FirstOrDefault();
+        store ??= await _storeService.GetFirstStore();
 
         var language = await EnsureLanguageIsActive(languageId, store?.Id);
 
@@ -1843,7 +1843,7 @@ public class MessageProviderService : IMessageProviderService
         }
         else
         {
-            var store = (await _storeService.GetAllStores()).FirstOrDefault();
+            var store = await _storeService.GetFirstStore();
             var language = await EnsureLanguageIsActive(languageId, store?.Id);
             messageTemplate = await GetMessageTemplate("AuctionExpired.StoreOwnerNotification", "");
             if (messageTemplate == null)

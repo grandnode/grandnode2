@@ -16,6 +16,12 @@ public interface IStoreService
     Task<IList<Store>> GetAllStores();
 
     /// <summary>
+    ///     Gets the first configured store
+    /// </summary>
+    /// <returns>Store</returns>
+    Task<Store?> GetFirstStore();
+
+    /// <summary>
     ///     Gets a store
     /// </summary>
     /// <param name="storeId">Store identifier</param>

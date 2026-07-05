@@ -21,6 +21,8 @@ public class StoreServiceTests
     public void Init()
     {
         _cacheMock = new Mock<ICacheBase>();
+        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<Store>>>()))
+            .Returns<string, Func<Task<Store>>>((_, acquire) => acquire());
         _mediatorMock = new Mock<IMediator>();
         _repository = new Mock<IRepository<Store>>();
         _service = new StoreService(_cacheMock.Object, _repository.Object, _mediatorMock.Object);
@@ -47,8 +49,7 @@ public class StoreServiceTests
     [TestMethod]
     public async Task DeleteStore_ValidArgument_InvokeExpectedMethods()
     {
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
-            .Returns(Task.FromResult(new List<Store> { new(), new() }));
+        _repository.Setup(c => c.Table).Returns(new List<Store> { new(), new() }.AsQueryable());
         await _service.DeleteStore(new Store());
         _repository.Verify(c => c.DeleteAsync(It.IsAny<Store>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<Store>>(), default), Times.Once);
@@ -59,8 +60,7 @@ public class StoreServiceTests
     public void DeleteStore_OnlyOneStore_ThrowException()
     {
         //can not remove store if it is only one 
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
-            .Returns(Task.FromResult(new List<Store> { new() }));
+        _repository.Setup(c => c.Table).Returns(new List<Store> { new() }.AsQueryable());
         Assert.ThrowsExactlyAsync<Exception>(async () => await _service.DeleteStore(new Store()));
     }
 
@@ -80,10 +80,7 @@ public class StoreServiceTests
             new DomainHost { HostName = "store2.com", Url = "http://store2.com", Primary = true }
         };
 
-        var stores = new List<Store> { store1, store2 };
-
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
-            .Returns(Task.FromResult(stores));
+        _repository.Setup(c => c.Table).Returns(new List<Store> { store1, store2 }.AsQueryable());
 
         // Act
         var result = await _service.GetStoreByHost("store1.com");
@@ -108,15 +105,24 @@ public class StoreServiceTests
             new DomainHost { HostName = "store2.com", Url = "http://store2.com", Primary = true }
         };
 
-        var stores = new List<Store> { store1, store2 };
-
-        _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Store>>>>()))
-            .Returns(Task.FromResult(stores));
+        _repository.Setup(c => c.Table).Returns(new List<Store> { store1, store2 }.AsQueryable());
 
         // Act - host not found in any DomainHost
         var result = await _service.GetStoreByHost("nonexisting.com");
 
         // Assert - returns first store
         Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetFirstStore_ReturnsStoreWithLowestDisplayOrder()
+    {
+        var store1 = new Store { DisplayOrder = 2 };
+        var store2 = new Store { DisplayOrder = 1 };
+        _repository.Setup(c => c.Table).Returns(new List<Store> { store1, store2 }.AsQueryable());
+
+        var result = await _service.GetFirstStore();
+
+        Assert.AreEqual(store2, result);
     }
 }

@@ -249,7 +249,7 @@ public class CampaignService(
 
             var builder = new LiquidObjectBuilder(mediator);
             var store = await storeService.GetStoreById(campaign.StoreId) ??
-                        (await storeService.GetAllStores()).FirstOrDefault();
+                        await storeService.GetFirstStore();
 
             builder.AddStoreTokens(store, language, emailAccount)
                 .AddNewsLetterSubscriptionTokens(subscription, store, contextAccessor.StoreContext.CurrentHost);
@@ -303,7 +303,7 @@ public class CampaignService(
                        (await languageService.GetAllLanguages()).FirstOrDefault();
 
         var store = await storeService.GetStoreById(campaign.StoreId) ??
-                    (await storeService.GetAllStores()).FirstOrDefault();
+                    await storeService.GetFirstStore();
 
         var builder = new LiquidObjectBuilder(mediator);
         builder.AddStoreTokens(store, language, emailAccount);

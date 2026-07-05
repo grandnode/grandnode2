@@ -58,7 +58,7 @@ public class StoreContextSetter : IStoreContextSetter
         }
 
         // Fallback: return the first available store
-        return (await _storeService.GetAllStores()).FirstOrDefault();
+        return await _storeService.GetFirstStore();
     }
 
     /// <summary>
@@ -88,5 +88,4 @@ public class StoreContextSetter : IStoreContextSetter
         public DomainHost CurrentHost { get; set; }
     }
 }
-
 

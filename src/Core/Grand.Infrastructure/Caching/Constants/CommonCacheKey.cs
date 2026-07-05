@@ -155,6 +155,19 @@ public static partial class CacheKey
     /// </remarks>
     public static string STORES_BY_ID_KEY => "Grand.stores.id-{0}";
 
+    /// <summary>
+    ///     Key for caching
+    /// </summary>
+    public static string STORES_FIRST_KEY => "Grand.stores.first";
+
+    /// <summary>
+    ///     Key for caching
+    /// </summary>
+    /// <remarks>
+    ///     {0} : host
+    /// </remarks>
+    public static string STORES_BY_HOST_KEY => "Grand.stores.host-{0}";
+
     #endregion
 
     #region Tax

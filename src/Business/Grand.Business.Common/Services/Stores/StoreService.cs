@@ -57,6 +57,16 @@ public class StoreService : IStoreService
     }
 
     /// <summary>
+    ///     Gets the first configured store
+    /// </summary>
+    /// <returns>Store</returns>
+    public virtual Task<Store?> GetFirstStore()
+    {
+        return _cacheBase.GetAsync(CacheKey.STORES_FIRST_KEY, () => Task.FromResult(
+            _storeRepository.Table.OrderBy(x => x.DisplayOrder).FirstOrDefault()));
+    }
+
+    /// <summary>
     ///     Gets a store
     /// </summary>
     /// <param name="storeId">Store identifier</param>
@@ -109,8 +119,7 @@ public class StoreService : IStoreService
     {
         ArgumentNullException.ThrowIfNull(store);
 
-        var allStores = await GetAllStores();
-        if (allStores.Count == 1)
+        if (_storeRepository.Table.Count() == 1)
             throw new Exception("You cannot delete the only configured store");
 
         await _storeRepository.DeleteAsync(store);
@@ -128,8 +137,13 @@ public class StoreService : IStoreService
     /// <returns></returns>
     public async Task<Store?> GetStoreByHost(string host)
     {
-        var allStores = await GetAllStores();
-        return allStores.FirstOrDefault(s => s.ContainsHostValue(host));
+        if (string.IsNullOrEmpty(host))
+            return null;
+
+        var key = string.Format(CacheKey.STORES_BY_HOST_KEY, host.ToLowerInvariant());
+        return await _cacheBase.GetAsync(key, () => Task.FromResult(
+            _storeRepository.Table.FirstOrDefault(s =>
+                s.Domains.Any(domain => domain.HostName.Equals(host, StringComparison.OrdinalIgnoreCase)))));
     }
 
     #endregion

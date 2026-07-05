@@ -440,7 +440,7 @@ public class WorkContextSetter : IWorkContextSetter
         if (!string.IsNullOrEmpty(id))
             return await _storeService.GetStoreById(id);
 
-        return (await _storeService.GetAllStores()).FirstOrDefault();
+        return await _storeService.GetFirstStore();
     }
 
     private sealed class CurrentWorkContext : IWorkContext
