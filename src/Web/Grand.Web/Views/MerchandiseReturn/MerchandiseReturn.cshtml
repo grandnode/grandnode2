@@ -231,7 +231,7 @@
             @if (Model.ShowPickupDate)
             {
                 <text>
-                    PickupDate: '@Html.Raw(Model.PickupDate)',
+                    PickupDate: @Json.Serialize(Model.PickupDate),
                 </text>
             }
             newAddress: false,

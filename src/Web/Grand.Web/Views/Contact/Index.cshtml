@@ -80,10 +80,10 @@
                     data: () => ({
                         @{
                             <text>
-                                FullName: '@Html.Raw(Model.FullName)',
-                                Email: '@Html.Raw(Model.Email)',
-                                Subject: '@Html.Raw(Model.Subject)',
-                                Enquiry: '@Html.Raw(Model.Enquiry)',
+                                FullName: @Json.Serialize(Model.FullName),
+                                Email: @Json.Serialize(Model.Email),
+                                Subject: @Json.Serialize(Model.Subject),
+                                Enquiry: @Json.Serialize(Model.Enquiry),
                             </text>
                         }
                     })

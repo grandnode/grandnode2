@@ -784,7 +784,9 @@ public class CheckoutController : BasePublicController
 
             // Get the redirect URL from PostRedirectPayment
             var redirectUrl = await _paymentService.PostRedirectPayment(paymentTransaction);
-            if (!string.IsNullOrEmpty(redirectUrl))
+            if (!string.IsNullOrEmpty(redirectUrl) &&
+                Uri.TryCreate(redirectUrl, UriKind.Absolute, out var uri) &&
+                (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
                 return Redirect(redirectUrl);
             
             return RedirectToRoute("CheckoutCompleted", new { orderId = order.Id });

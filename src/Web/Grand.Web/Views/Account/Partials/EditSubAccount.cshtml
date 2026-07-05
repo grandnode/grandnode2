@@ -48,9 +48,9 @@
 <script asp-location="Footer" asp-order="300">
     var createorupdatesubaccount  = new Vue({
         data: () => ({
-            FirstName: '@Html.Raw(Model.FirstName)',
-            LastName: '@Html.Raw(Model.LastName)',
-            Email: '@Html.Raw(Model.Email)',
+            FirstName: @Json.Serialize(Model.FirstName),
+            LastName: @Json.Serialize(Model.LastName),
+            Email: @Json.Serialize(Model.Email),
             Password: '',
         })
     });

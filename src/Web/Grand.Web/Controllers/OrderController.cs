@@ -187,7 +187,9 @@ public class OrderController : BasePublicController
             return RedirectToRoute("OrderDetails", new { orderId });
 
         var redirectUrl = await _paymentService.PostRedirectPayment(paymentTransaction);
-        if (!string.IsNullOrEmpty(redirectUrl))
+        if (!string.IsNullOrEmpty(redirectUrl) &&
+            Uri.TryCreate(redirectUrl, UriKind.Absolute, out var uri) &&
+            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
             return Redirect(redirectUrl);
         
         return RedirectToRoute("OrderDetails", new { orderId });

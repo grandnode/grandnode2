@@ -28,7 +28,14 @@ public class DownloadController : BaseAdminController
             return Content("No download record found with the specified id");
 
         if (download.UseDownloadUrl)
-            return new RedirectResult(download.DownloadUrl);
+        {
+            if (!string.IsNullOrEmpty(download.DownloadUrl) &&
+                Uri.TryCreate(download.DownloadUrl, UriKind.Absolute, out var uri) &&
+                (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+                return new RedirectResult(download.DownloadUrl);
+
+            return Content("Invalid download URL");
+        }
 
         //use stored data
         if (download.DownloadBinary == null)

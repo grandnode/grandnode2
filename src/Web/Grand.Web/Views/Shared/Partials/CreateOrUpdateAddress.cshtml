@@ -280,20 +280,20 @@
             data: () => ({
                 @{
                 <text>
-                        Name: '@Html.Raw(Model.Name)',
-                        FirstName: '@Html.Raw(Model.FirstName)',
-                        LastName: '@Html.Raw(Model.LastName)',
-                        Company: '@Html.Raw(Model.Company)',
-                        Address1: '@Html.Raw(Model.Address1)',
-                        Address2: '@Html.Raw(Model.Address2)',
-                        ZipPostalCode: '@Html.Raw(Model.ZipPostalCode)',
-                        City: '@Html.Raw(Model.City)',
+                        Name: @Json.Serialize(Model.Name),
+                        FirstName: @Json.Serialize(Model.FirstName),
+                        LastName: @Json.Serialize(Model.LastName),
+                        Company: @Json.Serialize(Model.Company),
+                        Address1: @Json.Serialize(Model.Address1),
+                        Address2: @Json.Serialize(Model.Address2),
+                        ZipPostalCode: @Json.Serialize(Model.ZipPostalCode),
+                        City: @Json.Serialize(Model.City),
                         CountryId: '@Model.CountryId',
                         StateProvinceId: '@Model.StateProvinceId',
-                        PhoneNumber: '@Html.Raw(Model.PhoneNumber)',
-                        FaxNumber: '@Html.Raw(Model.FaxNumber)',
-                        VatNumber: '@Html.Raw(Model.VatNumber)',
-                        Email: '@Html.Raw(Model.Email)',
+                        PhoneNumber: @Json.Serialize(Model.PhoneNumber),
+                        FaxNumber: @Json.Serialize(Model.FaxNumber),
+                        VatNumber: @Json.Serialize(Model.VatNumber),
+                        Email: @Json.Serialize(Model.Email),
                         prefix: '@prefix',
                         @foreach (var item in Model.CustomAddressAttributes)
                         {
