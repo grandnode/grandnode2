@@ -24,8 +24,8 @@ public class ApiUserController : BaseAdminController
 
     protected (string hashpassword, string privatekey) HashPassword(string password)
     {
-        var pk = CommonHelper.GenerateRandomDigitCode(24);
-        return (_encryptionService.EncryptText(password, pk), pk);
+        //store a one-way PBKDF2 hash instead of reversible encryption; PrivateKey is no longer used for new records
+        return (_encryptionService.HashPassword(password), string.Empty);
     }
 
     public IActionResult Index()

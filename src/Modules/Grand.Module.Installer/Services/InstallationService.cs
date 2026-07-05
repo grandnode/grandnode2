@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Admin;
@@ -436,33 +437,13 @@ public partial class InstallationService : IInstallationService
 
     protected virtual async Task HashDefaultCustomerPassword(string defaultUserEmail, string defaultUserPassword)
     {
-        var passwordSalt = CommonHelper.GenerateRandomDigitCode(24);
-
-        var tDes = TripleDES.Create();
-
-        tDes.Key = new ASCIIEncoding().GetBytes(passwordSalt);
-        tDes.IV = new ASCIIEncoding().GetBytes(passwordSalt[^8..]);
-
-        var encryptedBinary = EncryptTextToMemory(defaultUserPassword, tDes.Key, tDes.IV);
-        var password = Convert.ToBase64String(encryptedBinary);
-        var customer = _customerRepository.Table.FirstOrDefault(x=>x.Email == defaultUserEmail);
-        customer!.Password = password;
-        customer!.PasswordSalt = passwordSalt;
-        customer!.PasswordFormatId = PasswordFormat.Encrypted;
+        //create the default administrator with a modern PBKDF2 hash (salt/parameters embedded in the value)
+        var encryptionService = _serviceProvider.GetRequiredService<IEncryptionService>();
+        var customer = _customerRepository.Table.FirstOrDefault(x => x.Email == defaultUserEmail);
+        customer!.Password = encryptionService.HashPassword(defaultUserPassword);
+        customer!.PasswordSalt = string.Empty;
+        customer!.PasswordFormatId = PasswordFormat.Hashed;
         await _customerRepository.UpdateAsync(customer);
-
-    }
-    private static byte[] EncryptTextToMemory(string data, byte[] key, byte[] iv)
-    {
-        using var ms = new MemoryStream();
-        using (var cs = new CryptoStream(ms, TripleDES.Create().CreateEncryptor(key, iv), CryptoStreamMode.Write))
-        {
-            var toEncrypt = new UnicodeEncoding().GetBytes(data);
-            cs.Write(toEncrypt, 0, toEncrypt.Length);
-            cs.FlushFinalBlock();
-        }
-
-        return ms.ToArray();
     }
 
     private async Task CreateIndexes(IDatabaseContext dbContext, DataSettings dataSettings)

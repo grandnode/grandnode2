@@ -30,7 +30,12 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                 {
                     var base64EncodedBytes = Convert.FromBase64String(x.Password);
                     var password = Encoding.UTF8.GetString(base64EncodedBytes);
-                    if (userapi.Password == encryptionService.EncryptText(password, userapi.PrivateKey))
+                    //modern records are PBKDF2-hashed; legacy records are reversibly encrypted with the per-user PrivateKey
+                    var isValid = string.IsNullOrEmpty(userapi.PrivateKey)
+                        ? encryptionService.VerifyPassword(password, PasswordFormat.Hashed, userapi.Password,
+                            string.Empty, HashedPasswordFormat.SHA1)
+                        : userapi.Password == encryptionService.EncryptText(password, userapi.PrivateKey);
+                    if (isValid)
                         return true;
                 }
             }

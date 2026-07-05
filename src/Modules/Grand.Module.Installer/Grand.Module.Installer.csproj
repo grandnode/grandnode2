@@ -6,6 +6,9 @@
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	</PropertyGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
+		  <Private>False</Private>
+		</ProjectReference>
 		<ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
 		  <Private>False</Private>
 		</ProjectReference>

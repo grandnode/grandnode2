@@ -51,7 +51,10 @@ public interface IEncryptionService
     bool PasswordHashNeedsUpgrade(PasswordFormat passwordFormat, string storedPassword);
 
     /// <summary>
-    ///     Encrypt text
+    ///     Encrypt text (legacy TripleDES). Retained only to verify pre-existing reversibly-encrypted values
+    ///     (legacy customer "Encrypted" password format and legacy API users). Do NOT use for new data or for
+    ///     protecting secrets at rest - hash passwords with <see cref="HashPassword" /> and use ASP.NET Core Data
+    ///     Protection for reversible secrets.
     /// </summary>
     /// <param name="plainText">Text to encrypt</param>
     /// <param name="privateKey">Encryption private key</param>
@@ -59,7 +62,7 @@ public interface IEncryptionService
     string EncryptText(string plainText, string privateKey);
 
     /// <summary>
-    ///     Decrypt text
+    ///     Decrypt text (legacy TripleDES). Legacy counterpart of <see cref="EncryptText" />; see its remarks.
     /// </summary>
     /// <param name="cipherText">Text to decrypt</param>
     /// <param name="encryptionPrivateKey">Encryption private key</param>
