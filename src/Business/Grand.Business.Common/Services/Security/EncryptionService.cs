@@ -182,9 +182,10 @@ public class EncryptionService : IEncryptionService
                 PepperedPassword(enteredPassword), salt, iterations, HashAlgorithmName.SHA256, expected.Length);
             return CryptographicOperations.FixedTimeEquals(actual, expected);
         }
-        catch (Exception ex) when (ex is FormatException or ArgumentException)
+        catch (FormatException)
         {
-            //corrupted/malformed stored hash - fail closed instead of throwing on the auth path
+            //salt/hash are not valid Base64 (corrupted stored value) - fail closed on the auth path.
+            //Other arguments cannot throw here: iterations/output length are guarded above and the rest are constant.
             return false;
         }
     }
