@@ -155,8 +155,14 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
     }
     private static BindingSource GetPostParameterBindingSource(ParameterDescriptor param)
     {
-        if (param.BindingInfo?.BindingSource != null)
-            return param.BindingInfo.BindingSource;
+        var bindingSource = param.BindingInfo?.BindingSource;
+        if (bindingSource == BindingSource.Body ||
+            bindingSource == BindingSource.Query ||
+            bindingSource == BindingSource.Path ||
+            bindingSource == BindingSource.Header ||
+            bindingSource == BindingSource.Form ||
+            bindingSource == BindingSource.FormFile)
+            return bindingSource;
 
         return IsSimpleType(param.ParameterType) ? BindingSource.Query : BindingSource.Body;
     }
@@ -177,7 +183,8 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
     }
     private static bool IsServiceParameter(ParameterDescriptor param)
     {
-        if (param.BindingInfo?.BindingSource == BindingSource.Services)
+        if (param.BindingInfo?.BindingSource == BindingSource.Services ||
+            param.BindingInfo?.BindingSource == BindingSource.Special)
             return true;
 
         return param is ControllerParameterDescriptor controllerParameterDescriptor &&
