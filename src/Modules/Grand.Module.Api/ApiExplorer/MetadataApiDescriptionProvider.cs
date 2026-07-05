@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Options;
 using System.Reflection;
+using System.Threading;
 
 namespace Grand.Module.Api.ApiExplorer;
 
@@ -145,17 +146,25 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
             if (IsServiceParameter(param))
                 continue;
 
+            var parameterBindingSource = GetPostParameterBindingSource(param);
+            if (parameterBindingSource == null)
+                continue;
+
             apiDescription.ParameterDescriptions.Add(new ApiParameterDescription {
                 Name = param.Name,
                 ModelMetadata = GetModel(param),
-                Source = GetPostParameterBindingSource(param),
+                Source = parameterBindingSource,
                 Type = param.ParameterType
             });
         }
     }
-    private static BindingSource GetPostParameterBindingSource(ParameterDescriptor param)
+    private BindingSource? GetPostParameterBindingSource(ParameterDescriptor param)
     {
-        var bindingSource = param.BindingInfo?.BindingSource;
+        var bindingSource = param.BindingInfo?.BindingSource ?? GetModel(param).BindingSource;
+
+        if (bindingSource != null && !bindingSource.IsFromRequest)
+            return null;
+
         if (bindingSource == BindingSource.Body ||
             bindingSource == BindingSource.Query ||
             bindingSource == BindingSource.Path ||
@@ -183,6 +192,9 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
     }
     private static bool IsServiceParameter(ParameterDescriptor param)
     {
+        if (param.ParameterType == typeof(CancellationToken))
+            return true;
+
         if (param.BindingInfo?.BindingSource == BindingSource.Services ||
             param.BindingInfo?.BindingSource == BindingSource.Special)
             return true;

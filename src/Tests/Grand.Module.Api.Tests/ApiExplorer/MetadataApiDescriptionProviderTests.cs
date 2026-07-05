@@ -156,6 +156,27 @@ public class MetadataApiDescriptionProviderTests
         Assert.AreEqual("model", apiDescription.ParameterDescriptions[0].Name);
     }
 
+    [TestMethod]
+    public void OnProvidersExecuting_PostAction_IgnoresCancellationToken_WhenBindingSourceIsMissing()
+    {
+        var provider = CreateProvider();
+        var methodInfo = typeof(TestApiController).GetMethod(nameof(TestApiController.PostActionWithCancellation))!;
+
+        var action = CreateActionDescriptor(methodInfo, "POST", [
+            CreateControllerParameter(methodInfo.GetParameters()[0], null),
+            CreateControllerParameter(methodInfo.GetParameters()[1], null)
+        ]);
+
+        var context = new ApiDescriptionProviderContext([action]);
+
+        provider.OnProvidersExecuting(context);
+
+        Assert.AreEqual(1, context.Results.Count);
+        var apiDescription = context.Results[0];
+        Assert.AreEqual(1, apiDescription.ParameterDescriptions.Count);
+        Assert.AreEqual("model", apiDescription.ParameterDescriptions[0].Name);
+    }
+
     private static MetadataApiDescriptionProvider CreateProvider()
     {
         return new MetadataApiDescriptionProvider(
