@@ -831,6 +831,7 @@ public class CustomerController : BaseStoreController
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> UpdateProductPrice(CustomerModel.ProductPriceModel model)
     {
         var productPrice = await _customerProductService.GetCustomerProductPriceById(model.Id);
@@ -842,17 +843,20 @@ public class CustomerController : BaseStoreController
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> DeleteProductPrice(string id)
     {
         var productPrice = await _customerProductService.GetCustomerProductPriceById(id);
         if (productPrice == null || await GetStoreCustomer(productPrice.CustomerId) == null)
             return new JsonResult("");
 
-        await _customerViewModelService.DeleteProductPrice(id);
+        //delete the already-resolved entity to avoid a redundant reload / TOCTOU throw
+        await _customerProductService.DeleteCustomerProductPrice(productPrice);
         return new JsonResult("");
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> UpdatePersonalizedProduct(CustomerModel.ProductModel model)
     {
         var customerProduct = await _customerProductService.GetCustomerProduct(model.Id);
@@ -864,13 +868,15 @@ public class CustomerController : BaseStoreController
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> DeletePersonalizedProduct(string id)
     {
         var customerProduct = await _customerProductService.GetCustomerProduct(id);
         if (customerProduct == null || await GetStoreCustomer(customerProduct.CustomerId) == null)
             return new JsonResult("");
 
-        await _customerViewModelService.DeletePersonalizedProduct(id);
+        //delete the already-resolved entity to avoid a redundant reload / TOCTOU throw
+        await _customerProductService.DeleteCustomerProduct(customerProduct);
         return new JsonResult("");
     }
 

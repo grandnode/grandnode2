@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -59,6 +60,7 @@ public class CustomerControllerTests
             _customerServiceMock.Object,
             _customerViewModelServiceMock.Object,
             _customerManagerServiceMock.Object,
+            new Mock<ICustomerProductService>().Object,
             new Mock<IProductReviewService>().Object,
             new Mock<IProductReviewViewModelService>().Object,
             new Mock<IProductViewModelService>().Object,
