@@ -20,16 +20,9 @@ public class DeleteAccountValidator : BaseGrandValidator<DeleteAccountModel>
             .WithMessage(translationService.GetResource("Account.DeleteAccount.Fields.Password.Required"));
         RuleFor(x => x).Custom((x, context) =>
         {
-            var pwd = contextAccessor.WorkContext.CurrentCustomer.PasswordFormatId switch {
-                PasswordFormat.Clear => x.Password,
-                PasswordFormat.Encrypted => encryptionService.EncryptText(x.Password,
-                    contextAccessor.WorkContext.CurrentCustomer.PasswordSalt),
-                PasswordFormat.Hashed => encryptionService.CreatePasswordHash(x.Password,
-                    contextAccessor.WorkContext.CurrentCustomer.PasswordSalt,
-                    customerSettings.HashedPasswordFormat),
-                _ => throw new Exception("PasswordFormat not supported")
-            };
-            var isValid = pwd == contextAccessor.WorkContext.CurrentCustomer.Password;
+            var customer = contextAccessor.WorkContext.CurrentCustomer;
+            var isValid = encryptionService.VerifyPassword(x.Password, customer.PasswordFormatId, customer.Password,
+                customer.PasswordSalt, customerSettings.HashedPasswordFormat);
             if (!isValid) context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials"));
         });
     }

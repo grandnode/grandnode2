@@ -78,4 +78,19 @@ public class SecurityConfig
     ///     using menu configuration.
     /// </summary>
     public bool AuthorizeAdminMenu { get; set; }
+
+    /// <summary>
+    ///     Server-side secret ("pepper") mixed into the PBKDF2 password hash. Optional but recommended: it must be stored
+    ///     outside the database (appsettings/secret store), so a database-only leak is not enough to verify hashes offline.
+    ///     Leave empty to hash without a pepper.
+    ///     IMPORTANT: changing this value invalidates all existing PBKDF2 hashes (affected customers must reset their
+    ///     password); legacy SHA hashes are unaffected. Set it once, before going live.
+    /// </summary>
+    public string PasswordHashKey { get; set; }
+
+    /// <summary>
+    ///     PBKDF2 (HMAC-SHA256) iteration count for newly created/upgraded password hashes. Default 210000 (OWASP 2023).
+    ///     The value is embedded in each stored hash, so raising it later does not break existing hashes.
+    /// </summary>
+    public int PasswordHashIterations { get; set; }
 }

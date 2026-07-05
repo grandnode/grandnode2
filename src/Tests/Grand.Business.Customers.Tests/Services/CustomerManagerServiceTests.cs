@@ -28,6 +28,11 @@ public class CustomerManagerServiceTests
         _customerServiceMock = new Mock<ICustomerService>();
         _groupServiceMock = new Mock<IGroupService>();
         _encryptionServiceMock = new Mock<IEncryptionService>();
+        //emulate the real format-aware verification for the Clear-format credentials used by these tests
+        _encryptionServiceMock.Setup(e => e.VerifyPassword(It.IsAny<string>(), It.IsAny<PasswordFormat>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HashedPasswordFormat>()))
+            .Returns((string entered, PasswordFormat _, string stored, string _, HashedPasswordFormat _) =>
+                entered == stored);
         _mediatorMock = new Mock<IMediator>();
         _customerHistoryPasswordServiceMock = new Mock<ICustomerHistoryPasswordService>();
         _customerSettings = new CustomerSettings {

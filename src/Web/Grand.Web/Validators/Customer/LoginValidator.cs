@@ -75,14 +75,8 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                     break;
                 case not null:
                     {
-                        var pwd = customer.PasswordFormatId switch {
-                            PasswordFormat.Clear => x.Password,
-                            PasswordFormat.Encrypted => encryptionService.EncryptText(x.Password, customer.PasswordSalt),
-                            PasswordFormat.Hashed => encryptionService.CreatePasswordHash(x.Password, customer.PasswordSalt,
-                                customerSettings.HashedPasswordFormat),
-                            _ => throw new Exception("PasswordFormat not supported")
-                        };
-                        var isValid = pwd == customer.Password;
+                        var isValid = encryptionService.VerifyPassword(x.Password, customer.PasswordFormatId,
+                            customer.Password, customer.PasswordSalt, customerSettings.HashedPasswordFormat);
                         if (!isValid)
                         {
                             context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials"));
