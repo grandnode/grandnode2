@@ -86,8 +86,16 @@ public class CustomerManagerService : ICustomerManagerService
 
         //transparently migrate weak/legacy hashes (SHA-x, Clear, Encrypted) to the modern PBKDF2 format
         if (_encryptionService.PasswordHashNeedsUpgrade(customer.PasswordFormatId, customer.Password))
-            await UpgradePasswordHash(customer, password);
-
+        {
+            try
+            {
+                await UpgradePasswordHash(customer, password);
+            }
+            catch
+            {
+                //best-effort upgrade only; don't block login if persisting the upgraded hash fails
+            }
+        }
         //2fa required
         if (customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled) &&
             _customerSettings.TwoFactorAuthenticationEnabled)
