@@ -159,6 +159,11 @@ public class EncryptionService : IEncryptionService
         return parts.Length != 5 || !int.TryParse(parts[2], out var iterations) || iterations < Iterations;
     }
 
+    public virtual bool IsHashedPassword(string storedPassword)
+    {
+        return IsPbkdf2Hash(storedPassword);
+    }
+
     private static bool IsPbkdf2Hash(string storedPassword)
     {
         return storedPassword != null && storedPassword.StartsWith(Pbkdf2Prefix + "$", StringComparison.Ordinal);

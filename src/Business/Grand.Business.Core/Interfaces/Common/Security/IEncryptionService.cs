@@ -51,6 +51,13 @@ public interface IEncryptionService
     bool PasswordHashNeedsUpgrade(PasswordFormat passwordFormat, string storedPassword);
 
     /// <summary>
+    ///     Returns true when the stored value is the modern self-describing (PBKDF2) hash produced by
+    ///     <see cref="HashPassword" />. Use it to pick the verification path for records whose password format is
+    ///     not tracked in a separate field (e.g. API users), instead of inferring it from other columns.
+    /// </summary>
+    bool IsHashedPassword(string storedPassword);
+
+    /// <summary>
     ///     Encrypt text (legacy TripleDES). Retained only to verify pre-existing reversibly-encrypted values
     ///     (legacy customer "Encrypted" password format and legacy API users). Do NOT use for new data or for
     ///     protecting secrets at rest - hash passwords with <see cref="HashPassword" /> and use ASP.NET Core Data

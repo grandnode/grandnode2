@@ -146,6 +146,16 @@ public class EncryptionServiceTests
     }
 
     [TestMethod]
+    public void IsHashedPassword_TrueOnlyForPbkdf2Format()
+    {
+        Assert.IsTrue(_encryptionService.IsHashedPassword(_encryptionService.HashPassword("password")));
+        Assert.IsFalse(_encryptionService.IsHashedPassword(
+            _encryptionService.CreatePasswordHash("password", _encryptionService.CreateSaltKey(16))));
+        Assert.IsFalse(_encryptionService.IsHashedPassword("some-reversibly-encrypted-value"));
+        Assert.IsFalse(_encryptionService.IsHashedPassword(null));
+    }
+
+    [TestMethod]
     public void VerifyPassword_Pbkdf2_FailsClosedOnMalformedHash()
     {
         //corrupted stored hashes must not throw on the auth path - they simply do not match
