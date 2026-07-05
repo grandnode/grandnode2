@@ -26,8 +26,6 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Models;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Grand.Web.Store.Controllers;
 
@@ -104,39 +102,23 @@ public class CustomerController : BaseStoreController
 
     #endregion
 
-    #region Per-store gate
-
-    //managing customers from the store panel only makes sense when customer identity is scoped per store
-    //(Customer:RegisterCustomersPerStore). When it's off the whole controller is disabled and every action
-    //is routed to the PerStoreDisabled page that explains how to enable the setting.
-    public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-    {
-        if (!_customerConfig.RegisterCustomersPerStore &&
-            context.ActionDescriptor is ControllerActionDescriptor { ActionName: not nameof(PerStoreDisabled) })
-        {
-            context.Result = RedirectToAction(nameof(PerStoreDisabled));
-            return;
-        }
-
-        await next();
-    }
-
-    #endregion
-
     #region Utilities
 
     private string CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private bool IsPerStoreMode => _customerConfig.RegisterCustomersPerStore;
+    private string CustomerStoreFilter => IsPerStoreMode ? CurrentStoreId : "";
+    private bool IsCurrentStore(string storeId) => !IsPerStoreMode || storeId == CurrentStoreId;
 
     /// <summary>
-    ///     Loads a customer only when it is a non-deleted, registered customer of the current store.
+    ///     Loads a non-deleted customer and, in per-store mode, additionally enforces store/registered access.
     ///     Returns null otherwise so callers can deny access.
     /// </summary>
     private async Task<Customer> GetStoreCustomer(string id)
     {
         var customer = await _customerService.GetCustomerById(id);
-        if (customer == null || customer.Deleted || customer.StoreId != CurrentStoreId)
+        if (customer == null || customer.Deleted)
             return null;
-        if (!await _groupService.IsRegistered(customer))
+        if (IsPerStoreMode && (customer.StoreId != CurrentStoreId || !await _groupService.IsRegistered(customer)))
             return null;
         return customer;
     }
@@ -147,7 +129,8 @@ public class CustomerController : BaseStoreController
     /// </summary>
     private async Task ApplyStoreConstraints(CustomerModel model)
     {
-        model.StoreId = CurrentStoreId;
+        if (IsPerStoreMode)
+            model.StoreId = CurrentStoreId;
         model.Owner = "";
         model.VendorId = "";
         model.StaffStoreId = "";
@@ -226,7 +209,7 @@ public class CustomerController : BaseStoreController
     }
 
     /// <summary>
-    ///     Shown instead of the panel when per-store customer identity is disabled (see the gate below).
+    ///     Kept for backward URL compatibility.
     /// </summary>
     public IActionResult PerStoreDisabled()
     {
@@ -240,7 +223,7 @@ public class CustomerController : BaseStoreController
         //store managers only ever see the registered customers of their own store
         var registered = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
         var (customerModelList, totalCount) = await _customerViewModelService.PrepareCustomerList(model,
-            registered != null ? [registered.Id] : [], null, command.Page, command.PageSize, CurrentStoreId);
+            registered != null ? [registered.Id] : [], null, command.Page, command.PageSize, CustomerStoreFilter);
         var gridModel = new DataSourceResult {
             Data = customerModelList.ToList(),
             Total = totalCount
@@ -496,7 +479,8 @@ public class CustomerController : BaseStoreController
         if (customer == null)
             return Json(new { Result = false });
 
-        await _customerViewModelService.InsertLoyaltyPointsHistory(customer, CurrentStoreId, addLoyaltyPointsValue,
+        var loyaltyStoreId = IsPerStoreMode ? CurrentStoreId : storeId;
+        await _customerViewModelService.InsertLoyaltyPointsHistory(customer, loyaltyStoreId, addLoyaltyPointsValue,
             addLoyaltyPointsMessage);
 
         return Json(new { Result = true });
@@ -633,7 +617,7 @@ public class CustomerController : BaseStoreController
 
         var model = new OrderListModel {
             CustomerId = customerId,
-            StoreId = CurrentStoreId
+            StoreId = CustomerStoreFilter
         };
 
         var (orderModels, totalCount) =
@@ -651,7 +635,7 @@ public class CustomerController : BaseStoreController
         [FromServices] IOrderService orderService, [FromServices] IOrderViewModelService orderViewModelService)
     {
         var order = await orderService.GetOrderById(orderId);
-        if (order == null || order.StoreId != CurrentStoreId)
+        if (order == null || !IsCurrentStore(order.StoreId))
             return Json(new DataSourceResult { Data = null, Total = 0 });
 
         var ordermodel = new OrderModel();
@@ -677,7 +661,7 @@ public class CustomerController : BaseStoreController
             return Json(new DataSourceResult { Data = null, Total = 0 });
 
         var productReviews = await _productReviewService.GetAllProductReviews(customerId, null,
-            null, null, "", CurrentStoreId, "", command.Page - 1, command.PageSize);
+            null, null, "", CustomerStoreFilter, "", command.Page - 1, command.PageSize);
         var items = new List<ProductReviewModel>();
         foreach (var x in productReviews)
         {
@@ -698,7 +682,7 @@ public class CustomerController : BaseStoreController
     public async Task<IActionResult> ReviewDelete(string id)
     {
         var productReview = await _productReviewService.GetProductReviewById(id);
-        if (productReview == null || productReview.StoreId != CurrentStoreId)
+        if (productReview == null || !IsCurrentStore(productReview.StoreId))
             throw new ArgumentException("No review found with the specified id", nameof(id));
 
         await _productReviewViewModelService.DeleteProductReview(productReview);

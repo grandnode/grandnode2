@@ -10,15 +10,12 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
+using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Models;
 using Grand.Web.Store.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -81,67 +78,22 @@ public class CustomerControllerTests
         return controller;
     }
 
-    private static (ActionExecutingContext context, Func<bool> wasNextCalled) BuildGate(CustomerController controller,
-        string actionName)
-    {
-        var actionContext = new ActionContext(controller.ControllerContext.HttpContext, new RouteData(),
-            new ControllerActionDescriptor { ActionName = actionName });
-        var context = new ActionExecutingContext(actionContext, new List<IFilterMetadata>(),
-            new Dictionary<string, object>(), controller);
-        return (context, () => false);
-    }
-
     [TestMethod]
-    public async Task Gate_PerStoreDisabled_RedirectsToPerStoreDisabled()
+    public async Task CustomerList_PerStoreDisabled_DoesNotFilterByCurrentStore()
     {
         var controller = BuildController(perStoreEnabled: false);
-        var (context, _) = BuildGate(controller, nameof(CustomerController.List));
-        var nextCalled = false;
+        _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered))
+            .ReturnsAsync(new CustomerGroup { Id = "registered-group" });
+        string capturedStoreId = null;
+        _customerViewModelServiceMock.Setup(s => s.PrepareCustomerList(It.IsAny<CustomerListModel>(),
+                It.IsAny<string[]>(), It.IsAny<string[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
+            .Callback<CustomerListModel, string[], string[], int, int, string>((_, _, _, _, _, storeId) =>
+                capturedStoreId = storeId)
+            .ReturnsAsync((new List<CustomerModel>(), 0));
 
-        await controller.OnActionExecutionAsync(context, () =>
-        {
-            nextCalled = true;
-            return Task.FromResult(new ActionExecutedContext(context, new List<IFilterMetadata>(), controller));
-        });
-
-        Assert.IsFalse(nextCalled);
-        var redirect = context.Result as RedirectToActionResult;
-        Assert.IsNotNull(redirect);
-        Assert.AreEqual(nameof(CustomerController.PerStoreDisabled), redirect.ActionName);
-    }
-
-    [TestMethod]
-    public async Task Gate_PerStoreDisabled_AllowsPerStoreDisabledAction()
-    {
-        var controller = BuildController(perStoreEnabled: false);
-        var (context, _) = BuildGate(controller, nameof(CustomerController.PerStoreDisabled));
-        var nextCalled = false;
-
-        await controller.OnActionExecutionAsync(context, () =>
-        {
-            nextCalled = true;
-            return Task.FromResult(new ActionExecutedContext(context, new List<IFilterMetadata>(), controller));
-        });
-
-        Assert.IsTrue(nextCalled);
-        Assert.IsNull(context.Result);
-    }
-
-    [TestMethod]
-    public async Task Gate_PerStoreEnabled_CallsNext()
-    {
-        var controller = BuildController(perStoreEnabled: true);
-        var (context, _) = BuildGate(controller, nameof(CustomerController.List));
-        var nextCalled = false;
-
-        await controller.OnActionExecutionAsync(context, () =>
-        {
-            nextCalled = true;
-            return Task.FromResult(new ActionExecutedContext(context, new List<IFilterMetadata>(), controller));
-        });
-
-        Assert.IsTrue(nextCalled);
-        Assert.IsNull(context.Result);
+        var result = await controller.CustomerList(new DataSourceRequest { Page = 1, PageSize = 20 }, new CustomerListModel());
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        Assert.AreEqual("", capturedStoreId);
     }
 
     [TestMethod]
@@ -184,6 +136,44 @@ public class CustomerControllerTests
         Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
         Assert.IsNotNull(captured);
         Assert.AreEqual(StoreId, captured.StoreId);
+        Assert.AreEqual("", captured.Owner);
+        Assert.AreEqual("", captured.VendorId);
+        Assert.AreEqual("", captured.StaffStoreId);
+        Assert.AreEqual("", captured.SeId);
+        CollectionAssert.AreEqual(new[] { "registered-group" }, captured.CustomerGroups);
+    }
+
+    [TestMethod]
+    public async Task Create_PerStoreDisabled_DoesNotOverrideStoreId()
+    {
+        var controller = BuildController(perStoreEnabled: false);
+
+        _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered))
+            .ReturnsAsync(new CustomerGroup { Id = "registered-group" });
+        _customerAttributeServiceMock.Setup(a => a.GetAllCustomerAttributes())
+            .ReturnsAsync(new List<CustomerAttribute>());
+
+        CustomerModel captured = null;
+        _customerViewModelServiceMock.Setup(s => s.InsertCustomerModel(It.IsAny<CustomerModel>()))
+            .Callback<CustomerModel>(m => captured = m)
+            .ReturnsAsync(new Customer { Id = "c1", StoreId = "foreign-store" });
+
+        var model = new CustomerModel {
+            Email = "new@customer.com",
+            StoreId = "foreign-store",
+            Owner = "owner@x.com",
+            VendorId = "vendor-1",
+            StaffStoreId = "staff-store",
+            SeId = "sales-1",
+            CustomerGroups = ["administrators-group"],
+            SelectedAttributes = new List<CustomAttributeModel>()
+        };
+
+        var result = await controller.Create(model, false);
+
+        Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
+        Assert.IsNotNull(captured);
+        Assert.AreEqual("foreign-store", captured.StoreId);
         Assert.AreEqual("", captured.Owner);
         Assert.AreEqual("", captured.VendorId);
         Assert.AreEqual("", captured.StaffStoreId);
