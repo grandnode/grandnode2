@@ -84,7 +84,7 @@ public class CustomerControllerTests
         var controller = BuildController(perStoreEnabled: false);
         _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered))
             .ReturnsAsync(new CustomerGroup { Id = "registered-group" });
-        string capturedStoreId = null;
+        var capturedStoreId = "";
         _customerViewModelServiceMock.Setup(s => s.PrepareCustomerList(It.IsAny<CustomerListModel>(),
                 It.IsAny<string[]>(), It.IsAny<string[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
             .Callback<CustomerListModel, string[], string[], int, int, string>((_, _, _, _, _, storeId) =>
