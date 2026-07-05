@@ -135,6 +135,33 @@ public class EncryptionServiceTests
     }
 
     [TestMethod]
+    public void PasswordHashNeedsUpgrade_TrueWhenEmbeddedIterationsBelowConfigured()
+    {
+        //hash created at the default cost, then verified against a service configured with a higher cost
+        var weakHash = _encryptionService.HashPassword("password");
+        var stronger = new EncryptionService(new SecurityConfig { PasswordHashIterations = 400_000 });
+
+        Assert.IsTrue(stronger.PasswordHashNeedsUpgrade(PasswordFormat.Hashed, weakHash));
+        Assert.IsFalse(stronger.PasswordHashNeedsUpgrade(PasswordFormat.Hashed, stronger.HashPassword("password")));
+    }
+
+    [TestMethod]
+    public void VerifyPassword_Pbkdf2_FailsClosedOnMalformedHash()
+    {
+        //corrupted stored hashes must not throw on the auth path - they simply do not match
+        foreach (var malformed in new[]
+                 {
+                     "PBKDF2$1$0$YQ==$YQ==", //zero iterations
+                     "PBKDF2$1$-5$YQ==$YQ==", //negative iterations
+                     "PBKDF2$1$210000$not-base64$YQ==", //invalid salt
+                     "PBKDF2$1$210000$YQ==", //too few segments
+                     "PBKDF2$1$210000$YQ==$" //empty hash
+                 })
+            Assert.IsFalse(_encryptionService.VerifyPassword("password", PasswordFormat.Hashed, malformed,
+                string.Empty, HashedPasswordFormat.SHA1), $"should fail closed for: {malformed}");
+    }
+
+    [TestMethod]
     public void VerifyPassword_Pbkdf2_IsPepperSensitive()
     {
         var peppered = new EncryptionService(new SecurityConfig { PasswordHashKey = "server-pepper" });

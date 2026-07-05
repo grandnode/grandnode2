@@ -150,8 +150,13 @@ public class EncryptionService : IEncryptionService
 
     public virtual bool PasswordHashNeedsUpgrade(PasswordFormat passwordFormat, string storedPassword)
     {
-        //only a current-strength PBKDF2 hash is considered up to date; everything else is upgraded on next login
-        return !(passwordFormat == PasswordFormat.Hashed && IsPbkdf2Hash(storedPassword));
+        //up to date only if it is a PBKDF2 hash whose embedded cost meets the currently configured iteration count;
+        //everything else (Clear/Encrypted, legacy SHA, or a weaker/unparseable PBKDF2 hash) is upgraded on next login
+        if (passwordFormat != PasswordFormat.Hashed || !IsPbkdf2Hash(storedPassword))
+            return true;
+
+        var parts = storedPassword.Split('$');
+        return parts.Length != 5 || !int.TryParse(parts[2], out var iterations) || iterations < Iterations;
     }
 
     private static bool IsPbkdf2Hash(string storedPassword)
@@ -163,24 +168,26 @@ public class EncryptionService : IEncryptionService
     {
         //PBKDF2$1$<iterations>$<saltBase64>$<hashBase64>
         var parts = storedPassword.Split('$');
-        if (parts.Length != 5 || !int.TryParse(parts[2], out var iterations))
+        if (parts.Length != 5 || !int.TryParse(parts[2], out var iterations) || iterations <= 0)
             return false;
 
-        byte[] salt;
-        byte[] expected;
         try
         {
-            salt = Convert.FromBase64String(parts[3]);
-            expected = Convert.FromBase64String(parts[4]);
+            var salt = Convert.FromBase64String(parts[3]);
+            var expected = Convert.FromBase64String(parts[4]);
+            if (expected.Length == 0)
+                return false;
+
+            var actual = Rfc2898DeriveBytes.Pbkdf2(
+                PepperedPassword(enteredPassword), salt, iterations, HashAlgorithmName.SHA256, expected.Length);
+            return CryptographicOperations.FixedTimeEquals(actual, expected);
         }
         catch (FormatException)
         {
+            //salt/hash are not valid Base64 (corrupted stored value) - fail closed on the auth path.
+            //Other arguments cannot throw here: iterations/output length are guarded above and the rest are constant.
             return false;
         }
-
-        var actual = Rfc2898DeriveBytes.Pbkdf2(
-            PepperedPassword(enteredPassword), salt, iterations, HashAlgorithmName.SHA256, expected.Length);
-        return CryptographicOperations.FixedTimeEquals(actual, expected);
     }
 
     private byte[] PepperedPassword(string password)
