@@ -60,16 +60,20 @@ public class StartupApplication : IStartupApplication
         var config = new RedisConfig();
         configuration.GetSection("Redis").Bind(config);
 
-        serviceCollection.AddSingleton<ICacheBase, MemoryCacheBase>();
-
         if (config.RedisPubSubEnabled)
         {
-            var redis = ConnectionMultiplexer.Connect(config.RedisPubSubConnectionString);
-            serviceCollection.AddSingleton(_ => redis.GetSubscriber());
+            //AbortOnConnectFail=false lets the multiplexer keep retrying in the background
+            //instead of crashing the instance when Redis is temporarily unavailable at startup
+            var options = ConfigurationOptions.Parse(config.RedisPubSubConnectionString);
+            options.AbortOnConnectFail = false;
+            var redis = ConnectionMultiplexer.Connect(options);
+            serviceCollection.AddSingleton<IConnectionMultiplexer>(redis);
             serviceCollection.AddSingleton<IMessageBus, RedisMessageBus>();
             serviceCollection.AddSingleton<ICacheBase, RedisMessageCacheManager>();
             return;
         }
+
+        serviceCollection.AddSingleton<ICacheBase, MemoryCacheBase>();
     }
 
     private static void RegisterContextService(IServiceCollection serviceCollection)

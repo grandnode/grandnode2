@@ -9,6 +9,10 @@ namespace Grand.Web.Common.Infrastructure;
 
 public class BackgroundServiceTask : BackgroundService
 {
+    //unique per process - pod/machine names are not stable across scaling, so a random
+    //id generated at startup is all that is needed to tell instances apart
+    private static readonly string InstanceId = Guid.NewGuid().ToString("N");
+
     private readonly IServiceProvider _serviceProvider;
     private readonly string Name;
 
@@ -40,6 +44,7 @@ public class BackgroundServiceTask : BackgroundService
                                      machineName == task.LeasedByMachineName))
                 {
 
+                    var updateTask = false;
                     var scheduleTask = serviceProvider.GetRequiredKeyedService<IScheduleTask>(task.ScheduleTaskName);
                     if (scheduleTask != null)
                     {
@@ -65,32 +70,52 @@ public class BackgroundServiceTask : BackgroundService
 
                         if (runTask)
                         {
-                            task.LastStartUtc = DateTime.UtcNow;
-                            try
-                            {                                
-                                logger.LogInformation($"Task {Name} execute");
-                                await scheduleTask.Execute();
-                                task.LastSuccessUtc = DateTime.UtcNow;
-                                task.LastNonSuccessEndUtc = null;
-                            }
-                            catch (Exception exc)
+                            //claim this run atomically - when several instances race,
+                            //only one wins and executes the task (no duplicated e-mails etc.)
+                            var runStartUtc = DateTime.UtcNow;
+                            var claimed = await scheduleTaskService.TryClaimTaskRun(task.Id, task.LastStartUtc,
+                                runStartUtc, InstanceId);
+                            if (claimed)
                             {
-                                task.LastNonSuccessEndUtc = DateTime.UtcNow;
-                                task.Enabled = !task.StopOnError;
-                                logger.LogError(exc,
-                                    "Error while running the \'{TaskScheduleTaskName}\' schedule task",
-                                    task.ScheduleTaskName);
+                                updateTask = true;
+                                task.LastStartUtc = runStartUtc;
+                                task.LeasedByInstance = InstanceId;
+                                try
+                                {
+                                    logger.LogInformation($"Task {Name} execute");
+                                    await scheduleTask.Execute();
+                                    task.LastSuccessUtc = DateTime.UtcNow;
+                                    task.LastNonSuccessEndUtc = null;
+                                }
+                                catch (Exception exc)
+                                {
+                                    task.LastNonSuccessEndUtc = DateTime.UtcNow;
+                                    task.Enabled = !task.StopOnError;
+                                    logger.LogError(exc,
+                                        "Error while running the \'{TaskScheduleTaskName}\' schedule task",
+                                        task.ScheduleTaskName);
+                                }
+                            }
+                            else
+                            {
+                                //another instance executes this run - check again on the next interval
+                                logger.LogDebug("Task {TaskName} claimed by another instance, skipping", Name);
+                                runTask = false;
                             }
                         }
                     }
                     else
                     {
+                        updateTask = true;
                         task.Enabled = !task.StopOnError;
                         task.LastNonSuccessEndUtc = DateTime.UtcNow;
                         logger.LogError("Type {TaskName} is not registered", Name);
                     }
 
-                    await scheduleTaskService.UpdateTask(task);
+                    //persist only when this instance actually ran the task - an unconditional
+                    //write would overwrite the claim/results of the winning instance with stale data
+                    if (updateTask)
+                        await scheduleTaskService.UpdateTask(task);
                     await Task.Delay(TimeSpan.FromMinutes(timeInterval), stoppingToken);
                 }
                 else

@@ -79,6 +79,29 @@ public class ScheduleTaskService : IScheduleTaskService
     }
 
     /// <summary>
+    ///     Atomically claims a single run of the task (compare-and-set on LastStartUtc)
+    /// </summary>
+    public virtual async Task<bool> TryClaimTaskRun(string taskId, DateTime? expectedLastStartUtc,
+        DateTime runStartUtc, string instanceId)
+    {
+        //truncate to milliseconds so the value survives the database round-trip unchanged
+        runStartUtc = new DateTime(runStartUtc.Ticks - runStartUtc.Ticks % TimeSpan.TicksPerMillisecond,
+            DateTimeKind.Utc);
+
+        //conditional update - matches only when no other instance has claimed the run
+        //in the meantime; on MongoDB a single update is atomic, so exactly one instance wins
+        await _taskRepository.UpdateOneAsync(
+            x => x.Id == taskId && x.LastStartUtc == expectedLastStartUtc,
+            UpdateBuilder<ScheduleTask>.Create()
+                .Set(x => x.LastStartUtc, runStartUtc)
+                .Set(x => x.LeasedByInstance, instanceId));
+
+        //UpdateOneAsync does not report whether the filter matched - read back the winner
+        var task = await GetTaskById(taskId);
+        return task?.LeasedByInstance == instanceId && task.LastStartUtc == runStartUtc;
+    }
+
+    /// <summary>
     ///     Delete the task
     /// </summary>
     /// <param name="task">Task</param>
