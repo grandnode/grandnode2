@@ -98,7 +98,7 @@ public class ScheduleTaskService : IScheduleTaskService
 
         //UpdateOneAsync does not report whether the filter matched - read back the winner
         var task = await GetTaskById(taskId);
-        return task?.LeasedByInstance == instanceId && task.LastStartUtc == runStartUtc;
+        return task != null && task.LeasedByInstance == instanceId && task.LastStartUtc == runStartUtc;
     }
 
     /// <summary>

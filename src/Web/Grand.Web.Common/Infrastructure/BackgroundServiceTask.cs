@@ -87,6 +87,11 @@ public class BackgroundServiceTask : BackgroundService
                                     task.LastSuccessUtc = DateTime.UtcNow;
                                     task.LastNonSuccessEndUtc = null;
                                 }
+                                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                                {
+                                    //application shutdown - do not classify as a task failure
+                                    throw;
+                                }
                                 catch (Exception exc)
                                 {
                                     task.LastNonSuccessEndUtc = DateTime.UtcNow;
@@ -100,7 +105,6 @@ public class BackgroundServiceTask : BackgroundService
                             {
                                 //another instance executes this run - check again on the next interval
                                 logger.LogDebug("Task {TaskName} claimed by another instance, skipping", Name);
-                                runTask = false;
                             }
                         }
                     }
