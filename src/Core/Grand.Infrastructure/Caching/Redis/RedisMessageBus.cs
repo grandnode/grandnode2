@@ -1,13 +1,14 @@
 using Grand.Infrastructure.Caching.Message;
 using Grand.Infrastructure.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System.Text.Json;
 
 namespace Grand.Infrastructure.Caching.Redis;
 
-public sealed class RedisMessageBus : IMessageBus, IDisposable
+public sealed class RedisMessageBus : IMessageBus, IHostedService, IDisposable
 {
     private static readonly string ClientId = Guid.NewGuid().ToString("N");
 
@@ -20,6 +21,7 @@ public sealed class RedisMessageBus : IMessageBus, IDisposable
     private readonly ISubscriber _subscriber;
     private readonly ILogger<RedisMessageBus> _logger;
     private readonly CancellationTokenSource _cts = new();
+    private Task _subscribeLoop;
 
     public RedisMessageBus(IConnectionMultiplexer connection, IServiceProvider serviceProvider,
         RedisConfig redisConfig, ILogger<RedisMessageBus> logger)
@@ -29,11 +31,26 @@ public sealed class RedisMessageBus : IMessageBus, IDisposable
         _serviceProvider = serviceProvider;
         _redisConfig = redisConfig;
         _logger = logger;
+    }
 
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
         _connection.ConnectionFailed += OnConnectionFailed;
         _connection.ConnectionRestored += OnConnectionRestored;
 
-        _ = Task.Run(() => SubscribeWithRetryAsync(_cts.Token));
+        //keep the subscription attempt off the startup path (Redis may be unreachable);
+        //the loop is tracked so it can be cancelled and awaited on shutdown
+        _subscribeLoop = SubscribeWithRetryAsync(_cts.Token);
+        return Task.CompletedTask;
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        _connection.ConnectionFailed -= OnConnectionFailed;
+        _connection.ConnectionRestored -= OnConnectionRestored;
+        await _cts.CancelAsync();
+        if (_subscribeLoop != null)
+            await _subscribeLoop.WaitAsync(cancellationToken);
     }
 
     public async Task PublishAsync<TMessage>(TMessage msg) where TMessage : IMessageEvent
@@ -84,9 +101,12 @@ public sealed class RedisMessageBus : IMessageBus, IDisposable
 
     public void Dispose()
     {
+        //event handlers are normally detached in StopAsync; detach again in case the
+        //hosted-service lifecycle was skipped, and release the cancellation source
         _connection.ConnectionFailed -= OnConnectionFailed;
         _connection.ConnectionRestored -= OnConnectionRestored;
-        _cts.Cancel();
+        if (!_cts.IsCancellationRequested)
+            _cts.Cancel();
         _cts.Dispose();
     }
 

@@ -68,7 +68,11 @@ public class StartupApplication : IStartupApplication
             options.AbortOnConnectFail = false;
             var redis = ConnectionMultiplexer.Connect(options);
             serviceCollection.AddSingleton<IConnectionMultiplexer>(redis);
-            serviceCollection.AddSingleton<IMessageBus, RedisMessageBus>();
+            //single instance exposed both as the message bus and as a hosted service that
+            //owns the subscription lifecycle (start/stop) instead of the constructor
+            serviceCollection.AddSingleton<RedisMessageBus>();
+            serviceCollection.AddSingleton<IMessageBus>(sp => sp.GetRequiredService<RedisMessageBus>());
+            serviceCollection.AddHostedService(sp => sp.GetRequiredService<RedisMessageBus>());
             serviceCollection.AddSingleton<ICacheBase, RedisMessageCacheManager>();
             return;
         }

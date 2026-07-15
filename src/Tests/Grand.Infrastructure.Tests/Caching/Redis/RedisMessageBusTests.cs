@@ -53,9 +53,11 @@ public class RedisMessageBusTests
     }
 
     [TestMethod]
-    public async Task Constructor_SubscribesToConfiguredChannel()
+    public async Task StartAsync_SubscribesToConfiguredChannel()
     {
-        //subscription starts on a background task - wait for it
+        await _bus.StartAsync(CancellationToken.None);
+
+        //subscription runs on a tracked background loop - wait for it
         for (var i = 0; i < 100; i++)
         {
             try
@@ -72,6 +74,13 @@ public class RedisMessageBusTests
         }
 
         Assert.Fail("SubscribeAsync was not called on the configured channel");
+    }
+
+    [TestMethod]
+    public async Task StopAsync_CompletesAndStopsSubscribing()
+    {
+        await _bus.StartAsync(CancellationToken.None);
+        await _bus.StopAsync(CancellationToken.None);
     }
 
     [TestMethod]
@@ -134,8 +143,10 @@ public class RedisMessageBusTests
     }
 
     [TestMethod]
-    public void ConnectionRestored_SubscriptionConnection_ClearsLocalCache()
+    public async Task ConnectionRestored_SubscriptionConnection_ClearsLocalCache()
     {
+        await _bus.StartAsync(CancellationToken.None);
+
         //messages published while disconnected are lost - the local cache must be dropped
         _connectionMock.Raise(c => c.ConnectionRestored += null,
             new ConnectionFailedEventArgs(_connectionMock.Object, new DnsEndPoint("localhost", 6379),
@@ -145,8 +156,10 @@ public class RedisMessageBusTests
     }
 
     [TestMethod]
-    public void ConnectionRestored_InteractiveConnection_DoesNotClearLocalCache()
+    public async Task ConnectionRestored_InteractiveConnection_DoesNotClearLocalCache()
     {
+        await _bus.StartAsync(CancellationToken.None);
+
         _connectionMock.Raise(c => c.ConnectionRestored += null,
             new ConnectionFailedEventArgs(_connectionMock.Object, new DnsEndPoint("localhost", 6379),
                 ConnectionType.Interactive, ConnectionFailureType.SocketClosed, null, "test"));
