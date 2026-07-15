@@ -82,7 +82,7 @@ public class BackgroundServiceTask : BackgroundService
                                 task.LeasedByInstance = InstanceId;
                                 try
                                 {
-                                    logger.LogInformation($"Task {Name} execute");
+                                    logger.LogInformation("Task {TaskName} execute", Name);
                                     await scheduleTask.Execute();
                                     task.LastSuccessUtc = DateTime.UtcNow;
                                     task.LastNonSuccessEndUtc = null;

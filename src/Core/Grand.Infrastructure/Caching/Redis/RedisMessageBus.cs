@@ -38,8 +38,8 @@ public sealed class RedisMessageBus : IMessageBus, IHostedService, IDisposable
         _connection.ConnectionFailed += OnConnectionFailed;
         _connection.ConnectionRestored += OnConnectionRestored;
 
-        //keep the subscription attempt off the startup path (Redis may be unreachable);
-        //the loop is tracked so it can be cancelled and awaited on shutdown
+        //keep the subscription attempt off the startup path since Redis may be unreachable,
+        //and track the loop so it can be cancelled and awaited on shutdown
         _subscribeLoop = SubscribeWithRetryAsync(_cts.Token);
         return Task.CompletedTask;
     }
