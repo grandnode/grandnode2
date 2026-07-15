@@ -64,9 +64,10 @@ public sealed class RedisMessageBus : IMessageBus, IHostedService, IDisposable
         {
             var receivers =
                 await _subscriber.PublishAsync(RedisChannel.Literal(_redisConfig.RedisPubSubChannel), message);
-            _logger.LogDebug(
-                "Published cache invalidation message (type: {MessageType}, key: {Key}), delivered to {Receivers} subscriber(s)",
-                (MessageEventType)msg.MessageType, msg.Key, receivers);
+            if (_logger.IsEnabled(LogLevel.Debug))
+                _logger.LogDebug(
+                    "Published cache invalidation message (type: {MessageType}, key: {Key}), delivered to {Receivers} subscriber(s)",
+                    (MessageEventType)msg.MessageType, msg.Key, receivers);
         }
         catch (Exception ex)
         {
@@ -118,8 +119,9 @@ public sealed class RedisMessageBus : IMessageBus, IHostedService, IDisposable
             try
             {
                 await SubscribeAsync();
-                _logger.LogInformation("Subscribed to Redis pub/sub channel {Channel}",
-                    _redisConfig.RedisPubSubChannel);
+                if (_logger.IsEnabled(LogLevel.Information))
+                    _logger.LogInformation("Subscribed to Redis pub/sub channel {Channel}",
+                        _redisConfig.RedisPubSubChannel);
                 return;
             }
             catch (Exception ex)
@@ -148,9 +150,10 @@ public sealed class RedisMessageBus : IMessageBus, IHostedService, IDisposable
             var message = JsonSerializer.Deserialize<MessageEventClient>(redisValue.ToString());
             if (message != null && message.ClientId != ClientId)
             {
-                _logger.LogDebug(
-                    "Received cache invalidation message (type: {MessageType}, key: {Key}) from client {ClientId}",
-                    (MessageEventType)message.MessageType, message.Key, message.ClientId);
+                if (_logger.IsEnabled(LogLevel.Debug))
+                    _logger.LogDebug(
+                        "Received cache invalidation message (type: {MessageType}, key: {Key}) from client {ClientId}",
+                        (MessageEventType)message.MessageType, message.Key, message.ClientId);
                 OnSubscriptionChanged(message);
             }
         }

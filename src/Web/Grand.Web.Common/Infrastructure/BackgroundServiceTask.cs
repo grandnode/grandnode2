@@ -104,7 +104,8 @@ public class BackgroundServiceTask : BackgroundService
                             else
                             {
                                 //another instance executes this run - check again on the next interval
-                                logger.LogDebug("Task {TaskName} claimed by another instance, skipping", Name);
+                                if (logger.IsEnabled(LogLevel.Debug))
+                                    logger.LogDebug("Task {TaskName} claimed by another instance, skipping", Name);
                             }
                         }
                     }
