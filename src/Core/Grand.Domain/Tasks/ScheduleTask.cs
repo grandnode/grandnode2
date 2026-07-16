@@ -10,6 +10,7 @@ public class ScheduleTask : BaseEntity
     public DateTime? LastSuccessUtc { get; set; }
     public string LeasedByMachineName { get; set; }
     public DateTime? LeasedUntilUtc { get; set; }
+    public string LeasedByInstance { get; set; }
     public int TimeInterval { get; set; }
     public string StoreId { get; set; }
 }
