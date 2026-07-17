@@ -8,6 +8,7 @@ using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace Grand.Web.Store.Controllers;
 
@@ -59,18 +60,13 @@ public class OnlineCustomerController : BaseStoreController
             DateTime.UtcNow.AddMinutes(-_customerSettings.OnlineCustomerMinutes),
             null, _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId, null, command.Page - 1,
             command.PageSize);
-        var items = new List<OnlineCustomerModel>();
-        foreach (var x in customers)
-        {
-            var item = new OnlineCustomerModel {
-                Id = x.Id,
-                CustomerInfo = !string.IsNullOrEmpty(x.Email) ? x.Email : _translationService.GetResource("Admin.Customers.Guest"),
-                LastIpAddress = x.LastIpAddress,
-                LastActivityDate = _dateTimeService.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
-                LastVisitedPage = _customerSettings.StoreLastVisitedPage ? x.LastVisitedPage : _translationService.GetResource("Admin.Dashboards.OnlineCustomers.Fields.LastVisitedPage.Disabled")
-            };
-            items.Add(item);
-        }
+        var items = customers.Select(x => new OnlineCustomerModel {
+            Id = x.Id,
+            CustomerInfo = !string.IsNullOrEmpty(x.Email) ? x.Email : _translationService.GetResource("Admin.Customers.Guest"),
+            LastIpAddress = x.LastIpAddress,
+            LastActivityDate = _dateTimeService.ConvertToUserTime(x.LastActivityDateUtc, DateTimeKind.Utc),
+            LastVisitedPage = _customerSettings.StoreLastVisitedPage ? x.LastVisitedPage : _translationService.GetResource("Admin.Dashboards.OnlineCustomers.Fields.LastVisitedPage.Disabled")
+        }).ToList();
 
         var gridModel = new DataSourceResult {
             Data = items,
