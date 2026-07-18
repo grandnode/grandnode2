@@ -95,7 +95,7 @@ public static partial class StandardPermission
     };
 
     public static readonly Permission ManageContactAttribute = new() {
-        Name = "Manage Contact Attribute",
+        Name = "Manage Contact Attributes",
         SystemName = PermissionSystemName.ContactAttributes,
         Area = "Admin area",
         Category = CategoryCatalog,

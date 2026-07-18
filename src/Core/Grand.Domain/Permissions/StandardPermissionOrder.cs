@@ -26,7 +26,7 @@ public static partial class StandardPermission
     };
 
     public static readonly Permission ManageOrderStatus = new() {
-        Name = "Manage Order status",
+        Name = "Manage Order Status",
         SystemName = PermissionSystemName.OrderStatus,
         Area = "Admin area",
         Category = CategoryOrder
@@ -44,7 +44,7 @@ public static partial class StandardPermission
     };
 
     public static readonly Permission ManageGiftVouchers = new() {
-        Name = "Manage Gift vouchers",
+        Name = "Manage Gift Vouchers",
         SystemName = PermissionSystemName.GiftVouchers,
         Area = "Admin area",
         Category = CategoryOrder,
@@ -66,7 +66,7 @@ public static partial class StandardPermission
     };
 
     public static readonly Permission ManagePaymentTransactions = new() {
-        Name = "Manage Payment Transaction",
+        Name = "Manage Payment Transactions",
         SystemName = PermissionSystemName.PaymentTransactions,
         Area = "Admin area",
         Category = CategoryOrder,
