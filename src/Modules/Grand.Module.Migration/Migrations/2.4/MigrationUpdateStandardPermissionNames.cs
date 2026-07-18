@@ -61,10 +61,8 @@ public class MigrationUpdateStandardPermissionNames : IMigration
                     .Where(x => candidateKeys.Contains(x.Name))
                     .ToList();
 
-                foreach (var translation in translations)
+                foreach (var translation in translations.Where(x => x.Value != standard.Name))
                 {
-                    if (translation.Value == standard.Name) continue;
-
                     translation.Value = standard.Name;
                     translationRepository.Update(translation);
                 }
