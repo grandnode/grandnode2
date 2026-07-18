@@ -67,7 +67,12 @@ public class MigrationUpdateStandardPermissionNames : IMigration
                     translationRepository.Update(translation);
                 }
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
+            {
+                logService.LogError(ex, "UpgradeProcess - MigrationUpdateStandardPermissionNames ({SystemName})",
+                    standard.SystemName);
+            }
+            catch (SystemException ex)
             {
                 logService.LogError(ex, "UpgradeProcess - MigrationUpdateStandardPermissionNames ({SystemName})",
                     standard.SystemName);
