@@ -138,7 +138,6 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     public virtual async Task<IActionResult> MerchandiseReturn(MerchandiseReturnModel model)
     {
         var order = await _orderService.GetOrderById(model.OrderId);

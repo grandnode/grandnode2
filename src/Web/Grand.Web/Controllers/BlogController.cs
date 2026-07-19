@@ -130,7 +130,6 @@ public class BlogController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<ActionResult<AddBlogCommentModel>> BlogPost(AddBlogCommentModel model,
         [FromServices] IAclService aclService)

@@ -59,7 +59,6 @@ public class ContactController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [ClosedStore(true)]
     [DenySystemAccount]
     public virtual async Task<ActionResult<ContactUsModel>> Index(

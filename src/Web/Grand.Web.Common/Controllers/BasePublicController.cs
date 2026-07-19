@@ -8,6 +8,7 @@ namespace Grand.Web.Common.Controllers;
 [ClosedStore]
 [Language]
 [Affiliate]
+[AutoValidateAntiforgeryToken]
 [SharedKernel.Attributes.ApiController]
 public abstract class BasePublicController : BaseController
 {

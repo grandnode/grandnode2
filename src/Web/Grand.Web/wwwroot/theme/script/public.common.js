@@ -12,6 +12,28 @@ function addAntiForgeryToken(data) {
     return data;
 };
 
+//attach the CSRF token as a header to every AJAX request (axios and jQuery),
+//so requests are covered regardless of body type (json/form/FormData)
+(function () {
+    var tokenInput = document.querySelector('input[name=__RequestVerificationToken]');
+    if (!tokenInput) {
+        return;
+    }
+    var token = tokenInput.value;
+
+    if (typeof axios !== 'undefined') {
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+    }
+
+    if (typeof $ !== 'undefined' && typeof $.ajaxSetup === 'function') {
+        $.ajaxSetup({
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-CSRF-TOKEN', token);
+            }
+        });
+    }
+})();
+
 // runs an array of async functions in sequential order
 function seq(arr, callback, index) {
     // first call, without an index
