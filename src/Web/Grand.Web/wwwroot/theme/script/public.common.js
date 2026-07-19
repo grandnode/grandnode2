@@ -15,11 +15,11 @@ function addAntiForgeryToken(data) {
 //attach the CSRF token as a header to every AJAX request (axios and jQuery),
 //so requests are covered regardless of body type (json/form/FormData)
 (function () {
-    var tokenInput = document.querySelector('input[name=__RequestVerificationToken]');
+    const tokenInput = document.querySelector('input[name=__RequestVerificationToken]');
     if (!tokenInput) {
         return;
     }
-    var token = tokenInput.value;
+    const token = tokenInput.value;
 
     if (typeof axios !== 'undefined') {
         axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
