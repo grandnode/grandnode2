@@ -19,6 +19,7 @@
     @await RenderSectionAsync("head", false)
 </head>
 <body>
+@Html.AntiForgeryToken()
 <resources asp-type="ScriptHeader"/>
 @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
 
