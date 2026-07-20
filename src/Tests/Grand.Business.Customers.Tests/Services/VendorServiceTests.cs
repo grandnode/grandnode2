@@ -8,6 +8,7 @@ using Grand.Infrastructure.Tests.Caching;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Linq.Expressions;
 
 namespace Grand.Business.Customers.Tests.Services;
 
@@ -108,7 +109,7 @@ public class VendorServiceTests
     public async Task InsertVendorNote_ValidArguments_InvokeRepositoryAndPublishEvent()
     {
         await _vendorService.InsertVendorNote(new VendorNote(), "1");
-        _repoMock.Verify(c => c.AddToSet(It.IsAny<string>(), x => x.VendorNotes, It.IsAny<VendorNote>()), Times.Once);
+        _repoMock.Verify(c => c.AddToCollectionField(It.IsAny<string>(), x => x.VendorNotes, It.IsAny<VendorNote>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<VendorNote>>(), default), Times.Once);
     }
 
@@ -116,7 +117,7 @@ public class VendorServiceTests
     public async Task DeleteVendorNote_ValidArguments_SoftDeleteAndPublishEvent()
     {
         await _vendorService.DeleteVendorNote(new VendorNote(), "1");
-        _repoMock.Verify(c => c.PullFilter(It.IsAny<string>(), x => x.VendorNotes, x => x.Id, It.IsAny<string>()),
+        _repoMock.Verify(c => c.RemoveCollectionFieldItem(It.IsAny<string>(), x => x.VendorNotes, It.IsAny<Expression<Func<VendorNote, bool>>>()),
             Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<VendorNote>>(), default), Times.Once);
     }

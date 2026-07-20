@@ -665,7 +665,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(relatedProduct);
 
-        await _productRepository.AddToSet(productId, x => x.RelatedProducts, relatedProduct);
+        await _productRepository.AddToCollectionField(productId, x => x.RelatedProducts, relatedProduct);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -683,7 +683,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(relatedProduct);
 
-        await _productRepository.PullFilter(productId, x => x.RelatedProducts, z => z.Id, relatedProduct.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.RelatedProducts, z => z.Id == relatedProduct.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -701,8 +701,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(relatedProduct);
 
-        await _productRepository.UpdateToSet(productId, x => x.RelatedProducts, z => z.Id, relatedProduct.Id,
-            relatedProduct);
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.RelatedProducts, z => z.Id == relatedProduct.Id, relatedProduct);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -719,7 +718,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(similarProduct);
 
-        await _productRepository.AddToSet(similarProduct.ProductId1, x => x.SimilarProducts, similarProduct);
+        await _productRepository.AddToCollectionField(similarProduct.ProductId1, x => x.SimilarProducts, similarProduct);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, similarProduct.ProductId1));
@@ -736,8 +735,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(similarProduct);
 
-        await _productRepository.UpdateToSet(similarProduct.ProductId1, x => x.SimilarProducts, z => z.Id,
-            similarProduct.Id, similarProduct);
+        await _productRepository.UpdateCollectionFieldItem(similarProduct.ProductId1, x => x.SimilarProducts, z => z.Id == similarProduct.Id, similarProduct);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, similarProduct.ProductId1));
@@ -754,8 +752,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(similarProduct);
 
-        await _productRepository.PullFilter(similarProduct.ProductId1, x => x.SimilarProducts, z => z.Id,
-            similarProduct.Id);
+        await _productRepository.RemoveCollectionFieldItem(similarProduct.ProductId1, x => x.SimilarProducts, z => z.Id == similarProduct.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, similarProduct.ProductId1));
@@ -777,7 +774,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(bundleProduct);
 
-        await _productRepository.AddToSet(productBundleId, x => x.BundleProducts, bundleProduct);
+        await _productRepository.AddToCollectionField(productBundleId, x => x.BundleProducts, bundleProduct);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productBundleId));
@@ -795,8 +792,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(bundleProduct);
 
-        await _productRepository.UpdateToSet(productBundleId, x => x.BundleProducts, z => z.Id, bundleProduct.Id,
-            bundleProduct);
+        await _productRepository.UpdateCollectionFieldItem(productBundleId, x => x.BundleProducts, z => z.Id == bundleProduct.Id, bundleProduct);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productBundleId));
@@ -814,7 +810,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(bundleProduct);
 
-        await _productRepository.PullFilter(productBundleId, x => x.BundleProducts, z => z.Id, bundleProduct.Id);
+        await _productRepository.RemoveCollectionFieldItem(productBundleId, x => x.BundleProducts, z => z.Id == bundleProduct.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productBundleId));
@@ -835,7 +831,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(crossSellProduct);
 
-        await _productRepository.AddToSet(crossSellProduct.ProductId1, x => x.CrossSellProduct,
+        await _productRepository.AddToCollectionField(crossSellProduct.ProductId1, x => x.CrossSellProduct,
             crossSellProduct.ProductId2);
 
         //cache
@@ -853,7 +849,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(crossSellProduct);
 
-        await _productRepository.Pull(crossSellProduct.ProductId1, x => x.CrossSellProduct,
+        await _productRepository.RemoveCollectionFieldValue(crossSellProduct.ProductId1, x => x.CrossSellProduct,
             crossSellProduct.ProductId2);
 
         //cache
@@ -929,7 +925,7 @@ public class ProductService : IProductService
         ArgumentNullException.ThrowIfNull(productId);
         ArgumentNullException.ThrowIfNull(recommendedProductId);
 
-        await _productRepository.AddToSet(productId, x => x.RecommendedProduct, recommendedProductId);
+        await _productRepository.AddToCollectionField(productId, x => x.RecommendedProduct, recommendedProductId);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -945,7 +941,7 @@ public class ProductService : IProductService
         ArgumentNullException.ThrowIfNull(productId);
         ArgumentNullException.ThrowIfNull(recommendedProductId);
 
-        await _productRepository.Pull(productId, x => x.RecommendedProduct, recommendedProductId);
+        await _productRepository.RemoveCollectionFieldValue(productId, x => x.RecommendedProduct, recommendedProductId);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -964,7 +960,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(tierPrice);
 
-        await _productRepository.AddToSet(productId, x => x.TierPrices, tierPrice);
+        await _productRepository.AddToCollectionField(productId, x => x.TierPrices, tierPrice);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -982,7 +978,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(tierPrice);
 
-        await _productRepository.UpdateToSet(productId, x => x.TierPrices, z => z.Id, tierPrice.Id, tierPrice);
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.TierPrices, z => z.Id == tierPrice.Id, tierPrice);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1000,7 +996,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(tierPrice);
 
-        await _productRepository.PullFilter(productId, x => x.TierPrices, x => x.Id, tierPrice.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.TierPrices, x => x.Id == tierPrice.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1021,7 +1017,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(productPrice);
 
-        await _productRepository.AddToSet(productPrice.ProductId, x => x.ProductPrices, productPrice);
+        await _productRepository.AddToCollectionField(productPrice.ProductId, x => x.ProductPrices, productPrice);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productPrice.ProductId));
@@ -1038,8 +1034,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(productPrice);
 
-        await _productRepository.UpdateToSet(productPrice.ProductId, x => x.ProductPrices, z => z.Id, productPrice.Id,
-            productPrice);
+        await _productRepository.UpdateCollectionFieldItem(productPrice.ProductId, x => x.ProductPrices, z => z.Id == productPrice.Id, productPrice);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productPrice.ProductId));
@@ -1056,7 +1051,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(productPrice);
 
-        await _productRepository.PullFilter(productPrice.ProductId, x => x.ProductPrices, x => x.Id, productPrice.Id);
+        await _productRepository.RemoveCollectionFieldItem(productPrice.ProductId, x => x.ProductPrices, x => x.Id == productPrice.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productPrice.ProductId));
@@ -1078,7 +1073,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(productPicture);
 
-        await _productRepository.AddToSet(productId, x => x.ProductPictures, productPicture);
+        await _productRepository.AddToCollectionField(productId, x => x.ProductPictures, productPicture);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1096,8 +1091,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(productPicture);
 
-        await _productRepository.UpdateToSet(productId, x => x.ProductPictures, z => z.Id, productPicture.Id,
-            productPicture);
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductPictures, z => z.Id == productPicture.Id, productPicture);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1115,7 +1109,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(productPicture);
 
-        await _productRepository.PullFilter(productId, x => x.ProductPictures, x => x.Id, productPicture.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductPictures, x => x.Id == productPicture.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1138,7 +1132,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(pwi);
 
-        await _productRepository.AddToSet(productId, x => x.ProductWarehouseInventory, pwi);
+        await _productRepository.AddToCollectionField(productId, x => x.ProductWarehouseInventory, pwi);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1157,7 +1151,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(pwi);
 
-        await _productRepository.UpdateToSet(productId, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductWarehouseInventory, z => z.Id == pwi.Id, pwi);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1174,7 +1168,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(pwi);
 
-        await _productRepository.PullFilter(productId, x => x.ProductWarehouseInventory, x => x.Id, pwi.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductWarehouseInventory, x => x.Id == pwi.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1189,7 +1183,7 @@ public class ProductService : IProductService
         ArgumentNullException.ThrowIfNullOrEmpty(discountId);
         ArgumentNullException.ThrowIfNullOrEmpty(productId);
 
-        await _productRepository.Pull(productId, x => x.AppliedDiscounts, discountId);
+        await _productRepository.RemoveCollectionFieldValue(productId, x => x.AppliedDiscounts, discountId);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1200,7 +1194,7 @@ public class ProductService : IProductService
         if (string.IsNullOrEmpty(discountId))
             throw new ArgumentNullException(nameof(discountId));
 
-        await _productRepository.AddToSet(productId, x => x.AppliedDiscounts, discountId);
+        await _productRepository.AddToCollectionField(productId, x => x.AppliedDiscounts, discountId);
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
     }

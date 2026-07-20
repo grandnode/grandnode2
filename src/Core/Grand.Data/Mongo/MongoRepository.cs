@@ -213,7 +213,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <param name="field"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public virtual async Task AddToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value)
+    public virtual async Task AddToCollectionField<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value)
     {
         var builder = Builders<T>.Filter;
         var filter = builder.Eq(x => x.Id, id);
@@ -229,37 +229,11 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     ///     Update subdocument
     /// </summary>
     /// <typeparam name="U">Document</typeparam>
-    /// <typeparam name="Z">Subdocuments</typeparam>
     /// <param name="id">Ident of entitie</param>
     /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
-    /// <param name="elemMatch">Subdocument ident value</param>
+    /// <param name="elemFieldMatch">Subdocument predicate to match</param>
     /// <param name="value">Subdocument - to update (all values)</param>
-    public virtual async Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field,
-        Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value)
-    {
-        var filter = Builders<T>.Filter.Eq(x => x.Id, id)
-                     & Builders<T>.Filter.ElemMatch(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
-
-        var me = (MemberExpression)field.Body;
-        var minfo = me.Member;
-        var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-
-        await Collection.UpdateOneAsync(filter, combinedUpdate);
-    }
-
-    /// <summary>
-    ///     Update subdocument
-    /// </summary>
-    /// <typeparam name="U">Document</typeparam>
-    /// <param name="id">Ident of entitie</param>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
-    /// <param name="value">Subdocument - to update (all values)</param>
-    public virtual async Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
+    public virtual async Task UpdateCollectionFieldItem<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
         Expression<Func<U, bool>> elemFieldMatch, U value)
     {
         var filter = string.IsNullOrEmpty(id)
@@ -281,49 +255,20 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     }
 
     /// <summary>
-    ///     Update subdocuments
-    /// </summary>
-    /// <typeparam name="T">Document</typeparam>
-    /// <typeparam name="U"></typeparam>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
-    /// <param name="value">Subdocument - to update (all values)</param>
-    /// <returns></returns>
-    public virtual async Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value)
-    {
-        var me = (MemberExpression)field.Body;
-        var minfo = me.Member;
-
-        var filter = new BsonDocument {
-            new BsonElement(minfo.Name, elemFieldMatch.ToString())
-        };
-
-        var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
-
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-
-        await Collection.UpdateManyAsync(filter, combinedUpdate);
-    }
-
-    /// <summary>
     ///     Delete subdocument
     /// </summary>
     /// <typeparam name="U"></typeparam>
-    /// <typeparam name="Z"></typeparam>
     /// <param name="id"></param>
     /// <param name="field"></param>
     /// <param name="elemFieldMatch"></param>
-    /// <param name="elemMatch"></param>
     /// <returns></returns>
-    public virtual async Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field,
-        Expression<Func<U, Z>> elemFieldMatch, Z elemMatch)
+    public virtual async Task RemoveCollectionFieldItem<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
+        Expression<Func<U, bool>> elemFieldMatch)
     {
         var filter = string.IsNullOrEmpty(id)
             ? Builders<T>.Filter.Where(x => true)
             : Builders<T>.Filter.Eq(x => x.Id, id);
-        var update = Builders<T>.Update.PullFilter(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
+        var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
 
         var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
         var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
@@ -338,32 +283,11 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Delete subdocument
     /// </summary>
-    /// <typeparam name="U"></typeparam>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch"></param>
-    /// <returns></returns>
-    public virtual async Task PullFilter<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
-        Expression<Func<U, bool>> elemFieldMatch)
-    {
-        var filter = Builders<T>.Filter.Eq(x => x.Id, id);
-        var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
-
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-
-        await Collection.UpdateOneAsync(filter, combinedUpdate);
-    }
-
-    /// <summary>
-    ///     Delete subdocument
-    /// </summary>
     /// <param name="id"></param>
     /// <param name="field"></param>
     /// <param name="element"></param>
     /// <returns></returns>
-    public virtual async Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
+    public virtual async Task RemoveCollectionFieldValue(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
     {
         var update = Builders<T>.Update.Pull(field, element);
 

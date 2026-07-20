@@ -109,11 +109,11 @@ public class LiteDbRepositoryTests
         var product = new SampleCollection { Id = "1" };
         await myRepository.InsertAsync(product);
 
-        await myRepository.AddToSet("1", x => x.UserFields,
+        await myRepository.AddToCollectionField("1", x => x.UserFields,
             new UserField { Key = "key", Value = "value", StoreId = "" });
 
         //Act
-        await myRepository.AddToSet("1", x => x.UserFields,
+        await myRepository.AddToCollectionField("1", x => x.UserFields,
             new UserField { Key = "key2", Value = "value2", StoreId = "" });
         var p = myRepository.GetById("1");
 
@@ -183,7 +183,7 @@ public class LiteDbRepositoryTests
         };
         products.ForEach(x => myRepository.Insert(x));
         //Act
-        await myRepository.Pull("1", x => x.Phones, "Phone2");
+        await myRepository.RemoveCollectionFieldValue("1", x => x.Phones, "Phone2");
         var p = myRepository.GetById("1");
 
         //Assert
@@ -211,7 +211,7 @@ public class LiteDbRepositoryTests
         products.ForEach(x => myRepository.Insert(x));
 
         //Act
-        await myRepository.Pull(string.Empty, x => x.Phones, "Phone2");
+        await myRepository.RemoveCollectionFieldValue(string.Empty, x => x.Phones, "Phone2");
 
         var p1 = myRepository.GetById("1");
         var p2 = myRepository.GetById("2");
@@ -244,7 +244,7 @@ public class LiteDbRepositoryTests
         };
         products.ForEach(x => myRepository.Insert(x));
         //Act
-        await myRepository.PullFilter("1", x => x.UserFields, x => x.Value == "value");
+        await myRepository.RemoveCollectionFieldItem("1", x => x.UserFields, x => x.Value == "value");
 
         var p1 = myRepository.GetById("1");
 
@@ -274,7 +274,7 @@ public class LiteDbRepositoryTests
         products.ForEach(x => myRepository.Insert(x));
 
         //Act
-        await myRepository.PullFilter("1", x => x.UserFields, x => x.Value, "value");
+        await myRepository.RemoveCollectionFieldItem("1", x => x.UserFields, x => x.Value == "value");
 
         var p1 = myRepository.GetById("1");
 
@@ -311,7 +311,7 @@ public class LiteDbRepositoryTests
         products.ForEach(x => myRepository.Insert(x));
 
         //Act
-        await myRepository.PullFilter(string.Empty, x => x.UserFields, x => x.Value, "value");
+        await myRepository.RemoveCollectionFieldItem(string.Empty, x => x.UserFields, x => x.Value == "value");
 
         var p1 = myRepository.GetById("1");
         var p2 = myRepository.GetById("2");
@@ -514,8 +514,7 @@ public class LiteDbRepositoryTests
         products.ForEach(x => myRepository.Insert(x));
 
         //Act
-        await myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key",
-            new UserField { Key = "key", Value = "update", StoreId = "1" });
+        await myRepository.UpdateCollectionFieldItem("1", x => x.UserFields, z => z.Key == "key", new UserField { Key = "key", Value = "update", StoreId = "1" });
         var p = myRepository.GetById("1");
 
         //Assert
@@ -543,7 +542,7 @@ public class LiteDbRepositoryTests
         };
         products.ForEach(x => myRepository.Insert(x));
         //Act
-        await myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key == "key",
+        await myRepository.UpdateCollectionFieldItem("1", x => x.UserFields, z => z.Key == "key",
             new UserField { Key = "key", Value = "update", StoreId = "1" });
 
         var p = myRepository.GetById("1");

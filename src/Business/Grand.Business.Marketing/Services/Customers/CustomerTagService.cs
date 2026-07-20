@@ -57,7 +57,7 @@ public class CustomerTagService : ICustomerTagService
         ArgumentNullException.ThrowIfNull(customerTag);
 
         //update customer
-        await _customerRepository.Pull(string.Empty, x => x.CustomerTags, customerTag.Id);
+        await _customerRepository.RemoveCollectionFieldValue(string.Empty, x => x.CustomerTags, customerTag.Id);
 
         //delete
         await _customerTagRepository.DeleteAsync(customerTag);
@@ -131,7 +131,7 @@ public class CustomerTagService : ICustomerTagService
     /// </summary>
     public virtual async Task InsertTagToCustomer(string customerTagId, string customerId)
     {
-        await _customerRepository.AddToSet(customerId, x => x.CustomerTags, customerTagId);
+        await _customerRepository.AddToCollectionField(customerId, x => x.CustomerTags, customerTagId);
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ public class CustomerTagService : ICustomerTagService
     /// </summary>
     public virtual async Task DeleteTagFromCustomer(string customerTagId, string customerId)
     {
-        await _customerRepository.Pull(customerId, x => x.CustomerTags, customerTagId);
+        await _customerRepository.RemoveCollectionFieldValue(customerId, x => x.CustomerTags, customerTagId);
     }
 
     /// <summary>

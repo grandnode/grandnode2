@@ -39,31 +39,31 @@ public class DiscountDeletedEventHandler : INotificationHandler<EntityDeleted<Di
         {
             case DiscountType.AssignedToSkus:
                 //delete on the product
-                await _productRepository.Pull(string.Empty, x => x.AppliedDiscounts, discount.Id);
+                await _productRepository.RemoveCollectionFieldValue(string.Empty, x => x.AppliedDiscounts, discount.Id);
 
                 await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
                 break;
             case DiscountType.AssignedToCategories:
                 //delete on the category
-                await _categoryRepository.Pull(string.Empty, x => x.AppliedDiscounts, discount.Id);
+                await _categoryRepository.RemoveCollectionFieldValue(string.Empty, x => x.AppliedDiscounts, discount.Id);
                 //clear cache
                 await _cacheBase.RemoveByPrefix(CacheKey.CATEGORIES_PATTERN_KEY);
                 break;
             case DiscountType.AssignedToBrands:
                 //delete on the brand
-                await _brandRepository.Pull(string.Empty, x => x.AppliedDiscounts, discount.Id);
+                await _brandRepository.RemoveCollectionFieldValue(string.Empty, x => x.AppliedDiscounts, discount.Id);
                 //clear cache
                 await _cacheBase.RemoveByPrefix(CacheKey.BRANDS_PATTERN_KEY);
                 break;
             case DiscountType.AssignedToCollections:
                 //delete on the collection
-                await _collectionRepository.Pull(string.Empty, x => x.AppliedDiscounts, discount.Id);
+                await _collectionRepository.RemoveCollectionFieldValue(string.Empty, x => x.AppliedDiscounts, discount.Id);
                 //clear cache
                 await _cacheBase.RemoveByPrefix(CacheKey.COLLECTIONS_PATTERN_KEY);
                 break;
             case DiscountType.AssignedToVendors:
                 //delete on the vendor
-                await _vendorRepository.Pull(string.Empty, x => x.AppliedDiscounts, discount.Id);
+                await _vendorRepository.RemoveCollectionFieldValue(string.Empty, x => x.AppliedDiscounts, discount.Id);
                 //clear cache
                 await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
                 break;

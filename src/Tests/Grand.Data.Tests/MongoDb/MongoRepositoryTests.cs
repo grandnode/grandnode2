@@ -90,11 +90,11 @@ public class MongoRepositoryTests
         var product = new SampleCollection { Id = "1" };
         await _myRepository.InsertAsync(product);
 
-        await _myRepository.AddToSet("1", x => x.UserFields,
+        await _myRepository.AddToCollectionField("1", x => x.UserFields,
             new UserField { Key = "key", Value = "value", StoreId = "" });
 
         //Act
-        await _myRepository.AddToSet("1", x => x.UserFields,
+        await _myRepository.AddToCollectionField("1", x => x.UserFields,
             new UserField { Key = "key2", Value = "value2", StoreId = "" });
 
         var p = _myRepository.GetById("1");
@@ -173,7 +173,7 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.Pull("1", x => x.Phones, "Phone2");
+        await _myRepository.RemoveCollectionFieldValue("1", x => x.Phones, "Phone2");
 
         var p = _myRepository.GetById("1");
 
@@ -203,7 +203,7 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.Pull(string.Empty, x => x.Phones, "Phone2");
+        await _myRepository.RemoveCollectionFieldValue(string.Empty, x => x.Phones, "Phone2");
 
         var p1 = _myRepository.GetById("1");
         var p2 = _myRepository.GetById("2");
@@ -238,7 +238,7 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.PullFilter("1", x => x.UserFields, x => x.Value == "value");
+        await _myRepository.RemoveCollectionFieldItem("1", x => x.UserFields, x => x.Value == "value");
 
         var p1 = _myRepository.GetById("1");
 
@@ -269,7 +269,7 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.PullFilter("1", x => x.UserFields, x => x.Value, "value");
+        await _myRepository.RemoveCollectionFieldItem("1", x => x.UserFields, x => x.Value == "value");
 
         var p1 = _myRepository.GetById("1");
 
@@ -307,7 +307,7 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.PullFilter(string.Empty, x => x.UserFields, x => x.Value, "value");
+        await _myRepository.RemoveCollectionFieldItem(string.Empty, x => x.UserFields, x => x.Value == "value");
 
         var p1 = _myRepository.GetById("1");
         var p2 = _myRepository.GetById("2");
@@ -502,8 +502,7 @@ public class MongoRepositoryTests
         };
         products.ForEach(x => _myRepository.Insert(x));
         //Act
-        await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key, "key",
-            new UserField { Key = "key", Value = "update", StoreId = "1" });
+        await _myRepository.UpdateCollectionFieldItem("1", x => x.UserFields, z => z.Key == "key", new UserField { Key = "key", Value = "update", StoreId = "1" });
         var p = _myRepository.GetById("1");
 
         //Assert

@@ -145,8 +145,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
         ArgumentNullException.ThrowIfNull(specificationAttribute);
 
         //delete from all product collections
-        await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes,
-            z => z.SpecificationAttributeId, specificationAttribute.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeId == specificationAttribute.Id);
 
         await _specificationAttributeRepository.DeleteAsync(specificationAttribute);
 
@@ -193,8 +192,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
         ArgumentNullException.ThrowIfNull(specificationAttributeOption);
 
         //delete from all product collections
-        await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes,
-            z => z.SpecificationAttributeOptionId, specificationAttributeOption.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeOptionId == specificationAttributeOption.Id);
 
         var specificationAttribute = await GetSpecificationAttributeByOptionId(specificationAttributeOption.Id);
         var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x =>
@@ -227,7 +225,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
     {
         ArgumentNullException.ThrowIfNull(productSpecificationAttribute);
 
-        await _productRepository.AddToSet(productId, x => x.ProductSpecificationAttributes,
+        await _productRepository.AddToCollectionField(productId, x => x.ProductSpecificationAttributes,
             productSpecificationAttribute);
 
         //cache
@@ -247,8 +245,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
     {
         ArgumentNullException.ThrowIfNull(productSpecificationAttribute);
 
-        await _productRepository.UpdateToSet(productId, x => x.ProductSpecificationAttributes, z => z.Id,
-            productSpecificationAttribute.Id, productSpecificationAttribute);
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductSpecificationAttributes, z => z.Id == productSpecificationAttribute.Id, productSpecificationAttribute);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -267,8 +264,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
     {
         ArgumentNullException.ThrowIfNull(productSpecificationAttribute);
 
-        await _productRepository.PullFilter(productId, x => x.ProductSpecificationAttributes, x => x.Id,
-            productSpecificationAttribute.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductSpecificationAttributes, x => x.Id == productSpecificationAttribute.Id);
 
         //clear cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));

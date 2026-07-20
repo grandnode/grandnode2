@@ -39,25 +39,25 @@ public class ProductDeletedEventHandler : INotificationHandler<EntityDeleted<Pro
     public async Task Handle(EntityDeleted<Product> notification, CancellationToken cancellationToken)
     {
         //delete related product
-        await _productRepository.PullFilter(string.Empty, x => x.RelatedProducts, z => z.ProductId2,
-            notification.Entity.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.RelatedProducts,
+            z => z.ProductId2 == notification.Entity.Id);
 
         //delete similar product
-        await _productRepository.PullFilter(string.Empty, x => x.SimilarProducts, z => z.ProductId2,
-            notification.Entity.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.SimilarProducts,
+            z => z.ProductId2 == notification.Entity.Id);
 
         //delete cross sales product
-        await _productRepository.Pull(string.Empty, x => x.CrossSellProduct, notification.Entity.Id);
+        await _productRepository.RemoveCollectionFieldValue(string.Empty, x => x.CrossSellProduct, notification.Entity.Id);
 
         //delete recommended product
-        await _productRepository.Pull(string.Empty, x => x.RecommendedProduct, notification.Entity.Id);
+        await _productRepository.RemoveCollectionFieldValue(string.Empty, x => x.RecommendedProduct, notification.Entity.Id);
 
         //delete review
         await _productReviewRepository.DeleteManyAsync(x => x.ProductId == notification.Entity.Id);
 
         //delete from shopping cart
-        await _customerRepository.PullFilter(string.Empty, x => x.ShoppingCartItems, z => z.ProductId,
-            notification.Entity.Id);
+        await _customerRepository.RemoveCollectionFieldItem(string.Empty, x => x.ShoppingCartItems,
+            z => z.ProductId == notification.Entity.Id);
 
         //delete customer group product
         await _customerGroupProductRepository.DeleteManyAsync(x => x.ProductId == notification.Entity.Id);

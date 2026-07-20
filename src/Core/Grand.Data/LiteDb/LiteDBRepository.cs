@@ -241,7 +241,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <param name="field"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public virtual Task AddToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value)
+    public virtual Task AddToCollectionField<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value)
     {
         var collection = Database.GetCollection(Collection.Name);
         var entity = collection.FindById(new BsonValue(id));
@@ -265,49 +265,11 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     ///     Update subdocument
     /// </summary>
     /// <typeparam name="U">Document</typeparam>
-    /// <typeparam name="Z">Subdocuments</typeparam>
     /// <param name="id">Ident of entitie</param>
     /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
-    /// <param name="elemMatch">Subdocument ident value</param>
+    /// <param name="elemFieldMatch">Subdocument predicate to match</param>
     /// <param name="value">Subdocument - to update (all values)</param>
-    public virtual Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field,
-        Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value)
-    {
-        var collection = Database.GetCollection(Collection.Name);
-        var entity = collection.FindById(new BsonValue(id));
-        var fieldName = ((MemberExpression)field.Body).Member.Name;
-
-        var member = ((MemberExpression)elemFieldMatch.Body).Member;
-        var dBFieldName = member.GetCustomAttribute<DBFieldNameAttribute>();
-        var elementfieldName = dBFieldName?.Name ?? member.Name;
-
-        if (entity[fieldName].IsArray)
-        {
-            var bsonValue = BsonMapper.Global.Serialize(value);
-            var list = entity[fieldName].AsArray.ToList();
-            var document = list.FirstOrDefault(x => x[elementfieldName] == new BsonValue(elemMatch));
-            if (document == null) return Task.CompletedTask;
-
-            foreach (var key in bsonValue.AsDocument.Keys) document[key] = bsonValue[key];
-            entity[fieldName] = new BsonArray(list);
-            entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
-            entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
-            collection.Update(entity);
-        }
-
-        return Task.CompletedTask;
-    }
-
-    /// <summary>
-    ///     Update subdocument
-    /// </summary>
-    /// <typeparam name="U">Document</typeparam>
-    /// <param name="id">Ident of entitie</param>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
-    /// <param name="value">Subdocument - to update (all values)</param>
-    public virtual Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
+    public virtual Task UpdateCollectionFieldItem<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
         Expression<Func<U, bool>> elemFieldMatch, U value)
     {
         var collection = Database.GetCollection(Collection.Name);
@@ -342,116 +304,40 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     }
 
     /// <summary>
-    ///     Update subdocuments
-    /// </summary>
-    /// <typeparam name="T">Document</typeparam>
-    /// <typeparam name="U"></typeparam>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch">Subdocument field to match</param>
-    /// <param name="value">Subdocument - to update (all values)</param>
-    /// <returns></returns>
-    public virtual Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value)
-    {
-        var collection = Database.GetCollection(Collection.Name);
-        var fieldName = ((MemberExpression)field.Body).Member.Name;
-        var records = collection.Find(Query.EQ($"{fieldName}[*] ANY", elemFieldMatch.ToString())).ToList();
-        foreach (var entity in records)
-            if (entity[fieldName].IsArray)
-            {
-                var bsonValue = BsonMapper.Global.Serialize(value);
-                var oldbsonValue = BsonMapper.Global.Serialize(elemFieldMatch);
-                var list = entity[fieldName].AsArray.ToList();
-                if (list.Any())
-                {
-                    list.Add(bsonValue);
-                    list.Remove(oldbsonValue);
-                    entity[fieldName] = new BsonArray(list);
-                    entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
-                    entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
-                    collection.Update(entity);
-                }
-            }
-
-        return Task.CompletedTask;
-    }
-
-    /// <summary>
     ///     Delete subdocument
     /// </summary>
     /// <typeparam name="U"></typeparam>
-    /// <typeparam name="Z"></typeparam>
     /// <param name="id"></param>
     /// <param name="field"></param>
     /// <param name="elemFieldMatch"></param>
-    /// <param name="elemMatch"></param>
     /// <returns></returns>
-    public virtual Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field,
-        Expression<Func<U, Z>> elemFieldMatch, Z elemMatch)
+    public virtual Task RemoveCollectionFieldItem<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
+        Expression<Func<U, bool>> elemFieldMatch)
     {
         var collection = Database.GetCollection(Collection.Name);
         var fieldName = ((MemberExpression)field.Body).Member.Name;
-
-        var member = ((MemberExpression)elemFieldMatch.Body).Member;
-        var dBFieldName = member.GetCustomAttribute<DBFieldNameAttribute>();
-        var elementfieldName = dBFieldName?.Name ?? member.Name;
+        var predicate = elemFieldMatch.Compile();
 
         if (string.IsNullOrEmpty(id))
         {
-            //update many
             var entities = collection.FindAll();
             foreach (var entity in entities) UpdateEntity(entity);
         }
         else
         {
-            //update one
             var entity = collection.FindById(new BsonValue(id));
             UpdateEntity(entity);
         }
 
         void UpdateEntity(BsonDocument entity)
         {
-            if (entity != null && entity[fieldName].IsArray)
-            {
-                var bsonValue = BsonMapper.Global.Serialize(elemMatch);
-                var list = entity[fieldName].AsArray.ToList();
-                var documents = list.Where(x => x[elementfieldName] == new BsonValue(elemMatch)).ToList();
-                if (documents.Any())
-                {
-                    foreach (var document in documents) list.Remove(document);
-                    entity[fieldName] = new BsonArray(list);
-                    entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
-                    entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
-                    collection.Update(entity);
-                }
-            }
-        }
+            if (entity == null || !entity[fieldName].IsArray) return;
 
-        return Task.CompletedTask;
-    }
-
-    /// <summary>
-    ///     Delete subdocument
-    /// </summary>
-    /// <typeparam name="U"></typeparam>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="elemFieldMatch"></param>
-    /// <returns></returns>
-    public virtual Task PullFilter<U>(string id, Expression<Func<T, IEnumerable<U>>> field,
-        Expression<Func<U, bool>> elemFieldMatch)
-    {
-        var collection = Database.GetCollection(Collection.Name);
-        var entity = collection.FindById(new BsonValue(id));
-        var fieldName = ((MemberExpression)field.Body).Member.Name;
-        if (entity == null) return Task.CompletedTask;
-
-        if (entity[fieldName].IsArray)
-        {
             var list = BsonMapper.Global.Deserialize<IList<U>>(entity[fieldName]).ToList();
-            var position = list.FirstOrDefault(elemFieldMatch.Compile());
-            if (position == null) return Task.CompletedTask;
+            var matches = list.Where(predicate).ToList();
+            if (matches.Count == 0) return;
 
-            list.Remove(position);
+            foreach (var match in matches) list.Remove(match);
 
             var updatelist = BsonMapper.Global.Serialize<IList<U>>(list);
             entity[fieldName] = updatelist;
@@ -470,7 +356,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <param name="field"></param>
     /// <param name="element"></param>
     /// <returns></returns>
-    public virtual Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
+    public virtual Task RemoveCollectionFieldValue(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
     {
         var collection = Database.GetCollection(Collection.Name);
         var fieldName = ((MemberExpression)field.Body).Member.Name;
