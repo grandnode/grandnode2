@@ -183,7 +183,7 @@ public class LiteDbRepositoryTests
         };
         products.ForEach(x => myRepository.Insert(x));
         //Act
-        await myRepository.RemoveCollectionFieldValue("1", x => x.Phones, "Phone2");
+        await myRepository.RemoveCollectionFieldItem("1", x => x.Phones, y => y == "Phone2");
         var p = myRepository.GetById("1");
 
         //Assert
@@ -211,7 +211,7 @@ public class LiteDbRepositoryTests
         products.ForEach(x => myRepository.Insert(x));
 
         //Act
-        await myRepository.RemoveCollectionFieldValue(string.Empty, x => x.Phones, "Phone2");
+        await myRepository.RemoveCollectionFieldItem(string.Empty, x => x.Phones, y => y == "Phone2");
 
         var p1 = myRepository.GetById("1");
         var p2 = myRepository.GetById("2");

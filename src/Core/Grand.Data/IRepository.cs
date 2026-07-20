@@ -126,15 +126,6 @@ public interface IRepository<T> where T : BaseEntity
     Task RemoveCollectionFieldItem<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch);
 
     /// <summary>
-    ///     Delete subdocument
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="element"></param>
-    /// <returns></returns>
-    Task RemoveCollectionFieldValue(string id, Expression<Func<T, IEnumerable<string>>> field, string element);
-
-    /// <summary>
     ///     Delete entity
     /// </summary>
     /// <param name="entity">Entity</param>

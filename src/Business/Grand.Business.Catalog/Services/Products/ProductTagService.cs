@@ -160,7 +160,7 @@ public class ProductTagService : IProductTagService
         ArgumentNullException.ThrowIfNull(productTag);
 
         //update product
-        await _productRepository.RemoveCollectionFieldValue(string.Empty, x => x.ProductTags, productTag.Name);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductTags, y => y == productTag.Name);
 
         //delete tag
         await _productTagRepository.DeleteAsync(productTag);
@@ -205,7 +205,7 @@ public class ProductTagService : IProductTagService
     {
         ArgumentNullException.ThrowIfNull(productTag);
 
-        await _productRepository.RemoveCollectionFieldValue(productId, x => x.ProductTags, productTag.Name);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductTags, y => y == productTag.Name);
 
         //update product tag
         await _productTagRepository.UpdateField(productTag.Id, x => x.Count, productTag.Count - 1);

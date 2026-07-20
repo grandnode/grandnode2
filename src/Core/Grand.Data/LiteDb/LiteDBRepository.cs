@@ -350,48 +350,6 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     }
 
     /// <summary>
-    ///     Delete subdocument
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="element"></param>
-    /// <returns></returns>
-    public virtual Task RemoveCollectionFieldValue(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
-    {
-        var collection = Database.GetCollection(Collection.Name);
-        var fieldName = ((MemberExpression)field.Body).Member.Name;
-        if (string.IsNullOrEmpty(id))
-        {
-            var entities = collection.Find(Query.EQ($"{fieldName}[*] ANY", element)).ToList();
-            foreach (var entity in entities) UpdateEntity(entity);
-        }
-        else
-        {
-            //update one
-            var entity = collection.FindById(new BsonValue(id));
-            UpdateEntity(entity);
-        }
-
-        void UpdateEntity(BsonDocument entity)
-        {
-            if (entity != null && entity[fieldName].IsArray)
-            {
-                var list = entity[fieldName].AsArray.ToList();
-                if (list.Any())
-                {
-                    list.Remove(new BsonValue(element));
-                    entity[fieldName] = new BsonArray(list);
-                    entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
-                    entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
-                    collection.Update(entity);
-                }
-            }
-        }
-
-        return Task.CompletedTask;
-    }
-
-    /// <summary>
     ///     Delete entity
     /// </summary>
     /// <param name="entity">Entity</param>

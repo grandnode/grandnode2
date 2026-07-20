@@ -47,10 +47,10 @@ public class ProductDeletedEventHandler : INotificationHandler<EntityDeleted<Pro
             z => z.ProductId2 == notification.Entity.Id);
 
         //delete cross sales product
-        await _productRepository.RemoveCollectionFieldValue(string.Empty, x => x.CrossSellProduct, notification.Entity.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.CrossSellProduct, y => y == notification.Entity.Id);
 
         //delete recommended product
-        await _productRepository.RemoveCollectionFieldValue(string.Empty, x => x.RecommendedProduct, notification.Entity.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.RecommendedProduct, y => y == notification.Entity.Id);
 
         //delete review
         await _productReviewRepository.DeleteManyAsync(x => x.ProductId == notification.Entity.Id);

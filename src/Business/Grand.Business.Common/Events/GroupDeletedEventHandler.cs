@@ -27,7 +27,7 @@ public class GroupDeletedEventHandler : INotificationHandler<EntityDeleted<Custo
     public async Task Handle(EntityDeleted<CustomerGroup> notification, CancellationToken cancellationToken)
     {
         //delete from customers
-        await _customerRepository.RemoveCollectionFieldValue(string.Empty, x => x.Groups, notification.Entity.Id);
+        await _customerRepository.RemoveCollectionFieldItem(string.Empty, x => x.Groups, y => y == notification.Entity.Id);
 
         //delete tier prices on the product
         await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.TierPrices,

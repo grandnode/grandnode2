@@ -1,5 +1,4 @@
 using Grand.Domain;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Linq.Expressions;
 
@@ -48,7 +47,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
             Collection = Database.GetCollection<T>(typeof(T).Name);
         }
     }
-    
+
     public MongoRepository(IMongoDatabase database, IAuditInfoProvider auditInfoProvider)
     {
         Database = database;
@@ -278,27 +277,6 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
             await Collection.UpdateManyAsync(filter, combinedUpdate);
         else
             await Collection.UpdateOneAsync(filter, combinedUpdate);
-    }
-
-    /// <summary>
-    ///     Delete subdocument
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="field"></param>
-    /// <param name="element"></param>
-    /// <returns></returns>
-    public virtual async Task RemoveCollectionFieldValue(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
-    {
-        var update = Builders<T>.Update.Pull(field, element);
-
-        var updateDate = Builders<T>.Update.Set(x => x.UpdatedOnUtc, _auditInfoProvider.GetCurrentDateTime());
-        var updateUser = Builders<T>.Update.Set(x => x.UpdatedBy, _auditInfoProvider.GetCurrentUser());
-        var combinedUpdate = Builders<T>.Update.Combine(update, updateDate, updateUser);
-
-        if (string.IsNullOrEmpty(id))
-            await Collection.UpdateManyAsync(Builders<T>.Filter.Where(x => true), combinedUpdate);
-        else
-            await Collection.UpdateOneAsync(Builders<T>.Filter.Eq(x => x.Id, id), combinedUpdate);
     }
 
     /// <summary>

@@ -131,7 +131,7 @@ public class OrderTagService : IOrderTagService
         ArgumentNullException.ThrowIfNull(orderTag);
 
         //update orders
-        await _orderRepository.RemoveCollectionFieldValue(string.Empty, x => x.OrderTags, orderTag.Id);
+        await _orderRepository.RemoveCollectionFieldItem(string.Empty, x => x.OrderTags, y => y == orderTag.Id);
 
         //delete tag
         await _orderTagRepository.DeleteAsync(orderTag);
@@ -173,7 +173,7 @@ public class OrderTagService : IOrderTagService
     /// <param name="orderId">Order ident</param>
     public virtual async Task DetachOrderTag(string orderTagId, string orderId)
     {
-        await _orderRepository.RemoveCollectionFieldValue(orderId, x => x.OrderTags, orderTagId);
+        await _orderRepository.RemoveCollectionFieldItem(orderId, x => x.OrderTags, y => y == orderTagId);
 
         var orderTag = await GetOrderTagById(orderTagId);
         //update product tag

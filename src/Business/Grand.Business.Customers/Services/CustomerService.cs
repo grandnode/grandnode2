@@ -670,7 +670,7 @@ public class CustomerService : ICustomerService
         ArgumentNullException.ThrowIfNull(customerGroup);
         ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
-        await _customerRepository.RemoveCollectionFieldValue(customerId, x => x.Groups, customerGroup.Id);
+        await _customerRepository.RemoveCollectionFieldItem(customerId, x => x.Groups, y => y == customerGroup.Id);
     }
 
     public virtual async Task InsertCustomerGroupInCustomer(CustomerGroup customerGroup, string customerId)

@@ -173,7 +173,7 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.RemoveCollectionFieldValue("1", x => x.Phones, "Phone2");
+        await _myRepository.RemoveCollectionFieldItem("1", x => x.Phones, y => y == "Phone2");
 
         var p = _myRepository.GetById("1");
 
@@ -203,7 +203,7 @@ public class MongoRepositoryTests
         products.ForEach(x => _myRepository.Insert(x));
 
         //Act
-        await _myRepository.RemoveCollectionFieldValue(string.Empty, x => x.Phones, "Phone2");
+        await _myRepository.RemoveCollectionFieldItem(string.Empty, x => x.Phones, y => y == "Phone2");
 
         var p1 = _myRepository.GetById("1");
         var p2 = _myRepository.GetById("2");

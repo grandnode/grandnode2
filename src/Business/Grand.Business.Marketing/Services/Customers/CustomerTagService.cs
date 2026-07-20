@@ -57,7 +57,7 @@ public class CustomerTagService : ICustomerTagService
         ArgumentNullException.ThrowIfNull(customerTag);
 
         //update customer
-        await _customerRepository.RemoveCollectionFieldValue(string.Empty, x => x.CustomerTags, customerTag.Id);
+        await _customerRepository.RemoveCollectionFieldItem(string.Empty, x => x.CustomerTags, y => y == customerTag.Id);
 
         //delete
         await _customerTagRepository.DeleteAsync(customerTag);
@@ -139,7 +139,7 @@ public class CustomerTagService : ICustomerTagService
     /// </summary>
     public virtual async Task DeleteTagFromCustomer(string customerTagId, string customerId)
     {
-        await _customerRepository.RemoveCollectionFieldValue(customerId, x => x.CustomerTags, customerTagId);
+        await _customerRepository.RemoveCollectionFieldItem(customerId, x => x.CustomerTags, y => y == customerTagId);
     }
 
     /// <summary>

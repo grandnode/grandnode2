@@ -849,8 +849,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(crossSellProduct);
 
-        await _productRepository.RemoveCollectionFieldValue(crossSellProduct.ProductId1, x => x.CrossSellProduct,
-            crossSellProduct.ProductId2);
+        await _productRepository.RemoveCollectionFieldItem(crossSellProduct.ProductId1, x => x.CrossSellProduct, y => y == crossSellProduct.ProductId2);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, crossSellProduct.ProductId1));
@@ -941,7 +940,7 @@ public class ProductService : IProductService
         ArgumentNullException.ThrowIfNull(productId);
         ArgumentNullException.ThrowIfNull(recommendedProductId);
 
-        await _productRepository.RemoveCollectionFieldValue(productId, x => x.RecommendedProduct, recommendedProductId);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.RecommendedProduct, y => y == recommendedProductId);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1183,7 +1182,7 @@ public class ProductService : IProductService
         ArgumentNullException.ThrowIfNullOrEmpty(discountId);
         ArgumentNullException.ThrowIfNullOrEmpty(productId);
 
-        await _productRepository.RemoveCollectionFieldValue(productId, x => x.AppliedDiscounts, discountId);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.AppliedDiscounts, y => y == discountId);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
