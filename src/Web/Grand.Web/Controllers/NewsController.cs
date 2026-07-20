@@ -91,7 +91,6 @@ public class NewsController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> NewsCommentAdd(AddNewsCommentModel model)
     {

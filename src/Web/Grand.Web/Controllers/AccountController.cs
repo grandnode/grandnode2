@@ -195,7 +195,6 @@ public class AccountController : BasePublicController
     //available even when navigation is not allowed
     [PublicStore(true)]
     [ClosedStore(true)]
-    [AutoValidateAntiforgeryToken]
     [IgnoreApi]
     public virtual async Task<IActionResult> Login(LoginModel model, string returnUrl)
     {
@@ -367,7 +366,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [PublicStore(true)]
     public virtual async Task<ActionResult<PasswordRecoveryModel>> PasswordRecovery(PasswordRecoveryModel model)
     {
@@ -400,7 +398,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     //available even when navigation is not allowed
     [PublicStore(true)]
     public virtual async Task<IActionResult> PasswordRecoveryConfirm(PasswordRecoveryConfirmModel model)
@@ -447,7 +444,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     //available even when navigation is not allowed
     [PublicStore(true)]
     public virtual async Task<IActionResult> Register(RegisterModel model, string returnUrl)
@@ -570,7 +566,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     //available even when navigation is not allowed
     [PublicStore(true)]
     public virtual async Task<IActionResult> CheckUsernameAvailability(string username)
@@ -647,7 +642,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<ActionResult<CustomerInfoModel>> Info(CustomerInfoModel model)
     {
@@ -683,7 +677,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> RemoveExternalAssociation(string id,
         [FromServices] IExternalAuthenticationService openAuthenticationService)
@@ -733,7 +726,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> AddressDelete(string addressId)
     {
@@ -776,7 +768,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<ActionResult<AddressModel>> AddressAdd(CustomerAddressEditModel model,
         [FromServices] AddressSettings addressSettings)
@@ -841,7 +832,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<ActionResult<CustomerAddressEditModel>> AddressEdit(CustomerAddressEditModel model,
         [FromServices] AddressSettings addressSettings)
@@ -929,7 +919,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> ChangePassword(ChangePasswordModel model)
     {
@@ -965,7 +954,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> DeleteAccount(DeleteAccountModel model)
     {
@@ -1152,7 +1140,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountAdd(SubAccountCreateModel model)
     {
@@ -1184,7 +1171,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountEdit(SubAccountEditModel model)
     {
@@ -1203,7 +1189,6 @@ public class AccountController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountDelete(string id)
     {

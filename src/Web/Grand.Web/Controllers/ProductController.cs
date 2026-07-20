@@ -136,7 +136,6 @@ public class ProductController : BasePublicController
     #region Email a friend
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ProductEmailAFriend(ProductEmailAFriendModel model)
     {
@@ -180,7 +179,6 @@ public class ProductController : BasePublicController
     #region Ask question
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> AskQuestionOnProduct(ProductAskQuestionSimpleModel model)
     {
@@ -549,7 +547,6 @@ public class ProductController : BasePublicController
     #region Product reviews
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ProductReviews(
         ProductReviewsModel model)
