@@ -156,7 +156,7 @@ public class AddressAttributeService : IAddressAttributeService
     {
         ArgumentNullException.ThrowIfNull(addressAttributeValue);
 
-        await _addressAttributeRepository.AddToSet(addressAttributeValue.AddressAttributeId,
+        await _addressAttributeRepository.AddToCollectionField(addressAttributeValue.AddressAttributeId,
             x => x.AddressAttributeValues, addressAttributeValue);
 
         await _cacheBase.RemoveByPrefix(CacheKey.ADDRESSATTRIBUTES_PATTERN_KEY);
@@ -174,8 +174,7 @@ public class AddressAttributeService : IAddressAttributeService
     {
         ArgumentNullException.ThrowIfNull(addressAttributeValue);
 
-        await _addressAttributeRepository.UpdateToSet(addressAttributeValue.AddressAttributeId,
-            x => x.AddressAttributeValues, z => z.Id, addressAttributeValue.Id, addressAttributeValue);
+        await _addressAttributeRepository.UpdateCollectionFieldItem(addressAttributeValue.AddressAttributeId, x => x.AddressAttributeValues, z => z.Id == addressAttributeValue.Id, addressAttributeValue);
 
         await _cacheBase.RemoveByPrefix(CacheKey.ADDRESSATTRIBUTES_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(CacheKey.ADDRESSATTRIBUTEVALUES_PATTERN_KEY);
@@ -192,8 +191,7 @@ public class AddressAttributeService : IAddressAttributeService
     {
         ArgumentNullException.ThrowIfNull(addressAttributeValue);
 
-        await _addressAttributeRepository.PullFilter(addressAttributeValue.AddressAttributeId,
-            x => x.AddressAttributeValues, z => z.Id, addressAttributeValue.Id);
+        await _addressAttributeRepository.RemoveCollectionFieldItem(addressAttributeValue.AddressAttributeId, x => x.AddressAttributeValues, z => z.Id == addressAttributeValue.Id);
 
         await _cacheBase.RemoveByPrefix(CacheKey.ADDRESSATTRIBUTES_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(CacheKey.ADDRESSATTRIBUTEVALUES_PATTERN_KEY);
