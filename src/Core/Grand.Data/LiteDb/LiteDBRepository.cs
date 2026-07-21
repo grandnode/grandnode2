@@ -13,6 +13,9 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
 {
     #region Fields
 
+    private const string UpdatedOnUtcField = "UpdatedOnUtc";
+    private const string UpdatedByField = "UpdatedBy";
+
     private readonly IAuditInfoProvider _auditInfoProvider;
 
     /// <summary>
@@ -152,8 +155,8 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
         var entity = Database.GetCollection(typeof(T).Name).FindById(new BsonValue(id));
         var bsonValue = BsonMapper.Global.Serialize(value);
         entity[GetName(expression)] = bsonValue;
-        entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
-        entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
+        entity[UpdatedOnUtcField] = _auditInfoProvider.GetCurrentDateTime();
+        entity[UpdatedByField] = _auditInfoProvider.GetCurrentUser();
         Database.GetCollection(typeof(T).Name).Update(entity);
 
         return Task.CompletedTask;
@@ -214,7 +217,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
         return Task.CompletedTask;
     }
 
-    private Task Update(T entity, UpdateBuilder<T> updateBuilder)
+    private void Update(T entity, UpdateBuilder<T> updateBuilder)
     {
         foreach (var item in updateBuilder.ExpressionFields)
         {
@@ -230,7 +233,6 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
         entity!.UpdatedBy = _auditInfoProvider.GetCurrentUser();
 
         Collection.Update(entity);
-        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -253,8 +255,8 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
             var list = entity[fieldName].AsArray.ToList();
             list.Add(bsonValue);
             entity[fieldName] = new BsonArray(list);
-            entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
-            entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
+            entity[UpdatedOnUtcField] = _auditInfoProvider.GetCurrentDateTime();
+            entity[UpdatedByField] = _auditInfoProvider.GetCurrentUser();
             collection.Update(entity);
         }
 
@@ -294,8 +296,8 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
 
             var updateList = BsonMapper.Global.Serialize<IList<U>>(list);
             entity[fieldName] = updateList;
-            entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
-            entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
+            entity[UpdatedOnUtcField] = _auditInfoProvider.GetCurrentDateTime();
+            entity[UpdatedByField] = _auditInfoProvider.GetCurrentUser();
 
             collection.Update(entity);
         }
@@ -341,8 +343,8 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
 
             var updatelist = BsonMapper.Global.Serialize<IList<U>>(list);
             entity[fieldName] = updatelist;
-            entity["UpdatedOnUtc"] = _auditInfoProvider.GetCurrentDateTime();
-            entity["UpdatedBy"] = _auditInfoProvider.GetCurrentUser();
+            entity[UpdatedOnUtcField] = _auditInfoProvider.GetCurrentDateTime();
+            entity[UpdatedByField] = _auditInfoProvider.GetCurrentUser();
             collection.Update(entity);
         }
 
