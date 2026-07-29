@@ -11,8 +11,8 @@
             <div class="h5 mb-0">@Loc["Checkout.OrderNumber"]: <span class="text-info">@Model.OrderNumber</span></div>
             <hr class="my-4">
             <div class="buttons">
-                <a class="btn btn-secondary mb-1" href="@Url.RouteUrl("OrderDetails", new { orderId = Model.OrderId })">@Loc["Checkout.PlacedOrderDetails"]</a>
-                <button type="button" class="btn btn-info order-completed-continue-button mb-1" onclick="location=('@Url.RouteUrl("HomePage")')">
+                <a class="btn btn-secondary mb-1 me-2" href="@Url.RouteUrl("OrderDetails", new { orderId = Model.OrderId })">@Loc["Checkout.PlacedOrderDetails"]</a>
+                <button type="button" class="btn btn-info order-completed-continue-button mb-1" onclick="window.location=('@Url.RouteUrl("HomePage")')">
                     @Loc["Checkout.ThankYou.Continue"]
                 </button>
             </div>

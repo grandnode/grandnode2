@@ -109,7 +109,8 @@ export const ValidationProvider = {
     },
     mounted() {
         this._onEvent = () => this.validate()
-        this.$el.addEventListener('input', this._onEvent)
+        const isSelect = this.control()?.tagName === 'SELECT'
+        if (!isSelect) this.$el.addEventListener('input', this._onEvent)
         this.$el.addEventListener('change', this._onEvent)
         this.$el.addEventListener('focusout', this._onEvent)
     },

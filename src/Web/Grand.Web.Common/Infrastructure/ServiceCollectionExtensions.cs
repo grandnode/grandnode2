@@ -208,6 +208,9 @@ public static class ServiceCollectionExtensions
         //add view localization
         mvcBuilder.AddViewLocalization();
 
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            mvcBuilder.AddRazorRuntimeCompilation();
+
         var securityConfig = new SecurityConfig();
         configuration.GetSection("Security").Bind(securityConfig);
 

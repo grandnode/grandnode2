@@ -1,7 +1,7 @@
 ﻿<template v-if="catalog.Model.Products.length > 0">
     <div class="generalMarginSupporter categoryGrid catalog-selectors mb-3">
         @*Rendering mobile left side trigger*@
-        <div class="d-flex flex-row row px-3">
+        <div class="d-flex flex-row flex-wrap px-3">
             @*Rendering sorting*@
             <template v-if="catalog.Model.PagingFilteringContext.AllowProductSorting">
                 <div class="sort-container">
@@ -55,7 +55,7 @@
                         <template v-for="viewmode in catalog.Model.PagingFilteringContext.AvailableViewModes">
                             <a class="viewmode-icon d-flex align-items-center" v-bind:class="{ selected: viewmode.Selected, 'text-info': viewmode.Selected }" @@click="catalog.loadProducts(viewmode.Value)" :title="viewmode.Text">
                                 <template v-if="viewmode.Value.includes('viewmode=grid')">
-                                    <b-icon scale="2" icon="grid3x2-gap" class="grid-icon"></b-icon>
+                                    <b-icon scale="2" icon="grid-3x2-gap" class="grid-icon"></b-icon>
                                     <span class="visually-hidden">viewmode grid</span>
                                 </template>
                                 <template v-else>

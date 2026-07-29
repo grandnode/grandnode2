@@ -18,12 +18,31 @@ const BIcon = {
     props: {
         icon: { type: String, default: '' },
         variant: { type: String, default: null },
-        fontScale: { type: [String, Number], default: null }
+        fontScale: { type: [String, Number], default: null },
+        scale: { type: [String, Number], default: null },
+        rotate: { type: [String, Number], default: null },
+        shiftV: { type: [String, Number], default: null },
+        shiftH: { type: [String, Number], default: null },
+        flipH: Boolean,
+        flipV: Boolean
     },
     render() {
+        const size = this.fontScale || this.scale
+        const transforms = []
+        if (this.rotate) transforms.push('rotate(' + this.rotate + 'deg)')
+        if (this.flipH) transforms.push('scaleX(-1)')
+        if (this.flipV) transforms.push('scaleY(-1)')
+        const style = {}
+        if (size) style.fontSize = size + 'em'
+        if (transforms.length) style.transform = transforms.join(' ')
+        if (this.shiftV || this.shiftH) {
+            style.position = 'relative'
+            if (this.shiftV) style.top = (-this.shiftV) + 'px'
+            if (this.shiftH) style.left = this.shiftH + 'px'
+        }
         return h('i', {
             class: ['b-icon', 'bi', 'bi-' + this.icon, this.variant ? 'text-' + this.variant : ''],
-            style: this.fontScale ? { fontSize: this.fontScale + 'em' } : null,
+            style,
             'aria-hidden': 'true'
         })
     }
@@ -158,13 +177,15 @@ const BCardImgLazy = {
 
 const BCard = {
     name: 'BCard',
-    props: { noBody: Boolean, title: { type: String, default: null } },
+    props: { noBody: Boolean, title: { type: String, default: null }, subTitle: { type: String, default: null } },
     render() {
         const content = this.$slots.default ? this.$slots.default() : []
+        const heading = []
+        if (this.title) heading.push(h('h5', { class: 'card-title' }, this.title))
+        if (this.subTitle) heading.push(h('h6', { class: 'card-subtitle mb-2 text-muted' }, this.subTitle))
         const body = this.noBody
             ? content
-            : [h('div', { class: 'card-body' },
-                (this.title ? [h('h5', { class: 'card-title' }, this.title)] : []).concat(content))]
+            : [h('div', { class: 'card-body' }, heading.concat(content))]
         return h('div', { class: 'card' }, body)
     }
 }

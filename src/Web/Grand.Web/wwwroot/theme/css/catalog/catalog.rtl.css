@@ -104,6 +104,9 @@
     font-weight: 500;
     white-space: nowrap;
 }
+.sort-container select.form-select {
+    width: auto;
+}
 .item-statistics {
     font-weight: 500;
 }

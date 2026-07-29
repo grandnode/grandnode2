@@ -363,3 +363,13 @@
         border-color: #fff;
     }
 }
+
+/* opc back / continue button spacing */
+#shipping-buttons-container > .btn,
+#billing-buttons-container > .btn,
+#shipping-method-buttons-container > .btn,
+#payment-method-buttons-container > .btn,
+#payment-info-buttons-container > .btn,
+#confirm-order-buttons-container > .btn {
+    margin-left: .5rem;
+}
