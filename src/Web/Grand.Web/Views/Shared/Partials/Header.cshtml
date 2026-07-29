@@ -8,7 +8,7 @@
     <nav class="navbar navbar-light navbar-expand">
         <b-container id="header-container">
             <div class="menu-container">
-                <template>
+                <template v-if="true">
                     <button aria-label="menu-toggler" class="btn menu-toggler" v-b-toggle.sidebar-menu>
                         <span></span><span></span><span></span>
                     </button>
@@ -27,10 +27,10 @@
             </div>
             <partial name="Partials/Logo"/>
             <ul class="navbar-nav top-header-items order-3">
-                <template>
+                <template v-if="true">
                     <li class="nav-item">
                         <span class="nav-link">
-                            <template>
+                            <template v-if="true">
                                 <b-form-checkbox size="lg" v-model="darkMode" name="contrast-button" class="contrast-switch" switch>
                                     <b-icon icon="sun" class="light" variant="info"></b-icon>
                                     <b-icon icon="moon" class="dark" variant="dark"></b-icon>
@@ -48,12 +48,12 @@
                          hide-footer hide-header size="xl">
                     @await Component.InvokeAsync("SearchBox")
                 </b-modal>
-                <template>
+                <template v-if="true">
                     <li class="nav-item">
                         <span class="nav-link">
                             <b-icon icon="person-circle" :variant="[darkMode ? 'white' : 'dark']" v-b-toggle.sidebar-right></b-icon>
                         </span>
-                        <template>
+                        <template v-if="true">
                             <b-sidebar id="sidebar-right" body-class="user-panel" title="@Loc["Account.MyAccount"]"
                                        @if (!supportRtl)
                                        {

@@ -13,18 +13,20 @@
                 </span>
             </a>
         </li>
-        <template>
+        <template v-if="true">
             <li>
                 <b-sidebar id="sidebar-wishlist" backdrop
                            @if (!supportRtl)
                            {
                                <text>right</text>
                            }>
-                    <template v-slot:title v-if="wishindicator > 0">
-                        @Html.Raw(string.Format(Loc["Wishlist.Mini.ItemsText"], $"<a href=\"{Url.RouteUrl("Wishlist")}\">{string.Format(Loc["Wishlist.Mini.Items"], "{{wishindicator}}")}</a>"))
-                    </template>
-                    <template v-slot:title v-else>
-                        @Loc["Wishlist.Mini.NoItems"]
+                    <template v-slot:title>
+                        <template v-if="wishindicator > 0">
+                            @Html.Raw(string.Format(Loc["Wishlist.Mini.ItemsText"], $"<a href=\"{Url.RouteUrl("Wishlist")}\">{string.Format(Loc["Wishlist.Mini.Items"], "{{wishindicator}}")}</a>"))
+                        </template>
+                        <template v-else>
+                            @Loc["Wishlist.Mini.NoItems"]
+                        </template>
                     </template>
                     <div class="d-flex justify-content-center align-items-center h-100" v-if="loader">
                         <div class="spinner-border text-info" role="status">
@@ -47,13 +49,13 @@
                             </div>
                         </div>
                     </div>
-                    <template v-slot:footer v-if="wishindicator > 0">
-                        <template v-if="flywish !== undefined">
+                    <template v-slot:footer>
+                        <template v-if="wishindicator > 0 && flywish !== undefined">
                             <div class="col-12 p-3 bg-dark">
-                                <div class="form-row">
+                                <div class="row">
                                     <div class="col-lg col-12">
                                         <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("Wishlist")">
-                                            <b-icon icon="heart" class="@if (supportRtl) { <text>pl-2</text> }else { <text>pr-2</text> }"></b-icon>
+                                            <b-icon icon="heart" class="@if (supportRtl) { <text>ps-2</text> }else { <text>pe-2</text> }"></b-icon>
                                             @Loc["Wishlist"]
                                         </a>
                                     </div>
@@ -61,7 +63,7 @@
                             </div>
                         </template>
                     </template>
-                    <template v-else>
+                    <template v-if="!(wishindicator > 0)">
                         <div class="d-flex flex-column justify-content-center align-items-center">
                             <b-icon icon="cart-x" font-scale="7.5" variant="secondary"></b-icon>
                             <div class="text-center text-muted mt-3">@Loc["Wishlist.Mini.NoDataText"]</div>

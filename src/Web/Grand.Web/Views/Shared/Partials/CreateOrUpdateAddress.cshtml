@@ -9,18 +9,15 @@
             function @Html.IdFor(model => model.CountryId)_select_element(e) {
                 var selectedItem = e.value;
                 var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
+                if (!selectedItem) {
+                    return;
+                }
                 axios({
                     method: 'get',
                     url: "@(Url.RouteUrl("GetStatesByCountryId"))",
                     params: { "countryId": selectedItem, "addSelectStateItem": "true" },
                 }).then(function (response) {
-                    ddlStates.innerHTML = '';
-                    response.data.forEach(function (id, option) {
-                        elChild = document.createElement('option');
-                        elChild.setAttribute('value', id.id);
-                        elChild.innerHTML = id.name;
-                        ddlStates.appendChild(elChild);
-                    });
+                    createorupdateaddress@{@prefix}.AvailableStates = response.data;
                     createorupdateaddress@{@prefix}.StateProvinceId = response.data[0].id;
                 }).then(function () {
                     ddlStates.classList.remove('is-valid');
@@ -119,7 +116,7 @@
                 <label asp-for="CountryId" class="col-form-label">@Loc["Address.Fields.Country"]:</label>
                 <span class="required">*</span>
                 <select asp-for="CountryId" asp-items="Model.AvailableCountries" data-val-required=@Loc["Address.Fields.Country.Required"]
-                        onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control custom-select']" v-model="createorupdateaddress@{@prefix}.CountryId">
+                        onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control form-select']" v-model="createorupdateaddress@{@prefix}.CountryId">
                 </select>
                 <span class="field-validation-error">{{ errors[0] }}</span>
             </validation-provider>
@@ -132,8 +129,9 @@
             <validation-provider tag="div" rules="required" v-slot="{ errors, classes }">
                 <label asp-for="StateProvinceId" class="col-form-label">@Loc["Address.Fields.StateProvince"]:</label>
                 <span class="required">*</span>
-                <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" v-bind:class="[classes , 'form-control custom-select']"
-                        onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="createorupdateaddress@{@prefix}.StateProvinceId">
+                <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" v-bind:class="[classes , 'form-control form-select']"
+                        onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" v-model="createorupdateaddress@{@prefix}.StateProvinceId">
+                    <option v-for="s in createorupdateaddress@{@prefix}.AvailableStates" :key="s.id" :value="s.id">{{s.name}}</option>
                 </select>
                 <span class="field-validation-error">{{ errors[0] }}</span>
             </validation-provider>
@@ -266,7 +264,7 @@
     {
         <div class="form-group col-sm-12 col-md-6">
             <label asp-for="AddressTypeId" class="col-form-label">@Loc["Address.Fields.AddressType"]:</label>
-            <select asp-for="AddressTypeId" asp-items="@EnumTranslationService.ToSelectList(AddressType.Any, false).ToList()" class="form-control custom-select"></select>
+            <select asp-for="AddressTypeId" asp-items="@EnumTranslationService.ToSelectList(AddressType.Any, false).ToList()" class="form-control form-select"></select>
         </div>
     }
     @if (Model.CustomAddressAttributes.Any())
@@ -290,6 +288,7 @@
                         City: '@Html.Raw(Model.City)',
                         CountryId: '@Model.CountryId',
                         StateProvinceId: '@Model.StateProvinceId',
+                        AvailableStates: @Html.Raw(Json.Serialize(Model.AvailableStates.Select(s => new { id = s.Value, name = s.Text }))),
                         PhoneNumber: '@Html.Raw(Model.PhoneNumber)',
                         FaxNumber: '@Html.Raw(Model.FaxNumber)',
                         VatNumber: '@Html.Raw(Model.VatNumber)',

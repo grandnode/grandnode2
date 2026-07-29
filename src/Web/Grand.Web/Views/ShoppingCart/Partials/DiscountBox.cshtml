@@ -1,5 +1,5 @@
 ﻿<div v-if="vmorder.cart.DiscountBox.Display" class="coupon-box">
-    <template>
+    <template v-if="true">
         <div class="accordion" role="tablist">
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="div" class="p-1" role="tab">
@@ -12,7 +12,7 @@
                                 <span class="col-form-label">@Loc["ShoppingCart.DiscountCouponCode"]</span>
                                 <div class="input-group">
                                     <input type="text" id="discountcouponcode" name="discountcouponcode" class="form-control discount-coupon-code">
-                                    <label for="discountcouponcode" class="sr-only">@Loc["ShoppingCart.Code.Button"]</label>
+                                    <label for="discountcouponcode" class="visually-hidden">@Loc["ShoppingCart.Code.Button"]</label>
                                     <span class="input-group-append">
                                         <button type="button" name="applydiscountcouponcode" id="applydiscountcouponcode" @@click="vmorder.ApplyDiscountCode('@Url.RouteUrl("ApplyDiscountCoupon")')" class="btn btn-outline-secondary apply-discount-coupon-code-button">
                                             @Loc["ShoppingCart.DiscountCouponCode.Button"]

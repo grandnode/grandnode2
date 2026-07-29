@@ -4,7 +4,7 @@
 {
     <div>
         <label for="warehouseId" class="col-form-label">@Loc["Products.Warehouse"]:</label>
-        <select class="custom-select form-control" name="WarehouseId" id="WarehouseId">
+        <select class="form-select form-control" name="WarehouseId" id="WarehouseId">
             @foreach (var warehouse in Model.ProductWarehouses)
             {
                 <option selected="@(warehouse.Selected)" value="@warehouse.WarehouseId">@(warehouse.Name)</option>

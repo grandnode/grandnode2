@@ -13,15 +13,15 @@ p, .form-group, dl, ol, ul, .page {
 .list-unstyled {
     padding-right: 0;
 }
-.custom-control {
+.form-check {
     padding-right: 1.5rem;
     padding-left: unset;
 }
-.custom-control-label::after, .custom-control-label::before {
+.form-check-label::after, .form-check-label::before {
     left: unset;
     right: -1.5rem;
 }
-.custom-switch .custom-control-label::before {
+.form-check form-switch .form-check-label::before {
     left: unset;
     right: -2.25rem;
 }
@@ -42,7 +42,7 @@ span.required {
     padding: 0;
     margin-bottom: 0;
 }
-.custom-control {
+.form-check {
     cursor: pointer;
 }
 .disabled {
@@ -71,7 +71,7 @@ span.required {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
-.input-group > .custom-select:not(:last-child), .input-group > .form-control:not(:last-child) {
+.input-group > .form-select:not(:last-child), .input-group > .form-control:not(:last-child) {
     border-top-right-radius: .25rem;
     border-bottom-right-radius: .25rem;
     border-top-left-radius: 0;
@@ -230,7 +230,7 @@ body:not(.modal-open) {
 select option:disabled {
     color: #aaa;
 }
-.custom-select:disabled {
+.form-select:disabled {
     opacity: 0.5;
 }
 
@@ -1654,13 +1654,13 @@ footer .list-group-item span:last-child {
 .contrast-switch {
     direction: ltr;
 }
-.contrast-switch.custom-switch.b-custom-control-lg .custom-control-label::before{
+.contrast-switch.form-check form-switch.b-custom-control-lg .form-check-label::before{
     top: 0;
 }
-.contrast-switch.custom-switch.b-custom-control-lg .custom-control-label::after {
+.contrast-switch.form-check form-switch.b-custom-control-lg .form-check-label::after {
     top: 2px;
 }
-.contrast-switch.custom-switch.custom-control * {
+.contrast-switch.form-check form-switch.form-check * {
     cursor: pointer;
 }
 .contrast-switch .b-icon {
@@ -1672,14 +1672,14 @@ footer .list-group-item span:last-child {
     visibility: hidden;
     z-index: 1;
 }
-.contrast-switch .custom-control-label::before {
+.contrast-switch .form-check-label::before {
     border-width: 2px;
     border-color: #1FB0C7;
 }
-.contrast-switch.custom-switch .custom-control-label::after {
+.contrast-switch.form-check form-switch .form-check-label::after {
     background-color: #fff;
 }
-.contrast-switch .custom-control-input:checked ~ .custom-control-label::before {
+.contrast-switch .form-check-input:checked ~ .form-check-label::before {
     background-color: #1FB0C7;
     border-color: #1FB0C7;
 }
@@ -1689,10 +1689,10 @@ footer .list-group-item span:last-child {
 .contrast-switch .b-icon.dark {
     color: #2d3133 !important;
 }
-.contrast-switch.custom-switch .custom-control-input:checked~.custom-control-label .b-icon.light {
+.contrast-switch.form-check form-switch .form-check-input:checked~.form-check-label .b-icon.light {
     visibility: hidden;
 }
-.contrast-switch.custom-switch .custom-control-input:checked~.custom-control-label .b-icon.dark {
+.contrast-switch.form-check form-switch .form-check-input:checked~.form-check-label .b-icon.dark {
     visibility: visible;
     -webkit-transform: translateX(.9375rem);
     transform: translateX(.9375rem)
@@ -1700,7 +1700,7 @@ footer .list-group-item span:last-child {
 
 /* dark bootstrap */
 
-[dark-theme="true"] .custom-select, [dark-theme="true"] input.form-control {
+[dark-theme="true"] .form-select, [dark-theme="true"] input.form-control {
     background-color: #efefef;
 }
 [dark-theme="true"] .bg-white {
@@ -1854,4 +1854,46 @@ footer .list-group-item span:last-child {
     [dark-theme="true"] .header-nav .top-header-items.navbar-nav {
         background: #2d3133;
     }
+}
+/* add-to-cart popup */
+#ModalAddToCart .atc-header {
+    background-color: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1rem 1.25rem;
+}
+#ModalAddToCart .jumbotron {
+    background-color: #f8f9fa;
+    border-radius: .5rem;
+}
+#ModalAddToCart .card-footer {
+    background-color: transparent;
+    border-top: 0;
+    padding: 0 1rem 1rem;
+}
+#ModalAddToCart .card-footer .btn {
+    padding: .7rem .75rem;
+}
+[dark-theme="true"] #ModalAddToCart .atc-header {
+    background-color: transparent;
+    border-bottom-color: #343a40;
+}
+[dark-theme="true"] #ModalAddToCart .btn-dark {
+    background-color: #fff;
+    border-color: #fff;
+    color: #212529;
+}
+[dark-theme="true"] #ModalAddToCart .btn-outline-secondary {
+    color: #dee2e6;
+    border-color: #6c757d;
+}
+
+@media (min-width: 1200px) {
+    #ModalQuickView .modal-xl {
+        max-width: min(1360px, 94vw);
+    }
+}
+
+#ModalQuickView .related-products-grid > .row {
+    margin-left: 0;
+    margin-right: 0;
 }

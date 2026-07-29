@@ -11,23 +11,18 @@
   "dependencies": {
     "animate.css": "^4.1.1",
     "axios": "^1.16.0",
-    "bootstrap": "^4.6.2",
-    "bootstrap-vue": "^2.22.0",
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "pikaday": "^1.8.2",
     "sass-loader": "^12.6.0",
-    "vee-validate": "^3.1.0",
-    "vue": "^2.7.8",
-    "vue-awesome-countdown": "^1.1.4",
-    "vue-gallery-slideshow": "^1.5.2"
+    "vue": "^3.5.13"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
-    "babel-eslint": "^10.1.0",
     "eslint": "^8.22.0",
     "eslint-plugin-vue": "^9.3.0",
-    "vue-template-compiler": "^2.7.8",
     "webpack": "^5.95.0"
   },
   "eslintConfig": {
@@ -36,12 +31,9 @@
       "node": true
     },
     "extends": [
-      "plugin:vue/essential",
+      "plugin:vue/vue3-essential",
       "eslint:recommended"
     ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
     "rules": {}
   },
   "browserslist": [

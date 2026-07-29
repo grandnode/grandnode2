@@ -15,7 +15,7 @@
 <vc:widget widget-zone="customer-address-add-before" additional-data="@Model"></vc:widget>
 <validation-observer v-slot="{ handleSubmit }">
     <form asp-route="CustomerAddressAdd" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
-        <div class="page account-page address-edit-page pl-lg-3 mb-3 pt-lg-0 pt-3">
+        <div class="page account-page address-edit-page ps-lg-3 mb-3 pt-lg-0 pt-3">
             <h1 class="generalTitle h2">@Loc["Account.CustomerAddresses.AddNew"]</h1>
             <div asp-validation-summary="All" class="message-error"></div>
             @{

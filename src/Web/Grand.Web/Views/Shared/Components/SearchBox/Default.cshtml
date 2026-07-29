@@ -5,7 +5,7 @@
 @{
     var lang = contextAccessor.WorkContext.WorkingLanguage.LanguageCulture;
 }
-<template id="searchBoxContainer">
+<div id="searchBoxContainer">
     <a class="modal-close" @@click="$bvModal.hide('search-box')">
         <b-icon icon="x"></b-icon>
     </a>
@@ -13,7 +13,7 @@
         <form asp-route="ProductSearch" method="get" id="small-search-box-form" ref="searchForm" v-on:submit.prevent="handleSubmit(searchbox.formSubmit)" class="searchBox w-100">
             <validation-provider tag="div" rules="required|min:@(Model.SearchTermMinimumLength)" name="q" v-slot="{ errors, classes }">
                 <input type="hidden" asp-for="Box" value="true"/>
-                <label for="small-searchterms" class="sr-only">@Loc["Search.SearchBox.Tooltip"]</label>
+                <label for="small-searchterms" class="visually-hidden">@Loc["Search.SearchBox.Tooltip"]</label>
                 <div class="input-group flex-row">
                     <input minlength="@(Model.SearchTermMinimumLength)" maxlength="20"
                            data-val-required="@string.Format(Loc["search.searchtermminimumlengthisncharacters"], Model.SearchTermMinimumLength)"
@@ -26,7 +26,7 @@
                     <span class="field-validation-error">{{ errors[0] }}</span>
                     @if (Model.AvailableCategories.Any())
                     {
-                        <select asp-for="SearchCategoryId" asp-items="Model.AvailableCategories" class="search-box-select custom-select input-group-addon"></select>
+                        <select asp-for="SearchCategoryId" asp-items="Model.AvailableCategories" class="search-box-select form-select input-group-addon"></select>
                     }
                     @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox_before_search_button" })
 
@@ -50,8 +50,8 @@
                                 </template>
                             </button>
                         }
-                        <button type="submit" class="btn btn-link search-box-button float-sm-right d-inline-flex align-items-center">
-                            <span class="sr-only">@Loc["Search.SearchBox.Tooltip"]</span>
+                        <button type="submit" class="btn btn-link search-box-button float-sm-end d-inline-flex align-items-center">
+                            <span class="visually-hidden">@Loc["Search.SearchBox.Tooltip"]</span>
                             <b-icon icon="search"></b-icon>
                         </button>
                     </div>
@@ -61,7 +61,7 @@
             <template v-if="searchbox.searchitems !== null">
                 <div id="adv_search" class="advanced-search-results" onclick="StopPropagation(event)">
                     <div class="col-12">
-                        <div class="form-row">
+                        <div class="row">
                             <div class="col-md-6 col-12">
                                 <h5 class="title">@Loc["search.category"]</h5>
                                 <div v-if="searchbox.searchcategories.length">
@@ -139,9 +139,9 @@
             @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox" })
         </form>
     </validation-observer>
-</template>
+</div>
 <script asp-location="Footer" asp-order="300">
-    var searchBox = Vue.extend({
+    var searchbox = new Vue({
         data: () => ({
             recording: false,
             recognition: null,
@@ -321,5 +321,4 @@
             }
         }
     });
-    var searchbox = new searchBox().$mount('#small-search-box-form')
 </script>

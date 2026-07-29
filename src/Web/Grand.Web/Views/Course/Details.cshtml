@@ -20,7 +20,7 @@
     <div class="jumbotron p-4 mt-3">
         <div class="container d-inline-flex px-0">
             <div class="d-inline-flex flex-sm-row flex-column align-items-sm-start w-100">
-                <img src="@Model.PictureUrl" class="mr-3"/>
+                <img src="@Model.PictureUrl" class="me-3"/>
                 <div class="media-body">
                     <h2 class="d-flex flex-column">
                         @Model.Name<span class="h6">(@Model.Level)</span>
@@ -36,16 +36,16 @@
             <div class="d-inline-flex">
                 @if (Model.Approved)
                 {
-                    <div class="custom-control custom-checkbox my-1 mr-sm-2">
-                        <input type="checkbox" class="custom-control-input" id="customControlInline" checked disabled>
-                        <label class="custom-control-label" for="customControlInline"></label>
+                    <div class="form-check my-1 me-sm-2">
+                        <input type="checkbox" class="form-check-input" id="customControlInline" checked disabled>
+                        <label class="form-check-label" for="customControlInline"></label>
                     </div>
                 }
                 else
                 {
-                    <div class="custom-control disabled custom-checkbox my-1 mr-sm-2">
-                        <input type="checkbox" class="custom-control-input" id="customControlInline" disabled>
-                        <label class="custom-control-label" for="customControlInline"></label>
+                    <div class="form-check disabled form-check my-1 me-sm-2">
+                        <input type="checkbox" class="form-check-input" id="customControlInline" disabled>
+                        <label class="form-check-label" for="customControlInline"></label>
                     </div>
                 }
             </div>
@@ -63,7 +63,7 @@
                     @foreach (var lesson in Model.Lessons.Where(x => x.SubjectId == subject.Id).OrderBy(x => x.DisplayOrder))
                     {
                         <li class="media mb-3">
-                            <img src="@lesson.PictureUrl" class="mr-3"/>
+                            <img src="@lesson.PictureUrl" class="me-3"/>
                             <div class="media-body d-inline-flex">
                                 <div class="w-100">
 
@@ -73,16 +73,16 @@
                                 <div class="d-inline-flex">
                                     @if (lesson.Approved)
                                     {
-                                        <div class="custom-control custom-checkbox my-1 mr-sm-2">
-                                            <input type="checkbox" class="custom-control-input" id="@lesson.Id" checked disabled>
-                                            <label class="custom-control-label" for="@lesson.Id"></label>
+                                        <div class="form-check my-1 me-sm-2">
+                                            <input type="checkbox" class="form-check-input" id="@lesson.Id" checked disabled>
+                                            <label class="form-check-label" for="@lesson.Id"></label>
                                         </div>
                                     }
                                     else
                                     {
-                                        <div class="custom-control disabled custom-checkbox my-1 mr-sm-2">
-                                            <input type="checkbox" class="custom-control-input" id="2-@lesson.Id" disabled>
-                                            <label class="custom-control-label" for="2-@lesson.Id"></label>
+                                        <div class="form-check disabled form-check my-1 me-sm-2">
+                                            <input type="checkbox" class="form-check-input" id="2-@lesson.Id" disabled>
+                                            <label class="form-check-label" for="2-@lesson.Id"></label>
                                         </div>
                                     }
                                 </div>

@@ -12,7 +12,7 @@
     var returnurl = Context?.Request?.GetEncodedPathAndQuery();
     if (availablThemes.Count > 1)
     {
-        <b-dropdown class="mr-2" text="@availablThemes.FirstOrDefault(x => x.Name == themeContext?.GetCurrentTheme())?.Name">
+        <b-dropdown class="me-2" text="@availablThemes.FirstOrDefault(x => x.Name == themeContext?.GetCurrentTheme())?.Name">
             @foreach (var theme in availablThemes)
             {
                 var className = theme.Name == themeContext?.GetCurrentTheme() ? "active" : "";

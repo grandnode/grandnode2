@@ -35,14 +35,14 @@
 
 @if (Model.UserCanCancelUnpaidOrder)
 {
-    <a href="@Url.RouteUrl("CancelOrder", new { orderId = Model.Id })" class="btn btn-danger btn-sm cancel-unpaid-order-button float-right" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">@Loc["Order.CancelOrder"]</a>
+    <a href="@Url.RouteUrl("CancelOrder", new { orderId = Model.Id })" class="btn btn-danger btn-sm cancel-unpaid-order-button float-end" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">@Loc["Order.CancelOrder"]</a>
 }
 @await Component.InvokeAsync("Widget", new { widgetZone = "orderdetails_page_top", additionalData = Model.Id })
 
 <div class="order-details-area mt-3">
     <div class="card">
         <div class="card-body">
-            <div class="form-row">
+            <div class="row">
                 <div class="col-lg-4 col-md-6 col-12 order-info">
                     <ul class="order-overview px-0">
                         <li class="title">
@@ -428,7 +428,7 @@
                                             </em>
                                             @if (Model.ShowSku)
                                             {
-                                                <div class="sku w-100 text-center text-md-left">@item.Sku</div>
+                                                <div class="sku w-100 text-center text-md-start">@item.Sku</div>
                                             }
                                             @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                             {
@@ -466,7 +466,7 @@
                                     </td>
                                     <td class="text-center">
                                         <div>
-                                            <span class="d-inline-block d-xl-none mr-1">@Loc["shoppingcart.quantity"]:</span> @item.Quantity
+                                            <span class="d-inline-block d-xl-none me-1">@Loc["shoppingcart.quantity"]:</span> @item.Quantity
                                         </div>
                                     </td>
                                     <td class="text-center">
@@ -496,7 +496,7 @@
                                 <td class="cart-total-left">
                                     <label>@Loc["Order.SubTotal"]:</label>
                                 </td>
-                                <td class="cart-total-right text-right">
+                                <td class="cart-total-right text-end">
                                     <span>@Model.OrderSubtotal</span>
                                 </td>
                             </tr>
@@ -506,7 +506,7 @@
                                     <td class="cart-total-left">
                                         <label>@Loc["Order.SubTotalDiscount"]:</label>
                                     </td>
-                                    <td class="cart-total-right text-right">
+                                    <td class="cart-total-right text-end">
                                         <span>@Model.OrderSubTotalDiscount</span>
                                     </td>
                                 </tr>
@@ -517,7 +517,7 @@
                                     <td class="cart-total-left">
                                         <label>@Loc["Order.Shipping"]:</label>
                                     </td>
-                                    <td class="cart-total-right text-right">
+                                    <td class="cart-total-right text-end">
                                         <span>@Model.OrderShipping</span>
                                     </td>
                                 </tr>
@@ -528,7 +528,7 @@
                                     <td class="cart-total-left">
                                         <label>@Loc["Order.PaymentMethodAdditionalFee"]:</label>
                                     </td>
-                                    <td class="cart-total-right text-right">
+                                    <td class="cart-total-right text-end">
                                         <span>@Model.PaymentMethodAdditionalFee</span>
                                     </td>
                                 </tr>
@@ -541,7 +541,7 @@
                                         <td class="cart-total-left">
                                             <label>@string.Format(Loc["Order.TaxRateLine"], taxRate.Rate):</label>
                                         </td>
-                                        <td class="cart-total-right text-right">
+                                        <td class="cart-total-right text-end">
                                             <span>@taxRate.Value</span>
                                         </td>
                                     </tr>
@@ -553,7 +553,7 @@
                                     <td class="cart-total-left">
                                         <label>@Loc["Order.Tax"]:</label>
                                     </td>
-                                    <td class="cart-total-right text-right">
+                                    <td class="cart-total-right text-end">
                                         <span>@Model.Tax</span>
                                     </td>
                                 </tr>
@@ -564,7 +564,7 @@
                                     <td class="cart-total-left">
                                         <label>@Loc["Order.TotalDiscount"]:</label>
                                     </td>
-                                    <td class="cart-total-right text-right">
+                                    <td class="cart-total-right text-end">
                                         <span>@Model.OrderTotalDiscount</span>
                                     </td>
                                 </tr>
@@ -577,7 +577,7 @@
                                         <td class="cart-total-left">
                                             <label>@string.Format(Loc["Order.GiftVoucherInfo"], gc.CouponCode):</label>
                                         </td>
-                                        <td class="cart-total-right text-right">
+                                        <td class="cart-total-right text-end">
                                             <span>@gc.Amount</span>
                                         </td>
                                     </tr>
@@ -589,7 +589,7 @@
                                     <td class="cart-total-left">
                                         <label>@string.Format(Loc["Order.LoyaltyPoints"], Model.RedeemedLoyaltyPoints):</label>
                                     </td>
-                                    <td class="cart-total-right text-right">
+                                    <td class="cart-total-right text-end">
                                         <span>@Model.RedeemedLoyaltyPointsAmount</span>
                                     </td>
                                 </tr>
@@ -598,7 +598,7 @@
                                 <td class="cart-total-left">
                                     <label>@Loc["Order.OrderTotal"]:</label>
                                 </td>
-                                <td class="cart-total-right text-right">
+                                <td class="cart-total-right text-end">
                                     <span>
                                         <strong>@Model.OrderTotal</strong>
                                     </span>

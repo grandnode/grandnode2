@@ -192,36 +192,34 @@ var vm = new Vue({
             });
         },
         displayPopup(html, el) {
-            new Vue({
-                el: '#' + el,
-                data: {
-                    template: null,
-                },
-                render: function (createElement) {
-                    if (!this.template) {
-                        return createElement('b-overlay', {
-                            attrs: {
-                                show: 'true'
-                            }
-                        });
-                    } else {
-                        return this.template();
-                    }
-                },
-                methods: {
-                    showModal: function () {
-                        this.$refs[el].show()
+            var container = document.getElementById(el);
+            if (!container) {
+                container = document.createElement('div');
+                container.id = el;
+                document.body.appendChild(container);
+            }
+            if (!vm._popupApps) vm._popupApps = {};
+            if (vm._popupApps[el]) {
+                vm._popupApps[el].unmount();
+                delete vm._popupApps[el];
+            }
+            var popup = Vue.createApp({
+                template: html,
+                data: function () {
+                    return {
+                        darkMode: vm.darkMode
                     }
                 },
                 mounted: function () {
                     var self = this;
-                    self.template = Vue.compile(html).render;
-                    this.darkMode = vm.darkMode;
-                },
-                updated: function () {
-                    this.showModal();
+                    this.$nextTick(function () {
+                        var modal = self.$refs[el];
+                        if (modal && modal.show) modal.show();
+                    });
                 }
             });
+            popup.mount(container);
+            vm._popupApps[el] = popup;
         },
         displayBarNotification(message, url, messagetype, timeout) {
             var variant;

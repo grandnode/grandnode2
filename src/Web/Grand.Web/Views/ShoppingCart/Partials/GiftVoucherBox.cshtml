@@ -1,5 +1,5 @@
 ﻿<div v-if="vmorder.cart.GiftVoucherBox.Display" class="giftvoucher-box">
-    <template>
+    <template v-if="true">
         <div class="accordion" role="tablist">
             <b-card no-body class="mb-1">
                 <b-card-header header-tag="div" class="p-1" role="tab">
@@ -12,7 +12,7 @@
                                 <span class="col-form-label">@Loc["ShoppingCart.Code.Tooltip"]</span>
                                 <div class="input-group">
                                     <input id="giftvouchercouponcode" name="giftvouchercouponcode" type="text" class="form-control gift-card-coupon-code"/>
-                                    <label for="giftvouchercouponcode" class="sr-only">@Loc["ShoppingCart.Code.Button"]</label>
+                                    <label for="giftvouchercouponcode" class="visually-hidden">@Loc["ShoppingCart.Code.Button"]</label>
                                     <span class="input-group-append">
                                         <button type="button" name="applygiftvouchercouponcode" id="applygiftvouchercouponcode" @@click="vmorder.ApplyGiftVoucher('@Url.RouteUrl("ApplyGiftVoucher")')" class="btn btn-outline-secondary apply-discount-coupon-code-button">
                                             @Loc["ShoppingCart.Code.Button"]

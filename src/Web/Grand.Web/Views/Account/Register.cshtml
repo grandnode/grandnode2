@@ -11,18 +11,15 @@
             function @Html.IdFor(model => model.CountryId)_select_element(e) {
                     var selectedItem = e.value;
                     var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
+                    if (!selectedItem) {
+                        return;
+                    }
                     axios({
                         method: 'get',
                         url: "@(Url.RouteUrl("GetStatesByCountryId"))",
                         params: { "countryId": selectedItem, "addSelectStateItem": "true" },
                     }).then(function (response) {
-                        ddlStates.innerHTML = '';
-                        response.data.forEach(function (id, option) {
-                            elChild = document.createElement('option');
-                            elChild.setAttribute('value', id.id);
-                            elChild.innerHTML = id.name;
-                            ddlStates.appendChild(elChild);
-                        });
+                        customer.AvailableStates = response.data;
                         customer.StateProvinceId = response.data[0].id;
                     }).then(function () {
                         ddlStates.classList.remove('is-valid');
@@ -81,24 +78,24 @@
                 </div>
             </div>
             <fieldset class="gender px-3">
-                <legend class="sr-only">@Loc["Account.Fields.Gender"]</legend>
+                <legend class="visually-hidden">@Loc["Account.Fields.Gender"]</legend>
                 <div class="d-flex row">
-                    <label class="male custom-control custom-radio">
-                        <input id="gender-male" name="Gender" type="radio" value="M" checked="@(Model.Gender == "M")" class="custom-control-input">
-                        <span class="custom-control-label"></span>
+                    <label class="male form-check">
+                        <input id="gender-male" name="Gender" type="radio" value="M" checked="@(Model.Gender == "M")" class="form-check-input">
+                        <span class="form-check-label"></span>
                         <span class="forcheckbox custom-control-description">@Loc["Account.Fields.Gender.Male"]</span>
                     </label>
-                    <label class="female custom-control custom-radio ml-2">
-                        <input id="gender-female" name="Gender" type="radio" value="F" checked="@(Model.Gender == "F")" class="custom-control-input">
-                        <span class="custom-control-label"></span>
+                    <label class="female form-check ms-2">
+                        <input id="gender-female" name="Gender" type="radio" value="F" checked="@(Model.Gender == "F")" class="form-check-input">
+                        <span class="form-check-label"></span>
                         <span class="forcheckbox custom-control-description">@Loc["Account.Fields.Gender.Female"]</span>
                     </label>
                 </div>
             </fieldset>
         }
-        <div class="form-row">
+        <div class="row">
             <fieldset class="col-sm-6 col-12 form-group">
-                <legend class="sr-only">@Loc["account.fields.firstname"]</legend>
+                <legend class="visually-hidden">@Loc["account.fields.firstname"]</legend>
                 @if (Model.FirstLastNameRequired)
                 {
                     <validation-provider tag="div" rules="required" name="FirstName" v-slot="{ errors, classes }">
@@ -116,7 +113,7 @@
                 }
             </fieldset>
             <fieldset class="col-sm-6 col-12 form-group">
-                <legend class="sr-only">@Loc["account.fields.lastname"]</legend>
+                <legend class="visually-hidden">@Loc["account.fields.lastname"]</legend>
                 @if (Model.FirstLastNameRequired)
                 {
                     <validation-provider tag="div" rules="required" name="LastName" v-slot="{ errors, classes }">
@@ -138,7 +135,7 @@
         @if (Model.DateOfBirthEnabled)
         {
             <fieldset class="form-group date-of-birth col-sm-12">
-                <legend class="sr-only">@Loc["Account.Fields.DateOfBirth"]</legend>
+                <legend class="visually-hidden">@Loc["Account.Fields.DateOfBirth"]</legend>
                 <div class="row">
                     <span class="col-form-label col-12 py-0 px-0">@Loc["Account.Fields.DateOfBirth"]:<span class="required">*</span></span>
                     <date-picker-dropdown control-day="@Html.IdFor(x => x.DateOfBirthDay)"
@@ -160,7 +157,7 @@
             </fieldset>
         }
         <fieldset class="form-group mail">
-            <legend class="sr-only">@Loc["account.fields.email"]</legend>
+            <legend class="visually-hidden">@Loc["account.fields.email"]</legend>
             <validation-provider tag="div" rules="required" name="Email" v-slot="{ errors, classes }">
                 <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
                 <span class="required">*</span>
@@ -253,7 +250,7 @@
                 @if (Model.StreetAddressEnabled)
                 {
                     <fieldset class="form-group col-12 col-sm-6">
-                        <legend class="sr-only">@Loc["account.fields.streetaddress"]</legend>
+                        <legend class="visually-hidden">@Loc["account.fields.streetaddress"]</legend>
                         @if (Model.StreetAddressRequired)
                         {
                             <validation-provider tag="div" rules="required" name="StreetAddress" v-slot="{ errors, classes }">
@@ -275,7 +272,7 @@
                 @if (Model.StreetAddress2Enabled)
                 {
                     <fieldset class="form-group col-12 col-sm-6">
-                        <legend class="sr-only">@Loc["account.fields.streetaddress2"]</legend>
+                        <legend class="visually-hidden">@Loc["account.fields.streetaddress2"]</legend>
                         @if (Model.StreetAddress2Required)
                         {
                             <validation-provider tag="div" rules="required" name="StreetAddress2" v-slot="{ errors, classes }">
@@ -297,7 +294,7 @@
                 @if (Model.ZipPostalCodeEnabled)
                 {
                     <fieldset class="form-group col-12 col-sm-6">
-                        <legend class="sr-only">@Loc["account.fields.zippostalcode"]</legend>
+                        <legend class="visually-hidden">@Loc["account.fields.zippostalcode"]</legend>
                         @if (Model.ZipPostalCodeRequired)
                         {
                             <validation-provider tag="div" rules="required" name="ZipPostalCode" v-slot="{ errors, classes }">
@@ -319,7 +316,7 @@
                 @if (Model.CityEnabled)
                 {
                     <fieldset class="form-group col-12 col-sm-6">
-                        <legend class="sr-only">@Loc["account.fields.city"]</legend>
+                        <legend class="visually-hidden">@Loc["account.fields.city"]</legend>
                         @if (Model.CityRequired)
                         {
                             <validation-provider tag="div" rules="required" name="City" v-slot="{ errors, classes }">
@@ -341,14 +338,14 @@
                 @if (Model.CountryEnabled)
                 {
                     <fieldset class="form-group col-12 col-sm-6">
-                        <legend class="sr-only">@Loc["account.fields.country"]</legend>
+                        <legend class="visually-hidden">@Loc["account.fields.country"]</legend>
                         @if (Model.CountryRequired)
                         {
                             <validation-provider tag="div" rules="required" name="CountryId" v-slot="{ errors, classes }">
                                 <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
                                 <span class="required">*</span>
                                 <select asp-for="CountryId" asp-items="Model.AvailableCountries" data-val-required=@Loc["Account.Fields.Country.Required"]
-                                        onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control custom-select']" v-model="customer.CountryId">
+                                        onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control form-select']" v-model="customer.CountryId">
                                 </select>
                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                 <span asp-validation-for="CountryId"></span>
@@ -357,7 +354,7 @@
                         else
                         {
                             <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
-                            <select asp-for="CountryId" class="custom-select form-control" asp-items="Model.AvailableCountries"></select>
+                            <select asp-for="CountryId" class="form-select form-control" asp-items="Model.AvailableCountries"></select>
                             <span asp-validation-for="CountryId"></span>
                         }
                     </fieldset>
@@ -365,12 +362,13 @@
                 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
                 {
                     <fieldset class="form-group col-12 col-sm-6">
-                        <legend class="sr-only">@Loc["account.fields.stateprovince"]</legend>
+                        <legend class="visually-hidden">@Loc["account.fields.stateprovince"]</legend>
                         <validation-provider tag="div" rules="required" name="StateProvinceId" v-slot="{ errors, classes }">
                             <label asp-for="StateProvinceId" class="col-form-label">@Loc["Account.Fields.StateProvince"]:</label>
                             <span class="required">*</span>
-                            <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" v-bind:class="[classes , 'form-control custom-select']"
-                                    onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="customer.StateProvinceId">
+                            <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" v-bind:class="[classes , 'form-control form-select']"
+                                    onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" v-model="customer.StateProvinceId">
+                                <option v-for="s in customer.AvailableStates" :key="s.id" :value="s.id">{{s.name}}</option>
                             </select>
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="StateProvinceId"></span>
@@ -394,7 +392,7 @@
                 @if (Model.PhoneEnabled)
                 {
                     <fieldset class="form-group col-12 col-sm-6">
-                        <legend class="sr-only">@Loc["account.fields.phone"]</legend>
+                        <legend class="visually-hidden">@Loc["account.fields.phone"]</legend>
                         @if (Model.PhoneRequired)
                         {
                             <validation-provider tag="div" rules="required" name="Phone" v-slot="{ errors, classes }">
@@ -416,7 +414,7 @@
                 @if (Model.FaxEnabled)
                 {
                     <fieldset class="form-group col-12 col-sm-6">
-                        <legend class="sr-only">@Loc["account.fields.fax"]</legend>
+                        <legend class="visually-hidden">@Loc["account.fields.fax"]</legend>
                         @if (Model.FaxRequired)
                         {
                             <validation-provider tag="div" rules="required" name="Fax" v-slot="{ errors, classes }">
@@ -450,10 +448,10 @@
             @if (Model.NewsletterEnabled)
             {
                 <div class="form-group">
-                    <label for="Newsletter" class="ml-1 custom-control custom-checkbox">
-                        <input class="custom-control-input" asp-for="Newsletter" onchange="toggleNewsletterCat()"/>
-                        <span class="custom-control-label">@Loc["account.fields.newsletter"]</span>
-                        <span class="sr-only">@Loc["account.fields.newsletter"]</span>
+                    <label for="Newsletter" class="ms-1 form-check">
+                        <input class="form-check-input" asp-for="Newsletter" onchange="toggleNewsletterCat()"/>
+                        <span class="form-check-label">@Loc["account.fields.newsletter"]</span>
+                        <span class="visually-hidden">@Loc["account.fields.newsletter"]</span>
                     </label>
                     <span asp-validation-for="Newsletter"></span>
                 </div>
@@ -500,9 +498,9 @@
 {
     <validation-provider tag="div" vid="customer.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors, classes }">
         <div class="d-inline-flex">
-            <label class="custom-control custom-checkbox">
-                <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="customer.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" v-bind:class="[classes , 'custom-control-input']">
-                <span class="custom-control-label"></span>
+            <label class="form-check">
+                <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="customer.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" v-bind:class="[classes , 'form-check-input']">
+                <span class="form-check-label"></span>
                 <span class="custom-control-description">@Loc["Account.Fields.AcceptPrivacyPolicy"]</span>
             </label>
             <b-link class="read mx-2" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "privacyinfo" })', 450, 500, true)">@Loc["Account.Fields.AcceptPrivacyPolicy.Read"]</b-link>
@@ -528,6 +526,7 @@
                         City: '@Html.Raw(Model.City)',
                         CountryId: '@Model.CountryId',
                         StateProvinceId: '@Model.StateProvinceId',
+                        AvailableStates: @Html.Raw(Json.Serialize(Model.AvailableStates.Select(s => new { id = s.Value, name = s.Text }))),
                         Phone: '@Html.Raw(Model.Phone)',
                         Fax: '@Html.Raw(Model.Fax)',
                         Username: '@Html.Raw(Model.Username)',

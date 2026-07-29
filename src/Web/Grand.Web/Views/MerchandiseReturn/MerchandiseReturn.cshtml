@@ -79,7 +79,7 @@
                                             <input type="hidden" asp-for="@Model.Items[j].ProductName"/>
                                             <validation-provider tag="div" rules="required" v-slot="{ errors, classes }">
                                                 <select data-val-required="@(string.Format(Loc["Fields.IsRequired"], Loc["MerchandiseReturns.Products.Quantity"]))"
-                                                        v-bind:class="[classes , 'custom-select form-control']" v-model="merchandisereturns.quantity_@(item.Id)"
+                                                        v-bind:class="[classes , 'form-select form-control']" v-model="merchandisereturns.quantity_@(item.Id)"
                                                         ref="quantity@(item.Id)"
                                                         asp-for="@Model.Items[j].Quantity">
                                                     @for (var i = 0; i <= item.Quantity; i++)
@@ -99,7 +99,7 @@
                                                 }).ToList();
                                             }
                                             <select asp-for="@Model.Items[j].MerchandiseReturnReasonId"
-                                                    asp-items="@reasonsSelectList" class="form-control custom-select return-reasons">
+                                                    asp-items="@reasonsSelectList" class="form-control form-select return-reasons">
                                             </select>
                                         </div>
                                         <div>
@@ -111,7 +111,7 @@
                                                 }).ToList();
                                             }
                                             <select asp-for="@Model.Items[j].MerchandiseReturnActionId"
-                                                    asp-items="@actionsSelectList" class="form-control custom-select return-actions">
+                                                    asp-items="@actionsSelectList" class="form-control form-select return-actions">
                                             </select>
                                         </div>
                                     </td>
@@ -136,7 +136,7 @@
                                     <div class="section select-pickup-address">
                                         <label for="pickup-address-select">@Loc["MerchandiseReturns.SelectPickupAddressOrEnterNewOne"]</label>
                                         <div>
-                                            <select name="PickupAddressId" id="pickup-address-select" class="custom-select address-select"
+                                            <select name="PickupAddressId" id="pickup-address-select" class="form-select address-select"
                                                     title="" @@change="merchandisereturns.isNewAddress()">
                                                 @foreach (var address in Model.ExistingAddresses)
                                                 {

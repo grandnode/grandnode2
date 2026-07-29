@@ -280,7 +280,7 @@ var vmorder = new Vue({
 
                         if (!response.data.wrong_billing_address) {
                             if (!(document.querySelector("#opc-confirm-order").classList.contains('show'))) {
-                                vm.$root.$emit('bv::toggle::collapse', 'opc-' + response.data.update_section.name)
+                                window.bvToggle('opc-' + response.data.update_section.name)
                                 vmorder.vmresetSteps(document.querySelector('#opc-' + response.data.update_section.name));
                             }
                         }

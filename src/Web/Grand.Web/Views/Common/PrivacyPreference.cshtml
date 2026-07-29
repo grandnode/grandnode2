@@ -14,7 +14,7 @@
                             <div class="h5">@item.Name</div>
                             <div>@item.Description</div>
                         </div>
-                        <div class="custom-control custom-switch">
+                        <div class="form-check form-switch">
                             <input
                                 @if (!item.AllowToDisable)
                                 {
@@ -25,8 +25,8 @@
                                     <text> checked</text>
                                 }
                                 type="checkbox"
-                                value="@item.SystemName" class="custom-control-input" id="ConsentCookies_@item.SystemName" name="ConsentCookies_@item.SystemName">
-                            <label class="custom-control-label" for="ConsentCookies_@item.SystemName"></label>
+                                value="@item.SystemName" class="form-check-input" id="ConsentCookies_@item.SystemName" name="ConsentCookies_@item.SystemName">
+                            <label class="form-check-label" for="ConsentCookies_@item.SystemName"></label>
                         </div>
                     </div>
                 }

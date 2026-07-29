@@ -12,7 +12,7 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.LoyaltyPoints })
 }
 
-<section class="page account-page loyalty-points-page pl-lg-3 pt-3 pt-lg-0">
+<section class="page account-page loyalty-points-page ps-lg-3 pt-3 pt-lg-0">
     <h1 class="h2 generalTitle">@Loc["Account.MyAccount"] - @Loc["Account.LoyaltyPoints"]</h1>
     <div class="loyalty-points-overview">
         <div class="current-balance alert alert-success">@Loc["LoyaltyPoints.CurrentBalance", Model.LoyaltyPointsBalance, Model.LoyaltyPointsAmount]</div>

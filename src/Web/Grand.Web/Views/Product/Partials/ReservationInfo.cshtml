@@ -6,7 +6,7 @@
     {
         <div class="container" style="margin-left:-15px">
             <label for="parameterDropdown" class="col-form-label">@Loc["Products.AdditionalParameter"]:</label>
-            <select class="custom-select form-control" name="parameterDropdown" id="parameterDropdown">
+            <select class="form-select form-control" name="parameterDropdown" id="parameterDropdown">
                 @foreach (var parameter in Model.Parameters)
                 {
                     <option value="@parameter.Value">@parameter.Text</option>
@@ -34,7 +34,7 @@
         </div>
         <div>
             <h5 style="margin-top:10px">@Loc["Products.Reservation.Hour"]:</h5>
-            <div id="hoursDiv" class="d-inline-flex flex-wrap" data-toggle="buttons"></div>
+            <div id="hoursDiv" class="d-inline-flex flex-wrap" data-bs-toggle="buttons"></div>
         </div>
     }
 </div>

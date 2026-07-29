@@ -134,19 +134,15 @@
                              alt="@picture.AlternateText"
                              title="@picture.Title"
                              data-src="@picture.ImageUrl"
-                             @@click="Gallery.extendOptions.methods.changeImg($event)"/>
+                             onclick="galleryChangeImg(event)"/>
                     }
                 </div>
                 <script asp-location="Footer" asp-order="300">
-                    var gallery = new Vue({
-                        methods: {
-                            changeImg(event) {
-                                var img = event.srcElement.getAttribute('data-src');
-                                var mainImg = document.getElementById('main-product-img-@Model.Id');
-                                mainImg.setAttribute('src', img);
-                            }
-                        }
-                    })
+                    function galleryChangeImg(event) {
+                        var img = event.srcElement.getAttribute('data-src');
+                        var mainImg = document.getElementById('main-product-img-@Model.Id');
+                        mainImg.setAttribute('src', img);
+                    }
             </script>
             }
         }

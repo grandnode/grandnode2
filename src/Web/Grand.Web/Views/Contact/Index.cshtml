@@ -8,7 +8,7 @@
 }
 <div class="page contact-page">
     <h1 class="generalTitle h2">@Loc["Title.ContactUs"]</h1>
-    <div class="generalMarginSupporter text-left">
+    <div class="generalMarginSupporter text-start">
         @await Component.InvokeAsync("PageBlock", new { systemName = "ContactUs" })
         @await Component.InvokeAsync("Widget", new { widgetZone = "contactus_top" })
         @if (Model.SuccessfullySent)

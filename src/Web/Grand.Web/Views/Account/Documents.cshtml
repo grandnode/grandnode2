@@ -11,7 +11,7 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Documents })
 }
 
-<div class="page account-page auction-list-page pl-lg-3 pt-3 pt-lg-0">
+<div class="page account-page auction-list-page ps-lg-3 pt-3 pt-lg-0">
     <h1 class="h2 generalTitle">@Loc["Account.Documents"]</h1>
     @if (Model.DocumentList.Any())
     {
@@ -19,22 +19,22 @@
         {
             <div class="card mb-3">
                 <div class="card-header d-sm-inline-flex flex-sm-row d-flex flex-column px-sm-3 px-2">
-                    <div class="pr-3">
+                    <div class="pe-3">
                         <strong>@item.Number</strong> <small>(@item.Status)</small>
                     </div>
                     @if (item.DocDate.HasValue)
                     {
-                        <div class="ml-auto">
-                            <span class="pr-1">@Loc["Account.Documents.DocDate"]</span>
-                            <i class="far fa-clock pr-1 text-muted"></i>
+                        <div class="ms-auto">
+                            <span class="pe-1">@Loc["Account.Documents.DocDate"]</span>
+                            <i class="far fa-clock pe-1 text-muted"></i>
                             <span class="text-muted">@item.DocDate.Value.ToShortDateString()</span>
                         </div>
                     }
                     @if (item.DueDate.HasValue)
                     {
-                        <div class="ml-auto">
-                            <span class="pr-1">@Loc["Account.Documents.DueDate"]</span>
-                            <i class="far fa-clock pr-1 text-muted"></i>
+                        <div class="ms-auto">
+                            <span class="pe-1">@Loc["Account.Documents.DueDate"]</span>
+                            <i class="far fa-clock pe-1 text-muted"></i>
                             <span class="text-muted">@item.DueDate.Value.ToShortDateString()</span>
                         </div>
                     }

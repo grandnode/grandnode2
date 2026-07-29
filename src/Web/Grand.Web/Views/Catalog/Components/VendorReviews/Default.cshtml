@@ -15,7 +15,7 @@ else
 }
 <partial name="Partials/VendorReview.Modal.cshtml" model="Model"/>
 
-<template id="vendor-review-list">
+<template v-if="true">
     <div class="vendor-review-list">
         <template v-if="vendorreviews.Model.Items.length > 0">
             <h5 class="mb-3">
@@ -26,12 +26,12 @@ else
                     <div class="card-header">
                         <div class="review-info d-inline-flex w-100">
                             <div class="user d-inline-flex align-items-center">
-                                <small class="text-muted mr-2">@Loc["Reviews.From"]:</small>
+                                <small class="text-muted me-2">@Loc["Reviews.From"]:</small>
                                 <h6 class="mb-0">{{review.CustomerName}}</h6>
                             </div>
                             <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
                             <small class="date text-muted">
-                                <span class="ml-1">@Loc["Reviews.Date"]:</span>
+                                <span class="ms-1">@Loc["Reviews.Date"]:</span>
                                 <span>{{review.WrittenOnStr}}</span>
                             </small>
                         </div>

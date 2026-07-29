@@ -458,12 +458,12 @@ var Reservation = {
 
                 if (selectedYear == year && selectedMonth == month && selectedDay == day) {
                     var div = document.createElement('div');
-                    div.classList.add('custom-control');
+                    div.classList.add('form-check');
                     div.classList.add('custom-radio');
                     div.classList.add('mx-1');
 
                     document.querySelector("#hoursDiv").appendChild(div);
-                    div.innerHTML = "<input class='custom-control-input' type='radio' id='Reservation_" + Reservation.availableDates[i].Id + "' name='Reservation' value='" + Reservation.availableDates[i].Id + "' /><label class='custom-control-label' for='Reservation_" + Reservation.availableDates[i].Id + "'>" + Reservation.availableDates[i].Date.substring(11, 16) + "</label>";
+                    div.innerHTML = "<input class='form-check-input' type='radio' id='Reservation_" + Reservation.availableDates[i].Id + "' name='Reservation' value='" + Reservation.availableDates[i].Id + "' /><label class='form-check-label' for='Reservation_" + Reservation.availableDates[i].Id + "'>" + Reservation.availableDates[i].Date.substring(11, 16) + "</label>";
 
                 }
             }

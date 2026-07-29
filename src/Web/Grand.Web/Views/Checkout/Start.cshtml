@@ -64,9 +64,9 @@
                 <button block v-b-toggle.opc-confirm-order id="button-confirm-order" class="btn btn-info">@confirmOrderStepNumber. @Loc["Checkout.ConfirmOrder"]</button>
             </div>
         </div>
-        <div class="form-row">
+        <div class="row">
             <div class="col-xl-7 col-12">
-                <template>
+                <template v-if="true">
                     <div class="accordion opc" id="checkout-steps" role="tablist">
                         @if (Model.ShippingRequired)
                         {
@@ -202,7 +202,7 @@
                                         <partial name="Partials/ConfirmOrder"/>
                                     </div>
                                     <div id="confirm-order-buttons-container">
-                                        <a class="btn btn-secondary sr-only" href="#" id="back-confirm_order" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
+                                        <a class="btn btn-secondary visually-hidden" href="#" id="back-confirm_order" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
                                         <span class="please-wait" id="confirm-order-please-wait" style="display: none;">@Loc["Checkout.SubmittingOrder"]</span>
                                     </div>
                                 </div>

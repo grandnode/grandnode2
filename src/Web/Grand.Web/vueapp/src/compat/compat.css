@@ -1,0 +1,160 @@
+/*
+ * Bootstrap 4 / BootstrapVue compatibility layer for markup and theme CSS
+ * that still relies on removed BS4 structures. Complements bootstrap 5.
+ */
+
+/* --- Bootstrap 4 structural classes removed in v5 -------------------------- */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.input-group-append,
+.input-group-prepend {
+    display: flex;
+}
+
+.input-group-append .btn,
+.input-group-append .input-group-text,
+.input-group-prepend .btn,
+.input-group-prepend .input-group-text {
+    position: relative;
+    z-index: 2;
+}
+
+.input-group-prepend .input-group-text,
+.input-group-prepend .btn {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group-append .input-group-text,
+.input-group-append .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.close {
+    float: right;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+}
+
+.close:hover {
+    opacity: .75;
+    cursor: pointer;
+}
+
+.media {
+    display: flex;
+    align-items: flex-start;
+}
+
+.media-body {
+    flex: 1;
+}
+
+.jumbotron {
+    padding: 2rem 1rem;
+    margin-bottom: 1rem;
+    background-color: #f8f9fa;
+    border-radius: .3rem;
+}
+
+.form-inline {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+}
+
+/* --- BootstrapVue sidebar ------------------------------------------------- */
+.b-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    width: 320px;
+    max-width: 100%;
+    height: 100vh;
+    background-color: var(--bs-body-bg, #fff);
+    z-index: 1045;
+    outline: 0;
+    overflow-y: auto;
+}
+
+.b-sidebar.b-sidebar-right {
+    left: auto;
+    right: 0;
+}
+
+.b-sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: .75rem 1rem;
+    font-size: 1.25rem;
+}
+
+.b-sidebar-body {
+    flex-grow: 1;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.b-sidebar-backdrop {
+    z-index: 1040;
+}
+
+/* --- carousel (Vue-driven, no bootstrap JS): real cross-fade --------------- */
+.carousel-fade .carousel-inner {
+    position: relative;
+}
+
+.carousel-fade .carousel-item {
+    display: block;
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity .6s ease;
+    pointer-events: none;
+}
+
+.carousel-fade .carousel-item.active {
+    position: relative;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.carousel-indicators li {
+    box-sizing: content-box;
+    flex: 0 1 auto;
+    width: 30px;
+    height: 3px;
+    margin-right: 3px;
+    margin-left: 3px;
+    cursor: pointer;
+    background-clip: padding-box;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    opacity: .5;
+    list-style: none;
+}
+
+.carousel-indicators li.active {
+    opacity: 1;
+}
+
+/* --- misc ------------------------------------------------------------------ */
+.b-rating {
+    padding: .25rem .5rem;
+}
+
+.b-rating .bi {
+    line-height: 1;
+}

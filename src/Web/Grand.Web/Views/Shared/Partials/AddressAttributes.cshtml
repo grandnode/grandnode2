@@ -25,7 +25,7 @@
                         <text> rules="required" </text>
                     }
                     v-slot="{ errors, classes }">
-                    <select v-model="createorupdateaddress@{@prefix}.@(controlId)" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-bind:class="[classes , 'custom-select form-control']" name="@(controlName)" id="@(controlId)">
+                    <select v-model="createorupdateaddress@{@prefix}.@(controlId)" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-bind:class="[classes , 'form-select form-control']" name="@(controlName)" id="@(controlId)">
                         @if (!attribute.IsRequired)
                         {
                             <option value="">---</option>
@@ -61,13 +61,13 @@
                         <div class="checks">
                             @foreach (var attributeValue in attribute.Values)
                             {
-                                <label class="custom-control custom-radio">
-                                    <input class="custom-control-input" type="radio" id="@(controlId)_@(attributeValue.Id)" name="@(controlName)" value="@(attributeValue.Id)" v-model="createorupdateaddress@{@prefix}.@(controlId)"
+                                <label class="form-check">
+                                    <input class="form-check-input" type="radio" id="@(controlId)_@(attributeValue.Id)" name="@(controlName)" value="@(attributeValue.Id)" v-model="createorupdateaddress@{@prefix}.@(controlId)"
                                            @if (attributeValue.IsPreSelected)
                                            {
                                                <text> data-checked="true" </text>
                                            }>
-                                    <span class="custom-control-label"></span>
+                                    <span class="form-check-label"></span>
                                     <span class="custom-control-description">@attributeValue.Name</span>
                                 </label>
                             }
@@ -93,9 +93,9 @@
                         <div class="checks">
                             @foreach (var attributeValue in attribute.Values)
                             {
-                                <label class="custom-control custom-checkbox">
-                                    <input class="custom-control-input" type="checkbox" id="@(controlId)_@(attributeValue.Id)" name="@(controlName)" value="@(attributeValue.Id)" v-model="createorupdateaddress@{@prefix}.@(controlId)" @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null)>
-                                    <span class="custom-control-label"></span>
+                                <label class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="@(controlId)_@(attributeValue.Id)" name="@(controlName)" value="@(attributeValue.Id)" v-model="createorupdateaddress@{@prefix}.@(controlId)" @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null)>
+                                    <span class="form-check-label"></span>
                                     <span class="custom-control-description">@attributeValue.Name</span>
                                 </label>
                             }

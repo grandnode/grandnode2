@@ -15,7 +15,7 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Reviews })
 }
 
-<div class="page account-page product-reviews-page pl-lg-3 pt-lg-0 pt-3">
+<div class="page account-page product-reviews-page ps-lg-3 pt-lg-0 pt-3">
     <h1 class="h2 generalTitle">@Loc["Account.Reviews"]</h1>
     @if (Model.Reviews.Any())
     {
@@ -30,12 +30,12 @@
                             <small class="date d-flex text-muted">
                                 @if (supportRtl)
                                 {
-                                    <span class="ml-1">@Loc["Reviews.Date"]:</span>
+                                    <span class="ms-1">@Loc["Reviews.Date"]:</span>
                                     <span>@Convert.ToDateTime(review.CreatedOn).ToString("tt HH:mm yyyy/MM/dd")</span>
                                 }
                                 else
                                 {
-                                    <span class="mr-1">@Loc["Reviews.Date"]:</span>
+                                    <span class="me-1">@Loc["Reviews.Date"]:</span>
                                     <span>@review.CreatedOn.ToString("g")</span>
                                 }
                             </small>

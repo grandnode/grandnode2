@@ -23,7 +23,7 @@
         <template v-if="catalog.Model.Products.length > 0">
             <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
                 <div class="col-12 product-grid px-0">
-                    <div class="form-row">
+                    <div class="row">
                         <template v-for="Model in catalog.Model.Products">
                             <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
                                 <partial name="Partials/CatalogProductGridView"/>

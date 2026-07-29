@@ -7,13 +7,13 @@
             <b-card-img-lazy class="hover-img" :alt="Model.SecondPictureModel.AlternateText" :src="Model.SecondPictureModel.ImageUrl"></b-card-img-lazy>
         </template>
     </a>
-    <a title="@Loc["Products.QuickView"]" class="btn btn-secondary quick-view-button" data-target="ModalQuickView" :onclick="'AxiosCart.quickview_product(`@Url.RouteUrl("QuickView-Product")/' + Model.Id + '`);return false;'">
+    <a title="@Loc["Products.QuickView"]" class="btn btn-secondary quick-view-button" data-bs-target="ModalQuickView" :onclick="'AxiosCart.quickview_product(`@Url.RouteUrl("QuickView-Product")/' + Model.Id + '`);return false;'">
         <b-icon icon="search"></b-icon>
         <span>@Loc["Products.QuickView"]</span>
     </a>
     <template v-if="Model.Flag !== null">
         <div class="product-label">
-            <div class="badge badge-info">{{Model.Flag}}</div>
+            <div class="badge text-bg-info">{{Model.Flag}}</div>
         </div>
     </template>
 </div>
@@ -168,14 +168,14 @@
     <template v-if="!Model.ProductPrice.DisableWishlistButton && Model.ProductType == 0">
         <template v-if="!Model.ShowQty">
             <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/2?quantity=1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
-                <span class="sr-only">AddToWishlist</span>
+                <span class="visually-hidden">AddToWishlist</span>
                 <b-icon icon="heart"></b-icon>
             </button>
         </template>
         <template v-else>
             <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/2`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
                 <b-icon icon="heart"></b-icon>
-                <span class="sr-only">AddToWishlist</span>
+                <span class="visually-hidden">AddToWishlist</span>
             </button>
         </template>
     </template>
@@ -196,7 +196,7 @@
                         </template>
                     </template>
                 </span>
-                <span class="sr-only">AddToCart</span>
+                <span class="visually-hidden">AddToCart</span>
             </button>
         </template>
         <template v-else>
@@ -215,7 +215,7 @@
                         </template>
                     </template>
                 </span>
-                <span class="sr-only">AddToCart</span>
+                <span class="visually-hidden">AddToCart</span>
             </button>
         </template>
     </template>
@@ -224,13 +224,13 @@
             <button class="btn btn-info justify-content-center w-100" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/1?quantity=1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
                 <b-icon icon="hammer" class="mx-auto d-sm-none d-block"></b-icon>
                 <span class="add-cart-text d-sm-block d-none">@Loc["ShoppingCart.Bids"]</span>
-                <span class="sr-only">AddToCart</span>
+                <span class="visually-hidden">AddToCart</span>
             </button>
         </template>
     </template>
     <template v-if="!Model.ProductPrice.DisableAddToCompareListButton && Model.ProductType == 0">
         <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-secondary" :onclick="'AxiosCart.addproducttocomparelist(`'+ Model.Id +'`, `@Loc["Products.ProductHasBeenAddedToCompareList.Link"]`, `@Url.RouteUrl("CompareProducts")`)'">
-            <span class="sr-only">AddToCompareList</span>
+            <span class="visually-hidden">AddToCompareList</span>
             <b-icon icon="shuffle"></b-icon>
         </button>
     </template>

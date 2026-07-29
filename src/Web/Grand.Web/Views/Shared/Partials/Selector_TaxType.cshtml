@@ -16,7 +16,7 @@
         text = Loc["Tax.Exclusive"];
     }
 
-    <b-dropdown class="mr-2" text="@text">
+    <b-dropdown class="me-2" text="@text">
         <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeTaxType", new { customertaxtype = (int)TaxDisplayType.IncludingTax, returnUrl })">
             @Loc["Tax.Inclusive"]
         </b-dropdown-item>

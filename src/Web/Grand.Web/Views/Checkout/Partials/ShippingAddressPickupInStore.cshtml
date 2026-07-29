@@ -4,9 +4,9 @@
 {
     <div class="section pickup-in-store">
         <p class="selector">
-            <label class="custom-control custom-checkbox">
-                <input asp-for="PickUpInStore" class="custom-control-input" v-model="vmorder.PickUpInStore"/>
-                <span class="custom-control-label"></span>
+            <label class="form-check">
+                <input asp-for="PickUpInStore" class="form-check-input" v-model="vmorder.PickUpInStore"/>
+                <span class="form-check-label"></span>
                 <span class="custom-control-description" for="@Html.IdFor(model => model.PickUpInStore)">
                     @Loc["Checkout.PickupPoints"]
                 </span>
@@ -47,7 +47,7 @@
                 else
                 {
                     <label for="pickup-points-select">@Loc["Checkout.PickupPoints.SelectPickupPoint"]</label>
-                    <select name="PickupPointId" id="pickup-points-select" class="custom-select address-select" title="">
+                    <select name="PickupPointId" id="pickup-points-select" class="form-select address-select" title="">
                         @foreach (var point in Model.PickupPoints)
                         {
                             var addressLine = new StringBuilder();

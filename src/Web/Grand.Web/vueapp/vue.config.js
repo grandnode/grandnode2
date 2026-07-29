@@ -1,4 +1,5 @@
 ﻿module.exports = {
+    publicPath: '/bundles/',
     outputDir: '../wwwroot/bundles',
     lintOnSave: false,
     productionSourceMap: false,
@@ -14,7 +15,19 @@
         },
         resolve: {
             alias: {
-                'vue$': 'vue/dist/vue.esm.js'
+                'vue$': 'vue/dist/vue.esm-bundler.js'
+            }
+        },
+        optimization: {
+            splitChunks: {
+                cacheGroups: {
+                    styles: {
+                        name: 'styles',
+                        type: 'css/mini-extract',
+                        chunks: 'all',
+                        enforce: true
+                    }
+                }
             }
         },
     },

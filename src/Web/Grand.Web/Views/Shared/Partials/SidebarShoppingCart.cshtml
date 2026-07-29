@@ -7,7 +7,7 @@
     <ul class="sidebar-cart px-0">
         <li class="nav-item">
             <a href="#" target="_self" class="nav-link">
-                <b-icon icon="cart" :variant="[darkMode ? 'white' : 'dark']" @@click="if(flycartfirstload){updateSidebarShoppingCart('@Url.RouteUrl("SidebarShoppingCart")')}" v-b-toggle.sidebar-cart></b-icon>
+                <b-icon icon="cart" :variant="[darkMode ? 'white' : 'dark']" @@click="flycartfirstload && updateSidebarShoppingCart('@Url.RouteUrl("SidebarShoppingCart")')" v-b-toggle.sidebar-cart></b-icon>
                 <span class="qty-indicator cart-qty">
                     <template v-if="flycartindicator == null">
                         @Loc["ShoppingCart.HeaderQuantity", Model]
@@ -18,18 +18,20 @@
                 </span>
             </a>
         </li>
-        <template>
+        <template v-if="true">
             <li>
                 <b-sidebar id="sidebar-cart" backdrop
                            @if (!supportRtl)
                            {
                                <text>right</text>
                            }>
-                    <template v-slot:title v-if="flycartindicator > 0">
-                        @Html.Raw(string.Format(Loc["ShoppingCart.Mini.ItemsText"], $"<a href=\"{Url.RouteUrl("ShoppingCart")}\">{string.Format(Loc["ShoppingCart.Mini.Items"], "{{flycartindicator}}")}</a>"))
-                    </template>
-                    <template v-slot:title v-else>
-                        @Loc["ShoppingCart.Mini.NoItems"]
+                    <template v-slot:title>
+                        <template v-if="flycartindicator > 0">
+                            @Html.Raw(string.Format(Loc["ShoppingCart.Mini.ItemsText"], $"<a href=\"{Url.RouteUrl("ShoppingCart")}\">{string.Format(Loc["ShoppingCart.Mini.Items"], "{{flycartindicator}}")}</a>"))
+                        </template>
+                        <template v-else>
+                            @Loc["ShoppingCart.Mini.NoItems"]
+                        </template>
                     </template>
                     <div class="d-flex justify-content-center align-items-center h-100" v-if="flycartitems == undefined">
                         <div class="spinner-border text-info" role="status">
@@ -57,15 +59,15 @@
                             </a>
                         </div>
                     </div>
-                    <template v-slot:footer v-if="flycartindicator > 0">
-                        <div class="p-3 bg-dark col-12">
+                    <template v-slot:footer>
+                        <div v-if="flycartindicator > 0" class="p-3 bg-dark col-12">
                             <div class="row">
                                 <div class="col-lg-6 col-5 text-center text-white d-flex flex-column">
                                     <span class="h5 mb-0">@Loc["ShoppingCart.Totals.SubTotal"]:</span>
                                     <span class="h4 mb-0">{{flycart.SubTotal}}</span>
                                 </div>
                                 <div class="col-lg-6 col-7 text-center d-flex justify-content-center align-items-center">
-                                    <a v-if="flycart.DisplayShoppingCartButton" class="btn btn-light cart-button w-100 h-100 d-flex align-items-center justify-content-center text-uppercase" @@click="location='@Url.RouteUrl("ShoppingCart")'">@Loc["ShoppingCart.Mini.ViewCart"]</a>
+                                    <a v-if="flycart.DisplayShoppingCartButton" class="btn btn-light cart-button w-100 h-100 d-flex align-items-center justify-content-center text-uppercase" @@click="window.location='@Url.RouteUrl("ShoppingCart")'">@Loc["ShoppingCart.Mini.ViewCart"]</a>
                                     <div v-if="flycart.DisplayCheckoutButton" class="w-100 h-100">
                                         <div v-if="flycart.CurrentCustomerIsGuest && flycart.CurrentCustomerIsGuest">
                                             <a class="btn btn-light checkout-button w-100 h-100 d-flex align-items-center justify-content-center text-uppercase" onclick="location='@Url.RouteUrl("LoginCheckoutAsGuest", new { returnUrl = Url.RouteUrl("ShoppingCart") })'">@Loc["Checkout.Button"]</a>
@@ -78,7 +80,7 @@
                             </div>
                         </div>
                     </template>
-                    <template v-else-if="flycartindicator !== undefined">
+                    <template v-if="flycartindicator !== undefined && !(flycartindicator > 0)">
                         <div class="d-flex flex-column justify-content-center align-items-center">
                             <b-icon icon="cart-x" font-scale="7.5" variant="secondary"></b-icon>
                             <div class="text-center text-muted mt-3">@Loc["ShoppingCart.Mini.NoDataText"]</div>

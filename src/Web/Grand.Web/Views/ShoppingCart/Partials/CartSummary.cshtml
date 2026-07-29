@@ -10,7 +10,7 @@
 </ul>
 <form asp-route="ShoppingCart" method="post" enctype="multipart/form-data" id="shopping-cart-form">
 <div class="col-12">
-<div class="form-row">
+<div class="row">
 <div class="col-lg-8 col-12 cart-out-container">
     <div class="shopping-cart-container">
         <div class="shopping-cart-container">
@@ -50,9 +50,9 @@
                 <tbody>
                 <tr v-for="item in vmorder.cart.Items">
                     <td v-if="vmorder.cart.IsAllowOnHold && vmorder.cart.IsEditable" class="onhold-cart">
-                        <label class="custom-control custom-switch mb-0 pl-0">
-                            <input :id="'checkbox_' + item.Id" type="checkbox" :checked="item.IsCart" class="custom-control-input changeshoppingcartitem" v-on:change="vmorder.updateCartType(item.Id, !item.IsCart)"/>
-                            <span class="custom-control-label ml-5"></span>
+                        <label class="form-check form-switch mb-0 ps-0">
+                            <input :id="'checkbox_' + item.Id" type="checkbox" :checked="item.IsCart" class="form-check-input changeshoppingcartitem" v-on:change="vmorder.updateCartType(item.Id, !item.IsCart)"/>
+                            <span class="form-check-label ms-5"></span>
                         </label>
                     </td>
                     <td v-if="vmorder.cart.ShowProductImages" class="product-picture text-center">
@@ -95,7 +95,7 @@
                     <td class="quantity">
                         <div v-if="vmorder.cart.IsEditable">
                             <div v-if="item.AllowedQuantities[0]">
-                                <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)">
+                                <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="form-select form-control qty-dropdown" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)">
                                     <option v-for="qty in item.AllowedQuantities" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
                                 </select>
                             </div>
@@ -113,8 +113,8 @@
                             <div class="discount text-success text-center">
                                 <span>@Loc["ShoppingCart.ItemYouSave"]: </span>
                                 <span>{{item.Discount}}</span>
-                                <span v-if="item.DiscountedQty > 0" class="font-weight-light font-italic">@Loc["ShoppingCart.DiscountedQty"]: </span>
-                                <span v-if="item.DiscountedQty > 0" class="font-weight-light font-italic">{{item.DiscountedQty}}</span>
+                                <span v-if="item.DiscountedQty > 0" class="fw-light fst-italic">@Loc["ShoppingCart.DiscountedQty"]: </span>
+                                <span v-if="item.DiscountedQty > 0" class="fw-light fst-italic">{{item.DiscountedQty}}</span>
                             </div>
                         </div>
                         <div v-else>
@@ -145,7 +145,7 @@
             <div v-if="vmorder.cart.IsEditable" class="col-12 col-md-6 checkoutAttributes">
                 <partial name="Partials/CheckoutAttributes"/>
             </div>
-            <div class="selected-checkout-attributes col-sm-3 col-md-6 col-12 ml-auto justify-content-end text-right mt-3">
+            <div class="selected-checkout-attributes col-sm-3 col-md-6 col-12 ms-auto justify-content-end text-end mt-3">
                 <div v-html="vmorder.cart.CheckoutAttributeInfo"></div>
             </div>
         </div>
@@ -175,7 +175,7 @@
             {{vmorder.cart.MinOrderSubtotalWarning}}
         </div>
         <template v-if="vmorder.cart.IsEditable && vmorder.cart.MinOrderSubtotalWarning == null">
-            <template v-if-else="vmorder.cart.MinOrderSubtotalWarning !== null">
+            <template v-if="true">
                 <template v-if="vmorder.cart.TermsOfServiceOnShoppingCartPage">
                     <div class="w-100">
                         <b-form-checkbox id="TermsOfService"

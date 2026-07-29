@@ -38,7 +38,7 @@
                                 <div class="form-group review-rating d-flex flex-wrap">
                                     <label for="AddVendorReview_Rating" class="col-form-label w-100">@Loc["Reviews.Fields.Rating"]:</label>
                                     <b-form-rating v-model="value" variant="warning" show-value value="5" inline></b-form-rating>
-                                    <input class="sr-only" id="AddVendorReview_Rating" name="AddVendorReview.Rating" v-model="value"/>
+                                    <input class="visually-hidden" id="AddVendorReview_Rating" name="AddVendorReview.Rating" v-model="value"/>
                                 </div>
                                 <template v-if="vendorreviews.Model.AddVendorReview.DisplayCaptcha">
                                     <div id="captcha-popup"></div>

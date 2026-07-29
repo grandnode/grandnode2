@@ -3,17 +3,17 @@
 {
     <div class="row">
         <div class="col-12 form-group register-category-newsletter">
-            <ul class="option-list pl-0">
+            <ul class="option-list ps-0">
                 @foreach (var attribute in Model)
                 {
                     <li>
                         @{
                             var controlId = $"customerNewsletterCategory_{attribute.Id}";
                         }
-                        <label for="@(controlId)" class="custom-control custom-checkbox">
-                            <input class="custom-control-input" id="@(controlId)" type="checkbox" name="SelectedNewsletterCategory" value="@(attribute.Id)"
+                        <label for="@(controlId)" class="form-check">
+                            <input class="form-check-input" id="@(controlId)" type="checkbox" name="SelectedNewsletterCategory" value="@(attribute.Id)"
                                    checked="@(attribute.Selected)"/>
-                            <span class="custom-control-label"></span>
+                            <span class="form-check-label"></span>
                             <span class="custom-control-description">@(attribute.Name)</span>
                         </label>
                         <div>

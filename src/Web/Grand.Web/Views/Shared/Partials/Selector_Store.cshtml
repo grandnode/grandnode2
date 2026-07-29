@@ -20,7 +20,7 @@
     {
         var returnUrl = Context?.Request?.GetEncodedPathAndQuery();
 
-        <b-dropdown class="mr-2" text="@availableStores.FirstOrDefault(x => x.Id == contextAccessor.StoreContext.CurrentStore.Id)?.Name">
+        <b-dropdown class="me-2" text="@availableStores.FirstOrDefault(x => x.Id == contextAccessor.StoreContext.CurrentStore.Id)?.Name">
             @foreach (var store in availableStores)
             {
                 var className = store.Id == contextAccessor.StoreContext.CurrentStore.Id ? "active" : "";

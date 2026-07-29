@@ -83,9 +83,9 @@
                         <div class="form-group">
                             <validation-provider tag="div" vid="applyvendor.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors, classes }">
                                 <div class="d-inline-flex">
-                                    <label class="custom-control custom-checkbox">
-                                        <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="applyvendor.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" v-bind:class="[classes , 'form-control custom-control-input']">
-                                        <span class="custom-control-label"></span>
+                                    <label class="form-check">
+                                        <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="applyvendor.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" v-bind:class="[classes , 'form-control form-check-input']">
+                                        <span class="form-check-label"></span>
                                         <span class="custom-control-description">@Loc["Vendors.ApplyAccount.AcceptTermsOfService"]</span>
                                     </label>
                                     @if (Model.TermsOfServicePopup)

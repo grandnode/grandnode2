@@ -51,7 +51,7 @@
             @for (var i = 0; i < Model.Tags.Count; i++)
             {
                 var tag = Model.Tags[i];
-                <a class="btn btn-sm btn-light mr-2 mb-2" href="@Url.RouteUrl("BlogByTag", new { tag })">@tag</a>
+                <a class="btn btn-sm btn-light me-2 mb-2" href="@Url.RouteUrl("BlogByTag", new { tag })">@tag</a>
             }
         </div>
     }
@@ -82,7 +82,7 @@
                             </div>
                         }
                     </div>
-                    <div class="buttons text-xs-center text-md-left generalMarginSupporter">
+                    <div class="buttons text-xs-center text-md-start generalMarginSupporter">
                         <input type="submit" asp-action="BlogCommentAdd" name="add-comment" class="btn btn-info blog-post-add-comment-button" value="@Loc["Blog.Comments.SubmitButton"]"/>
                     </div>
                 </form>

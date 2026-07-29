@@ -4,7 +4,7 @@
     {
         <div class="card mb-2">
             <div class="row">
-                <div class="col-md-3 col-4 d-flex justify-content-center align-items-start pr-0">
+                <div class="col-md-3 col-4 d-flex justify-content-center align-items-start pe-0">
                     <div class="img-fluid text-center">
                         <img class="img-fluid" alt="@item.DefaultPictureModel.AlternateText" src="@item.DefaultPictureModel.ImageUrl" title="@item.DefaultPictureModel.Title"/>
                     </div>
@@ -46,12 +46,12 @@
                             </td>
                             <td :id="'product_attribute_input_' + attribute.Id">
                                 <template v-if="attribute.AttributeControlType==4">
-                                    <label :for="'product_attribute_' + attribute.Id" class="sr-only">product_attribute_{{attribute.Id}}</label>
+                                    <label :for="'product_attribute_' + attribute.Id" class="visually-hidden">product_attribute_{{attribute.Id}}</label>
                                     <input :name="'attributes[' + attribute.Id+']'" type="text" class="form-control textbox" :id="'product_attribute_' + attribute.Id" :value="attribute.DefaultValue"/>
                                 </template>
                                 <template v-if="attribute.AttributeControlType==1">
-                                    <label :for="'product_attribute_' + attribute.Id" class="sr-only">product_attribute_{{attribute.Id}}</label>
-                                    <select :id="'product_attribute_' + attribute.Id" class="form-control custom-select" :name="'attributes[' + attribute.Id+']'">
+                                    <label :for="'product_attribute_' + attribute.Id" class="visually-hidden">product_attribute_{{attribute.Id}}</label>
+                                    <select :id="'product_attribute_' + attribute.Id" class="form-control form-select" :name="'attributes[' + attribute.Id+']'">
                                         <template v-if="attribute.IsRequired==false">
                                             <option value="">---</option>
                                         </template>
@@ -69,15 +69,15 @@
                                     <ul class="option-list px-0 mb-0">
                                         <li v-for="attributeValue in attribute.Values">
                                             <fieldset>
-                                                <legend class="sr-only">product_attribute_{{attribute.Id}}</legend>
-                                                <label class="custom-control custom-radio">
-                                                    <input class="custom-control-input"
+                                                <legend class="visually-hidden">product_attribute_{{attribute.Id}}</legend>
+                                                <label class="form-check">
+                                                    <input class="form-check-input"
                                                            :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id"
                                                            type="radio"
                                                            :name="'attributes[' + attribute.Id+']'"
                                                            :value="attributeValue.Id"
                                                            :checked="attributeValue.IsPreSelected"/>
-                                                    <span class="custom-control-label"></span>
+                                                    <span class="form-check-label"></span>
                                                     <span class="custom-control-description" :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id">
                                                         <template v-if="attributeValue.PriceAdjustment==null">
                                                             {{attributeValue.Name}}
@@ -96,9 +96,9 @@
                                         <legend></legend>
                                         <ul class="option-list px-0 mb-0">
                                             <li v-for="attributeValue in attribute.Values">
-                                                <label class="custom-control custom-checkbox">
+                                                <label class="form-check">
                                                     <input v-if="attribute.AttributeControlType==50"
-                                                           class="custom-control-input"
+                                                           class="form-check-input"
                                                            :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id"
                                                            type="checkbox"
                                                            :name="'attributes[' + attribute.Id+']'"
@@ -106,13 +106,13 @@
                                                            :checked="attributeValue.IsPreSelected"
                                                            disabled="disabled"/>
                                                     <input v-else
-                                                           class="custom-control-input"
+                                                           class="form-check-input"
                                                            :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id"
                                                            type="checkbox"
                                                            :name="'attributes[' + attribute.Id+']'"
                                                            :value="attributeValue.Id"
                                                            :checked="attributeValue.IsPreSelected"/>
-                                                    <span class="custom-control-label"></span>
+                                                    <span class="form-check-label"></span>
                                                     <span class="custom-control-description" :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id">
                                                         <template v-if="attributeValue.PriceAdjustment==null">
                                                             {{attributeValue.Name}}
@@ -131,7 +131,7 @@
                                 </template>
                                 <template v-if="attribute.AttributeControlType==40">
                                     <ul class="option-list color-squares w-100 d-inline-flex flex-wrap px-0 mb-0" :id="'color-squares-' + attribute.Id">
-                                        <li v-for="attributeValue in attribute.Values" class="mr-1 p-0">
+                                        <li v-for="attributeValue in attribute.Values" class="me-1 p-0">
                                             <label :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" class="mb-0">
                                                 <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'attributes[' + attribute.Id+']'" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected"/>
                                                 <template v-if="attributeValue.PriceAdjustment==null">
@@ -150,7 +150,7 @@
                                 </template>
                                 <template v-if="attribute.AttributeControlType==45">
                                     <ul class="option-list color-squares w-100 d-inline-flex flex-wrap px-0 mb-0" :id="'color-squares-' + attribute.Id">
-                                        <li v-for="attributeValue in attribute.Values" class="mr-1 p-0">
+                                        <li v-for="attributeValue in attribute.Values" class="me-1 p-0">
                                             <label :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" class="mb-0">
                                                 <template v-if="attributeValue.PriceAdjustment==null">
                                                     <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'attributes[' + attribute.Id+']'" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected"/>

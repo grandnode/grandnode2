@@ -6,10 +6,10 @@
             <div class="newsletter-category-body form-group">
                 @foreach (var category in Model.NewsletterCategories)
                 {
-                    <label for="Category_@(category.Id)" class="custom-control custom-checkbox col-12">
+                    <label for="Category_@(category.Id)" class="form-check col-12">
                         <input id="Category_@(category.Id)" name="category" type="checkbox" value="@(category.Id)"
-                               class="custom-control-input" @(category.Selected ? "checked" : "")>
-                        <span class="custom-control-label"></span>
+                               class="form-check-input" @(category.Selected ? "checked" : "")>
+                        <span class="form-check-label"></span>
                         <span class="custom-control-description">@category.Name</span>
                     </label>
                     <div>

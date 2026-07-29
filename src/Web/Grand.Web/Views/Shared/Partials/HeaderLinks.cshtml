@@ -20,7 +20,7 @@
     {
         <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("Logout")" title="@Loc["Account.ImpersonatedAs.Finish.Hint"]">
             <b-icon icon="door-closed"></b-icon>
-            <span class="text text-uppercase ml-3">@string.Format(Loc["Account.ImpersonatedAs"], contextAccessor.WorkContext.CurrentCustomer.Email ?? "GUEST")</span>
+            <span class="text text-uppercase ms-3">@string.Format(Loc["Account.ImpersonatedAs"], contextAccessor.WorkContext.CurrentCustomer.Email ?? "GUEST")</span>
         </a>
     }
     @if (isAuthenticated)
@@ -29,7 +29,7 @@
         {
             <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.Content("~/Admin")">
                 <b-icon icon="gear"></b-icon>
-                <span class="text text-uppercase ml-3">@Loc["admin"]</span>
+                <span class="text text-uppercase ms-3">@Loc["admin"]</span>
             </a>
         }
 
@@ -37,35 +37,35 @@
         {
             <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.Content("~/Vendor")">
                 <b-icon icon="gear"></b-icon>
-                <span class="text text-uppercase ml-3">@Loc["vendor.portal"]</span>
+                <span class="text text-uppercase ms-3">@Loc["vendor.portal"]</span>
             </a>
         }
         @if (isStaffStore)
         {
             <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.Content("~/Store")">
                 <b-icon icon="gear"></b-icon>
-                <span class="text text-uppercase ml-3">@Loc["store.portal"]</span>
+                <span class="text text-uppercase ms-3">@Loc["store.portal"]</span>
             </a>
         }
         @if (!string.IsNullOrEmpty(pagebuilder.EditPageUrl))
         {
             <a target="_blank" class="btn btn-outline-secondary w-100 mb-2" href="@pagebuilder.EditPageUrl">
                 <b-icon icon="wrench"></b-icon>
-                <span class="text text-uppercase ml-3">@Loc["edit"]</span>
+                <span class="text text-uppercase ms-3">@Loc["edit"]</span>
             </a>
         }
 
         <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("CustomerInfo")">
             <b-icon icon="person"></b-icon>
-            <span class="text text-uppercase ml-3">@Loc["Account.MyAccount"]</span>
+            <span class="text text-uppercase ms-3">@Loc["Account.MyAccount"]</span>
         </a>
         <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("CustomerOrders")">
             <b-icon icon="handbag"></b-icon>
-            <span class="text text-uppercase ml-3">@Loc["Account.CustomerOrders"]</span>
+            <span class="text text-uppercase ms-3">@Loc["Account.CustomerOrders"]</span>
         </a>
         <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("Logout")">
             <b-icon icon="lock"></b-icon>
-            <span class="text text-uppercase ml-3">@Loc["Account.Logout"]</span>
+            <span class="text text-uppercase ms-3">@Loc["Account.Logout"]</span>
         </a>
     }
     else
@@ -74,11 +74,11 @@
         <div class="d-inline-flex flex-sm-nowrap flex-wrap w-100">
             <a class="btn btn-secondary w-100 mx-1 mb-2" href="@Url.RouteUrl("Login")">
                 <b-icon icon="shield-lock"></b-icon>
-                <span class="text text-uppercase ml-sm-3 ml-2">@Loc["Account.Login"]</span>
+                <span class="text text-uppercase ms-sm-3 ms-2">@Loc["Account.Login"]</span>
             </a>
             <a class="btn btn-secondary w-100 mx-1 mb-2" href="@registerUrl">
                 <b-icon icon="person"></b-icon>
-                <span class="text text-uppercase ml-sm-3 ml-2">@Loc["Account.Register"]</span>
+                <span class="text text-uppercase ms-sm-3 ms-2">@Loc["Account.Register"]</span>
             </a>
         </div>
         <div class="text-center generalMarginSupporter">

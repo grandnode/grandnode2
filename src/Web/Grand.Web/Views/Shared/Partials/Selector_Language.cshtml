@@ -16,7 +16,7 @@
     if (availableLanguages.Count > 1)
     {
         <div>
-            <b-dropdown class="mr-2" text="@availableLanguages.FirstOrDefault(x => x.Id == contextAccessor.WorkContext.WorkingLanguage.Id)?.Name">
+            <b-dropdown class="me-2" text="@availableLanguages.FirstOrDefault(x => x.Id == contextAccessor.WorkContext.WorkingLanguage.Id)?.Name">
                 @foreach (var lang in availableLanguages)
                 {
                     var className = lang.Id == contextAccessor.WorkContext.WorkingLanguage.Id ? "active" : "";
