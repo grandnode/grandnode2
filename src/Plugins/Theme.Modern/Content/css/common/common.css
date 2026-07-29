@@ -494,9 +494,7 @@ a:hover {
 }
 .navbar-brand img {
     width: auto;
-    height: auto;
-    max-width: 150px;
-    max-height: 50px;
+    height: auto;    
     backface-visibility: hidden;
 }
 .cookie-bar-notification {
