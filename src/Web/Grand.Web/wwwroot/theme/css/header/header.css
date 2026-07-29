@@ -151,15 +151,51 @@
         max-height: 45px;
     }
     .header-nav .top-header-items.navbar-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: #fff;
-        padding: 10px;
-        display: inline-flex;
-        justify-content: space-around;
-        box-shadow: 0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23);
+        flex-wrap: nowrap;
+        flex-shrink: 0;
+    }
+    .header-nav .top-header-items.navbar-nav .nav-item {
+        display: flex;
+    }
+    .header-nav .top-header-items .nav-link {
+        padding: .5rem .35rem;
+    }
+    .header-nav .top-header-items .b-icon.bi {
+        font-size: 20px;
+    }
+    .header-nav .contrast-switch {
+        display: none;
+    }
+    .header-nav .menu-container {
+        flex-shrink: 0;
+    }
+    .header-nav .store-logo {
+        min-width: 0;
+        flex-shrink: 1;
+    }
+    .header-nav .store-logo img {
+        max-width: 100%;
+        max-height: 40px;
+    }
+}
+@media (max-width: 420px) {
+    .header-nav .top-header-items .nav-link {
+        padding: .5rem .25rem;
+    }
+    .header-nav .top-header-items .qty-indicator {
+        width: 15px;
+        height: 15px;
+        font-size: 10px;
+        top: -3px;
+        right: -6px;
+    }
+}
+@media (max-width: 350px) {
+    .header-nav .store-logo img {
+        max-height: 30px;
+    }
+    .header-nav .top-header-items .b-icon.bi {
+        font-size: 18px;
     }
 }
 @media (max-width: 575px) {
