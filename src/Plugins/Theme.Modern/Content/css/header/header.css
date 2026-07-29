@@ -354,17 +354,10 @@
         border-bottom: 0;
     }
     .header-nav {
-        position: fixed;
-        top: unset;
-        bottom: 0;
-        left: 0;
-        right: 0;
         width: 100%;
         padding: 10px;
         display: inline-flex;
         justify-content: space-around;
-        box-shadow: 0 -3px 6px rgba(0,0,0,.16), 0 -3px 6px rgba(0,0,0,.23);
-        z-index: 1034;
     }
     .header-nav > .navbar {
         width: 100%;
@@ -373,9 +366,6 @@
     .navbar-brand img {
         max-width: 85px;
         max-height: 45px;
-    }
-    .header-nav-container::before {
-        margin-bottom: 70px;
     }
 }
 @media (max-width: 575px) {

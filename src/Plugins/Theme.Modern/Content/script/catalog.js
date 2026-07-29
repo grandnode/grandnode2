@@ -72,3 +72,19 @@ function closeLeftSide() {
     }, 400);
 }
 
+function updateFiltersToggleVisibility() {
+    var toggle = document.getElementById('mobile-filters-toggle');
+    var leftSide = document.querySelector('.generalLeftSide');
+    if (!toggle || !leftSide) return;
+    // block-category-navigation is d-lg-block/d-none, so it only counts as
+    // real content above the lg breakpoint - modal-close is always present
+    // and isn't filter content, so it's excluded from the check.
+    var hasContent = Array.prototype.some.call(leftSide.children, function (el) {
+        if (el.classList.contains('modal-close')) return false;
+        return getComputedStyle(el).display !== 'none';
+    });
+    toggle.style.display = hasContent ? '' : 'none';
+}
+document.addEventListener("DOMContentLoaded", updateFiltersToggleVisibility);
+window.addEventListener("resize", updateFiltersToggleVisibility);
+
