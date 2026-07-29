@@ -354,14 +354,7 @@
         border-bottom: 0;
     }
     .header-nav {
-        width: 100%;
-        padding: 10px;
-        display: inline-flex;
-        justify-content: space-around;
-    }
-    .header-nav > .navbar {
-        width: 100%;
-        height: 58px;
+        display: none;
     }
     .navbar-brand img {
         max-width: 85px;
