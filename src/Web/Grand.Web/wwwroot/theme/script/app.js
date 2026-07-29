@@ -34,6 +34,8 @@ var vm = new Vue({
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
         if (localStorage.darkMode == "true") this.darkMode = true;
+        document.getElementById("app").setAttribute("dark-theme", this.darkMode);
+        document.body.setAttribute("dark-theme", this.darkMode);
         this.wishindicator = parseInt(this.$refs.wishlistQty.innerText);
         this.updateCompareProductsQty();
         this.backToTop();
@@ -44,6 +46,8 @@ var vm = new Vue({
         },
         darkMode: function (newValue) {
             localStorage.darkMode = newValue;
+            document.getElementById("app").setAttribute("dark-theme", newValue);
+            document.body.setAttribute("dark-theme", newValue);
         },
         PopupQuickViewVueModal: function () {
             vm.getLinkedProductsQV(vm.PopupQuickViewVueModal.Id);

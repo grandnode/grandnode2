@@ -33,6 +33,17 @@
     border-bottom-left-radius: 0;
 }
 
+/* BS4 badge color classes (removed in v5, still used by admin-entered
+ * category/product "flag style" content stored in the database). */
+.badge-primary { color: #fff; background-color: RGBA(var(--bs-primary-rgb), var(--bs-bg-opacity, 1)); }
+.badge-secondary { color: #fff; background-color: RGBA(var(--bs-secondary-rgb), var(--bs-bg-opacity, 1)); }
+.badge-success { color: #fff; background-color: RGBA(var(--bs-success-rgb), var(--bs-bg-opacity, 1)); }
+.badge-danger { color: #fff; background-color: RGBA(var(--bs-danger-rgb), var(--bs-bg-opacity, 1)); }
+.badge-warning { color: #000; background-color: RGBA(var(--bs-warning-rgb), var(--bs-bg-opacity, 1)); }
+.badge-info { color: #fff; background-color: RGBA(var(--bs-info-rgb), var(--bs-bg-opacity, 1)); }
+.badge-light { color: #000; background-color: RGBA(var(--bs-light-rgb), var(--bs-bg-opacity, 1)); }
+.badge-dark { color: #fff; background-color: RGBA(var(--bs-dark-rgb), var(--bs-bg-opacity, 1)); }
+
 .close {
     float: right;
     font-size: 1.5rem;

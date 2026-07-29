@@ -3,6 +3,14 @@
 .cart-view .sidebar-cart:not(.wishlist) {
     pointer-events: none;
 }
+.b-sidebar-body .item {
+    padding: 10px 0;
+    align-items: flex-start;
+}
+.b-sidebar-body .item img {
+    width: 80px;
+    margin-left: 12px;
+}
 
 /* shopping cart */
 
@@ -357,6 +365,7 @@
 }
 [dark-theme="true"] .shopping-cart.table td {
     border-color: #555;
+    color: #fff;
 }
 @media (max-width: 991px) {
     [dark-theme="true"] .shopping-cart.table td, [dark-theme="true"] .shopping-cart.table td:first-child, [dark-theme="true"] .shopping-cart.table td:last-child {

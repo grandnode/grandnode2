@@ -11,7 +11,8 @@
     color: #17a2b8;
     border-color: #17a2b8;
 }
-.block-account-navigation ul li svg {
+.block-account-navigation ul li svg,
+.block-account-navigation ul li .b-icon {
     font-size: 28px;
     margin: 0 10px 0 0;
 }
