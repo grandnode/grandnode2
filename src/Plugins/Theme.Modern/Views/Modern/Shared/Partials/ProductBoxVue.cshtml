@@ -1,4 +1,4 @@
-﻿<template id="product-box-vue" asp-footer="true">
+﻿<script type="text/html" id="product-box-vue">
 <div class="card product-box show product-provider mb-2">
 <template v-if="Model.Flag !== null">
     <div class="flag-label">
@@ -32,7 +32,7 @@
                                 </template>
                                 <template v-if="item.AttributeControlType == 40">
                                     <template v-if="spec.ImageSquaresPictureModel.FullSizeImageUrl !== undefined">
-                                        <b-button variant="light" size="sm" class="standard name color-container" :title="spec.Name" @@click="if(spec.PictureModel.FullSizeImageUrl !== null){vm.productImage($event)}" :data-href="spec.PictureModel.FullSizeImageUrl">
+                                        <b-button variant="light" size="sm" class="standard name color-container" :title="spec.Name" @@click="spec.PictureModel.FullSizeImageUrl !== null &amp;&amp; vm.productImage($event)" :data-href="spec.PictureModel.FullSizeImageUrl">
                                             <span class="color" :style="'background-color:' + spec.ColorSquaresRgb">&nbsp;</span>
                                         </b-button>
                                     </template>
@@ -44,7 +44,7 @@
                                 </template>
                                 <template v-if="item.AttributeControlType == 45">
                                     <template v-if="spec.ImageSquaresPictureModel.FullSizeImageUrl !== undefined">
-                                        <b-button variant="light" size="sm" class="standard p-1 name image-container" v-on:click="if(spec.PictureModel.FullSizeImageUrl !== null){vm.productImage($event)}" :data-href="spec.PictureModel.FullSizeImageUrl">
+                                        <b-button variant="light" size="sm" class="standard p-1 name image-container" v-on:click="spec.PictureModel.FullSizeImageUrl !== null &amp;&amp; vm.productImage($event)" :data-href="spec.PictureModel.FullSizeImageUrl">
                                             <b-img-lazy :src="spec.ImageSquaresPictureModel.ImageUrl" :alt="spec.Name"></b-img-lazy>
                                         </b-button>
                                     </template>
@@ -235,8 +235,8 @@
     </template>
 </div>
 </div>
-</template>
-<script asp-location="Footer" asp-order="118" type="module">
+</script>
+<script asp-location="Footer" asp-order="118">
     Vue.component('product-box-vue', {
         template: '#product-box-vue',
         props: {

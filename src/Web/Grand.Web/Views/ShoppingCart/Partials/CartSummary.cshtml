@@ -4,7 +4,7 @@
 @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_before" })
 <div v-if="typeof vmorder.cart.Items !== 'undefined' && vmorder.cart.Items.length > 0">
 <ul v-if="typeof vmorder.cart.Warnings !== 'undefined' && vmorder.cart.Warnings.length > 0" class="px-0 mb-3">
-    <li v-for="item in vmorder.cart.Warnings">
+    <li v-for="(item, index) in vmorder.cart.Warnings" :key="index">
         <div class="alert alert-danger mb-1">{{item}}</div>
     </li>
 </ul>
@@ -48,11 +48,11 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="item in vmorder.cart.Items">
+                <tr v-for="item in vmorder.cart.Items" :key="item.Id">
                     <td v-if="vmorder.cart.IsAllowOnHold && vmorder.cart.IsEditable" class="onhold-cart">
-                        <label class="form-check form-switch mb-0 ps-0">
+                        <label class="form-check form-switch mb-0 d-flex justify-content-center">
                             <input :id="'checkbox_' + item.Id" type="checkbox" :checked="item.IsCart" class="form-check-input changeshoppingcartitem" v-on:change="vmorder.updateCartType(item.Id, !item.IsCart)"/>
-                            <span class="form-check-label ms-5"></span>
+                            <span class="form-check-label"></span>
                         </label>
                     </td>
                     <td v-if="vmorder.cart.ShowProductImages" class="product-picture text-center">
@@ -81,7 +81,7 @@
                         <div v-if="item.RecurringInfo !== null" v-html="item.RecurringInfo" class="recurring-info"></div>
                         <div v-if="item.ReservationInfo !== null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
                         <div v-if="typeof item.Warnings !== 'undefined' && item.Warnings.length > 0" class="message-error small alert alert-danger mt-2 mb-0">
-                            <ul v-for="warning in item.Warnings" class="mb-0 p-0">
+                            <ul v-for="(warning, index) in item.Warnings" :key="index" class="mb-0 p-0">
                                 <li>{{warning}}</li>
                             </ul>
                         </div>
@@ -96,7 +96,7 @@
                         <div v-if="vmorder.cart.IsEditable">
                             <div v-if="item.AllowedQuantities[0]">
                                 <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="form-select form-control qty-dropdown" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)">
-                                    <option v-for="qty in item.AllowedQuantities" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
+                                    <option v-for="qty in item.AllowedQuantities" :key="qty.Value" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
                                 </select>
                             </div>
                             <div v-else>
@@ -122,7 +122,7 @@
                         </div>
                     </td>
                     <td v-if="vmorder.cart.IsEditable" class="remove-from-cart text-center">
-                        <b-button variant="link" class="deleteshoppingcartitem" @@click="vmorder.deleteitem('@Url.RouteUrl("DeleteCartItem")/'+ item.Id +'?shoppingcartpage=True')">
+                        <b-button variant="link" class="deleteshoppingcartitem" @@click="vmorder.deleteitem('@Url.RouteUrl("DeleteCartItem")/'+ item.Id +'?shoppingcartpage=True', $event)">
                             <b-icon icon="trash" variant="danger"></b-icon>
                         </b-button>
                     </td>
@@ -230,7 +230,7 @@
             </template>
         </template>
         <div class="addon-buttons">
-            <div v-for="pm in vmorder.cart.ButtonPaymentMethodViewComponentNames">
+            <div v-for="(pm, index) in vmorder.cart.ButtonPaymentMethodViewComponentNames" :key="index">
                 <div v-html="pm"></div>
             </div>
         </div>

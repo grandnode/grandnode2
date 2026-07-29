@@ -1,6 +1,5 @@
 ﻿"use strict";
 
-Vue.use(VueAwesomeSwiper)
 var vm = new Vue({
     el: '#app',
     data: function () {
@@ -60,6 +59,29 @@ var vm = new Vue({
                     slideToClickedSlide: true,
                 },
             },
+            // Product image gallery (see Pictures.cshtml, which sets
+            // window.productGallery before this vm is created). loop mode
+            // needs at least loopedSlides real slides to work; with fewer,
+            // Swiper's loop math breaks and navigation silently does nothing.
+            swiperOptionTop: {
+                loop: !!window.productGallery && window.productGallery.pictureCount > 4,
+                loopedSlides: 4,
+                spaceBetween: 10,
+                navigation: {
+                    nextEl: '#ppslider .swiper-button-next',
+                    prevEl: '#ppslider .swiper-button-prev'
+                },
+            },
+            swiperOptionThumbs: {
+                direction: 'vertical',
+                loop: !!window.productGallery && window.productGallery.pictureCount > 4,
+                loopedSlides: 4,
+                spaceBetween: 10,
+                centeredSlides: true,
+                slidesPerView: 'auto',
+                touchRatio: 0.2,
+                slideToClickedSlide: true,
+            },
         }
     },
     props: {
@@ -86,6 +108,15 @@ var vm = new Vue({
         window.addEventListener('DOMContentLoaded', () => {
             vm.$forceUpdate();
         });
+        if (window.productGallery) {
+            setTimeout(function () {
+                if (!vm.$refs.swiperTop || !vm.$refs.swiperThumbs) return;
+                const swiperTop = vm.$refs.swiperTop.$swiper
+                const swiperThumbs = vm.$refs.swiperThumbs.$swiper
+                swiperTop.controller.control = swiperThumbs
+                swiperThumbs.controller.control = swiperTop
+            }, 1000)
+        }
     },
     created: function () {
         if (location.pathname !== "/") {
@@ -104,6 +135,9 @@ var vm = new Vue({
         }
     },
     methods: {
+        slideToThumb(index) {
+            this.$refs.swiperTop.$swiper.slideTo(index)
+        },
         openMenu(el, mainMenu) {
             var menu = document.getElementById(mainMenu);
             if (menu.classList.contains('show')) {

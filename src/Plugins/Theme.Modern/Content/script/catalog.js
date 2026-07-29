@@ -1,5 +1,4 @@
-﻿Vue.use(VueAwesomeSwiper)
-var subcatslider = new Vue({
+﻿var subcatslider = new Vue({
     data() {
         return {
             swiperOptions: {

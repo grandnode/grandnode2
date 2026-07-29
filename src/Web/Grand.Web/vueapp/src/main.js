@@ -26,6 +26,10 @@ onAppCreate(app => {
     registerValidation(app)
     app.config.globalProperties.$bvToast = $bvToast
     app.config.globalProperties.$bvModal = $bvModal
+    // warnHandler is silenced (legacy in-DOM templates trigger noisy dev
+    // warnings), but real render/setup errors must stay visible - otherwise
+    // Vue silently swallows them and renders an empty comment node instead.
+    app.config.errorHandler = (err, instance, info) => console.error(err, info)
 })
 
 window.Vue = LegacyVue

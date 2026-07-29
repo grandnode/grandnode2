@@ -186,7 +186,11 @@ const BCard = {
         const body = this.noBody
             ? content
             : [h('div', { class: 'card-body' }, heading.concat(content))]
-        return h('div', { class: 'card' }, body)
+        const children = []
+        if (this.$slots.header) children.push(h('div', { class: 'card-header' }, this.$slots.header()))
+        children.push(...body)
+        if (this.$slots.footer) children.push(h('div', { class: 'card-footer' }, this.$slots.footer()))
+        return h('div', { class: 'card' }, children)
     }
 }
 
@@ -929,10 +933,13 @@ export function registerBvComponents(app) {
     app.component('b-btn-group', simple('BBtnGroup', 'div', 'btn-group', { role: 'group' }))
     app.component('b-container', BContainer)
     app.component('b-row', simple('BRow', 'div', 'row'))
+    app.component('b-form-row', simple('BFormRow', 'div', 'form-row'))
     app.component('b-col', BCol)
     app.component('b-card', BCard)
     app.component('b-card-header', simple('BCardHeader', 'div', 'card-header'))
     app.component('b-card-body', simple('BCardBody', 'div', 'card-body'))
+    app.component('b-card-footer', simple('BCardFooter', 'div', 'card-footer'))
+    app.component('b-card-text', simple('BCardText', 'p', 'card-text'))
     app.component('b-card-img-lazy', BCardImgLazy)
     app.component('b-img', BImg)
     app.component('b-img-lazy', BImgLazy)

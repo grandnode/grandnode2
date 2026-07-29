@@ -46,15 +46,15 @@
                                 </div>
                             </template>
                             <template v-if="!PopupAddToCartVueModal.IsAuction">
-                                <div class="form-group col-12 pl-0 mb-0 d-flex">
+                                <div class="form-group col-12 ps-0 mb-0 d-flex">
                                     <label class="mb-0">
                                         <strong>@Loc["AddToCart.Qty"]</strong>
                                     </label>
-                                    <label class="pl-3 mb-0">{{PopupAddToCartVueModal.Quantity}}</label>
+                                    <label class="ps-3 mb-0">{{PopupAddToCartVueModal.Quantity}}</label>
                                 </div>
                             </template>
                             <template v-else>
-                                <div class="form-group col-12 pl-0 mb-0 d-flex">
+                                <div class="form-group col-12 ps-0 mb-0 d-flex">
                                     <template v-if="PopupAddToCartVueModal.EndTime !== null">
                                         <div>
                                             <template v-if="new Date(PopupAddToCartVueModal.EndTime).getTime() > new Date().getTime()">
@@ -79,18 +79,18 @@
                                 </div>
                             </template>
 
-                            <div class="form-group col-12 pl-0 mb-1 d-flex">
+                            <div class="form-group col-12 ps-0 mb-1 d-flex">
                                 <template v-if="PopupAddToCartVueModal.IsAuction">
                                     <label class="">
                                         <strong>@Loc["AddToCart.Yourbid"]:</strong>
                                     </label>
-                                    <label class="pl-3 mb-0">{{PopupAddToCartVueModal.HighestBid}}</label>
+                                    <label class="ps-3 mb-0">{{PopupAddToCartVueModal.HighestBid}}</label>
                                 </template>
                                 <template v-else>
                                     <label class="">
                                         <strong>@Loc["AddToCart.Price"]</strong>
                                     </label>
-                                    <label class="pl-3 mb-0">{{PopupAddToCartVueModal.Price}}</label>
+                                    <label class="ps-3 mb-0">{{PopupAddToCartVueModal.Price}}</label>
                                 </template>
                             </div>
                         </div>
@@ -111,13 +111,13 @@
                                     <template v-if="PopupAddToCartVueModal.SubTotalDiscount !== null">
                                         <div class="form-group mb-1 d-flex justify-content-center">
                                             <label class="text-muted mb-0">@Loc["AddToCart.SubTotalDiscount"]</label>
-                                            <label class="pl-3 mb-0 text-muted">{{PopupAddToCartVueModal.SubTotalDiscount}}</label>
+                                            <label class="ps-3 mb-0 text-muted">{{PopupAddToCartVueModal.SubTotalDiscount}}</label>
                                         </div>
                                     </template>
                                     <template v-if="PopupAddToCartVueModal.SubTotal !== null">
                                         <div class="form-group mb-0 d-flex justify-content-center">
                                             <label class="text-dark mb-0">@Loc["AddToCart.SubTotal"]</label>
-                                            <label class="pl-3 mb-0 text-dark mb-0">{{PopupAddToCartVueModal.SubTotal}}</label>
+                                            <label class="ps-3 mb-0 text-dark mb-0">{{PopupAddToCartVueModal.SubTotal}}</label>
                                         </div>
                                     </template>
                                 </div>
@@ -135,13 +135,13 @@
                         <button class="btn btn-outline-secondary text-uppercase" @@click='$bvModal.hide("ModalAddToCart")'>@Loc["AddToCart.Continue"]</button>
                     </template>
                     <template v-if="PopupAddToCartVueModal.CartType == 1 || PopupAddToCartVueModal.CartType == 0">
-                        <button class="btn btn-secondary text-uppercase" @@click="location='@(Url.RouteUrl("ShoppingCart"))'">@Loc["AddToCart.ViewCart"]</button>
+                        <button class="btn btn-secondary text-uppercase" @@click="window.location='@(Url.RouteUrl("ShoppingCart"))'">@Loc["AddToCart.ViewCart"]</button>
                     </template>
                     <template v-else-if="PopupAddToCartVueModal.CartType == 2">
-                        <button class="btn btn-secondary text-uppercase" @@click="location='@(Url.RouteUrl("Wishlist"))'">@Loc["AddToCart.ViewWishlist"]</button>
+                        <button class="btn btn-secondary text-uppercase" @@click="window.location='@(Url.RouteUrl("Wishlist"))'">@Loc["AddToCart.ViewWishlist"]</button>
                     </template>
                     <template v-else-if="PopupAddToCartVueModal.CartType == 3">
-                        <button class="btn btn-secondary text-uppercase" @@click="location='@(Url.RouteUrl("CustomerAuctions"))'">@Loc["AddToCart.ViewAuctions"]</button>
+                        <button class="btn btn-secondary text-uppercase" @@click="window.location='@(Url.RouteUrl("CustomerAuctions"))'">@Loc["AddToCart.ViewAuctions"]</button>
                     </template>
                 </div>
             </div>

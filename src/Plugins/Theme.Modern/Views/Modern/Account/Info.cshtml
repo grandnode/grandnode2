@@ -71,7 +71,7 @@
         toggleNewsletterCat();
     });
 </script>
-<div class="page account-page customer-info-page pl-lg-3 pt-3 pt-lg-0">
+<div class="page account-page customer-info-page ps-lg-3 pt-3 pt-lg-0">
 @if (customerSettings.AllowUsersToExportData)
 {
     <button class="btn btn-info float-sm-right mt-2" onclick="location.href='/account/export'">
@@ -488,7 +488,7 @@
                 @if (Model.NewsletterEnabled)
                 {
                     <div class="form-group">
-                        <label for="Newsletter" class="ml-1 custom-control custom-checkbox">
+                        <label for="Newsletter" class="ms-1 custom-control custom-checkbox">
                             <input class="custom-control-input" asp-for="Newsletter" onchange="toggleNewsletterCat()"/>
                             <span class="custom-control-label">@Loc["account.fields.newsletter"]</span>
                             <span class="sr-only">@Loc["account.fields.newsletter"]</span>

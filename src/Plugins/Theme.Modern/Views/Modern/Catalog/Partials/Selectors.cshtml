@@ -1,7 +1,7 @@
 ﻿<template v-if="catalog.Model.Products.length > 0">
     <div class="categoryGrid catalog-selectors mb-3">
         @*Rendering mobile left side trigger*@
-        <div class="d-flex flex-row row align-items-end px-3">
+        <div class="d-flex flex-row flex-wrap align-items-end px-3">
             <a class="left-side-toggler" onclick="sideToggle()">
                 <div class="inner">
                     <span></span>
@@ -56,10 +56,10 @@
             @*Rendering view mode selectors*@
             <template v-if="catalog.Model.PagingFilteringContext.AllowProductViewModeChanging">
                 <template v-if="catalog.Model.PagingFilteringContext.AvailableViewModes.length > 1">
-                    <div class="sort-container order-3 d-inline-flex ml-sm-0 ml-auto change-view">
+                    <div class="sort-container order-3 d-inline-flex ms-sm-0 ms-auto change-view">
                         <template v-for="viewmode in catalog.Model.PagingFilteringContext.AvailableViewModes">
                             <template v-if="viewmode.Text == 'Grid'">
-                                <b-link @@click="localStorage.setItem('catalogProdCols', 'grid'); catalog.loadProducts(viewmode.Value)" class="viewmode-icon align-items-center grid mr-3" v-bind:class="{ selected: viewmode.Selected, 'text-info': viewmode.Selected }" data-cols="5" :title="viewmode.Text">
+                                <b-link @@click="localStorage.setItem('catalogProdCols', 'grid'); catalog.loadProducts(viewmode.Value)" class="viewmode-icon align-items-center grid me-3" v-bind:class="{ selected: viewmode.Selected, 'text-info': viewmode.Selected }" data-cols="5" :title="viewmode.Text">
                                     @*<b-icon scale="2" icon="@if(gridMode.Selected){<text>grid3x2-gap-fill</text>} else { <text>grid3x2-gap</text> }"></b-icon>*@
                                     <span class="grid-icon cols-5">
                                         <span></span>

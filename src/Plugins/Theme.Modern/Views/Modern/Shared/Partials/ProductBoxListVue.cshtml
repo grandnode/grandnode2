@@ -1,4 +1,4 @@
-﻿<template id="product-box-list-vue" asp-footer="true">
+﻿<script type="text/html" id="product-box-list-vue">
     <b-card no-body class="product-box show list product-provider mb-3">
         <template v-if="Model.Flag !== null">
             <div class="flag-label" v-html="Model.Flag"></div>
@@ -91,7 +91,7 @@
                                         </template>
                                         <template v-if="item.AttributeControlType == 40">
                                             <template v-if="spec.ImageSquaresPictureModel.FullSizeImageUrl !== undefined">
-                                                <b-button variant="light" size="sm" class="standard name color-container" :title="spec.Name" @@click="if(spec.PictureModel.FullSizeImageUrl !== null){vm.productImage($event)}" :data-href="spec.PictureModel.FullSizeImageUrl">
+                                                <b-button variant="light" size="sm" class="standard name color-container" :title="spec.Name" @@click="spec.PictureModel.FullSizeImageUrl !== null &amp;&amp; vm.productImage($event)" :data-href="spec.PictureModel.FullSizeImageUrl">
                                                     <span class="color" :style="'background-color:' + spec.ColorSquaresRgb">&nbsp;</span>
                                                 </b-button>
                                             </template>
@@ -103,7 +103,7 @@
                                         </template>
                                         <template v-if="item.AttributeControlType == 45">
                                             <template v-if="spec.ImageSquaresPictureModel.FullSizeImageUrl !== undefined">
-                                                <b-button variant="light" size="sm" class="standard p-1 name image-container" v-on:click="if(spec.PictureModel.FullSizeImageUrl !== null){vm.productImage($event)}" :data-href="spec.PictureModel.FullSizeImageUrl">
+                                                <b-button variant="light" size="sm" class="standard p-1 name image-container" v-on:click="spec.PictureModel.FullSizeImageUrl !== null &amp;&amp; vm.productImage($event)" :data-href="spec.PictureModel.FullSizeImageUrl">
                                                     <b-img-lazy :src="spec.ImageSquaresPictureModel.ImageUrl" :alt="spec.Name"></b-img-lazy>
                                                 </b-button>
                                             </template>
@@ -193,8 +193,8 @@
             </div>
         </b-card-body> <!--<template v-slot:footer> <template v-if="Model.SpecificationAttributeModels.length > 0"> <div class="spec-container"> <table> <tbody> <tr class="attr" v-for="item in Model.SpecificationAttributeModels" v-bind:id="item.SpecificationAttributeId"> <td> <div class="spec-name"> {{item.SpecificationAttributeName}} </div> </td> <td> <div class="spec-value"> <span v-html="item.ValueRaw"></span> </div> </td> </tr> </tbody> </table> </div> </template> <template v-if="Model.ProductAttributeModels.length > 0"> <div class="attr-container"> <table> <tbody> <tr v-for="item in Model.ProductAttributeModels" v-bind:id="item.ProductAttributeId"> <td> <div class="attr-name"> {{item.Name}} </div> </td> <td> <div class="attr-value"> <template v-for="spec in item.Values"> <template v-if="item.AttributeControlType == 1 || item.AttributeControlType == 2 || item.AttributeControlType == 3 || item.AttributeControlType == 50"> <b-button variant="light" size="sm" class="name" :href="'/'+ Model.SeName + '?' + item.Name + '=' + spec.Name"> {{spec.Name}} </b-button> </template> <template v-if="item.AttributeControlType == 40"> <template v-if="spec.PictureModel.FullSizeImageUrl.length > 0"> <b-button variant="light" size="sm" class="name color-container" :title="spec.Name" @@click="vm.productImage($event)" :data-href="spec.PictureModel.FullSizeImageUrl"> <span class="color" :style="'background-color:' + spec.ColorSquaresRgb">&nbsp;</span> </b-button> </template> <template v-else> <b-button variant="light" size="sm" class="name color-container" :title="spec.Name" :href="'/'+ Model.SeName + '?' + item.Name + '=' + spec.Name"> <span class="color" :style="'background-color:' + spec.ColorSquaresRgb">&nbsp;</span> </b-button> </template> </template> <template v-if="item.AttributeControlType == 45"> <template v-if="spec.PictureModel.FullSizeImageUrl.length > 0"> <b-button variant="light" size="sm" class="p-1 name image-container" v-on:click='productImage' :data-href="spec.PictureModel.FullSizeImageUrl"> <img :src="spec.ImageSquaresPictureModel?.ImageUrl" :alt="spec.Name" /> </b-button> </template> <template v-else> <b-button variant="light" size="sm" class="p-1 name image-container" :href="'/'+ Model.SeName + '?' + item.Name + '=' + spec.Name"> <img :src="spec.ImageSquaresPictureModel?.ImageUrl" alt="spec.Name" /> </b-button> </template> </template> </template> </div> </td> </tr> </tbody> </table> </div> </template>--> @*<div class="desc" v-html="Model.ShortDescription"></div>*@ <!--</template>-->
     </b-card>
-</template>
-<script asp-location="Footer" asp-order="118" type="module">
+</script>
+<script asp-location="Footer" asp-order="118">
     Vue.component('product-box-list-vue', {
         template: '#product-box-list-vue',
         props: {

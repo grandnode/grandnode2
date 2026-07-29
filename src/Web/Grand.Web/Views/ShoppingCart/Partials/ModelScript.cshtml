@@ -191,23 +191,32 @@
                     }
                 });
             },
-            deleteitem(href) {
+            deleteitem(href, event) {
+                // The row is hidden immediately (independent of Vue's own
+                // reactive patch) because removing this exact row via its
+                // own delete button hits an internal Vue crash - "Cannot read
+                // properties of null (reading 'nextSibling')" deep inside
+                // Fragment/keyed-list unmount - no matter how the resulting
+                // state change is deferred (nextTick, setTimeout). The cause
+                // wasn't pinned down, but it reliably corrupts that one patch
+                // without leaving the app otherwise broken, so hiding the row
+                // directly guarantees the visible behavior is correct even
+                // when Vue's own re-render of it silently fails.
+                var row = event && event.target && event.target.closest('tr');
+                if (row) row.style.display = 'none';
                 axios({
                     method: 'post',
                     url: href,
                 }).then(function (response) {
-                    vmorder.cart = response.data.model;
+                    document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
                     if (document.querySelector('.sidebar-cart')) {
                         var newfly = response.data.sidebarshoppingcartmodel;
                         vm.flycart = newfly;
                         vm.flycartitems = newfly.Items;
                         vm.flycartindicator = newfly.TotalProducts;
-                        document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
-                    } else {
-                        document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
                     }
-                }).then(function () {
-                    this.vmorder.updateTotals();
+                    vmorder.cart = response.data.model;
+                    vmorder.updateTotals();
                 });
             },
             ApplyDiscountCode(href) {

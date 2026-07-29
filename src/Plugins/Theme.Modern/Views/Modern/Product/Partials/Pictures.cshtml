@@ -11,77 +11,49 @@
         </div>
     }
     <div class="gallery">
-        <template>
-            <div id="ppslider" class="gallery-slider">
-                <template>
-                    <!-- swiper1 Thumbs -->
-                    <swiper class="swiper gallery-thumbs" :options="ppslider.swiperOptionThumbs" ref="swiperThumbs">
-                        @foreach (var picture in Model.PictureModels)
+        <div id="ppslider" class="gallery-slider">
+            <!-- swiper1 Thumbs -->
+            <swiper class="swiper gallery-thumbs" :options="swiperOptionThumbs" ref="swiperThumbs">
+                @for (var i = 0; i < Model.PictureModels.Count; i++)
+                {
+                    var picture = Model.PictureModels[i];
+                    <swiper-slide @@click="slideToThumb(@i)">
+                        <img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title"/>
+                    </swiper-slide>
+                }
+            </swiper>
+            <!-- swiper2 Main -->
+            <swiper class="swiper gallery-top" :options="swiperOptionTop" ref="swiperTop">
+                @foreach (var picture in Model.PictureModels)
+                {
+                    <swiper-slide>
+                        <img src="@picture.ImageUrl" data-srcs="@picture.ImageUrl" data-zoom-src="@picture.FullSizeImageUrl" alt="@picture.AlternateText" title="@picture.Title"/>
+                        @if (Model.DefaultPictureZoomEnabled)
                         {
-                            <swiper-slide>
-                                <img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title"/>
-                            </swiper-slide>
+                            <div class="zoom-button" onclick="zoomImg(this)">
+                                <span class="icons icon-frame"></span>
+                            </div>
                         }
-                    </swiper>
-                    <!-- swiper2 Main -->
-                    <swiper class="swiper gallery-top" :options="ppslider.swiperOptionTop" ref="swiperTop">
-                        @foreach (var picture in Model.PictureModels)
-                        {
-                            <swiper-slide>
-                                <img src="@picture.ImageUrl" data-srcs="@picture.ImageUrl" data-zoom-src="@picture.FullSizeImageUrl" alt="@picture.AlternateText" title="@picture.Title"/>
-                                @if (Model.DefaultPictureZoomEnabled)
-                                {
-                                    <div class="zoom-button" onclick="zoomImg(this)">
-                                        <span class="icons icon-frame"></span>
-                                    </div>
-                                }
-                            </swiper-slide>
-                        }
-                        <div class="swiper-button-next swiper-button-white" slot="button-next"></div>
-                        <div class="swiper-button-prev swiper-button-white" slot="button-prev"></div>
-                    </swiper>
-                </template>
-            </div>
-        </template>
+                    </swiper-slide>
+                }
+                <div class="swiper-button-next swiper-button-white" slot="button-next"></div>
+                <div class="swiper-button-prev swiper-button-white" slot="button-prev"></div>
+            </swiper>
+        </div>
     </div>
 </b-col>
 <script asp-location="Footer" asp-order="301">
-    Vue.use(VueAwesomeSwiper)
-    var ppslider = new Vue({
-        el: '#ppslider',
-        data() {
-            return {
-                Model: @Json.Serialize(Model),
-                swiperOptionTop: {
-                    loop: true,
-                    loopedSlides: 4, // looped slides should be the same
-                    spaceBetween: 10,
-                    navigation: {
-                        nextEl: '#ppslider .swiper-button-next',
-                        prevEl: '#ppslider .swiper-button-prev'
-                    },
-                },
-                swiperOptionThumbs: {
-                    direction: 'vertical',
-                    loop: true,
-                    loopedSlides: 4, // looped slides should be the same
-                    spaceBetween: 10,
-                    centeredSlides: true,
-                    slidesPerView: 'auto',
-                    touchRatio: 0.2,
-                    slideToClickedSlide: true,
-                }
-            }
-        },
-        created() {
-            setTimeout(function () {
-                const swiperTop = vm.$refs.swiperTop.$swiper
-                const swiperThumbs = vm.$refs.swiperThumbs.$swiper
-                swiperTop.controller.control = swiperThumbs
-                swiperThumbs.controller.control = swiperTop
-            }, 1000)
-        }
-    });
+    /* The product gallery markup above is part of the page body, which is
+     * itself part of #app's own template - it is NOT a separate DOM region.
+     * A `new Vue({ el: '#ppslider' })` here would mount before #app exists
+     * (this script runs before app.js), and when app.js later mounts #app it
+     * replaces this whole subtree with its own (listener-less) copy, silently
+     * orphaning everything wired up here. So the gallery state/options live on
+     * the root vm instead (see app.js) and this just stages the per-product
+     * data app.js's root vm needs before it is created. */
+    window.productGallery = {
+        pictureCount: @Model.PictureModels.Count
+    };
 </script>
 <script asp-location="Footer" asp-order="302">
     function zoomImg(el) {

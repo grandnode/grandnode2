@@ -46,7 +46,7 @@
                             <b-form-row>
                                 <template :key="Model.Id" v-for="Model in catalog.Model.Products">
                                     <b-col lg="3" sm="4" cols="6" class="product-container px-0 mb-2">
-                                        <product-box-vue :Model="Model"></product-box-vue>
+                                        <product-box-vue v-bind="{ Model: Model }"></product-box-vue>
                                     </b-col>
                                 </template>
                             </b-form-row>
@@ -57,7 +57,7 @@
                             <b-col cols="12">
                                 <b-row>
                                     <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                                        <product-box-list-vue :Model="Model"></product-box-list-vue>
+                                        <product-box-list-vue v-bind="{ Model: Model }"></product-box-list-vue>
                                     </template>
                                 </b-row>
                             </b-col>

@@ -3,6 +3,7 @@
 .breadcrumb {
     margin: 0;
     padding: 15px 0 0 0;
+    align-items: center;
 }
 
 /* category list */
@@ -529,11 +530,12 @@ a.left-side-toggler:hover {
 }
 .sort-container .col-form-label {
     position: absolute;
-    top: -10px;
+    top: -20px;
     left: 4px;
     padding: 0 4px;
     background-color: #eaf0fa;
     font-size: 12px;
+    line-height: 18px;
     font-weight: 400;
     white-space: nowrap;
 }

@@ -12,7 +12,7 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Addresses })
 }
 
-<div class="page account-page address-list-page pl-lg-3 pt-lg-0 pt-3">
+<div class="page account-page address-list-page ps-lg-3 pt-lg-0 pt-3">
     @Html.AntiForgeryToken()
     <h1 class="h2 generalTitle">
         <div>@Loc["Account.CustomerAddresses"]</div>

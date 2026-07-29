@@ -24,7 +24,7 @@
     </template>
     <template v-if="!PopupQuickViewVueModal.AddToCart.DisableBuyButton">
         <template v-if="PopupQuickViewVueModal.AddToCart.AllowedQuantities.length > 0">
-            <select :id="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '_EnteredQuantity'" :name="'EnteredQuantity'" class="custom-select form-control qty-dropdown mr-2">
+            <select :id="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '_EnteredQuantity'" :name="'EnteredQuantity'" class="custom-select form-control qty-dropdown me-2">
                 <template v-for="option in PopupQuickViewVueModal.AddToCart.AllowedQuantities">
                     <option :value="option.Value" :disabled="option.Disabled" :selected="option.Selected">{{option.Text}}</option>
                 </template>
@@ -38,7 +38,7 @@
             </div>
             <input ref="qtyqv" :value="PopupQuickViewVueModal.AddToCart.EnteredQuantity" :id="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '_EnteredQuantity'" :name="'EnteredQuantity'" min="1" class="qty-input form-control text-center" type="number" inputmode="numeric"/>
             <template v-if="PopupQuickViewVueModal.AddToCart.MeasureUnit !== ''">
-                <span class="qty-unit d-flex align-items-center mr-2">
+                <span class="qty-unit d-flex align-items-center me-2">
                     {{PopupQuickViewVueModal.AddToCart.MeasureUnit}}
                 </span>
             </template>

@@ -39,18 +39,14 @@
                         <partial name="Partials/Logo"/>
                         @await Component.InvokeAsync("SearchBox")
                         <ul class="navbar-nav top-header-items">
-                            <template>
-                                <li class="nav-item">
-                                    <a class="nav-link" v-b-toggle.sidebar-right>
-                                        <span class="icons icon-user"></span>
-                                    </a>
-                                    <template>
-                                        <b-sidebar id="sidebar-right" bg-variant="white" text-variant="standard" body-class="user-panel" title="@Loc["Account.MyAccount"]" right backdrop>
-                                            <partial name="Partials/HeaderLinks"/>
-                                        </b-sidebar>
-                                    </template>
-                                </li>
-                            </template>
+                            <li class="nav-item">
+                                <a class="nav-link" v-b-toggle.sidebar-right>
+                                    <span class="icons icon-user"></span>
+                                </a>
+                                <b-sidebar id="sidebar-right" bg-variant="white" text-variant="standard" body-class="user-panel" title="@Loc["Account.MyAccount"]" right backdrop>
+                                    <partial name="Partials/HeaderLinks"/>
+                                </b-sidebar>
+                            </li>
                             <partial name="Partials/ShoppingCartLinks"/>
                         </ul>
                     </div>
@@ -91,6 +87,7 @@
 </div>
 @await Component.InvokeAsync("Widget", new { widgetZone = "body_end_html_tag_before" })
 <partial name="Partials/ProductBoxVue"/>
+<partial name="Partials/ProductBoxListVue"/>
 <resources asp-type="ScriptFooter"/>
 <resources asp-type="TemplateFooter"/>
 </body>

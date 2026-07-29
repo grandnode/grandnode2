@@ -177,7 +177,7 @@
                 </div>
                 <template v-if="vmwishlist.Model.IsEditable && vmwishlist.Model.EmailWishlistEnabled">
                     <button type="button" class="btn btn-secondary email-a-friend-wishlist-button d-flex align-items-center my-3" @@click="$bvModal.show('ModalEmailWishlist')">
-                        <b-icon font-scale="2" icon="envelope" class="pr-2"></b-icon>
+                        <b-icon font-scale="2" icon="envelope" class="pe-2"></b-icon>
                         <span class="d-sm-block d-none">@Loc["Wishlist.EmailAFriend"]</span>
                     </button>
                 </template>
@@ -193,7 +193,7 @@
         <div class="row">
             <div class="col-12 share-info generalMarginSupporter text-center text-md-left">
                 <span class="share-label">@Loc["Wishlist.YourWishlistURL"]:</span>
-                <a href="@Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid })" class="small ml-2">@Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid }, "http")</a>
+                <a href="@Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid })" class="small ms-2">@Url.RouteUrl("Wishlist", new { customerGuid = Model.CustomerGuid }, "http")</a>
             </div>
         </div>
     </template>

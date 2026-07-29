@@ -1,3 +1,17 @@
+/* Bootstrap 5 renamed .sr-only to .visually-hidden; this theme's views
+ * (carried over from Bootstrap 4) still use the old class name. */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
 ﻿.store-selector-container {
     position: sticky;
     position: -webkit-sticky;
@@ -658,6 +672,18 @@ body:not(.modal-open) {
 .item-row>.col, .item-row>[class*=col-] {
     padding-right: 0;
     padding-left: 0;
+}
+.form-row {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -7.5px;
+    margin-left: -7.5px;
+}
+.form-row>.col, .form-row>[class*=col-] {
+    padding-right: 7.5px;
+    padding-left: 7.5px;
 }
 
 /* checkbox & radio */

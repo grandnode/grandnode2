@@ -12,7 +12,7 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Reviews })
 }
 
-<div class="page account-page product-reviews-page pl-lg-3 pt-lg-0 pt-3">
+<div class="page account-page product-reviews-page ps-lg-3 pt-lg-0 pt-3">
     <h1 class="h2 generalTitle">
         <div>@Loc["Account.Reviews"]</div>
     </h1>
@@ -37,7 +37,7 @@
                         <div class="review-info d-inline-flex w-100">
                             <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
                             <small class="date d-flex text-muted">
-                                <span class="mr-1">@Loc["Reviews.Date"]:</span>
+                                <span class="me-1">@Loc["Reviews.Date"]:</span>
                                 <span>@review.CreatedOn.ToString("g")</span>
                             </small>
                         </div>

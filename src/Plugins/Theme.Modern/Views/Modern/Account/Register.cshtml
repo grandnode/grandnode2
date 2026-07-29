@@ -82,13 +82,13 @@
             </div>
             <fieldset class="gender px-3">
                 <legend class="sr-only">@Loc["Account.Fields.Gender"]</legend>
-                <div class="d-flex row">
+                <div class="d-flex flex-wrap">
                     <label class="male custom-control custom-radio">
                         <input id="gender-male" name="Gender" type="radio" value="M" checked="@(Model.Gender == "M")" class="custom-control-input">
                         <span class="custom-control-label"></span>
                         <span class="forcheckbox custom-control-description">@Loc["Account.Fields.Gender.Male"]</span>
                     </label>
-                    <label class="female custom-control custom-radio ml-2">
+                    <label class="female custom-control custom-radio ms-2">
                         <input id="gender-female" name="Gender" type="radio" value="F" checked="@(Model.Gender == "F")" class="custom-control-input">
                         <span class="custom-control-label"></span>
                         <span class="forcheckbox custom-control-description">@Loc["Account.Fields.Gender.Female"]</span>
@@ -449,7 +449,7 @@
             @if (Model.NewsletterEnabled)
             {
                 <div class="form-group">
-                    <label for="Newsletter" class="ml-1 custom-control custom-checkbox">
+                    <label for="Newsletter" class="ms-1 custom-control custom-checkbox">
                         <input class="custom-control-input" asp-for="Newsletter" onchange="toggleNewsletterCat()"/>
                         <span class="custom-control-label">@Loc["account.fields.newsletter"]</span>
                         <span class="sr-only">@Loc["account.fields.newsletter"]</span>

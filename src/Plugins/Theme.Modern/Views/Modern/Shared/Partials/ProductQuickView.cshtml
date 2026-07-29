@@ -81,8 +81,7 @@
 <a class="modal-close" @@click="$bvModal.hide('ModalQuickView')">
     <b-icon icon="x"></b-icon>
 </a>
-<template>
-    <div class="accordion" role="tablist">
+<div class="accordion" role="tablist">
         <div role="tab">
             <a v-b-toggle.accordion-qv-details class="btn btn-light collapse-button">
                 <span class="icons icon-info"></span>
@@ -174,14 +173,14 @@
                                 <td class="border-bottom border-top-0">
                                     <div class="spec-value d-inline-flex w-100">
                                         <template v-if="item.ColorSquaresRgb !== null">
-                                            <div class="color-squares mb-2 mr-2">
+                                            <div class="color-squares mb-2 me-2">
                                                 <span class="color-container" :title="item.ValueRaw">
                                                     <span class="color" v-bind:style="'background-color:' + item.ValueRaw">&nbsp;</span>
                                                 </span>
                                             </div>
                                         </template>
                                         <template v-else>
-                                            <div class="mb-2 mr-2" v-html="item.ValueRaw"></div>
+                                            <div class="mb-2 me-2" v-html="item.ValueRaw"></div>
                                         </template>
                                     </div>
                                 </td>
@@ -263,7 +262,7 @@
         </template>
         @* END OF ASSOCIATED PRODUCTS *@
     </div>
-</template>
+</div>
 </div>
 </div>
 <partial name="Partials/QuickView/LinkedProducts"/>
