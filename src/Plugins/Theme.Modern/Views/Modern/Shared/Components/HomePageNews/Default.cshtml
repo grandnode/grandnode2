@@ -11,7 +11,7 @@
                         <div class="card post-news">
                             <div class="card-header">
                                 <a class="img-container" v-if="Item.PictureModel.ImageUrl !== null">
-                                    <b-img-lazy width="300" height="300" :src="Item.PictureModel.ImageUrl" :alt="Item.PictureModel.AlternateText"/>
+                                    <img :src="Item.PictureModel.ImageUrl" :alt="Item.PictureModel.AlternateText" loading="lazy" width="300" height="300">
                                 </a>
                                 <h3 class="h5 title">
                                     <a :href="'/' + Item.SeName">

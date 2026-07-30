@@ -1,6 +1,6 @@
 ﻿<template v-if="PopupQuickViewVueModal.CompareProductsEnabled">
-    <a class="btn btn-secondary add-to-compare-list-button me-1" :onclick="'AxiosCart.addproducttocomparelist(`'+ PopupQuickViewVueModal.Id +'`, `@string.Format(Loc["Products.ProductHasBeenAddedToCompareList.Link"], Url.RouteUrl("CompareProducts"))`)'" v-b-tooltip.hover.bottom title="@Loc["Products.Compare.AddToCompareList"]">
-        <b-icon icon="shuffle"></b-icon>
+    <a class="btn btn-secondary add-to-compare-list-button me-1" :onclick="'AxiosCart.addproducttocomparelist(`'+ PopupQuickViewVueModal.Id +'`, `@string.Format(Loc["Products.ProductHasBeenAddedToCompareList.Link"], Url.RouteUrl("CompareProducts"))`)'" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["Products.Compare.AddToCompareList"]">
+        <i class="b-icon bi bi-shuffle" aria-hidden="true"></i>
         <span class="visually-hidden">@Loc["Products.Compare.AddToCompareList"]</span>
     </a>
 </template>

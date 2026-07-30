@@ -29,7 +29,7 @@
     </div>
     <partial name="Partials/Notifications"/>
     <vc:get-coordinate></vc:get-coordinate>
-    <b-container fluid class="main-container">
+    <div class="container-fluid main-container">
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
         <div class="row">
             <div class="left-side-container" v-bind:class="{ toggled : !menuToggled}">
@@ -40,12 +40,18 @@
                         @await Component.InvokeAsync("SearchBox")
                         <ul class="navbar-nav top-header-items">
                             <li class="nav-item">
-                                <a class="nav-link" v-b-toggle.sidebar-right>
+                                <a class="nav-link" data-bs-toggle="offcanvas" data-bs-target="#sidebar-right" aria-controls="sidebar-right">
                                     <span class="icons icon-user"></span>
                                 </a>
-                                <b-sidebar id="sidebar-right" bg-variant="white" text-variant="standard" body-class="user-panel" title="@Loc["Account.MyAccount"]" right backdrop>
-                                    <partial name="Partials/HeaderLinks"/>
-                                </b-sidebar>
+                                <div class="offcanvas offcanvas-end b-sidebar b-sidebar-right" tabindex="-1" id="sidebar-right" aria-labelledby="sidebar-right-label">
+                                    <div class="b-sidebar-header">
+                                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                        <strong class="ms-2" id="sidebar-right-label">@Loc["Account.MyAccount"]</strong>
+                                    </div>
+                                    <div class="b-sidebar-body user-panel">
+                                        <partial name="Partials/HeaderLinks"/>
+                                    </div>
+                                </div>
                             </li>
                             <partial name="Partials/ShoppingCartLinks"/>
                         </ul>
@@ -80,7 +86,7 @@
             </div>
         </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
-    </b-container>
+    </div>
     <div id="backdrop-menu" class="backdrop-menu"></div>
     @await Component.InvokeAsync("Footer")
     <partial name="Partials/Cookie"/>

@@ -3,7 +3,7 @@
 @{
     <script asp-location="Footer" asp-order="300" asp-src="/Plugins/Theme.Modern/Content/script/medium-zoom.min.js"></script>
 }
-<b-col xl="7" lg="6" md="5" cols="12" class="px-0">
+<div class="col-12 col-md-5 col-lg-6 col-xl-7 px-0">
     @if (!string.IsNullOrEmpty(Model.Flag))
     {
         <div class="product-label">
@@ -41,7 +41,7 @@
             </swiper>
         </div>
     </div>
-</b-col>
+</div>
 <script asp-location="Footer" asp-order="301">
     /* The product gallery markup above is part of the page body, which is
      * itself part of #app's own template - it is NOT a separate DOM region.

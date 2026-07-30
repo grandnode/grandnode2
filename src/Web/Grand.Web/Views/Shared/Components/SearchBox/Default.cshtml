@@ -6,8 +6,8 @@
     var lang = contextAccessor.WorkContext.WorkingLanguage.LanguageCulture;
 }
 <div id="searchBoxContainer">
-    <a class="modal-close" @@click="$bvModal.hide('search-box')">
-        <b-icon icon="x"></b-icon>
+    <a class="modal-close" data-bs-dismiss="modal">
+        <i class="b-icon bi bi-x" aria-hidden="true"></i>
     </a>
     <validation-observer v-slot="{ handleSubmit }">
         <form asp-route="ProductSearch" method="get" id="small-search-box-form" ref="searchForm" v-on:submit.prevent="handleSubmit(searchbox.formSubmit)" class="searchBox w-100">
@@ -41,18 +41,18 @@
                                     @@mousedown="searchbox.recording = true"
                                     @@mouseup="searchbox.recording = false"
                                     @@mouseleave="searchbox.recording = false"
-                                    v-b-tooltip.hover.bottom :title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
+                                    data-bs-toggle="tooltip" data-bs-placement="bottom" :title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
                                 <template v-if="searchbox.recording">
-                                    <b-icon icon="mic" variant="info"></b-icon>
+                                    <i class="b-icon bi bi-mic text-info" aria-hidden="true"></i>
                                 </template>
                                 <template v-else>
-                                    <b-icon icon="mic-mute" variant="danger"></b-icon>
+                                    <i class="b-icon bi bi-mic-mute text-danger" aria-hidden="true"></i>
                                 </template>
                             </button>
                         }
                         <button type="submit" class="btn btn-link search-box-button float-sm-end d-inline-flex align-items-center">
                             <span class="visually-hidden">@Loc["Search.SearchBox.Tooltip"]</span>
-                            <b-icon icon="search"></b-icon>
+                            <i class="b-icon bi bi-search" aria-hidden="true"></i>
                         </button>
                     </div>
                     <small v-if="searchbox.recording" class="annotation form-text text-muted w-100">@Loc["search.voice.annotation"]</small>

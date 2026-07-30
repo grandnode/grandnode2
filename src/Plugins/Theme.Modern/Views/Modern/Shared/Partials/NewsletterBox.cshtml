@@ -15,7 +15,7 @@
             <label for="newsletter-email" class="sr-only">newsletter</label>
             <div class="input-group-append">
                 <button class="btn btn-secondary newsletter-email-button" id="newsletter-subscribe-button" @@click="newsletterBox(@customerSettings.NewsletterBlockAllowToUnsubscribe.ToString().ToLower(), '@(Url.RouteUrl("SubscribeNewsletter"))')">
-                    <b-icon icon="envelope"></b-icon>
+                    <i class="b-icon bi bi-envelope" aria-hidden="true"></i>
                 </button>
             </div>
         </div>

@@ -7,7 +7,7 @@
             <div class="col-xl-@order.CF_c_Xl col-lg-@order.CF_c_Lg col-md-@order.CF_c_Md col-sm-@order.CF_c_Sm col-@order.CF_c_Col categoryGrid mb-3">
                 <a href="@Url.RouteUrl("Collection", new { item.SeName })" title="@item.PictureModel.Title">
                     <article class="card">
-                        <b-card-img-lazy src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-card-img-lazy>
+                        <img class="card-img" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" loading="lazy">
                         <div class="card-body">
                             <h4>@item.Name</h4>
                         </div>

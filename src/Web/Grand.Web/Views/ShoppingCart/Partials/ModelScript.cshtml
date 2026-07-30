@@ -185,7 +185,7 @@
                     if (response.data.success) {
                         vm.PopupQuickViewVueModal = response.data.model;
                         vm.UpdatedShoppingCartItemId = id;
-                        vm.$refs['ModalQuickView'].show();
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalQuickView')).show();
                     } else {
                         vmorder.displayWarning(response.data.message);
                     }

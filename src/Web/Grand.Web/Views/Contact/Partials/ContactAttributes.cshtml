@@ -132,7 +132,7 @@
                         }
 
                         <template v-if="true">
-                            <b-form-file accept="@Html.Raw(allowedFileExtensions)" type="file" id="qqfile" name="qqfile" onchange="uploadFile(this)"/>
+                            <input class="form-control" type="file" accept="@Html.Raw(allowedFileExtensions)" id="qqfile" name="qqfile" onchange="uploadFile(this)">
                         </template>
                         <input class="hidden-upload-input" type="hidden" onchange="contactAttributeChange()" id="@(controlId)" name="@(controlName)"/>
                         <div id="download-message" class="alert my-2" style="display:none;"></div>

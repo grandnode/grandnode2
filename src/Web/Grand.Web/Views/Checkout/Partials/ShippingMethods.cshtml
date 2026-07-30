@@ -28,7 +28,7 @@
             </template>
             <template v-if="vmorder.shippingBusy">
                 <div style="height: 65px" class="d-flex justify-content-center align-items-center w-100">
-                    <b-spinner variant="info" label="Loading..."></b-spinner>
+                    <span class="spinner-border text-info" role="status"><span class="visually-hidden">Loading...</span></span>
                 </div>
             </template>
             <div id="shipping_form"></div>

@@ -1,0 +1,227 @@
+﻿@using Grand.Business.Core.Interfaces.Checkout.Orders
+@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Domain.Permissions
+@inject IContextAccessor contextAccessor
+@inject IPermissionService permissionService
+@inject ShoppingCartSettings shoppingCartSettings
+@inject CatalogSettings catalogSettings
+@*
+    The header drawers live here rather than next to their triggers in the
+    navbar: Bootstrap flattens an .offcanvas inside a .navbar-expand into the
+    bar itself, so the panels have to be rendered outside <nav>. The triggers
+    reference them by id, so they can sit anywhere on the page.
+*@
+@{
+    var supportRtl = contextAccessor.WorkContext.WorkingLanguage.Rtl;
+    var shoppingCartEnabled = await permissionService.Authorize(StandardPermission.EnableShoppingCart);
+    var wishlistEnabled = await permissionService.Authorize(StandardPermission.EnableWishlist);
+    var miniShoppingCartEnabled = shoppingCartSettings.MiniShoppingCartEnabled;
+}
+
+@if (catalogSettings.CompareProductsEnabled)
+{
+                    <div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" id="sidebar-compare" aria-labelledby="sidebar-compare-label">
+                    <div class="b-sidebar-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        <strong class="ms-2" id="sidebar-compare-label">
+                            <span>
+                            @Loc["Products.Compare.Title"]
+                        </span></strong>
+                    </div>
+                    <div class="b-sidebar-body">
+                    
+                        <template v-if="compareProductsQty > 0">
+                            <template v-if="compareproducts !== null">
+                                <template v-for="(product, key) in compareproducts.Products">
+                                    <div class="item comapre-product d-inline-flex no-wrap">
+                                        <a :href="product.Url" :title="product.DefaultPictureModel.Title" v-if="product.DefaultPictureModel.ImageUrl">
+                                            <img class="img-fluid" :src="product.DefaultPictureModel.ImageUrl" :alt="product.DefaultPictureModel.AlternateText" :title="product.DefaultPictureModel.Title">
+                                        </a>
+                                        <div class="col">
+                                            <a :href="product.Url">{{product.Name}}</a>
+                                            <div class="price">
+                                                <span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{product.ProductPrice.Price}}</strong>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <a class="deleteitem" @@click="removeFromCompareList(product.Id, key); getCompareList('@Url.RouteUrl("SidebarCompareProducts")'); ">
+                                                <i class="b-icon bi bi-trash text-danger" aria-hidden="true"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </template>
+                            </template>
+                            <template v-if="loader">
+                                <div class="d-flex justify-content-center align-items-center h-100" v-if="wishlistitems == undefined">
+                                    <div class="spinner-border text-info" role="status">
+                                    </div>
+                                </div>
+                            </template>
+                        </template>
+                        <template v-else>
+                            <div class="d-flex flex-column justify-content-center align-items-center">
+                                <i class="b-icon bi bi-shuffle text-secondary" style="font-size:7.5em" aria-hidden="true"></i>
+                                <div class="text-center text-muted mt-3">@Loc["Products.Compare.NoItems"]</div>
+                            </div>
+                        </template>
+                    
+                    </div>
+                    <div class="b-sidebar-footer">
+                            <template v-if="compareProductsQty > 0">
+                                <div class="col p-3 bg-dark">
+                                    <div class="row">
+                                        <div class="col-lg-6 col-12">
+                                            <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("CompareProducts")">
+                                                <i class="b-icon bi bi-shuffle @(supportRtl ? "ps-2" : "pe-2")" aria-hidden="true"></i>
+                                                @Loc["Products.Compare.Title"]
+                                            </a>
+                                        </div>
+                                        <div class="col-lg-6 col-12 mt-lg-0 mt-2">
+                                            <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" @@click="removeFromCompareList()">
+                                                <i class="b-icon bi bi-trash @(supportRtl ? "ps-2" : "pe-2")" aria-hidden="true"></i>
+                                                @Loc["Products.Compare.Clear"]
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                </div>
+}
+
+@if (miniShoppingCartEnabled && (wishlistEnabled || shoppingCartEnabled))
+{
+    @if (wishlistEnabled)
+    {
+                        <div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" id="sidebar-wishlist" aria-labelledby="sidebar-wishlist-label">
+                        <div class="b-sidebar-header">
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                            <strong class="ms-2" id="sidebar-wishlist-label">
+                                <span>
+                                <template v-if="wishindicator > 0">
+                                    @Html.Raw(string.Format(Loc["Wishlist.Mini.ItemsText"], $"<a href=\"{Url.RouteUrl("Wishlist")}\">{string.Format(Loc["Wishlist.Mini.Items"], "{{wishindicator}}")}</a>"))
+                                </template>
+                                <template v-else>
+                                    @Loc["Wishlist.Mini.NoItems"]
+                                </template>
+                            </span></strong>
+                        </div>
+                        <div class="b-sidebar-body">
+                    
+                            <div class="d-flex justify-content-center align-items-center h-100" v-if="loader">
+                                <div class="spinner-border text-info" role="status">
+                                </div>
+                            </div>
+                            <div v-for="item in wishlistitems" class="item d-inline-flex no-wrap">
+                                <a :href="item.ProductUrl" :title="item.Picture.Title" v-if="item.Picture.ImageUrl">
+                                    <img class="img-fluid" :src="item.Picture.ImageUrl" :alt="item.Picture.AlternateText" :title="item.Picture.Title">
+                                </a>
+                                <div class="col">
+                                    <a :href="item.ProductUrl">{{item.ProductName}}</a>
+                                    <div class="attributes p-2" v-if="item.AttributeInfo">
+                                        <div v-html="item.AttributeInfo"></div>
+                                    </div>
+                                    <div class="price">
+                                        <span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{item.UnitPrice}}</strong>
+                                    </div>
+                                    <div class="quantity">
+                                        <span>@Loc["Wishlist.Mini.Quantity"]:</span> <strong>{{item.Quantity}}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                    
+                            <template v-if="!(wishindicator > 0)">
+                                <div class="d-flex flex-column justify-content-center align-items-center">
+                                    <i class="b-icon bi bi-cart-x text-secondary" style="font-size:7.5em" aria-hidden="true"></i>
+                                    <div class="text-center text-muted mt-3">@Loc["Wishlist.Mini.NoDataText"]</div>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="b-sidebar-footer">
+                                <template v-if="wishindicator > 0 && flywish !== undefined">
+                                    <div class="col-12 p-3 bg-dark">
+                                        <div class="row">
+                                            <div class="col-lg col-12">
+                                                <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("Wishlist")">
+                                                    <i class="b-icon bi bi-heart @(supportRtl ? "ps-2" : "pe-2")" aria-hidden="true"></i>
+                                                    @Loc["Wishlist"]
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                    </div>
+    }
+                    <div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" id="sidebar-cart" aria-labelledby="sidebar-cart-label">
+                    <div class="b-sidebar-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        <strong class="ms-2" id="sidebar-cart-label">
+                            <span>
+                            <template v-if="flycartindicator > 0">
+                                @Html.Raw(string.Format(Loc["ShoppingCart.Mini.ItemsText"], $"<a href=\"{Url.RouteUrl("ShoppingCart")}\">{string.Format(Loc["ShoppingCart.Mini.Items"], "{{flycartindicator}}")}</a>"))
+                            </template>
+                            <template v-else>
+                                @Loc["ShoppingCart.Mini.NoItems"]
+                            </template>
+                        </span></strong>
+                    </div>
+                    <div class="b-sidebar-body">
+                    
+                        <div class="d-flex justify-content-center align-items-center h-100" v-if="flycartitems == undefined">
+                            <div class="spinner-border text-info" role="status">
+                            </div>
+                        </div>
+                        <div v-for="item in flycartitems" class="item d-inline-flex no-wrap">
+                            <a :href="item.ProductUrl" :title="item.Picture.Title" v-if="item.Picture.ImageUrl">
+                                <img class="img-fluid" :src="item.Picture.ImageUrl" :alt="item.Picture.AlternateText" :title="item.Picture.Title">
+                            </a>
+                            <div class="col">
+                                <a :href="item.ProductUrl">{{item.ProductName}}</a>
+                                <div class="attributes p-2" v-if="item.AttributeInfo">
+                                    <div v-html="item.AttributeInfo"></div>
+                                </div>
+                                <div class="price">
+                                    <span>@Loc["ShoppingCart.Mini.UnitPrice"]:</span> <strong>{{item.UnitPrice}}</strong>
+                                </div>
+                                <div class="quantity">
+                                    <span>@Loc["ShoppingCart.Mini.Quantity"]:</span> <strong>{{item.Quantity}}</strong>
+                                </div>
+                            </div>
+                            <div>
+                                <a class="deleteitem" @@click="deletecartitem('@Url.RouteUrl("DeleteCartItem")/'+ item.Id)">
+                                    <i class="b-icon bi bi-trash deleteitem text-danger" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                    
+                        <template v-if="flycartindicator !== undefined && !(flycartindicator > 0)">
+                            <div class="d-flex flex-column justify-content-center align-items-center">
+                                <i class="b-icon bi bi-cart-x text-secondary" style="font-size:7.5em" aria-hidden="true"></i>
+                                <div class="text-center text-muted mt-3">@Loc["ShoppingCart.Mini.NoDataText"]</div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="b-sidebar-footer">
+                            <div v-if="flycartindicator > 0" class="p-3 bg-dark col-12">
+                                <div class="row">
+                                    <div class="col-lg-6 col-5 text-center text-white d-flex flex-column">
+                                        <span class="h5 mb-0">@Loc["ShoppingCart.Totals.SubTotal"]:</span>
+                                        <span class="h4 mb-0">{{flycart.SubTotal}}</span>
+                                    </div>
+                                    <div class="col-lg-6 col-7 text-center d-flex justify-content-center align-items-center">
+                                        <a v-if="flycart.DisplayShoppingCartButton" class="btn btn-light cart-button w-100 h-100 d-flex align-items-center justify-content-center text-uppercase" @@click="window.location='@Url.RouteUrl("ShoppingCart")'">@Loc["ShoppingCart.Mini.ViewCart"]</a>
+                                        <div v-if="flycart.DisplayCheckoutButton" class="w-100 h-100">
+                                            <div v-if="flycart.CurrentCustomerIsGuest && flycart.CurrentCustomerIsGuest">
+                                                <a class="btn btn-light checkout-button w-100 h-100 d-flex align-items-center justify-content-center text-uppercase" onclick="location='@Url.RouteUrl("LoginCheckoutAsGuest", new { returnUrl = Url.RouteUrl("ShoppingCart") })'">@Loc["Checkout.Button"]</a>
+                                            </div>
+                                            <div v-else>
+                                                <a class="btn btn-light checkout-button w-100 h-100 d-flex align-items-center justify-content-center text-uppercase" onclick="location='@Url.RouteUrl("Checkout")'">@Loc["Checkout.Button"]</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+}

@@ -25,10 +25,10 @@
             <b-form-rating id="rating-inline" class="p-0" variant="warning" no-border size="sm" show-value precision="2" v-model="vendorreviewsoverview.rating" readonly inline value="@(ratingValue.ToString("0.00", CultureInfo.InvariantCulture))"></b-form-rating>
             <template v-if="vendorreviewsoverview.Model.TotalReviews > 0">
                 <div class="product-review-links order-3">
-                    <b-button variant="outline-info" size="sm" class="review-scroll-button" @@click="active = true" href="#review-tab___BV_tab_button__">
+                    <a class="btn btn-outline-info btn-sm review-scroll-button" href="#review-tab" role="button" @@click="document.getElementById('review-tab-tab').click()">
                         {{vendorreviewsoverview.Model.TotalReviews}}
                         @Loc["Reviews.Overview.Reviews"]
-                    </b-button>
+                    </a>
                 </div>
                 @{
                     var ratingValuee = ratingPercent / (double)20;

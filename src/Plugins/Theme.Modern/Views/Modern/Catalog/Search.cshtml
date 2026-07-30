@@ -112,25 +112,25 @@
             <partial name="Partials/Selectors"/>
             <template v-if="catalog.Model.Products.length > 0">
                 <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
-                    <b-col cols="12" class="product-grid px-0">
-                        <b-form-row>
+                    <div class="col-12 product-grid px-0">
+                        <div class="form-row">
                             <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                                <b-col lg="4" sm="6" cols="6" class="product-container new-col-6 mb-2">
+                                <div class="col-6 col-sm-6 col-lg-4 product-container new-col-6 mb-2">
                                     <product-box-vue v-bind="{ Model: Model }"></product-box-vue>
-                                </b-col>
+                                </div>
                             </template>
-                        </b-form-row>
-                    </b-col>
+                        </div>
+                    </div>
                 </template>
                 <template v-else>
                     <div class="product-list">
-                        <b-col cols="12">
-                            <b-row>
+                        <div class="col-12">
+                            <div class="row">
                                 <template :key="Model.Id" v-for="Model in catalog.Model.Products">
                                     <product-box-list-vue v-bind="{ Model: Model }"></product-box-list-vue>
                                 </template>
-                            </b-row>
-                        </b-col>
+                            </div>
+                        </div>
                     </div>
                 </template>
                 @*<partial name="Partials/Pagination" />*@

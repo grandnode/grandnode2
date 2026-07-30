@@ -40,7 +40,7 @@
                                             @@mousedown="searchbox.recording = true"
                                             @@mouseup="searchbox.recording = false"
                                             @@mouseleave="searchbox.recording = false"
-                                            v-b-tooltip.hover.bottom :title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-outline-secondary search-button btn-mic']">
+                                            data-bs-toggle="tooltip" data-bs-placement="bottom" :title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-outline-secondary search-button btn-mic']">
                                         <template v-if="searchbox.recording">
                                             <span class="icons icon-microphone"></span>
                                         </template>

@@ -7,7 +7,7 @@
             @await Component.InvokeAsync("Widget", new { widgetZone = "productbreadcrumb_before" })
             <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
                 <a href="@Url.RouteUrl("HomePage")" target="_self">
-                    <b-icon icon="house-door" scale="1.25" shift-v="1.25" aria-hidden="true"></b-icon>
+                    <i class="b-icon bi bi-house-door" style="font-size:1.25em; position:relative; top:-1.25px" aria-hidden="true"></i>
                     <span itemprop="name">@Loc["Products.Breadcrumb.Top"]</span>
                     <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
                           id="@Url.RouteUrl("HomePage")">

@@ -50,11 +50,11 @@
                        autocomplete="off" name="SearchKeyword" placeholder="@Loc["Blog.SearchPlaceholder"]">
 
                 <span class="input-group-append">
-                    <b-button type="submit" variant="secondary" class="search-box-button d-flex align-items-center float-sm-right">
+                    <button class="btn btn-secondary search-box-button d-flex align-items-center float-sm-right" type="submit">
                         <span class="sr-only">Search store</span>
-                        <b-icon icon="search" class="mx-1"></b-icon>
+                        <i class="b-icon bi bi-search mx-1" aria-hidden="true"></i>
                         <span class="d-none d-lg-block">@Loc["Blog.Search"]</span>
-                    </b-button>
+                    </button>
                 </span>
             </div>
         </form>
@@ -69,69 +69,73 @@
             </div>
         </a>
         @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_before_posts" })
-        <b-row class="blog-posts">
+        <div class="row blog-posts">
             @foreach (var item in Model.BlogPosts)
             {
-                <b-col xl="4" lg="6" md="6" sm="6" cols="12">
-                    <b-card class="post-news mb-3">
-                        <template v-slot:header>
+                <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-4">
+                    <div class="card post-news mb-3">
+                        <div class="card-header">
                             @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
                             {
-                                <b-link class="img-container">
+                                <span class="img-container">
                                     <img src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"/>
-                                </b-link>
+                                </span>
                             }
                             <h3 class="h5 title">
-                                <b-link href="@Url.RouteUrl("BlogPost", new { item.SeName })">
+                                <a href="@Url.RouteUrl("BlogPost", new { item.SeName })">
                                     @item.Title
-                                </b-link>
+                                </a>
                             </h3>
                             <div class="date">
                                 @item.CreatedOn.ToString("D")
                             </div>
-                        </template>
-                        <div class="buttons mt-3">
-                            <a class="btn btn-sm btn-outline-secondary read-more" href="@Url.RouteUrl("BlogPost", new { item.SeName })">@Loc["Blog.MoreInfo"]</a>
                         </div>
-                    </b-card>
-                </b-col>
+                        <div class="card-body">
+                            <div class="buttons mt-3">
+                                <a class="btn btn-sm btn-outline-secondary read-more" href="@Url.RouteUrl("BlogPost", new { item.SeName })">@Loc["Blog.MoreInfo"]</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
 
                 @*
             @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_before_post", additionalData = item.Id })
-        <b-col xl="4" lg="4" cols="12" class="mb-3">
-            <b-card class="blog-post" onclick="window.location.href = '@Url.RouteUrl("BlogPost", new { SeName = item.SeName })'">
-                <template v-slot:header>
+        <div class="col-12 col-lg-4 col-xl-4 mb-3">
+            <div class="card blog-post" onclick="window.location.href = '@Url.RouteUrl("BlogPost", new { SeName = item.SeName })'">
+                <div class="card-header">
                     @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
                     {
-                        <b-link href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })" class="img-container">
+                        <a class="img-container" href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })">
                             <img src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" />
-                        </b-link>
+                        </a>
                     }
                    <div class="content">
                         <h3 class="h5 title">
-                            <b-link class="text-white" href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })">
+                            <a class="text-white" href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })">
                                 @item.Title
-                            </b-link>
+                            </a>
                         </h3>
                         <div class="date">
                             @item.CreatedOn.ToString("D")
                         </div>
                    </div>
-                </template>
-                @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_inside_post", additionalData = item.Id })
-            </b-card>
+                </div>
+                <div class="card-body">
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_inside_post", additionalData = item.Id })
+                </div>
+            </div>
             
             @if (item.AllowComments)
             {
-                <b-button href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})#comments" variant="outline-secondary" class="read-comments btn-sm">@string.Format(Loc["Blog.CommentsLink"], item.NumberOfComments)</b-button>
+                <a class="btn btn-outline-secondary read-comments btn-sm" href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})#comments" role="button">@string.Format(Loc["Blog.CommentsLink"], item.NumberOfComments)</a>
             }
-            <b-button href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})" variant="outline-secondary" class="read-more btn-sm">@Loc["Blog.MoreInfo"]</b-button>
-            </b-col>
+            <a class="btn btn-outline-secondary read-more btn-sm" href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})" role="button">@Loc["Blog.MoreInfo"]</a>
+            </div>
             @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_after_post", additionalData = item.Id })
             *@
             }
-        </b-row>
+        </div>
         <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingFilteringContext"/>
 
         @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_after_posts" })

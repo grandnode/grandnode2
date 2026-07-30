@@ -12,7 +12,7 @@
                             <div class="blog-post" @@click="window.location.href = '' + Item.SeName + ''">
                                 <a>
                                     <template v-if="Item.PictureModel !== null">
-                                        <b-img-lazy :src="Item.PictureModel.ImageUrl" :alt="Item.PictureModel.AlternateText"></b-img-lazy>
+                                        <img :src="Item.PictureModel.ImageUrl" :alt="Item.PictureModel.AlternateText" loading="lazy">
                                     </template>
                                     <span v-if="Item.Category !== null" class="category">{{Item.Category}}</span>
                                     <div class="content">

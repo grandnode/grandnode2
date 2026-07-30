@@ -504,7 +504,7 @@
                 <span class="custom-control-label"></span>
                 <span class="custom-control-description">@Loc["Account.Fields.AcceptPrivacyPolicy"]</span>
             </label>
-            <b-link class="read mx-2" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "privacyinfo" })', 450, 500, true)">@Loc["Account.Fields.AcceptPrivacyPolicy.Read"]</b-link>
+            <a class="read mx-2" href="#" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "privacyinfo" })', 450, 500, true);return false;">@Loc["Account.Fields.AcceptPrivacyPolicy.Read"]</a>
         </div>
         <span class="field-validation-error d-flex w-100">{{ errors[0] }}</span>
     </validation-provider>

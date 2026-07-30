@@ -6,23 +6,12 @@
 }
 <div class="header-nav">
     <nav class="navbar navbar-light navbar-expand">
-        <b-container id="header-container">
+        <div class="container" id="header-container">
             <div class="menu-container">
                 <template v-if="true">
-                    <button aria-label="menu-toggler" class="btn menu-toggler" v-b-toggle.sidebar-menu>
+                    <button aria-label="menu-toggler" class="btn menu-toggler" data-bs-toggle="offcanvas" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu">
                         <span></span><span></span><span></span>
                     </button>
-                    <b-sidebar id="sidebar-menu"
-                               backdrop
-                               shadow
-                               @if (supportRtl)
-                               {
-                                   <text>right</text>
-                               }>
-                        <ul class="Menu -vertical">
-                            @await Component.InvokeAsync("Menu")
-                        </ul>
-                    </b-sidebar>
                 </template>
             </div>
             <partial name="Partials/Logo"/>
@@ -31,56 +20,90 @@
                     <li class="nav-item">
                         <span class="nav-link">
                             <template v-if="true">
-                                <b-form-checkbox size="lg" v-model="darkMode" name="contrast-button" class="contrast-switch" switch>
-                                    <b-icon icon="sun" class="light" variant="info"></b-icon>
-                                    <b-icon icon="moon" class="dark" variant="dark"></b-icon>
-                                </b-form-checkbox>
+                                <div class="form-check form-switch form-check-lg contrast-switch">
+                                    <input class="form-check-input" type="checkbox" id="contrast-button" name="contrast-button" v-model="darkMode">
+                                    <label class="form-check-label" for="contrast-button">
+                                        <i class="b-icon bi bi-sun light text-info" aria-hidden="true"></i>
+                                        <i class="b-icon bi bi-moon dark text-dark" aria-hidden="true"></i>
+                                    </label>
+                                </div>
                             </template>
                         </span>
                     </li>
                 </template>
                 <li class="nav-item">
                     <a href="#" target="_self" class="nav-link">
-                        <b-icon icon="search" :variant="[darkMode ? 'white' : 'dark']" v-b-modal.search-box></b-icon>
+                        <i class="b-icon bi bi-search" :class="[darkMode ? 'text-white' : 'text-dark']" data-bs-toggle="modal" data-bs-target="#search-box" aria-hidden="true"></i>
                     </a>
                 </li>
-                <b-modal id="search-box" ref="search-box" :dark-theme="darkMode" @@shown="vm.$refs.searchBoxInput.focus()"
-                         hide-footer hide-header size="xl">
-                    @await Component.InvokeAsync("SearchBox")
-                </b-modal>
                 <template v-if="true">
                     <li class="nav-item">
                         <span class="nav-link">
-                            <b-icon icon="person-circle" :variant="[darkMode ? 'white' : 'dark']" v-b-toggle.sidebar-right></b-icon>
+                            <i class="b-icon bi bi-person-circle" :class="[darkMode ? 'text-white' : 'text-dark']" data-bs-toggle="offcanvas" data-bs-target="#sidebar-right" aria-controls="sidebar-right" aria-hidden="true"></i>
                         </span>
-                        <template v-if="true">
-                            <b-sidebar id="sidebar-right" body-class="user-panel" title="@Loc["Account.MyAccount"]"
-                                       @if (!supportRtl)
-                                       {
-                                           <text>right</text>
-                                       }
-                                       backdrop>
-                                <div class="d-inline-flex flex-wrap mb-2">
-                                    <partial name="Partials/Selector_TaxType"/>
-                                    <partial name="Partials/Selector_Currency"/>
-                                    <partial name="Partials/Selector_Language"/>
-                                    @if (CommonSettings.AllowToSelectStore)
-                                    {
-                                        <partial name="Partials/Selector_Store"/>
-                                    }                                    
-                                    @if (StoreInformationSettings.AllowCustomerToSelectTheme)
-                                    {
-                                        <partial name="Partials/Selector_Theme"/>
-                                    }
-                                    @await Component.InvokeAsync("Widget", new { widgetZone = "header_selectors" })
-                                </div>
-                                <partial name="Partials/HeaderLinks"/>
-                            </b-sidebar>
-                        </template>
                     </li>
                 </template>
                 <partial name="Partials/ShoppingCartLinks"/>
             </ul>
-        </b-container>
+        </div>
     </nav>
 </div>
+@* Drawers and the search modal are rendered at the top level of #app, outside
+   .header-nav: that element is position:sticky with a z-index, so it forms a
+   stacking context, and anything inside it ends up underneath the backdrop that
+   Bootstrap appends to <body>. It also keeps the drawers out of
+   <nav class="navbar-expand">, which Bootstrap would otherwise flatten into the
+   bar. The triggers stay in the header and reference these by id. *@
+<template v-if="true">
+        <div class="offcanvas @(supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar") shadow" tabindex="-1" id="sidebar-menu" aria-labelledby="sidebar-menu-label">
+            <div class="b-sidebar-header">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <strong class="ms-2" id="sidebar-menu-label"></strong>
+            </div>
+            <div class="b-sidebar-body">
+                <ul class="Menu -vertical">
+                    @await Component.InvokeAsync("Menu")
+                </ul>
+            </div>
+        </div>
+        <div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" id="sidebar-right" aria-labelledby="sidebar-right-label">
+            <div class="b-sidebar-header">
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                <strong class="ms-2" id="sidebar-right-label">@Loc["Account.MyAccount"]</strong>
+            </div>
+            <div class="b-sidebar-body user-panel">
+                <div class="d-inline-flex flex-wrap mb-2">
+                    <partial name="Partials/Selector_TaxType"/>
+                    <partial name="Partials/Selector_Currency"/>
+                    <partial name="Partials/Selector_Language"/>
+                    @if (CommonSettings.AllowToSelectStore)
+                    {
+                        <partial name="Partials/Selector_Store"/>
+                    }
+                    @if (StoreInformationSettings.AllowCustomerToSelectTheme)
+                    {
+                        <partial name="Partials/Selector_Theme"/>
+                    }
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "header_selectors" })
+                </div>
+                <partial name="Partials/HeaderLinks"/>
+            </div>
+        </div>
+</template>
+<partial name="Partials/SidebarPanels"/>
+<div class="modal fade" id="search-box" tabindex="-1" aria-hidden="true" :dark-theme="darkMode">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-body">
+                @await Component.InvokeAsync("SearchBox")
+            </div>
+        </div>
+    </div>
+</div>
+<script asp-location="Footer" asp-order="300">
+    (function () {
+        document.getElementById('search-box').addEventListener('shown.bs.modal', function () {
+            if (vm.$refs.searchBoxInput) vm.$refs.searchBoxInput.focus();
+        });
+    })();
+</script>

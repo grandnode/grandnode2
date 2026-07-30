@@ -1,12 +1,15 @@
-﻿<b-modal id="ModalAddToCart" ref="ModalAddToCart" :dark-theme="darkMode" body-class="p-0" size="lg" centered hide-footer hide-header>
+﻿<div class="modal fade" id="ModalAddToCart" tabindex="-1" aria-hidden="true" :dark-theme="darkMode">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body p-0">
     <template v-if="PopupAddToCartVueModal !== null">
-        <button class="modal-close btn" @@click="$bvModal.hide('ModalAddToCart')">
-            <b-icon icon="x"></b-icon>
+        <button class="modal-close btn" data-bs-dismiss="modal">
+            <i class="b-icon bi bi-x" aria-hidden="true"></i>
         </button>
         <div class="card" header-tag="header" footer-tag="footer" footer-bg-variant="white" footer-class="border-0">
             <div class="card-header atc-header">
                 <h5 class="mb-0 d-flex align-items-center">
-                    <b-icon icon="check-circle-fill" variant="success" class="me-2"></b-icon>
+                    <i class="b-icon bi bi-check-circle-fill text-success me-2" aria-hidden="true"></i>
                     <template v-if="PopupAddToCartVueModal.CartType == 1 || PopupAddToCartVueModal.CartType == 0">
                         @Loc["AddToCart.ShoppingCart"]
                     </template>
@@ -131,10 +134,10 @@
             <div class="card-footer">
                 <div class="btn-group w-100" role="group">
                     <template v-if="PopupAddToCartVueModal.CartType == 3">
-                        <button class="btn btn-outline-secondary text-uppercase" @@click='$bvModal.hide("ModalAddToCart")'>@Loc["AddToCart.Continue"]</button>
+                        <button class="btn btn-outline-secondary text-uppercase" data-bs-dismiss="modal">@Loc["AddToCart.Continue"]</button>
                     </template>
                     <template v-else>
-                        <button class="btn btn-outline-secondary text-uppercase" @@click='$bvModal.hide("ModalAddToCart")'>@Loc["AddToCart.Continue"]</button>
+                        <button class="btn btn-outline-secondary text-uppercase" data-bs-dismiss="modal">@Loc["AddToCart.Continue"]</button>
                     </template>
                     <template v-if="PopupAddToCartVueModal.CartType == 1 || PopupAddToCartVueModal.CartType == 0">
                         <button class="btn btn-dark text-uppercase" @@click="window.location='@(Url.RouteUrl("ShoppingCart"))'">@Loc["AddToCart.ViewCart"]</button>
@@ -149,4 +152,7 @@
             </div>
         </div>
     </template>
-</b-modal>
+</div>
+        </div>
+    </div>
+</div>

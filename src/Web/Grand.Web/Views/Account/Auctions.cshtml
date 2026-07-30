@@ -16,8 +16,8 @@
     @if (Model.ProductBidList.Any())
     {
         <div>
-            <b-tabs content-class="mt-3">
-                <b-tab title="@Loc["Account.Auctions.Tab.Ongoing"]" active>
+            <gn-tabs content-class="mt-3">
+                <gn-tab title="@Loc["Account.Auctions.Tab.Ongoing"]" active="true">
                     @if (Model.ProductBidList.Any(x => !x.Ended))
                     {
                         <div id="auction-table-ongoing" class="table-responsive">
@@ -90,8 +90,8 @@
                             @Loc["Account.Auctions.NoOngoingAuctions"]
                         </div>
                     }
-                </b-tab>
-                <b-tab title="@Loc["Account.Auctions.Tab.Ended"]">
+                </gn-tab>
+                <gn-tab title="@Loc["Account.Auctions.Tab.Ended"]">
                     @if (Model.ProductBidList.Any(x => x.Ended))
                     {
                         <div id="auction-table-ended" class="table-responsive">
@@ -165,8 +165,8 @@
                             @Loc["Account.Auctions.NoOngoingAuctions"]
                         </div>
                     }
-                </b-tab>
-            </b-tabs>
+                </gn-tab>
+            </gn-tabs>
         </div>
     }
     else

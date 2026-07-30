@@ -1,7 +1,7 @@
 ﻿<li class="nav-item">
     <ul class="sidebar-cart px-0">
         <li class="nav-item">
-            <a class="nav-link" @@click="getCompareList('@Url.RouteUrl("CompareProducts")')" v-b-toggle.sidebar-compare>
+            <a class="nav-link" @@click="getCompareList('@Url.RouteUrl("CompareProducts")')" data-bs-toggle="offcanvas" data-bs-target="#sidebar-compare" aria-controls="sidebar-compare">
                 <span class="icons icon-shuffle"></span>
                 <span class="qty-indicator">
                     {{compareProductsQty}}
@@ -9,16 +9,22 @@
             </a>
         </li>
         <li>
-            <b-sidebar id="sidebar-compare" backdrop right text-variant="standard">
-                    <template v-slot:title>
+            <div class="offcanvas offcanvas-end b-sidebar b-sidebar-right" tabindex="-1" id="sidebar-compare" aria-labelledby="sidebar-compare-label">
+                <div class="b-sidebar-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    <strong class="ms-2" id="sidebar-compare-label">
+                        <span>
                         @Loc["Products.Compare.Title"]
-                    </template>
+                    </span></strong>
+                </div>
+                <div class="b-sidebar-body">
+                    
                     <template v-if="compareProductsQty > 0">
                         <template v-if="compareproducts !== null">
                             <template v-for="product in compareproducts.Products" :key="product.Id">
                                 <div class="item comapre-product d-inline-flex no-wrap">
                                     <a :href="product.Url" :title="product.DefaultPictureModel.Title" v-if="product.DefaultPictureModel.ImageUrl">
-                                        <b-img :alt="product.DefaultPictureModel.AlternateText" :src="product.DefaultPictureModel.ImageUrl" :title="product.DefaultPictureModel.Title" fluid></b-img>
+                                        <img class="img-fluid" :src="product.DefaultPictureModel.ImageUrl" :alt="product.DefaultPictureModel.AlternateText" :title="product.DefaultPictureModel.Title">
                                     </a>
                                     <div class="col">
                                         <a :href="product.Url">{{product.Name}}</a>
@@ -28,7 +34,7 @@
                                     </div>
                                     <div>
                                         <a class="deleteitem" @@click="removeFromCompareList(product.Id); getCompareList('@Url.RouteUrl("CompareProducts")'); ">
-                                            <b-icon icon="trash" variant="danger"></b-icon>
+                                            <i class="b-icon bi bi-trash text-danger" aria-hidden="true"></i>
                                         </a>
                                     </div>
                                 </div>
@@ -43,31 +49,33 @@
                     </template>
                     <template v-else>
                         <div class="d-flex flex-column justify-content-center align-items-center">
-                            <b-icon icon="shuffle" font-scale="7.5" variant="secondary"></b-icon>
+                            <i class="b-icon bi bi-shuffle text-secondary" style="font-size:7.5em" aria-hidden="true"></i>
                             <div class="text-center text-muted mt-3">@Loc["Products.Compare.NoItems"]</div>
                         </div>
                     </template>
-                    <template v-slot:footer>
+                    
+            </div>
+                <div class="b-sidebar-footer">
                         <template v-if="compareProductsQty > 0">
-                            <b-col class="p-3">
+                            <div class="col p-3">
                                 <div class="form-row">
                                     <div class="col-lg-6 col-12">
                                         <a class="btn btn-secondary d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("CompareProducts")">
-                                            <b-icon icon="shuffle" class="pe-2"></b-icon>
+                                            <i class="b-icon bi bi-shuffle pe-2" aria-hidden="true"></i>
                                             @Loc["Products.Compare.Title"]
                                         </a>
                                     </div>
                                     <div class="col-lg-6 col-12 mt-lg-0 mt-2">
                                         <a class="btn btn-secondary d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" @@click="removeFromCompareList()">
-                                            <b-icon icon="trash" class="pe-2"></b-icon>
+                                            <i class="b-icon bi bi-trash pe-2" aria-hidden="true"></i>
                                             @Loc["Products.Compare.Clear"]
                                         </a>
                                     </div>
                                 </div>
-                            </b-col>
+                            </div>
                         </template>
-                    </template>
-            </b-sidebar>
+                    </div>
+            </div>
         </li>
     </ul>
 </li>

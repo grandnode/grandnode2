@@ -12,28 +12,28 @@
             @@mouseleave="voicenavigator.recording = false"
             ref="voicePageButton" type="button" v-bind:class="[{ focus: voicenavigator.recording }, 'btn btn-link voice-page-button']">
         <template v-if="voicenavigator.recording">
-            <b-icon icon="mic" variant="info"></b-icon>
+            <i class="b-icon bi bi-mic text-info" aria-hidden="true"></i>
         </template>
         <template v-else>
-            <b-icon icon="mic-mute" variant="danger"></b-icon>
+            <i class="b-icon bi bi-mic-mute text-danger" aria-hidden="true"></i>
         </template>
     </button>
-    <b-alert :show="voicenavigator.recording"
-             class="voice-alert position-fixed fixed-top m-0 rounded-0"
-             :variant="voicenavigator.variant">
+    <div v-if="voicenavigator.recording"
+         class="alert voice-alert position-fixed fixed-top m-0 rounded-0"
+         :class="'alert-' + voicenavigator.variant" role="alert">
         <div class="recording-window">
             <div class="recording-aniamtion">
                 <template v-if="voicenavigator.variant !== 'success'">
-                    <b-icon icon="mic" variant="info"></b-icon>
+                    <i class="b-icon bi bi-mic text-info" aria-hidden="true"></i>
                 </template>
                 <template v-else>
-                    <b-icon icon="check" variant="success"></b-icon>
+                    <i class="b-icon bi bi-check text-success" aria-hidden="true"></i>
                 </template>
             </div>
             <input type="text" placeholder="@Loc["voicenavigator.voice.placeholder"]" v-model="voicenavigator.transcript" class="form-control" readonly/>
         </div>
         <small class="form-text w-100">@Loc["voicenavigator.voice.annotation"]</small>
-    </b-alert>
+    </div>
 </template>
 <script asp-location="Footer" asp-order="300">
     var voicenavigator = new Vue({

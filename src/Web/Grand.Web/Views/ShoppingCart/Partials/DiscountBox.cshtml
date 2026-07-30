@@ -1,12 +1,12 @@
 ﻿<div v-if="vmorder.cart.DiscountBox.Display" class="coupon-box">
     <template v-if="true">
         <div class="accordion" role="tablist">
-            <b-card no-body class="mb-1">
-                <b-card-header header-tag="div" class="p-1" role="tab">
-                    <b-button block v-b-toggle.accordion-discount class="coupon-button" variant="light">@Loc["ShoppingCart.DiscountCouponCode.Tooltip"]</b-button>
-                </b-card-header>
-                <b-collapse id="accordion-discount" accordion="discount-accordion" role="tabpanel">
-                    <b-card-body>
+            <div class="card mb-1">
+                <div class="card-header p-1" role="tab">
+                    <button class="btn btn-light w-100 coupon-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accordion-discount" aria-expanded="false" aria-controls="accordion-discount">@Loc["ShoppingCart.DiscountCouponCode.Tooltip"]</button>
+                </div>
+                <div class="collapse" id="accordion-discount" role="tabpanel">
+                    <div class="card-body">
                         <div class="coupon-code">
                             <div class="form-group">
                                 <span class="col-form-label">@Loc["ShoppingCart.DiscountCouponCode"]</span>
@@ -30,16 +30,13 @@
                         </div>
                         <div v-if="vmorder.cart.DiscountBox.AppliedDiscountsWithCodes[0]" v-for="discount in vmorder.cart.DiscountBox.AppliedDiscountsWithCodes" class="alert alert-success text-center">
                             <span>@Loc["ShoppingCart.DiscountCouponCode.CurrentCode"].ToString().Replace("{0}", "{{discount.CouponCode}}")</span>
-                            <b-link name="removediscount"
-                                    title="@Loc["Common.Remove"]"
-                                    class="mx-1"
-                                    @@click="vmorder.RemoveDiscountId('@Url.RouteUrl("RemoveDiscountCoupon")?discountId=' + discount.Id)">
-                                <b-icon icon="trash" variant="danger"></b-icon>
-                            </b-link>
+                            <a class="mx-1" href="#" name="removediscount" title="@Loc["Common.Remove"]" @@click.prevent="vmorder.RemoveDiscountId('@Url.RouteUrl("RemoveDiscountCoupon")?discountId=' + discount.Id)">
+                                <i class="b-icon bi bi-trash text-danger" aria-hidden="true"></i>
+                            </a>
                         </div>
-                    </b-card-body>
-                </b-collapse>
-            </b-card>
+                    </div>
+                </div>
+            </div>
         </div>
     </template>
 </div>

@@ -1,7 +1,7 @@
 ﻿<li class="nav-item">
     <ul class="sidebar-cart wishlist px-0">
         <li class="nav-item">
-            <a class="nav-link" @@click="updateWishlist('@Url.RouteUrl("SidebarWishlist")')" v-b-toggle.sidebar-wishlist>
+            <a class="nav-link" @@click="updateWishlist('@Url.RouteUrl("SidebarWishlist")')" data-bs-toggle="offcanvas" data-bs-target="#sidebar-wishlist" aria-controls="sidebar-wishlist">
                 <span class="icon-heart icons"></span>
                 <span class="qty-indicator wishlist-qty" ref="wishlistQty">
                     @Loc["Wishlist.HeaderQuantity", Model]
@@ -9,23 +9,30 @@
             </a>
         </li>
         <li>
-            <b-sidebar id="sidebar-wishlist" backdrop right bg-variant="white" text-variant="standard">
-                    <template v-slot:title v-if="wishindicator > 0">
+            <div class="offcanvas offcanvas-end b-sidebar b-sidebar-right" tabindex="-1" id="sidebar-wishlist" aria-labelledby="sidebar-wishlist-label">
+                <div class="b-sidebar-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    <strong class="ms-2" id="sidebar-wishlist-label">
+                        <span v-if="wishindicator > 0">
                         @Html.Raw(string.Format(Loc["Wishlist.Mini.ItemsText"], $"<a href=\"{Url.RouteUrl("Wishlist")}\">{string.Format(Loc["Wishlist.Mini.Items"], "{{wishindicator}}")}</a>"))
-                    </template>
-                    <template v-slot:title v-else-if="true">
+                    </span>
+                        <span v-else>
                         @Loc["Wishlist.Mini.NoItems"]
-                    </template>
+                    </span></strong>
+                </div>
+                <div class="b-sidebar-body">
+                    
+                    
                     <div class="d-flex justify-content-center align-items-center h-100" v-if="wishlistitems == undefined">
                         <div class="spinner-border text-gold" role="status">
                         </div>
                     </div>
                     <div v-for="item in wishlistitems" :key="item.Id" class="item d-inline-flex no-wrap">
-                        <b-link :href="'/' + item.ProductSeName" :title="item.Picture.Title" v-if="item.Picture.ImageUrl">
-                            <b-img :alt="item.Picture.AlternateText" :src="item.Picture.ImageUrl" :title="item.Picture.Title" fluid></b-img>
-                        </b-link>
-                        <b-col>
-                            <b-link :href="'/' + item.ProductSeName">{{item.ProductName}}</b-link>
+                        <a :href="'/' + item.ProductSeName" :title="item.Picture.Title" v-if="item.Picture.ImageUrl">
+                            <img class="img-fluid" :src="item.Picture.ImageUrl" :alt="item.Picture.AlternateText" :title="item.Picture.Title">
+                        </a>
+                        <div class="col">
+                            <a :href="'/' + item.ProductSeName">{{item.ProductName}}</a>
                             <div class="attributes p-2" v-if="item.AttributeInfo">
                                 <div v-html="item.AttributeInfo"></div>
                             </div>
@@ -35,27 +42,30 @@
                             <div class="quantity">
                                 <span>@Loc["Wishlist.Mini.Quantity"]:</span> <strong>{{item.Quantity}}</strong>
                             </div>
-                        </b-col>
+                        </div>
                     </div>
-                    <template v-slot:footer v-if="wishindicator > 0">
+                    
+                    
+            </div>
+                <div class="b-sidebar-footer" v-if="wishindicator > 0">
                         <template v-if="flywish !== undefined">
-                            <b-col cols="12" class="p-3">
+                            <div class="col-12 p-3">
                                 <div class="btn-group w-100">
-                                    <b-button variant="secondary" class="d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("Wishlist")">
-                                        <b-icon icon="heart" class="pe-2"></b-icon>
+                                    <a class="btn btn-secondary d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("Wishlist")" role="button">
+                                        <i class="b-icon bi bi-heart pe-2" aria-hidden="true"></i>
                                         @Loc["Wishlist"]
-                                    </b-button>
+                                    </a>
                                 </div>
-                            </b-col>
+                            </div>
                         </template>
-                    </template>
-                    <template v-slot:footer v-else-if="wishindicator !== undefined">
+                    </div>
+                <div class="b-sidebar-footer" v-else-if="wishindicator !== undefined">
                         <div class="d-flex flex-column justify-content-center align-items-center">
                             <span class="icons icon-heart no-items-icon"></span>
                             <div class="text-center text-muted mt-3">@Loc["Wishlist.Mini.NoDataText"]</div>
                         </div>
-                    </template>
-            </b-sidebar>
+                    </div>
+            </div>
         </li>
     </ul>
 </li>

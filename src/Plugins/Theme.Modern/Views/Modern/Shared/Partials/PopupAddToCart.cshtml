@@ -1,7 +1,10 @@
-﻿<b-modal id="ModalAddToCart" ref="ModalAddToCart" content-class="border-0" :dark-theme="darkMode" body-class="p-0" size="lg" centered hide-footer hide-header>
+﻿<div class="modal fade" id="ModalAddToCart" tabindex="-1" aria-hidden="true" :dark-theme="darkMode">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0">
+            <div class="modal-body p-0">
     <template v-if="PopupAddToCartVueModal !== null">
-        <button class="modal-close btn" @@click="$bvModal.hide('ModalAddToCart')">
-            <b-icon icon="x"></b-icon>
+        <button class="modal-close btn" data-bs-dismiss="modal">
+            <i class="b-icon bi bi-x" aria-hidden="true"></i>
         </button>
         <div class="card rounded-0 border-0">
             <div class="card-header rounded-0 border-0">
@@ -129,10 +132,10 @@
             <div class="card-footer">
                 <div class="btn-group w-100" role="group">
                     <template v-if="PopupAddToCartVueModal.CartType == 3">
-                        <button class="btn btn-outline-secondary text-uppercase" @@click='$bvModal.hide("ModalAddToCart")'>@Loc["AddToCart.Continue"]</button>
+                        <button class="btn btn-outline-secondary text-uppercase" data-bs-dismiss="modal">@Loc["AddToCart.Continue"]</button>
                     </template>
                     <template v-else>
-                        <button class="btn btn-outline-secondary text-uppercase" @@click='$bvModal.hide("ModalAddToCart")'>@Loc["AddToCart.Continue"]</button>
+                        <button class="btn btn-outline-secondary text-uppercase" data-bs-dismiss="modal">@Loc["AddToCart.Continue"]</button>
                     </template>
                     <template v-if="PopupAddToCartVueModal.CartType == 1 || PopupAddToCartVueModal.CartType == 0">
                         <button class="btn btn-secondary text-uppercase" @@click="window.location='@(Url.RouteUrl("ShoppingCart"))'">@Loc["AddToCart.ViewCart"]</button>
@@ -147,4 +150,7 @@
             </div>
         </div>
     </template>
-</b-modal>
+</div>
+        </div>
+    </div>
+</div>

@@ -10,7 +10,7 @@
         <a href="@Url.RouteUrl("Category", new { Model.Category.SeName })">
             @if (!string.IsNullOrEmpty(Model.Category.Icon))
             {
-                <b-icon icon="@Model.Category.Icon" class="category-icon"></b-icon>
+                <i class="b-icon bi bi-@Model.Category.Icon category-icon" aria-hidden="true"></i>
                 <span class="category-icon @Model.Category.Icon"></span>
             }
             @{
@@ -20,7 +20,7 @@
                 {
                     <picture>
                         <source media="(max-width: 991px)" sizes="1px" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 1w"/>
-                        <b-img-lazy class="img-fluid" src="@Model.Category.ImageUrl"></b-img-lazy>
+                        <img class="img-fluid" src="@Model.Category.ImageUrl" loading="lazy">
                     </picture>
                 }
             }

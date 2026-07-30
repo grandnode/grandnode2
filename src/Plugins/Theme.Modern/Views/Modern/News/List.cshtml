@@ -21,40 +21,42 @@
             @Loc["catalog.selectors.fiters"]
         </div>
     </a>
-    <b-row class="news-items">
+    <div class="row news-items">
         @foreach (var item in Model.NewsItems)
         {
-            <b-col xl="4" lg="6" md="6" sm="6" cols="12">
-                <b-card class="post-news mb-3">
-                    <template v-slot:header>
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-4">
+                <div class="card post-news mb-3">
+                    <div class="card-header">
                         @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
                         {
-                            <b-link class="img-container">
+                            <span class="img-container">
                                 <img src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"/>
-                            </b-link>
+                            </span>
                         }
                         <h3 class="h5 title">
-                            <b-link href="@Url.RouteUrl("NewsItem", new { item.SeName })">
+                            <a href="@Url.RouteUrl("NewsItem", new { item.SeName })">
                                 @item.Title
-                            </b-link>
+                            </a>
                         </h3>
                         <div class="date">
                             @item.CreatedOn.ToString("D")
                         </div>
-                    </template>
-                    <b-card-text>
-                        <div class="short">
-                            @Html.Raw(item.Short)
-                        </div>
-                    </b-card-text>
-                    <div class="buttons mt-3">
-                        <a class="btn btn-sm btn-outline-secondary read-more" href="@Url.RouteUrl("NewsItem", new { item.SeName })">@Loc["News.MoreInfo"]</a>
                     </div>
-                </b-card>
-            </b-col>
+                    <div class="card-body">
+                        <div class="card-text">
+                            <div class="short">
+                                @Html.Raw(item.Short)
+                            </div>
+                        </div>
+                        <div class="buttons mt-3">
+                            <a class="btn btn-sm btn-outline-secondary read-more" href="@Url.RouteUrl("NewsItem", new { item.SeName })">@Loc["News.MoreInfo"]</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
         <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingFilteringContext"/>
         @await Component.InvokeAsync("Widget", new { widgetZone = "newslist_page_after_items" })
-    </b-row>
+    </div>
 
 </div>

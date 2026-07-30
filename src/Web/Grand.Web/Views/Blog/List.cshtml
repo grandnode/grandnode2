@@ -50,7 +50,7 @@
             <span class="input-group-append">
                 <button type="submit" class="btn btn-info d-flex align-items-center float-sm-end">
                     <span class="visually-hidden">Search store</span>
-                    <b-icon icon="search" class="mx-1"></b-icon>
+                    <i class="b-icon bi bi-search mx-1" aria-hidden="true"></i>
                     <span class="d-none d-lg-block">@Loc["Blog.Search"]</span>
                 </button>
             </span>
@@ -65,7 +65,7 @@
                 <div class="card">
                     @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
                     {
-                        <b-img-lazy class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-img-lazy>
+                        <img class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" loading="lazy">
                     }
                     <div class="card-header">
                         <h3 class="h5 mb-0">

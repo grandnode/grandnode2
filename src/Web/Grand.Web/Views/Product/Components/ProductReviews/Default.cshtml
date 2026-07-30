@@ -25,7 +25,7 @@
                                 <small class="text-muted me-2">@Loc["Reviews.From"]:</small>
                                 <h6 class="mb-0">{{review.CustomerName}}</h6>
                             </div>
-                            <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                            <i class="b-icon bi bi-calendar2-check text-info mx-2" aria-hidden="true"></i>
                             <small class="date text-muted">
                                 <span class="ms-1">@Loc["Reviews.Date"]:</span>
                                 <span>{{review.WrittenOnStr}}</span>
@@ -59,10 +59,10 @@
                             <span class="question">@Loc["Reviews.Helpfulness.WasHelpful?"]</span>
                             <span class="vote-options btn-group">
                                 <span :id="'vote-yes-' + review.Helpfulness.ProductReviewId" @@click="productreviews.setProductReviewHelpfulness('@Url.RouteUrl("SetProductReviewHelpfulness")', 'true', review.Id, '@Model.ProductId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote">
-                                    <b-icon variant="success" icon="hand-thumbs-up"></b-icon>
+                                    <i class="b-icon text-success bi bi-hand-thumbs-up" aria-hidden="true"></i>
                                 </span>
                                 <span :id="'vote-no-' + review.Helpfulness.ProductReviewId" @@click="productreviews.setProductReviewHelpfulness('@Url.RouteUrl("SetProductReviewHelpfulness")', 'false', review.Id, '@Model.ProductId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote">
-                                    <b-icon variant="danger" icon="hand-thumbs-down"></b-icon>
+                                    <i class="b-icon text-danger bi bi-hand-thumbs-down" aria-hidden="true"></i>
                                 </span>
                             </span>
                             <span class="vote-stats d-inline-flex">
@@ -121,7 +121,7 @@
                 })
             },
             addProductReview: function () {
-                vm.$refs['ModalProductReview'].show();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalProductReview')).show();
             },
             modalReviewShown: function () {
                 if (productreviews.Model.AddProductReview.DisplayCaptcha && document.querySelector("#ModalProductReview .captcha-box") == null && !productreviews.Model.AddProductReview.SuccessfullyAdded) {
@@ -156,7 +156,7 @@
                     if (response.data.AddProductReview.SuccessfullyAdded) {
 
                         variant = "info";
-                        vm.$refs['ModalProductReview'].hide();
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalProductReview')).hide();
 
                     } else {
                         variant = "danger";

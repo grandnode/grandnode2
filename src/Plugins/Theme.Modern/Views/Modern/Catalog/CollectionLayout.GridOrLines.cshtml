@@ -15,13 +15,11 @@
     }
 }
 
-<b-skeleton-wrapper :loading="catalog.loading == true">
-    <template #loading>
-        <div>
-            <b-skeleton width="100%" height="20vh" class="mb-3"></b-skeleton>
-            <b-skeleton width="100%" height="80vh"></b-skeleton>
-        </div>
-    </template>
+<div v-if="catalog.loading == true" class="placeholder-glow">
+    <span class="placeholder col-12 mb-3" style="height: 20vh"></span>
+    <span class="placeholder col-12" style="height: 80vh"></span>
+</div>
+<div v-else>
     <div id="catalog-products" class="page collection-page mb-2">
         @*Rendering description section*@
         <template v-if="catalog.Model.Description !== null">
@@ -34,18 +32,18 @@
         @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_before_featured_products", additionalData = Model.Id })
         @*Rendering featured products section*@
         <template v-if="catalog.Model.FeaturedProducts.length > 0">
-            <b-col cols="12" class="product-grid featured-product-grid px-0">
+            <div class="col-12 product-grid featured-product-grid px-0">
                 <h2 class="h5 text-left mb-3">
                     <span>@Loc["Products.FeaturedProducts"]</span>
                 </h2>
                 <div class="item-row">
                     <template :key="Model.Id" v-for="Model in catalog.Model.FeaturedProducts">
-                        <b-col lg="4" sm="6" cols="6" class="product-container new-col-6 px-0 mb-2">
+                        <div class="col-6 col-sm-6 col-lg-4 product-container new-col-6 px-0 mb-2">
                             <product-box-vue v-bind="{ Model: Model }"></product-box-vue>
-                        </b-col>
+                        </div>
                     </template>
                 </div>
-            </b-col>
+            </div>
         </template>
         @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_after_featured_products", additionalData = Model.Id })
         <div id="catalog-products">
@@ -54,34 +52,34 @@
                 <partial name="Partials/Selectors"/>
                 <template v-if="catalog.Model.Products.length > 0">
                     <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
-                        <b-col cols="12" class="product-grid standard px-0">
-                            <b-form-row>
+                        <div class="col-12 product-grid standard px-0">
+                            <div class="form-row">
                                 <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                                    <b-col lg="3" sm="4" cols="6" class="product-container px-0 mb-2">
+                                    <div class="col-6 col-sm-4 col-lg-3 product-container px-0 mb-2">
                                         <product-box-vue v-bind="{ Model: Model }"></product-box-vue>
-                                    </b-col>
+                                    </div>
                                 </template>
-                            </b-form-row>
-                        </b-col>
+                            </div>
+                        </div>
                     </template>
                     <template v-else>
                         <div class="product-list">
-                            <b-col cols="12">
-                                <b-row>
+                            <div class="col-12">
+                                <div class="row">
                                     <template :key="Model.Id" v-for="Model in catalog.Model.Products">
                                         <product-box-list-vue v-bind="{ Model: Model }"></product-box-list-vue>
                                     </template>
-                                </b-row>
-                            </b-col>
+                                </div>
+                            </div>
                         </div>
                     </template>
                     @*<partial name="Partials/Pagination" />*@
                     <partial name="Partials/ScrollPagination"/>
                 </template>
                 <template v-else>
-                    <b-alert variant="info" show class="my-3">
+                    <div class="alert alert-info my-3" role="alert">
                         @Loc["search.noresultstext"]
-                    </b-alert>
+                    </div>
                 </template>
             </template>
         </div>
@@ -93,7 +91,7 @@
 
         @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_bottom", additionalData = Model.Id })
     </div>
-</b-skeleton-wrapper>
+</div>
 
 @section filters
 {

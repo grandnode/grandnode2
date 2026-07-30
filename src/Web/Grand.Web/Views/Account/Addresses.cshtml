@@ -16,7 +16,7 @@
     @Html.AntiForgeryToken()
     <h1 class="h2 generalTitle">@Loc["Account.CustomerAddresses"]</h1>
     <button class="btn btn-info add-address-button my-2" onclick="location.href='@Url.RouteUrl("CustomerAddressAdd")'">
-        <b-icon icon="clipboard-plus"></b-icon> @Loc["Common.AddNew"]
+        <i class="b-icon bi bi-clipboard-plus" aria-hidden="true"></i> @Loc["Common.AddNew"]
     </button>
     @if (Model.Addresses.Any())
     {

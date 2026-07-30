@@ -2,17 +2,26 @@
 <div class="home-page-section">
     <div id="CollectionFeaturedProducts" class="section">
         <div class="featured-product-grid">
-            <b-tabs class="products-tabs" content-class="products-tabs-content">
-                <template v-for="(Collection, index) in homePCollectionProducts.Model">
-                    <b-tab :title="Collection.Name" lazy>
+            <div class="tabs products-tabs">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" role="presentation" v-for="(Collection, index) in homePCollectionProducts.Model" :key="'nav-' + index">
+                        <button type="button" class="nav-link" :class="{ active: index === 0 }" role="tab"
+                                data-bs-toggle="tab" :data-bs-target="'#featured-collection-' + index"
+                                :aria-controls="'featured-collection-' + index" :aria-selected="index === 0">{{Collection.Name}}</button>
+                    </li>
+                </ul>
+                <div class="tab-content products-tabs-content">
+                    <div class="tab-pane fade" :class="{ 'show active': index === 0 }" role="tabpanel"
+                         v-for="(Collection, index) in homePCollectionProducts.Model" :key="'pane-' + index"
+                         :id="'featured-collection-' + index">
                         <div class="item-row">
                             <div :key="Model.Id" class="col-for-5-xl col-xl-3 col-lg-3 col-md-4 col-sm-6 col-6" v-for="Model in Collection.FeaturedProducts">
                                 <product-box-vue v-bind="{ Model: Model }"></product-box-vue>
                             </div>
                         </div>
-                    </b-tab>
-                </template>
-            </b-tabs>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

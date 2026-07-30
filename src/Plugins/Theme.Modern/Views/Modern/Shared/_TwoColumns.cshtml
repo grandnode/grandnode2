@@ -52,10 +52,10 @@
 {
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_collection", additionalData = Model.Id })
 }
-<b-row id="TwoColumns" class="custom-container mt-3">
-    <b-col xl="3" lg="4" md="6" sm="8" cols="9" class="generalLeftSide" onclick="StopPropagation(event)">
+<div class="row custom-container mt-3" id="TwoColumns">
+    <div class="col-9 col-sm-8 col-md-6 col-lg-4 col-xl-3 generalLeftSide" onclick="StopPropagation(event)">
         <div class="modal-close" onclick="closeLeftSide()">
-            <b-icon icon="x"></b-icon>
+            <i class="b-icon bi bi-x" aria-hidden="true"></i>
         </div>
         @if (IsSectionDefined("left"))
         {
@@ -75,10 +75,10 @@
             @await Component.InvokeAsync("VendorNavigation")
             @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after" })
         }
-    </b-col>
-    <b-col lg="9" md="12" class="generalSideRight">
+    </div>
+    <div class="col-md-12 col-lg-9 generalSideRight">
         @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_before" })
         @RenderBody()
         @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_after" })
-    </b-col>
-</b-row>
+    </div>
+</div>

@@ -90,7 +90,7 @@
                                                 </a>
                                                 <div v-if="vmwishlist.Model.IsEditable && item.AllowItemEditing" class="edit-item">
                                                     <a class="btn btn-link" @@click="vmwishlist.getItemCart(item.Id)">
-                                                        <b-icon icon="pencil"></b-icon>
+                                                        <i class="b-icon bi bi-pencil" aria-hidden="true"></i>
                                                     </a>
                                                 </div>
                                             </div>
@@ -153,16 +153,16 @@
                                         <template v-if="vmwishlist.Model.IsEditable || vmwishlist.Model.DisplayAddToCart">
                                             <template v-if="vmwishlist.Model.IsEditable">
                                                 <td>
-                                                    <b-button variant="link" @@click="vmwishlist.deleteFromWishlist(item.Id)">
-                                                        <b-icon icon="trash" font-scale="1.5" class="text-danger"></b-icon>
-                                                    </b-button>
+                                                    <button class="btn btn-link" type="button" @@click="vmwishlist.deleteFromWishlist(item.Id)">
+                                                        <i class="b-icon bi bi-trash text-danger" style="font-size:1.5em" aria-hidden="true"></i>
+                                                    </button>
                                                 </td>
                                             </template>
                                             <template v-if="vmwishlist.Model.DisplayAddToCart">
                                                 <td>
-                                                    <b-button variant="link" @@click="vmwishlist.addToCartFromWishlist(item.Id)">
-                                                        <b-icon icon="cart" font-scale="1.5" class="text-info"></b-icon>
-                                                    </b-button>
+                                                    <button class="btn btn-link" type="button" @@click="vmwishlist.addToCartFromWishlist(item.Id)">
+                                                        <i class="b-icon bi bi-cart text-info" style="font-size:1.5em" aria-hidden="true"></i>
+                                                    </button>
                                                 </td>
                                             </template>
                                         </template>
@@ -174,8 +174,8 @@
                     </div>
                 </div>
                 <template v-if="vmwishlist.Model.IsEditable && vmwishlist.Model.EmailWishlistEnabled">
-                    <button type="button" class="btn btn-secondary email-a-friend-wishlist-button d-flex align-items-center my-3" @@click="$bvModal.show('ModalEmailWishlist')">
-                        <b-icon font-scale="2" icon="envelope" class="pe-2"></b-icon>
+                    <button type="button" class="btn btn-secondary email-a-friend-wishlist-button d-flex align-items-center my-3" data-bs-toggle="modal" data-bs-target="#ModalEmailWishlist">
+                        <i class="b-icon bi bi-envelope pe-2" style="font-size:2em" aria-hidden="true"></i>
                         <span class="d-sm-block d-none">@Loc["Wishlist.EmailAFriend"]</span>
                     </button>
                 </template>

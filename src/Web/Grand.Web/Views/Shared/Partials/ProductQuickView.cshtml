@@ -1,4 +1,7 @@
-﻿<b-modal id="ModalQuickView" ref="ModalQuickView" :dark-theme="darkMode" @@shown="initReservationQV();QuickViewShown()" size="xl" centered hide-footer hide-header>
+﻿<div class="modal fade" id="ModalQuickView" tabindex="-1" aria-hidden="true" :dark-theme="darkMode">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
 <template v-if="PopupQuickViewVueModal !== null">
 <form method="post" id="product-details-form" :action="'/' + PopupQuickViewVueModal.SeName">
 <div itemscope itemtype="http://schema.org/Product" :data-productid="PopupQuickViewVueModal.Id">
@@ -31,15 +34,15 @@
         <template v-if="PopupQuickViewVueModal.ProductReviewOverview.AllowCustomerReviews">
             <b-form-rating :id="'rating-inline-overview-' + PopupQuickViewVueModal.Id" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="PopupQuickViewVueModal.ProductReviewOverview.RatingSum / PopupQuickViewVueModal.ProductReviewOverview.TotalReviews"></b-form-rating>
         </template>
-        <a class="modal-close" @@click="$bvModal.hide('ModalQuickView')">
-            <b-icon icon="x"></b-icon>
+        <a class="modal-close" data-bs-dismiss="modal">
+            <i class="b-icon bi bi-x" aria-hidden="true"></i>
         </a>
         <template v-if="true">
             <div class="accordion" role="tablist">
                 <div role="tab">
-                    <a v-b-toggle.accordion-qv-details class="btn btn-light collapse-button">@Loc["products.details"]</a>
+                    <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-details" aria-expanded="true" aria-controls="accordion-qv-details" class="btn btn-light collapse-button">@Loc["products.details"]</a>
                 </div>
-                <b-collapse class="collapse-panel" visible id="accordion-qv-details" accordion="accordion-qv-details" role="tabpanel">
+                <div class="collapse show collapse-panel" id="accordion-qv-details" role="tabpanel">
                     <template v-if="PopupQuickViewVueModal.StockAvailability !== ''">
                         <div class="stock">
                             <label class="col-form-label">@Loc["Products.Availability"]:</label>
@@ -111,12 +114,12 @@
 
                     @* END OF ADD TO CART *@
 
-                </b-collapse>
+                </div>
                 <template v-if="PopupQuickViewVueModal.ProductSpecifications.length > 0">
                     <div role="tab">
-                        <a v-b-toggle.accordion-qv-spec class="btn btn-light collapse-button">@Loc["Products.Specs"]</a>
+                        <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-spec" aria-expanded="false" aria-controls="accordion-qv-spec" class="btn btn-light collapse-button collapsed">@Loc["Products.Specs"]</a>
                     </div>
-                    <b-collapse class="collapse-panel" id="accordion-qv-spec" accordion="accordion-qv-spec" role="tabpanel">
+                    <div class="collapse collapse-panel" id="accordion-qv-spec" role="tabpanel">
                         <div class="spec-container table-responsive">
                             <table class="table data-table border-bottom-0">
                                 <colgroup>
@@ -150,24 +153,24 @@
                                 </tbody>
                             </table>
                         </div>
-                    </b-collapse>
+                    </div>
                 </template>
                 <template v-if="PopupQuickViewVueModal.ShortDescription !== null">
                     <div role="tab">
-                        <a v-b-toggle.accordion-qv-desc class="btn btn-light collapse-button">@Loc["product.description"]</a>
+                        <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-desc" aria-expanded="false" aria-controls="accordion-qv-desc" class="btn btn-light collapse-button collapsed">@Loc["product.description"]</a>
                     </div>
-                    <b-collapse class="collapse-panel" id="accordion-qv-desc" accordion="accordion-qv-desc" role="tabpanel">
+                    <div class="collapse collapse-panel" id="accordion-qv-desc" role="tabpanel">
                         <div class="qv-description" v-html="PopupQuickViewVueModal.ShortDescription"></div>
-                    </b-collapse>
+                    </div>
                 </template>
 
                 @* ASSOCIATED PRODUCTS *@
 
                 <template v-if="PopupQuickViewVueModal.ProductType == 10">
                     <div role="tab">
-                        <a v-b-toggle.accordion-qv-group class="btn btn-light collapse-button">@Loc["admin.catalog.products.associatedproducts"]</a>
+                        <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-group" aria-expanded="true" aria-controls="accordion-qv-group" class="btn btn-light collapse-button">@Loc["admin.catalog.products.associatedproducts"]</a>
                     </div>
-                    <b-collapse visible class="collapse-panel" id="accordion-qv-group" accordion="accordion-qv-group" role="tabpanel">
+                    <div class="collapse show collapse-panel" id="accordion-qv-group" role="tabpanel">
                         <template v-if="PopupQuickViewVueModal.AssociatedProducts.length > 0">
                             <template v-for="variant in PopupQuickViewVueModal.AssociatedProducts">
                                 <div class="card overflow-hidden associatedItem mb-3">
@@ -220,7 +223,7 @@
                                 @Loc["Products.NoAssociatedProducts"]
                             </div>
                         </template>
-                    </b-collapse>
+                    </div>
                 </template>
 
                 @* END OF ASSOCIATED PRODUCTS *@
@@ -235,4 +238,15 @@
 </div>
 </form>
 </template>
-</b-modal>
+</div>
+        </div>
+    </div>
+</div>
+<script asp-location="Footer" asp-order="300">
+    (function () {
+        document.getElementById('ModalQuickView').addEventListener('shown.bs.modal', function () {
+            initReservationQV();
+            QuickViewShown();
+        });
+    })();
+</script>

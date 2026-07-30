@@ -29,7 +29,7 @@ else
                                 <small class="text-muted me-2">@Loc["Reviews.From"]:</small>
                                 <h6 class="mb-0">{{review.CustomerName}}</h6>
                             </div>
-                            <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                            <i class="b-icon bi bi-calendar2-check text-info mx-2" aria-hidden="true"></i>
                             <small class="date text-muted">
                                 <span class="ms-1">@Loc["Reviews.Date"]:</span>
                                 <span>{{review.WrittenOnStr}}</span>
@@ -52,10 +52,10 @@ else
                             <span class="question">@Loc["Reviews.Helpfulness.WasHelpful?"]</span>
                             <span class="vote-options btn-group">
                                 <span :id="'vote-yes-' + review.Helpfulness.VendorReviewId" @@click="vendorreviews.setVendorReviewHelpfulness('@Url.RouteUrl("SetVendorReviewHelpfulness")', 'true', review.Id, '@Model.VendorId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote">
-                                    <b-icon variant="success" icon="hand-thumbs-up"></b-icon>
+                                    <i class="b-icon text-success bi bi-hand-thumbs-up" aria-hidden="true"></i>
                                 </span>
                                 <span :id="'vote-no-' + review.Helpfulness.VendorReviewId" @@click="vendorreviews.setVendorReviewHelpfulness('@Url.RouteUrl("SetVendorReviewHelpfulness")', 'false', review.Id, '@Model.VendorId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote">
-                                    <b-icon variant="danger" icon="hand-thumbs-down"></b-icon>
+                                    <i class="b-icon text-danger bi bi-hand-thumbs-down" aria-hidden="true"></i>
                                 </span>
                             </span>
                             <span class="vote-stats d-inline-flex">
@@ -114,7 +114,7 @@ else
                 })
             },
             addVendorReview: function () {
-                vm.$refs['ModalVendorReview'].show();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalVendorReview')).show();
             },
             modalReviewShown: function () {
                 if (vendorreviews.Model.AddVendorReview.DisplayCaptcha && document.querySelector("#ModalVendorReview .captcha-box") == null && !vendorreviews.Model.AddVendorReview.SuccessfullyAdded) {
@@ -151,7 +151,7 @@ else
                     if (response.data.AddVendorReview.SuccessfullyAdded) {
 
                         variant = "info";
-                        vm.$refs['ModalVendorReview'].hide();
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalVendorReview')).hide();
 
                     } else {
                         variant = "danger";

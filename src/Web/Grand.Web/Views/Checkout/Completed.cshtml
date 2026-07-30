@@ -7,7 +7,10 @@
 <div class="page checkout-page order-completed-page text-xs-center">
     <div class="checkout-data mt-3">
         @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_completed_top", additionalData = Model.OrderId })
-        <b-card title="@Loc["Checkout.ThankYou"]" sub-title="@Loc["Checkout.YourOrderHasBeenSuccessfullyProcessed"]">
+        <div class="card">
+            <div class="card-body">
+            <h5 class="card-title">@Loc["Checkout.ThankYou"]</h5>
+            <h6 class="card-subtitle mb-2 text-muted">@Loc["Checkout.YourOrderHasBeenSuccessfullyProcessed"]</h6>
             <div class="h5 mb-0">@Loc["Checkout.OrderNumber"]: <span class="text-info">@Model.OrderNumber</span></div>
             <hr class="my-4">
             <div class="buttons">
@@ -16,7 +19,8 @@
                     @Loc["Checkout.ThankYou.Continue"]
                 </button>
             </div>
-        </b-card>
+            </div>
+        </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_completed_bottom", additionalData = Model.OrderId })
     </div>
 </div>

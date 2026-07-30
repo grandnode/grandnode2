@@ -62,7 +62,7 @@
                                             <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
                                             @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                             {
-                                                <a id="attributes-btn" class="btn btn-sm btn-outline-info" v-b-tooltip.html.right.hover title="@Html.Raw(item.AttributeInfo)">Attributes</a>
+                                                <a id="attributes-btn" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true" title="@Html.Raw(item.AttributeInfo)">Attributes</a>
                                             }
                                             @if (!string.IsNullOrEmpty(item.VendorName))
                                             {

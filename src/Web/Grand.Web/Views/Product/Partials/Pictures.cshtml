@@ -13,16 +13,17 @@
             {
                 <gallery-images></gallery-images>
 
-                <script type="text/html" id="picture">
-                    <div>
+                @* The template is a JS string, not a <script type="text/html"> element:
+                   Vue 3 strips <script> tags out of the in-DOM template and replaces
+                   #app's content on mount, so a '#id' template reference resolves to
+                   nothing and the component renders empty. *@
+                <script asp-location="Footer" asp-order="300">
+                    Vue.component('gallery-images', {
+                      template: `<div>
                         <img class="image main-image zoom" id="main-product-img-@Model.Id" v-for="(image, i) in images" :src="image.url" :alt="image.alt"
                              :title="image.title" :key="i" @@click="index=i">
                         <vue-gallery-slideshow :images="images" :index="index" @@close="index=null"></vue-gallery-slideshow>
-                    </div>
-                </script>
-                <script asp-location="Footer" asp-order="300">
-                    Vue.component('gallery-images', {
-                      template: '#picture',
+                      </div>`,
                       data() {
                           return {
                               images: [
@@ -76,19 +77,16 @@
                      title="@Model.DefaultPictureModel.Title"
                      onclick="document.querySelector('.thumb-image').click()"/>
 
-                <script type="text/html" id="picture">
-                    <div>
-                        <img class="image thumb-image zoom" v-for="(image, i) in images" :src="image.url" :datasrc="image.fullimg"
-                             :alt="image.alt" :title="image.title" :key="i" @@click="index=i">
-                        <div>
-                            <vue-gallery-slideshow :images="images" :index="index" @@close="index=null"></vue-gallery-slideshow>
-                        </div>
-                    </div>
-                </script>
                 <gallery-images></gallery-images>
                 <script asp-location="Footer" asp-order="300">
                     Vue.component('gallery-images', {
-                          template: '#picture',
+                          template: `<div>
+                            <img class="image thumb-image zoom" v-for="(image, i) in images" :src="image.url" :datasrc="image.fullimg"
+                                 :alt="image.alt" :title="image.title" :key="i" @@click="index=i">
+                            <div>
+                                <vue-gallery-slideshow :images="images" :index="index" @@close="index=null"></vue-gallery-slideshow>
+                            </div>
+                          </div>`,
                           data() {
                               return {
                                     images: [

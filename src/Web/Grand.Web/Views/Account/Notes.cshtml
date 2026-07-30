@@ -24,7 +24,7 @@
                     </h5>
                     <div class="d-inline-flex align-items-center w-100">
                         <small class="text-muted me-2">@Loc["Account.CustomerNotes.Createdate"]:</small>
-                        <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                        <i class="b-icon bi bi-calendar2-check text-info mx-2" aria-hidden="true"></i>
                         <small class="text-muted">@item.CreatedOn</small>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                     {
                         <div class="d-inline-flex">
                             <span class="mb-2">
-                                <b-label class="col-form-label">@Loc["Account.CustomerNotes.Attachment"]:</b-label>
+                                <span class="col-form-label">@Loc["Account.CustomerNotes.Attachment"]:</span>
                                 <a class="mx-2" href="@Url.RouteUrl("GetCustomerNoteFile", new { customerNoteId = item.NoteId })">@Loc["Customer.Notes.Download"]</a>
                             </span>
                         </div>

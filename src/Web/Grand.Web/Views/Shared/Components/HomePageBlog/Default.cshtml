@@ -14,13 +14,13 @@
                         <div class="card">
                             @if (item.PictureModel != null && !string.IsNullOrEmpty(item.PictureModel.ImageUrl))
                             {
-                                <b-img-lazy class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-img-lazy>
+                                <img class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" loading="lazy">
                             }
                             <div class="card-header">
                                 <h3 class="h5 mb-0">
-                                    <b-link href="@Url.RouteUrl("BlogPost", new { item.SeName })">
+                                    <a href="@Url.RouteUrl("BlogPost", new { item.SeName })">
                                         @item.Title
-                                    </b-link>
+                                    </a>
                                 </h3>
                             </div>
                             <div class="card-body">

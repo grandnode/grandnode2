@@ -8,8 +8,9 @@
 }
 <div class="page shipment-details-page">
 <h1 class="generalTitle h2 text-center">@string.Format(Loc["Order.Shipments.Information"], Model.ShipmentNumber)</h1>
-<b-card class="shipment-details-area" no-header no-footer>
-    <b-row class="row">
+<div class="card shipment-details-area">
+<div class="card-body">
+    <div class="row row">
         <ul class="shipping-details col-md-6 col-12">
             <li class="title">
                 <h5 class="generalTitle">
@@ -128,8 +129,9 @@
                 }
             }
         </ul>
-    </b-row>
-</b-card>
+    </div>
+</div>
+</div>
 @if (Model.Items.Any())
 {
     <div class="section products">

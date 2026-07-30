@@ -21,7 +21,7 @@
 
     @if (Model.ShowAddOrderNote)
     {
-        <a @@click="$bvModal.show('ModalAddOrderNote')" class="btn btn-outline-secondary">@Loc["Order.AddOrderNote"]</a>
+        <a data-bs-toggle="modal" data-bs-target="#ModalAddOrderNote" class="btn btn-outline-secondary">@Loc["Order.AddOrderNote"]</a>
 
         var notemodel = new AddOrderNoteModel
         {

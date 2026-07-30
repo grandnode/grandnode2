@@ -88,7 +88,7 @@
     -webkit-transition: all .2s ease-in-out;
     transition: all .2s ease-in-out;
 }
-.coupon-button.not-collapsed::after {
+.coupon-button:not(.collapsed)::after {
     -webkit-transform: rotate(180deg);
     transform: rotate(180deg);
 }
@@ -120,7 +120,7 @@
 [dark-theme="true"] .opc-header .card-header .btn-info {
     color: #fff;
 }
-.opc-header .card-header .btn-info.not-collapsed {
+.opc-header .card-header .btn-info:not(.collapsed) {
     color:#25b232;
     font-size: 16px;
     font-weight: 700;
@@ -144,10 +144,10 @@
 [dark-theme="true"] .opc-header .card-header .btn-info::after {
     background: #fff;
 }
-[dark-theme="true"] .opc-header .card-header .btn-info.not-collapsed::before,
-[dark-theme="true"] .opc-header .card-header .btn-info.not-collapsed::after,
-.opc-header .card-header .btn-info.not-collapsed::before,
-.opc-header .card-header .btn-info.not-collapsed::after {
+[dark-theme="true"] .opc-header .card-header .btn-info:not(.collapsed)::before,
+[dark-theme="true"] .opc-header .card-header .btn-info:not(.collapsed)::after,
+.opc-header .card-header .btn-info:not(.collapsed)::before,
+.opc-header .card-header .btn-info:not(.collapsed)::after {
     background:#25b232;
 }
 .opc-header .card-header:last-child .btn-info::before,

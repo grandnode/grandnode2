@@ -38,7 +38,7 @@
     </script>
 }
 <input asp-for="Id" type="hidden"/>
-<b-row class="edit-address">
+<div class="row edit-address">
     @if (Model.CompanyEnabled)
     {
         <div class="form-group col-sm-12">
@@ -217,7 +217,7 @@
             <span asp-validation-for="FaxNumber"></span>
         </div>
     }
-</b-row>
+</div>
 <script asp-location="Footer" asp-order="301">
     var createorupdatevendoraddress = new Vue({
             data: () => ({

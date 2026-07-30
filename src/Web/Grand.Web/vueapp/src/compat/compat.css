@@ -84,25 +84,16 @@
     align-items: center;
 }
 
-/* --- BootstrapVue sidebar ------------------------------------------------- */
+/* --- sidebars -------------------------------------------------------------
+   The drawers are Bootstrap 5 offcanvas elements now, so geometry and the
+   backdrop come from Bootstrap itself. The .b-sidebar* class names are kept on
+   the markup because ~56 theme rules style their contents through them; only
+   the inner spacing lives here. Do not reintroduce position/left/width rules -
+   they would out-rank .offcanvas-end and pin right-hand drawers to the left. */
+/* set on the element, not :root - Bootstrap's own .offcanvas rule declares
+   --bs-offcanvas-width and would win over an inherited value */
 .b-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    flex-direction: column;
-    width: 320px;
-    max-width: 100%;
-    height: 100vh;
-    background-color: var(--bs-body-bg, #fff);
-    z-index: 1045;
-    outline: 0;
-    overflow-y: auto;
-}
-
-.b-sidebar.b-sidebar-right {
-    left: auto;
-    right: 0;
+    --bs-offcanvas-width: 320px;
 }
 
 .b-sidebar-header {
@@ -114,35 +105,20 @@
 
 .b-sidebar-body {
     flex-grow: 1;
-    height: 100%;
     overflow-y: auto;
 }
 
-.b-sidebar-backdrop {
-    z-index: 1040;
-}
+/* The drawers must be rendered outside <nav class="navbar-expand">: Bootstrap
+   deliberately flattens an .offcanvas inside an expanded navbar into the bar
+   itself, so a navbar menu can double as a drawer. Header.cshtml therefore
+   renders the panels as siblings of <nav>, next to the triggers that target
+   them by id. */
 
-/* --- carousel (Vue-driven, no bootstrap JS): real cross-fade --------------- */
-.carousel-fade .carousel-inner {
-    position: relative;
-}
-
-.carousel-fade .carousel-item {
-    display: block;
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity .6s ease;
-    pointer-events: none;
-}
-
-.carousel-fade .carousel-item.active {
-    position: relative;
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.carousel-indicators li {
+/* --- carousel ---------------------------------------------------------------
+   .carousel-fade comes from Bootstrap now. Only the slimmer indicator styling
+   the theme was built around is kept, retargeted from BootstrapVue's <li>
+   indicators to Bootstrap 5's <button> ones. */
+.carousel-indicators [data-bs-slide-to] {
     box-sizing: content-box;
     flex: 0 1 auto;
     width: 30px;
@@ -154,10 +130,9 @@
     border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
     opacity: .5;
-    list-style: none;
 }
 
-.carousel-indicators li.active {
+.carousel-indicators [data-bs-slide-to].active {
     opacity: 1;
 }
 

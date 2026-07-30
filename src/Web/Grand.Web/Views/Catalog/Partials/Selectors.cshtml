@@ -55,11 +55,11 @@
                         <template v-for="viewmode in catalog.Model.PagingFilteringContext.AvailableViewModes">
                             <a class="viewmode-icon d-flex align-items-center" v-bind:class="{ selected: viewmode.Selected, 'text-info': viewmode.Selected }" @@click="catalog.loadProducts(viewmode.Value)" :title="viewmode.Text">
                                 <template v-if="viewmode.Value.includes('viewmode=grid')">
-                                    <b-icon scale="2" icon="grid-3x2-gap" class="grid-icon"></b-icon>
+                                    <i class="b-icon bi bi-grid-3x2-gap grid-icon" style="font-size:2em" aria-hidden="true"></i>
                                     <span class="visually-hidden">viewmode grid</span>
                                 </template>
                                 <template v-else>
-                                    <b-icon scale="2" icon="list" class="list-icon"></b-icon>
+                                    <i class="b-icon bi bi-list list-icon" style="font-size:2em" aria-hidden="true"></i>
                                     <span class="visually-hidden">viewmode list</span>
                                 </template>
                             </a>

@@ -25,7 +25,7 @@
         <div class="card-header">
             @if (!string.IsNullOrEmpty(Model.PictureModel.ImageUrl))
             {
-                <b-img-lazy class="img-fluid mb-3" src="@Model.PictureModel.ImageUrl" alt="@Model.PictureModel.AlternateText"></b-img-lazy>
+                <img class="img-fluid mb-3" src="@Model.PictureModel.ImageUrl" alt="@Model.PictureModel.AlternateText" loading="lazy">
             }
             <h1 class="h5 mb-0">
                 @Model.Title
@@ -141,7 +141,7 @@
                             <div class="card-header">
                                 <div class="d-inline-flex w-100">
                                     <h6 class="mb-0">{{comment.CustomerName}}</h6>
-                                    <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                                    <i class="b-icon bi bi-calendar2-check text-info mx-2" aria-hidden="true"></i>
                                     <small class="date text-muted">
                                         <span>@Loc["Blog.Comments.CreatedOn"]:</span>
                                         <span>{{new Date( comment.CreatedOn).toDateString()}}</span>

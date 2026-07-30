@@ -59,10 +59,15 @@ var AxiosCart = {
             return;
         }
         this.setLoadWaiting(true);
-        if (document.querySelector("#ModalQuickView")) {
-            var form = document.querySelector('#ModalQuickView #product-details-form');
-        } else {
-            var form = document.querySelector(formselector);
+        // The quick-view modal is always present in the DOM now, so its mere
+        // existence no longer means it is open - test for the shown state.
+        var quickView = document.querySelector('#ModalQuickView.show');
+        var form = quickView
+            ? quickView.querySelector('#product-details-form')
+            : document.querySelector(formselector);
+        if (!form) {
+            this.setLoadWaiting(false);
+            return;
         }
         var data = new FormData(form);
         axios({
@@ -102,7 +107,7 @@ var AxiosCart = {
             method: 'post',
         }).then(function (response) {
             if (response.data.success) {
-                vm.$refs['ModalQuickView'].hide();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalQuickView')).hide();
             } else {
                 model.displayWarning(response.data.message, 'danger');
             }
@@ -186,7 +191,7 @@ var AxiosCart = {
 
                 Object.assign(vm.PopupQuickViewVueModal, { RelatedProducts: [] });
 
-                vm.$refs['ModalQuickView'].show();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalQuickView')).show();
 
                 if (response.data.model.ProductType == 20) {
 
@@ -206,8 +211,8 @@ var AxiosCart = {
             if (response.data.success == true) {
                 //success
                 vm.PopupAddToCartVueModal = response.data.model;
-                vm.$refs['ModalQuickView'].hide();
-                vm.$refs['ModalAddToCart'].show();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalQuickView')).hide();
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalAddToCart')).show();
                 if (response.data.refreshreservation == true) {
                     var param = "";
                     if ($("#parameterDropdown").val() != null) {

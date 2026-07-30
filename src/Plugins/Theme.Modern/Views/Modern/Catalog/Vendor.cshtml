@@ -40,16 +40,16 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <b-tabs class="mt-3" content-class="mt-3" align="center">
+                    <gn-tabs class="mt-3" content-class="mt-3" align="center">
                         @if (!string.IsNullOrEmpty(Model.Description))
                         {
-                            <b-tab id="description-tab" title="@Loc["vendor.Description"]" active>
+                            <gn-tab id="description-tab" title="@Loc["vendor.Description"]" active="true">
                                 <article class="text-xs-center generalMarginSupporter vendor-description" v-html="catalog.Model.Description"></article>
-                            </b-tab>
+                            </gn-tab>
                         }
                         @if (Model.Address != null)
                         {
-                            <b-tab id="address-tab" title="@Loc["Vendor.Address"]">
+                            <gn-tab id="address-tab" title="@Loc["Vendor.Address"]">
                                 <ul class="info px-0 mb-0">
                                     @if (Model.Address.CompanyEnabled && !string.IsNullOrEmpty(Model.Address.Company))
                                     {
@@ -132,21 +132,21 @@
                                         </li>
                                     }
                                 </ul>
-                            </b-tab>
+                            </gn-tab>
                         }
                         @if (Model.VendorReviewOverview.AllowCustomerReviews)
                         {
-                            <b-tab id="review-tab" title="@Loc["vendor.Reviews"]" :active="active ? true : false">
+                            <gn-tab id="review-tab" title="@Loc["vendor.Reviews"]">
                                 @await Component.InvokeAsync("VendorReviews", new { vendorId = Model.Id })
-                            </b-tab>
+                            </gn-tab>
                         }
                         @if (Model.AllowCustomersToContactVendors)
                         {
-                            <b-tab id="contact-tab" title="@Loc["ContactVendor"]" @@click="contactvendor.getCaptcha()">
+                            <gn-tab id="contact-tab" title="@Loc["ContactVendor"]" on-click="contactvendor.getCaptcha()">
                                 @await Component.InvokeAsync("VendorContact", new { vendorId = Model.Id })
-                            </b-tab>
+                            </gn-tab>
                         }
-                    </b-tabs>
+                    </gn-tabs>
                 </div>
             </div>
         </div>
@@ -155,25 +155,25 @@
         <partial name="Partials/Selectors"/>
         <template v-if="catalog.Model.Products.length > 0">
             <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
-                <b-col cols="12" class="product-grid standard px-0">
-                    <b-form-row>
+                <div class="col-12 product-grid standard px-0">
+                    <div class="form-row">
                         <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                            <b-col lg="4" sm="6" cols="6" class="product-container new-col-6 px-0 mb-2">
+                            <div class="col-6 col-sm-6 col-lg-4 product-container new-col-6 px-0 mb-2">
                                 <product-box-vue v-bind="{ Model: Model }"></product-box-vue>
-                            </b-col>
+                            </div>
                         </template>
-                    </b-form-row>
-                </b-col>
+                    </div>
+                </div>
             </template>
             <template v-else>
                 <div class="product-list">
-                    <b-col cols="12">
-                        <b-row>
+                    <div class="col-12">
+                        <div class="row">
                             <template :key="Model.Id" v-for="Model in catalog.Model.Products">
                                 <product-box-list-vue v-bind="{ Model: Model }"></product-box-list-vue>
                             </template>
-                        </b-row>
-                    </b-col>
+                        </div>
+                    </div>
                 </div>
             </template>
             @*<partial name="Partials/Pagination" />*@

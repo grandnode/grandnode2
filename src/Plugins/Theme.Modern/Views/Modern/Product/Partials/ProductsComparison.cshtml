@@ -4,8 +4,8 @@
 }
 @if (Model.CompareProductsEnabled)
 {
-    <a class="btn btn-outline-secondary add-to-compare-list-button me-1" onclick="AxiosCart.addproducttocomparelist('@Model.Id', '@Loc["Products.ProductHasBeenAddedToCompareList.Link"]', '@Url.RouteUrl("CompareProducts")')" v-b-tooltip.hover.bottom title="@Loc["Products.Compare.AddToCompareList"]">
-        <b-icon icon="shuffle"></b-icon>
+    <a class="btn btn-outline-secondary add-to-compare-list-button me-1" onclick="AxiosCart.addproducttocomparelist('@Model.Id', '@Loc["Products.ProductHasBeenAddedToCompareList.Link"]', '@Url.RouteUrl("CompareProducts")')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["Products.Compare.AddToCompareList"]">
+        <i class="b-icon bi bi-shuffle" aria-hidden="true"></i>
         <span class="sr-only">@Loc["Products.Compare.AddToCompareList"]</span>
     </a>
 }

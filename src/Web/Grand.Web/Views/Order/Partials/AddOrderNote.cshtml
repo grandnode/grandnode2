@@ -1,7 +1,10 @@
 ﻿@model AddOrderNoteModel
-<b-modal id="ModalAddOrderNote" ref="ModalAddOrderNote" :dark-theme="darkMode" size="xl" centered hide-footer hide-header>
-    <a class="modal-close" @@click="$bvModal.hide('ModalAddOrderNote')">
-        <b-icon icon="x"></b-icon>
+<div class="modal fade" id="ModalAddOrderNote" tabindex="-1" aria-hidden="true" :dark-theme="darkMode">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+    <a class="modal-close" data-bs-dismiss="modal">
+        <i class="b-icon bi bi-x" aria-hidden="true"></i>
     </a>
     <h1 class="generalTitle h2 text-center">@Loc["Order.AddOrdernote"]</h1>
     <validation-observer v-slot="{ handleSubmit }">
@@ -24,7 +27,10 @@
             </div>
         </form>
     </validation-observer>
-</b-modal>
+</div>
+        </div>
+    </div>
+</div>
 <script asp-location="Footer" asp-order="300">
     var ordernote = new Vue({
         data: () => ({

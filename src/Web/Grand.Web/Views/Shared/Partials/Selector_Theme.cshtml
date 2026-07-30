@@ -12,14 +12,17 @@
     var returnurl = Context?.Request?.GetEncodedPathAndQuery();
     if (availablThemes.Count > 1)
     {
-        <b-dropdown class="me-2" text="@availablThemes.FirstOrDefault(x => x.Name == themeContext?.GetCurrentTheme())?.Name">
+        <div class="dropdown btn-group me-2">
+        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">@availablThemes.FirstOrDefault(x => x.Name == themeContext?.GetCurrentTheme())?.Name</button>
+        <ul class="dropdown-menu">
             @foreach (var theme in availablThemes)
             {
                 var className = theme.Name == themeContext?.GetCurrentTheme() ? "active" : "";
-                <b-dropdown-item class="@className" href="@Url.Action("SetStoreTheme", "Common", new { themename = theme.Name, returnUrl = returnurl })">
+                <li><a class="dropdown-item @className" href="@Url.Action("SetStoreTheme", "Common", new { themename = theme.Name, returnUrl = returnurl })">
                     @theme.Name
-                </b-dropdown-item>
+                </a></li>
             }
-        </b-dropdown>
+        </ul>
+    </div>
     }
 }

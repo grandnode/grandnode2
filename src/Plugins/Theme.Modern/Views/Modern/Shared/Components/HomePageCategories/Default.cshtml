@@ -7,7 +7,7 @@
                     <template :key="Model.Id" v-for="Model in homePCategories.Model">
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12">
                             <a class="category-item" :href="'/' + Model.SeName">
-                                <b-img-lazy :src="Model.PictureModel.ImageUrl" :alt="Model.PictureModel.Title" class="img-fluid gallery-img"></b-img-lazy>
+                                <img class="img-fluid gallery-img" :src="Model.PictureModel.ImageUrl" :alt="Model.PictureModel.Title" loading="lazy">
                                 <div class="content">
                                     <h6 class="title mb-0">{{Model.Name}}</h6>
                                 </div>

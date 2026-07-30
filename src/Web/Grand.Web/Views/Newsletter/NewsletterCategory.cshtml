@@ -1,5 +1,12 @@
 ﻿@model NewsletterCategoryModel
-<b-modal ref="ModalNewsletterCategory" id="ModalNewsletterCategory" :dark-theme="darkMode" title="@Loc["NewsletterCategory.Title"]" centered hide-footer>
+<div class="modal fade" id="ModalNewsletterCategory" tabindex="-1" aria-labelledby="ModalNewsletterCategory-label" aria-hidden="true" :dark-theme="darkMode">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalNewsletterCategory-label">@Loc["NewsletterCategory.Title"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
     <div class="newsletter-category">
         <form id="newsletter-category-method-form" action="">
             <input asp-for="NewsletterEmailId" type="hidden"/>
@@ -17,9 +24,12 @@
                     </div>
                 }
                 <div class="newsletter-category-save pt-1 pb-1">
-                    <input type="button" value="@Loc["NewsletterCategory.Options.Save"]" id="newsletter-category-button" @@click="$bvModal.hide('ModalNewsletterCategory');vm.newsletterSubscribeCategory('@(Url.RouteUrl("SubscribeNewsletterCategory"))')" class="btn btn-outline-info newsletter-subscribe-button"/>
+                    <input type="button" value="@Loc["NewsletterCategory.Options.Save"]" id="newsletter-category-button" data-bs-dismiss="modal" @@click="vm.newsletterSubscribeCategory('@(Url.RouteUrl("SubscribeNewsletterCategory"))')" class="btn btn-outline-info newsletter-subscribe-button"/>
                 </div>
             </div>
         </form>
     </div>
-</b-modal>
+</div>
+        </div>
+    </div>
+</div>

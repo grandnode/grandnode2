@@ -16,15 +16,18 @@
     if (availableLanguages.Count > 1)
     {
         <div>
-            <b-dropdown class="me-2" text="@availableLanguages.FirstOrDefault(x => x.Id == contextAccessor.WorkContext.WorkingLanguage.Id)?.Name">
+            <div class="dropdown btn-group me-2">
+        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">@availableLanguages.FirstOrDefault(x => x.Id == contextAccessor.WorkContext.WorkingLanguage.Id)?.Name</button>
+        <ul class="dropdown-menu">
                 @foreach (var lang in availableLanguages)
                 {
                     var className = lang.Id == contextAccessor.WorkContext.WorkingLanguage.Id ? "active" : "";
-                    <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeLanguage", new { langcode = lang.UniqueSeoCode, returnurl })">
+                    <li><a class="dropdown-item @className" href="@Url.RouteUrl("ChangeLanguage", new { langcode = lang.UniqueSeoCode, returnurl })">
                         @lang.Name
-                    </b-dropdown-item>
+                    </a></li>
                 }
-            </b-dropdown>
+            </ul>
+    </div>
         </div>
     }
 }

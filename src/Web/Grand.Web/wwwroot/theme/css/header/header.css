@@ -113,7 +113,7 @@
 
 @media (min-width: 576px) {
     .b-sidebar {
-        width: 530px;
+        --bs-offcanvas-width: 530px;
     }
 }
 @media (min-width: 992px) {

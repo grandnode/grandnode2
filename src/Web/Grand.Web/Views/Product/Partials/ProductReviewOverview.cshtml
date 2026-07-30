@@ -11,10 +11,10 @@
             <b-form-rating id="rating-inline-overview-@Model.ProductId" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline v-model="productreviewsoverview.Model.AvgRating"></b-form-rating>
             <template v-if="productreviewsoverview.Model.TotalReviews > 0">
                 <div class="product-review-links order-3">
-                    <b-button variant="outline-info" size="sm" class="review-scroll-button" @@click="active = true" href="#review-tab___BV_tab_button__">
+                    <a class="btn btn-outline-info btn-sm review-scroll-button" href="#review-tab" role="button" @@click="document.getElementById('review-tab-tab').click()">
                         {{productreviewsoverview.Model.TotalReviews}}
                         @Loc["Reviews.Overview.Reviews"]
-                    </b-button>
+                    </a>
                 </div>
             </template>
             <template v-else>

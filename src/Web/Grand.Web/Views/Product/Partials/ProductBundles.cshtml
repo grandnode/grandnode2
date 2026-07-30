@@ -154,26 +154,19 @@
                                             <label :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" class="mb-0">
                                                 <template v-if="attributeValue.PriceAdjustment==null">
                                                     <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'attributes[' + attribute.Id+']'" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected"/>
-                                                    <span :id="'imgSqr_' + attributeValue.Id" class="color-container">
+                                                    <span :id="'imgSqr_' + attributeValue.Id" class="color-container"
+                                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                                          :data-bs-title="`<div class='image-square-tooltip'><img src='${attributeValue.ImageSquaresPictureModel.FullSizeImageUrl}' alt='${attributeValue.Name}'> <span>${attributeValue.Name}</span></div>`">
                                                         <span class="color" :style="'background: url(' + attributeValue.ImageSquaresPictureModel.ImageUrl + ') 50% 50% no-repeat;'"></span>
                                                     </span>
-                                                    <b-tooltip :target="'imgSqr_' + attributeValue.Id" placement="bottom">
-                                                        <div class="image-square-tooltip">
-                                                            <img :src="attributeValue.ImageSquaresPictureModel.FullSizeImageUrl" :alt="attributeValue.Name"/> <span>{{attributeValue.Name}}</span>
-                                                        </div>
-                                                    </b-tooltip>
                                                 </template>
                                                 <template v-else>
                                                     <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'attributes[' + attribute.Id+']'" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected"/>
-                                                    <span class="color-container">
+                                                    <span class="color-container"
+                                                          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                                          :data-bs-title="`<div class='image-square-tooltip'><img src='${attributeValue.ImageSquaresPictureModel.FullSizeImageUrl}' alt='${attributeValue.Name} [${attributeValue.PriceAdjustment}]'> <span>${attributeValue.Name}[${attributeValue.PriceAdjustment}]</span></div>`">
                                                         <span class="color" :style="'background: url(' + attributeValue.ImageSquaresPictureModel.ImageUrl + ') 50% 50% no-repeat;'"></span>
                                                     </span>
-                                                    <b-tooltip :target="'imgSqr_' + attributeValue.Id" placement="bottom">
-                                                        <div class="image-square-tooltip">
-                                                            <img :src="attributeValue.ImageSquaresPictureModel.FullSizeImageUrl" :alt="attributeValue.Name + ' [' + attributeValue.PriceAdjustment + ']'"/>
-                                                            <span>{{attributeValue.Name}}[{{attributeValue.PriceAdjustment}}]</span>
-                                                        </div>
-                                                    </b-tooltip>
                                                 </template>
                                             </label>
                                         </li>

@@ -16,7 +16,7 @@
 <div class="page account-page subaccounts-list-page ps-lg-3 pt-lg-0 pt-3">
     @Html.AntiForgeryToken()
     <button class="btn btn-info add-address-button float-sm-end mt-2" onclick="location = '@Url.RouteUrl("CustomerSubAccountAdd")'">
-        <b-icon icon="clipboard-plus"></b-icon> @Loc["Common.AddNew"]
+        <i class="b-icon bi bi-clipboard-plus" aria-hidden="true"></i> @Loc["Common.AddNew"]
     </button>
     <h1 class="h2 generalTitle">@Loc["Account.SubAccounts"]</h1>
     @if (Model.Any())

@@ -29,32 +29,34 @@
     {
         foreach (var item in Model.CustomerNoteList)
         {
-            <b-card class="mb-3">
-                <template v-slot:header>
+            <div class="card mb-3">
+                <div class="card-header">
                     <h5 class="d-inline-flex">
                         @item.Title
                     </h5>
                     <div class="d-inline-flex align-items-center w-100">
                         <small class="text-muted me-2">@Loc["Account.CustomerNotes.Createdate"]:</small>
-                        <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                        <i class="b-icon bi bi-calendar2-check text-info mx-2" aria-hidden="true"></i>
                         <small class="text-muted">@item.CreatedOn</small>
                     </div>
-                </template>
-                <b-card-text>
-                    @item.Note
-                </b-card-text>
-                <template v-slot:footer>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        @item.Note
+                    </p>
+                </div>
+                <div class="card-footer">
                     @if (!string.IsNullOrEmpty(item.DownloadId))
                     {
                         <div class="d-inline-flex">
                             <span class="mb-2">
-                                <b-label class="col-form-label">@Loc["Account.CustomerNotes.Attachment"]:</b-label>
-                                <b-link class="mx-2" href="@Url.RouteUrl("GetCustomerNoteFile", new { customerNoteId = item.NoteId })">@Loc["Customer.Notes.Download"]</b-link>
+                                <span class="col-form-label">@Loc["Account.CustomerNotes.Attachment"]:</span>
+                                <a class="mx-2" href="@Url.RouteUrl("GetCustomerNoteFile", new { customerNoteId = item.NoteId })">@Loc["Customer.Notes.Download"]</a>
                             </span>
                         </div>
                     }
-                </template>
-            </b-card>
+                </div>
+            </div>
         }
     }
     else

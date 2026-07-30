@@ -280,8 +280,10 @@ var vmorder = new Vue({
 
                         if (!response.data.wrong_billing_address) {
                             if (!(document.querySelector("#opc-confirm-order").classList.contains('show'))) {
-                                window.bvToggle('opc-' + response.data.update_section.name)
-                                vmorder.vmresetSteps(document.querySelector('#opc-' + response.data.update_section.name));
+                                var section = document.querySelector('#opc-' + response.data.update_section.name);
+                                // the panels share data-bs-parent, so showing one collapses the others
+                                bootstrap.Collapse.getOrCreateInstance(section).show();
+                                vmorder.vmresetSteps(section);
                             }
                         }
                     }

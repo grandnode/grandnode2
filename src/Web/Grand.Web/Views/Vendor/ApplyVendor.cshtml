@@ -90,7 +90,7 @@
                                     </label>
                                     @if (Model.TermsOfServicePopup)
                                     {
-                                        <b-link class="read mx-2" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "VendorTermsOfService" })', 450, 500, true)">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</b-link>
+                                        <a class="read mx-2" href="#" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "VendorTermsOfService" })', 450, 500, true);return false;">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</a>
                                     }
                                     else
                                     {

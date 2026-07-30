@@ -26,9 +26,19 @@
         });
     </script>
 
-    <b-modal id="subscribe-modal-form" ref="out-of-stock" hide-footer centered title="@Loc["OutOfStockSubscriptions.Title"]">
+    <div class="modal fade" id="subscribe-modal-form" tabindex="-1" aria-labelledby="subscribe-modal-form-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="subscribe-modal-form-label">@Loc["OutOfStockSubscriptions.Title"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
         <div id="modal-subscribe" class="alert-info alert mb-0">
             @Loc["OutOfStockSubscriptions.PleaseWait"]
         </div>
-    </b-modal>
+    </div>
+        </div>
+    </div>
+</div>
 }

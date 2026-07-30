@@ -80,9 +80,9 @@
             <td class="col-6 cart-total-right  text-end">
                 <span class="value-summary">{{gc.Amount}}</span>
 
-                <b-button v-if="vmorder.cart.IsEditable" variant="danger" type="button" name="removegiftvoucher" id="remove-gift-card-button" @@click="vmorder.removeGiftVoucher('@Url.RouteUrl("RemoveGiftVoucherCode")?giftVoucherId=' + gc.Id)">
+                <button class="btn btn-danger" type="button" v-if="vmorder.cart.IsEditable" name="removegiftvoucher" id="remove-gift-card-button" @@click="vmorder.removeGiftVoucher('@Url.RouteUrl("RemoveGiftVoucherCode")?giftVoucherId=' + gc.Id)">
                     @Loc["Common.Remove"]
-                </b-button>
+                </button>
             </td>
         </tr>
         <tr v-if="vmorder.totals.RedeemedLoyaltyPoints > 0" class="col-12 px-0 loyalty-points d-flex justify-content-start">

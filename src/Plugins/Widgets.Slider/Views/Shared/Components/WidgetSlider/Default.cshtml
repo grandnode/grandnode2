@@ -1,45 +1,72 @@
-﻿@model PublicInfoModel
+@model PublicInfoModel
 
 <link rel="stylesheet" type="text/css" asp-src="/Plugins/Widgets.Slider/Assets/vue-style.css"/>
 
-<b-carousel id="GrandCarousel" fade controls indicators img-width="1024" img-height="267" :interval="6000">
-    @foreach (var item in Model.Slide)
-    {
-        if (string.IsNullOrEmpty(item.PictureUrl))
+@{
+    var slides = Model.Slide.ToList();
+}
+<div id="GrandCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="6000">
+    <div class="carousel-indicators">
+        @for (var i = 0; i < slides.Count; i++)
         {
-            <b-carousel-slide height="500" img-blank img-alt="Blank image" caption-html="@item.Description"
-                              @if (item.FullWidth)
-                              {
-                                  <text> data-width="full" </text>
-                              }
-                              @if (!string.IsNullOrEmpty(item.Link))
-                              {
-                                  <text> class="link" onclick="window.location='@item.Link'" </text>
-                              }>
-            </b-carousel-slide>
+            <button type="button" data-bs-target="#GrandCarousel" data-bs-slide-to="@i"
+                    class="@(i == 0 ? "active" : null)" aria-current="@(i == 0 ? "true" : null)"
+                    aria-label="Slide @(i + 1)"></button>
         }
-        else
+    </div>
+    <div class="carousel-inner">
+        @for (var i = 0; i < slides.Count; i++)
         {
-            <b-carousel-slide text-html="@item.Description"
-                              @if (item.FullWidth)
-                              {
-                                  <text> data-width="full" class="img-desc wide-img @if (!string.IsNullOrEmpty(item.Link)) { <text> link </text> }" </text>
-                              }
-                              else
-                              {
-                                  <text> class="img-desc no-wide-img @if (!string.IsNullOrEmpty(item.Link)) { <text> link </text> }" </text>
-                              }
-                              @if (!string.IsNullOrEmpty(item.Link))
-                              {
-                                  <text> onclick="window.location='@item.Link'" </text>
-                              }>
-                <template #img>
+            var item = slides[i];
+            var hasLink = !string.IsNullOrEmpty(item.Link);
+            var active = i == 0 ? " active" : "";
+            var link = hasLink ? " link" : "";
+            if (string.IsNullOrEmpty(item.PictureUrl))
+            {
+                <div class="carousel-item@(active)@(link)"
+                     @if (item.FullWidth)
+                     {
+                         <text> data-width="full" </text>
+                     }
+                     @if (hasLink)
+                     {
+                         <text> onclick="window.location='@item.Link'" </text>
+                     }>
+                    <div style="height: 500px"></div>
+                    <div class="carousel-caption d-md-block">
+                        @Html.Raw(item.Description)
+                    </div>
+                </div>
+            }
+            else
+            {
+                var widthClass = item.FullWidth ? " img-desc wide-img" : " img-desc no-wide-img";
+                <div class="carousel-item@(active)@(widthClass)@(link)"
+                     @if (item.FullWidth)
+                     {
+                         <text> data-width="full" </text>
+                     }
+                     @if (hasLink)
+                     {
+                         <text> onclick="window.location='@item.Link'" </text>
+                     }>
                     <picture>
                         <source media="(max-width: 767px)" sizes="1px" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 1w"/>
                         <img class="d-block img-fluid" width="1920" height="500" src="@item.PictureUrl" data-thumb="@item.PictureUrl" data-transition="" alt="@item.Name" title=""/>
                     </picture>
-                </template>
-            </b-carousel-slide>
+                    <div class="carousel-caption d-md-block">
+                        @Html.Raw(item.Description)
+                    </div>
+                </div>
+            }
         }
-    }
-</b-carousel>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#GrandCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#GrandCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>

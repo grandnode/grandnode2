@@ -711,7 +711,7 @@ dl, ol, ul {
     -webkit-transition: all .2s ease-in-out;
     transition: all .2s ease-in-out;
 }
-.quick-view-overview .accordion .btn.collapse-button.not-collapsed::after {
+.quick-view-overview .accordion .btn.collapse-button:not(.collapsed)::after {
     -webkit-transform: rotate( 180deg );
     transform: rotate( 180deg );
 }

@@ -64,15 +64,18 @@
 <div id="TwoColumns" class="row custom-container mt-3">
     <div class="d-lg-none d-block" id="mobile-filters-toggle">
         <div class="col-12">
-            <button id="sidebar-mobile-button" class="btn btn-outline-info" v-b-toggle.sidebar-mobile>
-                <b-icon icon="layout-sidebar-inset"></b-icon> @Loc["catalog.selectors.fiters"]
+            <button id="sidebar-mobile-button" class="btn btn-outline-info" data-bs-toggle="offcanvas" data-bs-target="#sidebar-mobile" aria-controls="sidebar-mobile">
+                <i class="b-icon bi bi-layout-sidebar-inset" aria-hidden="true"></i> @Loc["catalog.selectors.fiters"]
             </button>
         </div>
-        <b-sidebar id="sidebar-mobile"
-                   backdrop
-                   left
-                   shadow>
-        </b-sidebar>
+        <div class="offcanvas offcanvas-start b-sidebar shadow" tabindex="-1" id="sidebar-mobile" aria-labelledby="sidebar-mobile-label">
+                <div class="b-sidebar-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    <strong class="ms-2" id="sidebar-mobile-label"></strong>
+                </div>
+                <div class="b-sidebar-body">
+        </div>
+            </div>
     </div>
     <div class="col-lg-3 col-md-12 generalLeftSide order-1">
         @if (IsSectionDefined("left"))

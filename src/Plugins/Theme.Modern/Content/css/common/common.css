@@ -832,7 +832,7 @@ button.close:hover {
     -webkit-transition: all .2s ease-in-out;
     transition: all .2s ease-in-out;
 }
-.quick-view-overview .accordion .btn.collapse-button.not-collapsed .b-icon  {
+.quick-view-overview .accordion .btn.collapse-button:not(.collapsed) .b-icon  {
     -webkit-transform: rotate( 180deg );
     transform: rotate( 180deg );
 }

@@ -84,7 +84,7 @@
         <template v-if="attribute.AttributeControlType == 30">
             <template v-if="true">
                 <div :id="'checkout_attribute_' + attribute.Id + 'uploader'">
-                    <b-form-file :accept="attribute.AllowedFileExtensions" type="file" id="qqfile" name="qqfile" :data-url="'/uploadfilecheckoutattribute/' + attribute.Id" :attribute="attribute.Id" onchange="uploadFile(this)"/>
+                    <input class="form-control" type="file" :accept="attribute.AllowedFileExtensions" id="qqfile" name="qqfile" :data-url="'/uploadfilecheckoutattribute/' + attribute.Id" :attribute="attribute.Id" onchange="uploadFile(this)">
                 </div>
             </template>
             <input class="hidden-upload-input" type="hidden" onchange="checkoutAttributeChange()" :id="'checkout_attribute_' + attribute.Id" :name="'attributes['+attribute.Id+']'" v-model="attribute.DefaultValue" :value="attribute.DefaultValue"/>
