@@ -9,7 +9,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.11" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
     <PackageVersion Include="Microsoft.FeatureManagement.AspNetCore" Version="4.6.0" />
-    <PackageVersion Include="Microsoft.OpenApi" Version="3.9.0" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="2.11.0" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.16.16" />
     <PackageVersion Include="Scryber.Core" Version="9.5.0" />
     <PackageVersion Include="Scryber.Core.OpenType" Version="9.2.0" />
