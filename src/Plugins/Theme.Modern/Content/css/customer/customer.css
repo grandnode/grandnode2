@@ -128,21 +128,33 @@
 
 /* status */
 
+/* Bootstrap's .badge sets a white foreground, which was unreadable on these pale
+   tints - white on #d4edda is about 1.2:1. The subtle/emphasis variable pairs carry
+   their own accessible foreground and flip with data-bs-theme, so the separate dark
+   override this used to need is gone.
+   The class comes from the order status *name*, which is editable in admin, so the
+   base rule has to stand on its own for a renamed or custom status. */
 table .status.badge {
     font-size: 16px;
     padding: 6px 8px;
+    color: var(--bs-secondary-color);
+    background-color: var(--bs-secondary-bg);
 }
 table .status.pending {
-    background-color: #d1ecf1;
+    color: var(--bs-info-text-emphasis);
+    background-color: var(--bs-info-bg-subtle);
 }
 table .status.processing {
-    background-color: #fff3cd;
+    color: var(--bs-warning-text-emphasis);
+    background-color: var(--bs-warning-bg-subtle);
 }
 table .status.complete {
-    background-color: #d4edda;
+    color: var(--bs-success-text-emphasis);
+    background-color: var(--bs-success-bg-subtle);
 }
 table .status.cancelled {
-    background-color: #f8d7da;
+    color: var(--bs-danger-text-emphasis);
+    background-color: var(--bs-danger-bg-subtle);
 }
 
 /* pagination */
