@@ -120,7 +120,7 @@
                     addToCartText = Loc["ShoppingCart.PreOrder"];
                 }
 
-                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@(addToCartText)" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', '@Model.ShowQty', '@Model.Id');return false;">
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@(addToCartText)" data-cart-action="add" data-url="@addtocartlink" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
                     <span class="icons icon-handbag"></span>
                     <span class="sr-only">AddToCart</span>
                 </button>
@@ -130,7 +130,7 @@
                 if (Model.ProductType == ProductType.Auction)
                 {
                     var addToCartText = Loc["ShoppingCart.Bids"];
-                    <button class="btn btn-outline-secondary add-to-cart-button" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@(addToCartText)" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', 'false', '@Model.Id');return false;">
+                    <button class="btn btn-outline-secondary add-to-cart-button" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@(addToCartText)" data-cart-action="add" data-url="@addtocartlink" data-show-qty="false" data-product-id="@Model.Id">
                         <span class="icons icon-bell"></span>
                         <span class="sr-only">AddToCart</span>
                     </button>
@@ -138,21 +138,21 @@
             }
             @if (!Model.ProductPrice.DisableWishlistButton && Model.ProductType == ProductType.SimpleProduct)
             {
-                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-outline-secondary" onclick="AxiosCart.addproducttocart_catalog('@addtowishlistlink', '@Model.ShowQty', '@Model.Id');return false;">
+                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-outline-secondary" data-cart-action="add" data-url="@addtowishlistlink" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
                     <span class="icons icon-heart"></span>
                     <span class="sr-only">AddToWishlist</span>
                 </a>
             }
             @if (!Model.ProductPrice.DisableAddToCompareListButton && Model.ProductType == ProductType.SimpleProduct)
             {
-                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-outline-secondary" onclick="AxiosCart.addproducttocomparelist('@Model.Id', '@Loc["Products.ProductHasBeenAddedToCompareList.Link"]', '@Url.RouteUrl("CompareProducts")')">
+                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-outline-secondary" data-cart-action="compare" data-product-id="@Model.Id">
                     <span class="sr-only">AddToCompareList</span>
                     <span class="icons icon-shuffle"></span>
                 </a>
             }
         </div>
         <div class="qvb-container">
-            <a class="quick-view-button w-100 btn btn-secondary" data-target="ModalQuickView" onclick="AxiosCart.quickview_product('@quickviewurl');return false;">
+            <a class="quick-view-button w-100 btn btn-secondary" data-target="ModalQuickView" data-cart-action="quickview" data-url="@quickviewurl">
                 <span class="icons icon-magnifier"></span>
                 <span>@Loc["Products.QuickView"]</span>
             </a>
@@ -258,7 +258,7 @@
                         addToCartText = Loc["ShoppingCart.PreOrder"];
                     }
 
-                    <button class="btn btn-outline-secondary add-to-cart-button" type="button" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', '@Model.ShowQty', '@Model.Id');return false;">
+                    <button class="btn btn-outline-secondary add-to-cart-button" type="button" data-cart-action="add" data-url="@addtocartlink" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
                         <span class="add-cart-text">@(addToCartText)</span>
                         <span class="sr-only">AddToCart</span>
                     </button>
@@ -268,7 +268,7 @@
                     if (Model.ProductType == ProductType.Auction)
                     {
                         var addToCartText = Loc["ShoppingCart.Bids"];
-                        <button class="btn btn-outline-secondary add-to-cart-button" type="button" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', 'false', '@Model.Id');return false;">
+                        <button class="btn btn-outline-secondary add-to-cart-button" type="button" data-cart-action="add" data-url="@addtocartlink" data-show-qty="false" data-product-id="@Model.Id">
                             <span class="add-cart-text">@Loc["ShoppingCart.Bids"]</span>
                             <span class="sr-only">AddToCart</span>
                         </button>

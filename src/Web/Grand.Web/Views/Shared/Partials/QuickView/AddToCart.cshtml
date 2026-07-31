@@ -41,7 +41,7 @@
         </template>
         <div class="input-group-append w-100">
             <template v-if="typeof vmwishlist !== 'undefined' && PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId !== null">
-                <button :id="'add-to-wishlist-button-' + PopupQuickViewVueModal.AddToCart.ProductId" class="btn btn-info w-100 d-inline-flex main-button" title="@Loc["ShoppingCart.AddToWishlist.Update"]" :data-productid="PopupQuickViewVueModal.AddToCart.ProductId" :onclick="'AxiosCart.updateitem(`@updateitemcart`, `#product-details-form`);return false;'" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <button :id="'add-to-wishlist-button-' + PopupQuickViewVueModal.AddToCart.ProductId" class="btn btn-info w-100 d-inline-flex main-button" title="@Loc["ShoppingCart.AddToWishlist.Update"]" :data-productid="PopupQuickViewVueModal.AddToCart.ProductId" data-cart-action="update" data-url="@updateitemcart" data-form="#product-details-form" data-bs-toggle="tooltip" data-bs-placement="bottom">
                     <span>
                         @Loc["ShoppingCart.AddToWishlist.Update"]
                     </span>
@@ -49,9 +49,7 @@
             </template>
             <template v-else>
                 <button type="button" :id="'add-to-cart-button-' + PopupQuickViewVueModal.AddToCart.ProductId" class="btn btn-info w-100 main-button d-inline-flex"
-                        data-productid="PopupQuickViewVueModal.AddToCart.ProductId" :onclick="PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId !== null ?
-                                'AxiosCart.updateitem(`@updateitemcart`, `#product-details-form`);return false;' :
-                                'AxiosCart.addproducttocart_details(`@addtocart/' + PopupQuickViewVueModal.AddToCart.ProductId + '/1`, `#product-details-form`);return false;'">
+                        data-productid="PopupQuickViewVueModal.AddToCart.ProductId" :data-cart-action="PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId !== null ? 'update' : 'add-details'" :data-url="PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId !== null ? '@updateitemcart' : '@addtocart/' + PopupQuickViewVueModal.AddToCart.ProductId + '/1'" data-form="#product-details-form">
                     <span>
                         <template v-if="PopupQuickViewVueModal.AddToCart.IsAuction">
                             @Loc["ShoppingCart.BuyNow"]

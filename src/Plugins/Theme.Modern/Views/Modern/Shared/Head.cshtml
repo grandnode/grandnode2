@@ -17,8 +17,9 @@
     <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/cart/cart.css">
     <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/blog-news/blog-news.css">
 
-    <script asp-location="Footer" asp-src="/theme/script/public.common.js" asp-order="201"></script>
-    <script asp-location="Footer" asp-src="/theme/script/public.axios.js" asp-order="202"></script>
+    <script asp-location="Footer" asp-src="/theme/script/public.common.js" asp-order="201" asp-append-version="true"></script>
+    <partial name="Partials/JsResources"/>
+    <script asp-location="Footer" asp-src="/theme/script/public.axios.js" asp-order="202" asp-append-version="true"></script>
 
     <script asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/swiper/swiper.min.js" asp-order="298"></script>
     <script asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/script/swiper-vue3.js" asp-order="299"></script>

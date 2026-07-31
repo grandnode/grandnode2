@@ -1,0 +1,16 @@
+@*
+    Localized strings and route URLs the storefront scripts need at runtime.
+
+    They live here instead of being interpolated into an inline JS string at
+    every call site - that pattern meant the same resource was re-emitted dozens
+    of times per page and made the markup unreadable. Consumed by the
+    [data-cart-action] handler in public.axios.js.
+*@
+<script asp-location="Footer" asp-order="199">
+    window.grandRes = Object.assign(window.grandRes || {}, {
+        compareAddedLink: @Html.Raw(Json.Serialize(Loc["Products.ProductHasBeenAddedToCompareList.Link"].ToString()))
+    });
+    window.grandRoutes = Object.assign(window.grandRoutes || {}, {
+        compareProducts: @Html.Raw(Json.Serialize(Url.RouteUrl("CompareProducts")))
+    });
+</script>

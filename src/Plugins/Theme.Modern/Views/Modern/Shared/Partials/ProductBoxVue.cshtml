@@ -65,27 +65,27 @@
     <div class="other-buttons">
         <template v-if="!Model.ProductPrice.DisableWishlistButton && Model.ProductType == 0">
             <template v-if="!Model.ShowQty">
-                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-outline-secondary" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/2?quantity=1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
+                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-outline-secondary" data-cart-action="add" :data-url="'@Url.RouteUrl("AddProductCatalog")/' + Model.Id + '/2?quantity=1'" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
                     <span class="icons icon-heart"></span>
                     <span class="sr-only">AddToWishlist</span>
                 </a>
             </template>
             <template v-else>
-                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-outline-secondary" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/2`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
+                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-outline-secondary" data-cart-action="add" :data-url="'@Url.RouteUrl("AddProductCatalog")/' + Model.Id + '/2'" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
                     <span class="icons icon-heart"></span>
                     <span class="sr-only">AddToWishlist</span>
                 </a>
             </template>
         </template>
         <template v-if="!Model.ProductPrice.DisableAddToCompareListButton && Model.ProductType == 0">
-            <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-outline-secondary" :onclick="'AxiosCart.addproducttocomparelist(`'+ Model.Id +'`, `@Loc["Products.ProductHasBeenAddedToCompareList.Link"]`, `@Url.RouteUrl("CompareProducts")`)'">
+            <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-outline-secondary" data-cart-action="compare" :data-product-id="Model.Id">
                 <span class="sr-only">AddToCompareList</span>
                 <span class="icons icon-shuffle"></span>
             </a>
         </template>
     </div>
     <div class="qvb-container">
-        <a title="@Loc["Products.QuickView"]" class="quick-view-button w-100 btn btn-secondary" data-target="ModalQuickView" :onclick="'AxiosCart.quickview_product(`@Url.RouteUrl("QuickView-Product")/' + Model.Id + '`);return false;'">
+        <a title="@Loc["Products.QuickView"]" class="quick-view-button w-100 btn btn-secondary" data-target="ModalQuickView" data-cart-action="quickview" :data-url="'@Url.RouteUrl("QuickView-Product")/' + Model.Id">
             <span class="icons icon-magnifier"></span>
             <span>@Loc["Products.QuickView"]</span>
         </a>
@@ -191,7 +191,7 @@
     </template>
     <template v-if="!Model.ProductPrice.DisableBuyButton">
         <template v-if="!Model.ShowQty">
-            <a class="add-to-cart-button btn btn-outline-secondary" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/1?quantity=1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
+            <a class="add-to-cart-button btn btn-outline-secondary" data-cart-action="add" :data-url="'@Url.RouteUrl("AddProductCatalog")/' + Model.Id + '/1?quantity=1'" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
                 <span class="add-cart-text-view">
                     <template v-if="Model.ProductType == 20">
                         @Loc["ShoppingCart.Reservation"]
@@ -209,7 +209,7 @@
             </a>
         </template>
         <template v-else>
-            <a class="add-to-cart-button btn btn-outline-secondary" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
+            <a class="add-to-cart-button btn btn-outline-secondary" data-cart-action="add" :data-url="'@Url.RouteUrl("AddProductCatalog")/' + Model.Id + '/1'" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
                 <template v-if="Model.ProductType == 20">
                     @Loc["ShoppingCart.Reservation"]
                 </template>
@@ -227,7 +227,7 @@
     </template>
     <template v-else>
         <template v-if="Model.ProductType == 40">
-            <a variant="info" class="add-to-cart-button btn btn-outline-secondary" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/1?quantity=1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
+            <a variant="info" class="add-to-cart-button btn btn-outline-secondary" data-cart-action="add" :data-url="'@Url.RouteUrl("AddProductCatalog")/' + Model.Id + '/1?quantity=1'" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
                 <span class="add-cart-text">@Loc["ShoppingCart.Bids"]</span>
                 <span class="sr-only">AddToCart</span>
             </a>

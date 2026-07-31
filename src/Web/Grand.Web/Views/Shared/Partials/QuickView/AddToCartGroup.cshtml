@@ -33,7 +33,7 @@
             </template>
         </template>
         <div class="input-group-append">
-            <button type="button" :id="'add-to-cart-button-' + variant.AddToCart.ProductId" class="btn btn-info w-100 add-to-cart-button d-inline-flex" data-productid="variant.AddToCart.ProductId" :onclick="'AxiosCart.addproducttocart_details(`/addproducttocart/details/' + variant.AddToCart.ProductId + '/1`, `#product-details-form`);return false;'">
+            <button type="button" :id="'add-to-cart-button-' + variant.AddToCart.ProductId" class="btn btn-info w-100 add-to-cart-button d-inline-flex" data-productid="variant.AddToCart.ProductId" data-cart-action="add-details" :data-url="'/addproducttocart/details/' + variant.AddToCart.ProductId + '/1'" data-form="#product-details-form">
                 <span>
                     <template v-if="variant.AddToCart.IsAuction">
                         @Loc["ShoppingCart.BuyNow"]

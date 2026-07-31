@@ -90,9 +90,15 @@ var AxiosCart = {
     },
 
     //update product on cart/wishlist
-    updateitem: function (urlupdate) {
+    updateitem: function (urlupdate, formselector) {
         var model;
-        var form = document.querySelector('#ModalQuickView #product-details-form');
+        // same rule as addproducttocart_details: the quick-view modal is always
+        // in the DOM, so only take its form when it is actually shown
+        var quickView = document.querySelector('#ModalQuickView.show');
+        var form = quickView
+            ? quickView.querySelector('#product-details-form')
+            : document.querySelector(formselector);
+        if (!form) return;
         var data = new FormData(form);
 
         if (typeof vmwishlist !== 'undefined') {
@@ -266,3 +272,51 @@ var AxiosCart = {
         document.cookie = "" + cname +"=; expires=Thu, 01 Jan 1970 00:00:00 UTC;"
     }
 };
+
+/*
+ * Cart actions are declared on the markup as data attributes and dispatched
+ * from here, instead of every button carrying a hand-written
+ * onclick="AxiosCart.someFunction('url', 'id', ...)" string.
+ *
+ * That old form had to interpolate routes and localized text into JS source at
+ * each call site, and the Vue-rendered variants built that source with string
+ * concatenation inside a :onclick binding - two levels of escaping for a single
+ * click. Delegation also means markup Vue renders later is handled for free.
+ *
+ *   <button data-cart-action="add"
+ *           data-url="/addproducttocart/catalog/123/1"
+ *           data-show-qty="true"
+ *           data-product-id="123">
+ */
+document.addEventListener('click', function (event) {
+    var el = event.target.closest('[data-cart-action]');
+    if (!el) return;
+
+    var d = el.dataset;
+    var res = window.grandRes || {};
+    var routes = window.grandRoutes || {};
+
+    switch (d.cartAction) {
+        case 'add':
+            AxiosCart.addproducttocart_catalog(d.url, d.showQty, d.productId);
+            break;
+        case 'add-details':
+            AxiosCart.addproducttocart_details(d.url, d.form);
+            break;
+        case 'update':
+            AxiosCart.updateitem(d.url, d.form);
+            break;
+        case 'compare':
+            AxiosCart.addproducttocomparelist(d.productId, res.compareAddedLink, routes.compareProducts);
+            break;
+        case 'quickview':
+            AxiosCart.quickview_product(d.url);
+            break;
+        case 'bid':
+            AxiosCart.addbid(d.url, d.form);
+            break;
+        default:
+            return;
+    }
+    event.preventDefault();
+});

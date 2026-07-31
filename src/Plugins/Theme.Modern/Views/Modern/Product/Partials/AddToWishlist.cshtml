@@ -11,7 +11,7 @@
         addToWishlistText = Loc["ShoppingCart.AddToWishlist"];
     }
 
-    <button class="btn btn-outline-secondary add-to-wishlist-button me-1" type="button" id="add-to-wishlist-button-@Model.ProductId" data-productid="@Model.ProductId" onclick="AxiosCart.addproducttocart_details('@Url.RouteUrl("AddProductDetails", new { productId = Model.ProductId, shoppingCartTypeId = (int)ShoppingCartType.Wishlist })', @($"'#product-details-form-{Model.ProductId}'"));return false;" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@addToWishlistText">
+    <button class="btn btn-outline-secondary add-to-wishlist-button me-1" type="button" id="add-to-wishlist-button-@Model.ProductId" data-productid="@Model.ProductId" data-cart-action="add-details" data-url="@Url.RouteUrl("AddProductDetails", new { productId = Model.ProductId, shoppingCartTypeId = (int)ShoppingCartType.Wishlist })" data-form="#product-details-form-@(Model.ProductId)" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@addToWishlistText">
         <span class="sr-only">@addToWishlistText</span>
         <span class="icons icon-heart"></span>
     </button>
