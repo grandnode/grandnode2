@@ -8,10 +8,10 @@
 
 .shopping-cart {
     margin: 0 0 15px 0;
-    color: #1c1b1b;
+    color: var(--bs-body-color);
 }
 .shopping-cart.table thead th {
-    color: #1c1b1b;
+    color: var(--bs-body-color);
     font-size: 16px;
     font-weight: 700;
     text-transform: uppercase;
@@ -23,7 +23,7 @@
     border: 1px solid rgba(0,0,0,.1);
 }
 .shopping-cart.table td img {
-	background-color: #eaf0fa;
+	background-color: var(--bs-secondary-bg);
 }
 .shopping-cart.table .product-name {
     font-size: 14px;
@@ -36,7 +36,7 @@
 .shopping-cart .prod-total {
     font-size: 18px;
     font-weight: 700;
-    color: #1c1b1b;
+    color: var(--bs-body-color);
 }
 .shopping-cart .prod-total {
     color: #25b232;
@@ -61,7 +61,7 @@
     border-radius: 0;
 }
 .totals-inner table, .totals-inner .table-hover tbody tr:hover {
-    color: #1c1b1b;
+    color: var(--bs-body-color);
 }
 .checkout-buttons {
     display: inline-flex;

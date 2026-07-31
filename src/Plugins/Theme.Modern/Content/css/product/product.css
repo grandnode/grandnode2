@@ -25,7 +25,7 @@
 .gallery-top {
     height: 100%;
     width: 75%;
-    background-color: #eaf0fa;
+    background-color: var(--bs-secondary-bg);
 }
 .gallery-thumbs {
     width: 25%;
@@ -37,7 +37,7 @@
     width: 100%;
     height: 25%;
     opacity: 0.4;
-    background-color: #eaf0fa;
+    background-color: var(--bs-secondary-bg);
     border: 1px solid rgba(0,0,0,.1);
     box-shadow: none;
     cursor: pointer;
@@ -66,7 +66,7 @@
     z-index: 1101;
 }
 .medium-zoom-image {
-    background-color: #eaf0fa;
+    background-color: var(--bs-secondary-bg);
 }
 .zoom-button {
     position: absolute;
@@ -120,7 +120,7 @@
     font-size: 14px;
 }
 .product-details-page .overview .label {
-    color: #000;
+    color: var(--bs-body-color);
     font-size: 14px;
     font-weight: 500;
 }
@@ -134,12 +134,12 @@
 /* spec */
 
 .spec-container .spec-name {
-    color: #000;
+    color: var(--bs-body-color);
     font-size: 16px;
     font-weight: 700;
 }
 .spec-container .spec-value {
-    color: #000;
+    color: var(--bs-body-color);
     font-size: 16px;
     font-weight: 500;
 }
@@ -150,7 +150,7 @@
     margin: 0 0 15px 0;
     padding: 15px;
     border: 0;
-    background-color: #eaf0fa;
+    background-color: var(--bs-secondary-bg);
     border-radius: .25rem;
 }
 .attributes table {
@@ -166,12 +166,12 @@
     padding: 10px;
 }
 .attributes .text-prompt {
-    color: #000;
+    color: var(--bs-body-color);
     font-size: 16px;
     font-weight: 700;
 }
 .attributes .custom-control-description {
-    color: #000;
+    color: var(--bs-body-color);
     font-size: 14px;
     font-weight: 400;
 }
@@ -233,7 +233,7 @@
     align-items: center;
     justify-content: center;
     height: 60px;
-    background: #eaf0fa;
+    background: var(--bs-secondary-bg);
 }
 .product-details-page .qty-controls div {
     display: flex;
@@ -270,10 +270,10 @@
 .product-add-to-cart .qty-input, .product-add-to-cart .qty-dropdown {
     max-width: 65px;
     height: 60px;
-    color: #000;
+    color: var(--bs-body-color);
     font-size: 18px;
     font-weight: 700;
-    background-color: #eaf0fa;
+    background-color: var(--bs-secondary-bg);
     border-color: rgba(0,0,0,.2);
 }
 .product-details-page .add-to-cart-button.btn-info {
@@ -355,7 +355,7 @@
     text-transform: uppercase;
     font-weight: 700;
     font-family: Poppins, sans-serif;
-    color: #000;
+    color: var(--bs-body-color);
     background-color: transparent;
     border: 1px solid rgba(0,0,0,.1);
     border-bottom: 0;
