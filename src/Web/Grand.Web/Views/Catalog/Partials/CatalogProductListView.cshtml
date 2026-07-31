@@ -7,7 +7,7 @@
             <img class="card-img hover-img" :src="Model.SecondPictureModel.ImageUrl" :alt="Model.SecondPictureModel.AlternateText" loading="lazy">
         </template>
     </a>
-    <a title="@Loc["Products.QuickView"]" class="btn btn-secondary quick-view-button" data-bs-target="ModalQuickView" data-cart-action="quickview" :data-url="'@Url.RouteUrl("QuickView-Product")/' + Model.Id">
+    <a title="@Loc["Products.QuickView"]" class="btn btn-secondary quick-view-button" data-bs-target="ModalQuickView" data-cart-action="quickview" :data-url="Model.QuickViewUrl">
         <i class="b-icon bi bi-search" aria-hidden="true"></i>
         <span>@Loc["Products.QuickView"]</span>
     </a>
@@ -167,13 +167,13 @@
 <div class="btn-group" role="group">
     <template v-if="!Model.ProductPrice.DisableWishlistButton && Model.ProductType == 0">
         <template v-if="!Model.ShowQty">
-            <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" data-cart-action="add" :data-url="'@Url.RouteUrl("AddProductCatalog")/' + Model.Id + '/2?quantity=1'" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
+            <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" data-cart-action="add" :data-url="Model.AddToWishlistUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
                 <span class="visually-hidden">AddToWishlist</span>
                 <i class="b-icon bi bi-heart" aria-hidden="true"></i>
             </button>
         </template>
         <template v-else>
-            <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" data-cart-action="add" :data-url="'@Url.RouteUrl("AddProductCatalog")/' + Model.Id + '/2'" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
+            <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" data-cart-action="add" :data-url="Model.AddToWishlistUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
                 <i class="b-icon bi bi-heart" aria-hidden="true"></i>
                 <span class="visually-hidden">AddToWishlist</span>
             </button>
@@ -181,7 +181,7 @@
     </template>
     <template v-if="!Model.ProductPrice.DisableBuyButton">
         <template v-if="!Model.ShowQty">
-            <button class="btn btn-info justify-content-center w-100" data-cart-action="add" :data-url="'@Url.RouteUrl("AddProductCatalog")/' + Model.Id + '/1?quantity=1'" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
+            <button class="btn btn-info justify-content-center w-100" data-cart-action="add" :data-url="Model.AddToCartUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
                 <i class="b-icon bi bi-cart2 mx-auto d-sm-none d-block" aria-hidden="true"></i>
                 <span class="add-cart-text d-sm-block d-none">
                     <template v-if="Model.ProductType == 20">
@@ -200,7 +200,7 @@
             </button>
         </template>
         <template v-else>
-            <button class="btn btn-info justify-content-center w-100" data-cart-action="add" :data-url="'@Url.RouteUrl("AddProductCatalog")/' + Model.Id + '/1'" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
+            <button class="btn btn-info justify-content-center w-100" data-cart-action="add" :data-url="Model.AddToCartUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
                 <i class="b-icon bi bi-cart2 mx-auto d-sm-none d-block" aria-hidden="true"></i>
                 <span class="add-cart-text d-sm-block d-none">
                     <template v-if="Model.ProductType == 20">
@@ -221,7 +221,7 @@
     </template>
     <template v-else>
         <template v-if="Model.ProductType == 40">
-            <button class="btn btn-info justify-content-center w-100" data-cart-action="add" :data-url="'@Url.RouteUrl("AddProductCatalog")/' + Model.Id + '/1?quantity=1'" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
+            <button class="btn btn-info justify-content-center w-100" data-cart-action="add" :data-url="Model.AddToCartUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
                 <i class="b-icon bi bi-hammer mx-auto d-sm-none d-block" aria-hidden="true"></i>
                 <span class="add-cart-text d-sm-block d-none">@Loc["ShoppingCart.Bids"]</span>
                 <span class="visually-hidden">AddToCart</span>

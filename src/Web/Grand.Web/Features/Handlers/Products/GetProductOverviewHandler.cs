@@ -9,6 +9,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
+using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Web.Features.Models.Catalog;
@@ -25,6 +26,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
     private readonly CatalogSettings _catalogSettings;
     private readonly ICurrencyService _currencyService;
     private readonly IDateTimeService _dateTimeService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly LinkGenerator _linkGenerator;
     private readonly MediaSettings _mediaSettings;
     private readonly IMediator _mediator;
@@ -49,9 +51,11 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
         IDateTimeService dateTimeService,
         IMediator mediator,
         LinkGenerator linkGenerator,
+        IHttpContextAccessor httpContextAccessor,
         MediaSettings mediaSettings,
         CatalogSettings catalogSettings)
     {
+        _httpContextAccessor = httpContextAccessor;
         _permissionService = permissionService;
         _contextAccessor = contextAccessor;
         _productService = productService;
@@ -122,7 +126,45 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
         model.ReviewOverviewModel = await _mediator.Send(new GetProductReviewOverview
             { Product = product, Language = _contextAccessor.WorkContext.WorkingLanguage, Store = _contextAccessor.StoreContext.CurrentStore });
 
+        //action urls - after the price model, which decides whether adding to the
+        //cart redirects
+        model.QuickViewUrl = GetPath("QuickView-Product", new RouteValueDictionary { { "productId", product.Id } });
+        model.AddToCartUrl = BuildAddToCartUrl(product.Id, ShoppingCartType.ShoppingCart, model.ShowQty,
+            model.ProductPrice.ForceRedirectionAfterAddingToCart);
+        model.AddToWishlistUrl = BuildAddToCartUrl(product.Id, ShoppingCartType.Wishlist, model.ShowQty, false);
+
         return model;
+    }
+
+    /// <summary>
+    ///     The catalog endpoint takes the quantity as part of the URL, except on pages
+    ///     that show a quantity box - there the script appends whatever the customer
+    ///     entered instead.
+    /// </summary>
+    private string BuildAddToCartUrl(string productId, ShoppingCartType cartType, bool showQty,
+        bool forceRedirection)
+    {
+        var values = new RouteValueDictionary {
+            { "productId", productId },
+            { "shoppingCartTypeId", (int)cartType }
+        };
+        if (!showQty) values.Add("quantity", 1);
+        if (forceRedirection) values.Add("forceredirection", true);
+
+        return GetPath("AddProductCatalog", values);
+    }
+
+    /// <summary>
+    ///     Generates against the current request so that the {language} segment used by
+    ///     SEO-friendly URLs is carried over. Without the HttpContext there are no
+    ///     ambient route values and every link would fall back to the default language.
+    /// </summary>
+    private string GetPath(string routeName, RouteValueDictionary values)
+    {
+        var httpContext = _httpContextAccessor.HttpContext;
+        return httpContext != null
+            ? _linkGenerator.GetPathByRouteValues(httpContext, routeName, values)
+            : _linkGenerator.GetPathByRouteValues(routeName, values);
     }
 
     private async Task<ProductOverviewModel> PrepareProductOverviewModel(Product product)
@@ -134,7 +176,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
             ShortDescription = product.GetTranslation(x => x.ShortDescription, _contextAccessor.WorkContext.WorkingLanguage.Id),
             FullDescription = product.GetTranslation(x => x.FullDescription, _contextAccessor.WorkContext.WorkingLanguage.Id),
             SeName = sename,
-            Url = _linkGenerator.GetPathByRouteValues("Product", new { SeName = sename }),
+            Url = GetPath("Product", new RouteValueDictionary { { "SeName", sename } }),
             ProductType = product.ProductTypeId,
             Sku = product.Sku,
             Gtin = product.Gtin,

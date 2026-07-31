@@ -1,26 +1,5 @@
 ﻿@using System.Globalization
 @model ProductOverviewModel
-@{
-    //prepare "Add to cart" Axios link
-    var addtocartlink = "";
-    var addtowishlistlink = "";
-    var quickviewurl = Url.RouteUrl("QuickView-Product", new { productId = Model.Id });
-
-    var shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
-    var quantity = 1;
-    if (!Model.ShowQty)
-    {
-        addtocartlink = Model.ProductPrice.ForceRedirectionAfterAddingToCart ? Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, quantity, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart }) : Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, quantity });
-        addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist, quantity });
-    }
-    else
-    {
-        addtocartlink = Model.ProductPrice.ForceRedirectionAfterAddingToCart ? Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart }) : Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId });
-        addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist });
-    }
-
-    var addtocomparelink = Url.RouteUrl("AddProductToCompare", new { productId = Model.Id });
-}
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model })
 <article v-bind:class="{mobile: isMobile()}" class="card product-box show product-provider mb-2" @@mouseover="hover = true" @@mouseleave="hover = false">
@@ -120,7 +99,7 @@
                     addToCartText = Loc["ShoppingCart.PreOrder"];
                 }
 
-                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@(addToCartText)" data-cart-action="add" data-url="@addtocartlink" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@(addToCartText)" data-cart-action="add" data-url="@Model.AddToCartUrl" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
                     <span class="icons icon-handbag"></span>
                     <span class="sr-only">AddToCart</span>
                 </button>
@@ -130,7 +109,7 @@
                 if (Model.ProductType == ProductType.Auction)
                 {
                     var addToCartText = Loc["ShoppingCart.Bids"];
-                    <button class="btn btn-outline-secondary add-to-cart-button" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@(addToCartText)" data-cart-action="add" data-url="@addtocartlink" data-show-qty="false" data-product-id="@Model.Id">
+                    <button class="btn btn-outline-secondary add-to-cart-button" type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@(addToCartText)" data-cart-action="add" data-url="@Model.AddToCartUrl" data-show-qty="false" data-product-id="@Model.Id">
                         <span class="icons icon-bell"></span>
                         <span class="sr-only">AddToCart</span>
                     </button>
@@ -138,7 +117,7 @@
             }
             @if (!Model.ProductPrice.DisableWishlistButton && Model.ProductType == ProductType.SimpleProduct)
             {
-                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-outline-secondary" data-cart-action="add" data-url="@addtowishlistlink" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
+                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-outline-secondary" data-cart-action="add" data-url="@Model.AddToWishlistUrl" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
                     <span class="icons icon-heart"></span>
                     <span class="sr-only">AddToWishlist</span>
                 </a>
@@ -152,7 +131,7 @@
             }
         </div>
         <div class="qvb-container">
-            <a class="quick-view-button w-100 btn btn-secondary" data-target="ModalQuickView" data-cart-action="quickview" data-url="@quickviewurl">
+            <a class="quick-view-button w-100 btn btn-secondary" data-target="ModalQuickView" data-cart-action="quickview" data-url="@Model.QuickViewUrl">
                 <span class="icons icon-magnifier"></span>
                 <span>@Loc["Products.QuickView"]</span>
             </a>
@@ -258,7 +237,7 @@
                         addToCartText = Loc["ShoppingCart.PreOrder"];
                     }
 
-                    <button class="btn btn-outline-secondary add-to-cart-button" type="button" data-cart-action="add" data-url="@addtocartlink" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
+                    <button class="btn btn-outline-secondary add-to-cart-button" type="button" data-cart-action="add" data-url="@Model.AddToCartUrl" data-show-qty="@Model.ShowQty" data-product-id="@Model.Id">
                         <span class="add-cart-text">@(addToCartText)</span>
                         <span class="sr-only">AddToCart</span>
                     </button>
@@ -268,7 +247,7 @@
                     if (Model.ProductType == ProductType.Auction)
                     {
                         var addToCartText = Loc["ShoppingCart.Bids"];
-                        <button class="btn btn-outline-secondary add-to-cart-button" type="button" data-cart-action="add" data-url="@addtocartlink" data-show-qty="false" data-product-id="@Model.Id">
+                        <button class="btn btn-outline-secondary add-to-cart-button" type="button" data-cart-action="add" data-url="@Model.AddToCartUrl" data-show-qty="false" data-product-id="@Model.Id">
                             <span class="add-cart-text">@Loc["ShoppingCart.Bids"]</span>
                             <span class="sr-only">AddToCart</span>
                         </button>
