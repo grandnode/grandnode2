@@ -1698,9 +1698,8 @@ footer .list-group-item span:last-child {
 
 /* dark bootstrap */
 
-[dark-theme="true"] .form-select, [dark-theme="true"] input.form-control {
-    background-color: #efefef;
-}
+/* see common.css - Bootstrap 5.3 themes form controls through data-bs-theme, and this
+   override left light text on a light field once the text colour stopped being fixed */
 [dark-theme="true"] .bg-white {
     background-color: #343a40 !important;
 }

@@ -1136,8 +1136,19 @@ button.close:hover {
     color: var(--bs-body-color);
     min-width: 75px;
     min-height: 40px;
-    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23000' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px;
-    border: 2px solid #1c1b1b;
+    /* the background shorthand resets background-color, which left the control and its
+       option list transparent - the browser then painted the popup white and the
+       themed text became unreadable in dark mode */
+    background: var(--bs-body-bg) url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23000' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px;
+    border: 2px solid var(--bs-border-color);
+}
+/* the arrow is baked into a data URI, so it cannot inherit currentColor */
+[data-bs-theme="dark"] .custom-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23dee2e6' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e");
+}
+.custom-select option {
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
 }
 
 /* page */

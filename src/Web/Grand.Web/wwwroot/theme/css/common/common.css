@@ -1591,9 +1591,10 @@ footer .list-group-item span:last-child {
 
 /* dark bootstrap */
 
-[dark-theme="true"] .form-select, [dark-theme="true"] input.form-control {
-    background-color: #efefef;
-}
+/* Form controls are themed by Bootstrap 5.3 through data-bs-theme. The override that
+   used to force #efefef here paired a light field with the dark text the old rules
+   supplied; now that the text colour comes from --bs-body-color it turned light-on-light
+   and the values were barely legible. */
 [dark-theme="true"] .bg-white {
     background-color: #343a40 !important;
 }

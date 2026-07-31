@@ -274,7 +274,7 @@
     font-size: 18px;
     font-weight: 700;
     background-color: var(--bs-secondary-bg);
-    border-color: rgba(0,0,0,.2);
+    border-color: var(--bs-border-color);
 }
 .product-details-page .add-to-cart-button.btn-info {
     display: flex;
