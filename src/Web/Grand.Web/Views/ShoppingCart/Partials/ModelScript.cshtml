@@ -123,13 +123,11 @@
                     },
                 }).then(function (response) {
                     vmorder.cart = response.data;
-                    if (document.querySelector('.qty-indicator.cart-qty')) {
-                        let total = 0;
-                        for (var i = 0; i < vmorder.cart.Items.length; i++) {
-                            total = total + vmorder.cart.Items[i].Quantity;
-                        }
-                        document.querySelector('.qty-indicator.cart-qty').innerHTML = total;
+                    let total = 0;
+                    for (var i = 0; i < vmorder.cart.Items.length; i++) {
+                        total = total + vmorder.cart.Items[i].Quantity;
                     }
+                    vm.flycartindicator = total;
                 }).then(function () {
                     vmorder.updateTotals();
                 });
@@ -149,8 +147,7 @@
                 }).then(function (response) {
                     if (response.data.success) {
                         vmorder.cart = response.data.model;
-                        if (document.querySelector('.qty-indicator.cart-qty'))
-                            document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
+                        vm.flycartindicator = response.data.totalproducts;
                     }
                     else {
                         vmorder.displayWarning(response.data.warnings);
@@ -191,24 +188,16 @@
                     }
                 });
             },
-            deleteitem(href, event) {
-                // The row is hidden immediately (independent of Vue's own
-                // reactive patch) because removing this exact row via its
-                // own delete button hits an internal Vue crash - "Cannot read
-                // properties of null (reading 'nextSibling')" deep inside
-                // Fragment/keyed-list unmount - no matter how the resulting
-                // state change is deferred (nextTick, setTimeout). The cause
-                // wasn't pinned down, but it reliably corrupts that one patch
-                // without leaving the app otherwise broken, so hiding the row
-                // directly guarantees the visible behavior is correct even
-                // when Vue's own re-render of it silently fails.
-                var row = event && event.target && event.target.closest('tr');
-                if (row) row.style.display = 'none';
+            cartClick(event) {
+                var btn = event.target.closest('.deleteshoppingcartitem');
+                if (btn && btn.dataset.deleteUrl) this.deleteitem(btn.dataset.deleteUrl);
+            },
+            deleteitem(href) {
                 axios({
                     method: 'post',
                     url: href,
                 }).then(function (response) {
-                    document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
+                    vm.flycartindicator = response.data.totalproducts;
                     if (document.querySelector('.sidebar-cart')) {
                         var newfly = response.data.sidebarshoppingcartmodel;
                         vm.flycart = newfly;

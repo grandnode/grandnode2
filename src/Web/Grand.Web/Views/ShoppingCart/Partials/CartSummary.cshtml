@@ -14,7 +14,10 @@
 <div class="col-lg-8 col-12 cart-out-container">
     <div class="shopping-cart-container">
         <div class="shopping-cart-container">
-            <table class="shopping-cart table">
+            @* Delete is handled here rather than on the row's own button: when the
+               click handler lives on an element that the same update unmounts, Vue's
+               patch dies on it and everything after that keeps rendering stale data. *@
+            <table class="shopping-cart table" @@click="vmorder.cartClick($event)">
                 <colgroup>
                     <col span="1">
                     <col span="1">
@@ -122,7 +125,7 @@
                         </div>
                     </td>
                     <td v-if="vmorder.cart.IsEditable" class="remove-from-cart text-center">
-                        <button class="btn btn-link deleteshoppingcartitem" type="button" @@click="vmorder.deleteitem('@Url.RouteUrl("DeleteCartItem")/'+ item.Id +'?shoppingcartpage=True', $event)">
+                        <button class="btn btn-link deleteshoppingcartitem" type="button" :data-delete-url="'@Url.RouteUrl("DeleteCartItem")/'+ item.Id +'?shoppingcartpage=True'">
                             <i class="b-icon bi bi-trash text-danger" aria-hidden="true"></i>
                         </button>
                     </td>

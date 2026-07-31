@@ -43,15 +43,6 @@
                                 <a class="nav-link" data-bs-toggle="offcanvas" data-bs-target="#sidebar-right" aria-controls="sidebar-right">
                                     <span class="icons icon-user"></span>
                                 </a>
-                                <div class="offcanvas offcanvas-end b-sidebar b-sidebar-right" tabindex="-1" id="sidebar-right" aria-labelledby="sidebar-right-label">
-                                    <div class="b-sidebar-header">
-                                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                                        <strong class="ms-2" id="sidebar-right-label">@Loc["Account.MyAccount"]</strong>
-                                    </div>
-                                    <div class="b-sidebar-body user-panel">
-                                        <partial name="Partials/HeaderLinks"/>
-                                    </div>
-                                </div>
                             </li>
                             <partial name="Partials/ShoppingCartLinks"/>
                         </ul>
@@ -90,6 +81,19 @@
     <div id="backdrop-menu" class="backdrop-menu"></div>
     @await Component.InvokeAsync("Footer")
     <partial name="Partials/Cookie"/>
+    @* Drawers live here rather than in the header: .left-side-container has a
+       transform, which would become the containing block for their fixed
+       positioning. Their triggers up in the header target them by id. *@
+    <div class="offcanvas offcanvas-end b-sidebar b-sidebar-right" tabindex="-1" id="sidebar-right" aria-labelledby="sidebar-right-label">
+        <div class="b-sidebar-header">
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <strong class="ms-2" id="sidebar-right-label">@Loc["Account.MyAccount"]</strong>
+        </div>
+        <div class="b-sidebar-body user-panel">
+            <partial name="Partials/HeaderLinks"/>
+        </div>
+    </div>
+    <partial name="Partials/SidebarPanels"/>
 </div>
 @await Component.InvokeAsync("Widget", new { widgetZone = "body_end_html_tag_before" })
 <partial name="Partials/ProductBoxVue"/>
