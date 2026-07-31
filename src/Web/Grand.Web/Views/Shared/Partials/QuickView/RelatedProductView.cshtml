@@ -164,58 +164,29 @@
     </template>
     <div class="btn-group">
         <template v-if="!Model.ProductPrice.DisableWishlistButton && Model.ProductType == 0">
-            <template v-if="!Model.ShowQty">
-                <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" data-cart-action="add" :data-url="Model.AddToWishlistUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
-                    <span class="visually-hidden">AddToWishlist</span>
-                    <i class="b-icon bi bi-heart" aria-hidden="true"></i>
-                </button>
-            </template>
-            <template v-else>
-                <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" data-cart-action="add" :data-url="Model.AddToWishlistUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
-                    <i class="b-icon bi bi-heart" aria-hidden="true"></i>
-                    <span class="visually-hidden">AddToWishlist</span>
-                </button>
-            </template>
+            <button data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" data-cart-action="add" :data-url="Model.AddToWishlistUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
+                <span class="visually-hidden">AddToWishlist</span>
+                <i class="b-icon bi bi-heart" aria-hidden="true"></i>
+            </button>
         </template>
         <template v-if="!Model.ProductPrice.DisableBuyButton">
-            <template v-if="!Model.ShowQty">
-                <button class="btn btn-info justify-content-center w-100" data-cart-action="add" :data-url="Model.AddToCartUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
-                    <i class="b-icon bi bi-cart2 mx-auto d-sm-none d-block" aria-hidden="true"></i>
-                    <span class="add-cart-text d-sm-block d-none">
-                        <template v-if="Model.ProductType == 20">
-                            @Loc["ShoppingCart.Reservation"]
+            <button class="btn btn-info justify-content-center w-100" data-cart-action="add" :data-url="Model.AddToCartUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
+                <i class="b-icon bi bi-cart2 mx-auto d-sm-none d-block" aria-hidden="true"></i>
+                <span class="add-cart-text d-sm-block d-none">
+                    <template v-if="Model.ProductType == 20">
+                        @Loc["ShoppingCart.Reservation"]
+                    </template>
+                    <template v-else>
+                        <template v-if="Model.ProductPrice.AvailableForPreOrder">
+                            @Loc["ShoppingCart.PreOrder"]
                         </template>
                         <template v-else>
-                            <template v-if="Model.ProductPrice.AvailableForPreOrder">
-                                @Loc["ShoppingCart.PreOrder"]
-                            </template>
-                            <template v-else>
-                                @Loc["ShoppingCart.AddToCart"]
-                            </template>
+                            @Loc["ShoppingCart.AddToCart"]
                         </template>
-                    </span>
-                    <span class="visually-hidden">AddToCart</span>
-                </button>
-            </template>
-            <template v-else>
-                <button class="btn btn-info justify-content-center w-100" data-cart-action="add" :data-url="Model.AddToCartUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
-                    <i class="b-icon bi bi-cart2 mx-auto d-sm-none d-block" aria-hidden="true"></i>
-                    <span class="add-cart-text d-sm-block d-none">
-                        <template v-if="Model.ProductType == 20">
-                            @Loc["ShoppingCart.Reservation"]
-                        </template>
-                        <template v-else>
-                            <template v-if="Model.ProductPrice.AvailableForPreOrder">
-                                @Loc["ShoppingCart.PreOrder"]
-                            </template>
-                            <template v-else>
-                                @Loc["ShoppingCart.AddToCart"]
-                            </template>
-                        </template>
-                    </span>
-                    <span class="visually-hidden">AddToCart</span>
-                </button>
-            </template>
+                    </template>
+                </span>
+                <span class="visually-hidden">AddToCart</span>
+            </button>
         </template>
         <template v-else>
             <template v-if="Model.ProductType == 40">

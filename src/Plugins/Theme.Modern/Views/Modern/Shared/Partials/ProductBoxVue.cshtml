@@ -64,18 +64,10 @@
     </template>
     <div class="other-buttons">
         <template v-if="!Model.ProductPrice.DisableWishlistButton && Model.ProductType == 0">
-            <template v-if="!Model.ShowQty">
-                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-outline-secondary" data-cart-action="add" :data-url="Model.AddToWishlistUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
-                    <span class="icons icon-heart"></span>
-                    <span class="sr-only">AddToWishlist</span>
-                </a>
-            </template>
-            <template v-else>
-                <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-outline-secondary" data-cart-action="add" :data-url="Model.AddToWishlistUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
-                    <span class="icons icon-heart"></span>
-                    <span class="sr-only">AddToWishlist</span>
-                </a>
-            </template>
+            <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-outline-secondary" data-cart-action="add" :data-url="Model.AddToWishlistUrl" :data-show-qty="Model.ShowQty" :data-product-id="Model.Id">
+                <span class="icons icon-heart"></span>
+                <span class="sr-only">AddToWishlist</span>
+            </a>
         </template>
         <template v-if="!Model.ProductPrice.DisableAddToCompareListButton && Model.ProductType == 0">
             <a data-bs-toggle="tooltip" data-bs-placement="bottom" title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-outline-secondary" data-cart-action="compare" :data-product-id="Model.Id">
