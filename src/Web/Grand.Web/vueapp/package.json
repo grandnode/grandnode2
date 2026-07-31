@@ -2,10 +2,11 @@
   "name": "grand.web",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
+    "dev": "vite",
+    "build": "vite build && node scripts/build-theme-css.mjs",
+    "lint": "eslint src",
     "audit:prod": "npm audit --omit=dev --audit-level=moderate"
   },
   "dependencies": {
@@ -14,27 +15,15 @@
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "pikaday": "^1.8.2",
-    "sass-loader": "^12.6.0",
     "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^5.0.8",
-    "@vue/cli-plugin-eslint": "^5.0.8",
-    "@vue/cli-service": "^5.0.8",
-    "eslint": "^8.22.0",
-    "eslint-plugin-vue": "^9.3.0",
-    "webpack": "^5.95.0"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended"
-    ],
-    "rules": {}
+    "@eslint/js": "^9.39.5",
+    "esbuild": "^0.28.1",
+    "eslint": "^9.18.0",
+    "eslint-plugin-vue": "^9.32.0",
+    "globals": "^15.14.0",
+    "vite": "^6.0.7"
   },
   "browserslist": [
     "> 1%",
