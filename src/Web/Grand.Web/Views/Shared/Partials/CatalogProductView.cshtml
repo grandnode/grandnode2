@@ -37,7 +37,7 @@
             {
                 <template v-if="true">
                     <div class="rating">
-                        <b-form-rating id="rating-inline-grid-@Model.Id" aria-label="Rating" class="p-0" variant="warning" no-border size="sm" show-value aria-valuenow="@(Model.ReviewOverviewModel.AvgRating.ToString("0.00", CultureInfo.InvariantCulture))" precision="2" readonly inline value="@Model.ReviewOverviewModel.AvgRating.ToString("0.00", CultureInfo.InvariantCulture)"></b-form-rating>
+                        <partial name="Partials/Rating" model="Model.ReviewOverviewModel.AvgRating" />
                         <a href="@Url.RouteUrl("Product", new { Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</a>
                     </div>
                 </template>

@@ -157,7 +157,7 @@
                 }
 
                 <div class="rating">
-                    <b-form-rating id="rating-inline-grid-@Model.Id" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline value="@(ratingValue)"></b-form-rating>
+                    <partial name="Partials/Rating" model="(double)ratingValue" />
                     <a href="@Url.RouteUrl("Product", new { Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</a>
                 </div>
             }

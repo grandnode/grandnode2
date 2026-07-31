@@ -49,7 +49,7 @@
                                     <h6 class="mb-0">@review.ProductName</h6>
                                 </a>
                             </div>
-                            <b-form-rating id='rating-inline2' class='p-0' variant='warning' no-border size='sm' show-value precision='2' readonly inline value='@(ratingStars)'></b-form-rating>
+                            <partial name="Partials/Rating" model="(double)ratingStars" />
                         </div>
                         <div class="review-content">
                             <div class="review-text">
