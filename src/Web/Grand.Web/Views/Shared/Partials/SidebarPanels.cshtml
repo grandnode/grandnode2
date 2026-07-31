@@ -158,7 +158,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                         <strong class="ms-2" id="sidebar-cart-label">
                             <span>
-                            <template v-if="flycartindicator > 0">
+                            <template v-if="flycartindicator > 0 && flycart">
                                 @Html.Raw(string.Format(Loc["ShoppingCart.Mini.ItemsText"], $"<a href=\"{Url.RouteUrl("ShoppingCart")}\">{string.Format(Loc["ShoppingCart.Mini.Items"], "{{flycartindicator}}")}</a>"))
                             </template>
                             <template v-else>
@@ -203,7 +203,7 @@
                         </template>
                     </div>
                     <div class="b-sidebar-footer">
-                            <div v-if="flycartindicator > 0" class="p-3 bg-dark col-12">
+                            <div v-if="flycartindicator > 0 && flycart" class="p-3 bg-dark col-12">
                                 <div class="row">
                                     <div class="col-lg-6 col-5 text-center text-white d-flex flex-column">
                                         <span class="h5 mb-0">@Loc["ShoppingCart.Totals.SubTotal"]:</span>
