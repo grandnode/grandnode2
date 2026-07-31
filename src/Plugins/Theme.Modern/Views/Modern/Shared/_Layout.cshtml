@@ -44,6 +44,19 @@
                                     <span class="icons icon-user"></span>
                                 </a>
                             </li>
+                            @* Colour-scheme switch. Only one icon is bound rather than
+                               hiding the other in CSS, so this needs no theme styling. *@
+                            <li class="nav-item">
+                                <span class="nav-link">
+                                    <div class="form-check form-switch contrast-switch">
+                                        <input class="form-check-input" type="checkbox" id="contrast-button" name="contrast-button" v-model="darkMode">
+                                        <label class="form-check-label" for="contrast-button">
+                                            <i class="bi" :class="darkMode ? 'bi-moon' : 'bi-sun'" aria-hidden="true"></i>
+                                            <span class="visually-hidden">@Loc["Common.DarkMode"]</span>
+                                        </label>
+                                    </div>
+                                </span>
+                            </li>
                             <partial name="Partials/ShoppingCartLinks"/>
                         </ul>
                     </div>

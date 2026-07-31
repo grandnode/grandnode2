@@ -7,7 +7,10 @@ var vm = new Vue({
             show: false,
             fluid: false,
             hover: false,
-            darkMode: false,
+            // resolved in <head> by Partials/ColorScheme (explicit choice, else the OS
+            // preference). Set here and not in mounted() so the watcher does not fire on
+            // the initial value - that would persist a choice the visitor never made.
+            darkMode: typeof window.grandColorSchemeIsDark === 'function' && window.grandColorSchemeIsDark(),
             active: false,
             NextDropdownVisible: false,
             value: 5,
@@ -97,7 +100,6 @@ var vm = new Vue({
         if (localStorage.fluid == "true") this.fluid = "fluid";
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
-        if (localStorage.darkMode == "true") this.darkMode = true;
         this.TopScroll();
         //this.wishindicator = parseInt(this.$refs.wishlistQty.innerText);
         this.updateCompareProductsQty();
@@ -128,7 +130,9 @@ var vm = new Vue({
             localStorage.fluid = newName;
         },
         darkMode: function (newValue) {
-            localStorage.darkMode = newValue;
+            // fires only when the visitor uses the switch, which is exactly when the
+            // choice should become explicit and stop following the OS
+            window.grandSetColorScheme(newValue);
         },
         PopupQuickViewVueModal: function () {
             vm.getLinkedProductsQV(vm.PopupQuickViewVueModal.Id);
