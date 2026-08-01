@@ -566,17 +566,27 @@ var Reservation = {
             method: 'post',
             data: data,
         }).then(response => {
+            var setText = function (selector, value) {
+                var element = document.querySelector(selector);
+                if (element) {
+                    element.innerText = value;
+                }
+            };
             if (response.data.sku) {
-                document.querySelector("#sku-" + Reservation.productId).innerText = response.data.sku;
+                setText("#sku-" + Reservation.productId, response.data.sku);
             }
             if (response.data.mpn) {
-                document.querySelector("#mpn-" + Reservation.productId).innerText = response.data.mpn;
+                setText("#mpn-" + Reservation.productId, response.data.mpn);
             }
             if (response.data.gtin) {
-                document.querySelector("#gtin-" + Reservation.productId).innerText = response.data.gtin;
+                setText("#gtin-" + Reservation.productId, response.data.gtin);
             }
             if (response.data.price) {
-                document.querySelector(".price-value-" + Reservation.productId + " .actual-price").innerText = response.data.price;
+                if (document.querySelector(".price-value-" + Reservation.productId + " .actual-price")) {
+                    setText(".price-value-" + Reservation.productId + " .actual-price", response.data.price);
+                } else {
+                    setText(".price-value-" + Reservation.productId, response.data.price);
+                }
             }
         })
     }

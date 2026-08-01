@@ -758,43 +758,13 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             if (!sc.RentalStartDateUtc.HasValue || !sc.RentalEndDateUtc.HasValue) continue;
             var reservations =
                 await _productReservationService.GetProductReservationsByProductId(product.Id, true, null);
-            var grouped = reservations.GroupBy(x => x.Resource);
-
-            IGrouping<string, ProductReservation> groupToBook = null;
-            foreach (var group in grouped)
-            {
-                var groupCanBeBooked = true;
-                if (product.IncBothDate && product.IntervalUnitId == IntervalUnit.Day)
-                    for (var iterator = sc.RentalStartDateUtc.Value;
-                         iterator <= sc.RentalEndDateUtc.Value;
-                         iterator += new TimeSpan(24, 0, 0))
-                    {
-                        if (group.Select(x => x.Date).Contains(iterator)) continue;
-                        groupCanBeBooked = false;
-                        break;
-                    }
-                else
-                    for (var iterator = sc.RentalStartDateUtc.Value;
-                         iterator < sc.RentalEndDateUtc.Value;
-                         iterator += new TimeSpan(24, 0, 0))
-                    {
-                        if (group.Select(x => x.Date).Contains(iterator)) continue;
-                        groupCanBeBooked = false;
-                        break;
-                    }
-
-                if (!groupCanBeBooked) continue;
-                groupToBook = group;
-                break;
-            }
+            var groupToBook = reservations.FindGroupToBook(product, sc.RentalStartDateUtc.Value,
+                sc.RentalEndDateUtc.Value);
 
             if (groupToBook == null) throw new Exception("ShoppingCart.Reservation.NoFreeReservationsInThisPeriod");
 
-            var temp = groupToBook.AsQueryable();
-            if (product.IncBothDate && product.IntervalUnitId == IntervalUnit.Day)
-                temp = temp.Where(x => x.Date >= sc.RentalStartDateUtc && x.Date <= sc.RentalEndDateUtc);
-            else
-                temp = temp.Where(x => x.Date >= sc.RentalStartDateUtc && x.Date < sc.RentalEndDateUtc);
+            var temp = groupToBook.InRentalPeriod(product, sc.RentalStartDateUtc.Value, sc.RentalEndDateUtc.Value)
+                .ToList();
 
             foreach (var item in temp)
             {

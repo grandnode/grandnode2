@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
@@ -29,7 +30,6 @@ public class ShoppingCartReservationProductValidator : AbstractValidator<Shoppin
 
             if (value.ShoppingCartItem.RentalStartDateUtc.HasValue && value.ShoppingCartItem.RentalEndDateUtc.HasValue)
             {
-                var canBeBook = false;
                 var reservations =
                     await productReservationService.GetProductReservationsByProductId(value.Product.Id, true, null);
                 var reserved = await productReservationService.GetCustomerReservationsHelpers(value.Customer.Id);
@@ -39,33 +39,9 @@ public class ShoppingCartReservationProductValidator : AbstractValidator<Shoppin
                     if (match != null) reservations.Remove(match);
                 }
 
-                var grouped = reservations.GroupBy(x => x.Resource);
-                foreach (var group in grouped)
-                {
-                    var groupCanBeBooked = true;
-                    if (value.Product.IncBothDate && value.Product.IntervalUnitId == IntervalUnit.Day)
-                        for (var iterator = value.ShoppingCartItem.RentalStartDateUtc.Value;
-                             iterator <= value.ShoppingCartItem.RentalEndDateUtc.Value;
-                             iterator += new TimeSpan(24, 0, 0))
-                        {
-                            if (group.Select(x => x.Date).Contains(iterator)) continue;
-                            groupCanBeBooked = false;
-                            break;
-                        }
-                    else
-                        for (var iterator = value.ShoppingCartItem.RentalStartDateUtc.Value;
-                             iterator < value.ShoppingCartItem.RentalEndDateUtc.Value;
-                             iterator += new TimeSpan(24, 0, 0))
-                        {
-                            if (group.Select(x => x.Date).Contains(iterator)) continue;
-                            groupCanBeBooked = false;
-                            break;
-                        }
-
-                    if (!groupCanBeBooked) continue;
-                    canBeBook = true;
-                    break;
-                }
+                var canBeBook = reservations.FindGroupToBook(value.Product,
+                    value.ShoppingCartItem.RentalStartDateUtc.Value,
+                    value.ShoppingCartItem.RentalEndDateUtc.Value) != null;
 
                 if (!canBeBook)
                 {
