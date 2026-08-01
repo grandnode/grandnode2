@@ -1,3 +1,5 @@
+import { h } from 'vue'
+
 /*
  * The handful of Vue components the storefront still needs.
  *
@@ -98,10 +100,11 @@ const Countdown = {
         clearInterval(this._t)
     },
     render() {
+        //the slot is wrapped in a span the theme lays out and puts the ":" separators in
         if (this.finished) {
-            return this.$slots.finish ? this.$slots.finish() : null
+            return h('span', this.$slots.finish ? this.$slots.finish() : [])
         }
-        return this.$slots.process ? this.$slots.process({ timeObj: this.timeObj }) : null
+        return h('span', this.$slots.process ? this.$slots.process({ timeObj: this.timeObj }) : [])
     }
 }
 

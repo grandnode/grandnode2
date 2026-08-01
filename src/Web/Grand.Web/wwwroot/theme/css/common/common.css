@@ -1256,10 +1256,13 @@ input:checked ~ .color-container .color::before {
     display: inline-flex;
     align-items: center;
 }
-.countdown-box > span span:not(:last-child)::after {
+.countdown-box > span span:not(:last-child):not(.col-form-label)::after {
     content: ":";
     position: relative;
     margin: 0 3px;
+}
+.countdown-box > span .col-form-label {
+    margin-right: 6px;
 }
 
 /* product box list */
