@@ -6,20 +6,12 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Search"]);
 }
-<script asp-location="Footer" asp-order="300">
-    document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("@Html.IdFor(model => model.adv)").addEventListener('click', toggleAdvancedSearch);
-        toggleAdvancedSearch();
-    });
-    function toggleAdvancedSearch() {
-        if (document.getElementById('@Html.IdFor(model => model.adv)').checked) {
-            document.getElementById('advanced-search-block').style.display = "flex";
-        }
-        else {
-            document.getElementById('advanced-search-block').style.display = "none";
-        }
-    }
-</script>
+<script type="application/json" data-grand-vm="advancedSearch">@Json.Serialize(new {
+                                                                   elements = new {
+                                                                       checkboxId = Html.IdFor(m => m.adv),
+                                                                       blockId = "advanced-search-block"
+                                                                   }
+                                                               })</script>
 
 <div class="page search-page">
     <h1 class="generalTitle h2">@Loc["Search"]</h1>
@@ -156,4 +148,4 @@
     <partial name="Partials/Filtering" model="Model.PagingFilteringContext.SpecificationFilter"/>
 }
 
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>
+<partial name="Partials/ModelScript" model="Model"/>

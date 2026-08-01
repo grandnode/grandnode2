@@ -1,4 +1,4 @@
-@model HomePageBlogItemsModel
+﻿@model HomePageBlogItemsModel
 <div id="HomePageBlog" class="home-page-section">
     <div class="section">
         <div class="col-12">
@@ -37,12 +37,4 @@
         </div>
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    var homePBlog = new Vue({
-        data: function () {
-            return {
-                Model: @Json.Serialize(Model)
-            }
-        }
-    });
-</script>
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "homePBlog", data = new { Model } })</script>

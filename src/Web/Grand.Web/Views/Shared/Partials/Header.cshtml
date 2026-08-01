@@ -100,10 +100,4 @@
         </div>
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    (function () {
-        document.getElementById('search-box').addEventListener('shown.bs.modal', function () {
-            if (vm.$refs.searchBoxInput) vm.$refs.searchBoxInput.focus();
-        });
-    })();
-</script>
+<script type="application/json" data-grand-vm="searchModal">{"elements":{"modalId":"search-box"}}</script>

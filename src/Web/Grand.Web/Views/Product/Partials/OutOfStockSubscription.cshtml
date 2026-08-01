@@ -1,44 +1,36 @@
-﻿@model ProductDetailsModel
+@model ProductDetailsModel
 @if (Model.DisplayOutOfStockSubscription)
 {
-    <input type="button" id="out-of-stock-subscribe-@Model.Id" @@click="showModalOutOfStock" class="btn btn-secondary btn-sm subscribe-button" style="display:none;" value="@Loc["OutOfStockSubscriptions.NotifyMeWhenAvailable"]"/>
-    <script asp-location="Footer" asp-order="300">
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("out-of-stock-subscribe-@Model.Id").addEventListener('click', function (event) {
-                var form = document.querySelector('@($"#product-details-form-{Model.Id}")');
-                var data = new FormData(form);
-                axios({
-                    url: '@Url.RouteUrl("OutOfStockSubscribePopup", new { productId = Model.Id })',
-                    data: data,
-                    method: 'post',
-                }).then(function (response) {
-                    document.getElementById('modal-subscribe').innerHTML = response.data.resource;
-                    document.querySelector('.subscribe-button').value = response.data.buttontext;
-                });
-            });
-            axios({
-                url: '@Url.RouteUrl("OutOfStockSubscribeButton", new { productId = Model.Id, warehouseId = "" })',
-                method: 'get',
-            }).then(function (response) {
-                document.querySelector('.subscribe-button').value = response.data;
-                document.querySelector('.subscribe-button').style.display = "inline-block";
-            })
-        });
-    </script>
+    @*Ids are per product: a grouped product renders this partial once per variant.*@
+    var modalId = $"subscribe-modal-form-{Model.Id}";
+    var contentId = $"modal-subscribe-{Model.Id}";
+    var buttonId = $"out-of-stock-subscribe-{Model.Id}";
 
-    <div class="modal fade" id="subscribe-modal-form" tabindex="-1" aria-labelledby="subscribe-modal-form-label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="subscribe-modal-form-label">@Loc["OutOfStockSubscriptions.Title"]</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <input type="button" id="@buttonId" class="btn btn-secondary btn-sm subscribe-button" style="display:none;" value="@Loc["OutOfStockSubscriptions.NotifyMeWhenAvailable"]"/>
+
+    <script type="application/json" data-grand-vm="outOfStockSubscription">@Json.Serialize(new {
+                                                                               productId = Model.Id,
+                                                                               routes = new {
+                                                                                   popup = Url.RouteUrl("OutOfStockSubscribePopup", new { productId = Model.Id }),
+                                                                                   buttonText = Url.RouteUrl("OutOfStockSubscribeButton", new { productId = Model.Id, warehouseId = "" })
+                                                                               },
+                                                                               elements = new { buttonId, modalId, contentId },
+                                                                               res = new { warning = Loc["common.warning"].ToString() }
+                                                                           })</script>
+
+    <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@(modalId)-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="@(modalId)-label">@Loc["OutOfStockSubscriptions.Title"]</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="@contentId" class="alert-info alert mb-0">
+                        @Loc["OutOfStockSubscriptions.PleaseWait"]
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-        <div id="modal-subscribe" class="alert-info alert mb-0">
-            @Loc["OutOfStockSubscriptions.PleaseWait"]
         </div>
     </div>
-        </div>
-    </div>
-</div>
 }

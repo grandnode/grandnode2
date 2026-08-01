@@ -19,10 +19,61 @@ import * as bootstrap from 'bootstrap'
 import axios from 'axios'
 import Pikaday from 'pikaday'
 
-import LegacyVue, { onAppCreate } from './compat/core'
+import LegacyVue, { onAppCreate, onBeforeRootMount } from './compat/core'
 import { registerBvComponents, VueGallerySlideshow } from './compat/bv-components'
 import { registerValidation, veeGetMessage } from './compat/validate'
 import { $bvToast } from './compat/bv-services'
+import { initViews } from './views'
+
+// Storefront helpers that used to be classic <script src> tags ordered by hand
+// in Head.cshtml. They publish the globals the Razor markup still calls.
+import './theme/common'
+import './theme/axios-cart'
+import './theme/push-notifications'
+import './behaviours/advanced-search'
+import './behaviours/attribute-forms'
+import './behaviours/bar-notifications'
+import './behaviours/checkout-steps'
+import './behaviours/js-resources'
+import './behaviours/confirm-delete'
+import './behaviours/confirm-post'
+import './behaviours/estimate-shipping'
+import './behaviours/cookie-bar'
+import './behaviours/geolocation'
+import './behaviours/in-dom-components'
+import './behaviours/password-page'
+import './behaviours/product-attributes-bundle'
+import './behaviours/product-gallery'
+import './behaviours/push-notifications'
+import './behaviours/quantity-stepper'
+import './behaviours/quick-view-modal'
+import './behaviours/reservation-info'
+import './behaviours/search-modal'
+import './behaviours/two-columns-sidebar'
+import './behaviours/toggles'
+import './behaviours/username-availability'
+import './behaviours/warehouse-selector'
+
+import './views/state'
+import './views/apply-vendor'
+import './views/ask-question'
+import './views/catalog'
+import './views/catalog-modern'
+import './views/comments'
+import './views/compare-products'
+import './views/contact-form'
+import './views/country-state-form'
+import './views/globals'
+import './views/merchandise-return'
+import './views/out-of-stock-subscription'
+import './views/product-attributes'
+import './views/reviews'
+import './views/scroll-pagination'
+import './views/search-box'
+import './views/shopping-cart'
+import './views/vendor-review-overview'
+import './views/voice-navigation'
+import './views/wishlist'
 
 onAppCreate(app => {
     registerBvComponents(app)
@@ -47,6 +98,23 @@ if (document.readyState === 'loading') {
 } else {
     initTooltips()
 }
+
+/*
+ * Per-page view-models are built from the [data-grand-vm] JSON islands. Two
+ * triggers, both idempotent:
+ *  - right before the root #app is mounted, which is the deadline (the root
+ *    template addresses the view-models by their global name);
+ *  - on DOMContentLoaded, so islands on a layout that never mounts a root app
+ *    still come up.
+ * Also exposed on window for markup injected after load.
+ */
+onBeforeRootMount(() => initViews())
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initViews())
+} else {
+    initViews()
+}
+window.grandInitViews = initViews
 
 window.bootstrap = bootstrap
 window.Vue = LegacyVue

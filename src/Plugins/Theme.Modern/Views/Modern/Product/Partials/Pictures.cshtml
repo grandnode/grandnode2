@@ -30,7 +30,7 @@
                         <img src="@picture.ImageUrl" data-srcs="@picture.ImageUrl" data-zoom-src="@picture.FullSizeImageUrl" alt="@picture.AlternateText" title="@picture.Title"/>
                         @if (Model.DefaultPictureZoomEnabled)
                         {
-                            <div class="zoom-button" onclick="zoomImg(this)">
+                            <div class="zoom-button" data-zoom-image>
                                 <span class="icons icon-frame"></span>
                             </div>
                         }
@@ -42,23 +42,16 @@
         </div>
     </div>
 </div>
-<script asp-location="Footer" asp-order="301">
-    /* The product gallery markup above is part of the page body, which is
-     * itself part of #app's own template - it is NOT a separate DOM region.
-     * A `new Vue({ el: '#ppslider' })` here would mount before #app exists
-     * (this script runs before app.js), and when app.js later mounts #app it
-     * replaces this whole subtree with its own (listener-less) copy, silently
-     * orphaning everything wired up here. So the gallery state/options live on
-     * the root vm instead (see app.js) and this just stages the per-product
-     * data app.js's root vm needs before it is created. */
-    window.productGallery = {
-        pictureCount: @Model.PictureModels.Count
-    };
-</script>
-<script asp-location="Footer" asp-order="302">
-    function zoomImg(el) {
-        var img = el.parentElement.querySelector('img');
-        const zoom = mediumZoom(img, { background: '#232323', margin: 30 });
-        zoom.open()
-    }
-</script>
+@*
+    Staged for Theme.Modern's app.js, which reads window.productGallery when the
+    root vm is created: Swiper's loop mode needs more real slides than
+    loopedSlides, or its loop math breaks and navigation silently does nothing.
+
+    This cannot be a Vue instance of its own - the gallery markup above is part
+    of #app's template, so app.js replaces the whole subtree when it mounts.
+*@
+<script type="application/json" data-grand-vm="globals">@Json.Serialize(new {
+                                                            name = "productGallery",
+                                                            data = new { pictureCount = Model.PictureModels.Count }
+                                                        })</script>
+<script type="application/json" data-grand-vm="imageZoom">{}</script>

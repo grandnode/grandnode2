@@ -46,13 +46,6 @@
         </label>
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    var createorupdatesubaccount  = new Vue({
-        data: () => ({
-            FirstName: '@Html.Raw(Model.FirstName)',
-            LastName: '@Html.Raw(Model.LastName)',
-            Email: '@Html.Raw(Model.Email)',
-            Password: '',
-        })
-    });
-</script>
+@*Values go through JSON, not through a JS string literal - an apostrophe in a
+    name used to break the page and a </script> in one was an injection point.*@
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "createorupdatesubaccount", data = new { Model.FirstName, Model.LastName, Model.Email, Password = "" } })</script>

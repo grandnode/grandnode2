@@ -5,7 +5,6 @@
 
 @if (Model.Any())
 {
-    var attributeChangeScriptsBuilder = new StringBuilder();
     <div class="form-group contact-attributes">
         @foreach (var attribute in Model)
         {
@@ -43,7 +42,6 @@
                                 <option selected="@attributeValue.IsPreSelected" value="@(attributeValue.Id)">@attributeName</option>
                             }
                         </select>
-                        attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}').addEventListener('change',function(){{contactAttributeChange();}});\n");
                     }
                         break;
                     case AttributeControlType.RadioList:
@@ -65,7 +63,6 @@
 
                                     </fieldset>
                                 </li>
-                                attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(){{contactAttributeChange();}});\n");
                             }
                         </ul>
                     }
@@ -85,7 +82,6 @@
                                             <span class="custom-control-description" for="@(controlId)_@(attributeValue.Id)">@attributeName</span>
                                         </label>
                                     </li>
-                                    attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(){{contactAttributeChange();}});\n");
                                 }
                             </ul>
                         </fieldset>
@@ -139,45 +135,9 @@
                         <a id="@(controlId)downloadurl'" class="download-file btn btn-outline-info" style="display:none;">
                             Download
                         </a>
-                        <script asp-location="Footer">
-                            function uploadFile(e) {
-                                var formData = new FormData();
-                                formData.append("file", e.files[0]);
-                                axios.post('@(Url.RouteUrl("UploadFileContactAttribute", new { attributeId = attribute.Id }))', formData, {
-                                    headers: {
-                                        'Content-Type': 'multipart/form-data'
-                                    }
-                                }).then(function (response) {
-                                    if (response.data.success) {
-                                        var message = response.data.message;
-                                        var downloadGuid = response.data.downloadGuid;
-                                        var downloadUrl = response.data.downloadUrl;
-                                        var downloadBtn = document.querySelector('.download-file');
-                                        var messageContainer = document.getElementById('download-message');
-
-                                        document.querySelector('.hidden-upload-input').setAttribute('value', downloadGuid);
-                                        contactAttributeChange();
-
-                                        messageContainer.style.display = "block";
-                                        messageContainer.classList.remove('alert-danger');
-                                        messageContainer.classList.add('alert-info');
-                                        messageContainer.innerText = message;
-
-                                        downloadBtn.style.display = "inline-block";
-                                        downloadBtn.setAttribute('href', downloadUrl);
-
-                                    } else {
-                                        var message = response.data.message;
-                                        var messageContainer = document.getElementById('download-message');
-                                        messageContainer.style.display = "block";
-                                        messageContainer.classList.remove('alert-info');
-                                        messageContainer.classList.add('alert-danger');
-                                        messageContainer.innerText = message;
-                                        contactAttributeChange();
-                                    }
-                                })
-                            }
-                        </script>
+                        <script type="application/json" data-grand-vm="contactAttributes">@Json.Serialize(new {
+            routes = new { change = Url.Action("contactattributechange", "contact") }
+        })</script>
                     }
                         break;
                     case AttributeControlType.ColorSquares:
@@ -194,21 +154,8 @@
                                         </span>
                                     </label>
                                 </li>
-                                attributeChangeScriptsBuilder.Append($"document.querySelector('#{controlId}_{attributeValue.Id}').addEventListener('click',function(){{contactAttributeChange();}});\n");
                             }
                         </ul>
-                        <script asp-location="Footer">
-                            document.addEventListener("DOMContentLoaded", function () {
-                                var btnContainer = document.querySelector(".contact-attributes #color-squares-@(attribute.Id)");
-                                var btns = btnContainer.getElementsByTagName("li");
-                                for (var i = 0; i < btns.length; i++) {
-                                    btns[i].addEventListener("click", function () {
-                                        (document.querySelector('.selected-value')) ? document.querySelector('.selected-value').classList.remove('selected-value') : '';
-                                        this.classList.add('selected-value');
-                                    });
-                                }
-                            });
-                        </script>
                     }
                         break;
                     case AttributeControlType.ImageSquares:
@@ -221,40 +168,4 @@
         }
     </div>
 
-    <script asp-location="Footer">
-        document.addEventListener("DOMContentLoaded", function () {
-            contactAttributeChange();
-            @Html.Raw(attributeChangeScriptsBuilder.ToString())
-        });
-        function contactAttributeChange() {
-            var form = document.querySelector('#contactus-form');
-            var data = new FormData(form);
-            axios({
-                method: 'post',
-                data: data,
-                url: '@Html.Raw(Url.Action("contactattributechange", "contact"))',
-            }).then(function (response) {
-                if (response.data.enabledattributeids) {
-                    for (var i = 0; i < response.data.enabledattributeids.length; i++) {
-                        if (document.querySelector('#contact_attribute_label_' + response.data.enabledattributeids[i])) {
-                            document.querySelector('#contact_attribute_label_' + response.data.enabledattributeids[i]).style.display = 'block';
-                        }
-                        if (document.querySelector('#contact_attribute_input_' + response.data.enabledattributeids[i])) {
-                            document.querySelector('#contact_attribute_input_' + response.data.enabledattributeids[i]).style.display = 'block';
-                        }
-                    }
-                }
-                if (response.data.disabledattributeids) {
-                    for (var i = 0; i < response.data.disabledattributeids.length; i++) {
-                        if (document.querySelector('#contact_attribute_label_' + response.data.disabledattributeids[i])) {
-                            document.querySelector('#contact_attribute_label_' + response.data.disabledattributeids[i]).style.display = 'none';
-                        }
-                        if (document.querySelector('#contact_attribute_input_' + response.data.disabledattributeids[i])) {
-                            document.querySelector('#contact_attribute_input_' + response.data.disabledattributeids[i]).style.display = 'none';
-                        }                      
-                    }
-                }
-            })
-        }
-    </script>
 }

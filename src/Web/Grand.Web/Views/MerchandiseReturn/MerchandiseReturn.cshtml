@@ -225,47 +225,13 @@
         </validation-observer>
     }
 </div>
-<script asp-location="Footer" asp-order="300">
-    var merchandisereturns = new Vue({
-        data: () => ({
-            @if (Model.ShowPickupDate)
-            {
-                <text>
-                    PickupDate: '@Html.Raw(Model.PickupDate)',
-                </text>
-            }
-            newAddress: false,
-            @foreach (var item in Model.Items)
-            {
-                <text>quantity_</text>
-                @item.Id
-                <text>: '0',</text>
-            }
-            checkboxes: []
-        }),
-        methods: {
-            allowed(checkbox,element) {
-                if (checkbox.checked) {
-                    vm.$refs[element].removeAttribute("disabled");
-                } else {
-                    vm.$refs[element].setAttribute("disabled", "disabled");
-                }
-            },
-            isNewAddress() {
-                if (document.getElementById('pickup-address-select') !== null) {
-                    const value = document.getElementById('pickup-address-select').value;
-                    if (value === '') {
-                        this.newAddress = true;
-                    } else {
-                        this.newAddress = false;
-                    }
-                } else {
-                    this.newAddress = true;
-                }
-            }
-        },
-        created() {
-            this.isNewAddress();
-        }
-    });
-</script>
+@*
+    PickupDate is formatted for <input type="date">, which only accepts
+    yyyy-MM-dd. It used to be written out with the server's default DateTime
+    formatting, so the input silently rejected it and came up empty.
+*@
+<script type="application/json" data-grand-vm="merchandiseReturn">@Json.Serialize(new {
+                                                                    showPickupDate = Model.ShowPickupDate,
+                                                                    pickupDate = Model.PickupDate?.ToString("yyyy-MM-dd"),
+                                                                    itemIds = Model.Items.Select(item => item.Id)
+                                                                })</script>

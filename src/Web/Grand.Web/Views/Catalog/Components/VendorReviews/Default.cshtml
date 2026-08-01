@@ -72,114 +72,18 @@ else
     </div>
 </template>
 
-<script asp-location="Footer" asp-order="300">
-    var vendorreviews = new Vue({
-        data: function () {
-            return {
-                Model: null,
-                rating: null,
-                captcha: null,
-            }
-        },
-        created() {
-            this.Model = @Json.Serialize(Model);
-        },
-        methods: {
-            setVendorReviewHelpfulness(url, wasHelpful, reviewId, vendorId, toastTitle) {
-                axios({
-                    url: url,
-                    method: 'post',
-                    params: { "vendorReviewId": reviewId, "vendorId": vendorId, "washelpful": wasHelpful },                    
-                }).then(function (response) {
-                    document.getElementById("helpfulness-vote-yes-" + reviewId + "").innerHTML = response.data.TotalYes
-                    document.getElementById("helpfulness-vote-no-" + reviewId + "").innerHTML = response.data.TotalNo;
-                    new Vue({
-                        el: ".modal-place",
-                        methods: {
-                            toast() {
-                                this.$bvToast.toast(response.data.Result, {
-                                    title: toastTitle,
-                                    variant: 'info',
-                                    autoHideDelay: 3000,
-                                    solid: true
-                                })
-                            }
-                        },
-                        mounted: function () {
-                            this.toast();
-                        }
-                    });
-                }).catch(function (error) {
-                    alert(error);
-                })
-            },
-            addVendorReview: function () {
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalVendorReview')).show();
-            },
-            modalReviewShown: function () {
-                if (vendorreviews.Model.AddVendorReview.DisplayCaptcha && document.querySelector("#ModalVendorReview .captcha-box") == null && !vendorreviews.Model.AddVendorReview.SuccessfullyAdded) {
-                    var html = document.getElementById("captcha-box");
-                    document.getElementById("captcha-popup").prepend(html);
-                }
-                vendorreviews.Model = Object.assign({}, vendorreviews.Model, { ReviewTitle: '', ReviewText: '' })
-            },
-            modalReviewClose: function () {
-                if (vendorreviews.Model.AddVendorReview.DisplayCaptcha && document.querySelector("#ModalVendorReview .captcha-box") !== null) {
-                    var html = document.getElementById("captcha-box");
-                    document.getElementById("captcha-container").prepend(html);
-                }
-            },
-            submitVendorReview: function () {
-                var form = document.getElementById("addReviewForm");
-                var url = form.getAttribute("action");
-                var resultTitle = form.getAttribute("data-title");
-                var bodyFormData = new FormData(form);
-                axios({
-                    method: "post",
-                    url: url,
-                    data: bodyFormData,
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                }).then(function (response) {
-                    vendorreviews.Model = response.data;
-                    vendorreviews.Model.Items = response.data.Items;
-
-                    var result = response.data.AddVendorReview.Result;
-                    var variant = "";
-
-                    if (response.data.AddVendorReview.SuccessfullyAdded) {
-
-                        variant = "info";
-                        bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalVendorReview')).hide();
-
-                    } else {
-                        variant = "danger";
-                    }
-
-                    new Vue({
-                        el: ".modal-place",
-                        methods: {
-                            toast() {
-                                this.$bvToast.toast(result, {
-                                    title: resultTitle,
-                                    variant: variant,
-                                    autoHideDelay: 3000,
-                                    solid: true
-                                })
-                            }
-                        },
-                        mounted: function () {
-                            this.toast();
-                        }
-                    });
-
-                    if (response.data.VendorReviewOverview !== null) {
-                        vendorreviewsoverview.Model = response.data.VendorReviewOverview;
-                    }
-                });
-                return
-            }
-        }
-    });
-</script>
+<script type="application/json" data-grand-vm="reviews">@Json.Serialize(new {
+                                                            name = "vendorreviews",
+                                                            modalId = "ModalVendorReview",
+                                                            methods = new {
+                                                                setHelpfulness = "setVendorReviewHelpfulness",
+                                                                addReview = "addVendorReview",
+                                                                submitReview = "submitVendorReview"
+                                                            },
+                                                            addReviewKey = "AddVendorReview",
+                                                            overviewKey = "VendorReviewOverview",
+                                                            overviewVm = "vendorreviewsoverview",
+                                                            helpfulness = new { reviewIdParam = "vendorReviewId", ownerIdParam = "vendorId" },
+                                                            model = Model,
+                                                            res = new { warning = Loc["common.warning"].ToString() }
+                                                        })</script>

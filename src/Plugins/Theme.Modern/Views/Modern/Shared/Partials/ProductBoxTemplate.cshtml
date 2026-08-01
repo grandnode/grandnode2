@@ -1,4 +1,4 @@
-﻿<script type="text/html" id="product-box-vue">
+﻿<script type="text/html" id="product-box-template">
 <div class="card product-box show product-provider mb-2">
 <template v-if="Model.Flag !== null">
     <div class="flag-label">
@@ -228,11 +228,4 @@
 </div>
 </div>
 </script>
-<script asp-location="Footer" asp-order="118">
-    Vue.component('product-box-vue', {
-        template: '#product-box-vue',
-        props: {
-            Model: Object
-        },
-    });
-</script>
+<script type="application/json" data-grand-vm="inDomComponents">{"components":[{"name":"product-box","template":"#product-box-template","props":["Model"]}]}</script>

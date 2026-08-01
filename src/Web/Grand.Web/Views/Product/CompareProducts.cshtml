@@ -127,11 +127,4 @@
         </div>
     </template>
 </div>
-<script asp-location="Footer" asp-order="909">
-    var specificationAttributes = new Vue({
-        data: () => ({
-            Model: @Json.Serialize(specificationAttributes),
-        }),
-    });
-    vm.compareproducts = @Json.Serialize(Model)
-</script>
+<script type="application/json" data-grand-vm="compareProducts">@Json.Serialize(new { model = Model, specificationAttributes })</script>

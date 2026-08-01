@@ -39,7 +39,7 @@
                 <div class="item-row">
                     <template :key="Model.Id" v-for="Model in catalog.Model.FeaturedProducts">
                         <div class="col-6 col-sm-6 col-lg-4 product-container new-col-6 px-0 mb-2">
-                            <product-box-vue v-bind="{ Model: Model }"></product-box-vue>
+                            <product-box v-bind="{ Model: Model }"></product-box>
                         </div>
                     </template>
                 </div>
@@ -56,7 +56,7 @@
                             <div class="form-row">
                                 <template :key="Model.Id" v-for="Model in catalog.Model.Products">
                                     <div class="col-6 col-sm-4 col-lg-3 product-container px-0 mb-2">
-                                        <product-box-vue v-bind="{ Model: Model }"></product-box-vue>
+                                        <product-box v-bind="{ Model: Model }"></product-box>
                                     </div>
                                 </template>
                             </div>
@@ -67,7 +67,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                                        <product-box-list-vue v-bind="{ Model: Model }"></product-box-list-vue>
+                                        <product-box-list v-bind="{ Model: Model }"></product-box-list>
                                     </template>
                                 </div>
                             </div>
@@ -102,4 +102,4 @@
     }
 }
 
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>
+<partial name="Partials/ModelScript" model="Model"/>

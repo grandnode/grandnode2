@@ -74,85 +74,15 @@
                         </form>
                     </validation-observer>
                 </template>
-                <script asp-location="Footer" asp-order="300">
-                    var emailwishlist = new Vue({
-                            data: () => ({
-                                @{
-                                    <text>
-                                        FriendEmail: '@Html.Raw(Model.FriendEmail)',
-                                        YourEmailAddress: '@Html.Raw(Model.YourEmailAddress)',
-                                        PersonalMessage: '@Html.Raw(Model.PersonalMessage)',
-                                        Message: {
-                                            Result: null,
-                                            SuccessfullySent: false
-                                        }
-                                    </text>
-                                }
-                            }),
-                            methods: {
-                                        @{
-                                            if (Model.DisplayCaptcha)
-                                            {
-                                                <text>
-                                                    modalEmailWishlistShown: function () {
-                                                        if (document.querySelector("#ModalEmailWishlist .captcha-box") == null && !emailwishlist.Message.SuccessfullyAdded) {
-                                                            var html = document.getElementById("captcha-box");
-                                                            document.getElementById("captcha-popup").prepend(html);
-                                                        }
-                                                    },
-                                                    modalEmailWishlistClose: function () {
-                                                        if (document.querySelector("#ModalEmailWishlist .captcha-box") !== null) {
-                                                            var html = document.getElementById("captcha-box");
-                                                            document.getElementById("captcha-container").prepend(html);
-                                                        }
-                                                    },
-                                                </text>
-                                            }
-                                        }
-                                        submitEmailWishlist(url) {
-                                            var bodyFormData = new FormData(document.getElementById("EmailWishlist"));
-                                            axios({
-                                                url: url,
-                                                data: bodyFormData,
-                                                method: 'post',
-                                                headers: {
-                                                    'Accept': 'application/json'                                                    
-                                                }
-                                            }).then(function (response) {
-                                                emailwishlist.Message.Result = response.data.Result;
-                                                emailwishlist.Message.SuccessfullySent = response.data.SuccessfullySent;
-
-                                                var result = response.data.Result;
-                                                var variant = "";
-
-                                                if (response.data.SuccessfullySent) {
-                                                    variant = "info";
-                                                    document.getElementById("EmailWishlist").style.display = "none";
-                                                    bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalEmailWishlist')).hide();
-                                                } else {
-                                                    variant = "danger";
-                                                }
-
-                                                new Vue({
-                                                    el: ".modal-place",
-                                                    methods: {
-                                                        toast() {
-                                                            this.$bvToast.toast(result, {
-                                                                variant: variant,
-                                                                autoHideDelay: 3000,
-                                                                solid: true
-                                                            })
-                                                        }
-                                                    },
-                                                    mounted: function () {
-                                                        this.toast();
-                                                    }
-                                                });
-                                            })
-                                        }
-                            }
-                        });
-                </script>
+                <script type="application/json" data-grand-vm="contactForm">@Json.Serialize(new {
+                                                                   name = "emailwishlist",
+                                                                   formId = "EmailWishlist",
+                                                                   submitMethod = "submitEmailWishlist",
+                                                                   modalId = "ModalEmailWishlist",
+                                                                   data = new { Model.FriendEmail, Model.YourEmailAddress, Model.PersonalMessage },
+                                                                   captcha = Model.DisplayCaptcha ? new { popupTarget = "captcha-popup", restoreTarget = "captcha-container" } : null,
+                                                                   res = new { warning = Loc["common.warning"].ToString() }
+                                                               })</script>
             }
         </div>
     </div>
@@ -162,11 +92,4 @@
 </div>
 @if (Model.DisplayCaptcha)
 {
-    <script asp-location="Footer" asp-order="300">
-        (function () {
-            var modal = document.getElementById('ModalEmailWishlist');
-            modal.addEventListener('shown.bs.modal', function () { if (typeof emailwishlist !== 'undefined') emailwishlist.modalEmailWishlistShown(); });
-            modal.addEventListener('hide.bs.modal', function () { if (typeof emailwishlist !== 'undefined') emailwishlist.modalEmailWishlistClose(); });
-        })();
-    </script>
 }

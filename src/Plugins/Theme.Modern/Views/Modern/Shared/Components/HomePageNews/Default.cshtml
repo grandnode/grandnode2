@@ -42,40 +42,25 @@
         </div>
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    var homePNews = new Vue({
-        data: function () {
-            return {
-                Model: @Json.Serialize(Model),
-                swiperOptions: {
-                    lazy: {
-                        preloaderClass: 'preloader'
-                    },
-                    autoplay: {
-                        delay: 5000,
-                    },
-                    fadeEffect: {
-                        crossFade: true
-                    },
-                    slidesPerView: 1,
-                    spaceBetween: 15,
-                    navigation: {
-                        nextEl: '#HomePageNews .swiper-button-next',
-                        prevEl: '#HomePageNews .swiper-button-prev'
-                    },
-                    breakpoints: {
-                        320: {
-                            slidesPerView: 1
-                        },
-                        575: {
-                            slidesPerView: 2,
-                        },
-                        992: {
-                            slidesPerView: 3,
-                        }
-                    }
-                },
+@{
+    var homePNewsData = new {
+        Model,
+        swiperOptions = new {
+            lazy = new { preloaderClass = "preloader" },
+            autoplay = new { delay = 5000 },
+            fadeEffect = new { crossFade = true },
+            slidesPerView = 1,
+            spaceBetween = 15,
+            navigation = new {
+                nextEl = "#HomePageNews .swiper-button-next",
+                prevEl = "#HomePageNews .swiper-button-prev"
+            },
+            breakpoints = new Dictionary<string, object> {
+                ["320"] = new { slidesPerView = 1 },
+                ["575"] = new { slidesPerView = 2 },
+                ["992"] = new { slidesPerView = 3 }
             }
         }
-    });
-</script>
+    };
+}
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "homePNews", data = homePNewsData })</script>

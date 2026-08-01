@@ -2,8 +2,6 @@
 
 <div id="product-attributes"></div>
 @{
-    //dynamic update support
-    var attributeChangeHandlerFuncName = $"attribute_change_handler_{Model.Id}";
     var fileLink = Url.RouteUrl("UploadFileProductAttribute");
     //render scripts
     <div id="product-attributes">
@@ -174,111 +172,11 @@
             </div>
         </template>
     </div>
-    <script asp-location="Footer" asp-order="300">
-        var standardProductAttributes_@(Model.Id) = new Vue({
-            data: function () {
-                return {
-                    ProductAttributes: null
-                }
-            },
-            methods: {
-                attrchange: function @(attributeChangeHandlerFuncName)() {
-                    var form = document.getElementById('@($"product-details-form-{Model.Id}")');
-                    var data = new FormData(form);
-                    axios({
-                        url: '@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = Model.Id, loadPicture = true }))',
-                        data: data,
-                        method: 'post',
-                        params: { product: '@Model.Id' },
-                    }).then(function (response) {
-                        if (response.data.price) {
-                            if (document.querySelector('.price-value-@Model.Id .actual-price'))
-                                document.querySelector('.price-value-@Model.Id .actual-price').innerText = response.data.price;
-                            else
-                                document.querySelector('.price-value-@Model.Id').innerText = response.data.price;
-                        }
-                        if (response.data.sku) {
-                            if(document.querySelector('#sku-@Model.Id'))
-                                document.querySelector('#sku-@Model.Id').innerText = response.data.sku;
-                        }
-                        if (response.data.mpn) {
-                            if(document.querySelector('#mpn-@Model.Id'))
-                                document.querySelector('#mpn-@Model.Id').innerText = response.data.mpn;
-                        }
-                        if (response.data.gtin) {
-                            if(document.querySelector('#gtin-@Model.Id'))
-                                document.querySelector('#gtin-@Model.Id').innerText = response.data.gtin;
-                        }
-                        if (response.data.stockAvailability) {
-                            if(document.querySelector('#stock-availability-value-@Model.Id'))
-                                document.querySelector('#stock-availability-value-@Model.Id').innerText = response.data.stockAvailability;
-                        }
-                        if (response.data.outOfStockSubscription) {
-                            var element = document.querySelector('#out-of-stock-subscribe-@Model.Id');
-                            if (element)
-                                element.style.display = "block";
-                        }
-                        if (response.data.outOfStockSubscription == false) {
-                            var element = document.querySelector('#out-of-stock-subscribe-@Model.Id');
-                            if (element) {
-                                element.style.display = "none";
-                            }
-                        }
-                        if (response.data.buttonTextOutOfStockSubscription) {
-                            var element = document.querySelector('#out-of-stock-subscribe-@Model.Id');
-                            if (element)
-                                element.value = response.data.buttonTextOutOfStockSubscription;
-                        }
-                        if (response.data.enabledattributemappingids) {
-                            for (var i = 0; i < response.data.enabledattributemappingids.length; i++) {
-                                document.querySelector('#product_attribute_label_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
-                                document.querySelector('#product_attribute_input_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
-                            }
-                        }
-                        if (response.data.disabledattributemappingids) {
-                            for (var i = 0; i < response.data.disabledattributemappingids.length; i++) {
-                                document.querySelector('#product_attribute_label_' + response.data.disabledattributemappingids[i]).style.display = "none";
-                                document.querySelector('#product_attribute_input_' + response.data.disabledattributemappingids[i]).style.display = "none";
-                            }
-                        }
-                        @*if (response.data.notAvailableAttributeMappingids) {
-                            document.querySelectorAll('[data-disable]').forEach((element) => element.disabled = false);
-                            for (var i = 0; i < response.data.notAvailableAttributeMappingids.length; i++) {
-                                if (document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']").length > 0) {
-                                    document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']")[0].disabled = true;
-                                }
-                            }
-                        }*@
-                        var product = this.product;
-                        setTimeout(function () {
-                            if (response.data.pictureDefaultSizeUrl) {
-                                if (document.querySelector(".product-grouped")) {
-                                    document.getElementById('main-product-img-' + product).setAttribute("src", response.data.pictureDefaultSizeUrl);
-                                }
-                                else {
-                                    var active_img_src = vm.$refs.swiperTop.$swiper.slides[vm.$refs.swiperTop.$swiper.activeIndex].querySelector("img").dataset.srcs;
-                                    if (!(active_img_src == response.data.pictureDefaultSizeUrl)) {
-                                        vm.$refs.swiperTop.$swiper.slides.forEach(function (element, index) {
-                                            var img_src = element.querySelector('img').dataset.srcs;
-                                            if (img_src == response.data.pictureDefaultSizeUrl) {
-                                                vm.$refs.swiperTop.$swiper.slideTo(index, 1000, false)
-                                            }
-                                        })
-                                    }
-                                }
-
-                            }
-                        }, 100);
-                    });
-                },
-            },
-            created() {
-                this.ProductAttributes = @Json.Serialize(Model.ProductAttributes);
-            }
-        });
-
-        document.addEventListener("DOMContentLoaded", function () {
-            standardProductAttributes_@(Model.Id).attrchange();
-        });
-    </script>
+    <script type="application/json" data-grand-vm="productAttributes">@Json.Serialize(new {
+                                                                      productId = Model.Id,
+                                                                      attributes = Model.ProductAttributes,
+                                                                      route = Url.Action("productdetails_attributechange", "product", new { productId = Model.Id, loadPicture = true }),
+                                                                      picture = "swiper",
+                                                                      res = new { warning = Loc["common.warning"].ToString() }
+                                                                  })</script>
 }

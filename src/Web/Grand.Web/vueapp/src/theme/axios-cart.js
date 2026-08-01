@@ -1,4 +1,20 @@
-﻿
+/*
+ * Cart, wishlist and compare actions driven by [data-cart-action] attributes
+ * (was wwwroot/theme/script/public.axios.js).
+ *
+ * The delegated listener at the bottom is bound to the document, so running
+ * from <head> as part of the bundle changes nothing for it.
+ */
+import axios from 'axios'
+
+/*
+ * Cart/wishlist/compare actions driven by [data-cart-action] attributes
+ * (was wwwroot/theme/script/public.axios.js).
+ *
+ * The delegated listener at the bottom is bound to the document, so loading
+ * from <head> as part of the bundle changes nothing for it.
+ */
+
 /*
 ** axios cart implementation
 */
@@ -11,11 +27,11 @@ var AxiosCart = {
             url: quickviewurl,
             method: 'get',
         }).then(function (response) {
-            this.AxiosCart.success_process(response);
+            AxiosCart.success_process(response);
         }).catch(function (error) {
             error.axiosFailure;
-        }).then(function (response) {
-            this.AxiosCart.resetLoadWaiting();
+        }).then(function () {
+            AxiosCart.resetLoadWaiting();
         });  
     },
 
@@ -39,17 +55,17 @@ var AxiosCart = {
             url: urladd,
             method: 'post',
         }).then(function (response) {
-            this.AxiosCart.success_process(response);
+            AxiosCart.success_process(response);
         }).catch(function (error) {
             error.axiosFailure;
         }).then(function () {
-            if (typeof vmwishlist !== 'undefined') {
-                vmwishlist.getModel();
+            if (typeof window.vmwishlist !== 'undefined') {
+                window.vmwishlist.getModel();
             }
-            if (typeof vmorder !== 'undefined') {
-                vmorder.getModel();
+            if (typeof window.vmorder !== 'undefined') {
+                window.vmorder.getModel();
             }
-            this.AxiosCart.resetLoadWaiting();
+            AxiosCart.resetLoadWaiting();
         });  
     },
 
@@ -75,17 +91,17 @@ var AxiosCart = {
             data: data,
             method: 'post',
         }).then(function (response) {
-            this.AxiosCart.success_process(response); 
+            AxiosCart.success_process(response); 
         }).catch(function (error) {
             error.axiosFailure;
         }).then(function () {
-            if (typeof vmwishlist !== 'undefined') {
-                vmwishlist.getModel();
+            if (typeof window.vmwishlist !== 'undefined') {
+                window.vmwishlist.getModel();
             }
-            if (typeof vmorder !== 'undefined') {
-                vmorder.getModel();
+            if (typeof window.vmorder !== 'undefined') {
+                window.vmorder.getModel();
             }
-            this.AxiosCart.resetLoadWaiting();
+            AxiosCart.resetLoadWaiting();
         });
     },
 
@@ -101,10 +117,10 @@ var AxiosCart = {
         if (!form) return;
         var data = new FormData(form);
 
-        if (typeof vmwishlist !== 'undefined') {
-            model = vmwishlist;
+        if (typeof window.vmwishlist !== 'undefined') {
+            model = window.vmwishlist;
         } else {
-            model = vmorder;
+            model = window.vmorder;
         }
 
         axios({
@@ -113,7 +129,7 @@ var AxiosCart = {
             method: 'post',
         }).then(function (response) {
             if (response.data.success) {
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalQuickView')).hide();
+                window.bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalQuickView')).hide();
             } else {
                 model.displayWarning(response.data.message, 'danger');
             }
@@ -121,7 +137,7 @@ var AxiosCart = {
             error.axiosFailure;
         }).then(function () {
             model.getModel();
-            this.AxiosCart.resetLoadWaiting();
+            AxiosCart.resetLoadWaiting();
         });
     },
 
@@ -139,11 +155,11 @@ var AxiosCart = {
             method: 'post',
         })
         .then(function (response) {
-            this.AxiosCart.success_process(response);
+            AxiosCart.success_process(response);
         }).catch(function (error) {
             error.axiosFailure;
         }).then(function () {
-            this.AxiosCart.resetLoadWaiting();
+            AxiosCart.resetLoadWaiting();
         });  
     },
     //add a product to compare list
@@ -162,9 +178,9 @@ var AxiosCart = {
             cookie = id;
         }
         this.setCookie('Grand.CompareProduct', cookie);
-        vm.updateCompareProductsQty();
+        window.vm.updateCompareProductsQty();
 
-        vm.displayBarNotification(message, url, 'success', 3500);
+        window.vm.displayBarNotification(message, url, 'success', 3500);
 
         this.resetLoadWaiting();
 
@@ -182,22 +198,22 @@ var AxiosCart = {
         }
         if (response.data.sidebarshoppingcartmodel) {
             var newfly = response.data.sidebarshoppingcartmodel;
-            vm.flycart = newfly;
-            vm.flycartitems = newfly.Items;
-            vm.flycartindicator = newfly.TotalProducts;
+            window.vm.flycart = newfly;
+            window.vm.flycartitems = newfly.Items;
+            window.vm.flycartindicator = newfly.TotalProducts;
 
         }
         if (response.data.updatetopcartsectionhtml) {
-            vm.flycartindicator = response.data.updatetopcartsectionhtml;
+            window.vm.flycartindicator = response.data.updatetopcartsectionhtml;
         }
         if (response.data.product) {
             if (response.data.success == true) {
 
-                vm.PopupQuickViewVueModal = response.data.model;
+                window.vm.PopupQuickViewVueModal = response.data.model;
 
-                Object.assign(vm.PopupQuickViewVueModal, { RelatedProducts: [] });
+                Object.assign(window.vm.PopupQuickViewVueModal, { RelatedProducts: [] });
 
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalQuickView')).show();
+                window.bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalQuickView')).show();
 
                 if (response.data.model.ProductType == 20) {
 
@@ -205,9 +221,9 @@ var AxiosCart = {
                     var year = new Date(response.data.model.StartDate).getFullYear();
                     var month = new Date(response.data.model.StartDate).getUTCMonth() + 1;
 
-                    Object.assign(vm.PopupQuickViewVueModal, { ReservationFullDate: fullDate });
-                    Object.assign(vm.PopupQuickViewVueModal, { ReservationYear: year });
-                    Object.assign(vm.PopupQuickViewVueModal, { ReservationMonth: month });
+                    Object.assign(window.vm.PopupQuickViewVueModal, { ReservationFullDate: fullDate });
+                    Object.assign(window.vm.PopupQuickViewVueModal, { ReservationYear: year });
+                    Object.assign(window.vm.PopupQuickViewVueModal, { ReservationMonth: month });
 
                 }
 
@@ -216,21 +232,19 @@ var AxiosCart = {
         if (response.data.message) {
             if (response.data.success == true) {
                 //success
-                vm.PopupAddToCartVueModal = response.data.model;
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalQuickView')).hide();
-                bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalAddToCart')).show();
+                window.vm.PopupAddToCartVueModal = response.data.model;
+                window.bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalQuickView')).hide();
+                window.bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalAddToCart')).show();
                 if (response.data.refreshreservation == true) {
-                    var param = "";
-                    if ($("#parameterDropdown").val() != null) {
-                        param = $("#parameterDropdown").val();
-                    }
-                    Reservation.fillAvailableDates(Reservation.currentYear, Reservation.currentMonth, param, true);
+                    var dropdown = document.querySelector("#parameterDropdown");
+                    var param = dropdown ? dropdown.value : "";
+                    window.Reservation.fillAvailableDates(window.Reservation.currentYear, window.Reservation.currentMonth, param, true);
                 }
 
             }
             else {
                 //error
-                vm.displayBarNotification(response.data.message, '', 'error', 3500);
+                window.vm.displayBarNotification(response.data.message, '', 'error', 3500);
             }
             return false;
         }
@@ -320,3 +334,9 @@ document.addEventListener('click', function (event) {
     }
     event.preventDefault();
 });
+
+
+window.AxiosCart = AxiosCart
+
+
+window.AxiosCart = AxiosCart

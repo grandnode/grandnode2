@@ -1,4 +1,10 @@
-﻿var PushNotifications = {
+/*
+ * Firebase push notification registration
+ * (was wwwroot/theme/script/public.push.notifications.js). Nothing runs at load;
+ * behaviours/push-notifications.js calls init/process once the page is ready.
+ */
+import axios from 'axios'
+var PushNotifications = {
     url: "",
     SenderId: "",
     ApiKey: "",
@@ -68,7 +74,7 @@
                         })
                     });
             })
-            .catch(function (err) {
+            .catch(function () {
                 var bodyFormData = new FormData();
                 bodyFormData.append('success', success);
                 bodyFormData.append('value', value);
@@ -87,7 +93,9 @@
                 icon: payload.notification.icon
             };
 
-            var notification = new Notification(notificationTitle, notificationOptions);
+            new Notification(notificationTitle, notificationOptions);
         });
     }
 }
+
+window.PushNotifications = PushNotifications

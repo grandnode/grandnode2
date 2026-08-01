@@ -31,14 +31,4 @@
         </div>
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    var ordernote = new Vue({
-        data: () => ({
-            @{
-                <text>
-                    Note: '',
-                </text>
-            }
-        })
-    });
-</script>
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "ordernote", data = new { Note = "" } })</script>

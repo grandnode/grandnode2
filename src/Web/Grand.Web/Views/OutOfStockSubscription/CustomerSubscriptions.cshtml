@@ -18,16 +18,7 @@
         <div class="description">
             @Loc["Account.OutOfStockSubscriptions.Description"]
         </div>
-        <script asp-location="Footer" asp-order="300">
-            document.addEventListener("DOMContentLoaded", function () {
-                document.getElementById('selectall').addEventListener('click', function () {
-                    var checked = document.getElementById("selectall").checked;
-                    document.querySelectorAll('.subscription-list .rowcheckbox').forEach(function (el) {
-                        el.checked = checked;
-                    });
-                });
-            });
-        </script>
+        <script type="application/json" data-grand-vm="checkAll">{"elements":{"checkboxId":"selectall","rowSelector":".subscription-list .rowcheckbox"}}</script>
         <form asp-route="CustomerOutOfStockSubscriptions" method="post">
             <div class="subscription-list">
                 <div class="table-responsive">

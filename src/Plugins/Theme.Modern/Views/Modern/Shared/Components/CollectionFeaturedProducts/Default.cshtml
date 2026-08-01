@@ -1,4 +1,4 @@
-@model IList<CollectionModel>
+﻿@model IList<CollectionModel>
 <div class="home-page-section">
     <div id="CollectionFeaturedProducts" class="section">
         <div class="featured-product-grid">
@@ -16,7 +16,7 @@
                          :id="'featured-collection-' + index">
                         <div class="item-row">
                             <div :key="Model.Id" class="col-for-5-xl col-xl-3 col-lg-3 col-md-4 col-sm-6 col-6" v-for="Model in Collection.FeaturedProducts">
-                                <product-box-vue v-bind="{ Model: Model }"></product-box-vue>
+                                <product-box v-bind="{ Model: Model }"></product-box>
                             </div>
                         </div>
                     </div>
@@ -25,12 +25,4 @@
         </div>
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    var homePCollectionProducts = new Vue({
-        data: function () {
-            return {
-                Model: @Json.Serialize(Model)
-            }
-        }
-    });
-</script>
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "homePCollectionProducts", data = new { Model } })</script>

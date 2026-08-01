@@ -14,6 +14,10 @@ export default [
                 ...globals.browser,
                 //set by the Razor views and theme scripts, not by this bundle
                 AxiosCart: 'readonly',
+                //optional global from the AjaxFilter plugin; guarded with typeof
+                AjaxFilter: 'readonly',
+                //loaded from the Firebase CDN by the push notification component
+                firebase: 'readonly',
                 grandRes: 'readonly',
                 grandRoutes: 'readonly'
             }

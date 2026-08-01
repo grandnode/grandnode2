@@ -1,4 +1,12 @@
 ﻿@model ProductDetailsModel
+@{
+        var galleryImages = Model.PictureModels.Select((picture, i) => new {
+            url = i == 0 ? picture.FullSizeImageUrl : picture.ImageUrl,
+            fullimg = picture.FullSizeImageUrl,
+            alt = picture.AlternateText,
+            title = picture.Title
+        });
+    }
 
 <div class="col-xl-6 col-lg-6 col-md-5 col-12 mt-md-0 mt-3 px-0">
     <div class="gallery">
@@ -17,40 +25,12 @@
                    Vue 3 strips <script> tags out of the in-DOM template and replaces
                    #app's content on mount, so a '#id' template reference resolves to
                    nothing and the component renders empty. *@
-                <script asp-location="Footer" asp-order="300">
-                    Vue.component('gallery-images', {
-                      template: `<div>
-                        <img class="image main-image zoom" id="main-product-img-@Model.Id" v-for="(image, i) in images" :src="image.url" :alt="image.alt"
-                             :title="image.title" :key="i" @@click="index=i">
-                        <vue-gallery-slideshow :images="images" :index="index" @@close="index=null"></vue-gallery-slideshow>
-                      </div>`,
-                      data() {
-                          return {
-                              images: [
-                                @foreach (var picture in Model.PictureModels)
-                                {
-                                    if (Model.PictureModels.First() == picture)
-                                    {
-                                        <text>
-                                            { url: '@picture.FullSizeImageUrl', fullimg: '@picture.FullSizeImageUrl', alt:'@picture.AlternateText', title: '@picture.Title' },
-                                        </text>
-                                    }
-                                    else
-                                    {
-                                        <text>
-                                    { url: '@picture.ImageUrl', fullimg: '@picture.FullSizeImageUrl', alt:'@picture.AlternateText', title: '@picture.Title' },
-                                        </text>
-                                    }
-                                }
-                                ],
-                                index: null
-                          }
-                      },
-                      components: {
-                            VueGallerySlideshow
-                      },
-                    });
-            </script>
+                <script type="application/json" data-grand-vm="productGallery">@Json.Serialize(new {
+                    componentName = "gallery-images",
+                    variant = "main",
+                    mainImageId = $"main-product-img-{Model.Id}",
+                    images = galleryImages
+                })</script>
             }
             else
             {
@@ -78,42 +58,12 @@
                      onclick="document.querySelector('.thumb-image').click()"/>
 
                 <gallery-images></gallery-images>
-                <script asp-location="Footer" asp-order="300">
-                    Vue.component('gallery-images', {
-                          template: `<div>
-                            <img class="image thumb-image zoom" v-for="(image, i) in images" :src="image.url" :datasrc="image.fullimg"
-                                 :alt="image.alt" :title="image.title" :key="i" @@click="index=i">
-                            <div>
-                                <vue-gallery-slideshow :images="images" :index="index" @@close="index=null"></vue-gallery-slideshow>
-                            </div>
-                          </div>`,
-                          data() {
-                              return {
-                                    images: [
-                                        @foreach (var picture in Model.PictureModels)
-                                        {
-                                            if (Model.PictureModels.First() == picture)
-                                            {
-                                                <text>
-                                                    { url: '@picture.FullSizeImageUrl', fullimg: '@picture.FullSizeImageUrl', alt:'@picture.AlternateText', title: '@picture.Title' },
-                                                </text>
-                                            }
-                                            else
-                                            {
-                                                <text>
-                                            { url: '@picture.ImageUrl', fullimg: '@picture.FullSizeImageUrl', alt:'@picture.AlternateText', title: '@picture.Title' },
-                                                </text>
-                                            }
-                                        }
-                                    ],
-                                    index: null
-                                }
-                          },
-                          components: {
-                                VueGallerySlideshow
-                          },
-                    });
-            </script>
+                <script type="application/json" data-grand-vm="productGallery">@Json.Serialize(new {
+                    componentName = "gallery-images",
+                    variant = "thumb",
+                    mainImageId = $"main-product-img-{Model.Id}",
+                    images = galleryImages
+                })</script>
             }
         }
         else
@@ -132,16 +82,12 @@
                              alt="@picture.AlternateText"
                              title="@picture.Title"
                              data-src="@picture.ImageUrl"
-                             onclick="galleryChangeImg(event)"/>
+                             data-gallery-thumb/>
                     }
                 </div>
-                <script asp-location="Footer" asp-order="300">
-                    function galleryChangeImg(event) {
-                        var img = event.srcElement.getAttribute('data-src');
-                        var mainImg = document.getElementById('main-product-img-@Model.Id');
-                        mainImg.setAttribute('src', img);
-                    }
-            </script>
+                <script type="application/json" data-grand-vm="galleryThumbnails">@Json.Serialize(new {
+                    mainImageId = $"main-product-img-{Model.Id}"
+                })</script>
             }
         }
     </div>

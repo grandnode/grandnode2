@@ -5,15 +5,19 @@
 
     <script asp-location="Footer" asp-src="/theme/script/public.checkout.js" asp-order="300" asp-append-version="true"></script>
 
-    <script asp-location="Footer" asp-order="301">
-        vmorder.vCartUrl.init('@Url.RouteUrl("ShoppingCartSummary")', '@Url.RouteUrl("ShoppingCartTotal")');
-        vmorder.vShipping.init('#co-shipping-form', '/checkout/SaveShipping/');
-        vmorder.vBilling.init('#co-billing-form', '/checkout/SaveBilling/');
-        vmorder.vShippingMethod.init('#co-shipping-method-form', '/checkout/SaveShippingMethod/');
-        vmorder.vPaymentMethod.init('#co-payment-method-form', '/checkout/SavePaymentMethod/');
-        vmorder.vPaymentInfo.init('#co-payment-info-form', '/checkout/SavePaymentInfo/');
-        vmorder.vConfirmOrder.init('/checkout/ConfirmOrder/', '@Url.RouteUrl("CheckoutCompleted")')
-    </script>
+    <script type="application/json" data-grand-vm="checkoutSteps">@Json.Serialize(new {
+                                                                     routes = new {
+                                                                         cartSummary = Url.RouteUrl("ShoppingCartSummary"),
+                                                                         cartTotal = Url.RouteUrl("ShoppingCartTotal"),
+                                                                         saveShipping = Url.Action("SaveShipping", "Checkout"),
+                                                                         saveBilling = Url.Action("SaveBilling", "Checkout"),
+                                                                         saveShippingMethod = Url.Action("SaveShippingMethod", "Checkout"),
+                                                                         savePaymentMethod = Url.Action("SavePaymentMethod", "Checkout"),
+                                                                         savePaymentInfo = Url.Action("SavePaymentInfo", "Checkout"),
+                                                                         confirmOrder = Url.Action("ConfirmOrder", "Checkout"),
+                                                                         completed = Url.RouteUrl("CheckoutCompleted")
+                                                                     }
+                                                                 })</script>
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.Checkout"]);

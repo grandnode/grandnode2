@@ -103,27 +103,12 @@
         @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_after" })
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    document.addEventListener("DOMContentLoaded", function () {
-        var leftSide = document.querySelector('.generalLeftSide');
-        var mobileToggle = document.getElementById('mobile-filters-toggle');
-        var hasMobileContent = Array.prototype.some.call(leftSide.children, function (el) {
-            return el.id !== 'block-category-navigation';
-        });
-        if (mobileToggle && !hasMobileContent) {
-            mobileToggle.classList.remove('d-block');
-            mobileToggle.classList.add('d-none');
-        }
-        function LeftSideBar() {
-            if (991 > (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth)) {
-                document.querySelector("#sidebar-mobile .b-sidebar-body").appendChild(leftSide);
-            } else {
-                document.getElementById("TwoColumns").appendChild(leftSide);
-            }
-        }
-        LeftSideBar();
-        window.addEventListener("resize", function () {
-            LeftSideBar();
-        });
-    });
-</script>
+<script type="application/json" data-grand-vm="twoColumnsSidebar">@Json.Serialize(new {
+                                                                      elements = new {
+                                                                          sidebarSelector = ".generalLeftSide",
+                                                                          desktopHostId = "TwoColumns",
+                                                                          mobileHostSelector = "#sidebar-mobile .b-sidebar-body",
+                                                                          toggleId = "mobile-filters-toggle",
+                                                                          categoryNavigationId = "block-category-navigation"
+                                                                      }
+                                                                  })</script>

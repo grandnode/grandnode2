@@ -11,43 +11,13 @@
             }
         </select>
     </div>
-    @if (Model.ProductAttributes.Any())
-    {
-        <script asp-location="Footer" asp-order="300">
-            @{
-                var attributeChangeHandlerFuncName = $"attribute_change_handler_{Model.Id}();";
-            }
-            document.addEventListener("DOMContentLoaded", function () {
-                document.getElementById('WarehouseId').addEventListener('change', function () { @attributeChangeHandlerFuncName });
-            });
-        </script>
-    }
-    else
-    {
-        <script asp-location="Footer" asp-order="300">
-            function warehouse_change_handler() {
-                var data = new FormData();
-                data.append('warehouseId', document.getElementById('WarehouseId').value);
-                data.append('productId', '@Model.Id');
-                axios({
-                    url: '@Html.Raw(Url.Action("productdetails_warehousechange", "product"))',
-                    data: data,
-                    method: 'post',
-                }).then(function (response) {
-                    if (response.data.stockAvailability) {
-                        if (document.getElementById('stock-availability-value-@Model.Id')) {
-                            document.getElementById('stock-availability-value-@Model.Id').innerText = response.data.stockAvailability
-                        }
-                    }
-                })
-
-    }
-            document.addEventListener("DOMContentLoaded", function () {
-                document.getElementById('WarehouseId').addEventListener('change', function () {
-                    warehouse_change_handler();
-                });
-                warehouse_change_handler();
-            });
-        </script>
-    }
+    @*One island either way. The view used to branch on whether the product has
+        attributes and register a different handler in each branch; the module
+        covers both - it refreshes availability and, when there is an attribute
+        view-model, asks it to reprice.*@
+    <script type="application/json" data-grand-vm="warehouseSelector">@Json.Serialize(new {
+                                                                          productId = Model.Id,
+                                                                          route = Url.Action("productdetails_warehousechange", "product"),
+                                                                          elements = new { selectId = "WarehouseId" }
+                                                                      })</script>
 }

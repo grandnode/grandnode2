@@ -1,42 +1,22 @@
 ﻿@model PageModel
 @if (Model.IsPasswordProtected)
 {
-    <script asp-location="Footer" asp-order="300">
-        document.getElementById('button-password').addEventListener('click', function () {
-            var postData = {
-                id: document.getElementById("@Html.IdFor(model => model.Id)").value,
-                password: document.getElementById('password').value
-            };
-            addAntiForgeryToken(postData);
-
-            var bodyFormData = new FormData();
-            bodyFormData.append('id', document.getElementById("@Html.IdFor(model => model.Id)").value);
-            bodyFormData.append('password', document.getElementById('password').value);
-            bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
-            axios({
-                method: 'post',
-                url: '@Url.RouteUrl("PageAuthenticate")',
-                data: bodyFormData,
-                headers: { 'Content-Type': 'multipart/form-data' }
-            }).then(function (response) {
-                if (response.data.Authenticated) {
-                    document.querySelector('#ph-page #ph-title h1').innerHTML = response.data.Title;
-                    if (document.querySelector('#ph-page #ph-title h1').innerText == '') {
-                        document.getElementById('ph-title').style.display = "none";
-                    }
-                    document.querySelector('#ph-page .page-body').innerHTML = response.data.Body;
-                    document.getElementById('ph-password').style.display = "none";
-                    document.getElementById('ph-page').style.display = "block";
-                    //$.validator.unobtrusive.parse('#ph-page');
-                }
-                else {
-                    document.getElementById('password-error').innerText = response.data.Error;
-                }
-            }) 
-        });
-
-        document.getElementById('ph-page').style.display = "none";
-    </script>
+    var idSuffix = "";
+    <script type="application/json" data-grand-vm="passwordPage">@Json.Serialize(new {
+                        route = Url.RouteUrl("PageAuthenticate"),
+                        submitOnEnter = false,
+                        elements = new {
+                            pageId = $"ph-page{idSuffix}",
+                            promptId = $"ph-password{idSuffix}",
+                            titleId = $"ph-title{idSuffix}",
+                            titleSelector = $"#ph-title{idSuffix} h1",
+                            errorId = $"password-error{idSuffix}",
+                            passwordId = $"password{idSuffix}",
+                            pageIdFieldId = Html.IdFor(m => m.Id),
+                            buttonId = "button-password"
+                        },
+                        res = new { warning = Loc["common.warning"].ToString() }
+                    })</script>
     <div class="page-password" id="ph-password-@Model.Id">
         <form asp-route="PageAuthenticate" method="post">
             <input asp-for="Id" type="hidden"/>

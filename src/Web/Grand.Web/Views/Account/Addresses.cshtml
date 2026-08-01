@@ -140,7 +140,7 @@
                                 <button class="btn btn-secondary edit-address-button" onclick="location.href='@(Url.RouteUrl("CustomerAddressEdit", new { addressId = address.Id }))'">
                                     @Loc["Common.Edit"]
                                 </button>
-                                <button class="btn btn-danger delete-address-button mt-1" onclick="deletecustomeraddress('@(address.Id)')">
+                                <button class="btn btn-danger delete-address-button mt-1" data-delete-id="@(address.Id)">
                                     @Loc["Common.Delete"]
                                 </button>
                             </div>
@@ -150,26 +150,15 @@
                 </tbody>
             </table>
         </div>
-        <script asp-location="Footer">
-                function deletecustomeraddress(addressId) {
-                    if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
-
-                        var bodyFormData = new FormData();
-                        bodyFormData.append('addressId', addressId);
-                        bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
-
-                        axios({
-                            url: '@Url.Action("AddressDelete", "Account")',
-                            data: bodyFormData,
-                            method: 'post',
-                        }).then(function (response) {
-                            location = response.data.redirect;
-                        }).catch(function (error) {
-                            alert(error)
-                        })
-                    }
-                }
-                </script>
+        <script type="application/json" data-grand-vm="confirmDelete">@Json.Serialize(new {
+                                                                  route = Url.Action("AddressDelete", "Account"),
+                                                                  field = "addressId",
+                                                                  selector = ".delete-address-button",
+                                                                  res = new {
+                                                                      areYouSure = Loc["Admin.Common.AreYouSure"].ToString(),
+                                                                      warning = Loc["common.warning"].ToString()
+                                                                  }
+                                                              })</script>
     }
     else
     {

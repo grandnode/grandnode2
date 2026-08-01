@@ -396,6 +396,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
 
         //warehouse
         if (model.AllowToSelectWarehouse)
+        {
             foreach (var warehouse in await _warehouseService.GetAllWarehouses())
             {
                 var productwarehouse =
@@ -407,9 +408,22 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                     WarehouseId = warehouse.Id,
                     Name = warehouse.Name,
                     Code = warehouse.Code,
-                    Selected = updateCartItem != null && updateCartItem.WarehouseId == warehouse.Id
+                    Selected = warehouseId == warehouse.Id
                 });
             }
+
+            //Nothing is preselected unless a cart item or the store's default warehouse
+            //picked one, but the browser still shows the first option - and availability
+            //above was worked out for a different warehouse (usually none at all), so a
+            //product in stock in that first warehouse was presented as out of stock.
+            //Say which warehouse is meant and answer for that one.
+            if (model.ProductWarehouses.Any() && model.ProductWarehouses.All(x => !x.Selected))
+            {
+                var preselected = model.ProductWarehouses[0];
+                preselected.Selected = true;
+                model.StockAvailability = StockAvailability(product, preselected.WarehouseId, []);
+            }
+        }
 
         //shipping info
         if (product.IsShipEnabled)

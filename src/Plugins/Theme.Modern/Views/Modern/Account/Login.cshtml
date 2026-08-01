@@ -149,12 +149,4 @@
         </div>
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    var login = new Vue({
-        data: () => ({
-            Username: '',
-            Email: '',
-            Password: '',
-        })
-    });
-</script>
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "login", data = new { Username = "", Email = "", Password = "" } })</script>

@@ -1,4 +1,4 @@
-﻿@model ProductsByTagModel
+@model ProductsByTagModel
 @inject SeoSettings seoSettings
 @inject IPageHeadBuilder pagebuilder
 @{
@@ -54,4 +54,4 @@
 </div>
 @await Component.InvokeAsync("Widget", new { widgetZone = "productsbytag_bottom", additionalData = Model.Id })
 
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>
+<partial name="Partials/ModelScript" model="Model"/>

@@ -15,7 +15,8 @@
         pagebuilder.AddCanonicalUrlParts(collectionUrl);
     }
 
-    <script asp-location="Header" asp-src="/theme/script/catalog.js"></script>
+    @*was /theme/script/catalog.js, which does not exist - the file is the theme's own*@
+    <script asp-location="Header" asp-src="/Plugins/Theme.Modern/Content/script/catalog.js"></script>
 }
 
 <div v-if="catalog.loading == true" class="placeholder-glow">
@@ -44,7 +45,7 @@
                             <div class="form-row">
                                 <template :key="Model.Id" v-for="Model in catalog.Model.Products">
                                     <div class="col-6 col-sm-4 col-lg-3 product-container px-0 mb-2">
-                                        <product-box-vue v-bind="{ Model: Model }"></product-box-vue>
+                                        <product-box v-bind="{ Model: Model }"></product-box>
                                     </div>
                                 </template>
                             </div>
@@ -55,7 +56,7 @@
                             <div class="col-12">
                                 <div class="row">
                                     <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                                        <product-box-list-vue v-bind="{ Model: Model }"></product-box-list-vue>
+                                        <product-box-list v-bind="{ Model: Model }"></product-box-list>
                                     </template>
                                 </div>
                             </div>
@@ -89,4 +90,4 @@
     }*@
 }
 
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>
+<partial name="Partials/ModelScript" model="Model"/>

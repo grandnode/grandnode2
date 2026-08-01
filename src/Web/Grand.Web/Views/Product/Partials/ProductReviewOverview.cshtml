@@ -32,15 +32,4 @@
         </div>
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    var productreviewsoverview = new Vue({
-        data: function () {
-            return {
-                Model: null,
-            }
-        },
-        created() {
-            this.Model = @Json.Serialize(Model);
-        },       
-    })
-</script>
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "productreviewsoverview", data = new { Model } })</script>

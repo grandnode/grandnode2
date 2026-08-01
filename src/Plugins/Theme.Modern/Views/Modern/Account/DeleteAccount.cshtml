@@ -50,10 +50,4 @@
         </section>
     </form>
 </validation-observer>
-<script asp-location="Footer" asp-order="300">
-    var deleteaccount = new Vue({
-        data: () => ({
-            Password: '',
-        })
-    });
-</script>
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "deleteaccount", data = new { Password = "" } })</script>

@@ -331,9 +331,6 @@ var vm = new Vue({
             }
             this.updateCompareProductsQty();
         },
-        showModalOutOfStock: function () {
-            this.$refs['out-of-stock'].show()
-        },
         productImage: function (event) {
             var Imagesrc = event.target.parentElement.getAttribute('data-href');
             function collectionHas(a, b) {
@@ -506,8 +503,12 @@ var vm = new Vue({
             });
         },
         warehouse_change_handler(id, url) {
+            //scoped to the modal: the product page behind it uses the same
+            //element id, and getElementById would return that one instead
+            var select = document.querySelector('#ModalQuickView #WarehouseId');
+            if (!select) return;
             var data = new FormData();
-            data.append('warehouseId', document.getElementById('WarehouseId').value);
+            data.append('warehouseId', select.value);
             data.append('productId', id);
             axios({
                 url: url,
@@ -516,6 +517,12 @@ var vm = new Vue({
             }).then(function (response) {
                 if (response.data.stockAvailability) {
                     vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
+                }
+                //an attribute product prices per warehouse too, so let the
+                //attribute handler refresh price and availability together
+                if (vm.PopupQuickViewVueModal.ProductAttributes
+                    && vm.PopupQuickViewVueModal.ProductAttributes.length > 0) {
+                    vm.attrchange(id, true);
                 }
             })
         },

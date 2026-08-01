@@ -1,4 +1,4 @@
-﻿@model VendorModel
+@model VendorModel
 @inject SeoSettings seoSettings
 @inject IPageHeadBuilder pagebuilder
 @{
@@ -205,4 +205,4 @@
     }
 }
 
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>
+<partial name="Partials/ModelScript" model="Model"/>

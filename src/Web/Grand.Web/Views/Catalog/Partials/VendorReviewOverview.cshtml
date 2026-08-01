@@ -45,23 +45,4 @@
         </div>
     </div>
 }
-<script asp-location="Footer" asp-order="300">
-    var vendorreviewsoverview = new Vue({
-        data: function () {
-            return {
-                Model: null,
-                rating: 0
-            }
-        },
-        created() {
-            this.Model = @Json.Serialize(Model);
-        },
-        watch: {
-            Model: function() {
-                const RatingSum = this.Model.RatingSum;
-                const TotalReviews = this.Model.TotalReviews;
-                this.rating = RatingSum / TotalReviews;
-            }
-        }
-    })
-</script>
+<script type="application/json" data-grand-vm="vendorReviewOverview">@Json.Serialize(new { model = Model })</script>

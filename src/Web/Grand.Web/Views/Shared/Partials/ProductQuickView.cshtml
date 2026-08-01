@@ -71,15 +71,7 @@
                         </div>
                     </template>
 
-                    <script asp-location="Footer" asp-order="302">
-                                                    Vue.component('product-attribute-quickview', {
-                                                        template: '#product-attribute-quickview',
-                                                        props: {
-                                                            attribute: null
-                                                        }
-                                                    });
-
-                                                </script>
+                    <script type="application/json" data-grand-vm="inDomComponents">{"components":[{"name":"product-attribute-quickview","template":"#product-attribute-quickview","props":["attribute"]}]}</script>
                     @* WAREHOUSES *@
 
                     <partial name="Partials/QuickView/Warehouses"/>
@@ -242,11 +234,4 @@
         </div>
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    (function () {
-        document.getElementById('ModalQuickView').addEventListener('shown.bs.modal', function () {
-            initReservationQV();
-            QuickViewShown();
-        });
-    })();
-</script>
+<script type="application/json" data-grand-vm="quickViewModal">{"elements":{"modalId":"ModalQuickView"}}</script>

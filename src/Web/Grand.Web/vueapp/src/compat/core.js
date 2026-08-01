@@ -19,6 +19,8 @@ import { createApp, reactive, computed, watch, nextTick } from 'vue'
 
 const pendingComponents = {}
 const appInstalls = []
+const rootReadyCallbacks = []
+const beforeRootMountCallbacks = []
 let rootVm = null
 
 export function onAppCreate(fn) {
@@ -27,6 +29,27 @@ export function onAppCreate(fn) {
 
 export function getRootVm() {
     return rootVm
+}
+
+/**
+ * Runs `fn` immediately before the root #app instance is mounted - the deadline
+ * for anything the root template needs to already exist, such as the per-page
+ * view-models. Hooking it here rather than to a footer script means every theme
+ * gets it from loading the bundle; Theme.Modern has its own Head.cshtml and
+ * would otherwise have had to remember to opt in.
+ */
+export function onBeforeRootMount(fn) {
+    beforeRootMountCallbacks.push(fn)
+}
+
+/**
+ * Runs `fn` once the root #app instance exists. View-models are built before
+ * the root is mounted (they have to be - the root template reads them), so
+ * anything that writes *into* the root has to wait for this.
+ */
+export function onRootReady(fn) {
+    if (rootVm) fn(rootVm)
+    else rootReadyCallbacks.push(fn)
 }
 
 function windowFallbackGlobals(base) {
@@ -139,9 +162,15 @@ export function LegacyVue(options = {}) {
         const el = options.el
         const opts = { ...options }
         delete opts.el
+        // before makeApp, not just before mount: a callback may register a
+        // global component, and makeApp is where pending components are applied
+        beforeRootMountCallbacks.splice(0).forEach(fn => fn())
         const app = makeApp(opts)
         const instance = app.mount(el)
-        if (el === '#app' || (el.id === 'app')) rootVm = instance
+        if (el === '#app' || (el.id === 'app')) {
+            rootVm = instance
+            rootReadyCallbacks.splice(0).forEach(fn => fn(rootVm))
+        }
         return instance
     }
     return makeStateVm(options)

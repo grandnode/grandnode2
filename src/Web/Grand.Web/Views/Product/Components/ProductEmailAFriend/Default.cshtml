@@ -71,85 +71,15 @@
                         </form>
                     </validation-observer>
                 </template>
-                <script asp-location="Footer" asp-order="300">
-                        var emailafriend = new Vue({
-                            data: () => ({
-                                @{
-                                    <text>
-                                        FriendEmail: '@Html.Raw(Model.FriendEmail)',
-                                        YourEmailAddress: '@Html.Raw(Model.YourEmailAddress)',
-                                        PersonalMessage: '@Html.Raw(Model.PersonalMessage)',
-                                        Message: {
-                                            Result: null,
-                                            SuccessfullySent: false
-                                        }
-                                    </text>
-                                }
-                            }),
-                            methods: {
-                                @{
-                                    if (Model.DisplayCaptcha)
-                                    {
-                                        <text>
-                                            modalEmailAFriendShown: function () {
-                                                if (document.querySelector("#ModalProductEmailAFriend .captcha-box") == null && !emailafriend.Message.SuccessfullyAdded) {
-                                                    var html = document.getElementById("captcha-box");
-                                                    document.getElementById("captcha-popup").prepend(html);
-                                                }
-                                            },
-                                            modalEmailAFriendClose: function () {
-                                                if (document.querySelector("#ModalProductEmailAFriend .captcha-box") !== null) {
-                                                    var html = document.getElementById("captcha-box");
-                                                    document.getElementById("captcha-container").prepend(html);
-                                                }
-                                            },
-                                        </text>
-                                    }
-                                }
-                                submitEmailAFriend(url) {
-                                    var bodyFormData = new FormData(document.getElementById("ProductEmailAFriend"));
-                                    axios({
-                                        url: url,
-                                        data: bodyFormData,
-                                        method: 'post',
-                                        headers: {
-                                            'Accept': 'application/json'
-                                        }
-                                    }).then(function (response) {
-                                        emailafriend.Message.Result = response.data.Result;
-                                        emailafriend.Message.SuccessfullySent = response.data.SuccessfullySent;
-
-                                        var result = response.data.Result;
-                                        var variant = "";
-
-                                        if (response.data.SuccessfullySent) {
-                                            variant = "info";
-                                            document.getElementById("ProductEmailAFriend").style.display = "none";
-                                            bootstrap.Modal.getOrCreateInstance(document.getElementById('ModalProductEmailAFriend')).hide();
-                                        } else {
-                                            variant = "danger";
-                                        }
-
-                                        new Vue({
-                                            el: ".modal-place",
-                                            methods: {
-                                                toast() {
-                                                    this.$bvToast.toast(result, {
-                                                        variant: variant,
-                                                        autoHideDelay: 3000,
-                                                        solid: true
-                                                    })
-                                                }
-                                            },
-                                            mounted: function () {
-                                                this.toast();
-                                            }
-                                        });
-                                    })
-                                }
-                            }
-                        });
-                </script>
+                <script type="application/json" data-grand-vm="contactForm">@Json.Serialize(new {
+                                                                   name = "emailafriend",
+                                                                   formId = "ProductEmailAFriend",
+                                                                   submitMethod = "submitEmailAFriend",
+                                                                   modalId = "ModalProductEmailAFriend",
+                                                                   data = new { Model.FriendEmail, Model.YourEmailAddress, Model.PersonalMessage },
+                                                                   captcha = Model.DisplayCaptcha ? new { popupTarget = "captcha-popup", restoreTarget = "captcha-container" } : null,
+                                                                   res = new { warning = Loc["common.warning"].ToString() }
+                                                               })</script>
             }
         </div>
     </div>
@@ -159,11 +89,4 @@
 </div>
 @if (Model.DisplayCaptcha)
 {
-    <script asp-location="Footer" asp-order="300">
-        (function () {
-            var modal = document.getElementById('ModalProductEmailAFriend');
-            modal.addEventListener('shown.bs.modal', function () { if (typeof emailafriend !== 'undefined') emailafriend.modalEmailAFriendShown(); });
-            modal.addEventListener('hide.bs.modal', function () { if (typeof emailafriend !== 'undefined') emailafriend.modalEmailAFriendClose(); });
-        })();
-    </script>
 }

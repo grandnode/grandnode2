@@ -1,38 +1,31 @@
-﻿// CSRF (XSRF) security
-function addAntiForgeryToken(data) {
-    //if the object is undefined, create a new one.
-    if (!data) {
-        data = {};
-    }
-    //add token
-    var tokenInput = document.querySelector('input[name=__RequestVerificationToken]');
-    if (tokenInput) {
-        data.__RequestVerificationToken = tokenInput.value;
-    }
-    return data;
-};
+/*
+ * Storefront helpers shared by both themes (was wwwroot/theme/script/public.common.js).
+ *
+ * Bundled now, so it runs from <head> rather than from a footer script tag -
+ * anything reading the DOM at load has to wait for the document. The globals at
+ * the bottom stay globals because the Razor markup and public.checkout.js, which
+ * is still a separate file, call them by name.
+ */
+import axios from 'axios'
+import Pikaday from 'pikaday'
 
-//attach the CSRF token as a header to every AJAX request (axios and jQuery),
-//so requests are covered regardless of body type (json/form/FormData)
-(function () {
+function onDocumentReady(fn) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn)
+    else fn()
+}
+
+// CSRF (XSRF) security
+//attach the CSRF token as a header to every request, whatever the body type
+//(json/form/FormData). The jQuery branch went with the jQuery it guarded.
+onDocumentReady(function () {
     const tokenInput = document.querySelector('input[name=__RequestVerificationToken]');
     if (!tokenInput) {
         return;
     }
     const token = tokenInput.value;
 
-    if (typeof axios !== 'undefined') {
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
-    }
-
-    if (typeof $ !== 'undefined' && typeof $.ajaxSetup === 'function') {
-        $.ajaxSetup({
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('X-CSRF-TOKEN', token);
-            }
-        });
-    }
-})();
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
+});
 
 // runs an array of async functions in sequential order
 function seq(arr, callback, index) {
@@ -129,21 +122,6 @@ function runScripts($container) {
     seq(runList, scriptsDone)
 }
 
-function SaveCurrentPossition(href, latitude, longitude) {
-    var bodyData = new FormData();
-    bodyData.append('latitude', latitude);
-    bodyData.append('longitude', longitude);
-    axios({
-        url: href,
-        method: 'post',
-        data: bodyData
-    }).then(function (response) {
-
-    }).catch(function (error) {
-        alert(error);
-    });   
-}
-
 function StopPropagation(event) {
     event.stopPropagation();
 }
@@ -161,7 +139,7 @@ function StopPropagation(event) {
         }
     }
 
-    function showMenu(menu) {
+    function showMenu() {
         var menu = this;
         var ul = $("ul", menu)[0];
 
@@ -170,7 +148,7 @@ function StopPropagation(event) {
         ul.classList.add("-visible");
     }
 
-    function hideMenu(menu) {
+    function hideMenu() {
         var menu = this;
         var ul = menu.parentElement;
 
@@ -249,7 +227,7 @@ var Reservation = {
             onSelect: this.onDatePickerDateChange,
             disableDayFn: this.daysToMark,
             format: 'MM/DD/YYYY',
-            toString: function(date, format) {
+            toString: function(date) {
                 // you should do formatting based on the passed format,
                 // but we will just return 'D/M/YYYY' for simplicity
                 const day = ("0" + date.getDate()).slice(-2);
@@ -257,7 +235,7 @@ var Reservation = {
                 const year = date.getFullYear();
                 return `${month}/${day}/${year}`;
             },
-            parse: function(dateString, format) {
+            parse: function(dateString) {
                 // dateString is the result of `toString` method
                 const parts = dateString.split('/');
                 const day = parts[0];
@@ -278,12 +256,12 @@ var Reservation = {
             defaultDate: defdate
         });
 
-        var reservationDatepickerFrom = new Pikaday({
+        new Pikaday({
             field: document.getElementById('reservationDatepickerFrom'),
             onSelect: this.onDatePickerSelect,
             disableDayFn: this.daysToMarkFrom,
             format: 'MM/DD/YYYY',
-            toString: function (date, format) {
+            toString: function (date) {
                 // you should do formatting based on the passed format,
                 // but we will just return 'D/M/YYYY' for simplicity
                 const day = ("0" + date.getDate()).slice(-2);
@@ -291,7 +269,7 @@ var Reservation = {
                 const year = date.getFullYear();
                 return `${month}/${day}/${year}`;
             },
-            parse: function (dateString, format) {
+            parse: function (dateString) {
                 // dateString is the result of `toString` method
                 const parts = dateString.split('/');
                 const day = parseInt(parts[0], 10);
@@ -308,12 +286,12 @@ var Reservation = {
             defaultDate: defdate
         });
 
-        var reservationDatepickerTo = new Pikaday({
+        new Pikaday({
             field: document.getElementById('reservationDatepickerTo'),
             onSelect: this.onDatePickerSelect,
             disableDayFn: this.daysToMarkTo,
             format: 'MM/DD/YYYY',
-            toString: function (date, format) {
+            toString: function (date) {
                 // you should do formatting based on the passed format,
                 // but we will just return 'D/M/YYYY' for simplicity
                 const day = ("0" + date.getDate()).slice(-2);
@@ -321,7 +299,7 @@ var Reservation = {
                 const year = date.getFullYear();
                 return `${month}/${day}/${year}`;
             },
-            parse: function (dateString, format) {
+            parse: function (dateString) {
                 // dateString is the result of `toString` method
                 const parts = dateString.split('/');
                 const day = parseInt(parts[0], 10);
@@ -358,12 +336,12 @@ var Reservation = {
 
         this.fillAvailableDates(startDateYear, startDateMonth, Reservation._parameter, false);
 
-        var reservationDatepickerFromRe = new Pikaday({
+        new Pikaday({
             field: document.getElementById('reservationDatepicker'),
             onSelect: this.onDatePickerDateChange,
             disableDayFn: this.daysToMark,
             format: 'MM/DD/YYYY',
-            toString: function(date, format) {
+            toString: function(date) {
                 // you should do formatting based on the passed format,
                 // but we will just return 'D/M/YYYY' for simplicity
                 const day = ("0" + date.getDate()).slice(-2);
@@ -371,7 +349,7 @@ var Reservation = {
                 const year = date.getFullYear();
                 return `${month}/${day}/${year}`;
             },
-            parse: function (dateString, format) {
+            parse: function (dateString) {
                 // dateString is the result of `toString` method
                 const parts = dateString.split('/');
                 const day = parseInt(parts[0], 10);
@@ -438,11 +416,8 @@ var Reservation = {
     },
 
     onDatePickerDateChange: function onDatePickerDateChange() {
-        if (document.querySelector("#reservationDatepicker") != null) {
-            var selected = document.querySelector("#reservationDatepicker").value;
-        } else {
-            var selected = null;
-        }
+        var datepicker = document.querySelector("#reservationDatepicker");
+        var selected = datepicker != null ? datepicker.value : null;
         if (selected != null) {
             document.querySelector("#hoursDiv").innerHTML = '';
             var selectedSplitResults = selected.split("/");
@@ -450,7 +425,7 @@ var Reservation = {
             var selectedMonth = selectedSplitResults[0];
             var selectedYear = selectedSplitResults[2];
 
-            for (i = 0; i < Reservation.availableDates.length; i++) {
+            for (var i = 0; i < Reservation.availableDates.length; i++) {
                 var splitResults = Reservation.availableDates[i].Date.split("-");
                 var year = splitResults[0];
                 var month = splitResults[1];
@@ -484,7 +459,6 @@ var Reservation = {
             parameter: parameter
         };
 
-        addAntiForgeryToken(postData);
 
         axios({
             url: Reservation.ajaxUrl,
@@ -511,7 +485,6 @@ var Reservation = {
             year: year,
             parameter: null
         };
-        addAntiForgeryToken(postData);
 
         axios({
             url: Reservation.ajaxUrl,
@@ -539,7 +512,6 @@ var Reservation = {
             parameter: null
         };
 
-        addAntiForgeryToken(postData);
 
         axios({
             url: Reservation.ajaxUrl,
@@ -593,3 +565,7 @@ var Reservation = {
 }
 
 /* END RESERVATION */
+
+window.runScripts = runScripts
+window.StopPropagation = StopPropagation
+window.Reservation = Reservation

@@ -6,20 +6,12 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Search"]);
 }
-<script asp-location="Footer">
-    document.addEventListener("DOMContentLoaded", function () {
-        document.getElementById("@Html.IdFor(model => model.adv)").addEventListener('click', toggleAdvancedSearch);
-        toggleAdvancedSearch();
-    });
-    function toggleAdvancedSearch() {
-        if (document.getElementById('@Html.IdFor(model => model.adv)').checked) {
-            document.getElementById('advanced-search-block').style.display = "flex";
-        }
-        else {
-            document.getElementById('advanced-search-block').style.display = "none";
-        }
-    }
-</script>
+<script type="application/json" data-grand-vm="advancedSearch">@Json.Serialize(new {
+                                                                   elements = new {
+                                                                       checkboxId = Html.IdFor(m => m.adv),
+                                                                       blockId = "advanced-search-block"
+                                                                   }
+                                                               })</script>
 
 <div class="page search-page">
     <h1 class="generalTitle h2">
@@ -116,7 +108,7 @@
                         <div class="form-row">
                             <template :key="Model.Id" v-for="Model in catalog.Model.Products">
                                 <div class="col-6 col-sm-6 col-lg-4 product-container new-col-6 mb-2">
-                                    <product-box-vue v-bind="{ Model: Model }"></product-box-vue>
+                                    <product-box v-bind="{ Model: Model }"></product-box>
                                 </div>
                             </template>
                         </div>
@@ -127,7 +119,7 @@
                         <div class="col-12">
                             <div class="row">
                                 <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                                    <product-box-list-vue v-bind="{ Model: Model }"></product-box-list-vue>
+                                    <product-box-list v-bind="{ Model: Model }"></product-box-list>
                                 </template>
                             </div>
                         </div>
@@ -162,4 +154,4 @@
     }
 }
 
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>
+<partial name="Partials/ModelScript" model="Model"/>

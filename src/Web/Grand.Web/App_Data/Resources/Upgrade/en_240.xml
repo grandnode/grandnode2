@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Language Name="English">
+	<Resource Name="shoppingcart.estimateshipping.failed" Area="Front">
+		<Value>We could not work out a shipping estimate. Please try again.</Value>
+	</Resource>
+	<Resource Name="common.darkmode" Area="Front">
+		<Value>Dark mode</Value>
+	</Resource>
+	<Resource Name="catalog.loadfailed" Area="Front">
+		<Value>We could not load the products. Please try again.</Value>
+	</Resource>
 	<Resource Name="Countdown.Days" Area="Front">
 		<Value>d</Value>
 	</Resource>

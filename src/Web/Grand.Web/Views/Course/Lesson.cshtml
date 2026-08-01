@@ -30,23 +30,14 @@
                                     <label class="form-check-label" for="customControlInline"></label>
                                 </div>
                                 <button class="btn btn-info" id="btnApprove">@Loc["Course.ApproveLesson"]</button>
-                                <script asp-location="Footer">
-                                document.addEventListener("DOMContentLoaded", function () {
-                                    document.getElementById("btnApprove").addEventListener('click', function (event) {
-                                        if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
-                                            axios({
-                                                url: '@Url.Action("Approved", "Course", new { Model.Id })',
-                                                method: 'post',
-                                            }).then(function (response) {
-                                                if (response) {
-                                                    document.getElementById('btnApprove').style.display = 'none';
-                                                    document.getElementById('customControlInline').checked = true;
-                                                }
-                                            })
-                                        }
-                                    });
-                                });
-                                </script>
+                                <script type="application/json" data-grand-vm="confirmPost">@Json.Serialize(new {
+                                    route = Url.Action("Approved", "Course", new { Model.Id }),
+                                    elements = new { buttonId = "btnApprove", checkId = "customControlInline" },
+                                    res = new {
+                                        areYouSure = Loc["Admin.Common.AreYouSure"].ToString(),
+                                        warning = Loc["common.warning"].ToString()
+                                    }
+                                })</script>
                             }
                         </div>
                     </div>

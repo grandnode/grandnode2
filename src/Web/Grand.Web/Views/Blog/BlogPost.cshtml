@@ -62,7 +62,7 @@
         <div class="fieldset new-comment generalMarginSupporter" id="comments">
             <h4 class="generalTitle generalMarginSupporter">@Loc["Blog.Comments.LeaveYourComment"]</h4>
             <validation-observer v-slot="{ handleSubmit }">
-                <form id="addBlogComment" asp-controller="Blog" asp-action="BlogPost" asp-route-id="@Model.Id" method="post" v-on:submit.prevent="handleSubmit(blog.submitBlogComment)">
+                <form id="addBlogComment" asp-controller="Blog" asp-action="BlogPost" asp-route-id="@Model.Id" method="post" v-on:submit.prevent="handleSubmit(blog.submitComment)">
                     <input type="hidden" name="Id" value="@Model.Id"/>
                     <div class="form-fields">
                         <div class="form-group">
@@ -87,48 +87,7 @@
                     </div>
                 </form>
             </validation-observer>
-            <script asp-location="Footer" asp-order="300">
-                var blog = new Vue({
-                    data: function () {
-                        return {
-                            Model: null,
-                            CommentText: ''
-                        }
-                    },
-                    created() {
-                        this.Model = @Json.Serialize(Model.Comments);
-                    },
-                    methods: {
-                        submitBlogComment() {
-                            var form = document.getElementById("addBlogComment");
-                            var url = form.getAttribute("action");
-                            var bodyFormData = new FormData(form);
-                            axios({
-                                url: url,
-                                data: bodyFormData,
-                                method: 'post',
-                                headers: {
-                                'Accept': 'application/json'                                    
-                            }
-                            }).then(function (response) {
-                                if (response.data.success == true){
-                                    blog.CommentText = ' ';
-                                    vm.displayBarNotification(response.data.message, '', 'success', 3000);
-                                    if (response.data.model){
-                                        blog.addComment(response.data.model)
-                                    }
-                                } else {
-                                    vm.displayBarNotification(response.data.message, '', 'error', 3500);
-                                }
-                            })
-                        },
-                        addComment(model) {
-                              // Add object item to array
-                              this.Model.push(model);
-                        }
-                    }
-                });
-            </script>
+            <script type="application/json" data-grand-vm="comments">@Json.Serialize(new { name = "blog", formId = "addBlogComment", comments = Model.Comments, fields = new[] { "CommentText" } })</script>
         </div>
         <template v-if="blog.Model.length > 0">
             <div class="comment-list">
