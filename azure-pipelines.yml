@@ -14,7 +14,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
-  NUGET_PACKAGES: '$(HOME)/.nuget/packages'
+  NUGET_PACKAGES: $(Agent.TempDirectory)/.nuget/packages'
   NUGET_HTTP_CACHE_PATH: '$(Agent.TempDirectory)/.nuget/http-cache'
   NUGET_PLUGINS_CACHE_PATH: '$(Agent.TempDirectory)/.nuget/plugins-cache'
   DOTNET_CLI_HOME: '$(Agent.TempDirectory)'
