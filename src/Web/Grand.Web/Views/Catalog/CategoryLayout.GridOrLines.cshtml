@@ -114,11 +114,12 @@
                 <span>@Loc["Products.FeaturedProducts"]</span>
             </h2>
             <div class="row">
-                <template v-for="Model in catalog.Model.FeaturedProducts">
+                @foreach (var product in Model.FeaturedProducts)
+                {
                     <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                        <partial name="Partials/CatalogProductGridView"/>
+                        <partial name="Partials/CatalogProductView" model="product"/>
                     </div>
-                </template>
+                }
             </div>
         </div>
     }
@@ -127,13 +128,62 @@
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
         <template v-if="catalog.Model !== undefined">
             <partial name="Partials/Selectors"/>
+        </template>
+        @*
+            The requested page is rendered on the server, so product names, prices
+            and links are in the HTML source rather than only in the catalog JSON
+            island. Vue takes over the moment the visitor sorts, filters or pages -
+            catalog.clientRendered flips and the branch below replaces this one.
+
+            This must NOT sit inside a <template>: a <template>'s children are inert
+            and are never rendered without JavaScript.
+        *@
+        <div class="catalog-products-server" v-if="!catalog?.clientRendered">
+            @if (Model.Products.Any())
+            {
+                if (Model.PagingFilteringContext.ViewMode != "list")
+                {
+                    <div class="col-12 product-grid px-0">
+                        <div class="row">
+                            @foreach (var product in Model.Products)
+                            {
+                                <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
+                                    <partial name="Partials/CatalogProductView" model="product"/>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="product-list">
+                        <div class="col-12">
+                            <div class="row">
+                                @foreach (var product in Model.Products)
+                                {
+                                    <partial name="Partials/CatalogProductListView" model="product"/>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                <partial name="Partials/PaginationLinks" model="Model.PagingFilteringContext"/>
+            }
+            else
+            {
+                <div class="alert alert-info my-3">
+                    @Loc["search.noresultstext"]
+                </div>
+            }
+        </div>
+        <template v-else>
             <template v-if="catalog.Model.Products.length > 0">
                 <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
                     <div class="col-12 product-grid px-0">
                         <div class="row">
-                            <template v-for="Model in catalog.Model.Products">
+                            <template v-for="product in catalog.Model.Products">
                                 <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                                    <partial name="Partials/CatalogProductGridView"/>
+                                    <partial name="Partials/Client/CatalogProductGridView"/>
                                 </div>
                             </template>
                         </div>
@@ -143,8 +193,8 @@
                     <div class="product-list">
                         <div class="col-12">
                             <div class="row">
-                                <template v-for="Model in catalog.Model.Products">
-                                    <partial name="Partials/CatalogProductListView"/>
+                                <template v-for="product in catalog.Model.Products">
+                                    <partial name="Partials/Client/CatalogProductListView"/>
                                 </template>
                             </div>
                         </div>

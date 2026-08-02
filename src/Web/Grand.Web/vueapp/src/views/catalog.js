@@ -7,6 +7,11 @@
  * Drives paging, sorting and the specification filters on category, brand,
  * collection, tag, vendor and search pages. Published as the global `catalog`
  * because those Razor templates iterate `catalog.Model.Products` directly.
+ *
+ * Category pages render their first page of products on the server (see
+ * CategoryLayout.GridOrLines.cshtml). This module does not draw that first
+ * render: it only takes the list over once `clientRendered` flips, on the first
+ * successful sort/filter/page request.
  */
 import LegacyVue from '../compat/core'
 import { registerView } from './index'
@@ -67,7 +72,11 @@ registerView('catalog', ({ model, res }) => {
     window.catalog = new LegacyVue({
         data: () => ({
             Model: [],
-            pager: []
+            pager: [],
+            // The first page of results is rendered by Razor so the products are
+            // in the HTML source. The views keep that server markup on screen
+            // until this flips, at which point Vue owns the list.
+            clientRendered: false
         }),
         created() {
             this.Model = model
@@ -106,6 +115,10 @@ registerView('catalog', ({ model, res }) => {
                     .then(response => {
                         this.Model = response.data
                         applyCatalogModel(this, response.data)
+                        // Hand the list over to Vue. Only on success: a failed
+                        // request must leave the server-rendered page on screen
+                        // rather than blank it.
+                        this.clientRendered = true
                     })
                     // Silent failure here reads as a dead page: sorting, filtering and
                     // paging simply stop responding with nothing on screen to say why.

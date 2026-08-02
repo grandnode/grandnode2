@@ -1,0 +1,62 @@
+@*
+    Server-rendered pager for the first, non-JS render of a catalog listing.
+
+    Unlike Partials/Pagination.cshtml - which calls catalog.goToPage() and only
+    exists once Vue has taken over - every page here is a real <a href>, so the
+    pages beyond the first are reachable without JavaScript and crawlable.
+
+    Radius must match PAGER_RADIUS in vueapp/src/views/catalog.js, otherwise the
+    pager visibly changes shape the moment the client takes over.
+*@
+@using Microsoft.AspNetCore.Http.Extensions
+@model CatalogPagingFilteringModel
+@{
+    const int pagerRadius = 4;
+
+    if (Model.TotalPages <= 1)
+    {
+        return;
+    }
+
+    var currentUrl = Context.Request.GetEncodedPathAndQuery();
+    // fully qualified: Grand.Web.Common.Extensions has a CommonExtensions too
+    string PageUrl(int page) =>
+        Grand.Infrastructure.Extensions.CommonExtensions.ModifyQueryString(currentUrl, "pagenumber", page.ToString());
+
+    var from = Math.Max(1, Model.PageNumber - pagerRadius);
+    var to = Math.Min(Model.TotalPages, Model.PageNumber + pagerRadius);
+    var showEdges = Model.TotalPages > 5;
+}
+<ul class="pagination">
+    @if (Model.PageIndex >= 3 && showEdges)
+    {
+        <li class="page-item">
+            <a class="page-link" href="@PageUrl(1)">@Loc["pager.firstpagetitle"]</a>
+        </li>
+    }
+    @if (Model.HasPreviousPage)
+    {
+        <li class="page-item">
+            <a class="page-link" href="@PageUrl(Model.PageNumber - 1)" rel="prev">@Loc["pager.previouspagetitle"]</a>
+        </li>
+    }
+    @* `page` would be read as the @@page directive here - keep the longer name. *@
+    @for (var pageNumber = from; pageNumber <= to; pageNumber++)
+    {
+        <li class="page-item @(pageNumber == Model.PageNumber ? "currentpage" : "")">
+            <a class="page-link" href="@PageUrl(pageNumber)">@pageNumber</a>
+        </li>
+    }
+    @if (Model.HasNextPage)
+    {
+        <li class="page-item">
+            <a class="page-link" href="@PageUrl(Model.PageNumber + 1)" rel="next">@Loc["pager.nextpagetitle"]</a>
+        </li>
+    }
+    @if (Model.PageIndex + 3 < Model.TotalPages && showEdges)
+    {
+        <li class="page-item">
+            <a class="page-link" href="@PageUrl(Model.TotalPages)">@Loc["pager.lastpagetitle"]</a>
+        </li>
+    }
+</ul>

@@ -38,9 +38,9 @@
             <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
                 <div class="col-12 product-grid px-0">
                     <div class="row">
-                        <template v-for="Model in catalog.Model.Products">
+                        <template v-for="product in catalog.Model.Products">
                             <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                                <partial name="Partials/CatalogProductGridView"/>
+                                <partial name="Partials/Client/CatalogProductGridView"/>
                             </div>
                         </template>
                     </div>
@@ -50,8 +50,8 @@
                 <div class="product-list">
                     <div class="col-12">
                         <div class="row">
-                            <template v-for="Model in catalog.Model.Products">
-                                <partial name="Partials/CatalogProductListView"/>
+                            <template v-for="product in catalog.Model.Products">
+                                <partial name="Partials/Client/CatalogProductListView"/>
                             </template>
                         </div>
                     </div>
