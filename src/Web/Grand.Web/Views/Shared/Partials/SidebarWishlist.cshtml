@@ -8,7 +8,7 @@
         <li class="nav-item">
             <a href="#" target="_self" class="nav-link">
                 <i class="b-icon bi bi-heart" :class="[darkMode ? 'text-white' : 'text-dark']" @@click="updateWishlist('@Url.RouteUrl("SidebarWishlist")')" data-bs-toggle="offcanvas" data-bs-target="#sidebar-wishlist" aria-controls="sidebar-wishlist" aria-hidden="true"></i>
-                <span class="qty-indicator wishlist-qty" ref="wishlistQty">
+                <span class="qty-indicator wishlist-qty" ref="wishlistQty" data-qty="@Model">
                     @Loc["Wishlist.HeaderQuantity", Model]
                 </span>
             </a>

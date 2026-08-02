@@ -528,7 +528,13 @@ body:not(.modal-open) {
 .modal.fade + .modal-backdrop  {
     opacity: .5;
 }
-[v-cloak] .page-loader-container::before {
+/*
+    Keyed off .axios-request, which app.js toggles around XHR, and no longer off
+    [v-cloak] on #app: that hid every server-rendered page behind an opaque sheet
+    until the deferred bundle had run. Markup only Vue can fill carries v-cloak
+    itself and is hidden by the scoped rule below.
+*/
+.page-loader-container.axios-request::before {
     content: '';
     position: fixed;
     top: 0;
@@ -536,15 +542,16 @@ body:not(.modal-open) {
     width: 100%;
     height: 100%;
     background: #fff;
+    opacity: 0.5;
     overflow: hidden;
     z-index: 1041;
 }
-[v-cloak] .page-loader,
-[v-cloak] .page-loader:before,
-[v-cloak] .page-loader:after {
+.axios-request .page-loader,
+.axios-request .page-loader:before,
+.axios-request .page-loader:after {
     border-radius: 50%;
 }
-[v-cloak] .page-loader {
+.axios-request .page-loader {
     color: #25b232;
     margin: 22.5px auto;
     position: fixed;
@@ -558,12 +565,12 @@ body:not(.modal-open) {
     transform: translateZ(0);
     z-index: 1041;
 }
-[v-cloak] .page-loader:before,
-[v-cloak] .page-loader:after {
+.axios-request .page-loader:before,
+.axios-request .page-loader:after {
   position: absolute;
   content: '';
 }
-[v-cloak] .page-loader:before {
+.axios-request .page-loader:before {
   width: 27.5px;
   height: 55px;
   background: #25b232;
@@ -576,7 +583,7 @@ body:not(.modal-open) {
   -webkit-animation: load2 2s infinite ease 1.5s;
   animation: load2 2s infinite ease 1.5s;
 }
-[v-cloak] .page-loader:after {
+.axios-request .page-loader:after {
   width: 27.5px;
   height: 55px;
   background: #25b232;
@@ -588,6 +595,14 @@ body:not(.modal-open) {
   transform-origin: -1px 27.5px;
   -webkit-animation: load2 2s infinite ease;
   animation: load2 2s infinite ease;
+}
+
+[v-cloak] {
+    visibility: hidden;
+}
+
+validation-provider .field-validation-error {
+    visibility: hidden;
 }
 @-webkit-keyframes load2 {
   0% {

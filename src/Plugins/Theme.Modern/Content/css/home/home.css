@@ -3,7 +3,7 @@
 .generalTitle {
     margin: 15px 0;
 }
-[v-cloak] .products-tabs {
+.products-tabs[v-cloak] {
     display: none;
 }
 .home-page .home-page-section {

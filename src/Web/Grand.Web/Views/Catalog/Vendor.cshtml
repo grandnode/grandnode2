@@ -24,8 +24,11 @@
                 </div>
                 <div class="col-xl-10 col-lg-9 col-md-8 align-items-center d-flex">
                     <div>
+                        @*Rendered server-side rather than through catalog.Model: this is
+                            the page H1, and the vendor name does not change when the
+                            listing below is refiltered*@
                         <h1 class="h2 generalTitle w-100">
-                            {{catalog.Model.Name}}
+                            @Model.Name
                         </h1>
                         @await Component.InvokeAsync("Widget", new { widgetZone = "vendordetails_top", additionalData = Model.Id })
                         @*rendering review section*@

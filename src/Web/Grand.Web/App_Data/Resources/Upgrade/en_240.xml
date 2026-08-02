@@ -9,6 +9,9 @@
 	<Resource Name="catalog.loadfailed" Area="Front">
 		<Value>We could not load the products. Please try again.</Value>
 	</Resource>
+	<Resource Name="common.skiptocontent" Area="Front">
+		<Value>Skip to main content</Value>
+	</Resource>
 	<Resource Name="Countdown.Days" Area="Front">
 		<Value>d</Value>
 	</Resource>

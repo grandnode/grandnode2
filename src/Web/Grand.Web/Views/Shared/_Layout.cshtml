@@ -26,13 +26,28 @@
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
 
-<div id="app" :dark-theme="darkMode" v-cloak>
+@*
+    No v-cloak on the root: it used to paint an opaque white sheet over the whole
+    viewport until the deferred bundle mounted, which hid every server-rendered
+    page - the catalog listing included - behind a blank screen. Markup that only
+    Vue can fill carries v-cloak on itself instead.
+*@
+<div id="app" :dark-theme="darkMode">
     <div class="page-loader-container">
         <div class="page-loader"></div>
     </div>
     <vc:get-coordinate></vc:get-coordinate>
+    @*
+        Skip link: the header carries the menu, search, account and cart controls, so
+        without it keyboard and screen-reader users tab through the whole navigation
+        again on every page (WCAG 2.4.1). It is off-screen until focused.
+
+        tabindex="-1" on the target so that following the link actually moves focus -
+        a plain <main> is not focusable and browsers would only scroll.
+    *@
+    <a class="visually-hidden-focusable skip-link" href="#content">@Loc["Common.SkipToContent"]</a>
     <partial name="Partials/Header"/>
-    <div class="container main-container">
+    <main id="content" class="container main-container" tabindex="-1">
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
         @if (IsSectionDefined("Breadcrumb"))
         {
@@ -41,7 +56,7 @@
         @RenderBody()
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
         <vc:voice-navigation></vc:voice-navigation>
-    </div>
+    </main>
     @await Component.InvokeAsync("Footer")
     <partial name="Partials/Cookie"/>
     <partial name="Partials/Notifications"/>

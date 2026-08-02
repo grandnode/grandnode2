@@ -2,7 +2,9 @@
 <div class="home-page-section">
     <div id="CategoryFeaturedProducts" class="section">
         <div class="featured-product-grid">
-            <div class="tabs products-tabs">
+            @*v-cloak sits on the block itself now that the root no longer carries it -
+                everything in here is rendered by Vue from homePCategoryProducts*@
+            <div class="tabs products-tabs" v-cloak>
                 <ul class="nav nav-tabs" role="tablist">
                     <li class="nav-item" role="presentation" v-for="(Category, index) in homePCategoryProducts.Model" :key="'nav-' + index">
                         <button type="button" class="nav-link" :class="{ active: index === 0 }" role="tab"

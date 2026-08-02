@@ -37,7 +37,7 @@ var vm = new Vue({
         if (localStorage.fluid == "true") this.fluid = "fluid";
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
-        this.wishindicator = parseInt(this.$refs.wishlistQty.innerText);
+        this.wishindicator = this.readWishlistQty();
         this.updateCompareProductsQty();
         this.backToTop();
     },
@@ -55,36 +55,46 @@ var vm = new Vue({
         }
     },
     created: function () {
+        /*
+         * The request overlay is driven purely by the .axios-request class now.
+         *
+         * It used to also set v-cloak on #app, because the loader CSS was keyed off
+         * that attribute - which meant the very same rules hid the whole page on
+         * first paint. The class was added on every request and never taken off
+         * again; only removing v-cloak happened to make the overlay disappear.
+         *
+         * Concurrent requests are counted, otherwise the first response to come back
+         * clears an overlay the others still need.
+         */
+        let pending = 0;
+        const loader = shown => {
+            pending = Math.max(0, pending + (shown ? 1 : -1));
+            const element = document.querySelector(".page-loader-container");
+            if (element) element.classList.toggle("axios-request", pending > 0);
+        };
+
         axios.interceptors.request.use(
             config => {
-                if (config.showLoader) {
-                    document.getElementById("app").setAttribute("v-cloak", true);
-                    var element = document.querySelector(".page-loader-container");
-                    element.classList.add("axios-request");
-                }
+                if (config.showLoader) loader(true);
                 return config;
             },
             error => {
-                if (error.config.showLoader) {
-                    document.getElementById("app").removeAttribute("v-cloak");
-                }
+                if (error.config && error.config.showLoader) loader(false);
                 return Promise.reject(error);
             }
         );
         axios.interceptors.response.use(
             response => {
-                if (response.config.showLoader) {
-                    document.getElementById("app").removeAttribute("v-cloak");
-                }
+                if (response.config.showLoader) loader(false);
 
                 return response;
             },
             error => {
-                let response = error.response;
+                // a network failure or a cancelled request has no response at all,
+                // and reading .config off it threw, leaving the overlay stuck up
+                const config = (error.response && error.response.config) || error.config;
 
-                if (response.config.showLoader) {
-                    document.getElementById("app").removeAttribute("v-cloak");
-                }
+                if (config && config.showLoader) loader(false);
 
                 return Promise.reject(error);
             }
@@ -256,6 +266,24 @@ var vm = new Vue({
                 alert(error);
             });
             return false;
+        },
+        /*
+         * Seeds the wishlist counter from the server-rendered header.
+         *
+         * The element only exists when the wishlist is enabled for the current
+         * customer, so reading the ref unguarded threw a TypeError and aborted the
+         * rest of mounted() - updateCompareProductsQty() and backToTop() never ran.
+         *
+         * The number comes from data-qty rather than the element text, which is a
+         * localized template - Wishlist.HeaderQuantity is "{0}" by default, but a
+         * store that decorates it ("(0)", "0 items") would feed parseInt something
+         * it cannot read.
+         */
+        readWishlistQty: function () {
+            const el = this.$refs.wishlistQty;
+            if (!el) return undefined;
+            const qty = parseInt(el.dataset.qty, 10);
+            return isNaN(qty) ? undefined : qty;
         },
         updateCompareProductsQty: function () {
             const cookie = AxiosCart.getCookie('Grand.CompareProduct');

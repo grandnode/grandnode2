@@ -1,5 +1,6 @@
 ﻿@await Component.InvokeAsync("Widget", new { widgetZone = "checkout_payment_method_top" })
-<div v-if="vmorder.PaymentMethod" class="payment-method">
+@*v-cloak - see the note in Partials/ConfirmOrder*@
+<div v-if="vmorder.PaymentMethod" v-cloak class="payment-method">
     <div v-if="vmorder.DisplayLoyaltyPoints" class="use-loyalty-points">
         <label class="form-check">
             <input v-if="vmorder.LoyaltyPointsEnoughToPayForOrder" id="UseLoyaltyPoints" name="UseLoyaltyPoints" type="checkbox" value="true" class="form-check-input" onchange="vmorder.vPaymentMethod.toggleUseLoyaltyPoints(this);"/>

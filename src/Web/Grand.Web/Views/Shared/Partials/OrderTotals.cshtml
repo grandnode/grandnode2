@@ -1,4 +1,5 @@
-﻿<div v-if="vmorder.totals != null" class="total-info table-responsive px-0">
+﻿@*v-cloak - see the note in Views/Checkout/Partials/ConfirmOrder*@
+<div v-if="vmorder.totals != null" v-cloak class="total-info table-responsive px-0">
     <table class="table table-hover">
         <tbody>
         <tr class="col-12 px-0 order-subtotal d-flex justify-content-start">

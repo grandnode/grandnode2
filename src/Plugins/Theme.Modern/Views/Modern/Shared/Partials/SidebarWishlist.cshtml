@@ -3,7 +3,7 @@
         <li class="nav-item">
             <a class="nav-link" @@click="updateWishlist('@Url.RouteUrl("SidebarWishlist")')" data-bs-toggle="offcanvas" data-bs-target="#sidebar-wishlist" aria-controls="sidebar-wishlist">
                 <span class="icon-heart icons"></span>
-                <span class="qty-indicator wishlist-qty" ref="wishlistQty">
+                <span class="qty-indicator wishlist-qty" ref="wishlistQty" data-qty="@Model">
                     @Loc["Wishlist.HeaderQuantity", Model]
                 </span>
             </a>

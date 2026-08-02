@@ -60,10 +60,17 @@ body[dark-theme="true"] {
 .modal.fade + .modal-backdrop  {
     opacity: .5;
 }
-[v-cloak] .axios-request::before {
-    opacity: 0.5
-}
-[v-cloak] .page-loader-container::before {
+/*
+    The loader is keyed off .axios-request, which app.js toggles around XHR, and no
+    longer off [v-cloak] on #app.
+
+    Keyed on [v-cloak] it covered the whole viewport in opaque white from the first
+    paint until the deferred bundle had run, so every server-rendered page - the
+    catalog listing included - was invisible until the JavaScript arrived. FCP was
+    effectively TTI. What has to stay hidden before Vue mounts is only the markup
+    Vue itself fills in; that is handled by the scoped [v-cloak] rules below.
+*/
+.page-loader-container.axios-request::before {
     content: '';
     position: fixed;
     top: 0;
@@ -71,15 +78,16 @@ body[dark-theme="true"] {
     width: 100%;
     height: 100%;
     background: #fff;
+    opacity: 0.5;
     overflow: hidden;
     z-index: 1040;
 }
-[v-cloak] .page-loader,
-[v-cloak] .page-loader:before,
-[v-cloak] .page-loader:after {
+.axios-request .page-loader,
+.axios-request .page-loader:before,
+.axios-request .page-loader:after {
     border-radius: 50%;
 }
-[v-cloak] .page-loader {
+.axios-request .page-loader {
     color: #01b7f4;
     margin: 22.5px auto;
     position: fixed;
@@ -93,12 +101,12 @@ body[dark-theme="true"] {
     transform: translateZ(0);
     z-index: 1041;
 }
-[v-cloak] .page-loader:before,
-[v-cloak] .page-loader:after {
+.axios-request .page-loader:before,
+.axios-request .page-loader:after {
   position: absolute;
   content: '';
 }
-[v-cloak] .page-loader:before {
+.axios-request .page-loader:before {
   width: 27.5px;
   height: 55px;
   background: #01b7f4;
@@ -111,7 +119,7 @@ body[dark-theme="true"] {
   -webkit-animation: load2 2s infinite ease 1.5s;
   animation: load2 2s infinite ease 1.5s;
 }
-[v-cloak] .page-loader:after {
+.axios-request .page-loader:after {
   width: 27.5px;
   height: 55px;
   background: #01b7f4;
@@ -124,6 +132,54 @@ body[dark-theme="true"] {
   -webkit-animation: load2 2s infinite ease;
   animation: load2 2s infinite ease;
 }
+/*
+    Regions whose text only Vue can produce would otherwise show their raw {{ }}
+    source between first paint and the moment the deferred bundle mounts. Marked
+    with v-cloak on the region itself - Vue strips the attribute on mount - rather
+    than by hiding the whole page.
+
+    visibility rather than display: the element keeps its box, so revealing it does
+    not shift the layout around it.
+*/
+[v-cloak] {
+    visibility: hidden;
+}
+
+/*
+    Skip link. Bootstrap's .visually-hidden-focusable already reveals it on focus,
+    but it would then take part in the normal flow and push the header down; pinning
+    it means the rest of the page does not move when it appears.
+*/
+.skip-link:focus-visible,
+.skip-link:focus {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 1080;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    background: #fff;
+    color: #212529;
+    box-shadow: 0 0 0 .25rem rgba(1, 183, 244, .5);
+}
+
+/*
+    The main landmark is focused programmatically by the skip link, so it must not
+    draw a focus ring the way an interactive control would.
+*/
+#content:focus {
+    outline: none;
+}
+
+/*
+    Vue replaces <validation-provider> with the element named by its `tag` attribute,
+    so this selector stops matching the moment the app mounts. Only the message span
+    is hidden - hiding the provider itself would blank out the input as well.
+*/
+validation-provider .field-validation-error {
+    visibility: hidden;
+}
+
 @-webkit-keyframes load2 {
   0% {
     -webkit-transform: rotate(0deg);

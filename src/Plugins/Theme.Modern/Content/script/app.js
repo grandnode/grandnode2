@@ -101,7 +101,7 @@ var vm = new Vue({
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
         this.TopScroll();
-        //this.wishindicator = parseInt(this.$refs.wishlistQty.innerText);
+        this.wishindicator = this.readWishlistQty();
         this.updateCompareProductsQty();
         this.backToTop();
         if (991 < window.innerWidth) {
@@ -398,6 +398,21 @@ var vm = new Vue({
                 alert(error);
             });
             return false;
+        },
+        /*
+         * Seeds the wishlist counter from the server-rendered header.
+         *
+         * The element only exists when the wishlist is enabled for the current
+         * customer, so reading the ref unguarded threw and aborted the rest of
+         * mounted() - which is why the call had been commented out. The number comes
+         * from data-qty rather than the element text, which is a localized template
+         * a store is free to decorate ("(0)", "0 items") and parseInt cannot read.
+         */
+        readWishlistQty: function () {
+            const el = this.$refs.wishlistQty;
+            if (!el) return undefined;
+            const qty = parseInt(el.dataset.qty, 10);
+            return isNaN(qty) ? undefined : qty;
         },
         updateCompareProductsQty: function () {
             const cookie = AxiosCart.getCookie('Grand.CompareProduct');

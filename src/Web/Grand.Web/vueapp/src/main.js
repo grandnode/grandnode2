@@ -10,8 +10,14 @@
  * (bootstrap, axios, Pikaday, $bvToast).
  */
 import 'bootstrap/dist/css/bootstrap.css'
+// The full icon set, deliberately: category, brand and collection icons are stored
+// per record in the database and rendered as `bi bi-@Model.Category.Icon`, so a
+// build-time subset scanned from the views would blank out whatever a merchant had
+// configured.
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import 'animate.css'
+// animate.css is not here on purpose: 95 kB of keyframes that only Theme.Modern
+// used, and only for fadeIn - it now ships its own subset from
+// Plugins/Theme.Modern/Content/css/animate-subset.css
 import 'pikaday/css/pikaday.css'
 import './compat/compat.css'
 

@@ -23,12 +23,15 @@
 <resources asp-type="ScriptHeader"/>
 @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
 
-<div id="app" v-cloak>
+@*No v-cloak on the root - see the note in Grand.Web's _Layout.cshtml*@
+<div id="app">
     <div class="page-loader-container">
         <div class="page-loader"></div>
     </div>
     <partial name="Partials/Notifications"/>
     <vc:get-coordinate></vc:get-coordinate>
+    @*Skip link - see the note in Grand.Web's _Layout.cshtml*@
+    <a class="visually-hidden-focusable skip-link" href="#content">@Loc["Common.SkipToContent"]</a>
     <div class="container-fluid main-container">
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
         <div class="row">
@@ -81,13 +84,13 @@
                     </div>
                 </div>
             </div>
-            <div class="container right-container">
+            <main id="content" class="container right-container" tabindex="-1">
                 @if (IsSectionDefined("Breadcrumb"))
                 {
                     @await RenderSectionAsync("Breadcrumb")
                 }
                 @RenderBody()
-            </div>
+            </main>
         </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
     </div>

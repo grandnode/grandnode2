@@ -6,6 +6,10 @@
 
     <link rel="stylesheet" type="text/css" asp-src="/assets/custom/style.css">
 
+    @*animate.css used to ride along in the shared bundle for both themes; only the
+        handful of classes this theme uses are kept, and only this theme loads them*@
+    <link asp-src="/Plugins/Theme.Modern/Content/css/animate-subset.css" rel="stylesheet" asp-append-version="true">
+
     <link asp-src="/Plugins/Theme.Modern/Content/swiper/swiper.min.css" rel="stylesheet">
     <link asp-src="/Plugins/Theme.Modern/Content/css/fonts/simple-line-icons.min.css" rel="stylesheet" asp-append-version="true">
 

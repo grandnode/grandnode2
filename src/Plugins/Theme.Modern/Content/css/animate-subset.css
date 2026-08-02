@@ -1,0 +1,58 @@
+/*
+    The three animate.css classes this theme actually uses.
+
+    animate.css itself is 95 kB of keyframes for ~90 animations and used to be
+    imported into the shared storefront bundle, so every page of both themes paid
+    for it while only Theme.Modern used it - and only here:
+
+      - Partials/ProductBoxTemplate marks the spec table animate__animated and names
+        the animation in data-animation / data-delay;
+      - Content/script/npslider-home.js reads those attributes and adds the classes
+        as a slide becomes active.
+
+    Because the class names come from data attributes, a theme that wants a
+    different animation has to add its keyframes here as well.
+*/
+
+:root {
+    --animate-duration: 1s;
+    --animate-delay: 1s;
+}
+
+.animate__animated {
+    -webkit-animation-duration: var(--animate-duration);
+    animation-duration: var(--animate-duration);
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}
+
+.animate__delay-1s {
+    -webkit-animation-delay: var(--animate-delay);
+    animation-delay: var(--animate-delay);
+}
+
+@-webkit-keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.animate__fadeIn {
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate__animated {
+        -webkit-animation-duration: 1ms !important;
+        animation-duration: 1ms !important;
+        -webkit-animation-delay: 1ms !important;
+        animation-delay: 1ms !important;
+        -webkit-animation-iteration-count: 1 !important;
+        animation-iteration-count: 1 !important;
+    }
+}

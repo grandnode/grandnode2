@@ -54,6 +54,14 @@ registerView('shoppingCart', ({ model, routes, res }) => {
                     this.acceptTerms = true
                 }
             },
+            /*
+             * "Checkout as guest" navigates straight to checkout rather than posting the
+             * cart form: the selected checkout attributes are already persisted, because
+             * every control in Partials/CheckoutAttributes posts to CheckoutAttributeChange
+             * as it is changed. The required-attribute check that this path used to miss
+             * now lives in CheckoutController.Start, which covers every way into checkout,
+             * not just this button.
+             */
             checkout(guest) {
                 if (guest) {
                     window.location = routes.checkout

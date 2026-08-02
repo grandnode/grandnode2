@@ -1,4 +1,6 @@
-﻿<div v-if="vmorder.Confirm" class="checkout-data order-summary-content col-12 px-0">
+﻿@*v-cloak: v-if does not suppress anything until Vue has mounted, so without it the
+    raw {{ }} source of this block is on screen until the deferred bundle runs*@
+<div v-if="vmorder.Confirm" v-cloak class="checkout-data order-summary-content col-12 px-0">
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_confirm_top" })
     <div class="order-summary mb-3">
         <partial name="Partials/ReviewData" model="null"/>
