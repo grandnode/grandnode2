@@ -14,7 +14,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
-  NUGET_PACKAGES: '$(Agent.TempDirectory)/.nuget/packages'
+  NUGET_PACKAGES: '$(HOME)/.nuget/packages'
   NUGET_HTTP_CACHE_PATH: '$(Agent.TempDirectory)/.nuget/http-cache'
   NUGET_PLUGINS_CACHE_PATH: '$(Agent.TempDirectory)/.nuget/plugins-cache'
   DOTNET_CLI_HOME: '$(Agent.TempDirectory)'
@@ -27,6 +27,16 @@ steps:
 - checkout: self
   clean: true
   fetchDepth: 1
+
+- bash: |
+    sudo rm -rf /usr/local/lib/android
+    sudo rm -rf /usr/share/swift
+    sudo rm -rf /opt/hostedtoolcache/CodeQL
+    sudo rm -rf /usr/local/share/powershell
+    sudo apt-get clean
+    
+    df -h
+  displayName: Free disk space
 
 - task: Bash@3
   displayName: 'Pre-clean + disk check'
@@ -53,7 +63,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      dotnet workload install aspire
+      dotnet workload restore
 
 # Replaced NuGet tasks with dotnet CLI commands to fix Ubuntu 24.04 compatibility
 - task: DotNetCoreCLI@2
@@ -87,6 +97,7 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: publish
+    projects: '**/Grand.Web.csproj'
     publishWebProjects: True
     arguments: '--configuration $(buildConfiguration) --no-restore --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
