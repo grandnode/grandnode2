@@ -3,7 +3,15 @@
 @{
     Layout = "_SingleColumn";
 
-    <script asp-location="Footer" asp-src="/theme/script/public.checkout.js" asp-order="300" asp-append-version="true"></script>
+    @*
+        `defer` is mandatory, not an optimisation: this file reads the global `Vue` that
+        the bundle publishes, and the bundle is deferred in Partials/Head.cshtml. A plain
+        script executes during parsing, i.e. *before* any deferred one, so without defer
+        here it runs first, throws "Vue is not defined", never registers the checkout
+        controllers and the page renders empty. Any script that depends on the bundle
+        must carry defer, wherever in the views it lives.
+    *@
+    <script defer asp-location="Footer" asp-src="/theme/script/public.checkout.js" asp-order="300" asp-append-version="true"></script>
 
     <script type="application/json" data-grand-vm="checkoutSteps">@Json.Serialize(new {
                                                                      routes = new {
