@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "animate.css": "^4.1.1",
-    "axios": "^1.16.0",
+    "axios": "^1.18.0",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "pikaday": "^1.8.2",

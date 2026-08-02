@@ -137,7 +137,12 @@ public class ProductTagService : IProductTagService
         await _productTagRepository.UpdateAsync(productTag);
 
         //update on products
-        await _productRepository.UpdateToSet(x => x.ProductTags, previous.Name, productTag.Name);
+        var products = _productRepository.Table.Where(x => x.ProductTags.Contains(previous.Name)).ToList();
+        foreach (var product in products)
+        {
+            var tags = product.ProductTags.Select(t => t == previous.Name ? productTag.Name : t).ToList();
+            await _productRepository.UpdateField(product.Id, x => x.ProductTags, tags);
+        }
 
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY);
@@ -155,7 +160,7 @@ public class ProductTagService : IProductTagService
         ArgumentNullException.ThrowIfNull(productTag);
 
         //update product
-        await _productRepository.Pull(string.Empty, x => x.ProductTags, productTag.Name);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductTags, y => y == productTag.Name);
 
         //delete tag
         await _productTagRepository.DeleteAsync(productTag);
@@ -178,7 +183,7 @@ public class ProductTagService : IProductTagService
         ArgumentNullException.ThrowIfNull(productTag);
 
         //assign to product
-        await _productRepository.AddToSet(productId, x => x.ProductTags, productTag.Name);
+        await _productRepository.AddToCollectionField(productId, x => x.ProductTags, productTag.Name);
 
         //update product tag
         await _productTagRepository.UpdateField(productTag.Id, x => x.Count, productTag.Count + 1);
@@ -200,7 +205,7 @@ public class ProductTagService : IProductTagService
     {
         ArgumentNullException.ThrowIfNull(productTag);
 
-        await _productRepository.Pull(productId, x => x.ProductTags, productTag.Name);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductTags, y => y == productTag.Name);
 
         //update product tag
         await _productTagRepository.UpdateField(productTag.Id, x => x.Count, productTag.Count - 1);
