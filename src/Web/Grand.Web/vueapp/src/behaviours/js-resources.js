@@ -7,7 +7,9 @@
  */
 import { registerView } from '../views/index'
 
-registerView('jsResources', ({ res, routes }) => {
+registerView('jsResources', ({ res, routes, validation }) => {
     window.grandRes = Object.assign(window.grandRes || {}, res)
     window.grandRoutes = Object.assign(window.grandRoutes || {}, routes)
+    // read by compat/validate.js for fields that carry no message of their own
+    window.grandValidationMessages = Object.assign(window.grandValidationMessages || {}, validation)
 })

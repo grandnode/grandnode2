@@ -17,13 +17,39 @@ export function veeGetMessage(field, rule) {
     return null
 }
 
+/*
+ * Where a message comes from, in order:
+ *  1. the field's own data-val-* attribute, rendered by the view from Loc[...]
+ *  2. the message carried by the rule list itself, as in
+ *     "required|exact_length:1,Chck is required" - also from Loc[...]
+ *  3. the store's language, published by Partials/JsResources.cshtml
+ *  4. English, as a last resort if a store has not imported the resources yet
+ *
+ * Step 3 is why the defaults are not written out in this file: a shop running in
+ * Polish would otherwise get English whenever a field carried no message.
+ */
+function localized(key, fallback, param) {
+    const published = (window.grandValidationMessages || {})[key]
+    //A store that has not imported these resources yet gets the key back from
+    //the translation service ("validation.required"). Showing that to a visitor
+    //would be worse than English.
+    const text = published && published !== 'validation.' + key ? published : fallback
+    return param === undefined ? text : String(text).replace('{0}', param)
+}
+
 const messages = {
-    required: f => veeGetMessage(f, 'required') || 'The ' + (f || 'field') + ' field is required.',
-    email: f => veeGetMessage(f, 'email') || 'This field must be a valid email.',
-    confirmed: f => veeGetMessage(f, 'equalto') || 'The ' + (f || 'field') + ' confirmation does not match.',
-    min: (f, p) => veeGetMessage(f, 'min') || 'This field should be at least ' + p + ' characters.',
-    max: (f, p) => veeGetMessage(f, 'max') || 'This field should be at most ' + p + ' characters.',
-    exact_length: (f, p, msg) => msg || 'Must have ' + p + ' items'
+    required: (f, p, msg) =>
+        veeGetMessage(f, 'required') || msg || localized('required', 'This field is required.'),
+    email: f =>
+        veeGetMessage(f, 'email') || localized('email', 'This field must be a valid email.'),
+    confirmed: f =>
+        veeGetMessage(f, 'equalto') || localized('confirmed', 'The confirmation does not match.'),
+    min: (f, p) =>
+        veeGetMessage(f, 'min') || localized('minlength', 'This field should be at least {0} characters.', p),
+    max: (f, p) =>
+        veeGetMessage(f, 'max') || localized('maxlength', 'This field should be at most {0} characters.', p),
+    exact_length: (f, p, msg) =>
+        msg || localized('exactlength', 'Select at least {0} option.', p)
 }
 
 const isEmpty = v => v === '' || v === null || v === undefined
@@ -109,8 +135,26 @@ export const ValidationProvider = {
     },
     mounted() {
         this._onEvent = () => this.validate()
-        const isSelect = this.control()?.tagName === 'SELECT'
-        if (!isSelect) this.$el.addEventListener('input', this._onEvent)
+
+        /*
+         * Controls that commit on `change` must not be validated on `input`.
+         * A real click on a checkbox dispatches click, input and change as
+         * separate tasks, so validating on `input` flushes a re-render in
+         * between - and the re-render writes `checked` back from the model,
+         * which v-model has not updated yet because that happens on `change`.
+         * The change handler then sees an unchecked box, decides nothing
+         * happened, and the tick is lost. (A scripted el.click() dispatches all
+         * three in one stack, which is why it appeared to work.)
+         *
+         * <select> was already excluded for the same reason; checkbox and radio
+         * belong with it.
+         */
+        const control = this.control()
+        const commitsOnChange = control?.tagName === 'SELECT'
+            || control?.type === 'checkbox'
+            || control?.type === 'radio'
+
+        if (!commitsOnChange) this.$el.addEventListener('input', this._onEvent)
         this.$el.addEventListener('change', this._onEvent)
         this.$el.addEventListener('focusout', this._onEvent)
     },
@@ -128,7 +172,24 @@ export const ValidationProvider = {
         getValue() {
             const el = this.control()
             if (!el) return undefined
-            if (el.type === 'checkbox') return el.checked
+            if (el.type === 'checkbox') {
+                /*
+                 * A checkbox that carries a value belongs to a group standing for
+                 * one answer - a custom address or customer attribute - and its
+                 * value is the list of ticked options, the same shape v-model
+                 * binds. Reporting el.checked of the first box instead made
+                 * `required` see `false`, which is not empty, so a required
+                 * attribute never reported anything and the form went to the
+                 * server to be refused there.
+                 *
+                 * A lone checkbox with no value (accept terms, newsletter) keeps
+                 * its boolean, which is what { required: { allowFalse: false } }
+                 * expects.
+                 */
+                if (!el.hasAttribute('value')) return el.checked
+                const group = this.$el.querySelectorAll('input[type=checkbox]')
+                return Array.from(group).filter(box => box.checked).map(box => box.value)
+            }
             if (el.type === 'radio') {
                 const group = this.$el.querySelectorAll('input[type=radio]')
                 for (const r of group) if (r.checked) return r.value
@@ -143,14 +204,23 @@ export const ValidationProvider = {
         validate() {
             const value = this.getValue()
             const errors = []
-            for (const rule of parseRules(this.rules)) {
+            const rules = parseRules(this.rules)
+
+            //A message attached to any rule ("exact_length:1,Chck is required")
+            //is the field's message, whichever rule ends up failing.
+            const declaredMessage = rules
+                .map(rule => (Array.isArray(rule.params) ? rule.params[1] : null))
+                .find(Boolean) || null
+
+            for (const rule of rules) {
                 const fn = validators[rule.name]
                 if (!fn) continue
                 const ok = fn(value, rule.params, this)
                 if (!ok) {
                     const msgFn = messages[rule.name]
                     const p = Array.isArray(rule.params) ? rule.params[0] : rule.params
-                    errors.push(msgFn ? msgFn(this.fieldName(), p, rule.params && rule.params[1]) : 'Invalid value.')
+                    const msg = (rule.params && rule.params[1]) || declaredMessage
+                    errors.push(msgFn ? msgFn(this.fieldName(), p, msg) : localized('invalid', 'Invalid value.'))
                 }
             }
             this.errors = errors
