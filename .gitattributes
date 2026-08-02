@@ -2,6 +2,7 @@
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
 * text=auto
+*.verified.txt text eol=lf working-tree-encoding=UTF-8
 
 ###############################################################################
 # Set default behavior for command prompt diff.
