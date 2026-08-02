@@ -38,21 +38,6 @@ steps:
     df -h
   displayName: Free disk space
 
-- task: Bash@3
-  displayName: 'Pre-clean + disk check'
-  inputs:
-    targetType: 'inline'
-    script: |
-      set -euxo pipefail
-      echo "=== Disk before cleanup ==="
-      df -h
-
-      rm -rf "$(Agent.TempDirectory)"/* || true
-      find "$(Build.SourcesDirectory)" -type d \( -name bin -o -name obj \) -prune -exec rm -rf {} + || true
-
-      echo "=== Disk after cleanup ==="
-      df -h
-
 - task: UseDotNet@2
   displayName: 'Install .NET Core SDK 10'
   inputs:

@@ -34,12 +34,10 @@ Achieve superior performance, unlimited scalability, and comprehensive customiza
 <div align="center">
 
 ![Tests on Linux, MacOS and Windows](https://github.com/grandnode/grandnode2/actions/workflows/aspnetcore.yml/badge.svg)
-[![Build Status](https://dev.azure.com/grandnode/grandnode2/_apis/build/status/grandnode.grandnode2?branchName=main)](https://dev.azure.com/grandnode/grandnode2/_build/latest?definitionId=8&branchName=main)
+[![Build Status](https://dev.azure.com/grandnode/grandnode2/_apis/build/status/grandnode.grandnode2?branchName=vue3-bootstrap5-migration)](https://dev.azure.com/grandnode/grandnode2/_build/latest?definitionId=8&branchName=vue3-bootstrap5-migration)
 [![Docker Image CI](https://github.com/grandnode/grandnode2/actions/workflows/docker-image.yml/badge.svg)](https://github.com/grandnode/grandnode2/actions/workflows/docker-image.yml)
 ![License](https://img.shields.io/github/license/grandnode/grandnode2)
 [![CodeQL Advanced](https://github.com/grandnode/grandnode2/actions/workflows/codeql.yml/badge.svg)](https://github.com/grandnode/grandnode2/actions/workflows/codeql.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=grandnode_grandnode2&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=grandnode_grandnode2)
-<a href="https://docs.grandnode.com/"><img src="https://img.shields.io/badge/Docs-docs.grandnode.com-brightgreen"></a>
 </div>
 
 <!-- TABLE OF CONTENTS -->
