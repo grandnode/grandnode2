@@ -8,14 +8,45 @@ resources:
 services:
   mongo: mongo
 
+pool:
+  vmImage: 'ubuntu-22.04'
+
 variables:
   buildConfiguration: 'Release'
-  
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
+  NUGET_PACKAGES: '$(Agent.TempDirectory)/.nuget/packages'
+  NUGET_HTTP_CACHE_PATH: '$(Agent.TempDirectory)/.nuget/http-cache'
+  NUGET_PLUGINS_CACHE_PATH: '$(Agent.TempDirectory)/.nuget/plugins-cache'
+  DOTNET_CLI_HOME: '$(Agent.TempDirectory)'
+  DOTNET_NOLOGO: '1'
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  VSTEST_CONNECTION_TIMEOUT: '120'
+  VSTEST_RESULTS_DIRECTORY: '$(Agent.TempDirectory)/TestResults'
+
 steps:
-- task: UseDotNet@2
-  displayName: 'Install .NET Core SDK 9'
+- checkout: self
+  clean: true
+  fetchDepth: 1
+
+- task: Bash@3
+  displayName: 'Pre-clean + disk check'
   inputs:
-    version: '9.0.x'
+    targetType: 'inline'
+    script: |
+      set -euxo pipefail
+      echo "=== Disk before cleanup ==="
+      df -h
+
+      rm -rf "$(Agent.TempDirectory)"/* || true
+      find "$(Build.SourcesDirectory)" -type d \( -name bin -o -name obj \) -prune -exec rm -rf {} + || true
+
+      echo "=== Disk after cleanup ==="
+      df -h
+
+- task: UseDotNet@2
+  displayName: 'Install .NET Core SDK 10'
+  inputs:
+    version: '10.0.x'
 
 - task: Bash@3
   displayName: Install .NET Aspire workload
@@ -24,30 +55,26 @@ steps:
     script: |
       dotnet workload install aspire
 
-- task: NuGetToolInstaller@1
-  displayName: 'Install NuGet >=6.3.0-0'
+# Replaced NuGet tasks with dotnet CLI commands to fix Ubuntu 24.04 compatibility
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet restore'
   inputs:
-    versionSpec: '>=6.3.0-0'
-    checkLatest: true
-
-- task: NuGetCommand@2
-  inputs:
-    command: 'restore'  
-    restoreSolution: '**/*.sln'
+    command: 'restore'
+    projects: '**/*.sln'
     feedsToUse: 'select'
 
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
     projects: '**/Grand.Web.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration) --no-restore'
   displayName: 'dotnet build $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'
   inputs:
     command: 'test'
-    arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura'
+    arguments: '--configuration $(buildConfiguration) --no-restore --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura --results-directory "$(VSTEST_RESULTS_DIRECTORY)"'
     publishTestResults: true
     projects: '**/Tests/**/*.csproj'
 
@@ -55,13 +82,18 @@ steps:
   displayName: 'Publish code coverage report'
   inputs:
     codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+    summaryFileLocation: '$(VSTEST_RESULTS_DIRECTORY)/**/coverage.cobertura.xml'
 
 - task: DotNetCoreCLI@2
   inputs:
     command: publish
     publishWebProjects: True
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    arguments: '--configuration $(buildConfiguration) --no-restore --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
 
 - task: PublishPipelineArtifact@1
+  displayName: 'Publish artifact'
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    artifact: 'drop'
+    publishLocation: 'pipeline'
