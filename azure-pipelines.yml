@@ -63,7 +63,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      dotnet workload restore
+      dotnet workload install aspire
 
 # Replaced NuGet tasks with dotnet CLI commands to fix Ubuntu 24.04 compatibility
 - task: DotNetCoreCLI@2
@@ -97,7 +97,6 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: publish
-    projects: '**/Grand.Web.csproj'
     publishWebProjects: True
     arguments: '--configuration $(buildConfiguration) --no-restore --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
