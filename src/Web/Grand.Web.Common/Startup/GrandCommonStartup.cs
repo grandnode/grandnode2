@@ -4,6 +4,7 @@ using Grand.Web.Common.Infrastructure;
 using Grand.Web.Common.Routing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
@@ -29,7 +30,25 @@ public class GrandCommonStartup : IStartupApplication
         services.AddSettings();
 
         //compression
-        services.AddResponseCompression();
+        services.AddResponseCompression(options =>
+        {
+            //Without this nothing is ever compressed on a site served over HTTPS, which is
+            //every real store - the default is false because compressing a response that
+            //mixes a secret (the antiforgery token) with attacker-influenced content is the
+            //BREACH attack. The exposure is the same one taken by every CDN and reverse
+            //proxy that gzips HTML; the alternative here was shipping the 399 kB script
+            //bundle and 392 kB stylesheet uncompressed on every cold visit.
+            options.EnableForHttps = true;
+            options.Providers.Add<BrotliCompressionProvider>();
+            options.Providers.Add<GzipCompressionProvider>();
+            //ResponseCompressionDefaults covers application/javascript, but static files are
+            //served as text/javascript, so the bundle would fall through the default list.
+            options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat([
+                "text/javascript",
+                "image/svg+xml",
+                "application/manifest+json"
+            ]);
+        });
 
         //add options feature
         services.AddOptions();
