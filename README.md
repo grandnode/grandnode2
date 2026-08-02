@@ -34,7 +34,7 @@ Achieve superior performance, unlimited scalability, and comprehensive customiza
 <div align="center">
 
 ![Tests on Linux, MacOS and Windows](https://github.com/grandnode/grandnode2/actions/workflows/aspnetcore.yml/badge.svg)
-[![Build Status](https://dev.azure.com/grandnode/grandnode2/_apis/build/status/grandnode.grandnode2?branchName=vue3-bootstrap5-migration)](https://dev.azure.com/grandnode/grandnode2/_build/latest?definitionId=8&branchName=vue3-bootstrap5-migration)
+[![Build Status](https://dev.azure.com/grandnode/grandnode2/_apis/build/status/grandnode.grandnode2?branchName=develop)](https://dev.azure.com/grandnode/grandnode2/_build/latest?definitionId=8&branchName=develop)
 [![Docker Image CI](https://github.com/grandnode/grandnode2/actions/workflows/docker-image.yml/badge.svg)](https://github.com/grandnode/grandnode2/actions/workflows/docker-image.yml)
 ![License](https://img.shields.io/github/license/grandnode/grandnode2)
 [![CodeQL Advanced](https://github.com/grandnode/grandnode2/actions/workflows/codeql.yml/badge.svg)](https://github.com/grandnode/grandnode2/actions/workflows/codeql.yml)
