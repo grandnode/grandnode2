@@ -51,6 +51,8 @@ Achieve superior performance, unlimited scalability, and comprehensive customiza
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
+  * [Building from source](#building-from-source)
+  * [Running locally](#running-locally)
   * [Online demo](#online-demo)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
@@ -94,8 +96,9 @@ GrandNode was designed to solve the most important business challenges from the 
 
 GrandNode 2 leverages the latest technologies to deliver a high-performance e-commerce solution:
 
-- **ASP.NET Core 9.0** - Modern, cross-platform framework
+- **ASP.NET Core 10.0** - Modern, cross-platform framework
 - **MongoDB 4.0+** - NoSQL database for unlimited scalability
+- **Vue 3 + Bootstrap 5** - Storefront UI, bundled with Vite
 - **Docker Support** - Easy deployment and containerization
 - **REST API** - Comprehensive API for integrations
 - **Cloud-Ready** - Optimized for cloud hosting environments
@@ -106,9 +109,17 @@ GrandNode 2 leverages the latest technologies to deliver a high-performance e-co
 
 To get a local copy up and running follow these simple steps.
 
-### Prerequisites (develop version)
+### Prerequisites
 
-GrandNode requires .NET Core 9.0, MongoDB 4.0+, and OS-specific dependency tools. 
+| Tool | Version | Needed for |
+| --- | --- | --- |
+| [.NET SDK](https://dotnet.microsoft.com/download) | **10.0.100** or newer | building and running everything. The version is pinned in `global.json` with `rollForward: latestFeature`, so any 10.0.x SDK works |
+| [MongoDB](https://www.mongodb.com/try/download/community) | **4.0+** | the database. A local server, a Docker container or a MongoDB Atlas cluster all work |
+| [Node.js](https://nodejs.org/) + npm | **20 LTS** or newer | only when you change the storefront frontend sources. The build output is committed, so you can run the shop without Node |
+| IDE | any with .NET 10 support - Visual Studio, JetBrains Rider, VS Code | optional |
+
+Only the SDK and MongoDB are required to get the shop running - see
+[Building from source](#building-from-source) for when Node.js comes into play.
 
 ### Installation
 
@@ -124,13 +135,18 @@ If you want to download the latest stable version of GrandNode please use the fo
 docker pull grandnode/grandnode2:x.xx 
 ```
 
-* Open locally with VS2022+ (v17.12.0) or above
+* Open locally in an IDE
 
-Run the project in the Visual Studio 2022+, extract the source code package downloaded from Releases tab to a folder. Enter the extracted folder and double-click the GrandNode.sln solution file. Select the Plugins project, rebuild it, then select the GrandNode.Web project.
+Extract the source code package downloaded from the Releases tab to a folder (or
+clone the repository), and open `GrandNode.sln`. Build the whole solution - that
+compiles the modules and plugins into the web project's output as well - then set
+`Grand.Web` as the startup project and run it. See
+[Building from source](#building-from-source) for the command line equivalent and
+for the frontend build.
 
 * Host on Linux server 
 
-Before you start - please install, configure the nginx server, .NET Core 9.0+ and MongoDB 4.0+
+Before you start - please install, configure the nginx server, the .NET 10 SDK and MongoDB 4.0+
 ```bash
 mkdir ~/source
 cd ~/source
@@ -140,9 +156,13 @@ git clone - b x.xx https://github.com/grandnode/grandnode2.git
 cd ~/source/grandnode
 dotnet restore GrandNode.sln
 ```
-Now it's time to rebuild all of our plugins and publish application (command is pretty long because we've combined all commands in a single line, to ease up your work):
+Now it's time to rebuild all modules and plugins and publish the application. Each
+module and plugin copies itself into the web project's output, so they have to be
+built *before* the publish step:
 ```bash
-sudo dotnet build src/Plugins/Authentication.Facebook && sudo dotnet build src/Plugins/Authentication.Google && sudo dotnet build src/Plugins/DiscountRules.Standard && sudo dotnet build src/Plugins/ExchangeRate.McExchange && sudo dotnet build src/Plugins/Payments.BrainTree && sudo dotnet build src/Plugins/Payments.CashOnDelivery && sudo dotnet build src/Plugins/Payments.StripeCheckout && sudo dotnet build src/Plugins/Shipping.ByWeight && sudo dotnet build src/Plugins/Shipping.FixedRateShipping && sudo dotnet build src/Plugins/Shipping.ShippingPoint && sudo dotnet build src/Plugins/Tax.CountryStateZip && sudo dotnet build src/Plugins/Tax.FixedRate && sudo dotnet build src/Plugins/Widgets.FacebookPixel && sudo dotnet build src/Plugins/Widgets.GoogleAnalytics && sudo dotnet build src/Plugins/Widgets.Slider && sudo dotnet build src/Plugins/Theme.Modern && sudo dotnet publish src/Web/Grand.Web -c Release -o /var/webapps/grandnode 
+for module in src/Modules/*; do dotnet build "$module" -c Release; done
+for plugin in src/Plugins/*; do dotnet build "$plugin" -c Release; done
+dotnet publish src/Web/Grand.Web -c Release -o /var/webapps/grandnode
 ```
 Optional: Create the service file, to automatically restart your application.
 ```bash
@@ -171,6 +191,90 @@ sudo systemctl enable grandnode.service
 sudo systemctl start grandnode.service
 ``` 
 Feel free to visit our [detailed guide about GrandNode installation.](https://grandnode.com/how-to-install-grandnode-on-linux-ubuntu-1604/?utm_source=github&utm_medium=link&utm_campaign=readme)
+
+### Building from source
+
+#### Backend
+
+```bash
+dotnet restore GrandNode.sln
+dotnet build GrandNode.sln
+```
+
+`GrandNode.sln` contains the whole application: the core libraries, the web
+project, the modules under `src/Modules` (installer, migrations, REST API,
+scheduled tasks) and the plugins under `src/Plugins`. Building the solution
+builds them all and copies each module and plugin into
+`src/Web/Grand.Web/Modules` / `Plugins`, so a plain `dotnet build` is enough.
+
+Two things worth knowing:
+
+* **Plugins that ship views compile those views into the plugin DLL.** After
+  editing a `.cshtml` file in, for example, `src/Plugins/Theme.Modern`, rebuild
+  that plugin (`dotnet build src/Plugins/Theme.Modern`) - the running site will
+  not pick the change up otherwise. Razor runtime compilation covers only
+  `Grand.Web`'s own views. Stop the site before rebuilding a plugin, or the
+  build fails on a locked DLL.
+* Building a plugin on its own is fine and is what the Docker image does; you
+  only need the full solution build after changing shared code.
+
+#### Frontend
+
+The storefront UI (Vue 3, Bootstrap 5) lives in `src/Web/Grand.Web/vueapp` and is
+the only npm project in the repository:
+
+```bash
+cd src/Web/Grand.Web/vueapp
+npm install
+npm run build
+```
+
+That writes into `src/Web/Grand.Web/wwwroot/bundles`:
+
+| output | contents |
+| --- | --- |
+| `app.runtime.bundle.js` | Vue 3, the compatibility layer, the per-page view-models and the shared DOM behaviours |
+| `libs.css` | Bootstrap, Bootstrap Icons, animate.css, Pikaday |
+| `style.min.css`, `style.rtl.min.css` | the theme stylesheets from `wwwroot/theme/css`, concatenated in cascade order and minified |
+
+**This output is committed to the repository**, which is why neither the CI
+workflows nor the Dockerfile install Node - they build the .NET solution against
+the bundles already in the tree. The flip side is that when you change anything
+under `vueapp/src` or `wwwroot/theme/css` you have to run `npm run build` and
+commit the regenerated bundles together with the source change, otherwise your
+change simply will not be on the page.
+
+Other scripts: `npm run dev` (watch build), `npm run lint` (ESLint over
+`vueapp/src`), `npm run audit:prod`. More detail in
+[`vueapp/README.md`](src/Web/Grand.Web/vueapp/README.md).
+
+### Running locally
+
+```bash
+dotnet run --project src/Web/Grand.Web
+```
+
+`Grand.Web` does not reference the plugins - they install themselves into its
+output directory when *they* are built. So build the solution once
+(`dotnet build GrandNode.sln`) before the first run; after that you can start the
+web project alone.
+
+The Kestrel profile listens on <https://localhost:5001> and
+<http://localhost:5000>; the Visual Studio IIS Express profile uses
+<https://localhost:44350>.
+
+> **Set `ASPNETCORE_ENVIRONMENT=Development`.** Both launch profiles already do.
+> If you start the application without it, the static web assets manifest is not
+> consulted, every file served from `_content/...` returns 404 and the admin
+> panel loads with no CSS and no JavaScript at all. It looks like a broken
+> install; it is only the missing environment variable.
+
+On the first run the application redirects to `/install`, where you enter the
+MongoDB connection string (for example `mongodb://localhost/grandnode`) and the
+administrator account, and choose whether to load the sample data. The installer
+writes the connection string to `src/Web/Grand.Web/App_Data/Settings.cfg`, which
+is not tracked by git - delete that file to run the installer again against a
+fresh database.
 
 ### Online demo 
 #### Frontend #### 
