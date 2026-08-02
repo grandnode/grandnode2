@@ -23,12 +23,12 @@
     {
         var count = 0;
 
-        <ol class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
-            <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+        <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem">
                 <a href="@Url.RouteUrl("HomePage")" title="@Loc["Categories.Breadcrumb.Top"]">
                     <i class="b-icon bi bi-house-door" style="font-size:1.25em; position:relative; top:-1.25px" aria-hidden="true"></i>
                     <span itemprop="name">@Loc["Products.Breadcrumb.Top"]</span>
-                    <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                    <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                           id="@Url.RouteUrl("HomePage")">
                     </span>
                     <meta itemprop="position" content="@count"/>
@@ -40,10 +40,10 @@
                 var isLastCategory = cat.Id == Model.Id;
                 @if (isLastCategory)
                 {
-                    <li class="breadcrumb-item active" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+                    <li class="breadcrumb-item active" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem">
                         <a>
                             <strong class="current-item" itemprop="name">@cat.Name</strong>
-                            <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                            <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                                   id="@Url.RouteUrl("Category", new { cat.SeName })">
                             </span>
                             <meta itemprop="position" content="@count"/>
@@ -52,10 +52,10 @@
                 }
                 else
                 {
-                    <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+                    <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem">
                         <a href="@Url.RouteUrl("Category", new { cat.SeName })" title="@cat.Name" itemprop="item">
                             <span itemprop="name">@cat.Name</span>
-                            <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                            <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                                   id="@Url.RouteUrl("Category", new { cat.SeName })">
                             </span>
                             <meta itemprop="position" content="@count"/>

@@ -10,41 +10,33 @@
     <nav class="navbar navbar-light navbar-expand">
         <div class="container" id="header-container">
             <div class="menu-container">
-                <template v-if="true">
-                    <button aria-label="menu-toggler" class="btn menu-toggler" data-bs-toggle="offcanvas" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu">
-                        <span></span><span></span><span></span>
-                    </button>
-                </template>
+                <button aria-label="menu-toggler" class="btn menu-toggler" data-bs-toggle="offcanvas" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
             <partial name="Partials/Logo"/>
             <ul class="navbar-nav top-header-items order-3">
-                <template v-if="true">
-                    <li class="nav-item">
-                        <span class="nav-link">
-                            <template v-if="true">
-                                <div class="form-check form-switch form-check-lg contrast-switch">
-                                    <input class="form-check-input" type="checkbox" id="contrast-button" name="contrast-button" v-model="darkMode">
-                                    <label class="form-check-label" for="contrast-button">
-                                        <i class="b-icon bi bi-sun light text-info" aria-hidden="true"></i>
-                                        <i class="b-icon bi bi-moon dark text-dark" aria-hidden="true"></i>
-                                    </label>
-                                </div>
-                            </template>
-                        </span>
-                    </li>
-                </template>
+                <li class="nav-item">
+                    <span class="nav-link">
+                        <div class="form-check form-switch form-check-lg contrast-switch">
+                            <input class="form-check-input" type="checkbox" id="contrast-button" name="contrast-button" v-model="darkMode">
+                            <label class="form-check-label" for="contrast-button">
+                                <i class="b-icon bi bi-sun light text-info" aria-hidden="true"></i>
+                                <i class="b-icon bi bi-moon dark text-dark" aria-hidden="true"></i>
+                            </label>
+                        </div>
+                    </span>
+                </li>
                 <li class="nav-item">
                     <a href="#" target="_self" class="nav-link">
                         <i class="b-icon bi bi-search" :class="[darkMode ? 'text-white' : 'text-dark']" data-bs-toggle="modal" data-bs-target="#search-box" aria-hidden="true"></i>
                     </a>
                 </li>
-                <template v-if="true">
-                    <li class="nav-item">
-                        <span class="nav-link">
-                            <i class="b-icon bi bi-person-circle" :class="[darkMode ? 'text-white' : 'text-dark']" data-bs-toggle="offcanvas" data-bs-target="#sidebar-right" aria-controls="sidebar-right" aria-hidden="true"></i>
-                        </span>
-                    </li>
-                </template>
+                <li class="nav-item">
+                    <span class="nav-link">
+                        <i class="b-icon bi bi-person-circle" :class="[darkMode ? 'text-white' : 'text-dark']" data-bs-toggle="offcanvas" data-bs-target="#sidebar-right" aria-controls="sidebar-right" aria-hidden="true"></i>
+                    </span>
+                </li>
                 <partial name="Partials/ShoppingCartLinks"/>
             </ul>
         </div>
@@ -56,46 +48,44 @@
    Bootstrap appends to <body>. It also keeps the drawers out of
    <nav class="navbar-expand">, which Bootstrap would otherwise flatten into the
    bar. The triggers stay in the header and reference these by id. *@
-<template v-if="true">
-        <div class="offcanvas @(supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar") shadow" tabindex="-1" id="sidebar-menu" aria-labelledby="sidebar-menu-label">
-            <div class="b-sidebar-header">
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                <strong class="ms-2" id="sidebar-menu-label"></strong>
-            </div>
-            <div class="b-sidebar-body">
-                @*the catalogue menu is a navigation landmark of its own, and it lives
-                    in a drawer rather than inside <nav> up in the bar*@
-                <nav aria-label="@Loc["Categories"]">
-                    <ul class="Menu -vertical">
-                        @await Component.InvokeAsync("Menu")
-                    </ul>
-                </nav>
-            </div>
+<div class="offcanvas @(supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar") shadow" tabindex="-1" id="sidebar-menu" aria-labelledby="sidebar-menu-label">
+    <div class="b-sidebar-header">
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <strong class="ms-2" id="sidebar-menu-label"></strong>
+    </div>
+    <div class="b-sidebar-body">
+        @*the catalogue menu is a navigation landmark of its own, and it lives
+            in a drawer rather than inside <nav> up in the bar*@
+        <nav aria-label="@Loc["Categories"]">
+            <ul class="Menu -vertical">
+                @await Component.InvokeAsync("Menu")
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" id="sidebar-right" aria-labelledby="sidebar-right-label">
+    <div class="b-sidebar-header">
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <strong class="ms-2" id="sidebar-right-label">@Loc["Account.MyAccount"]</strong>
+    </div>
+    <div class="b-sidebar-body user-panel">
+        <div class="d-inline-flex flex-wrap mb-2">
+            <partial name="Partials/Selector_TaxType"/>
+            <partial name="Partials/Selector_Currency"/>
+            <partial name="Partials/Selector_Language"/>
+            @if (CommonSettings.AllowToSelectStore)
+            {
+                <partial name="Partials/Selector_Store"/>
+            }
+            @if (StoreInformationSettings.AllowCustomerToSelectTheme)
+            {
+                <partial name="Partials/Selector_Theme"/>
+            }
+            @await Component.InvokeAsync("Widget", new { widgetZone = "header_selectors" })
         </div>
-        <div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" id="sidebar-right" aria-labelledby="sidebar-right-label">
-            <div class="b-sidebar-header">
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                <strong class="ms-2" id="sidebar-right-label">@Loc["Account.MyAccount"]</strong>
-            </div>
-            <div class="b-sidebar-body user-panel">
-                <div class="d-inline-flex flex-wrap mb-2">
-                    <partial name="Partials/Selector_TaxType"/>
-                    <partial name="Partials/Selector_Currency"/>
-                    <partial name="Partials/Selector_Language"/>
-                    @if (CommonSettings.AllowToSelectStore)
-                    {
-                        <partial name="Partials/Selector_Store"/>
-                    }
-                    @if (StoreInformationSettings.AllowCustomerToSelectTheme)
-                    {
-                        <partial name="Partials/Selector_Theme"/>
-                    }
-                    @await Component.InvokeAsync("Widget", new { widgetZone = "header_selectors" })
-                </div>
-                <partial name="Partials/HeaderLinks"/>
-            </div>
-        </div>
-</template>
+        <partial name="Partials/HeaderLinks"/>
+    </div>
+</div>
 <partial name="Partials/SidebarPanels"/>
 <div class="modal fade" id="search-box" tabindex="-1" aria-hidden="true" :dark-theme="darkMode">
     <div class="modal-dialog modal-xl">

@@ -12,8 +12,14 @@
     <div class="gallery">
         @if (Model.PictureModels.Any())
         {
+            @*
+                <meta> rather than a hidden <img>: the image only had to carry the
+                schema.org property, but display:none does not stop a download, so
+                every product page fetched the full-size picture a second time and
+                let it compete with the one actually being displayed.
+            *@
             var schemaPicture = Model.PictureModels.FirstOrDefault();
-            <img src="@schemaPicture?.FullSizeImageUrl" class="d-none" itemprop="image">
+            <meta itemprop="image" content="@schemaPicture?.FullSizeImageUrl">
         }
         @if (Model.PictureModels.Count == 1)
         {
@@ -34,7 +40,7 @@
             }
             else
             {
-                <img id="main-product-img-@Model.Id" class="image main-image"
+                <img id="main-product-img-@Model.Id" class="image main-image" fetchpriority="high"
                      src="@Model.DefaultPictureModel.ImageUrl"
                      alt="@Model.DefaultPictureModel.AlternateText"
                      title="@Model.DefaultPictureModel.Title"/>
@@ -42,7 +48,7 @@
         }
         @if (Model.PictureModels.Count == 0)
         {
-            <img id="main-product-img-@Model.Id" class="image main-image"
+            <img id="main-product-img-@Model.Id" class="image main-image" fetchpriority="high"
                  src="@Model.DefaultPictureModel.ImageUrl"
                  alt="@Model.DefaultPictureModel.AlternateText"
                  title="@Model.DefaultPictureModel.Title"/>
@@ -51,7 +57,7 @@
         {
             @if (Model.PictureModels.Count > 1)
             {
-                <img id="main-product-img-@Model.Id" class="image main-image zoom"
+                <img id="main-product-img-@Model.Id" class="image main-image zoom" fetchpriority="high"
                      src="@Model.DefaultPictureModel.ImageUrl"
                      alt="@Model.DefaultPictureModel.AlternateText"
                      title="@Model.DefaultPictureModel.Title"
@@ -70,7 +76,7 @@
         {
             @if (Model.PictureModels.Count > 1)
             {
-                <img id="main-product-img-@Model.Id" class="image main-image"
+                <img id="main-product-img-@Model.Id" class="image main-image" fetchpriority="high"
                      src="@Model.DefaultPictureModel.ImageUrl"
                      alt="@Model.DefaultPictureModel.AlternateText"
                      title="@Model.DefaultPictureModel.Title"/>

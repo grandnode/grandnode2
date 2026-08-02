@@ -108,11 +108,9 @@
                                 <textarea :id="'product_attribute_' + attribute.Id" :name="'attributes[' + attribute.Id+']'">{{attribute.DefaultValue}}</textarea>
                             </template>
                             <template v-if="attribute.AttributeControlType==30">
-                                <template v-if="true">
-                                    <div :id="'product_attribute_' + attribute.Id + 'uploader'">
-                                        <input class="form-control" type="file" :accept="attribute.AllowedFileExtensions" id="qqfile" name="qqfile" :data-url="'@fileLink/' + attribute.Id + '?productId=' + attribute.ProductId" @@change="vm.uploadFile($event.target)">
-                                    </div>
-                                </template>
+                                <div :id="'product_attribute_' + attribute.Id + 'uploader'">
+                                    <input class="form-control" type="file" :accept="attribute.AllowedFileExtensions" id="qqfile" name="qqfile" :data-url="'@fileLink/' + attribute.Id + '?productId=' + attribute.ProductId" @@change="vm.uploadFile($event.target)">
+                                </div>
                                 <input class="hidden-upload-input"
                                        type="hidden"
                                        :id="'product_attribute_' + attribute.Id"

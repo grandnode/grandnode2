@@ -40,6 +40,9 @@
         <meta property="twitter:image" content="@Model.DefaultPictureModel.ImageUrl"/>
         <meta property="twitter:url" content="@Url.ActionContext.HttpContext.Request.GetEncodedUrl()"/>
     }
+
+    @*Product JSON-LD - resolves to Grand.Web's Views/Product/Partials/ProductStructuredData*@
+    <partial name="Partials/ProductStructuredData" model="Model"/>
 }
 
 <!--product breadcrumb-->
@@ -53,7 +56,7 @@
 <div class="page product-details-page product-standard">
     <validation-observer ref="ProductFormObserver">
         <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id=@($"product-details-form-{Model.Id}") ref="form" v-on:submit.prevent="formSubmitParam($event, vm.$refs.ProductFormObserver)">
-            <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
+            <div itemscope itemtype="https://schema.org/Product" data-productid="@Model.Id">
                 <div class="col position-relative">
                     <div class="row">
                         <vc:widget widget-zone="productdetails_before_pictures" additional-data="@Model.Id"></vc:widget>

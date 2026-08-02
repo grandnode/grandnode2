@@ -1,11 +1,20 @@
 ﻿@using System.Globalization
 @model ProductOverviewModel
+@{
+    @*
+        Cards above the fold opt out of lazy loading: the browser only discovers a
+        lazy image after layout, which on a category page delays the very image that
+        decides LCP. The caller sets this for the first row; everything else stays
+        lazy, which is the right default further down the page.
+    *@
+    var eagerImage = ViewData["EagerImage"] as bool? ?? false;
+}
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model })
 <article v-bind:class="{ mobile: isMobile()}" class="card product-box mb-2">
     <div class="picture-container">
         <a class="img-container" href="@Url.RouteUrl("Product", new { Model.SeName })" title="@Model.DefaultPictureModel.Title">
-            <img class="card-img main-product-img" src="@Model.DefaultPictureModel.ImageUrl" alt="@Model.DefaultPictureModel.AlternateText" loading="lazy" title="@Model.DefaultPictureModel.Title">
+            <img class="card-img main-product-img" src="@Model.DefaultPictureModel.ImageUrl" alt="@Model.DefaultPictureModel.AlternateText" loading="@(eagerImage ? "eager" : "lazy")" fetchpriority="@(eagerImage ? "high" : "auto")" title="@Model.DefaultPictureModel.Title">
             @if (!string.IsNullOrEmpty(Model.SecondPictureModel.ImageUrl))
             {
                 <img class="card-img hover-img" src="@Model.SecondPictureModel.ImageUrl" alt="@Model.SecondPictureModel.AlternateText" loading="lazy">
@@ -35,12 +44,10 @@
         <div class="prices-rating">
             @if (Model.ReviewOverviewModel.AllowCustomerReviews)
             {
-                <template v-if="true">
-                    <div class="rating">
-                        <partial name="Partials/Rating" model="Model.ReviewOverviewModel.AvgRating" />
-                        <a href="@Url.RouteUrl("Product", new { Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</a>
-                    </div>
-                </template>
+                <div class="rating">
+                    <partial name="Partials/Rating" model="Model.ReviewOverviewModel.AvgRating" />
+                    <a href="@Url.RouteUrl("Product", new { Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</a>
+                </div>
             }
             @if (Model.ProductType == ProductType.Auction)
             {

@@ -82,11 +82,9 @@
             <input :id="'checkout_attribute_' + attribute.Id" :name="'attributes['+attribute.Id+']'" class="form-control" :value="attribute.DefaultValue" v-model="attribute.DefaultValue" onchange="checkoutAttributeChange();" type="date"/>
         </template>
         <template v-if="attribute.AttributeControlType == 30">
-            <template v-if="true">
-                <div :id="'checkout_attribute_' + attribute.Id + 'uploader'">
-                    <input class="form-control" type="file" :accept="attribute.AllowedFileExtensions" id="qqfile" name="qqfile" :data-url="'/uploadfilecheckoutattribute/' + attribute.Id" :attribute="attribute.Id" onchange="uploadFile(this)">
-                </div>
-            </template>
+            <div :id="'checkout_attribute_' + attribute.Id + 'uploader'">
+                <input class="form-control" type="file" :accept="attribute.AllowedFileExtensions" id="qqfile" name="qqfile" :data-url="'/uploadfilecheckoutattribute/' + attribute.Id" :attribute="attribute.Id" onchange="uploadFile(this)">
+            </div>
             <input class="hidden-upload-input" type="hidden" onchange="checkoutAttributeChange()" :id="'checkout_attribute_' + attribute.Id" :name="'attributes['+attribute.Id+']'" v-model="attribute.DefaultValue" :value="attribute.DefaultValue"/>
             <div id="download-message" class="alert my-2" style="display:none;"></div>
             <a :id="'checkout_attribute_' + attribute.Id + 'downloadurl'" class="download-file btn btn-outline-info" style="display:none;">

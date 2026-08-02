@@ -1,0 +1,76 @@
+﻿@using Grand.Business.Core.Interfaces.Storage
+@using System.Text.Json
+@inject IContextAccessor contextAccessor
+@inject StoreInformationSettings storeInformationSettings
+@inject IPictureService pictureService
+@*
+    Site-wide structured data: Organization and WebSite.
+
+    The storefront described itself only through scattered microdata attributes on
+    breadcrumbs and prices - there was no JSON-LD at all, so nothing told a search
+    engine the store's name, logo or social profiles, and nothing declared a search
+    endpoint for the sitelinks searchbox.
+
+    Kept to facts the store already publishes. Emitted once per page from _Layout;
+    search engines de-duplicate Organization across a site.
+*@
+@{
+    var request = Url.ActionContext.HttpContext.Request;
+    var homeUrl = Url.RouteUrl("HomePage", null, request.Scheme);
+    var searchUrl = Url.RouteUrl("ProductSearch", null, request.Scheme);
+    var storeName = contextAccessor.StoreContext.CurrentStore.Name;
+
+    var logoUrl = string.Empty;
+    if (!string.IsNullOrEmpty(storeInformationSettings.LogoPictureId))
+    {
+        var logo = await pictureService.GetPictureUrl(storeInformationSettings.LogoPictureId);
+        if (!string.IsNullOrEmpty(logo))
+            logoUrl = new Uri(new Uri($"{request.Scheme}://{request.Host}"), logo).ToString();
+    }
+
+    //social profiles the store has actually filled in - sameAs is what links the
+    //site to an existing knowledge-graph entity
+    var sameAs = new[] {
+            storeInformationSettings.FacebookLink,
+            storeInformationSettings.TwitterLink,
+            storeInformationSettings.YoutubeLink,
+            storeInformationSettings.InstagramLink,
+            storeInformationSettings.LinkedInLink,
+            storeInformationSettings.PinterestLink
+        }
+        .Where(x => !string.IsNullOrWhiteSpace(x))
+        .ToArray();
+
+    var organization = new Dictionary<string, object> {
+        ["@type"] = "Organization",
+        ["name"] = storeName,
+        ["url"] = homeUrl
+    };
+    if (!string.IsNullOrEmpty(logoUrl)) organization["logo"] = logoUrl;
+    if (sameAs.Length > 0) organization["sameAs"] = sameAs;
+
+    var website = new Dictionary<string, object> {
+        ["@type"] = "WebSite",
+        ["name"] = storeName,
+        ["url"] = homeUrl,
+        ["potentialAction"] = new Dictionary<string, object> {
+            ["@type"] = "SearchAction",
+            //the search box posts its term as `q` - see Components/SearchBox
+            ["target"] = new Dictionary<string, object> {
+                ["@type"] = "EntryPoint",
+                ["urlTemplate"] = $"{searchUrl}?q={{search_term_string}}"
+            },
+            ["query-input"] = "required name=search_term_string"
+        }
+    };
+
+    var graph = new Dictionary<string, object> {
+        ["@context"] = "https://schema.org",
+        ["@graph"] = new object[] { organization, website }
+    };
+
+    //UnsafeRelaxedJsonEscaping would let a store name containing "</script>" break
+    //out of the block; the default encoder escapes it
+    var json = JsonSerializer.Serialize(graph, new JsonSerializerOptions { WriteIndented = false });
+}
+<script type="application/ld+json">@Html.Raw(json)</script>

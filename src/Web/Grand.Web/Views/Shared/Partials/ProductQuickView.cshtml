@@ -4,7 +4,7 @@
             <div class="modal-body">
 <template v-if="PopupQuickViewVueModal !== null">
 <form method="post" id="product-details-form" :action="'/' + PopupQuickViewVueModal.SeName">
-<div itemscope itemtype="http://schema.org/Product" :data-productid="PopupQuickViewVueModal.Id">
+<div itemscope itemtype="https://schema.org/Product" :data-productid="PopupQuickViewVueModal.Id">
 <div class="quick-view">
 <div class="col-12 px-0">
 <div class="row">
@@ -37,190 +37,188 @@
         <a class="modal-close" data-bs-dismiss="modal">
             <i class="b-icon bi bi-x" aria-hidden="true"></i>
         </a>
-        <template v-if="true">
-            <div class="accordion" role="tablist">
+        <div class="accordion" role="tablist">
+            <div role="tab">
+                <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-details" aria-expanded="true" aria-controls="accordion-qv-details" class="btn btn-light collapse-button">@Loc["products.details"]</a>
+            </div>
+            <div class="collapse show collapse-panel" id="accordion-qv-details" role="tabpanel">
+                <template v-if="PopupQuickViewVueModal.StockAvailability !== ''">
+                    <div class="stock">
+                        <label class="col-form-label">@Loc["Products.Availability"]:</label>
+                        <span class="value" :id="'stock-availability-value-' + PopupQuickViewVueModal.Id">
+                            <template v-if="PopupQuickViewVueModal.StockAvailability !== ''">
+                                {{PopupQuickViewVueModal.StockAvailability}}
+                            </template>
+                            <template v-else-if="PopupQuickViewVueModal.DisplayDiscontinuedMessage">
+                                @Loc["Products.Discontinued"]
+                            </template>
+                        </span>
+                    </div>
+                </template>
+                @* PRODUCT BUNDLES *@
+                <partial name="Partials/QuickView/ProductBundles"/>
+                @* ATTRIBUTES *@
+                <partial name="Partials/QuickView/Attributes"/>
+                <template v-if="PopupQuickViewVueModal.ProductAttributes.length > 0">
+                    <div class="attributes">
+                        <table class="table">
+                            <template v-for="(attribute, index) in PopupQuickViewVueModal.ProductAttributes">
+                                <product-attribute-quickview :ref="'QVattribute' + index" :attribute="attribute"></product-attribute-quickview>
+                            </template>
+                        </table>
+
+                    </div>
+                </template>
+
+                <script type="application/json" data-grand-vm="inDomComponents">{"components":[{"name":"product-attribute-quickview","template":"#product-attribute-quickview","props":["attribute"]}]}</script>
+                @* WAREHOUSES *@
+
+                <partial name="Partials/QuickView/Warehouses"/>
+
+                @* RESERVATIONS *@
+
+                <partial name="Partials/QuickView/ReservationInfo"/>
+
+                @* GIFT VOUCHERS *@
+
+                <partial name="Partials/QuickView/GiftVoucherInfo"/>
+
+                @* PRICES *@
+
+                <partial name="Partials/QuickView/Prices"/>
+
+                @* AUCTION *@
+
+                <partial name="Partials/QuickView/AuctionInfo"/>
+
+                @* ADD TO CART *@
+
+                <template v-if="PopupQuickViewVueModal.ProductType !== 10">
+                    <partial name="Partials/QuickView/AddToCart"/>
+                    <template v-if="(!PopupQuickViewVueModal.AddToCart.DisableWishlistButton || PopupQuickViewVueModal.CompareProductsEnabled || PopupQuickViewVueModal.EmailAFriendEnabled) && PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId == null">
+                        <div class="btn-group mt-2 mb-3 w-100">
+                            <partial name="Partials/QuickView/AddToWishlist"/>
+                            <partial name="Partials/QuickView/ProductsComparison"/>
+                        </div>
+                    </template>
+                </template>
+
+                @* END OF ADD TO CART *@
+
+            </div>
+            <template v-if="PopupQuickViewVueModal.ProductSpecifications.length > 0">
                 <div role="tab">
-                    <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-details" aria-expanded="true" aria-controls="accordion-qv-details" class="btn btn-light collapse-button">@Loc["products.details"]</a>
+                    <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-spec" aria-expanded="false" aria-controls="accordion-qv-spec" class="btn btn-light collapse-button collapsed">@Loc["Products.Specs"]</a>
                 </div>
-                <div class="collapse show collapse-panel" id="accordion-qv-details" role="tabpanel">
-                    <template v-if="PopupQuickViewVueModal.StockAvailability !== ''">
-                        <div class="stock">
-                            <label class="col-form-label">@Loc["Products.Availability"]:</label>
-                            <span class="value" :id="'stock-availability-value-' + PopupQuickViewVueModal.Id">
-                                <template v-if="PopupQuickViewVueModal.StockAvailability !== ''">
-                                    {{PopupQuickViewVueModal.StockAvailability}}
-                                </template>
-                                <template v-else-if="PopupQuickViewVueModal.DisplayDiscontinuedMessage">
-                                    @Loc["Products.Discontinued"]
-                                </template>
-                            </span>
-                        </div>
-                    </template>
-                    @* PRODUCT BUNDLES *@
-                    <partial name="Partials/QuickView/ProductBundles"/>
-                    @* ATTRIBUTES *@
-                    <partial name="Partials/QuickView/Attributes"/>
-                    <template v-if="PopupQuickViewVueModal.ProductAttributes.length > 0">
-                        <div class="attributes">
-                            <table class="table">
-                                <template v-for="(attribute, index) in PopupQuickViewVueModal.ProductAttributes">
-                                    <product-attribute-quickview :ref="'QVattribute' + index" :attribute="attribute"></product-attribute-quickview>
-                                </template>
-                            </table>
-
-                        </div>
-                    </template>
-
-                    <script type="application/json" data-grand-vm="inDomComponents">{"components":[{"name":"product-attribute-quickview","template":"#product-attribute-quickview","props":["attribute"]}]}</script>
-                    @* WAREHOUSES *@
-
-                    <partial name="Partials/QuickView/Warehouses"/>
-
-                    @* RESERVATIONS *@
-
-                    <partial name="Partials/QuickView/ReservationInfo"/>
-
-                    @* GIFT VOUCHERS *@
-
-                    <partial name="Partials/QuickView/GiftVoucherInfo"/>
-
-                    @* PRICES *@
-
-                    <partial name="Partials/QuickView/Prices"/>
-
-                    @* AUCTION *@
-
-                    <partial name="Partials/QuickView/AuctionInfo"/>
-
-                    @* ADD TO CART *@
-
-                    <template v-if="PopupQuickViewVueModal.ProductType !== 10">
-                        <partial name="Partials/QuickView/AddToCart"/>
-                        <template v-if="(!PopupQuickViewVueModal.AddToCart.DisableWishlistButton || PopupQuickViewVueModal.CompareProductsEnabled || PopupQuickViewVueModal.EmailAFriendEnabled) && PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId == null">
-                            <div class="btn-group mt-2 mb-3 w-100">
-                                <partial name="Partials/QuickView/AddToWishlist"/>
-                                <partial name="Partials/QuickView/ProductsComparison"/>
-                            </div>
-                        </template>
-                    </template>
-
-                    @* END OF ADD TO CART *@
-
-                </div>
-                <template v-if="PopupQuickViewVueModal.ProductSpecifications.length > 0">
-                    <div role="tab">
-                        <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-spec" aria-expanded="false" aria-controls="accordion-qv-spec" class="btn btn-light collapse-button collapsed">@Loc["Products.Specs"]</a>
-                    </div>
-                    <div class="collapse collapse-panel" id="accordion-qv-spec" role="tabpanel">
-                        <div class="spec-container table-responsive">
-                            <table class="table data-table border-bottom-0">
-                                <colgroup>
-                                    <col/>
-                                    <col/>
-                                </colgroup>
-                                <tbody>
-                                <template v-for="item in PopupQuickViewVueModal.ProductSpecifications">
-                                    <tr class="spec">
-                                        <td class="border-bottom border-top-0">
-                                            <div class="spec-name">
-                                                {{item.SpecificationAttributeName}}
-                                            </div>
-                                        </td>
-                                        <td class="border-bottom border-top-0">
-                                            <div class="spec-value d-inline-flex w-100">
-                                                <template v-if="item.ColorSquaresRgb !== null">
-                                                    <div class="color-squares mb-2 me-2">
-                                                        <span class="color-container" :title="item.ValueRaw">
-                                                            <span class="color" v-bind:style="'background-color:' + item.ValueRaw">&nbsp;</span>
-                                                        </span>
-                                                    </div>
-                                                </template>
-                                                <template v-else>
-                                                    <div class="mb-2 me-2" v-html="item.ValueRaw"></div>
-                                                </template>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </template>
-                <template v-if="PopupQuickViewVueModal.ShortDescription !== null">
-                    <div role="tab">
-                        <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-desc" aria-expanded="false" aria-controls="accordion-qv-desc" class="btn btn-light collapse-button collapsed">@Loc["product.description"]</a>
-                    </div>
-                    <div class="collapse collapse-panel" id="accordion-qv-desc" role="tabpanel">
-                        <div class="qv-description" v-html="PopupQuickViewVueModal.ShortDescription"></div>
-                    </div>
-                </template>
-
-                @* ASSOCIATED PRODUCTS *@
-
-                <template v-if="PopupQuickViewVueModal.ProductType == 10">
-                    <div role="tab">
-                        <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-group" aria-expanded="true" aria-controls="accordion-qv-group" class="btn btn-light collapse-button">@Loc["admin.catalog.products.associatedproducts"]</a>
-                    </div>
-                    <div class="collapse show collapse-panel" id="accordion-qv-group" role="tabpanel">
-                        <template v-if="PopupQuickViewVueModal.AssociatedProducts.length > 0">
-                            <template v-for="variant in PopupQuickViewVueModal.AssociatedProducts">
-                                <div class="card overflow-hidden associatedItem mb-3">
-                                    <div class="row" g-0>
-                                        <div class="col-lg-3 col-md-4">
-                                            <img :id="'main-product-img-' + variant.Id" :alt="variant.DefaultPictureModel.AlternateText" :src="variant.DefaultPictureModel.ImageUrl" class="rounded-0 img-fluid">
+                <div class="collapse collapse-panel" id="accordion-qv-spec" role="tabpanel">
+                    <div class="spec-container table-responsive">
+                        <table class="table data-table border-bottom-0">
+                            <colgroup>
+                                <col/>
+                                <col/>
+                            </colgroup>
+                            <tbody>
+                            <template v-for="item in PopupQuickViewVueModal.ProductSpecifications">
+                                <tr class="spec">
+                                    <td class="border-bottom border-top-0">
+                                        <div class="spec-name">
+                                            {{item.SpecificationAttributeName}}
                                         </div>
-                                        <div class="col-lg-9 col-md-8">
-                                            <div class="card-body overview" :title="variant.Name">
+                                    </td>
+                                    <td class="border-bottom border-top-0">
+                                        <div class="spec-value d-inline-flex w-100">
+                                            <template v-if="item.ColorSquaresRgb !== null">
+                                                <div class="color-squares mb-2 me-2">
+                                                    <span class="color-container" :title="item.ValueRaw">
+                                                        <span class="color" v-bind:style="'background-color:' + item.ValueRaw">&nbsp;</span>
+                                                    </span>
+                                                </div>
+                                            </template>
+                                            <template v-else>
+                                                <div class="mb-2 me-2" v-html="item.ValueRaw"></div>
+                                            </template>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </template>
+            <template v-if="PopupQuickViewVueModal.ShortDescription !== null">
+                <div role="tab">
+                    <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-desc" aria-expanded="false" aria-controls="accordion-qv-desc" class="btn btn-light collapse-button collapsed">@Loc["product.description"]</a>
+                </div>
+                <div class="collapse collapse-panel" id="accordion-qv-desc" role="tabpanel">
+                    <div class="qv-description" v-html="PopupQuickViewVueModal.ShortDescription"></div>
+                </div>
+            </template>
 
-                                                <!--short description-->
+            @* ASSOCIATED PRODUCTS *@
 
-                                                <div v-if="variant.ShortDescription !== null" class="short-description mb-3" v-html="variant.ShortDescription"></div>
+            <template v-if="PopupQuickViewVueModal.ProductType == 10">
+                <div role="tab">
+                    <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-group" aria-expanded="true" aria-controls="accordion-qv-group" class="btn btn-light collapse-button">@Loc["admin.catalog.products.associatedproducts"]</a>
+                </div>
+                <div class="collapse show collapse-panel" id="accordion-qv-group" role="tabpanel">
+                    <template v-if="PopupQuickViewVueModal.AssociatedProducts.length > 0">
+                        <template v-for="variant in PopupQuickViewVueModal.AssociatedProducts">
+                            <div class="card overflow-hidden associatedItem mb-3">
+                                <div class="row" g-0>
+                                    <div class="col-lg-3 col-md-4">
+                                        <img :id="'main-product-img-' + variant.Id" :alt="variant.DefaultPictureModel.AlternateText" :src="variant.DefaultPictureModel.ImageUrl" class="rounded-0 img-fluid">
+                                    </div>
+                                    <div class="col-lg-9 col-md-8">
+                                        <div class="card-body overview" :title="variant.Name">
 
-                                                <!--availability-->
+                                            <!--short description-->
 
-                                                <template v-if="variant.StockAvailability !== null">
-                                                    <div class="stock">
-                                                        <label class="col-form-label">@Loc["Products.Availability"]:</label>
-                                                        <span class="value" :id="'stock-availability-value-' + variant.Id">
-                                                            {{variant.StockAvailability}}
-                                                        </span>
-                                                    </div>
-                                                </template>
+                                            <div v-if="variant.ShortDescription !== null" class="short-description mb-3" v-html="variant.ShortDescription"></div>
 
-                                                <!--attributes-->
-                                                <template v-if="variant.ProductAttributes.length > 0">
-                                                    <div class="attributes">
-                                                        <table class="table">
-                                                            <template v-for="(attribute, index) in variant.ProductAttributes">
-                                                                <product-attribute-quickview :attribute="attribute"></product-attribute-quickview>
-                                                            </template>
-                                                        </table>
-                                                    </div>
-                                                </template>
+                                            <!--availability-->
 
-                                                <!--price & add to cart-->
+                                            <template v-if="variant.StockAvailability !== null">
+                                                <div class="stock">
+                                                    <label class="col-form-label">@Loc["Products.Availability"]:</label>
+                                                    <span class="value" :id="'stock-availability-value-' + variant.Id">
+                                                        {{variant.StockAvailability}}
+                                                    </span>
+                                                </div>
+                                            </template>
 
-                                                <partial name="Partials/QuickView/PricesGroup"/>
-                                                <partial name="Partials/QuickView/AddToCartGroup"/>
+                                            <!--attributes-->
+                                            <template v-if="variant.ProductAttributes.length > 0">
+                                                <div class="attributes">
+                                                    <table class="table">
+                                                        <template v-for="(attribute, index) in variant.ProductAttributes">
+                                                            <product-attribute-quickview :attribute="attribute"></product-attribute-quickview>
+                                                        </template>
+                                                    </table>
+                                                </div>
+                                            </template>
 
-                                            </div>
+                                            <!--price & add to cart-->
+
+                                            <partial name="Partials/QuickView/PricesGroup"/>
+                                            <partial name="Partials/QuickView/AddToCartGroup"/>
+
                                         </div>
                                     </div>
                                 </div>
-                            </template>
-                        </template>
-                        <template v-else>
-                            <div class="no-associated-products alert alert-info">
-                                @Loc["Products.NoAssociatedProducts"]
                             </div>
                         </template>
-                    </div>
-                </template>
+                    </template>
+                    <template v-else>
+                        <div class="no-associated-products alert alert-info">
+                            @Loc["Products.NoAssociatedProducts"]
+                        </div>
+                    </template>
+                </div>
+            </template>
 
-                @* END OF ASSOCIATED PRODUCTS *@
-            </div>
-        </template>
+            @* END OF ASSOCIATED PRODUCTS *@
+        </div>
     </div>
 </div>
 <partial name="Partials/QuickView/LinkedProducts"/>

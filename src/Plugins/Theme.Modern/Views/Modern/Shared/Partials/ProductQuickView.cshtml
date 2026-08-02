@@ -8,7 +8,7 @@
             <div class="modal-body">
 <template v-if="PopupQuickViewVueModal !== null">
 <form method="post" id="product-details-form" :action="'/' + PopupQuickViewVueModal.SeName">
-<div itemscope itemtype="http://schema.org/Product" :data-productid="PopupQuickViewVueModal.Id">
+<div itemscope itemtype="https://schema.org/Product" :data-productid="PopupQuickViewVueModal.Id">
 <div class="quick-view">
 <div class="col-12 px-0">
 <div class="form-row">
@@ -38,31 +38,31 @@
 <div class="quick-view-overview">
 <template v-if="PopupQuickViewVueModal.Breadcrumb.Enabled">
     <div class="container px-0">
-        <ol class="breadcrumb pt-0 mb-3" itemscope="itemscope" itemtype="http://schema.org/BreadcrumbList">
-            <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+        <ol class="breadcrumb pt-0 mb-3" itemscope="itemscope" itemtype="https://schema.org/BreadcrumbList">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem">
                 <a href="@Url.RouteUrl("HomePage")" target="_self">
                     <i class="b-icon bi bi-house-door" style="font-size:1.25em; position:relative; top:-1.25px" aria-hidden="true"></i>
                     <span itemprop="name">@Loc["Products.Breadcrumb.Top"]</span>
-                    <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                    <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                           id="@Url.RouteUrl("HomePage")">
                     </span>
                     <meta itemprop="position" content="1"/>
                 </a>
             </li>
             <template v-for="(category, index) in PopupQuickViewVueModal.Breadcrumb.CategoryBreadcrumb">
-                <li itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem" class="breadcrumb-item">
+                <li itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem" class="breadcrumb-item">
                     <a :href="category.SeName" target="_self">
                         <span itemprop="name">{{category.Name}}</span>
-                        <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                        <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                               :id="category.SeName">
                         </span>
                         <meta itemprop="position" :content="index + 2"/>
                     </a>
                 </li>
             </template>
-            <li itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem" class="breadcrumb-item active">
+            <li itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem" class="breadcrumb-item active">
                 <strong class="current-item" itemprop="name">{{PopupQuickViewVueModal.Breadcrumb.ProductName}}</strong>
-                <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                       :id="'@productLink' + PopupQuickViewVueModal.SeName">
                 </span>
                 <meta itemprop="position" content="2"/>
@@ -97,7 +97,7 @@
                 <div class="stock mb-3">
                     <label class="label col-form-label">@Loc["Products.Availability"]:</label>
                     <span class="value" :id="'stock-availability-value-' + PopupQuickViewVueModal.Id">
-                        <link itemprop="availability" href="http://schema.org/InStock"/>
+                        <link itemprop="availability" href="https://schema.org/InStock"/>
                         <template v-if="PopupQuickViewVueModal.StockAvailability !== ''">
                             {{PopupQuickViewVueModal.StockAvailability}}
                         </template>
@@ -225,7 +225,7 @@
                                             <div class="stock">
                                                 <label class="col-form-label">@Loc["Products.Availability"]:</label>
                                                 <span class="value" :id="'stock-availability-value-' + variant.Id">
-                                                    <link itemprop="availability" href="http://schema.org/InStock"/>
+                                                    <link itemprop="availability" href="https://schema.org/InStock"/>
                                                     {{variant.StockAvailability}}
                                                 </span>
                                             </div>

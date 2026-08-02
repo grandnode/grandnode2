@@ -15,62 +15,60 @@ else
 }
 <partial name="Partials/VendorReview.Modal.cshtml" model="Model"/>
 
-<template v-if="true">
-    <div class="vendor-review-list">
-        <template v-if="vendorreviews.Model.Items.length > 0">
-            <h5 class="mb-3">
-                <strong>@Loc["Reviews.ExistingReviews"]</strong>
-            </h5>
-            <template v-for="review in vendorreviews.Model.Items">
-                <div class="card vendor-review-item mb-3">
-                    <div class="card-header">
-                        <div class="review-info d-inline-flex w-100">
-                            <div class="user d-inline-flex align-items-center">
-                                <small class="text-muted me-2">@Loc["Reviews.From"]:</small>
-                                <h6 class="mb-0">{{review.CustomerName}}</h6>
-                            </div>
-                            <i class="b-icon bi bi-calendar2-check text-info mx-2" aria-hidden="true"></i>
-                            <small class="date text-muted">
-                                <span class="ms-1">@Loc["Reviews.Date"]:</span>
-                                <span>{{review.WrittenOnStr}}</span>
-                            </small>
+<div class="vendor-review-list">
+    <template v-if="vendorreviews.Model.Items.length > 0">
+        <h5 class="mb-3">
+            <strong>@Loc["Reviews.ExistingReviews"]</strong>
+        </h5>
+        <template v-for="review in vendorreviews.Model.Items">
+            <div class="card vendor-review-item mb-3">
+                <div class="card-header">
+                    <div class="review-info d-inline-flex w-100">
+                        <div class="user d-inline-flex align-items-center">
+                            <small class="text-muted me-2">@Loc["Reviews.From"]:</small>
+                            <h6 class="mb-0">{{review.CustomerName}}</h6>
                         </div>
+                        <i class="b-icon bi bi-calendar2-check text-info mx-2" aria-hidden="true"></i>
+                        <small class="date text-muted">
+                            <span class="ms-1">@Loc["Reviews.Date"]:</span>
+                            <span>{{review.WrittenOnStr}}</span>
+                        </small>
                     </div>
-                    <div class="card-body">
-                        <div class="review-title mb-3">
-                            <h5 class="mb-0">{{review.Title}}</h5>
-                            <b-form-rating id="rating-inline2" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="review.Rating"></b-form-rating>
-                        </div>
-                        <div class="review-content">
-                            <div class="review-text">
-                                {{review.ReviewText}}
-                            </div>
-                        </div>
+                </div>
+                <div class="card-body">
+                    <div class="review-title mb-3">
+                        <h5 class="mb-0">{{review.Title}}</h5>
+                        <b-form-rating id="rating-inline2" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="review.Rating"></b-form-rating>
                     </div>
-                    <div class="card-footer">
-                        <div class="vendor-review-helpfulness d-inline-flex justify-content-end align-items-center flex-wrap">
-                            <span class="question">@Loc["Reviews.Helpfulness.WasHelpful?"]</span>
-                            <span class="vote-options btn-group">
-                                <span :id="'vote-yes-' + review.Helpfulness.VendorReviewId" @@click="vendorreviews.setVendorReviewHelpfulness('@Url.RouteUrl("SetVendorReviewHelpfulness")', 'true', review.Id, '@Model.VendorId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote">
-                                    <i class="b-icon text-success bi bi-hand-thumbs-up" aria-hidden="true"></i>
-                                </span>
-                                <span :id="'vote-no-' + review.Helpfulness.VendorReviewId" @@click="vendorreviews.setVendorReviewHelpfulness('@Url.RouteUrl("SetVendorReviewHelpfulness")', 'false', review.Id, '@Model.VendorId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote">
-                                    <i class="b-icon text-danger bi bi-hand-thumbs-down" aria-hidden="true"></i>
-                                </span>
-                            </span>
-                            <span class="vote-stats d-inline-flex">
-                                (<span :id="'helpfulness-vote-yes-' + review.Helpfulness.VendorReviewId">{{review.Helpfulness.HelpfulYesTotal}}</span>/<span :id="'helpfulness-vote-no-' + review.Helpfulness.VendorReviewId">{{review.Helpfulness.HelpfulNoTotal}}</span>)
-                            </span>
+                    <div class="review-content">
+                        <div class="review-text">
+                            {{review.ReviewText}}
                         </div>
                     </div>
                 </div>
-            </template>
+                <div class="card-footer">
+                    <div class="vendor-review-helpfulness d-inline-flex justify-content-end align-items-center flex-wrap">
+                        <span class="question">@Loc["Reviews.Helpfulness.WasHelpful?"]</span>
+                        <span class="vote-options btn-group">
+                            <span :id="'vote-yes-' + review.Helpfulness.VendorReviewId" @@click="vendorreviews.setVendorReviewHelpfulness('@Url.RouteUrl("SetVendorReviewHelpfulness")', 'true', review.Id, '@Model.VendorId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote">
+                                <i class="b-icon text-success bi bi-hand-thumbs-up" aria-hidden="true"></i>
+                            </span>
+                            <span :id="'vote-no-' + review.Helpfulness.VendorReviewId" @@click="vendorreviews.setVendorReviewHelpfulness('@Url.RouteUrl("SetVendorReviewHelpfulness")', 'false', review.Id, '@Model.VendorId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote">
+                                <i class="b-icon text-danger bi bi-hand-thumbs-down" aria-hidden="true"></i>
+                            </span>
+                        </span>
+                        <span class="vote-stats d-inline-flex">
+                            (<span :id="'helpfulness-vote-yes-' + review.Helpfulness.VendorReviewId">{{review.Helpfulness.HelpfulYesTotal}}</span>/<span :id="'helpfulness-vote-no-' + review.Helpfulness.VendorReviewId">{{review.Helpfulness.HelpfulNoTotal}}</span>)
+                        </span>
+                    </div>
+                </div>
+            </div>
         </template>
-        <template v-else>
-            <div class="alert alert-info">@Loc["Vendor.Reviews.Empty"]</div>
-        </template>
-    </div>
-</template>
+    </template>
+    <template v-else>
+        <div class="alert alert-info">@Loc["Vendor.Reviews.Empty"]</div>
+    </template>
+</div>
 
 <script type="application/json" data-grand-vm="reviews">@Json.Serialize(new {
                                                             name = "vendorreviews",

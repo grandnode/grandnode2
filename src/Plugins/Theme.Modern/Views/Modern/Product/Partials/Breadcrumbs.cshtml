@@ -2,13 +2,13 @@
 @if (Model.Enabled)
 {
     var count = 1;
-    <ol class="breadcrumb mb-0" itemscope="itemscope" itemtype="http://schema.org/BreadcrumbList">
+    <ol class="breadcrumb mb-0" itemscope="itemscope" itemtype="https://schema.org/BreadcrumbList">
         @await Component.InvokeAsync("Widget", new { widgetZone = "productbreadcrumb_before" })
-        <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+        <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem">
             <a href="@Url.RouteUrl("HomePage")" target="_self">
                 <i class="b-icon bi bi-house-door" style="font-size:1.25em; position:relative; top:-1.25px" aria-hidden="true"></i>
                 <span itemprop="name">@Loc["Products.Breadcrumb.Top"]</span>
-                <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                       id="@Url.RouteUrl("HomePage")">
                 </span>
                 <meta itemprop="position" content="@count"/>
@@ -17,19 +17,19 @@
         @foreach (var category in Model.CategoryBreadcrumb)
         {
             count++;
-            <li itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem" class="breadcrumb-item">
+            <li itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem" class="breadcrumb-item">
                 <a href="@Url.RouteUrl("Category", new { category.SeName })" target="_self">
                     <span itemprop="name">@category.Name</span>
-                    <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                    <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                           id="@Url.RouteUrl("Category", new { category.SeName })">
                     </span>
                     <meta itemprop="position" content="@count"/>
                 </a>
             </li>
         }
-        <li itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem" class="breadcrumb-item active">
+        <li itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem" class="breadcrumb-item active">
             <strong class="current-item" itemprop="name">@Model.ProductName</strong>
-            <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+            <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                   id="@Url.RouteUrl("Product", new { SeName = Model.ProductSeName })">
             </span>
             <meta itemprop="position" content="@(count + 1)"/>

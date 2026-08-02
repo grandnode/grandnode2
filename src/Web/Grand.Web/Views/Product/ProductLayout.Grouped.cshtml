@@ -39,6 +39,9 @@
         <meta property="twitter:image" content="@Model.DefaultPictureModel.ImageUrl"/>
         <meta property="twitter:url" content="@Url.ActionContext.HttpContext.Request.GetEncodedUrl()"/>
     }
+
+    @*Product JSON-LD - see the note in Partials/ProductStructuredData*@
+    <partial name="Partials/ProductStructuredData" model="Model"/>
 }
 
 <!--product breadcrumb-->
@@ -52,7 +55,7 @@
 <div class="page product-details-page product-standard product-grouped">
     @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_top", additionalData = Model.Id })
     <validation-observer ref="ProductFormObserver">
-        <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
+        <div itemscope itemtype="https://schema.org/Product" data-productid="@Model.Id">
             <div class="product-essential">
                 <div class="container">
                     <div class="row">

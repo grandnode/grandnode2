@@ -1,0 +1,79 @@
+﻿@using System.Text.Json
+@model ProductDetailsModel
+@*
+    Product JSON-LD.
+
+    The page already carried schema.org microdata, but only in fragments - an Offer
+    wrapper around the price block, an AggregateRating on the reviews - and search
+    engines cannot assemble a Product out of that. This states the product once, in
+    the form Google's rich results actually read.
+
+    `availability` is deliberately absent: the model exposes stock only as a
+    localized string (StockAvailability), and there is no boolean to derive
+    InStock/OutOfStock from without guessing. Partials/Availability hardcodes
+    InStock in its microdata, which is wrong for out-of-stock products - fixing that
+    needs a model change and is left alone here rather than copied.
+*@
+@{
+    var request = Url.ActionContext.HttpContext.Request;
+    var productUrl = Url.RouteUrl("Product", new { Model.SeName }, request.Scheme);
+    var origin = new Uri($"{request.Scheme}://{request.Host}");
+
+    string Absolute(string url) =>
+        string.IsNullOrEmpty(url) ? null : new Uri(origin, url).ToString();
+
+    var images = Model.PictureModels
+        .Select(x => Absolute(x.FullSizeImageUrl ?? x.ImageUrl))
+        .Where(x => x != null)
+        .ToArray();
+    if (images.Length == 0)
+    {
+        var fallback = Absolute(Model.DefaultPictureModel?.ImageUrl);
+        if (fallback != null) images = new[] { fallback };
+    }
+
+    var product = new Dictionary<string, object> {
+        ["@context"] = "https://schema.org",
+        ["@type"] = "Product",
+        ["name"] = Model.Name,
+        ["url"] = productUrl
+    };
+
+    if (!string.IsNullOrWhiteSpace(Model.MetaDescription)) product["description"] = Model.MetaDescription;
+    if (images.Length > 0) product["image"] = images;
+    if (!string.IsNullOrWhiteSpace(Model.Sku)) product["sku"] = Model.Sku;
+    if (!string.IsNullOrWhiteSpace(Model.Mpn)) product["mpn"] = Model.Mpn;
+    if (!string.IsNullOrWhiteSpace(Model.Gtin)) product["gtin"] = Model.Gtin;
+    if (!string.IsNullOrWhiteSpace(Model.BrandModel?.Name))
+        product["brand"] = new Dictionary<string, object> {
+            ["@type"] = "Brand", ["name"] = Model.BrandModel.Name
+        };
+
+    //no offer at all rather than a misleading one: a hidden or on-request price is
+    //not a price, and an auction's current bid is not an offer either
+    var price = Model.ProductPrice;
+    if (price is { HidePrices: false, CallForPrice: false, EnteredPrice: false, IsAuction: false }
+        && !string.IsNullOrWhiteSpace(price.CurrencyCode))
+    {
+        product["offers"] = new Dictionary<string, object> {
+            ["@type"] = "Offer",
+            ["price"] = price.PriceValue.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ["priceCurrency"] = price.CurrencyCode,
+            ["url"] = productUrl
+        };
+    }
+
+    var reviews = Model.ProductReviewOverview;
+    if (reviews is { AllowCustomerReviews: true, TotalReviews: > 0 })
+    {
+        product["aggregateRating"] = new Dictionary<string, object> {
+            ["@type"] = "AggregateRating",
+            ["ratingValue"] = Math.Round(reviews.AvgRating, 2)
+                .ToString(System.Globalization.CultureInfo.InvariantCulture),
+            ["reviewCount"] = reviews.TotalReviews
+        };
+    }
+
+    var json = JsonSerializer.Serialize(product, new JsonSerializerOptions { WriteIndented = false });
+}
+<script type="application/ld+json">@Html.Raw(json)</script>

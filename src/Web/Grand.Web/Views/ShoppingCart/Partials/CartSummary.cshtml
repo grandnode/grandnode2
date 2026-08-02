@@ -179,59 +179,57 @@
             {{vmorder.cart.MinOrderSubtotalWarning}}
         </div>
         <template v-if="vmorder.cart.IsEditable && vmorder.cart.MinOrderSubtotalWarning == null">
-            <template v-if="true">
-                <template v-if="vmorder.cart.TermsOfServiceOnShoppingCartPage">
-                    <div class="w-100">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="TermsOfService" name="TermsOfService" v-model="vmorder.terms">
-                            <label class="form-check-label" for="TermsOfService">
-                            @Loc["Checkout.TermsOfService.IAccept"]
-                            @if (!Model.TermsOfServicePopup)
-                            {
-                                <a href="@Url.RouteUrl("Page", new { SeName = "conditionsofuse" })" target="_blank">
-                                    @Loc["Checkout.TermsOfService.Read"]
-                                </a>
-                            }
-                            else
-                            {
-                                <span class="read"
-                                      onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "conditionsofuse" })', 450, 500, true)">
-                                    @Loc["Checkout.TermsOfService.Read"]
-                                </span>
-                            }
-                            </label>
-                        </div>
-                        <div class="alert alert-info my-2" v-show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
+            <template v-if="vmorder.cart.TermsOfServiceOnShoppingCartPage">
+                <div class="w-100">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="TermsOfService" name="TermsOfService" v-model="vmorder.terms">
+                        <label class="form-check-label" for="TermsOfService">
+                        @Loc["Checkout.TermsOfService.IAccept"]
+                        @if (!Model.TermsOfServicePopup)
+                        {
+                            <a href="@Url.RouteUrl("Page", new { SeName = "conditionsofuse" })" target="_blank">
+                                @Loc["Checkout.TermsOfService.Read"]
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="read"
+                                  onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "conditionsofuse" })', 450, 500, true)">
+                                @Loc["Checkout.TermsOfService.Read"]
+                            </span>
+                        }
+                        </label>
                     </div>
-                    <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
-                        <button class="btn btn-secondary checkout-as-guest-button mx-sm-1 mx-0" type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="vmorder.termsCheck(true)">
-                            @Loc["Account.Login.CheckoutAsGuest"]
-                        </button>
-                        <button class="btn btn-info checkout-button mt-sm-0 mt-1" type="button" id="checkout" name="checkout" @@click="vmorder.termsCheck(false)">
-                            <span v-if="vmorder.cart.IsGuest">
-                                @Loc["Checkout.Button.Login"]
-                            </span>
-                            <span v-else>
-                                @Loc["Checkout.Button"]
-                            </span>
-                        </button>
-                    </div>
-                </template>
-                <template v-else>
-                    <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
-                        <button class="btn btn-secondary checkout-as-guest-button mx-sm-1 mx-0" type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="location.href='@Url.RouteUrl("Checkout")'">
-                            @Loc["Account.Login.CheckoutAsGuest"]
-                        </button>
-                        <button class="btn btn-info checkout-button mt-sm-0 mt-1" type="button" id="checkout" name="checkout" @@click="vmorder.checkout(false)">
-                            <span v-if="vmorder.cart.IsGuest">
-                                @Loc["Checkout.Button.Login"]
-                            </span>
-                            <span v-else>
-                                @Loc["Checkout.Button"]
-                            </span>
-                        </button>
-                    </div>
-                </template>
+                    <div class="alert alert-info my-2" v-show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
+                </div>
+                <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
+                    <button class="btn btn-secondary checkout-as-guest-button mx-sm-1 mx-0" type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="vmorder.termsCheck(true)">
+                        @Loc["Account.Login.CheckoutAsGuest"]
+                    </button>
+                    <button class="btn btn-info checkout-button mt-sm-0 mt-1" type="button" id="checkout" name="checkout" @@click="vmorder.termsCheck(false)">
+                        <span v-if="vmorder.cart.IsGuest">
+                            @Loc["Checkout.Button.Login"]
+                        </span>
+                        <span v-else>
+                            @Loc["Checkout.Button"]
+                        </span>
+                    </button>
+                </div>
+            </template>
+            <template v-else>
+                <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
+                    <button class="btn btn-secondary checkout-as-guest-button mx-sm-1 mx-0" type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="location.href='@Url.RouteUrl("Checkout")'">
+                        @Loc["Account.Login.CheckoutAsGuest"]
+                    </button>
+                    <button class="btn btn-info checkout-button mt-sm-0 mt-1" type="button" id="checkout" name="checkout" @@click="vmorder.checkout(false)">
+                        <span v-if="vmorder.cart.IsGuest">
+                            @Loc["Checkout.Button.Login"]
+                        </span>
+                        <span v-else>
+                            @Loc["Checkout.Button"]
+                        </span>
+                    </button>
+                </div>
             </template>
         </template>
         <div class="addon-buttons">

@@ -1,35 +1,33 @@
 ﻿<div v-if="vmorder.cart.GiftVoucherBox.Display" class="giftvoucher-box">
-    <template v-if="true">
-        <div class="accordion" role="tablist">
-            <div class="card mb-1">
-                <div class="card-header p-1" role="tab">
-                    <button class="btn btn-light w-100 coupon-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accordion-voucher" aria-expanded="false" aria-controls="accordion-voucher">@Loc["ShoppingCart.Code"]</button>
-                </div>
-                <div class="collapse" id="accordion-voucher" role="tabpanel">
-                    <div class="card-body">
-                        <div class="coupon-code">
-                            <div class="form-group">
-                                <span class="col-form-label">@Loc["ShoppingCart.Code.Tooltip"]</span>
-                                <div class="input-group">
-                                    <input id="giftvouchercouponcode" name="giftvouchercouponcode" type="text" class="form-control gift-card-coupon-code"/>
-                                    <label for="giftvouchercouponcode" class="visually-hidden">@Loc["ShoppingCart.Code.Button"]</label>
-                                    <span class="input-group-append">
-                                        <button type="button" name="applygiftvouchercouponcode" id="applygiftvouchercouponcode" @@click="vmorder.ApplyGiftVoucher('@Url.RouteUrl("ApplyGiftVoucher")')" class="btn btn-outline-secondary apply-discount-coupon-code-button">
-                                            @Loc["ShoppingCart.Code.Button"]
-                                        </button>
-                                    </span>
-                                </div>
+    <div class="accordion" role="tablist">
+        <div class="card mb-1">
+            <div class="card-header p-1" role="tab">
+                <button class="btn btn-light w-100 coupon-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accordion-voucher" aria-expanded="false" aria-controls="accordion-voucher">@Loc["ShoppingCart.Code"]</button>
+            </div>
+            <div class="collapse" id="accordion-voucher" role="tabpanel">
+                <div class="card-body">
+                    <div class="coupon-code">
+                        <div class="form-group">
+                            <span class="col-form-label">@Loc["ShoppingCart.Code.Tooltip"]</span>
+                            <div class="input-group">
+                                <input id="giftvouchercouponcode" name="giftvouchercouponcode" type="text" class="form-control gift-card-coupon-code"/>
+                                <label for="giftvouchercouponcode" class="visually-hidden">@Loc["ShoppingCart.Code.Button"]</label>
+                                <span class="input-group-append">
+                                    <button type="button" name="applygiftvouchercouponcode" id="applygiftvouchercouponcode" @@click="vmorder.ApplyGiftVoucher('@Url.RouteUrl("ApplyGiftVoucher")')" class="btn btn-outline-secondary apply-discount-coupon-code-button">
+                                        @Loc["ShoppingCart.Code.Button"]
+                                    </button>
+                                </span>
                             </div>
                         </div>
-                        <div v-if="vmorder.cart.GiftVoucherBox.Message !== null && vmorder.cart.GiftVoucherBox.IsApplied" class="alert alert-success message-success text-center">
-                            {{vmorder.cart.GiftVoucherBox.Message}}
-                        </div>
-                        <div v-if="vmorder.cart.GiftVoucherBox.Message !== null && vmorder.cart.GiftVoucherBox.IsApplied == false" class="alert alert-danger message-failure text-center">
-                            {{vmorder.cart.GiftVoucherBox.Message}}
-                        </div>
+                    </div>
+                    <div v-if="vmorder.cart.GiftVoucherBox.Message !== null && vmorder.cart.GiftVoucherBox.IsApplied" class="alert alert-success message-success text-center">
+                        {{vmorder.cart.GiftVoucherBox.Message}}
+                    </div>
+                    <div v-if="vmorder.cart.GiftVoucherBox.Message !== null && vmorder.cart.GiftVoucherBox.IsApplied == false" class="alert alert-danger message-failure text-center">
+                        {{vmorder.cart.GiftVoucherBox.Message}}
                     </div>
                 </div>
             </div>
         </div>
-    </template>
+    </div>
 </div>
