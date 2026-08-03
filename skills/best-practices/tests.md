@@ -11,8 +11,8 @@ Each business project has a sibling test project:
 ```
 Grand.Business.Checkout   →  Grand.Business.Checkout.Tests
 Grand.Business.Catalog    →  Grand.Business.Catalog.Tests
-Grand.Web                 →  Grand.Web.Store.Tests
-```
+Grand.Web                 →  Grand.Web.Tests
+Grand.Web.Store           →  Grand.Web.Store.Tests
 
 ---
 
