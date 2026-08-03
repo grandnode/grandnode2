@@ -24,7 +24,7 @@ Do not use this skill as the primary review for MongoDB query safety or security
 ### Mandatory Rules
 
 #### Settings
-1. Define every settings class in `src/Core/Grand.Domain` and implement the marker interface `Grand.Domain.Configuration.ISettings`.
+1. Define core settings classes in `src/Core/Grand.Domain` and implement the marker interface `Grand.Domain.Configuration.ISettings` (plugin settings classes stay in the owning plugin project).
 2. Keep settings as plain properties with no business logic. Store primitive types, enums, and simple value types.
 3. Load settings with `ISettingService.LoadSetting<T>(storeId)`. Pass an empty string to load the global fallback; pass the active store ID for per-store overrides.
 4. Obtain the active store ID from `IAdminStoreService.GetActiveStore()` in admin, store, and plugin controllers.
