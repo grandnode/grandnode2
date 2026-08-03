@@ -8,7 +8,7 @@ Patterns from `Grand.Web`, `Grand.Module.Api`, `Grand.Business.*`. Complementary
 
 ### Check permission before touching data
 
-Every API and admin controller action must call `IPermissionService.Authorize` before returning any data or performing any mutation.
+Every API and admin controller action must enforce permissions (either via `[PermissionAuthorize]` / `[PermissionAuthorizeAction]` attributes or explicit `IPermissionService.Authorize` checks) before returning any data or performing any mutation.
 
 ```csharp
 public async Task<IActionResult> Get()
