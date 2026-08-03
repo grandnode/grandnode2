@@ -42,9 +42,9 @@ Do not use this skill as the primary review for MongoDB query safety or authenti
 7. Add a migration under `src/Modules/Grand.Module.Migration/Migrations/` when a new permission must appear on existing installations. In the migration, check whether the permission already exists by `SystemName` before inserting it to keep the migration idempotent.
 
 #### Authorizing Controllers
-8. Apply `[AuthorizeAdmin]` at class level on every Admin controller to enforce access to the admin panel. This checks `ManageAccessAdminPanel` and rejects vendor and store manager sessions.
-9. Apply `[AuthorizeVendor]` at class level on every Vendor controller. This checks `ManageAccessVendorPanel`, verifies the user is in the Vendors customer group, and verifies an active vendor account.
-10. Apply `[AuthorizeStore]` at class level on every Store Owner controller. This checks `ManageAccessStoreManagerPanel`, verifies the StoreManagers group, and verifies a `StaffStoreId` assignment.
+8. Ensure Admin controllers inherit from `BaseAdminController` (it already applies `[AuthorizeAdmin]`) to enforce access to the admin panel.
+9. Ensure Vendor controllers inherit from `BaseVendorController` (it already applies `[AuthorizeVendor]`) to enforce vendor panel access.
+10. Ensure Store Owner controllers inherit from `BaseStoreController` (it already applies `[AuthorizeStore]`) to enforce store panel access.
 11. Apply `[PermissionAuthorize(PermissionSystemName.X)]` at class level on Admin, Store, or Vendor controllers to gate the entire controller on a specific feature permission. This must come after the panel-level attribute.
 12. Apply `[PermissionAuthorizeAction(PermissionActionName.X)]` at action method level to enforce granular action gating within a controller that already carries `[PermissionAuthorize(...)]`. This checks both the class-level permission and the named action.
 13. Never substitute `IPermissionService.Authorize(...)` in a controller action for the attribute-based approach unless the check is conditional on runtime data. Attribute checks run before the action body executes.
