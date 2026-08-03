@@ -358,8 +358,31 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
         var storeLocation = GetStoreLocation();
 
         return _commonSettings.SitemapCustomUrls.Select(customUrl =>
-            new SitemapUrl(string.Concat(storeLocation, customUrl), string.Empty, UpdateFrequency.Weekly,
-                DateTime.UtcNow));
+        {
+            // Use proper URI composition to handle path joining correctly
+            // This avoids malformed URLs with leading slashes before scheme (e.g., "/https://")
+            if (string.IsNullOrEmpty(customUrl))
+                return new SitemapUrl(storeLocation, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow);
+
+            // Check if customUrl is already an absolute URL (contains ://)
+            if (customUrl.Contains("://"))
+                return new SitemapUrl(customUrl, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow);
+
+            // For relative URLs, use Uri to properly combine the paths
+            try
+            {
+                var baseUri = new Uri(storeLocation);
+                var combinedUri = new Uri(baseUri, customUrl);
+                return new SitemapUrl(combinedUri.ToString(), string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow);
+            }
+            catch
+            {
+                // Fallback to simple concatenation if Uri construction fails
+                // Ensure proper path separator
+                var separator = storeLocation.EndsWith("/") || customUrl.StartsWith("/") ? "" : "/";
+                return new SitemapUrl(string.Concat(storeLocation, separator, customUrl), string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow);
+            }
+        });
     }
 
     private string XmlEncode(string str)
