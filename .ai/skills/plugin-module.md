@@ -27,8 +27,8 @@ Do not use this skill as the primary review for payment correctness, tenant isol
 ### Mandatory Rules
 1. Identify whether the work is a plugin under `src/Plugins` or a module under `src/Modules`.
 2. Identify the closest existing implementation and follow its folder, namespace, project, startup, controller, view, setting, and test patterns.
-3. Read `references/plugin-types.md` before creating or changing a plugin.
-4. Read `references/module-types.md` before creating or changing a module.
+3. Read `.ai/knowledge/plugin-types.md` before creating or changing a plugin.
+4. Read `.ai/knowledge/module-types.md` before creating or changing a module.
 5. Use a stable system name that matches the repository convention, such as `Payments.X`, `Shipping.X`, `Tax.X`, `Widgets.X`, `Authentication.X`, `DiscountRules.X`, `ExchangeRate.X`, or `Theme.X`.
 6. Add or update `Manifest.cs` for plugins with `[assembly: PluginInfo(...)]`.
 7. Add or update a plugin class that derives from `BasePlugin` when install, uninstall, or configuration behavior is required.

@@ -26,7 +26,7 @@ Do not use this skill as the primary review for payment correctness, security, M
 
 ### Mandatory Rules
 1. Identify the template type before editing.
-2. Read `references/template-types.md` before creating a new template or changing an unfamiliar template type.
+2. Read `.ai/knowledge/template-types.md` before creating a new template or changing an unfamiliar template type.
 3. Locate the closest existing template in the same area and follow its folder, naming, model, layout, localization, tag helper, JavaScript, and CSS conventions.
 4. Keep templates in the owning project or plugin; do not place plugin-owned views directly in `Grand.Web`.
 5. Use the existing view location convention for the target area.

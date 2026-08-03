@@ -28,7 +28,7 @@ Do not use this skill as the primary review for MongoDB query safety, template m
 
 ### Mandatory Rules
 1. Identify whether the change belongs to Admin, Store Owner, Vendor, AdminShared, or multiple areas.
-2. Read `references/admin-areas.md` before creating or changing an admin workflow.
+2. Read `.ai/knowledge/admin-areas.md` before creating or changing an admin workflow.
 3. Locate matching controllers in `src/Web/Grand.Web.Admin/Controllers`, `src/Web/Grand.Web.Store/Controllers`, and `src/Web/Grand.Web.Vendor/Controllers`.
 4. Locate matching views in `src/Web/Grand.Web.Admin/Areas/Admin/Views`, `src/Web/Grand.Web.Store/Areas/Store/Views`, and `src/Web/Grand.Web.Vendor/Areas/Vendor/Views`.
 5. Locate shared models, validators, and mapper profiles in `src/Web/Grand.Web.AdminShared`.

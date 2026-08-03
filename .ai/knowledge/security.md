@@ -1,6 +1,6 @@
 # Best Practice: Security
 
-Patterns from `Grand.Web`, `Grand.Module.Api`, `Grand.Business.*`. Complementary to `skills/reviews/security-review/SKILL.md`.
+Patterns from `Grand.Web`, `Grand.Module.Api`, `Grand.Business.*`. Complementary to `.ai/skills/security-review.md`.
 
 ---
 

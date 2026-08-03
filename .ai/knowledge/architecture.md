@@ -1,6 +1,6 @@
 # Best Practice: Architecture
 
-Patterns from `Grand.Infrastructure`, `Grand.Business.*`, `Grand.Domain`. Complementary to `skills/reviews/architecture-review/SKILL.md`.
+Patterns from `Grand.Infrastructure`, `Grand.Business.*`, `Grand.Domain`. Complementary to `.ai/skills/architecture-review.md`.
 
 ---
 

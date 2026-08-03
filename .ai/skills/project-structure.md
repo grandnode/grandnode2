@@ -23,7 +23,7 @@ Do not use this skill as a replacement for domain-specific skills such as plugin
 ## Instructions
 
 ### Mandatory Rules
-1. Read `references/repository-map.md` before making structural decisions.
+1. Read `.ai/knowledge/repository-map.md` before making structural decisions.
 2. Identify the requested change type: domain, business service, data access, web UI, admin UI, API, plugin, module, frontend asset, test, build, or deployment.
 3. Locate the closest existing feature with the same entity or workflow.
 4. Follow the existing folder, namespace, dependency, registration, model, mapper, validator, controller, view, and test patterns.
