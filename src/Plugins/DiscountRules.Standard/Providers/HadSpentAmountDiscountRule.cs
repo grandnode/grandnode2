@@ -65,7 +65,7 @@ public class HadSpentAmountDiscountRule : IDiscountRule
     public string GetConfigurationUrl(string discountId, string discountRequirementId)
     {
         //configured 
-        var result = "Admin/HadSpentAmount/Configure/?discountId=" + discountId;
+        var result = $"/DiscountRulesHadSpentAmount/Configure/?discountId=" + discountId;
         if (!string.IsNullOrEmpty(discountRequirementId))
             result += $"&discountRequirementId={discountRequirementId}";
         return result;

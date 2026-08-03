@@ -1,4 +1,5 @@
-﻿@{
+@model TaxCategoryListModel
+@{
     //page title
     ViewBag.Title = Loc["Admin.Configuration.Tax.Categories"];
 }
@@ -26,100 +27,117 @@
     </div>
 </div>
 
-
 <script>
-        $(document).ready(function () {
-            $("#tax-categories-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("Categories", "Tax", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        create: {
-                            url: "@Html.Raw(Url.Action("CategoryAdd", "Tax", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        update: {
-                            url:"@Html.Raw(Url.Action("CategoryUpdate", "Tax", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("CategoryDelete", "Tax", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
+    var storesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.AvailableStores.Select(s => new { text = s.Text, value = s.Value })
+    ));
+
+    $(document).ready(function () {
+        $("#tax-categories-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("Categories", "Tax", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
                     },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                Name: { editable: true, type: "string" },
-                                DisplayOrder: { editable: true, type: "number" },
-                                Id: { editable: false, type: "string" }
-                            }
-                        }
+                    create: {
+                        url: "@Html.Raw(Url.Action("CategoryAdd", "Tax", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
                     },
-                    requestEnd: function (e) {
-                        if (e.type == "create" || e.type == "update") {
-                            this.read();
-                        }
+                    update: {
+                        url: "@Html.Raw(Url.Action("CategoryUpdate", "Tax", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
                     },
-                    error: function (e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
+                    destroy: {
+                        url: "@Html.Raw(Url.Action("CategoryDelete", "Tax", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
                 },
-                pageable: {
-                    refresh: true,
-                    numeric: false,
-                    previousNext: false,
-                    info: false
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Name: { editable: true, type: "string" },
+                            DisplayOrder: { editable: true, type: "number" },
+                            StoreId: { editable: true, type: "string", defaultValue: "" },
+                            StoreName: { editable: false, type: "string" },
+                            Id: { editable: false, type: "string" }
+                        }
+                    }
                 },
-                toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
-                editable: {
-                    confirmation: true,
-                    mode: "inline"
+                requestEnd: function (e) {
+                    if (e.type == "create" || e.type == "update") {
+                        this.read();
+                    }
                 },
-                scrollable: false,
-                columns: [{
-                    field: "Name",
-                    title: "@Loc["Admin.Configuration.Tax.Categories.Fields.Name"]",
-                    width: 300
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
+            editable: {
+                confirmation: true,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Name",
+                title: "@Loc["Admin.Configuration.Tax.Categories.Fields.Name"]",
+                width: 250
+            }, {
+                field: "DisplayOrder",
+                title: "@Loc["Admin.Configuration.Tax.Categories.Fields.DisplayOrder"]",
+                format: "{0:0}",
+                width: 100
+            }, {
+                field: "StoreId",
+                title: "@Loc["Admin.Common.Store"]",
+                width: 200,
+                template: "#=StoreName#",
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            dataTextField: "text",
+                            dataValueField: "value",
+                            dataSource: storesData
+                        });
+                }
+            }, {
+                command: [{
+                    name: "edit",
+                    text: {
+                        edit: "@Loc["Admin.Common.Edit"]",
+                        update: "@Loc["Admin.Common.Update"]",
+                        cancel: "@Loc["Admin.Common.Cancel"]"
+                    }
                 }, {
-                    field: "DisplayOrder",
-                    title: "@Loc["Admin.Configuration.Tax.Categories.Fields.DisplayOrder"]",
-                    //integer format
-                    format: "{0:0}",
-                    width: 100
-                }, {
-                    command: [{
-                        name: "edit",
-                        text: {
-                            edit: "@Loc["Admin.Common.Edit"]",
-                            update: "@Loc["Admin.Common.Update"]",
-                            cancel: "@Loc["Admin.Common.Cancel"]"
-                        }
-                    }, {
-                        name: "destroy",
-                        text: "@Loc["Admin.Common.Delete"]"
-                    }],
-                    width: 200
-                }]
-            });
+                    name: "destroy",
+                    text: "@Loc["Admin.Common.Delete"]"
+                }],
+                width: 200
+            }]
         });
-    </script>
+    });
+</script>

@@ -8,6 +8,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
@@ -26,11 +27,13 @@ public class CustomerService : ICustomerService
     public CustomerService(
         IRepository<Customer> customerRepository,
         IMediator mediator,
-        ICacheBase cacheBase)
+        ICacheBase cacheBase,
+        CustomerConfig customerConfig)
     {
         _customerRepository = customerRepository;
         _mediator = mediator;
         _cacheBase = cacheBase;
+        _customerConfig = customerConfig;
     }
 
     #endregion
@@ -40,6 +43,7 @@ public class CustomerService : ICustomerService
     private readonly IRepository<Customer> _customerRepository;
     private readonly IMediator _mediator;
     private readonly ICacheBase _cacheBase;
+    private readonly CustomerConfig _customerConfig;
 
     #endregion
 
@@ -224,9 +228,37 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="email">Email</param>
     /// <returns>Customer</returns>
-    public virtual Task<Customer> GetCustomerByEmail(string email)
+    public virtual async Task<Customer> GetCustomerByEmail(string email, string storeId = "")
     {
-        return string.IsNullOrWhiteSpace(email) ? Task.FromResult<Customer>(null) : _customerRepository.GetOneAsync(x => x.Email == email.ToLowerInvariant());
+        if (string.IsNullOrWhiteSpace(email))
+            return null;
+
+        var loweredEmail = email.ToLowerInvariant();
+        if (!string.IsNullOrEmpty(storeId))
+        {
+            var inStore = await _customerRepository.GetOneAsync(x => x.Email == loweredEmail && x.StoreId == storeId);
+            if (inStore != null)
+                return inStore;
+
+            if (!_customerConfig.RegisterCustomersPerStore)
+                return null;
+
+            return await _customerRepository.GetOneAsync(x =>
+                x.Email == loweredEmail && (x.StoreId == null || x.StoreId == ""));
+        }
+
+        //global (store-independent) lookup. With per-store identity the same email may exist in several
+        //stores, so prefer the store-independent account (system/admin/back-office created without a store)
+        //to make sure e.g. admin panel login is not shadowed by a store customer that reused the email.
+        if (_customerConfig.RegisterCustomersPerStore)
+        {
+            var storeless = await _customerRepository.GetOneAsync(x =>
+                x.Email == loweredEmail && (x.StoreId == null || x.StoreId == ""));
+            if (storeless != null)
+                return storeless;
+        }
+
+        return await _customerRepository.GetOneAsync(x => x.Email == loweredEmail);
     }
 
     /// <summary>
@@ -249,12 +281,37 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="username">Username</param>
     /// <returns>Customer</returns>
-    public virtual Task<Customer> GetCustomerByUsername(string username)
+    public virtual async Task<Customer> GetCustomerByUsername(string username, string storeId = "")
     {
         if (string.IsNullOrWhiteSpace(username))
-            return Task.FromResult<Customer>(null);
+            return null;
 
-        return _customerRepository.GetOneAsync(x => x.Username == username.ToLowerInvariant());
+        var loweredUsername = username.ToLowerInvariant();
+        if (!string.IsNullOrEmpty(storeId))
+        {
+            var inStore = await _customerRepository.GetOneAsync(x => x.Username == loweredUsername && x.StoreId == storeId);
+            if (inStore != null)
+                return inStore;
+
+            //no customer for this store: without per-store identity there is no fallback; with it, a
+            //store-scoped lookup must still reach the store-independent system/back-office account
+            if (!_customerConfig.RegisterCustomersPerStore)
+                return null;
+
+            return await _customerRepository.GetOneAsync(x =>
+                x.Username == loweredUsername && (x.StoreId == null || x.StoreId == ""));
+        }
+
+        //global (store-independent) lookup - prefer the store-independent account (see GetCustomerByEmail)
+        if (_customerConfig.RegisterCustomersPerStore)
+        {
+            var storeless = await _customerRepository.GetOneAsync(x =>
+                x.Username == loweredUsername && (x.StoreId == null || x.StoreId == ""));
+            if (storeless != null)
+                return storeless;
+        }
+
+        return await _customerRepository.GetOneAsync(x => x.Username == loweredUsername);
     }
 
     /// <summary>
@@ -381,14 +438,14 @@ public class CustomerService : ICustomerService
             if (string.IsNullOrWhiteSpace(valueStr))
             {
                 //delete
-                await _customerRepository.PullFilter(customer.Id, x => x.UserFields,y => y.Key == prop.Key && y.StoreId == storeId);
+                await _customerRepository.RemoveCollectionFieldItem(customer.Id, x => x.UserFields,y => y.Key == prop.Key && y.StoreId == storeId);
                 customer.UserFields.Remove(prop);
             }
             else
             {
                 //update
                 prop.Value = valueStr;
-                await _customerRepository.UpdateToSet(customer.Id, x => x.UserFields,y => y.Key == prop.Key && y.StoreId == storeId, prop);
+                await _customerRepository.UpdateCollectionFieldItem(customer.Id, x => x.UserFields,y => y.Key == prop.Key && y.StoreId == storeId, prop);
             }
         }
         else
@@ -400,7 +457,7 @@ public class CustomerService : ICustomerService
                     Value = valueStr,
                     StoreId = storeId
                 };
-                await _customerRepository.AddToSet(customer.Id, x => x.UserFields, prop);
+                await _customerRepository.AddToCollectionField(customer.Id, x => x.UserFields, prop);
                 customer.UserFields.Add(prop);
             }
         }
@@ -485,6 +542,7 @@ public class CustomerService : ICustomerService
             .Set(x => x.SeId, customer.SeId)
             .Set(x => x.OwnerId, customer.OwnerId)
             .Set(x => x.StaffStoreId, customer.StaffStoreId)
+            .Set(x => x.StoreId, customer.StoreId)
             .Set(x => x.Attributes, customer.Attributes);
 
         await _customerRepository.UpdateOneAsync(x => x.Id == customer.Id, update);
@@ -612,7 +670,7 @@ public class CustomerService : ICustomerService
         ArgumentNullException.ThrowIfNull(customerGroup);
         ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
-        await _customerRepository.Pull(customerId, x => x.Groups, customerGroup.Id);
+        await _customerRepository.RemoveCollectionFieldItem(customerId, x => x.Groups, y => y == customerGroup.Id);
     }
 
     public virtual async Task InsertCustomerGroupInCustomer(CustomerGroup customerGroup, string customerId)
@@ -620,7 +678,7 @@ public class CustomerService : ICustomerService
         ArgumentNullException.ThrowIfNull(customerGroup);
         ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
-        await _customerRepository.AddToSet(customerId, x => x.Groups, customerGroup.Id);
+        await _customerRepository.AddToCollectionField(customerId, x => x.Groups, customerGroup.Id);
     }
 
     #endregion
@@ -632,7 +690,7 @@ public class CustomerService : ICustomerService
         ArgumentNullException.ThrowIfNull(address);
         ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
-        await _customerRepository.PullFilter(customerId, x => x.Addresses, x => x.Id, address.Id);
+        await _customerRepository.RemoveCollectionFieldItem(customerId, x => x.Addresses, x => x.Id == address.Id);
 
         //event notification
         await _mediator.EntityDeleted(address);
@@ -646,7 +704,7 @@ public class CustomerService : ICustomerService
         if (address.StateProvinceId == "0")
             address.StateProvinceId = "";
 
-        await _customerRepository.AddToSet(customerId, x => x.Addresses, address);
+        await _customerRepository.AddToCollectionField(customerId, x => x.Addresses, address);
 
         //event notification
         await _mediator.EntityInserted(address);
@@ -657,7 +715,7 @@ public class CustomerService : ICustomerService
         ArgumentNullException.ThrowIfNull(address);
         ArgumentNullException.ThrowIfNullOrEmpty(customerId);
 
-        await _customerRepository.UpdateToSet(customerId, x => x.Addresses, z => z.Id, address.Id, address);
+        await _customerRepository.UpdateCollectionFieldItem(customerId, x => x.Addresses, z => z.Id == address.Id, address);
 
         //event notification
         await _mediator.EntityUpdated(address);
@@ -688,7 +746,7 @@ public class CustomerService : ICustomerService
     {
         ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
-        await _customerRepository.PullFilter(customerId, x => x.ShoppingCartItems, x => x.Id, shoppingCartItem.Id);
+        await _customerRepository.RemoveCollectionFieldItem(customerId, x => x.ShoppingCartItems, x => x.Id == shoppingCartItem.Id);
 
         if (shoppingCartItem.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
             await UpdateCustomerField(customerId, x => x.LastUpdateCartDateUtc, DateTime.UtcNow);
@@ -699,7 +757,7 @@ public class CustomerService : ICustomerService
     public virtual async Task ClearShoppingCartItem(string customerId, IList<ShoppingCartItem> cart)
     {
         foreach (var item in cart)
-            await _customerRepository.PullFilter(customerId, x => x.ShoppingCartItems, x => x.Id, item.Id);
+            await _customerRepository.RemoveCollectionFieldItem(customerId, x => x.ShoppingCartItems, x => x.Id == item.Id);
 
         if (cart.Any(c => c.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions))
             await UpdateCustomerField(customerId, x => x.LastUpdateCartDateUtc, DateTime.UtcNow);
@@ -711,7 +769,7 @@ public class CustomerService : ICustomerService
     {
         ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
-        await _customerRepository.AddToSet(customerId, x => x.ShoppingCartItems, shoppingCartItem);
+        await _customerRepository.AddToCollectionField(customerId, x => x.ShoppingCartItems, shoppingCartItem);
 
         if (shoppingCartItem.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
             await UpdateCustomerField(customerId, x => x.LastUpdateCartDateUtc, DateTime.UtcNow);
@@ -723,8 +781,7 @@ public class CustomerService : ICustomerService
     {
         ArgumentNullException.ThrowIfNull(shoppingCartItem);
 
-        await _customerRepository.UpdateToSet(customerId, x => x.ShoppingCartItems, z => z.Id, shoppingCartItem.Id,
-            shoppingCartItem);
+        await _customerRepository.UpdateCollectionFieldItem(customerId, x => x.ShoppingCartItems, z => z.Id == shoppingCartItem.Id, shoppingCartItem);
 
         if (shoppingCartItem.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
             await UpdateCustomerField(customerId, x => x.LastUpdateCartDateUtc, DateTime.UtcNow);

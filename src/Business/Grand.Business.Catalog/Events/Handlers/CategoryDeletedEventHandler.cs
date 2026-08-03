@@ -32,8 +32,8 @@ public class CategoryDeletedEventHandler : INotificationHandler<EntityDeleted<Ca
             x.EntityId == notification.Entity.Id && x.EntityName == EntityTypes.Category);
 
         //delete on the product
-        await _productRepository.PullFilter(string.Empty, x => x.ProductCategories, z => z.CategoryId,
-            notification.Entity.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductCategories,
+            z => z.CategoryId == notification.Entity.Id);
 
         //clear cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);

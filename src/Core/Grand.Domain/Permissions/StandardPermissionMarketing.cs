@@ -14,7 +14,7 @@ public static partial class StandardPermission
     };
 
     public static readonly Permission ManagePushEvents = new() {
-        Name = "Manage Push Events",
+        Name = "Manage Push Notifications",
         SystemName = PermissionSystemName.PushNotifications,
         Area = "Admin area",
         Category = CategoryMarketing,

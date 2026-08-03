@@ -1,5 +1,6 @@
 ﻿{
   Name: Defective,
   DisplayOrder: 1,
+  LimitedToStores: false,
   Id: ObjectId_1
 }

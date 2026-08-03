@@ -84,7 +84,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
     private async Task<IList<MerchandiseReturnModel.MerchandiseReturnReasonModel>> PrepareAvailableReturnReasons()
     {
         var reasons = new List<MerchandiseReturnModel.MerchandiseReturnReasonModel>();
-        foreach (var rrr in await _merchandiseReturnService.GetAllMerchandiseReturnReasons())
+        foreach (var rrr in await _merchandiseReturnService.GetAllMerchandiseReturnReasons(_contextAccessor.StoreContext.CurrentStore.Id))
             reasons.Add(new MerchandiseReturnModel.MerchandiseReturnReasonModel {
                 Id = rrr.Id,
                 Name = rrr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
@@ -95,7 +95,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
     private async Task<IList<MerchandiseReturnModel.MerchandiseReturnActionModel>> PrepareAvailableReturnActions()
     {
         var actions = new List<MerchandiseReturnModel.MerchandiseReturnActionModel>();
-        foreach (var rra in await _merchandiseReturnService.GetAllMerchandiseReturnActions())
+        foreach (var rra in await _merchandiseReturnService.GetAllMerchandiseReturnActions(_contextAccessor.StoreContext.CurrentStore.Id))
             actions.Add(new MerchandiseReturnModel.MerchandiseReturnActionModel {
                 Id = rra.Id,
                 Name = rra.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)

@@ -1,0 +1,54 @@
+@model ContactAttributeStoreModel
+@{
+    var isReadOnly = Model.IsReadOnly;
+    ViewBag.Title = Loc["Admin.Catalog.Attributes.ContactAttributes.EditAttributeDetails"];
+}
+<form asp-area="@Constants.AreaStore" asp-controller="ContactAttribute" asp-action="Edit" method="post" id="contactattribute-form">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-list-alt"></i>
+                        @Loc["Admin.Catalog.Attributes.ContactAttributes.EditAttributeDetails"] - @Model.Name
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Catalog.Attributes.ContactAttributes.BackToList"], "List")
+                        </small>
+                    </div>
+                    @if (!isReadOnly)
+                    {
+                        <div class="actions">
+                            <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
+                                <button class="btn btn-success" type="submit" name="save">
+                                    <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                </button>
+                                <button class="btn btn-success" type="submit" name="save-continue">
+                                    <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                                </button>
+                                <span id="contactattribute-delete" class="btn red">
+                                    <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                </span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="actions">
+                            <div class="alert alert-info mb-0 py-2">
+                                <i class="fa fa-info-circle"></i> @Loc["Admin.Catalog.Attributes.ContactAttributes.GlobalReadOnly"]
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="x_content form">
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+@if (!isReadOnly)
+{
+    <admin-delete-confirmation button-id="contactattribute-delete"/>
+}

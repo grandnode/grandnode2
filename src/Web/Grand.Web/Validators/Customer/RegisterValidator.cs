@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
@@ -27,10 +28,15 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
         IHttpContextAccessor httpcontextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
         IMediator mediator, ICustomerAttributeParser customerAttributeParser,
         ICustomerService customerService,
-        IGroupService groupService, IContextAccessor contextAccessor
+        IGroupService groupService, IContextAccessor contextAccessor,
+        CustomerConfig customerConfig
     )
         : base(validators)
     {
+        var storeId = customerConfig.RegisterCustomersPerStore
+            ? contextAccessor.StoreContext.CurrentStore.Id
+            : "";
+
         RuleFor(x => x.Email).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
 
@@ -131,7 +137,8 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             var customerAttributes = await mediator.Send(new GetParseCustomAttributes { SelectedAttributes = x.SelectedAttributes }, _);
-            var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
+            var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes,
+                contextAccessor.StoreContext.CurrentStore.Id);
             foreach (var error in customerAttributeWarnings) context.AddFailure(error);
 
             if (await groupService.IsRegistered(contextAccessor.WorkContext.CurrentCustomer))
@@ -142,14 +149,14 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
 
 
             //validate unique user
-            if (await customerService.GetCustomerByEmail(x.Email) != null)
+            if (await customerService.GetCustomerByEmail(x.Email, storeId) != null)
             {
                 context.AddFailure(translationService.GetResource("Account.Register.Errors.EmailAlreadyExists"));
                 return;
             }
 
             if (customerSettings.UsernamesEnabled)
-                if (await customerService.GetCustomerByUsername(x.Username) != null)
+                if (await customerService.GetCustomerByUsername(x.Username, storeId) != null)
                     context.AddFailure(translationService.GetResource("Account.Register.Errors.UsernameAlreadyExists"));
         });
     }

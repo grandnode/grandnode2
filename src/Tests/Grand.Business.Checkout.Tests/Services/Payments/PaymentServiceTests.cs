@@ -69,6 +69,63 @@ public class PaymentServiceTests
     }
 
     [TestMethod]
+    public async Task GetRestrictedCountryIds_WithStoreId_PassStoreIdToSettingService()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
+        var expectedResult = new List<string> { "1", "2" };
+        var expectedKey = "PaymentMethodRestictions.systemName";
+        _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, "storeId"))
+            .Returns(() => Task.FromResult(new PaymentRestrictedSettings { Ids = expectedResult }));
+
+        var result = await _paymentService.GetRestrictedCountryIds(_paymentProviderMock.Object, "storeId");
+        Assert.IsTrue(expectedResult.SequenceEqual(result));
+        _settingService.Verify(s => s.GetSettingByKey<PaymentRestrictedSettings>(expectedKey, null, "storeId"),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetRestrictedShippingIds_ReturnExpectedIds()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
+        var expectedResult = new List<string> { "Ground", "Pickup" };
+        var expectedKey = "PaymentMethodRestictionsShipping.systemName";
+        _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, ""))
+            .Returns(() => Task.FromResult(new PaymentRestrictedSettings { Ids = expectedResult }));
+
+        var result = await _paymentService.GetRestrictedShippingIds(_paymentProviderMock.Object);
+        Assert.IsTrue(expectedResult.SequenceEqual(result));
+        _settingService.Verify(s => s.GetSettingByKey<PaymentRestrictedSettings>(expectedKey, null, ""), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetRestrictedShippingIds_ReturnEmptyList()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
+        var expectedKey = "PaymentMethodRestictionsShipping.systemName";
+        _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, ""))
+            .Returns(() => Task.FromResult((PaymentRestrictedSettings)null));
+
+        var result = await _paymentService.GetRestrictedShippingIds(_paymentProviderMock.Object);
+        Assert.IsEmpty(result);
+        _settingService.Verify(s => s.GetSettingByKey<PaymentRestrictedSettings>(expectedKey, null, ""), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetRestrictedShippingIds_WithStoreId_PassStoreIdToSettingService()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
+        var expectedResult = new List<string> { "Ground" };
+        var expectedKey = "PaymentMethodRestictionsShipping.systemName";
+        _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, "storeId"))
+            .Returns(() => Task.FromResult(new PaymentRestrictedSettings { Ids = expectedResult }));
+
+        var result = await _paymentService.GetRestrictedShippingIds(_paymentProviderMock.Object, "storeId");
+        Assert.IsTrue(expectedResult.SequenceEqual(result));
+        _settingService.Verify(s => s.GetSettingByKey<PaymentRestrictedSettings>(expectedKey, null, "storeId"),
+            Times.Once);
+    }
+
+    [TestMethod]
     public async Task SaveRestictedCountryIds_InvokeSettingsService()
     {
         _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
@@ -78,6 +135,62 @@ public class PaymentServiceTests
         await _paymentService.SaveRestrictedCountryIds(_paymentProviderMock.Object, countryIds);
         _settingService.Verify(
             s => s.SetSetting(expectedKey, It.IsAny<PaymentRestrictedSettings>(), It.IsAny<string>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SaveRestictedCountryIds_WithStoreId_SaveSettingForStore()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
+        var countryIds = new List<string> { "1", "2" };
+        var expectedKey = "PaymentMethodRestictions.systemName";
+
+        await _paymentService.SaveRestrictedCountryIds(_paymentProviderMock.Object, countryIds, "storeId");
+        _settingService.Verify(
+            s => s.SetSetting(expectedKey,
+                It.Is<PaymentRestrictedSettings>(x => x.Ids.SequenceEqual(countryIds)), "storeId"),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SaveRestrictedShippingIds_InvokeSettingsService()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
+        var shippingIds = new List<string> { "Ground", "Pickup" };
+        var expectedKey = "PaymentMethodRestictionsShipping.systemName";
+
+        await _paymentService.SaveRestrictedShippingIds(_paymentProviderMock.Object, shippingIds);
+        _settingService.Verify(
+            s => s.SetSetting(expectedKey, It.IsAny<PaymentRestrictedSettings>(), It.IsAny<string>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SaveRestrictedShippingIds_WithStoreId_SaveSettingForStore()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
+        var shippingIds = new List<string> { "Ground" };
+        var expectedKey = "PaymentMethodRestictionsShipping.systemName";
+
+        await _paymentService.SaveRestrictedShippingIds(_paymentProviderMock.Object, shippingIds, "storeId");
+        _settingService.Verify(
+            s => s.SetSetting(expectedKey,
+                It.Is<PaymentRestrictedSettings>(x => x.Ids.SequenceEqual(shippingIds)), "storeId"),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task LoadAllPaymentMethods_FilterByCountry_UseStoreScopedRestrictions()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
+        var expectedKey = "PaymentMethodRestictions.systemName";
+        _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(expectedKey, null, "storeId"))
+            .Returns(() => Task.FromResult(new PaymentRestrictedSettings { Ids = ["countryId"] }));
+
+        var result = await _paymentService.LoadAllPaymentMethods(storeId: "storeId", filterByCountryId: "countryId");
+
+        Assert.IsEmpty(result);
+        _settingService.Verify(s => s.GetSettingByKey<PaymentRestrictedSettings>(expectedKey, null, "storeId"),
             Times.Once);
     }
 

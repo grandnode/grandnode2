@@ -318,7 +318,6 @@ public class CatalogController : BasePublicController
     #region Vendor reviews
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> VendorReviews(VendorReviewsModel model)
     {

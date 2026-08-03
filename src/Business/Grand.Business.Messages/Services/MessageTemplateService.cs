@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Data;
+using Grand.Domain;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
@@ -136,28 +137,31 @@ public class MessageTemplateService : IMessageTemplateService
     ///     Gets all message templates
     /// </summary>
     /// <param name="storeId">Store identifier; pass "" to load all records</param>
-    /// <returns>Message template list</returns>
-    public virtual async Task<IList<MessageTemplate>> GetAllMessageTemplates(string storeId)
+    /// <param name="keywords">Keywords to filter by name or subject; pass "" to skip</param>
+    /// <param name="pageIndex">Page index (0-based)</param>
+    /// <param name="pageSize">Page size</param>
+    /// <returns>Paged list of message templates</returns>
+    public virtual async Task<IPagedList<MessageTemplate>> GetAllMessageTemplates(string storeId, string keywords = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
-        var key = string.Format(CacheKey.MESSAGETEMPLATES_ALL_KEY, storeId);
-        return await _cacheBase.GetAsync(key, async () =>
-        {
-            var query = from p in _messageTemplateRepository.Table
-                select p;
+        var query = from p in _messageTemplateRepository.Table
+            select p;
 
-            query = query.OrderBy(t => t.Name);
-
-            //Store acl
-            if (string.IsNullOrEmpty(storeId) || _accessControlConfig.IgnoreStoreLimitations)
-                return await Task.FromResult(query.ToList());
-
+        //Store acl
+        if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
             query = from p in query
                 where !p.LimitedToStores || p.Stores.Contains(storeId)
                 select p;
-            query = query.OrderBy(t => t.Name);
 
-            return await Task.FromResult(query.ToList());
-        });
+        if (!string.IsNullOrEmpty(keywords))
+        {
+            var lowerKeywords = keywords.ToLower();
+            query = query.Where(t => t.Name.ToLower().Contains(lowerKeywords) ||
+                                     (t.Subject != null && t.Subject.Contains(lowerKeywords, StringComparison.CurrentCultureIgnoreCase)));
+        }
+
+        query = query.OrderBy(t => t.Name);
+
+        return await PagedList<MessageTemplate>.Create(query, pageIndex, pageSize);
     }
 
     /// <summary>

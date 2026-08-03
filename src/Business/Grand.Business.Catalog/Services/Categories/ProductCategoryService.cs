@@ -104,7 +104,7 @@ public class ProductCategoryService : IProductCategoryService
     {
         ArgumentNullException.ThrowIfNull(productCategory);
 
-        await _productRepository.AddToSet(productId, x => x.ProductCategories, productCategory);
+        await _productRepository.AddToCollectionField(productId, x => x.ProductCategories, productCategory);
 
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);
@@ -123,7 +123,7 @@ public class ProductCategoryService : IProductCategoryService
     {
         ArgumentNullException.ThrowIfNull(productCategory);
 
-        await _productRepository.UpdateToSet(productId, x => x.ProductCategories, z => z.Id, productCategory.Id,
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductCategories, z => z.Id == productCategory.Id,
             productCategory);
 
         //cache
@@ -143,7 +143,7 @@ public class ProductCategoryService : IProductCategoryService
     {
         ArgumentNullException.ThrowIfNull(productCategory);
 
-        await _productRepository.PullFilter(productId, x => x.ProductCategories, z => z.Id, productCategory.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductCategories, z => z.Id == productCategory.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);

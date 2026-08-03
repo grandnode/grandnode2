@@ -163,7 +163,7 @@ public class ShoppingCartController : BasePublicController
             disabledattributeids = disabledAttributeIds.ToArray(),
             model = orderTotals,
             checkoutattributeinfo =
-                await checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, _contextAccessor.WorkContext.CurrentCustomer)
+                await checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore)
         });
     }
 
@@ -301,7 +301,6 @@ public class ShoppingCartController : BasePublicController
     }
 
 
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     [HttpPost]
     public virtual async Task<IActionResult> UpdateQuantity(UpdateQuantityModel model)
@@ -497,7 +496,6 @@ public class ShoppingCartController : BasePublicController
         return RedirectToRoute("LoginCheckoutAsGuest", new { returnUrl = Url.RouteUrl("ShoppingCart") });
     }
 
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     [HttpPost]
     public virtual async Task<IActionResult> ApplyDiscountCoupon(DiscountCouponModel model)
@@ -541,7 +539,6 @@ public class ShoppingCartController : BasePublicController
         });
     }
 
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     [HttpPost]
     public virtual async Task<IActionResult> ApplyGiftVoucher(GiftVoucherCouponModel model)
@@ -586,7 +583,6 @@ public class ShoppingCartController : BasePublicController
         });
     }
 
-    [AutoValidateAntiforgeryToken]
     [HttpPost]
     public virtual async Task<IActionResult> GetEstimateShipping(EstimateShippingModel model)
     {

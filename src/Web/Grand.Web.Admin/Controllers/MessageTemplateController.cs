@@ -77,12 +77,12 @@ public class MessageTemplateController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, MessageTemplateListModel model)
     {
-        var messageTemplates = await _messageTemplateService.GetAllMessageTemplates(model.SearchStoreId);
+        var messageTemplates = await _messageTemplateService.GetAllMessageTemplates(
+            model.SearchStoreId,
+            keywords: model.Name,
+            pageIndex: command.Page - 1,
+            pageSize: command.PageSize);
 
-        if (!string.IsNullOrEmpty(model.Name))
-            messageTemplates = messageTemplates.Where
-            (x => x.Name.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
-                  x.Subject.ToLowerInvariant().Contains(model.Name.ToLowerInvariant())).ToList();
         var items = new List<MessageTemplateModel>();
         foreach (var x in messageTemplates)
         {
@@ -103,7 +103,7 @@ public class MessageTemplateController : BaseAdminController
 
         var gridModel = new DataSourceResult {
             Data = items,
-            Total = messageTemplates.Count
+            Total = messageTemplates.TotalCount
         };
 
         return Json(gridModel);

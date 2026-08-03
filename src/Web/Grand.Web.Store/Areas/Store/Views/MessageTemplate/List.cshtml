@@ -1,0 +1,144 @@
+@inject AdminAreaSettings adminAreaSettings
+@{
+    ViewBag.Title = Loc["Admin.Content.MessageTemplates"];
+    Layout = Constants.LayoutStore;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-envelope-o"></i>
+                    @Loc["Admin.Content.MessageTemplates"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn green">
+                        <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
+                    </a>
+                </div>
+            </div>
+            <div class="x_content form">
+                <admin-tabstrip name="messagetemplates-tabs">
+                    <items>
+                        <tabstrip-item text="@Loc["Admin.Content.MessageTemplates.Tab.Store"]" tab-index="0">
+                            <content>
+                                <div id="store-templates-grid"></div>
+                            </content>
+                        </tabstrip-item>
+                        <tabstrip-item text="@Loc["Admin.Content.MessageTemplates.Tab.Global"]" tab-index="1">
+                            <content>
+                                <div id="global-templates-grid"></div>
+                            </content>
+                        </tabstrip-item>
+                    </items>
+                </admin-tabstrip>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#store-templates-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ListStore", "MessageTemplate", new { area = Constants.AreaStore }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            scrollable: false,
+            columns: [{
+                field: "Name",
+                title: "@Loc["Admin.Content.MessageTemplates.Fields.Name"]",
+                width: 300,
+                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>'
+            }, {
+                field: "Subject",
+                title: "@Loc["Admin.Content.MessageTemplates.Fields.Subject"]",
+                width: 200
+            }, {
+                field: "IsActive",
+                title: "@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]",
+                width: 80,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(IsActive) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }]
+        });
+
+        $("#global-templates-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ListGlobal", "MessageTemplate", new { area = Constants.AreaStore }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            scrollable: false,
+            columns: [{
+                field: "Name",
+                title: "@Loc["Admin.Content.MessageTemplates.Fields.Name"]",
+                width: 300,
+                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>'
+            }, {
+                field: "Subject",
+                title: "@Loc["Admin.Content.MessageTemplates.Fields.Subject"]",
+                width: 200
+            }, {
+                field: "IsActive",
+                title: "@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]",
+                width: 80,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(IsActive) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }, {
+                title: "@Loc["Admin.Common.Copy"]",
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '<form method="post" action="@Url.Action("CopyTemplate", "MessageTemplate", new { area = Constants.AreaStore })"><input type="hidden" name="Id" value="#=Id#"/><button type="submit" class="btn btn-sm btn-info" onclick="return confirm(\'@Loc["Admin.Common.AreYouSure"]\')" title="@Loc["Admin.Content.MessageTemplates.Copy"]"><i class="fa fa-copy"></i></button>@Html.AntiForgeryToken()</form>'
+            }]
+        });
+    });
+</script>

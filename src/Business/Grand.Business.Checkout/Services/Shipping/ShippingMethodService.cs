@@ -72,17 +72,19 @@ public class ShippingMethodService : IShippingMethodService
     /// </summary>
     /// <param name="filterByCountryId">The country ident to filter by</param>
     /// <param name="customer"></param>
+    /// <param name="storeId">The store identifier to filter by</param>
     /// <returns>Shipping methods</returns>
     public virtual async Task<IList<ShippingMethod>> GetAllShippingMethods(string filterByCountryId = "",
-        Customer customer = null)
+        Customer customer = null, string storeId = "")
     {
-        var shippingMethods = await _cacheBase.GetAsync(CacheKey.SHIPPINGMETHOD_ALL, async () =>
-        {
-            var query = from sm in _shippingMethodRepository.Table
-                orderby sm.DisplayOrder
-                select sm;
-            return await Task.FromResult(query.ToList());
-        });
+        var query = _shippingMethodRepository.Table;
+
+        if (!string.IsNullOrEmpty(storeId))
+            query = query.Where(sm => sm.StoreId == storeId || string.IsNullOrEmpty(sm.StoreId));
+
+        query = query.OrderBy(sm => sm.DisplayOrder);
+
+        var shippingMethods = await Task.FromResult(query.ToList());
 
         if (!string.IsNullOrEmpty(filterByCountryId))
             shippingMethods = shippingMethods.Where(x => !x.CountryRestrictionExists(filterByCountryId)).ToList();

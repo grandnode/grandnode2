@@ -1,0 +1,124 @@
+@model CustomerModel
+@inject AdminAreaSettings adminAreaSettings
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div id="customer-loyaltypoints-grid"></div>
+    </div>
+</div>
+
+<script>
+        $(document).ready(function () {
+            $("#customer-loyaltypoints-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("LoyaltyPointsHistorySelect", "Customer", new { customerId = Model.Id, area = Constants.AreaStore }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                autoBind: false,
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [
+                {
+                    field: "Points",
+                    title: "@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Points"]"
+                }, {
+                    field: "PointsBalance",
+                    title: "@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.PointsBalance"]"
+                },{
+                    field: "Message",
+                    title: "@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Message"]"
+                },{
+                    field: "CreatedOn",
+                    title: "@Loc["admin.marketing.Campaigns.Fields.CreatedOn"]",
+                    width: 200,
+                    type: "date",
+                    format: "{0:G}"
+                }]
+            });
+        });
+</script>
+<p>
+    <strong> @Loc["Admin.Customers.Customers.LoyaltyPoints.AddTitle"]</strong>
+</p>
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="AddLoyaltyPointsValue"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="AddLoyaltyPointsValue"/>
+                <span asp-validation-for="AddLoyaltyPointsValue"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AddLoyaltyPointsMessage"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="AddLoyaltyPointsMessage"/>
+                <span asp-validation-for="AddLoyaltyPointsMessage"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-actions">
+        <div class="offset-md-3">
+            <input type="button" id="addLoyaltyPoints" class="k-button" value="@Loc["Admin.Customers.Customers.LoyaltyPoints.AddButton"]"/>
+        </div>
+    </div>
+</div>
+<script>
+        $(document).ready(function () {
+            $('#addLoyaltyPoints').click(function () {
+                var loyaltyPointsValue = $("#@Html.IdFor(model => model.AddLoyaltyPointsValue)").val();
+                var loyaltyPointsMessage = $("#@Html.IdFor(model => model.AddLoyaltyPointsMessage)").val();
+                $('#addLoyaltyPoints').attr('disabled', true);
+
+                var postData = {
+                    addLoyaltyPointsValue: loyaltyPointsValue,
+                    addLoyaltyPointsMessage: loyaltyPointsMessage,
+                    customerId: '@Model.Id'
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache:false,
+                    type: "POST",
+                    url: "@(Url.Action("LoyaltyPointsHistoryAdd", "Customer", new { area = Constants.AreaStore }))",
+                    data: postData,
+                    success: function (data) {
+                        var grid = $("#customer-loyaltypoints-grid").data('kendoGrid');
+                        grid.dataSource.read();
+                        $('#addLoyaltyPoints').attr('disabled', false);
+                    },
+                    error:function (xhr, ajaxOptions, thrownError){
+                        alert('Failed to add loyalty points.');
+                        $('#addLoyaltyPoints').attr('disabled', false);
+                    }
+                });
+            });
+        });
+</script>

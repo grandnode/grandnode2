@@ -11,7 +11,7 @@
     var isCustomerImpersonated = contextAccessor.WorkContext.OriginalCustomerIfImpersonated != null;
     var isAdminAccess = await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel);
     var isVendor = contextAccessor.WorkContext.CurrentVendor != null;
-    var isStaffStore = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId != null;
+    var isStaffStore = !string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "header_links_before" })

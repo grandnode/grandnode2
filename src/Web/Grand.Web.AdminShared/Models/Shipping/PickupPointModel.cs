@@ -35,6 +35,8 @@ public class PickupPointModel : BaseEntityModel
 
     public string StoreId { get; set; }
 
+    public string StoreName { get; set; }
+
     [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.PickupFee")]
     public double PickupFee { get; set; }
 

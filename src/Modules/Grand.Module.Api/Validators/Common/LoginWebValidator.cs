@@ -2,6 +2,7 @@
 using Grand.Module.Api.Models.Common;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 
@@ -13,9 +14,15 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
         IEnumerable<IValidatorConsumer<LoginWebModel>> validators,
         FrontendAPIConfig apiConfig,
         ICustomerService customerService,
-        ICustomerManagerService customerManagerService)
+        ICustomerManagerService customerManagerService,
+        IContextAccessor contextAccessor,
+        CustomerConfig customerConfig)
         : base(validators)
     {
+        var storeId = customerConfig.RegisterCustomersPerStore
+            ? contextAccessor.StoreContext.CurrentStore.Id
+            : "";
+
         if (!apiConfig.Enabled)
         {
             RuleFor(x => x).Must(_ => false).WithMessage("API is disabled");
@@ -28,12 +35,12 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
             {
                 if (!string.IsNullOrEmpty(x.Email))
                 {
-                    var customer = await customerService.GetCustomerByEmail(x.Email.ToLowerInvariant());
+                    var customer = await customerService.GetCustomerByEmail(x.Email.ToLowerInvariant(), storeId);
                     if (customer is { Active: true } && !customer.IsSystemAccount())
                     {
                         var base64EncodedBytes = Convert.FromBase64String(x.Password);
                         var password = Encoding.UTF8.GetString(base64EncodedBytes);
-                        var result = await customerManagerService.LoginCustomer(x.Email, password);
+                        var result = await customerManagerService.LoginCustomer(x.Email, password, storeId);
                         return result == CustomerLoginResults.Successful;
                     }
                 }

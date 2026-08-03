@@ -6,6 +6,7 @@ namespace Grand.Business.Core.Queries.Checkout.Orders;
 public class GetGiftVoucherQuery : IRequest<IQueryable<GiftVoucher>>
 {
     public string GiftVoucherId { get; set; } = "";
+    public string StoreId { get; set; } = "";
     public string PurchasedWithOrderItemId { get; set; } = "";
     public bool? IsGiftVoucherActivated { get; set; }
     public string Code { get; set; } = "";

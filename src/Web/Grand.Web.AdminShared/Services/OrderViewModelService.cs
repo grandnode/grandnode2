@@ -826,10 +826,10 @@ public class OrderViewModelService : IOrderViewModelService
         var presetQty = 1;
         var presetPrice = (await _pricingService.GetFinalPrice(product, customer, store, currency, 0, true, presetQty))
             .finalPrice;
-        var productPrice = await _taxService.GetProductPrice(product, presetPrice, true, customer);
+        var productPrice = await _taxService.GetProductPrice(product, presetPrice, true, customer, store);
         var presetPriceInclTax = productPrice.productprice;
         var presetPriceExclTax =
-            (await _taxService.GetProductPrice(product, presetPrice, false, customer)).productprice;
+            (await _taxService.GetProductPrice(product, presetPrice, false, customer, store)).productprice;
 
         var model = new OrderModel.AddOrderProductModel.ProductDetailsModel {
             ProductId = product.Id,

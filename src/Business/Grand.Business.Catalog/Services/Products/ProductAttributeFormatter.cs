@@ -235,7 +235,7 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
                                 var attributeValuePriceAdjustment =
                                     await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue);
                                 var (priceAdjustmentBase, _) = await _taxService.GetProductPrice(product,
-                                    attributeValuePriceAdjustment, _contextAccessor.WorkContext.CurrentCustomer);
+                                    attributeValuePriceAdjustment, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
                                 switch (priceAdjustmentBase)
                                 {
                                     case > 0:

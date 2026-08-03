@@ -1,0 +1,134 @@
+@model Grand.Web.Store.Models.TaxCategoryListModel
+@{
+    ViewBag.Title = Loc["Admin.Configuration.Tax.Categories"];
+    Layout = Constants.LayoutStore;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption level-caption">
+                    <i class="fa fa-money"></i>
+                    @Loc["Admin.Configuration.Tax.Categories"]
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div id="tax-categories-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var currentStoreId = '@Model.StoreId';
+
+    $(document).ready(function () {
+        var grid = $("#tax-categories-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("Categories", "Tax", new { area = Constants.AreaStore }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    create: {
+                        url: "@Html.Raw(Url.Action("CategoryAdd", "Tax", new { area = Constants.AreaStore }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    update: {
+                        url: "@Html.Raw(Url.Action("CategoryUpdate", "Tax", new { area = Constants.AreaStore }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    destroy: {
+                        url: "@Html.Raw(Url.Action("CategoryDelete", "Tax", new { area = Constants.AreaStore }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Name: { editable: true, type: "string" },
+                            DisplayOrder: { editable: true, type: "number" },
+                            Id: { editable: false, type: "string" },
+                            StoreId: { editable: false, type: "string", defaultValue: "" }
+                        }
+                    }
+                },
+                requestEnd: function (e) {
+                    if (e.type == "create" || e.type == "update") {
+                        this.read();
+                    }
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
+            editable: {
+                confirmation: true,
+                mode: "inline"
+            },
+            scrollable: false,
+            dataBound: function () {
+                var g = this;
+                g.tbody.find("tr[data-uid]").each(function () {
+                    var dataItem = g.dataItem(this);
+                    if (dataItem && dataItem.StoreId !== "" && dataItem.StoreId !== currentStoreId) {
+                        $(this).find(".k-grid-edit, .k-grid-delete").hide();
+                    }
+                });
+            },
+            columns: [{
+                field: "Name",
+                title: "@Loc["Admin.Configuration.Tax.Categories.Fields.Name"]",
+                width: 300
+            }, {
+                field: "DisplayOrder",
+                title: "@Loc["Admin.Configuration.Tax.Categories.Fields.DisplayOrder"]",
+                format: "{0:0}",
+                width: 100
+            }, {
+                command: [{
+                    name: "edit",
+                    text: {
+                        edit: "@Loc["Admin.Common.Edit"]",
+                        update: "@Loc["Admin.Common.Update"]",
+                        cancel: "@Loc["Admin.Common.Cancel"]"
+                    }
+                }, {
+                    name: "destroy",
+                    text: "@Loc["Admin.Common.Delete"]"
+                }],
+                width: 200
+            }]
+        }).data("kendoGrid");
+    });
+</script>

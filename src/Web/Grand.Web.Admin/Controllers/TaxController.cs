@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Permissions;
 using Grand.Domain.Directory;
 using Grand.Domain.Tax;
@@ -31,7 +32,8 @@ public class TaxController : BaseAdminController
         IServiceProvider serviceProvider,
         ICacheBase cacheBase,
         ITranslationService translationService,
-        ICountryService countryService, 
+        ICountryService countryService,
+        IStoreService storeService,
         IEnumTranslationService enumTranslationService)
     {
         _taxService = taxService;
@@ -41,6 +43,7 @@ public class TaxController : BaseAdminController
         _cacheBase = cacheBase;
         _translationService = translationService;
         _countryService = countryService;
+        _storeService = storeService;
         _enumTranslationService = enumTranslationService;
     }
 
@@ -55,6 +58,7 @@ public class TaxController : BaseAdminController
     private readonly ICacheBase _cacheBase;
     private readonly ITranslationService _translationService;
     private readonly ICountryService _countryService;
+    private readonly IStoreService _storeService;
     private readonly IEnumTranslationService _enumTranslationService;
     
     #endregion
@@ -75,8 +79,7 @@ public class TaxController : BaseAdminController
     public async Task<IActionResult> Providers(DataSourceRequest command)
     {
         var storeScope = await GetActiveStore();
-        await _settingService.LoadSetting<TaxSettings>(storeScope);
-        var taxProviderSettings = await _settingService.LoadSetting<TaxProviderSettings>();
+        var taxProviderSettings = await _settingService.LoadSetting<TaxProviderSettings>(storeScope);
 
         var taxProviders = _taxService.LoadAllTaxProviders()
             .ToList();
@@ -106,14 +109,15 @@ public class TaxController : BaseAdminController
 
     public async Task<IActionResult> MarkAsPrimaryProvider(string systemName)
     {
-        var taxProviderettings = await _settingService.LoadSetting<TaxProviderSettings>();
+        var storeScope = await GetActiveStore();
+        var taxProviderettings = await _settingService.LoadSetting<TaxProviderSettings>(storeScope);
 
         if (string.IsNullOrEmpty(systemName)) return RedirectToAction("Providers");
         var taxProvider = _taxService.LoadTaxProviderBySystemName(systemName);
         if (taxProvider != null)
         {
             taxProviderettings.ActiveTaxProviderSystemName = systemName;
-            await _settingService.SaveSetting(taxProviderettings);
+            await _settingService.SaveSetting(taxProviderettings, storeScope);
         }
 
         //now clear cache
@@ -202,22 +206,33 @@ public class TaxController : BaseAdminController
 
     #region Tax Categories
 
-    public IActionResult Categories()
+    public async Task<IActionResult> Categories()
     {
-        return View();
+        var model = new TaxCategoryListModel();
+        model.AvailableStores.Add(new SelectListItem
+            { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
+        foreach (var s in await _storeService.GetAllStores())
+            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        return View(model);
     }
 
     [HttpPost]
     public async Task<IActionResult> Categories(DataSourceRequest command)
     {
+        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
         var categoriesModel = (await _taxCategoryService.GetAllTaxCategories())
-            .Select(x => x.ToModel())
+            .Select(x => {
+                var m = x.ToModel();
+                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name)
+                    ? name
+                    : _translationService.GetResource("Admin.Common.All");
+                return m;
+            })
             .ToList();
         var gridModel = new DataSourceResult {
             Data = categoriesModel,
             Total = categoriesModel.Count
         };
-
         return Json(gridModel);
     }
 

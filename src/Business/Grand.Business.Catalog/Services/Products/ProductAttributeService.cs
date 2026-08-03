@@ -140,8 +140,7 @@ public class ProductAttributeService : IProductAttributeService
         ArgumentNullException.ThrowIfNull(productAttribute);
 
         //delete from all product collections
-        await _productRepository.PullFilter(string.Empty, x => x.ProductAttributeMappings, z => z.ProductAttributeId,
-            productAttribute.Id);
+        await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductAttributeMappings, z => z.ProductAttributeId == productAttribute.Id);
 
         //delete from productAttribute collection
         await _productAttributeRepository.DeleteAsync(productAttribute);
@@ -171,8 +170,7 @@ public class ProductAttributeService : IProductAttributeService
     {
         ArgumentNullException.ThrowIfNull(productAttributeMapping);
 
-        await _productRepository.PullFilter(productId, x => x.ProductAttributeMappings, z => z.Id,
-            productAttributeMapping.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductAttributeMappings, z => z.Id == productAttributeMapping.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -191,7 +189,7 @@ public class ProductAttributeService : IProductAttributeService
     {
         ArgumentNullException.ThrowIfNull(productAttributeMapping);
 
-        await _productRepository.AddToSet(productId, x => x.ProductAttributeMappings, productAttributeMapping);
+        await _productRepository.AddToCollectionField(productId, x => x.ProductAttributeMappings, productAttributeMapping);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -211,8 +209,7 @@ public class ProductAttributeService : IProductAttributeService
     {
         ArgumentNullException.ThrowIfNull(productAttributeMapping);
 
-        await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id,
-            productAttributeMapping.Id, productAttributeMapping);
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeMappings, z => z.Id == productAttributeMapping.Id, productAttributeMapping);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -244,8 +241,7 @@ public class ProductAttributeService : IProductAttributeService
             if (pav != null)
             {
                 pavs.ProductAttributeValues.Remove(pav);
-                await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id,
-                    productAttributeMappingId, pavs);
+                await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeMappings, z => z.Id == productAttributeMappingId, pavs);
             }
         }
 
@@ -275,8 +271,7 @@ public class ProductAttributeService : IProductAttributeService
         ArgumentNullException.ThrowIfNull(pam);
 
         pam.ProductAttributeValues.Add(productAttributeValue);
-        await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id,
-            productAttributeMappingId, pam);
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeMappings, z => z.Id == productAttributeMappingId, pam);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -315,8 +310,7 @@ public class ProductAttributeService : IProductAttributeService
             pav.PictureId = productAttributeValue.PictureId;
             pav.Locales = productAttributeValue.Locales;
 
-            await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id,
-                productAttributeMappingId, pavs);
+            await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeMappings, z => z.Id == productAttributeMappingId, pavs);
         }
 
         //cache
@@ -340,7 +334,7 @@ public class ProductAttributeService : IProductAttributeService
     {
         ArgumentNullException.ThrowIfNull(combination);
 
-        await _productRepository.PullFilter(productId, x => x.ProductAttributeCombinations, z => z.Id, combination.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductAttributeCombinations, z => z.Id == combination.Id);
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
 
@@ -358,7 +352,7 @@ public class ProductAttributeService : IProductAttributeService
     {
         ArgumentNullException.ThrowIfNull(combination);
 
-        await _productRepository.AddToSet(productId, x => x.ProductAttributeCombinations, combination);
+        await _productRepository.AddToCollectionField(productId, x => x.ProductAttributeCombinations, combination);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -377,8 +371,7 @@ public class ProductAttributeService : IProductAttributeService
     {
         ArgumentNullException.ThrowIfNull(combination);
 
-        await _productRepository.UpdateToSet(productId, x => x.ProductAttributeCombinations, z => z.Id, combination.Id,
-            combination);
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
 
         //cache
         await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));

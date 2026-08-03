@@ -97,7 +97,7 @@ public class ProductCollectionService : IProductCollectionService
     {
         ArgumentNullException.ThrowIfNull(productCollection);
 
-        await _productRepository.AddToSet(productId, x => x.ProductCollections, productCollection);
+        await _productRepository.AddToCollectionField(productId, x => x.ProductCollections, productCollection);
 
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);
@@ -116,7 +116,7 @@ public class ProductCollectionService : IProductCollectionService
     {
         ArgumentNullException.ThrowIfNull(productCollection);
 
-        await _productRepository.UpdateToSet(productId, x => x.ProductCollections, z => z.Id, productCollection.Id,
+        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductCollections, z => z.Id == productCollection.Id,
             productCollection);
 
         //cache
@@ -136,7 +136,7 @@ public class ProductCollectionService : IProductCollectionService
     {
         ArgumentNullException.ThrowIfNull(productCollection);
 
-        await _productRepository.PullFilter(productId, x => x.ProductCollections, z => z.Id, productCollection.Id);
+        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductCollections, z => z.Id == productCollection.Id);
 
         //cache
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);

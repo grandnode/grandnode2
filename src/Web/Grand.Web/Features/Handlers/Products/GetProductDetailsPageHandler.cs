@@ -431,7 +431,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         //additional shipping charge
         if (model.AdditionalShippingCharge > 0)
             model.AdditionalShippingChargeStr = _priceFormatter.FormatPrice(
-                (await _taxService.GetShippingPrice(model.AdditionalShippingCharge, _contextAccessor.WorkContext.CurrentCustomer))
+                (await _taxService.GetShippingPrice(model.AdditionalShippingCharge, _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore))
                 .shippingPrice);
 
         //ask question us on the product

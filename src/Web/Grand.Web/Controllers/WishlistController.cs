@@ -111,7 +111,6 @@ public class WishlistController : BasePublicController
         return View(model);
     }
 
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     [HttpPost]
     public virtual async Task<IActionResult> UpdateQuantity(UpdateQuantityModel model)
@@ -208,7 +207,6 @@ public class WishlistController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> EmailWishlist(WishlistEmailAFriendModel model,
         [FromServices] IMessageProviderService messageProviderService,

@@ -50,9 +50,9 @@ public class AuthorizeStoreAttribute : TypeFilterAttribute
             //check whether this filter has been overridden for the Action
             var actionFilter = context.ActionDescriptor.FilterDescriptors
                 .Where(f => f.Scope == FilterScope.Action)
-                .Select(f => f.Filter).OfType<AuthorizeVendorAttribute>().FirstOrDefault();
+                .Select(f => f.Filter).OfType<AuthorizeStoreAttribute>().FirstOrDefault();
 
-            //ignore filter (the action is available even if the current customer isn't a vendor)
+            //ignore filter
             if (actionFilter?.IgnoreFilter ?? ignoreFilter)
                 return;
 

@@ -1,6 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Infrastructure;
 using Grand.Web.AdminShared.Models.Settings;
 using Grand.Web.Common.Components;
 using Grand.Web.Common.Helpers;
@@ -15,9 +14,8 @@ public class StoreScopeViewComponent : BaseAdminViewComponent
     #region Fields
 
     private readonly IStoreService _storeService;
-    private readonly IContextAccessor _contextAccessor;
-    private readonly IGroupService _groupService;
     private readonly IAdminStoreService _adminStoreService;
+    private readonly ITranslationService _translationService;
 
     #endregion
 
@@ -26,13 +24,11 @@ public class StoreScopeViewComponent : BaseAdminViewComponent
     public StoreScopeViewComponent(
         IStoreService storeService,
         IAdminStoreService adminStoreService,
-        IGroupService groupService,
-        IContextAccessor contextAccessor)
+        ITranslationService translationService)
     {
         _adminStoreService = adminStoreService;
         _storeService = storeService;
-        _contextAccessor = contextAccessor;
-        _groupService = groupService;
+        _translationService = translationService;
     }
 
     #endregion
@@ -45,10 +41,14 @@ public class StoreScopeViewComponent : BaseAdminViewComponent
         if (allStores.Count < 2)
             return Content("");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            allStores = allStores.Where(x => x.Id == _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId).ToList();
-
         var model = new StoreScopeModel();
+
+        //global scope (all stores)
+        model.Stores.Add(new StoreModel {
+            Id = "",
+            Name = _translationService.GetResource("Admin.Settings.StoreScope.AllStores")
+        });
+
         foreach (var s in allStores)
             model.Stores.Add(new StoreModel {
                 Id = s.Id,

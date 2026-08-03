@@ -11,10 +11,13 @@ public class MerchandiseReturnActionProfile : Profile, IAutoMapperProfile
     public MerchandiseReturnActionProfile()
     {
         CreateMap<MerchandiseReturnAction, MerchandiseReturnActionModel>()
-            .ForMember(dest => dest.Locales, mo => mo.Ignore());
+            .ForMember(dest => dest.Locales, mo => mo.Ignore())
+            .ForMember(dest => dest.Stores, mo => mo.MapFrom(src => src.Stores.ToArray()));
         CreateMap<MerchandiseReturnActionModel, MerchandiseReturnAction>()
             .ForMember(dest => dest.Locales, mo => mo.MapFrom(x => x.Locales.ToTranslationProperty()))
-            .ForMember(dest => dest.Id, mo => mo.Ignore());
+            .ForMember(dest => dest.Id, mo => mo.Ignore())
+            .ForMember(dest => dest.LimitedToStores, mo => mo.MapFrom(x => x.Stores != null && x.Stores.Any()))
+            .ForMember(dest => dest.Stores, mo => mo.MapFrom(x => x.Stores != null ? x.Stores.ToList() : new List<string>()));
     }
 
     public int Order => 0;

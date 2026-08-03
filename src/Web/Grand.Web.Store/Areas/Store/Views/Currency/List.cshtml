@@ -1,0 +1,202 @@
+@{
+    ViewBag.Title = Loc["Admin.Configuration.Currencies"];
+    Layout = Constants.LayoutStore;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-money"></i>
+                    @Loc["Admin.Configuration.Currencies"]
+                </div>
+            </div>
+            <div class="x_content form">
+                <div id="currencies-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#currencies-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ListData", "Currency", new { area = Constants.AreaStore }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    this.cancelChanges();
+                },
+                serverPaging: false,
+                serverFiltering: false,
+                serverSorting: false
+            },
+            scrollable: false,
+            columns: [
+                {
+                    field: "Name",
+                    title: "@Loc["Admin.Configuration.Currencies.Fields.Name"]",
+                    width: 200,
+                    template: function (dataItem) {
+                        var name = kendo.htmlEncode(dataItem.Name);
+                        if (dataItem.IsPrimaryStoreCurrency) {
+                            name += ' <span class="badge badge-warning" title="@Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]"><i class="fa fa-star"></i></span>';
+                        }
+                        if (dataItem.IsAssignedToCurrentStore) {
+                            name += ' <span class="badge badge-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-check"></i></span>';
+                        }
+                        return name;
+                    }
+                },
+                {
+                    field: "CurrencyCode",
+                    title: "@Loc["Admin.Configuration.Currencies.Fields.CurrencyCode"]",
+                    width: 100
+                },
+                {
+                    field: "LimitedToStores",
+                    title: "@Loc["Admin.Configuration.Currencies.Fields.LimitedToStores"]",
+                    width: 120,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(LimitedToStores) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                },
+                {
+                    field: "IsDefaultStoreCurrency",
+                    title: "@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]",
+                    width: 180,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: function (dataItem) {
+                        if (dataItem.IsDefaultStoreCurrency) {
+                            return '<span class="badge badge-info"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]</span> ' +
+                                   '<a onclick="unsetDefaultCurrency(\'' + dataItem.Id + '\')" class="btn btn-sm btn-warning" title="@Loc["Admin.Configuration.Currencies.UnsetDefaultCurrency"]"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.UnsetDefaultCurrency"]</a>';
+                        }
+                        if (dataItem.IsAssignedToCurrentStore) {
+                            return '<a onclick="setDefaultCurrency(\'' + dataItem.Id + '\')" class="btn btn-sm btn-info" title="@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]"><i class="fa fa-home"></i> @Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]</a>';
+                        }
+                        return '<span class="text-muted">-</span>';
+                    }
+                },
+                {
+                    title: "@Loc["Admin.Common.Actions"]",
+                    width: 220,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: function (dataItem) {
+                        if (!dataItem.CanManage) {
+                            return '<span class="text-muted">-</span>';
+                        }
+                        if (dataItem.IsAssignedToCurrentStore) {
+                            return '<a onclick="unassignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-danger" title="@Loc["Admin.Configuration.Currencies.UnassignStore"]"><i class="fa fa-minus"></i> @Loc["Admin.Configuration.Currencies.UnassignStore"]</a>';
+                        }
+                        return '<a onclick="assignStore(\'' + dataItem.Id + '\')" class="btn btn-sm btn-success" title="@Loc["Admin.Configuration.Currencies.AssignStore"]"><i class="fa fa-plus"></i> @Loc["Admin.Configuration.Currencies.AssignStore"]</a>';
+                    }
+                }
+            ]
+        });
+    });
+
+    function assignStore(id) {
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("AssignStore", "Currency", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#currencies-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to update currency');
+            }
+        });
+    }
+
+    function unassignStore(id) {
+        if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("UnassignStore", "Currency", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#currencies-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to update currency');
+            }
+        });
+    }
+
+    function setDefaultCurrency(id) {
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("SetDefaultCurrency", "Currency", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#currencies-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to set default currency');
+            }
+        });
+    }
+
+    function unsetDefaultCurrency(id) {
+        if (!confirm('@Loc["Admin.Common.AreYouSure"]')) return;
+        var postData = { id: id };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("UnsetDefaultCurrency", "Currency", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#currencies-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to unset default currency');
+            }
+        });
+    }
+</script>

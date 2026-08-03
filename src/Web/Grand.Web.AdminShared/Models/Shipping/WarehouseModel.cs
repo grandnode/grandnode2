@@ -1,6 +1,7 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.AdminShared.Models.Common;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.AdminShared.Models.Shipping;
 
@@ -26,4 +27,11 @@ public class WarehouseModel : BaseEntityModel
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
+
+    [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.Store")]
+    public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
+
+    public string StoreId { get; set; }
+
+    public string StoreName { get; set; }
 }

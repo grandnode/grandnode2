@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Features.Models.Customers;
@@ -21,9 +22,14 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
         IMediator mediator, ICustomerAttributeParser customerAttributeParser,
         ITranslationService translationService,
         ICountryService countryService,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        CustomerConfig customerConfig)
         : base(validators)
     {
+        var storeId = customerConfig.RegisterCustomersPerStore
+            ? contextAccessor.StoreContext.CurrentStore.Id
+            : "";
+
         RuleFor(x => x.Email).NotEmpty()
             .WithMessage(translationService.GetResource("Account.Fields.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
@@ -116,7 +122,8 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
         {
             var customerAttributes = await mediator.Send(new GetParseCustomAttributes
                 { SelectedAttributes = x.SelectedAttributes }, _);
-            var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
+            var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes,
+                contextAccessor.StoreContext.CurrentStore.Id);
             foreach (var error in customerAttributeWarnings) context.AddFailure(error);
 
             if (contextAccessor.WorkContext.CurrentCustomer.Email != x.Email.ToLower() && customerSettings.AllowUsersToChangeEmail)
@@ -128,7 +135,7 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
                 if (x.Email.Length > 100)
                     context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
-                var customer2 = await customerService.GetCustomerByEmail(x.Email);
+                var customer2 = await customerService.GetCustomerByEmail(x.Email, storeId);
                 if (customer2 != null)
                     context.AddFailure(
                         translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));
@@ -140,7 +147,7 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
                 if (x.Username.ToLower().Length > 100)
                     context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.UsernameTooLong"));
 
-                var customer2 = await customerService.GetCustomerByUsername(x.Username.ToLower());
+                var customer2 = await customerService.GetCustomerByUsername(x.Username.ToLower(), storeId);
                 if (customer2 != null)
                     context.AddFailure(
                         translationService.GetResource("Account.EmailUsernameErrors.UsernameAlreadyExists"));

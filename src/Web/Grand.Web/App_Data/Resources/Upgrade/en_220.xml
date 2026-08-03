@@ -1882,6 +1882,9 @@
 	<Resource Name="Admin.Catalog.Collections.Permissions" Area="Admin">
 		<Value>You can't edit this collection, because it can be used in many stores.</Value>
 	</Resource>
+	<Resource Name="Admin.Catalog.Products.Pictures.Fields.IsDefault" Area="Admin">
+		<Value>Is default</Value>
+	</Resource>
 	<Resource Name="Admin.Catalog.Products.Permissions" Area="Admin">
 		<Value>You can't edit this product, because it is not yours.</Value>
 	</Resource>

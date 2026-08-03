@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Messages;
+﻿using Grand.Domain;
+using Grand.Domain.Messages;
 
 namespace Grand.Business.Core.Interfaces.Messages;
 
@@ -44,8 +45,11 @@ public interface IMessageTemplateService
     ///     Gets all message templates
     /// </summary>
     /// <param name="storeId">Store identifier; pass "" to load all records</param>
-    /// <returns>Message template list</returns>
-    Task<IList<MessageTemplate>> GetAllMessageTemplates(string storeId);
+    /// <param name="keywords">Keywords to filter by name or subject; pass "" to skip</param>
+    /// <param name="pageIndex">Page index (0-based)</param>
+    /// <param name="pageSize">Page size</param>
+    /// <returns>Paged list of message templates</returns>
+    Task<IPagedList<MessageTemplate>> GetAllMessageTemplates(string storeId, string keywords = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Create a copy of message template with all depended data

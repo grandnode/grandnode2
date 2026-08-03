@@ -153,11 +153,13 @@ public class CustomerViewModelService : ICustomerViewModelService
 
     public virtual async Task<(IEnumerable<CustomerModel> customerModelList, int totalCount)> PrepareCustomerList(
         CustomerListModel model,
-        string[] searchCustomerGroupIds, string[] searchCustomerTagIds, int pageIndex, int pageSize)
+        string[] searchCustomerGroupIds, string[] searchCustomerTagIds, int pageIndex, int pageSize,
+        string storeId = "")
     {
         var salesEmployeeId = _contextAccessor.WorkContext.CurrentCustomer.SeId;
 
         var customers = await _customerService.GetAllCustomers(
+            storeId: storeId,
             customerGroupIds: searchCustomerGroupIds,
             customerTagIds: searchCustomerTagIds,
             email: model.SearchEmail,
@@ -179,7 +181,8 @@ public class CustomerViewModelService : ICustomerViewModelService
 
     public virtual async Task PrepareCustomerModel(CustomerModel model, Customer customer, bool excludeProperties)
     {
-        var allStores = await _storeService.GetAllStores();
+        var hasStaffStore = !string.IsNullOrEmpty(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var allStores = hasStaffStore ? [await _storeService.GetStoreById(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)] : await _storeService.GetAllStores();
         if (customer != null)
         {
             model.Id = customer.Id;
@@ -190,6 +193,7 @@ public class CustomerViewModelService : ICustomerViewModelService
                 model.Username = customer.Username;
                 model.VendorId = customer.VendorId;
                 model.StaffStoreId = customer.StaffStoreId;
+                model.StoreId = customer.StoreId;
                 model.SeId = customer.SeId;
                 model.AdminComment = customer.AdminComment;
                 model.IsTaxExempt = customer.IsTaxExempt;
@@ -264,6 +268,10 @@ public class CustomerViewModelService : ICustomerViewModelService
         else
         {
             model.SeId = _contextAccessor.WorkContext.CurrentCustomer.SeId;
+
+            //a store manager can only create customers for his own store - preset it
+            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
+                model.StoreId = _contextAccessor.StoreContext.CurrentStore.Id;
         }
 
         model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
@@ -385,7 +393,7 @@ public class CustomerViewModelService : ICustomerViewModelService
             IsTaxExempt = model.IsTaxExempt,
             FreeShipping = model.FreeShipping,
             Active = model.Active,
-            StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
+            StoreId = model.StoreId,
             OwnerId = ownerId,
             Attributes = model.Attributes,
             LastActivityDateUtc = DateTime.UtcNow
@@ -544,6 +552,9 @@ public class CustomerViewModelService : ICustomerViewModelService
 
         //staff store
         customer.StaffStoreId = model.StaffStoreId;
+
+        //store
+        customer.StoreId = model.StoreId;
 
         //sales employee
         customer.SeId = model.SeId;

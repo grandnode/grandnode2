@@ -28,6 +28,11 @@ public class CustomerManagerServiceTests
         _customerServiceMock = new Mock<ICustomerService>();
         _groupServiceMock = new Mock<IGroupService>();
         _encryptionServiceMock = new Mock<IEncryptionService>();
+        //emulate the real format-aware verification for the Clear-format credentials used by these tests
+        _encryptionServiceMock.Setup(e => e.VerifyPassword(It.IsAny<string>(), It.IsAny<PasswordFormat>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<HashedPasswordFormat>()))
+            .Returns((string entered, PasswordFormat _, string stored, string _, HashedPasswordFormat _) =>
+                entered == stored);
         _mediatorMock = new Mock<IMediator>();
         _customerHistoryPasswordServiceMock = new Mock<ICustomerHistoryPasswordService>();
         _customerSettings = new CustomerSettings {
@@ -64,6 +69,35 @@ public class CustomerManagerServiceTests
         var result = await _customerManagerService.LoginCustomer("admin@admin.com", "123456");
         //Assert
         Assert.AreEqual(CustomerLoginResults.Successful, result);
+    }
+
+    [TestMethod]
+    public async Task LoginCustomer_PassesStoreIdToLookup()
+    {
+        //Arrange
+        var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("admin@admin.com", "store-1"))
+            .ReturnsAsync(customer);
+        _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
+        //Act
+        var result = await _customerManagerService.LoginCustomer("admin@admin.com", "123456", "store-1");
+        //Assert
+        Assert.AreEqual(CustomerLoginResults.Successful, result);
+        _customerServiceMock.Verify(c => c.GetCustomerByEmail("admin@admin.com", "store-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ChangePassword_PassesStoreIdToLookup()
+    {
+        //Arrange
+        var customer = new Customer { Active = true, PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("admin@admin.com", "store-1"))
+            .ReturnsAsync(customer);
+        var changepassword = new ChangePasswordRequest("admin@admin.com", PasswordFormat.Clear, "zxcvbn", "123456");
+        //Act
+        await _customerManagerService.ChangePassword(changepassword, "store-1");
+        //Assert
+        _customerServiceMock.Verify(c => c.GetCustomerByEmail("admin@admin.com", "store-1"), Times.Once);
     }
 
     [TestMethod]

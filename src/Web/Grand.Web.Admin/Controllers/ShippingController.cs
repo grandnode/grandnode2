@@ -99,6 +99,36 @@ public class ShippingController : BaseAdminController
         model.Address.PhoneEnabled = true;
         model.Address.FaxEnabled = true;
         model.Address.CompanyEnabled = true;
+
+        model.AvailableStores.Add(new SelectListItem {
+            Text = _translationService.GetResource("Admin.Configuration.Shipping.Warehouses.SelectStore"), Value = ""
+        });
+        foreach (var s in await _storeService.GetAllStores())
+            model.AvailableStores.Add(new SelectListItem {
+                Text = s.Shortcut, Value = s.Id, Selected = s.Id == model.StoreId
+            });
+    }
+
+    protected virtual async Task PrepareDeliveryDateModel(DeliveryDateModel model)
+    {
+        model.AvailableStores.Add(new SelectListItem {
+            Text = _translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.SelectStore"), Value = ""
+        });
+        foreach (var s in await _storeService.GetAllStores())
+            model.AvailableStores.Add(new SelectListItem {
+                Text = s.Shortcut, Value = s.Id, Selected = s.Id == model.StoreId
+            });
+    }
+
+    protected virtual async Task PrepareShippingMethodModel(ShippingMethodModel model)
+    {
+        model.AvailableStores.Add(new SelectListItem {
+            Text = _translationService.GetResource("Admin.Configuration.Shipping.Methods.SelectStore"), Value = ""
+        });
+        foreach (var s in await _storeService.GetAllStores())
+            model.AvailableStores.Add(new SelectListItem {
+                Text = s.Shortcut, Value = s.Id, Selected = s.Id == model.StoreId
+            });
     }
 
     protected virtual async Task PreparePickupPointModel(PickupPointModel model)
@@ -131,7 +161,7 @@ public class ShippingController : BaseAdminController
             Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectStore"), Value = ""
         });
         foreach (var c in await _storeService.GetAllStores())
-            model.AvailableStores.Add(new SelectListItem { Text = c.Shortcut, Value = c.Id });
+            model.AvailableStores.Add(new SelectListItem { Text = c.Shortcut, Value = c.Id, Selected = c.Id == model.StoreId });
 
         model.AvailableWarehouses.Add(new SelectListItem {
             Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectWarehouse"),
@@ -216,8 +246,13 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> Methods(DataSourceRequest command)
     {
+        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
         var shippingMethodsModel = (await _shippingMethodService.GetAllShippingMethods())
-            .Select(x => x.ToModel())
+            .Select(x => {
+                var m = x.ToModel();
+                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name) ? name : "";
+                return m;
+            })
             .ToList();
         var gridModel = new DataSourceResult {
             Data = shippingMethodsModel,
@@ -233,6 +268,7 @@ public class ShippingController : BaseAdminController
         var model = new ShippingMethodModel();
         //locales
         await AddLocales(_languageService, model.Locales);
+        await PrepareShippingMethodModel(model);
         return View(model);
     }
 
@@ -250,6 +286,7 @@ public class ShippingController : BaseAdminController
         }
 
         //If we got this far, something failed, redisplay form
+        await PrepareShippingMethodModel(model);
         return View(model);
     }
 
@@ -267,7 +304,7 @@ public class ShippingController : BaseAdminController
             locale.Name = sm.GetTranslation(x => x.Name, languageId, false);
             locale.Description = sm.GetTranslation(x => x.Description, languageId, false);
         });
-
+        await PrepareShippingMethodModel(model);
         return View(model);
     }
 
@@ -290,6 +327,7 @@ public class ShippingController : BaseAdminController
         }
 
         //If we got this far, something failed, redisplay form
+        await PrepareShippingMethodModel(model);
         return View(model);
     }
 
@@ -377,8 +415,13 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> DeliveryDates(DataSourceRequest command)
     {
+        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
         var deliveryDatesModel = (await _deliveryDateService.GetAllDeliveryDates())
-            .Select(x => x.ToModel())
+            .Select(x => {
+                var m = x.ToModel();
+                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name) ? name : "";
+                return m;
+            })
             .ToList();
         var gridModel = new DataSourceResult {
             Data = deliveryDatesModel,
@@ -395,6 +438,7 @@ public class ShippingController : BaseAdminController
         };
         //locales
         await AddLocales(_languageService, model.Locales);
+        await PrepareDeliveryDateModel(model);
         return View(model);
     }
 
@@ -413,6 +457,7 @@ public class ShippingController : BaseAdminController
         }
 
         //If we got this far, something failed, redisplay form
+        await PrepareDeliveryDateModel(model);
         return View(model);
     }
 
@@ -433,6 +478,7 @@ public class ShippingController : BaseAdminController
             locale.Name = deliveryDate.GetTranslation(x => x.Name, languageId, false);
         });
 
+        await PrepareDeliveryDateModel(model);
         return View(model);
     }
 
@@ -456,8 +502,8 @@ public class ShippingController : BaseAdminController
                 : RedirectToAction("DeliveryDates");
         }
 
-
         //If we got this far, something failed, redisplay form
+        await PrepareDeliveryDateModel(model);
         return View(model);
     }
 
@@ -492,8 +538,13 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> Warehouses(DataSourceRequest command)
     {
+        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
         var warehousesModel = (await _warehouseService.GetAllWarehouses())
-            .Select(x => x.ToModel())
+            .Select(x => {
+                var m = x.ToModel();
+                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name) ? name : "";
+                return m;
+            })
             .ToList();
         var gridModel = new DataSourceResult {
             Data = warehousesModel,
@@ -594,8 +645,13 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> PickupPoints(DataSourceRequest command)
     {
+        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
         var pickupPointsModel = (await _pickupPointService.GetAllPickupPoints())
-            .Select(x => x.ToModel())
+            .Select(x => {
+                var m = x.ToModel();
+                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name) ? name : "";
+                return m;
+            })
             .ToList();
 
         var gridModel = new DataSourceResult {
@@ -690,12 +746,18 @@ public class ShippingController : BaseAdminController
 
     #region Restrictions
 
-    public async Task<IActionResult> Restrictions()
+    public async Task<IActionResult> Restrictions(string storeId = "")
     {
         var model = new ShippingMethodRestrictionModel();
 
+        var stores = await _storeService.GetAllStores();
+        model.StoreId = storeId;
+        model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
+        foreach (var s in stores)
+            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id, Selected = s.Id == storeId });
+
         var countries = await _countryService.GetAllCountries(showHidden: true);
-        var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods(storeId);
         var customerGroups = await _groupService.GetAllCustomerGroups();
 
         foreach (var country in countries)
@@ -736,10 +798,10 @@ public class ShippingController : BaseAdminController
     [HttpPost]
     [ActionName("Restrictions")]
     [RequestFormLimits(ValueCountLimit = 2048)]
-    public async Task<IActionResult> RestrictionSave(IDictionary<string, string[]> model)
+    public async Task<IActionResult> RestrictionSave(IDictionary<string, string[]> model, string storeId = "")
     {
         var countries = await _countryService.GetAllCountries(showHidden: true);
-        var shippingMethods = await _shippingMethodService.GetAllShippingMethods();
+        var shippingMethods = await _shippingMethodService.GetAllShippingMethods(storeId);
         var customerGroups = await _groupService.GetAllCustomerGroups();
         foreach (var shippingMethod in shippingMethods)
         {
@@ -751,7 +813,7 @@ public class ShippingController : BaseAdminController
         //selected tab
         await SaveSelectedTabIndex();
 
-        return RedirectToAction("Restrictions");
+        return RedirectToAction("Restrictions", new { storeId });
     }
 
     private async Task SaveRestrictedGroup(IDictionary<string, string[]> model, ShippingMethod shippingMethod,

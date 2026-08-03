@@ -27,7 +27,7 @@ public class UpdateProductOnCartEventHandler : INotificationHandler<UpdateProduc
             item.IsGiftVoucher = notification.Product.IsGiftVoucher;
             item.IsShipEnabled = notification.Product.IsShipEnabled;
             item.IsTaxExempt = notification.Product.IsTaxExempt;
-            await _customerRepository.UpdateToSet(cs.Id, x => x.ShoppingCartItems, z => z.Id, item.Id, item);
+            await _customerRepository.UpdateCollectionFieldItem(cs.Id, x => x.ShoppingCartItems, z => z.Id == item.Id, item);
         }
     }
 }

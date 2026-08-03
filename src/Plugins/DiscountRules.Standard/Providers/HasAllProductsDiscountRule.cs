@@ -124,7 +124,7 @@ public class HasAllProductsDiscountRule : IDiscountRule
     public string GetConfigurationUrl(string discountId, string discountRequirementId)
     {
         //configured 
-        var result = "Admin/HasAllProducts/Configure/?discountId=" + discountId;
+        var result = $"/DiscountRulesHasAllProducts/Configure/?discountId=" + discountId;
         if (!string.IsNullOrEmpty(discountRequirementId))
             result += $"&discountRequirementId={discountRequirementId}";
         return result;

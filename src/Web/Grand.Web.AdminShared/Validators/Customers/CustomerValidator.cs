@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.AdminShared.Models.Customers;
@@ -20,15 +21,32 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
         IContextAccessor contextAccessor,
         ICustomerService customerService,
         IGroupService groupService,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        CustomerConfig customerConfig)
         : base(validators)
     {
+        //when per-store customer identity is enabled, uniqueness is scoped to the customer's store
+        string StoreScope(CustomerModel m) => customerConfig.RegisterCustomersPerStore ? m.StoreId : "";
+
         CustomerCreateValidator();
         CustomerEditValidator();
 
         //customer email
         RuleFor(x => x.Email).NotEmpty().EmailAddress()
             .WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Email.Required"));
+
+        //store - required only when the editor is not an administrator (admins may manage store-independent
+        //back-office/system accounts that have no store)
+        RuleFor(x => x.StoreId).NotEmpty()
+            .WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Store.Required"))
+            .WhenAsync(async (_, _) => !await groupService.IsAdmin(contextAccessor.WorkContext.CurrentCustomer));
+
+        //a store manager can only assign a customer to his own store
+        RuleFor(x => x.StoreId).MustAsync(async (storeId, _) =>
+                !await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer) ||
+                storeId == contextAccessor.StoreContext.CurrentStore.Id)
+            .WithMessage(
+                translationService.GetResource("Admin.Customers.Customers.Fields.Store.MustBeCurrentStore"));
 
         //form fields
         if (customerSettings.CountryEnabled && customerSettings.CountryRequired)
@@ -171,21 +189,21 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                             context.AddFailure(
                                 translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
-                        var customerByEmail = await customerService.GetCustomerByEmail(x.Email);
+                        var customerByEmail = await customerService.GetCustomerByEmail(x.Email, StoreScope(x));
                         if (customerByEmail != null)
                             context.AddFailure("Email is already registered");
                     }
 
                     if (!string.IsNullOrWhiteSpace(x.Owner))
                     {
-                        var customerOwner = await customerService.GetCustomerByEmail(x.Owner);
+                        var customerOwner = await customerService.GetCustomerByEmail(x.Owner, StoreScope(x));
                         if (customerOwner == null)
                             context.AddFailure("Owner email is not exists");
                     }
 
                     if (!string.IsNullOrWhiteSpace(x.Username) && customerSettings.UsernamesEnabled)
                     {
-                        var customerByUsername = await customerService.GetCustomerByUsername(x.Username);
+                        var customerByUsername = await customerService.GetCustomerByUsername(x.Username, StoreScope(x));
                         if (customerByUsername != null)
                             context.AddFailure("Username is already registered");
 
@@ -219,7 +237,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
 
                     if (!string.IsNullOrWhiteSpace(x.Owner))
                     {
-                        var customerByOwner = await customerService.GetCustomerByEmail(x.Owner);
+                        var customerByOwner = await customerService.GetCustomerByEmail(x.Owner, StoreScope(x));
                         if (customerByOwner == null)
                             context.AddFailure("Owner email is not exists");
 
@@ -242,7 +260,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                             context.AddFailure(
                                 translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
-                        var customer2 = await customerService.GetCustomerByEmail(x.Email);
+                        var customer2 = await customerService.GetCustomerByEmail(x.Email, StoreScope(x));
                         if (customer2 != null && customer.Id != customer2.Id)
                             context.AddFailure(
                                 translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));
@@ -253,7 +271,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                         if (x.Username.Length > 100)
                             context.AddFailure("Username is too long");
 
-                        var user2 = await customerService.GetCustomerByUsername(x.Username);
+                        var user2 = await customerService.GetCustomerByUsername(x.Username, StoreScope(x));
                         if (user2 != null && customer.Id != user2.Id)
                             context.AddFailure("The username is already in use");
                     }

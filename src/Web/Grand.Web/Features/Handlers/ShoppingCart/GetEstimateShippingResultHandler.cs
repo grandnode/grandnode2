@@ -76,7 +76,7 @@ public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShipp
                         request.Cart);
                     var shippingTotal = total.shippingRate;
 
-                    var rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
+                    var rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer, request.Store)).shippingPrice;
                     soModel.Price = _priceFormatter.FormatPrice(rate, request.Currency);
                     model.ShippingOptions.Add(soModel);
                 }
@@ -92,7 +92,7 @@ public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShipp
                     };
 
                     var shippingTotal = pickupPoints.Max(x => x.PickupFee);
-                    var rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer)).shippingPrice;
+                    var rate = (await _taxService.GetShippingPrice(shippingTotal, request.Customer, request.Store)).shippingPrice;
                     soModel.Price = _priceFormatter.FormatPrice(rate, request.Currency);
                     model.ShippingOptions.Add(soModel);
                 }

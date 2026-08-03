@@ -1,0 +1,36 @@
+@model WarehouseModel
+@{
+    ViewBag.Title = Loc["Admin.Configuration.Shipping.Warehouses.AddNew"];
+    Layout = Constants.LayoutStore;
+}
+<form asp-area="@Constants.AreaStore" asp-controller="Shipping" asp-action="CreateWarehouse" method="post">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-list-alt"></i>
+                        @Loc["Admin.Configuration.Shipping.Warehouses.AddNew"]
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>
+                            <a href="@Url.Action("Warehouses", "Shipping", new { area = Constants.AreaStore })">@Loc["Admin.Configuration.Shipping.Warehouses.BackToList"]</a>
+                        </small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <partial name="Partials/CreateOrUpdateWarehouse" model="Model"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

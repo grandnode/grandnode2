@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Options;
 using System.Reflection;
+using System.Threading;
 
 namespace Grand.Module.Api.ApiExplorer;
 
@@ -106,6 +107,9 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         var actionParameters = apiDescription.ActionDescriptor.Parameters;
         foreach (var param in actionParameters)
         {
+            if (IsServiceParameter(param))
+                continue;
+
             var paramType = param.ParameterType;
             if (!IsSimpleType(paramType))
             {
@@ -120,7 +124,11 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                         Name = property.Name,
                         ModelMetadata = _modelMetadataProvider.GetMetadataForType(property.PropertyType),
                         Source = BindingSource.Query,
-                        Type = property.PropertyType
+                        Type = property.PropertyType,
+                        ParameterDescriptor = new ParameterDescriptor {
+                            Name = property.Name,
+                            ParameterType = property.PropertyType
+                        }
                     });
                 }
             }
@@ -129,7 +137,8 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
                     Name = param.Name,
                     ModelMetadata = GetModel(param),
                     Source = BindingSource.Query,
-                    Type = param.ParameterType
+                    Type = param.ParameterType,
+                    ParameterDescriptor = param
                 });
         }
     }
@@ -139,13 +148,38 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         var actionParameters = apiDescription.ActionDescriptor.Parameters;
         foreach (var param in actionParameters)
         {
+            if (IsServiceParameter(param))
+                continue;
+
+            var parameterBindingSource = GetPostParameterBindingSource(param);
+            if (parameterBindingSource == null)
+                continue;
+
             apiDescription.ParameterDescriptions.Add(new ApiParameterDescription {
                 Name = param.Name,
                 ModelMetadata = GetModel(param),
-                Source = BindingSource.Body,
-                Type = param.ParameterType
+                Source = parameterBindingSource,
+                Type = param.ParameterType,
+                ParameterDescriptor = param
             });
         }
+    }
+    private BindingSource? GetPostParameterBindingSource(ParameterDescriptor param)
+    {
+        var bindingSource = param.BindingInfo?.BindingSource ?? GetModel(param).BindingSource;
+
+        if (bindingSource != null && !bindingSource.IsFromRequest)
+            return null;
+
+        if (bindingSource == BindingSource.Body ||
+            bindingSource == BindingSource.Query ||
+            bindingSource == BindingSource.Path ||
+            bindingSource == BindingSource.Header ||
+            bindingSource == BindingSource.Form ||
+            bindingSource == BindingSource.FormFile)
+            return bindingSource;
+
+        return IsSimpleType(param.ParameterType) ? BindingSource.Query : BindingSource.Body;
     }
     private ModelMetadata GetModel(ParameterDescriptor param)
     {
@@ -161,6 +195,18 @@ public class MetadataApiDescriptionProvider : IApiDescriptionProvider
         }
 
         return metadata;
+    }
+    private static bool IsServiceParameter(ParameterDescriptor param)
+    {
+        if (param.ParameterType == typeof(CancellationToken))
+            return true;
+
+        if (param.BindingInfo?.BindingSource == BindingSource.Services ||
+            param.BindingInfo?.BindingSource == BindingSource.Special)
+            return true;
+
+        return param is ControllerParameterDescriptor controllerParameterDescriptor &&
+               controllerParameterDescriptor.ParameterInfo.GetCustomAttribute<FromServicesAttribute>() != null;
     }
     private static bool IsSimpleType(Type type)
     {

@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.Customers;
 using MediatR;
 
@@ -10,19 +11,23 @@ public class GetParseCustomAttributesHandler : IRequestHandler<GetParseCustomAtt
 {
     private readonly ICustomerAttributeParser _customerAttributeParser;
     private readonly ICustomerAttributeService _customerAttributeService;
+    private readonly IContextAccessor _contextAccessor;
 
     public GetParseCustomAttributesHandler(ICustomerAttributeService customerAttributeService,
-        ICustomerAttributeParser customerAttributeParser)
+        ICustomerAttributeParser customerAttributeParser,
+        IContextAccessor contextAccessor)
     {
         _customerAttributeService = customerAttributeService;
         _customerAttributeParser = customerAttributeParser;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<IList<CustomAttribute>> Handle(GetParseCustomAttributes request,
         CancellationToken cancellationToken)
     {
         var customAttributes = new List<CustomAttribute>();
-        var attributes = await _customerAttributeService.GetAllCustomerAttributes();
+        var attributes =
+            await _customerAttributeService.GetAllCustomerAttributes(_contextAccessor.StoreContext.CurrentStore.Id);
         foreach (var attribute in attributes)
         {
             if (attribute.IsReadOnly)

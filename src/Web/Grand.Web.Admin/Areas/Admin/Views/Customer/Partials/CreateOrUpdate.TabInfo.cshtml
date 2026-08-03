@@ -184,6 +184,13 @@
     </div>
 </div>
 <div class="form-group">
+    <admin-label asp-for="StoreId"/>
+    <div class="col-md-9 col-sm-9">
+        <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
+        <span asp-validation-for="StoreId"></span>
+    </div>
+</div>
+<div class="form-group">
     <admin-label asp-for="Owner"/>
     <div class="col-md-9 col-sm-9">
         <admin-input asp-for="Owner"/>

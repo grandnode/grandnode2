@@ -11,4 +11,8 @@ public class TaxCategoryModel : BaseEntityModel
 
     [GrandResourceDisplayName("Admin.Configuration.Tax.Categories.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
+
+    public string StoreId { get; set; }
+
+    public string StoreName { get; set; }
 }

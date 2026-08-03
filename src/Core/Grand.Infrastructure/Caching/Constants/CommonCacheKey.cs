@@ -162,7 +162,10 @@ public static partial class CacheKey
     /// <summary>
     ///     Key for caching
     /// </summary>
-    public static string TAXCATEGORIES_ALL_KEY => "Grand.taxcategory.all";
+    /// <remarks>
+    ///     {0} : store ID (empty = all stores)
+    /// </remarks>
+    public static string TAXCATEGORIES_ALL_KEY => "Grand.taxcategory.all-{0}";
 
     /// <summary>
     ///     Key for caching

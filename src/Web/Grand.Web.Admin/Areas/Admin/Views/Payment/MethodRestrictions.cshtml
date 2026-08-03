@@ -20,6 +20,13 @@
                         </button>
                     </div>
                 </div>
+                <div class="x_content">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            @await Component.InvokeAsync("StoreScope")
+                        </div>
+                    </div>
+                </div>
                 <div class="x_content form">
                     <vc:admin-widget widget-zone="payment_method_restrictions_top" additional-data="Model"/>
                     <admin-tabstrip name="paymentrestriction-edit">

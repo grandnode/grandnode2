@@ -264,7 +264,6 @@ public class KnowledgebaseController : BasePublicController
     }
 
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ArticleCommentAdd(KnowledgebaseArticleModel model,
         [FromServices] ICustomerService customerService)

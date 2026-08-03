@@ -35,7 +35,8 @@ public class TokenWebController : ControllerBase
         IContextAccessor contextAccessor,
         IRefreshTokenService refreshTokenService,
         IAntiforgery antiforgery,
-        FrontendAPIConfig apiConfig)
+        FrontendAPIConfig apiConfig,
+        CustomerConfig customerConfig)
     {
         _customerService = customerService;
         _mediator = mediator;
@@ -43,7 +44,16 @@ public class TokenWebController : ControllerBase
         _refreshTokenService = refreshTokenService;
         _antiforgery = antiforgery;
         _apiConfig = apiConfig;
+        _customerConfig = customerConfig;
     }
+
+    private readonly CustomerConfig _customerConfig;
+
+    /// <summary>
+    ///     The current store id when per-store customer identity is enabled, otherwise empty (global lookup).
+    /// </summary>
+    private string CustomerStoreId =>
+        _customerConfig.RegisterCustomersPerStore ? _contextAccessor.StoreContext.CurrentStore.Id : "";
 
     [AllowAnonymous]
     [IgnoreAntiforgeryToken]
@@ -80,9 +90,10 @@ public class TokenWebController : ControllerBase
 
         try
         {
-            var customer = await _customerService.GetCustomerByEmail(model.Email);
+            var customer = await _customerService.GetCustomerByEmail(model.Email, CustomerStoreId);
             var claims = new Dictionary<string, string> {
-                { "Email", model.Email }, 
+                { "CustomerId", customer.Id },
+                { "Email", model.Email },
                 { "Token", customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken) }
             };
             var tokenDto = await GetToken(claims, customer);
@@ -102,34 +113,46 @@ public class TokenWebController : ControllerBase
         if (!_apiConfig.Enabled)
             return BadRequest("API is disabled");
 
-        string email;
         Customer customer = null;
         var claims = new Dictionary<string, string>();
         ClaimsPrincipal principal;
+        string customerId;
+        string email;
+        string guid;
         try
         {
             principal = _refreshTokenService.GetPrincipalFromToken(tokenDto.AccessToken);
-            email = principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
+            customerId = principal.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+            email = principal.Claims.FirstOrDefault(x => x.Type == "Email")?.Value;
+            guid = principal.Claims.FirstOrDefault(x => x.Type == "Guid")?.Value;
         }
         catch (Exception)
         {
             return BadRequest("Invalid access token");
         }
 
-        if (!string.IsNullOrEmpty(email))
-        {
+        //prefer the stable customer id (unambiguous with per-store identity); fall back to e-mail/guid for
+        //tokens issued before the id claim existed
+        if (!string.IsNullOrEmpty(customerId))
+            customer = await _customerService.GetCustomerById(customerId);
+        else if (!string.IsNullOrEmpty(email))
             customer = await _customerService.GetCustomerByEmail(email);
-            claims.Add("Email", email);
+        else if (!string.IsNullOrEmpty(guid))
+            customer = await _customerService.GetCustomerByGuid(Guid.Parse(guid));
+
+        if (customer == null)
+            return BadRequest("Invalid access token");
+
+        //rebuild the claims from the resolved customer (registered carry id/email/token, guests carry the guid)
+        if (!string.IsNullOrEmpty(customer.Email))
+        {
+            claims.Add("CustomerId", customer.Id);
+            claims.Add("Email", customer.Email);
             claims.Add("Token", customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken));
         }
         else
         {
-            var guid = principal.Claims.ToList().FirstOrDefault(x => x.Type == "Guid")?.Value;
-            if (guid != null)
-            {
-                customer = await _customerService.GetCustomerByGuid(Guid.Parse(guid));
-                claims.Add("Guid", guid);
-            }
+            claims.Add("Guid", customer.CustomerGuid.ToString());
         }
 
         var customerRefreshToken = await _refreshTokenService.GetCustomerRefreshToken(customer);

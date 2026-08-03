@@ -1,4 +1,5 @@
 ﻿@model MessageTemplateListModel
+@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Content.MessageTemplates"];
@@ -75,15 +76,14 @@
                     // Cancel the changes
                     this.cancelChanges();
                 },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
                 serverPaging: true,
                 serverFiltering: true,
                 serverSorting: true
             },
             pageable: {
                 refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
             },
             editable: {
                 confirmation: false,

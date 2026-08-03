@@ -150,7 +150,7 @@ public class VendorService : IVendorService
     {
         ArgumentNullException.ThrowIfNull(vendorNote);
 
-        await _vendorRepository.AddToSet(vendorId, x => x.VendorNotes, vendorNote);
+        await _vendorRepository.AddToCollectionField(vendorId, x => x.VendorNotes, vendorNote);
 
         //event notification
         await _mediator.EntityInserted(vendorNote);
@@ -165,7 +165,7 @@ public class VendorService : IVendorService
     {
         ArgumentNullException.ThrowIfNull(vendorNote);
 
-        await _vendorRepository.PullFilter(vendorId, x => x.VendorNotes, x => x.Id, vendorNote.Id);
+        await _vendorRepository.RemoveCollectionFieldItem(vendorId, x => x.VendorNotes, x => x.Id == vendorNote.Id);
 
         //event notification
         await _mediator.EntityDeleted(vendorNote);

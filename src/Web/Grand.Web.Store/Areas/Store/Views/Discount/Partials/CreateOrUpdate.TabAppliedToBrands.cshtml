@@ -1,0 +1,107 @@
+@model DiscountModel
+@{
+    if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="brands-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <a id="btnAddNewBrand" href="@(Url.Action("BrandAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshBrands", formId = "discount-form", area = Constants.AreaStore }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Marketing.Discounts.AppliedToBrands.AddNew"]</a>
+                <input type="submit" id="btnRefreshBrands" style="display: none"/>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $('#btnAddNewBrand').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    midClick: true,
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
+                $("#brands-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("BrandList", "Discount", new { discountId = Model.Id, area = Constants.AreaStore }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("BrandDelete", "Discount", new { discountId = Model.Id, area = Constants.AreaStore }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "BrandId",
+                                fields: {
+                                    BrandName: {editable: false, type: "string" },
+                                    BrandId: {editable: false, type: "string" }
+                                }
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: false,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "BrandName",
+                        title: "@Loc["admin.marketing.Discounts.AppliedToBrands.Brand"]",
+                        template: '<a class="k-link" href="@Url.Action("Edit", "Brand", new { area = Constants.AreaStore })/#=BrandId#">#=kendo.htmlEncode(BrandName)#</a>',
+                    }, {
+                        command: [{
+                            name: "destroy",
+                            text: "@Loc["Admin.Common.Delete"]"
+                        }],
+                        width: 150
+                    }]
+                });
+            });
+        </script>
+        <script>
+            $(document).ready(function () {
+                $('#btnRefreshBrands').click(function () {
+                    var grid = $("#brands-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                    return false;
+                });
+            });
+        </script>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["admin.marketing.Discounts.AppliedToBrands.SaveBeforeEdit"]
+        </div>
+    }
+}

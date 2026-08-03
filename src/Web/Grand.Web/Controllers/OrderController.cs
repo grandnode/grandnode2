@@ -135,7 +135,6 @@ public class OrderController : BasePublicController
 
     //My account / Order details page / Add order note        
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     public virtual async Task<ActionResult<AddOrderNoteModel>> AddOrderNote(AddOrderNoteModel model)
     {
         if (!_orderSettings.AllowCustomerToAddOrderNote)
@@ -174,7 +173,6 @@ public class OrderController : BasePublicController
 
     //My account / Order details page / Complete payment
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     public virtual async Task<IActionResult> RePostPayment(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);

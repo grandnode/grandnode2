@@ -1,4 +1,5 @@
-﻿@model PageListModel
+﻿@inject AdminAreaSettings adminAreaSettings
+@model PageListModel
 @{
     //page title
     ViewBag.Title = Loc["Admin.Content.Pages"];
@@ -77,15 +78,14 @@
                     // Cancel the changes
                     this.cancelChanges();
                 },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
                 serverPaging: true,
                 serverFiltering: true,
                 serverSorting: true
             },
             pageable: {
                 refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
             },
             editable: {
                 confirmation: false,
@@ -97,12 +97,9 @@
                 title: "@Loc["Admin.Content.Pages.Fields.SystemName"]",
                 template: '<a class="k-link" href="Edit/#=Id#">#=SystemName#</a>',
             }, {
-                field: "IsPasswordProtected",
-                title: "@Loc["Admin.Content.Pages.Fields.IsPasswordProtected"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(IsPasswordProtected) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                field: "Title",
+                title: "@Loc["Admin.Content.Pages.Fields.Title"]",
+                template: '#=kendo.htmlEncode(Title == null ? "" : Title)#',
             }, {
                 field: "IncludeInMenu",
                 title: "@Loc["Admin.Content.Pages.Fields.IncludeInMenu"]",
@@ -110,6 +107,13 @@
                 headerAttributes: { style: "text-align:center" },
                 attributes: { style: "text-align:center" },
                 template: '# if(IncludeInMenu) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }, {
+                field: "Published",
+                title: "@Loc["Admin.Content.Pages.Fields.Published"]",
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
             }, {
                 field: "DisplayOrder",
                 title: "@Loc["Admin.Content.Pages.Fields.DisplayOrder"]",

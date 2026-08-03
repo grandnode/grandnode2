@@ -306,7 +306,8 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> MerchandiseReturnReasonList(DataSourceRequest command)
     {
-        var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons();
+        var storeId = await GetActiveStore();
+        var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons(storeId);
         var gridModel = new DataSourceResult {
             Data = reasons.Select(x => x.ToModel()),
             Total = reasons.Count
@@ -317,7 +318,10 @@ public class SettingController(
     //create
     public async Task<IActionResult> MerchandiseReturnReasonCreate()
     {
-        var model = new MerchandiseReturnReasonModel();
+        var storeId = await GetActiveStore();
+        var model = new MerchandiseReturnReasonModel {
+            Stores = !string.IsNullOrEmpty(storeId) ? [storeId] : []
+        };
         //locales
         await AddLocales(languageService, model.Locales);
         return View(model);
@@ -417,7 +421,8 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> MerchandiseReturnActionList(DataSourceRequest command)
     {
-        var actions = await merchandiseReturnService.GetAllMerchandiseReturnActions();
+        var storeId = await GetActiveStore();
+        var actions = await merchandiseReturnService.GetAllMerchandiseReturnActions(storeId);
         var gridModel = new DataSourceResult {
             Data = actions.Select(x => x.ToModel()),
             Total = actions.Count
@@ -428,7 +433,10 @@ public class SettingController(
     //create
     public async Task<IActionResult> MerchandiseReturnActionCreate()
     {
-        var model = new MerchandiseReturnActionModel();
+        var storeId = await GetActiveStore();
+        var model = new MerchandiseReturnActionModel {
+            Stores = !string.IsNullOrEmpty(storeId) ? [storeId] : []
+        };
         //locales
         await AddLocales(languageService, model.Locales);
         return View(model);

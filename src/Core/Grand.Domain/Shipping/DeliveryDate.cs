@@ -26,4 +26,9 @@ public class DeliveryDate : BaseEntity, ITranslationEntity
     ///     Gets or sets the collection of locales
     /// </summary>
     public IList<TranslationEntity> Locales { get; set; } = new List<TranslationEntity>();
+
+    /// <summary>
+    ///     Gets or sets the store identifier. Empty means available to all stores.
+    /// </summary>
+    public string StoreId { get; set; }
 }
