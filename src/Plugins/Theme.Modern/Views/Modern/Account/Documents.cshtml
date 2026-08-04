@@ -53,7 +53,7 @@
                 </div>
                 @if (!string.IsNullOrEmpty(item.Description))
                 {
-                    <div class="card-body px-sm-3 px-2">
+                    <div class="card-body px-sm-3 px-2" v-pre>
                         @Html.Raw(item.Description)
                     </div>
                 }

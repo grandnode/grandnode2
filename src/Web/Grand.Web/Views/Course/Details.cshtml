@@ -27,7 +27,7 @@
                     </h2>
                     @if (!string.IsNullOrWhiteSpace(Model.Description))
                     {
-                        <p>
+                        <p v-pre>
                             @Html.Raw(Model.Description)
                         </p>
                     }

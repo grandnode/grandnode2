@@ -78,7 +78,7 @@
                             </div>
                             @if (!string.IsNullOrEmpty(Model.ShortDescription))
                             {
-                                <div class="short-description mb-3">
+                                <div class="short-description mb-3" v-pre>
                                     @Html.Raw(Model.ShortDescription)
                                 </div>
                             }
@@ -116,7 +116,12 @@
                 <div>
                     <gn-tabs content-class="mt-3" align="center">
                         <gn-tab title="@Loc["Products.Description"]" active="true">
-                            @Html.Raw(Model.FullDescription)
+                            @* v-pre: this content comes from the database and lands inside the #app template,
+                               so Vue would compile any {{ }} it contains - a stray brace in an editor's text
+                               threw at compile time and took the whole page down with it *@
+                            <div v-pre>
+                                @Html.Raw(Model.FullDescription)
+                            </div>
                         </gn-tab>
                         @if (Model.ProductTags.Any())
                         {
@@ -160,7 +165,7 @@
                                     </div>
                                     <div class="col-lg-9 col-md-8">
                                         <div class="card-body overview" title="@variant.Name">
-                                            <div>
+                                            <div v-pre>
                                                 @Html.Raw(variant.ShortDescription)
                                             </div>
                                             <!--availability-->

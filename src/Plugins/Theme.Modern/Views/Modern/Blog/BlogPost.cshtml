@@ -50,7 +50,12 @@
             </div>
             <div class="card-body">
                 @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_before_body", additionalData = Model.Id })
-                @Html.Raw(Model.Body)
+                @* v-pre: this content comes from the database and lands inside the #app template,
+                   so Vue would compile any {{ }} it contains - a stray brace in an editor's text
+                   threw at compile time and took the whole page down with it *@
+                <div v-pre>
+                    @Html.Raw(Model.Body)
+                </div>
             </div>
         </div>
 

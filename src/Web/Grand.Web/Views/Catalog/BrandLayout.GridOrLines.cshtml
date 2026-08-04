@@ -1,4 +1,4 @@
-@model BrandModel
+﻿@model BrandModel
 @inject SeoSettings seoSettings
 @inject IPageHeadBuilder pagebuilder
 @{
@@ -23,7 +23,7 @@
     @if (!string.IsNullOrWhiteSpace(Model.Description))
     {
         <div class="card collection-description">
-            <div class="card-body">
+            <div class="card-body" v-pre>
                 @Html.Raw(Model.Description)
             </div>
         </div>

@@ -52,7 +52,7 @@
                         }
                         @if (!string.IsNullOrWhiteSpace(Model.ShortDescription))
                         {
-                            <p>
+                            <p v-pre>
                                 @Html.Raw(Model.ShortDescription)
                             </p>
                         }
@@ -71,7 +71,7 @@
         </div>
     }
     <div class="card description mt-3">
-        <div class="card-body">
+        <div class="card-body" v-pre>
             @Html.Raw(Model.Description)
         </div>
     </div>

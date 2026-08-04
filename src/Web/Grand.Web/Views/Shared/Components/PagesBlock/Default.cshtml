@@ -40,7 +40,7 @@
         <div class="page-block-title" id="ph-title-@Model.Id">
             <h2>@Model.Title</h2>
         </div>
-        <div class="col-12">
+        <div class="col-12" v-pre>
             @Html.Raw(Model.Body)
         </div>
     </div>
@@ -52,7 +52,7 @@ else
         {
             <h1 class="generalTitle h2 text-sm-center">@Model.Title</h1>
         }
-        <div class="page-block-body pt-3">
+        <div class="page-block-body pt-3" v-pre>
             @Html.Raw(Model.Body)
         </div>
     </div>

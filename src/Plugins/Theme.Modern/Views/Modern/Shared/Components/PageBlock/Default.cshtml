@@ -40,7 +40,7 @@
         <div class="page-block-title" id="ph-title-@Model.Id">
             <h1 class="generalTitle h2 text-sm-center">@Model.Title</h1>
         </div>
-        <div class="col-12 page-body px-0">
+        <div class="col-12 page-body px-0" v-pre>
             @Html.Raw(Model.Body)
         </div>
     </div>
@@ -52,5 +52,10 @@ else
         <h1 class="generalTitle h2 text-sm-center">@Model.Title</h1>
     }
 
-    @Html.Raw(Model.Body)
+    @* v-pre: this content comes from the database and lands inside the #app template,
+       so Vue would compile any {{ }} it contains - a stray brace in an editor's text
+       threw at compile time and took the whole page down with it *@
+    <div v-pre>
+        @Html.Raw(Model.Body)
+    </div>
 }

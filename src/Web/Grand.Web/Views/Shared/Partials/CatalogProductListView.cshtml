@@ -1,4 +1,4 @@
-@*
+﻿@*
     Server-rendered product row for the "list" view mode of the catalog listings.
     Counterpart of Views/Catalog/Partials/Vue/CatalogProductListView.cshtml, which
     draws the same row from catalog.Model after a client-side sort/filter/page.
@@ -193,7 +193,7 @@
                     </table>
                 </div>
             }
-            <div class="desc">
+            <div class="desc" v-pre>
                 @Html.Raw(Model.ShortDescription)
             </div>
             @if (Model.ShowQty)
