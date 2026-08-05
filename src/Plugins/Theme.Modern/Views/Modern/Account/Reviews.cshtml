@@ -12,7 +12,13 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Reviews })
 }
 
-<div class="page account-page product-reviews-page ps-lg-3 pt-lg-0 pt-3">
+@*
+    Needs an island: Partials/Rating renders a <b-form-rating> per review, and a
+    component tag outside every island stays an unknown element - no error, no
+    stars. Grepping this file alone shows no Vue construct; the components come in
+    through the shared partial.
+*@
+<div class="page account-page product-reviews-page ps-lg-3 pt-lg-0 pt-3" vue-island>
     <h1 class="h2 generalTitle">
         <div>@Loc["Account.Reviews"]</div>
     </h1>
@@ -52,7 +58,9 @@
                             <partial name="Partials/Rating" model="(double)ratingStars" />
                         </div>
                         <div class="review-content">
-                            <div class="review-text">
+                            <div class="review-text" v-pre>
+                                @* v-pre: customer-written text inside an island; a
+                                   review containing {{ }} would be compiled away. *@
                                 @review.ReviewText
                             </div>
                         </div>
