@@ -6,7 +6,7 @@
 }
 @*<header> rather than a plain div: this is the site banner landmark, and it was the
     only region of the page a screen reader had no way to jump to*@
-<header class="header-nav">
+<header class="header-nav" vue-island>
     <nav class="navbar navbar-light navbar-expand">
         <div class="container" id="header-container">
             <div class="menu-container">
@@ -87,7 +87,9 @@
     </div>
 </div>
 <partial name="Partials/SidebarPanels"/>
-<div class="modal fade" id="search-box" tabindex="-1" aria-hidden="true" :dark-theme="darkMode">
+@*dark-theme dropped: <html> and <body> carry it from Partials/ColorScheme, and
+    the search box is styled off those*@
+<div class="modal fade" id="search-box" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-body">

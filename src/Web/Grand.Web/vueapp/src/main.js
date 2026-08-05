@@ -25,7 +25,7 @@ import * as bootstrap from 'bootstrap'
 import axios from 'axios'
 import Pikaday from 'pikaday'
 
-import LegacyVue, { onAppCreate, onBeforeRootMount } from './compat/core'
+import LegacyVue, { onAppCreate, onBeforeRootMount, mountIslands } from './compat/core'
 import { registerBvComponents, VueGallerySlideshow } from './compat/bv-components'
 import { registerValidation, veeGetMessage } from './compat/validate'
 import { $bvToast } from './compat/bv-services'
@@ -108,10 +108,10 @@ if (document.readyState === 'loading') {
 /*
  * Per-page view-models are built from the [data-grand-vm] JSON islands. Two
  * triggers, both idempotent:
- *  - right before the root #app is mounted, which is the deadline (the root
- *    template addresses the view-models by their global name);
- *  - on DOMContentLoaded, so islands on a layout that never mounts a root app
- *    still come up.
+ *  - right before the islands are mounted, which is the deadline (their
+ *    templates address the view-models by their global name);
+ *  - on DOMContentLoaded, so data islands on a layout that never defines a
+ *    shell still come up.
  * Also exposed on window for markup injected after load.
  */
 onBeforeRootMount(() => initViews())
@@ -121,6 +121,9 @@ if (document.readyState === 'loading') {
     initViews()
 }
 window.grandInitViews = initViews
+// markup fetched after load (a widget, a re-rendered block) can bring its own
+// islands up without waiting for a page reload
+window.grandMountIslands = mountIslands
 
 window.bootstrap = bootstrap
 window.Vue = LegacyVue

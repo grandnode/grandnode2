@@ -25,7 +25,21 @@ Vue.component('swiper', {
     mounted: function () {
         this.reparentControls();
         this.$nextTick(() => {
-            this._swiper = new Swiper(this.$refs.container, this.options);
+            /*
+             * `observer` is not an optimisation - without it the gallery is dead.
+             *
+             * The slides come from the parent's <slot> (a v-for over a model that
+             * arrives by ajax, e.g. the quick view), and Swiper reads the slide list
+             * once, at construction. It was constructing against an empty wrapper, so
+             * `swiper.slides` stayed empty for the life of the instance: slideTo() had
+             * nothing to move, and Theme.Modern's attrchange threw on slides[0] every
+             * time a product attribute changed. Observing the DOM lets Swiper pick the
+             * slides up whenever they land; the update() below covers the slides that
+             * were already there by the time this ran.
+             */
+            var options = Object.assign({ observer: true, observeParents: true }, this.options);
+            this._swiper = new Swiper(this.$refs.container, options);
+            this.$nextTick(() => { if (this._swiper) this._swiper.update(); });
         });
     },
     updated: function () {

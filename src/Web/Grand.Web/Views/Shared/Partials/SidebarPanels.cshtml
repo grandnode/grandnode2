@@ -20,7 +20,7 @@
 
 @if (catalogSettings.CompareProductsEnabled)
 {
-                    <div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" id="sidebar-compare" aria-labelledby="sidebar-compare-label">
+                    <div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" vue-island id="sidebar-compare" aria-labelledby="sidebar-compare-label">
                     <div class="b-sidebar-header">
                         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                         <strong class="ms-2" id="sidebar-compare-label">
@@ -93,7 +93,7 @@
 {
     @if (wishlistEnabled)
     {
-                        <div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" id="sidebar-wishlist" aria-labelledby="sidebar-wishlist-label">
+                        <div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" vue-island id="sidebar-wishlist" aria-labelledby="sidebar-wishlist-label">
                         <div class="b-sidebar-header">
                             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                             <strong class="ms-2" id="sidebar-wishlist-label">
@@ -153,7 +153,7 @@
                             </div>
                     </div>
     }
-                    <div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" id="sidebar-cart" aria-labelledby="sidebar-cart-label">
+                    <div class="offcanvas @(!supportRtl ? "offcanvas-end b-sidebar b-sidebar-right" : "offcanvas-start b-sidebar")" tabindex="-1" vue-island id="sidebar-cart" aria-labelledby="sidebar-cart-label">
                     <div class="b-sidebar-header">
                         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                         <strong class="ms-2" id="sidebar-cart-label">

@@ -36,10 +36,14 @@
     <div class="container-fluid main-container">
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
         <div class="row">
-            <div class="left-side-container" v-bind:class="{ toggled : !menuToggled}">
+            @*`toggled` is maintained by the menuToggled watcher in the theme's app.js
+                   rather than a v-bind: this element is an island mount point, and Vue
+                   never sees the attributes of the element it mounts on. Rendered here in
+                   its initial state so the sidebar does not flicker open on load.*@
+            <div class="left-side-container toggled">
                 <div class="container px-0">
                     <partial name="Header"/>
-                    <div class="header-nav-bottom">
+                    <div class="header-nav-bottom" vue-island>
                         <partial name="Partials/Logo"/>
                         @await Component.InvokeAsync("SearchBox")
                         <ul class="navbar-nav top-header-items">
@@ -64,7 +68,7 @@
                             <partial name="Partials/ShoppingCartLinks"/>
                         </ul>
                     </div>
-                    <div class="top-menu-container">
+                    <div class="top-menu-container" vue-island>
                         <div id="menu-toggler" class="menu-toggler d-lg-none d-flex" @@click="openMenu($event.target, 'mainMenu')">
                             <span></span>
                             <span></span>
@@ -85,7 +89,8 @@
                     </div>
                 </div>
             </div>
-            <main id="content" class="container right-container" tabindex="-1">
+            @*One island for the page body - see the note in Grand.Web's _Layout.cshtml*@
+            <main id="content" class="container right-container" tabindex="-1" vue-island>
                 @if (IsSectionDefined("Breadcrumb"))
                 {
                     @await RenderSectionAsync("Breadcrumb")

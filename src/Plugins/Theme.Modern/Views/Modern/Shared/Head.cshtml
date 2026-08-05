@@ -28,7 +28,24 @@
     <script asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/script/swiper-vue3.js" asp-order="299"></script>
 
     <script asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/script/menu.js" asp-order="902"></script>
-    <script asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/script/app.js" asp-order="903"></script>
+    @*
+        `defer` here is about ordering, not performance. app.js creates the shell and
+        mounts the islands, so every script that has to register something first must
+        run before it. Checkout/Start.cshtml emits public.checkout.js with `defer`
+        (mandatory for Grand.Web, whose bundle is deferred); a plain script runs
+        during parsing, i.e. *ahead* of any deferred one, so a non-deferred app.js
+        mounted the checkout before its controllers existed - "checkout controllers
+        missing - public.checkout.js did not load", and the steps never advanced.
+        Deferred scripts run in document order, and asp-order puts public.checkout.js
+        (300) ahead of this one (903).
 
-    <script asp-location="Footer" asp-src="/assets/custom/script.js" asp-order="906"></script>
+        This is not the `defer` that was tried and reverted for LCP: the bundle above
+        stays parser-blocking, and this file already sits at the end of the body, so
+        the shell now comes up right after parsing instead of just before it.
+    *@
+    <script defer asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/script/app.js" asp-order="903"></script>
+
+    @*deferred too, so it keeps running *after* app.js the way it always did -
+        deferred scripts execute in document order, which asp-order controls*@
+    <script defer asp-location="Footer" asp-src="/assets/custom/script.js" asp-order="906"></script>
 }

@@ -1,17 +1,22 @@
 /*
  * Vue 2 -> Vue 3 compatibility core.
  *
- * The storefront is a "hybrid" app: Razor renders in-DOM templates, footer
- * scripts create the root instance via `new Vue({ el: '#app', ... })` and many
+ * The storefront is a "hybrid" app: Razor renders in-DOM templates, and many
  * views create *unmounted* `new Vue({ data, methods })` instances that act as
- * global reactive view-models referenced from the root template by their
- * global variable name (Vue 2 `with(this)` scope fell through to `window`).
+ * global reactive view-models referenced from the templates by their global
+ * variable name (Vue 2 `with(this)` scope fell through to `window`).
  *
- * This module recreates those semantics on top of Vue 3:
+ * The page used to be one Vue instance mounted on a #app that wrapped the whole
+ * <body>. It is now a *shell* - one plain reactive object holding the state and
+ * methods the chrome shares (cart, wishlist, compare, colour scheme, modals) -
+ * plus a set of small apps mounted on the elements marked `vue-island`, each
+ * using that shell as its data. See `defineShell` / `mountIslands`.
+ *
+ * This module recreates the Vue 2 semantics on top of Vue 3:
  *  - `LegacyVue(options)` (callable with `new`) either mounts a real app
  *    (when `options.el` is given) or builds a reactive state view-model.
  *  - `LegacyVue.component()` collects global components registered by view
- *    scripts *before* the root app is created.
+ *    scripts *before* the islands are created.
  *  - Template identifier lookup falls back to `window.*` via a Proxy placed
  *    over `app.config.globalProperties`.
  */
@@ -21,19 +26,21 @@ const pendingComponents = {}
 const appInstalls = []
 const rootReadyCallbacks = []
 const beforeRootMountCallbacks = []
+const islands = []
 let rootVm = null
 
 export function onAppCreate(fn) {
     appInstalls.push(fn)
 }
 
+/** The shell - the state and methods every island shares. */
 export function getRootVm() {
     return rootVm
 }
 
 /**
- * Runs `fn` immediately before the root #app instance is mounted - the deadline
- * for anything the root template needs to already exist, such as the per-page
+ * Runs `fn` immediately before the islands are mounted - the deadline for
+ * anything their templates need to already exist, such as the per-page
  * view-models. Hooking it here rather than to a footer script means every theme
  * gets it from loading the bundle; Theme.Modern has its own Head.cshtml and
  * would otherwise have had to remember to opt in.
@@ -43,9 +50,9 @@ export function onBeforeRootMount(fn) {
 }
 
 /**
- * Runs `fn` once the root #app instance exists. View-models are built before
- * the root is mounted (they have to be - the root template reads them), so
- * anything that writes *into* the root has to wait for this.
+ * Runs `fn` once the shell exists and the islands are up. View-models are built
+ * before that (they have to be - the island templates read them), so anything
+ * that writes *into* rendered markup has to wait for this.
  */
 export function onRootReady(fn) {
     if (rootVm) fn(rootVm)
@@ -70,28 +77,37 @@ function windowFallbackGlobals(base) {
     })
 }
 
-function makeApp(options) {
-    // Root-level props without a parent were used as plain reactive state in
-    // Vue 2; fold them into data so Vue 3 does not treat them as props.
+/*
+ * Root-level props without a parent were used as plain reactive state in Vue 2;
+ * fold them into data so Vue 3 does not treat them as props (it would warn and
+ * make them read-only, and the theme shells declare half their cart state that
+ * way).
+ */
+function foldProps(options) {
     const opts = { ...options }
-    if (opts.props) {
-        const extraData = {}
-        const propsDef = opts.props
-        if (Array.isArray(propsDef)) {
-            propsDef.forEach(p => { extraData[p] = null })
-        } else {
-            Object.keys(propsDef).forEach(p => {
-                const def = propsDef[p]
-                extraData[p] = (def && typeof def === 'object' && 'default' in def) ? def.default : def ?? null
-            })
-        }
-        const dataFn = opts.data
-        opts.data = function () {
-            const base = typeof dataFn === 'function' ? dataFn.call(this) : (dataFn || {})
-            return { ...extraData, ...base }
-        }
-        delete opts.props
+    if (!opts.props) return opts
+
+    const extraData = {}
+    const propsDef = opts.props
+    if (Array.isArray(propsDef)) {
+        propsDef.forEach(p => { extraData[p] = null })
+    } else {
+        Object.keys(propsDef).forEach(p => {
+            const def = propsDef[p]
+            extraData[p] = (def && typeof def === 'object' && 'default' in def) ? def.default : def ?? null
+        })
     }
+    const dataFn = opts.data
+    opts.data = function () {
+        const base = typeof dataFn === 'function' ? dataFn.call(this) : (dataFn || {})
+        return { ...extraData, ...base }
+    }
+    delete opts.props
+    return opts
+}
+
+function makeApp(options) {
+    const opts = foldProps(options)
     const app = createApp(opts)
     app.config.warnHandler = () => { /* keep console clean on legacy templates */ }
     Object.entries(pendingComponents).forEach(([name, def]) => app.component(name, def))
@@ -99,6 +115,44 @@ function makeApp(options) {
     app.config.globalProperties = windowFallbackGlobals(app.config.globalProperties)
     return app
 }
+
+/*
+ * `$refs` as the page used to know it.
+ *
+ * With a single root instance every `ref` on the page landed in one object, and
+ * the view scripts read them from anywhere - the search box reaches for
+ * `searchForm`, the shell for `wishlistQty`, the product page for `swiperTop`.
+ * Now that refs are split across the islands that own them, this proxy searches
+ * all of them, so `vm.$refs.x` keeps meaning "the element called x on this page".
+ *
+ * Later islands win: a ref name used both on the page and inside the quick-view
+ * modal (product-details-form ids are duplicated that way) resolves to the modal,
+ * which is the one the visitor is looking at.
+ */
+function islandRefNames() {
+    const names = new Set()
+    islands.forEach(vm => Object.keys(vm.$refs || {}).forEach(k => names.add(k)))
+    return [...names]
+}
+
+const aggregatedRefs = new Proxy({}, {
+    get(_, key) {
+        for (let i = islands.length - 1; i >= 0; i--) {
+            const value = islands[i].$refs?.[key]
+            if (value != null) return value
+        }
+        return undefined
+    },
+    has(_, key) {
+        return islands.some(vm => key in (vm.$refs || {}))
+    },
+    ownKeys() {
+        return islandRefNames()
+    },
+    getOwnPropertyDescriptor() {
+        return { configurable: true, enumerable: true }
+    }
+})
 
 /* A minimal re-implementation of an unmounted Vue 2 instance: reactive data,
  * bound methods, computed, watch and the created hook. Enough for the view
@@ -130,8 +184,9 @@ function makeStateVm(options) {
     Object.defineProperties(vm, {
         $mount: { value: () => vm, configurable: true },
         $nextTick: { value: fn => nextTick(fn), configurable: true },
-        $refs: { get: () => (rootVm ? rootVm.$refs : {}), configurable: true },
+        $refs: { get: () => aggregatedRefs, configurable: true },
         $root: { get: () => rootVm, configurable: true },
+        $forceUpdate: { value: () => islands.forEach(i => i.$forceUpdate()), configurable: true },
         $bvToast: { get: () => window.$bvToast, configurable: true },
         $bvModal: { get: () => window.$bvModal, configurable: true },
         $watch: { value: (src, cb, opt) => watch(() => vm[src], cb, opt), configurable: true }
@@ -157,6 +212,64 @@ function makeStateVm(options) {
     return vm
 }
 
+const ISLAND_ATTRIBUTE = 'vue-island'
+const ISLAND_SELECTOR = `[${ISLAND_ATTRIBUTE}]`
+
+/**
+ * Mounts a small app on every element marked `vue-island` that has not got one
+ * yet. Each island compiles only its own subtree, and shares the shell object as
+ * its data, so the header, the drawers and the page body all read and write the
+ * same `flycart`, `wishindicator`, `darkMode` and so on.
+ *
+ * Nested markers are left to the island above them: two apps over the same
+ * elements would compile the markup twice and fight over the DOM.
+ *
+ * A template that fails to compile now takes down its own island and nothing
+ * else - the whole page used to go with it.
+ */
+export function mountIslands(root = document) {
+    if (!rootVm) return
+    root.querySelectorAll(ISLAND_SELECTOR).forEach(el => {
+        if (el.__vueIsland) return
+        // Skipped, not marked: mounting the island above this one re-creates
+        // every node inside it, so anything written on this element would be
+        // thrown away with it. A partial can be standalone in one theme and
+        // nested in the next - the newsletter block is its own island in
+        // Grand.Web and sits inside the footer in Theme.Modern - so nesting is
+        // a normal outcome rather than a mistake.
+        if (el.parentElement?.closest(ISLAND_SELECTOR)) return
+        el.__vueIsland = true
+        try {
+            const app = makeApp({ data: () => rootVm })
+            islands.push(app.mount(el))
+        } catch (err) {
+            console.error('[grand] island failed to mount', el, err)
+        }
+    })
+}
+
+/**
+ * Builds the shared shell and brings the islands up.
+ *
+ * Replaces `new Vue({ el: '#app', ... })`: the same options object, but the data
+ * and methods become one reactive object instead of a component instance, and
+ * the markup is compiled per island rather than over the whole document.
+ */
+export function defineShell(options = {}) {
+    if (rootVm) return rootVm
+
+    rootVm = makeStateVm(foldProps(options))
+    // the view scripts, the colour-scheme snippet in <head> and the Razor
+    // templates all address it as `vm`; publish it before anything can look
+    window.vm = rootVm
+
+    // per-page view-models first - the island templates reference them by name
+    beforeRootMountCallbacks.splice(0).forEach(fn => fn())
+    mountIslands()
+    rootReadyCallbacks.splice(0).forEach(fn => fn(rootVm))
+    return rootVm
+}
+
 export function LegacyVue(options = {}) {
     if (options.el) {
         const el = options.el
@@ -167,10 +280,8 @@ export function LegacyVue(options = {}) {
         beforeRootMountCallbacks.splice(0).forEach(fn => fn())
         const app = makeApp(opts)
         const instance = app.mount(el)
-        if (el === '#app' || (el.id === 'app')) {
-            rootVm = instance
-            rootReadyCallbacks.splice(0).forEach(fn => fn(rootVm))
-        }
+        // its refs have to join the page-wide set, the same as an island's
+        islands.push(instance)
         return instance
     }
     return makeStateVm(options)
@@ -187,5 +298,7 @@ LegacyVue.extend = function (options) {
 LegacyVue.createApp = makeApp
 LegacyVue.nextTick = nextTick
 LegacyVue.reactive = reactive
+LegacyVue.shell = defineShell
+LegacyVue.mountIslands = mountIslands
 
 export default LegacyVue

@@ -28,12 +28,17 @@
 @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
 
 @*
-    No v-cloak on the root: it used to paint an opaque white sheet over the whole
-    viewport until the deferred bundle mounted, which hid every server-rendered
-    page - the catalog listing included - behind a blank screen. Markup that only
-    Vue can fill carries v-cloak on itself instead.
+    #app is a plain wrapper now - a styling hook, not a Vue mount point. Vue only
+    takes over the elements marked `vue-island`; see vueapp/src/compat/core.js.
+    Its dark-theme attribute is set before the first paint by Partials/ColorScheme
+    (it used to be a v-bind here, which Vue 3 ignores on a mount point anyway).
+
+    No v-cloak on it either: that used to paint an opaque white sheet over the
+    whole viewport until the deferred bundle mounted, which hid every
+    server-rendered page - the catalog listing included - behind a blank screen.
+    Markup that only Vue can fill carries v-cloak on itself instead.
 *@
-<div id="app" :dark-theme="darkMode">
+<div id="app">
     <div class="page-loader-container">
         <div class="page-loader"></div>
     </div>
@@ -48,7 +53,11 @@
     *@
     <a class="visually-hidden-focusable skip-link" href="#content">@Loc["Common.SkipToContent"]</a>
     <partial name="Partials/Header"/>
-    <main id="content" class="container main-container" tabindex="-1">
+    @*One island for the page body. The chrome around it - header, drawers, cart
+        modals, footer - has islands of its own, so a template error in a view (or
+        in database-authored content rendered into one) can no longer take the
+        navigation and the cart down with it.*@
+    <main id="content" class="container main-container" tabindex="-1" vue-island>
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
         @if (IsSectionDefined("Breadcrumb"))
         {

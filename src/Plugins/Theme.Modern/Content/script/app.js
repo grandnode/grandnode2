@@ -1,7 +1,12 @@
 ﻿"use strict";
 
-var vm = new Vue({
-    el: '#app',
+/*
+ * The shell: the state and methods the page chrome shares. See the note in
+ * Grand.Web's theme/script/app.js - this used to be one Vue instance compiling
+ * the whole <body>, and is now a reactive object shared by the `vue-island`
+ * elements Vue actually mounts on.
+ */
+var vm = Vue.shell({
     data: function () {
         return {
             show: false,
@@ -136,6 +141,14 @@ var vm = new Vue({
         },
         PopupQuickViewVueModal: function () {
             vm.getLinkedProductsQV(vm.PopupQuickViewVueModal.Id);
+        },
+        // .left-side-container is the element an island mounts on, and Vue never
+        // sees the attributes of its own mount point - so the class it used to
+        // carry as a v-bind is applied from here. The initial state is rendered
+        // by the layout, which keeps the sidebar from flickering open on load.
+        menuToggled: function (value) {
+            var container = document.querySelector('.left-side-container');
+            if (container) container.classList.toggle('toggled', !value);
         }
     },
     methods: {
@@ -336,37 +349,43 @@ var vm = new Vue({
                 alert(error);
             });
         },
+        /*
+         * Mounts server-rendered modal markup (privacy preferences, newsletter
+         * categories) as an app of its own.
+         *
+         * It used to render through `Vue.compile`, which the Vue 3 build does not
+         * expose - the markup silently never appeared. Passing the HTML as the
+         * `template` option compiles it the same way an island does.
+         */
         displayPopup(html, el) {
-            new Vue({
-                el: '#' + el,
-                data: {
-                    template: null,
-                },
-                render: function (createElement) {
-                    if (!this.template) {
-                        return createElement('b-overlay', {
-                            attrs: {
-                                show: 'true'
-                            }
-                        });
-                    } else {
-                        return this.template();
-                    }
-                },
-                methods: {
-                    showModal: function () {
-                        this.$refs[el].show()
+            var container = document.getElementById(el);
+            if (!container) {
+                container = document.createElement('div');
+                container.id = el;
+                document.body.appendChild(container);
+            }
+            if (!vm._popupApps) vm._popupApps = {};
+            if (vm._popupApps[el]) {
+                vm._popupApps[el].unmount();
+                delete vm._popupApps[el];
+            }
+            var popup = Vue.createApp({
+                template: html,
+                data: function () {
+                    return {
+                        darkMode: vm.darkMode
                     }
                 },
                 mounted: function () {
                     var self = this;
-                    self.template = Vue.compile(html).render;
-                    this.darkMode = vm.darkMode;
-                },
-                updated: function () {
-                    this.showModal();
+                    this.$nextTick(function () {
+                        var modal = self.$refs[el];
+                        if (modal && modal.show) modal.show();
+                    });
                 }
             });
+            popup.mount(container);
+            vm._popupApps[el] = popup;
         },
         displayBarNotification(message, url, messagetype, timeout) {
             var variant;
@@ -576,18 +595,27 @@ var vm = new Vue({
                     if (response.data.stockAvailability) {
                         vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
                     }
-                    if (response.data.enabledattributemappingids) {
-                        for (var i = 0; i < response.data.enabledattributemappingids.length; i++) {
-                            document.querySelector('#product_attribute_label_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
-                            document.querySelector('#product_attribute_input_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
+                    /*
+                     * Conditional attributes: show the rows this choice unlocks, hide the
+                     * ones it rules out.
+                     *
+                     * Scoped to the modal, and null-guarded. Both matter: the product page
+                     * behind the quick view renders the *same* element ids, so a bare
+                     * document.querySelector returned the page's row and left the modal's
+                     * untouched; and when neither exists the unguarded `.style` threw,
+                     * which aborted the rest of this handler.
+                     */
+                    var modal = document.getElementById('ModalQuickView');
+                    var setRows = function (ids, display) {
+                        for (var i = 0; i < (ids || []).length; i++) {
+                            var label = modal && modal.querySelector('#product_attribute_label_' + ids[i]);
+                            var input = modal && modal.querySelector('#product_attribute_input_' + ids[i]);
+                            if (label) label.style.display = display;
+                            if (input) input.style.display = display;
                         }
-                    }
-                    if (response.data.disabledattributemappingids) {
-                        for (var i = 0; i < response.data.disabledattributemappingids.length; i++) {
-                            document.querySelector('#product_attribute_label_' + response.data.disabledattributemappingids[i]).style.display = "none";
-                            document.querySelector('#product_attribute_input_' + response.data.disabledattributemappingids[i]).style.display = "none";
-                        }
-                    }
+                    };
+                    setRows(response.data.enabledattributemappingids, "table-cell");
+                    setRows(response.data.disabledattributemappingids, "none");
                     /*if (response.data.notAvailableAttributeMappingids) {
                         document.querySelectorAll('[data-disable]').forEach((element) => element.disabled = false);
                         for (var i = 0; i < response.data.notAvailableAttributeMappingids.length; i++) {
@@ -597,17 +625,31 @@ var vm = new Vue({
                         }
                     }*/
                     if (response.data.pictureDefaultSizeUrl !== null) {
-                        if (vm.PopupQuickViewVueModal.PictureModels.length > 1) {
-                            const active_img_src = vm.$refs.QuickViewSlider.$swiper.slides[vm.$refs.QuickViewSlider.$swiper.activeIndex].querySelector("img").dataset.srcs;
-                            if (!(active_img_src == response.data.pictureDefaultSizeUrl)) {
-                                vm.$refs.QuickViewSlider.$swiper.slides.forEach(function (element, index) {
-                                    const img_src = element.querySelector('img').dataset.srcs;
-                                    if (img_src == response.data.pictureDefaultSizeUrl) {
-                                        vm.$refs.QuickViewSlider.$swiper.slideTo(index, 1000, false)
+                        /*
+                         * Slide the gallery to the picture the chosen attribute maps to.
+                         *
+                         * The swiper is read defensively: inside the quick view it never
+                         * finishes initialising (no .swiper-initialized, slides is empty),
+                         * so indexing it threw "Cannot read properties of undefined
+                         * (reading 'querySelector')" on *every* attribute change - which
+                         * aborted this handler and left the picture on the old value. The
+                         * single-picture path is the fallback: it swaps the image source
+                         * directly, which is what the visitor actually needs to see.
+                         */
+                        var swiper = vm.$refs.QuickViewSlider && vm.$refs.QuickViewSlider.$swiper;
+                        var slides = (swiper && swiper.slides) || [];
+                        if (vm.PopupQuickViewVueModal.PictureModels.length > 1 && slides.length) {
+                            var active = slides[swiper.activeIndex];
+                            var activeImg = active && active.querySelector("img");
+                            if (!activeImg || activeImg.dataset.srcs != response.data.pictureDefaultSizeUrl) {
+                                Array.prototype.forEach.call(slides, function (element, index) {
+                                    var img = element.querySelector('img');
+                                    if (img && img.dataset.srcs == response.data.pictureDefaultSizeUrl) {
+                                        swiper.slideTo(index, 1000, false)
                                     }
                                 })
                             }
-                        } else {
+                        } else if (vm.PopupQuickViewVueModal.DefaultPictureModel) {
                             vm.PopupQuickViewVueModal.DefaultPictureModel.ImageUrl = response.data.pictureDefaultSizeUrl;
                         }
                     }

@@ -1,7 +1,14 @@
 ﻿axios.defaults.showLoader = true;
 
-var vm = new Vue({
-    el: '#app',
+/*
+ * The shell: the state and methods the page chrome shares.
+ *
+ * This used to be `new Vue({ el: '#app' })`, one instance compiling the whole
+ * <body> as its template. It is now a plain reactive object; Vue only takes over
+ * the elements marked `vue-island` (the header bar, the drawers, the modals,
+ * <main>), each of which uses this object as its data.
+ */
+var vm = Vue.shell({
     data: function () {
         return {
             show: false,
@@ -444,18 +451,27 @@ var vm = new Vue({
                     if (response.data.stockAvailability) {
                         vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
                     }
-                    if (response.data.enabledattributemappingids) {
-                        for (var i = 0; i < response.data.enabledattributemappingids.length; i++) {
-                            document.querySelector('#product_attribute_label_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
-                            document.querySelector('#product_attribute_input_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
+                    /*
+                     * Conditional attributes: show the rows this choice unlocks, hide the
+                     * ones it rules out.
+                     *
+                     * Scoped to the modal, and null-guarded. Both matter: the product page
+                     * behind the quick view renders the *same* element ids, so a bare
+                     * document.querySelector returned the page's row and left the modal's
+                     * untouched; and when neither exists the unguarded `.style` threw,
+                     * which aborted the rest of this handler.
+                     */
+                    var modal = document.getElementById('ModalQuickView');
+                    var setRows = function (ids, display) {
+                        for (var i = 0; i < (ids || []).length; i++) {
+                            var label = modal && modal.querySelector('#product_attribute_label_' + ids[i]);
+                            var input = modal && modal.querySelector('#product_attribute_input_' + ids[i]);
+                            if (label) label.style.display = display;
+                            if (input) input.style.display = display;
                         }
-                    }
-                    if (response.data.disabledattributemappingids) {
-                        for (var i = 0; i < response.data.disabledattributemappingids.length; i++) {
-                            document.querySelector('#product_attribute_label_' + response.data.disabledattributemappingids[i]).style.display = "none";
-                            document.querySelector('#product_attribute_input_' + response.data.disabledattributemappingids[i]).style.display = "none";
-                        }
-                    }
+                    };
+                    setRows(response.data.enabledattributemappingids, "table-cell");
+                    setRows(response.data.disabledattributemappingids, "none");
                     /*if (response.data.notAvailableAttributeMappingids) {
                         document.querySelectorAll('[data-disable]').forEach((element) => element.disabled = false);
                         for (var i = 0; i < response.data.notAvailableAttributeMappingids.length; i++) {
