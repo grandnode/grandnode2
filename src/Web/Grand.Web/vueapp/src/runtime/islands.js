@@ -10,7 +10,6 @@
  * own island and nothing else; the whole page used to go with it.
  */
 import { createApp } from 'vue'
-import { withWindowFallback } from '../compat/globals'
 
 const pendingComponents = {}
 const appInstalls = []
@@ -25,10 +24,10 @@ let rootVm = null
  *
  * Templates address these by bare name (`applyvendor.Email`), and an island that
  * declares `vue-island="applyvendor"` gets that object as ordinary component
- * data. A Proxy still forwards any miss to `window` for Theme.Modern's sake, so
- * an undeclared view-model keeps working - which is exactly why omissions went
- * unnoticed for so long. It now warns on every name it resolves; when Modern is
- * fully declared that Proxy goes, and an undeclared name becomes undefined.
+ * data. A Proxy used to forward any miss to `window`, so an undeclared
+ * view-model worked anyway - which is exactly why omissions went unnoticed for
+ * so long. It is gone: a name no island declares is now undefined, and the
+ * template that wanted it fails loudly instead of quietly.
  */
 export function registerViewModel(name, vm) {
     viewModels[name] = vm
@@ -87,8 +86,6 @@ export function createStorefrontApp(options) {
     app.config.warnHandler = () => {}
     Object.entries(pendingComponents).forEach(([name, def]) => app.component(name, def))
     appInstalls.forEach(fn => fn(app))
-    // still there for Theme.Modern; see compat/globals.js
-    app.config.globalProperties = withWindowFallback(app.config.globalProperties)
     return app
 }
 
