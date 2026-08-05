@@ -11,13 +11,13 @@
  * serializes it into the page, Modern asks the root vm to fetch it.
  */
 import { createViewModel } from '../compat/view-model'
-import { onRootReady } from '../runtime/islands'
+import { onRootReady, registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 
 registerView('compareProducts', ({ model, specificationAttributes, loadRoute }) => {
-    window.specificationAttributes = createViewModel({
+    window.specificationAttributes = registerViewModel('specificationAttributes', createViewModel({
         data: () => ({ Model: specificationAttributes })
-    })
+    }))
 
     onRootReady(vm => {
         if (loadRoute) vm.getCompareList(loadRoute)
