@@ -7,7 +7,7 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Vendors.Apply"]);
 }
-<div class="page apply-vendor-page" vue-island>
+<div class="page apply-vendor-page" vue-island="applyvendor">
     <h1 class="text-center generalTitle h2">@Loc["Title.Vendors.Apply"]</h1>
     @await Component.InvokeAsync("PageBlock", new { systemName = "ApplyVendor" })
     @await Component.InvokeAsync("Widget", new { widgetZone = "applyvendor_top" })

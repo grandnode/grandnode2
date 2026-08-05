@@ -17,7 +17,22 @@ const appInstalls = []
 const rootReadyCallbacks = []
 const beforeRootMountCallbacks = []
 const islands = []
+const viewModels = {}
 let rootVm = null
+
+/**
+ * Publishes a per-page view-model under a name an island can ask for.
+ *
+ * Templates address these by bare name (`applyvendor.Email`). Today that name is
+ * resolved by the `window` fall-through Proxy in compat/globals.js; an island
+ * that declares `vue-island="applyvendor"` gets the same object as ordinary
+ * component data instead, and needs no fall-through. Once every island declares
+ * what it uses, that Proxy can go.
+ */
+export function registerViewModel(name, vm) {
+    viewModels[name] = vm
+    return vm
+}
 
 /** Runs `fn` against every island app as it is created (plugins, globals). */
 export function onAppCreate(fn) {
@@ -76,6 +91,44 @@ export function createStorefrontApp(options) {
 }
 
 const ISLAND_ATTRIBUTE = 'vue-island'
+
+/*
+ * The data an island renders against.
+ *
+ * Plain islands get the shell object itself, so every one of them reads and
+ * writes the same reactive state. An island that names view-models in its
+ * `vue-island` attribute gets a view over the shell with those names layered on
+ * top - reads fall through to the shell, writes still land on it, so sharing is
+ * unaffected. Returning a wrapper rather than a copy is the point: `{ ...shell }`
+ * would give each island a private snapshot and the drawers would stop agreeing.
+ */
+function islandData(el) {
+    const names = (el.getAttribute(ISLAND_ATTRIBUTE) || '')
+        .split(/[\s,]+/).filter(Boolean)
+    if (!names.length) return rootVm
+
+    const declared = {}
+    names.forEach(name => {
+        if (viewModels[name]) declared[name] = viewModels[name]
+        else console.warn('[grand] island asked for an unknown view-model', name, el)
+    })
+
+    return new Proxy(rootVm, {
+        get: (target, key) => (key in declared ? declared[key] : target[key]),
+        has: (target, key) => key in declared || key in target,
+        set: (target, key, value) => {
+            if (key in declared) return false
+            target[key] = value
+            return true
+        },
+        ownKeys: target => [...new Set([...Reflect.ownKeys(target), ...Object.keys(declared)])],
+        getOwnPropertyDescriptor: (target, key) =>
+            key in declared
+                ? { configurable: true, enumerable: true, writable: false, value: declared[key] }
+                : Reflect.getOwnPropertyDescriptor(target, key)
+    })
+}
+
 const ISLAND_SELECTOR = `[${ISLAND_ATTRIBUTE}]`
 const HOLE_ATTRIBUTE = 'data-vue-island-hole'
 let holeSeq = 0
@@ -135,7 +188,8 @@ export function mountIslands(root = document) {
             })
             el.__vueIsland = true
             try {
-                const app = createStorefrontApp({ data: () => rootVm })
+                const data = islandData(el)
+                const app = createStorefrontApp({ data: () => data })
                 islands.push(app.mount(el))
             } catch (err) {
                 console.error('[grand] island failed to mount', el, err)

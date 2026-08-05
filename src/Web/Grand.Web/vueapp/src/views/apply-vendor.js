@@ -6,17 +6,20 @@
  * anyway. Preventing the default on the click actually stops the submit.
  */
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { notify } from './shared'
 
 registerView('applyVendor', ({ model, res }) => {
-    window.applyvendor = createViewModel({
+    // registered for the island that declares `vue-island="applyvendor"`, and
+    // still on window for anything outside the bundle that reaches for it
+    window.applyvendor = registerViewModel('applyvendor', createViewModel({
         data: () => ({
             Name: model.Name,
             Email: model.Email,
             AcceptPrivacyPolicy: false
         })
-    })
+    }))
 
     const button = document.getElementById('apply-vendor')
     const terms = document.getElementById('accept-terms-of-service')

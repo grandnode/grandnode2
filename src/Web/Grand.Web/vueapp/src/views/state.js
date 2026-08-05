@@ -16,8 +16,12 @@
  * point. JSON is encoded properly by Json.Serialize.
  */
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 
 registerView('state', ({ name, data }) => {
-    window[name] = createViewModel({ data: () => ({ ...data }) })
+    // Registered under its name so an island can declare `vue-island="<name>"`
+    // and get it as ordinary component data; still on window for the templates
+    // that have not declared it yet and for callers outside the bundle.
+    window[name] = registerViewModel(name, createViewModel({ data: () => ({ ...data }) }))
 })
