@@ -6,10 +6,11 @@
  * into the stars when a vendor had no reviews yet.
  */
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 
 registerView('vendorReviewOverview', ({ model }) => {
-    window.vendorreviewsoverview = createViewModel({
+    window.vendorreviewsoverview = registerViewModel('vendorreviewsoverview', createViewModel({
         data: () => ({ Model: model }),
         computed: {
             rating() {
@@ -18,5 +19,5 @@ registerView('vendorReviewOverview', ({ model }) => {
                     : 0
             }
         }
-    })
+    }))
 })

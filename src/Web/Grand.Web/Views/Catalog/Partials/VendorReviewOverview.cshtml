@@ -7,9 +7,21 @@
         ratingPercent = Model.RatingSum * 100 / Model.TotalReviews / 5;
     }
 }
+@*
+    The island marker is load-bearing. Nothing on the vendor page's header carries
+    one, so without it this block is markup no island compiles: the <template v-if>
+    below renders nothing and <b-form-rating> stays an unknown element - no error,
+    no stars. It only shows up once a vendor has AllowCustomerReviews set, which is
+    a per-vendor field, so the seed store hides the problem.
+
+    Safe as a mount point: the itemprop attributes are Razor's, and this element
+    carries no Vue directive of its own - Vue reads a mount point's innerHTML and
+    would ignore one.
+*@
 @if (Model.AllowCustomerReviews)
 {
     <div class="vendor-reviews-overview d-inline-flex align-items-center flex-wrap"
+         vue-island="vendorreviewsoverview"
          @if (Model.TotalReviews > 0)
          {
              <text> itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating" </text>
