@@ -29,7 +29,9 @@
         </validation-provider>
     </div>
     <div class="form-group col-sm-12">
-        <validation-provider tag="div" rules="required|email" v-slot="{ errors, classes }">
+        @* Same rule as Account/Info: do not validate the format of a field the
+           visitor cannot edit - it could only block the form, never help. *@
+        <validation-provider tag="div" rules="@(Model.DisallowUsersToChangeEmail ? "required" : "required|email")" v-slot="{ errors, classes }">
             <label asp-for="Email" class="col-form-label">@Loc["Address.Fields.Email"]:</label>
             <span class="required">*</span>
             <input asp-for="Email" v-model="createorupdateaddress@{@prefix}.Email" v-bind:class="[classes , 'form-control']" asp-readonly="@(Model.DisallowUsersToChangeEmail)" data-val-required=@Loc["Address.Fields.Email.Required"] data-val-email=@Loc["Common.WrongEmail"]/>

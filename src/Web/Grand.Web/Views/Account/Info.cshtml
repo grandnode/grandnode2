@@ -121,7 +121,17 @@
         <fieldset class="form-group row mail">
             <legend class="visually-hidden">@Loc["account.associatedexternalauth.email"]</legend>
             <div class="col-12">
-                <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
+                @*
+                    The `email` rule only applies while the field is editable. When
+                    AllowUsersToChangeEmail is off the input is readonly and its value
+                    comes from the account, so validating the format can only ever
+                    block the form - the visitor has no way to correct what it
+                    rejects, and the whole page becomes unsavable. That is not
+                    hypothetical: addresses that fail this rule can already be in the
+                    database, because Register.cshtml validates the same field with
+                    `required` alone.
+                *@
+                <validation-provider tag="div" rules="@(Model.AllowUsersToChangeEmail ? "required|email" : "required")" name="Email" v-slot="{ errors, classes }">
                     <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
                     <span class="required">*</span>
                     <input asp-for="Email" v-model="customer.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" asp-readonly="@(!Model.AllowUsersToChangeEmail)" data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.Fields.Email.Required"]/>
