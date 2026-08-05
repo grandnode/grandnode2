@@ -42,7 +42,17 @@
                 </div>
             </div>
             <div class="row">
-                <div vue-island="catalog" class="col-12">
+                @*
+                    The reviews and contact tabs are optional, and declaring a
+                    view-model that was never registered warns - so the names are
+                    added only when their tab is actually rendered.
+                *@
+                @{
+                    var tabsIsland = "catalog"
+                        + (Model.VendorReviewOverview.AllowCustomerReviews ? " vendorreviews" : "")
+                        + (Model.AllowCustomersToContactVendors ? " contactvendor" : "");
+                }
+                <div vue-island="@tabsIsland" class="col-12">
                     <gn-tabs class="mt-3" content-class="mt-3" align="center">
                         @if (!string.IsNullOrEmpty(Model.Description))
                         {

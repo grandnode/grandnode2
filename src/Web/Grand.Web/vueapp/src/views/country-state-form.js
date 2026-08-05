@@ -15,7 +15,7 @@
  * would not.
  */
 import { createViewModel } from '../compat/view-model'
-import { onRootReady } from '../runtime/islands'
+import { onRootReady, registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, notifyRequestError } from './shared'
 
@@ -68,7 +68,7 @@ function delegate() {
 }
 
 registerView('countryStateForm', form => {
-    window[form.name] = createViewModel({ data: () => ({ ...form.data }) })
+    window[form.name] = registerViewModel(form.name, createViewModel({ data: () => ({ ...form.data }) }))
 
     forms.set(form.name, form)
     delegate()

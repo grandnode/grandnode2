@@ -6,6 +6,7 @@
  * the form id and whether there was a title field. One factory covers both.
  */
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { axios } from './shared'
 
@@ -13,7 +14,7 @@ registerView('comments', ({ name, formId, comments, fields }) => {
     const blank = {}
     fields.forEach(field => { blank[field] = '' })
 
-    window[name] = createViewModel({
+    window[name] = registerViewModel(name, createViewModel({
         data: () => ({ Model: comments, ...blank }),
         methods: {
             submitComment() {
@@ -33,5 +34,5 @@ registerView('comments', ({ name, formId, comments, fields }) => {
                 this.Model.push(model)
             }
         }
-    })
+    }))
 })

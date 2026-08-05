@@ -13,7 +13,7 @@
 }
 
 @*a plain element to mount on: the view's outermost node is a Vue component*@
-<div class="form-page-island" vue-island>
+<div class="form-page-island" vue-island="deleteaccount">
 <validation-observer v-slot="{ handleSubmit }">
     <form asp-route="CustomerDeleteAccount" method="post" autocomplete="off" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
         <section class="page account-page change-password-page ps-lg-3 pt-3 pt-lg-0">

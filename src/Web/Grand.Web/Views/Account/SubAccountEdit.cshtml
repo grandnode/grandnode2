@@ -13,7 +13,7 @@
 }
 
 @*a plain element to mount on: the view's outermost node is a Vue component*@
-<div class="form-page-island" vue-island>
+<div class="form-page-island" vue-island="createorupdatesubaccount">
 <validation-observer v-slot="{ handleSubmit }">
     <form asp-route="CustomerSubAccountEdit" asp-antiforgery="true" method="post" autocomplete="off" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
         <div class="page account-page subaccount-edit-page ps-lg-3 mb-3 pt-lg-0 pt-3">

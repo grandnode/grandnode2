@@ -17,6 +17,7 @@
  */
 import * as bootstrap from 'bootstrap'
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, notify, notifyRequestError } from './shared'
 
@@ -58,7 +59,7 @@ registerView('contactForm', ({ name, data, formId, submitMethod, modalId, captch
         }
     })
 
-    window[name] = vm
+    window[name] = registerViewModel(name, vm)
 
     // A captcha inside a modal has to be carried in when the modal opens and
     // put back when it closes, or the next open finds it gone.
