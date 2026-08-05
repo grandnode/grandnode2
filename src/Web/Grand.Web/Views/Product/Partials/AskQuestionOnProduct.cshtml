@@ -1,6 +1,6 @@
 ﻿@model ProductAskQuestionSimpleModel
 <input value="@Model.Id" type="hidden" id="AskQuestionProductId" ref="AskQuestionProductId" name="AskQuestionProductId"/>
-<div id="contact-us-product" vue-island>
+<div id="contact-us-product" vue-island="askquestion">
     <validation-observer ref="contact" tag="div">
         <fieldset class="form-group">
             <validation-provider tag="div" rules="required|email" name="AskQuestionEmail" v-slot="{ errors, classes }">

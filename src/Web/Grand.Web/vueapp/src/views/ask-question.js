@@ -8,14 +8,14 @@
  * part of #app's template.
  */
 import { createViewModel } from '../compat/view-model'
-import { getRootVm } from '../runtime/islands'
+import { getRootVm, registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, formData, notifyRequestError } from './shared'
 
 const FIELDS = ['AskQuestionEmail', 'AskQuestionFullName', 'AskQuestionPhone', 'AskQuestionMessage']
 
 registerView('askQuestion', ({ data, captchaTarget, res }) => {
-    window.askquestion = createViewModel({
+    window.askquestion = registerViewModel('askquestion', createViewModel({
         data: () => ({ ...data }),
         methods: {
             async sendContactUsForm(url) {
@@ -59,5 +59,5 @@ registerView('askQuestion', ({ data, captchaTarget, res }) => {
                 if (box && target) target.prepend(box)
             }
         }
-    })
+    }))
 })

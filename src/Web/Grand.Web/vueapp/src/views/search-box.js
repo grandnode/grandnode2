@@ -8,7 +8,7 @@
  * view-model, which is what the 600ms was for.
  */
 import { createViewModel } from '../compat/view-model'
-import { getRootVm } from '../runtime/islands'
+import { getRootVm, registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, watchMicrophonePermission } from './shared'
 
@@ -21,7 +21,7 @@ function bySearchType(items, type) {
 registerView('searchBox', ({ lang, routes, res }) => {
     let delayTimer = null
 
-    window.searchbox = createViewModel({
+    window.searchbox = registerViewModel('searchbox', createViewModel({
         data: () => ({
             recording: false,
             recognition: null,
@@ -126,5 +126,5 @@ registerView('searchBox', ({ lang, routes, res }) => {
                     event => this.handleSpeech(event, refs.searchForm, refs.searchBoxInput))
             }
         }
-    })
+    }))
 })

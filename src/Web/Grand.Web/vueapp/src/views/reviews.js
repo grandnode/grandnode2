@@ -12,6 +12,7 @@
  */
 import * as bootstrap from 'bootstrap'
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, notify, notifyRequestError } from './shared'
 
@@ -80,7 +81,7 @@ registerView('reviews', payload => {
         }
     })
 
-    window[name] = vm
+    window[name] = registerViewModel(name, vm)
 
     // The modal partial used to carry its own inline script to hook these up.
     // Delegated from the document because Bootstrap's modal events bubble and

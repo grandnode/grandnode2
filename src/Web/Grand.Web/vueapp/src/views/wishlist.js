@@ -5,11 +5,12 @@
  */
 import * as bootstrap from 'bootstrap'
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, formData, notify, notifyRequestError } from './shared'
 
 registerView('wishlist', ({ model, routes, res }) => {
-    window.vmwishlist = createViewModel({
+    window.vmwishlist = registerViewModel('vmwishlist', createViewModel({
         data: () => ({
             Model: model,
             PopupUpdateVueModal: null
@@ -75,5 +76,5 @@ registerView('wishlist', ({ model, routes, res }) => {
                 notify(message, title ?? res.warning, variant)
             }
         }
-    })
+    }))
 })
