@@ -5,13 +5,14 @@
  * to be built from the payload rather than declared literally.
  */
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 
 registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds }) => {
     const quantities = {}
     itemIds.forEach(id => { quantities['quantity_' + id] = '0' })
 
-    window.merchandisereturns = createViewModel({
+    window.merchandisereturns = registerViewModel('merchandisereturns', createViewModel({
         data: () => ({
             ...(showPickupDate ? { PickupDate: pickupDate ?? '' } : {}),
             newAddress: false,
@@ -33,5 +34,5 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds }) => {
                 this.newAddress = !select || select.value === ''
             }
         }
-    })
+    }))
 })
