@@ -8,6 +8,7 @@
  */
 import axios from 'axios'
 import Pikaday from 'pikaday'
+import { activeProductForm } from './product-form'
 
 function onDocumentReady(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn)
@@ -531,7 +532,10 @@ var Reservation = {
     },
 
     onDatePickerSelect: function onDatePickerSelect() {
-        var form = document.querySelector('#product-details-form-'+Reservation.productId);
+        // Quick view renders its form under the bare id, so looking only for the
+        // page's suffixed one found nothing there and threw on FormData(null).
+        var form = activeProductForm('#product-details-form-' + Reservation.productId);
+        if (!form) return;
         var data = new FormData(form);
         axios({
             url: Reservation.ajaxUrl2,

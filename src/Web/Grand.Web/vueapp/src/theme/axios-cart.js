@@ -6,6 +6,7 @@
  * from <head> as part of the bundle changes nothing for it.
  */
 import axios from 'axios'
+import { activeProductForm } from './product-form'
 
 /*
  * Cart/wishlist/compare actions driven by [data-cart-action] attributes
@@ -75,12 +76,7 @@ var AxiosCart = {
             return;
         }
         this.setLoadWaiting(true);
-        // The quick-view modal is always present in the DOM now, so its mere
-        // existence no longer means it is open - test for the shown state.
-        var quickView = document.querySelector('#ModalQuickView.show');
-        var form = quickView
-            ? quickView.querySelector('#product-details-form')
-            : document.querySelector(formselector);
+        var form = activeProductForm(formselector);
         if (!form) {
             this.setLoadWaiting(false);
             return;
@@ -108,12 +104,7 @@ var AxiosCart = {
     //update product on cart/wishlist
     updateitem: function (urlupdate, formselector) {
         var model;
-        // same rule as addproducttocart_details: the quick-view modal is always
-        // in the DOM, so only take its form when it is actually shown
-        var quickView = document.querySelector('#ModalQuickView.show');
-        var form = quickView
-            ? quickView.querySelector('#product-details-form')
-            : document.querySelector(formselector);
+        var form = activeProductForm(formselector);
         if (!form) return;
         var data = new FormData(form);
 
