@@ -6,7 +6,13 @@
     var lang = contextAccessor.WorkContext.WorkingLanguage.LanguageCulture;
 }
 <ul class="search-item">
-    <li>
+    @*
+        The island sits on the <li>, not on the <template> below it: a template's
+        children live in a DocumentFragment, so it cannot be a mount point - Vue
+        mounts into an element's innerHTML. Grand.Web's copy of this view uses a
+        <div> and carries the marker there instead.
+    *@
+    <li vue-island="searchbox">
         <template id="searchBoxContainer">
             <validation-observer v-slot="{ handleSubmit }">
                 <form asp-route="ProductSearch" method="get" id="small-search-box-form" ref="searchForm" v-on:submit.prevent="handleSubmit(searchbox.formSubmit)" class="searchBox w-100">

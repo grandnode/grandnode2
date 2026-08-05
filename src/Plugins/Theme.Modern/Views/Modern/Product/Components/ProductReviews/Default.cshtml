@@ -1,5 +1,13 @@
 ﻿@model ProductReviewsModel
 
+@*
+    Wrapped so the whole component - the list, the "add review" button and the
+    modal rendered below - sits in one island that declares productreviews.
+    The wrapper is needed rather than a marker on the existing roots: this view
+    starts with a <template v-if>, and the modal partial's root carries
+    :dark-theme, and Vue ignores bindings on a mount point.
+*@
+<div class="product-reviews" vue-island="productreviews">
 <template v-if="productreviews.Model.AddProductReview.CanCurrentCustomerLeaveReview">
     <div class="mb-3">
         <a class="btn btn-info" @@click="productreviews.addProductReview()">@Loc["Reviews.Overview.AddNew"]</a>
@@ -79,7 +87,9 @@
         </template>
     </div>
 </template>
+</div>
 
+@* outside the island: initViews() has consumed it before the island mounts *@
 <script type="application/json" data-grand-vm="reviews">@Json.Serialize(new {
                                                             name = "productreviews",
                                                             modalId = "ModalProductReview",

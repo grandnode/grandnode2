@@ -100,6 +100,7 @@ function installTemplateGlobals(app) {
         window,
         document,
         location,
+        localStorage,
         bootstrap,
         hideTooltip
     })

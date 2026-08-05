@@ -33,6 +33,14 @@
         }
     },
 });
+/*
+ * Published under the name the category page's island declares. This script is
+ * not part of the bundle, so views/ cannot register it - Vue.registerViewModel is
+ * the way in. It has to run before the islands mount, which it does: the theme's
+ * scripts are ordered ahead of app.js, and app.js is what calls Vue.shell().
+ */
+Vue.registerViewModel('subcatslider', subcatslider);
+
 function sideToggle() {
     var leftSide = document.querySelector(".generalLeftSide");
     if (leftSide.classList.contains('show')) {
