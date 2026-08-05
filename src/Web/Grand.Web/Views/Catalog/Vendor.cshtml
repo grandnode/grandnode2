@@ -1,4 +1,4 @@
-@model VendorModel
+﻿@model VendorModel
 @inject SeoSettings seoSettings
 @inject IPageHeadBuilder pagebuilder
 @{
@@ -42,7 +42,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-12">
+                <div vue-island class="col-12">
                     <gn-tabs class="mt-3" content-class="mt-3" align="center">
                         @if (!string.IsNullOrEmpty(Model.Description))
                         {
@@ -154,7 +154,7 @@
             </div>
         </div>
     </div>
-    <div id="catalog-products">
+    <div id="catalog-products" vue-island>
         @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_before_results" })
         <partial name="Partials/Selectors"/>
         <template v-if="catalog.Model.Products.length > 0">

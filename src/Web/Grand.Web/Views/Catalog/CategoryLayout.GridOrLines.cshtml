@@ -109,7 +109,7 @@
     @if (Model.FeaturedProducts.Any())
     {
         <div class="page-separator"></div>
-        <div class="col-12 product-grid featured-product-grid px-0">
+        <div class="col-12 product-grid featured-product-grid px-0" vue-island>
             <h2 class="h5 text-start mb-3">
                 <span>@Loc["Products.FeaturedProducts"]</span>
             </h2>
@@ -124,7 +124,7 @@
         </div>
     }
     @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_featured_products", additionalData = Model.Id })
-    <div id="catalog-products">
+    <div id="catalog-products" vue-island>
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
         <template v-if="catalog.Model !== undefined">
             <partial name="Partials/Selectors"/>

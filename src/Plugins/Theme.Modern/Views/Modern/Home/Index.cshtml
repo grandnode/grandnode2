@@ -36,7 +36,9 @@
     }
 }
 
-<div id="home-page" v-bind:class="{ toggled: !menuToggled }" class="page home-page custom-container d-flex flex-column mt-0">
+@*`toggled` is applied by the menuToggled watcher in the theme app.js: Vue never
+    sees the attributes of the element it mounts on. Initial state rendered here.*@
+<div id="home-page" vue-island class="toggled page home-page custom-container d-flex flex-column mt-0">
     @await Component.InvokeAsync("PushNotificationsRegistration")
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_top" })
     @await Component.InvokeAsync("PageBlock", new { systemName = "HomePageText" })

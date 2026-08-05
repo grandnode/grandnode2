@@ -13,6 +13,8 @@
 }
 
 <vc:widget widget-zone="customer-address-add-before" additional-data="@Model"></vc:widget>
+@*a plain element to mount on: the view's outermost node is a Vue component*@
+<div class="form-page-island" vue-island>
 <validation-observer v-slot="{ handleSubmit }">
     <form asp-route="CustomerAddressAdd" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
         <div class="page account-page address-edit-page ps-lg-3 mb-3 pt-lg-0 pt-3">
@@ -47,4 +49,5 @@
         </div>
     </form>
 </validation-observer>
+</div>
 <vc:widget widget-zone="customer-address-add-after" additional-data="@Model"></vc:widget>

@@ -1,6 +1,6 @@
 ﻿@model IList<CategoryModel>
 @inject DisplayOrderHomePage order
-<div class="product-grid col-12 px-0 order-@order.CategoryFeaturedProducts">
+<div class="product-grid col-12 px-0 order-@order.CategoryFeaturedProducts" vue-island>
     <div class="row">
         @foreach (var item in Model)
         {

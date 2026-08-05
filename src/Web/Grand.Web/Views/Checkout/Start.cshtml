@@ -46,7 +46,7 @@
         confirmOrderStepNumber -= 2;
     }
 }
-<div class="page checkout-page">
+<div class="page checkout-page" vue-island>
     <h1 class="generalTitle h2 my-3">@Loc["Checkout"]</h1>
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_content_before" })
     <div class="col-12 px-0">

@@ -52,7 +52,7 @@
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_after_breadcrumb", additionalData = Model.Id })
-<div class="page product-details-page product-standard product-grouped">
+<div class="page product-details-page product-standard product-grouped" vue-island>
     @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_top", additionalData = Model.Id })
     <validation-observer ref="ProductFormObserver">
         <div itemscope itemtype="https://schema.org/Product" data-productid="@Model.Id">

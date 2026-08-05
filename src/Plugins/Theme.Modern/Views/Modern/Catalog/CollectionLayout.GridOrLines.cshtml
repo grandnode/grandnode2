@@ -15,6 +15,9 @@
     }
 }
 
+@*One island over both branches: the loading skeleton and the content are a
+    v-if/v-else pair and a directive pair cannot be split across islands.*@
+<div class="catalog-island" vue-island>
 <div v-if="catalog.loading == true" class="placeholder-glow">
     <span class="placeholder col-12 mb-3" style="height: 20vh"></span>
     <span class="placeholder col-12" style="height: 80vh"></span>
@@ -91,6 +94,7 @@
 
         @await Component.InvokeAsync("Widget", new { widgetZone = "collectiondetails_bottom", additionalData = Model.Id })
     </div>
+</div>
 </div>
 
 @section filters

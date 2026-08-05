@@ -53,11 +53,9 @@
     *@
     <a class="visually-hidden-focusable skip-link" href="#content">@Loc["Common.SkipToContent"]</a>
     <partial name="Partials/Header"/>
-    @*One island for the page body. The chrome around it - header, drawers, cart
-        modals, footer - has islands of its own, so a template error in a view (or
-        in database-authored content rendered into one) can no longer take the
-        navigation and the cart down with it.*@
-    <main id="content" class="container main-container" tabindex="-1" vue-island>
+    @*No island on <main> itself: the views inside it carry their own, so a broken
+        template takes down one block rather than the whole page body.*@
+    <main id="content" class="container main-container" tabindex="-1">
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
         @if (IsSectionDefined("Breadcrumb"))
         {

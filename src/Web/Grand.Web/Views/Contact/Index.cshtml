@@ -6,7 +6,7 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.ContactUs"]);
 }
-<div class="page contact-page">
+<div class="page contact-page" vue-island>
     <h1 class="generalTitle h2">@Loc["Title.ContactUs"]</h1>
     <div class="generalMarginSupporter text-start">
         @await Component.InvokeAsync("PageBlock", new { systemName = "ContactUs" })

@@ -10,7 +10,7 @@
     <h1 class="generalTitle h2">@Loc["Products.RecentlyViewedProducts"]</h1>
     @if (Model.Any())
     {
-        <div class="row product-grid">
+        <div class="row product-grid" vue-island>
             @foreach (var product in Model)
             {
                 <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">

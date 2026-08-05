@@ -6,7 +6,7 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.ReturnItems"]);
 }
-<div class="page return-request-page">
+<div class="page return-request-page" vue-island>
     <h1 class="text-center generalTitle h2">@string.Format(Loc["MerchandiseReturns.Title"], Model.OrderNumber)</h1>
     @if (!string.IsNullOrEmpty(Model.Result))
     {

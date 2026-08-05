@@ -89,8 +89,8 @@
                     </div>
                 </div>
             </div>
-            @*One island for the page body - see the note in Grand.Web's _Layout.cshtml*@
-            <main id="content" class="container right-container" tabindex="-1" vue-island>
+            @*No island on <main> - see the note in Grand.Web's _Layout.cshtml*@
+            <main id="content" class="container right-container" tabindex="-1">
                 @if (IsSectionDefined("Breadcrumb"))
                 {
                     @await RenderSectionAsync("Breadcrumb")

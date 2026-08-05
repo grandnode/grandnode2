@@ -214,6 +214,8 @@ function makeStateVm(options) {
 
 const ISLAND_ATTRIBUTE = 'vue-island'
 const ISLAND_SELECTOR = `[${ISLAND_ATTRIBUTE}]`
+const HOLE_ATTRIBUTE = 'data-vue-island-hole'
+let holeSeq = 0
 
 /**
  * Mounts a small app on every element marked `vue-island` that has not got one
@@ -221,31 +223,75 @@ const ISLAND_SELECTOR = `[${ISLAND_ATTRIBUTE}]`
  * its data, so the header, the drawers and the page body all read and write the
  * same `flycart`, `wishindicator`, `darkMode` and so on.
  *
- * Nested markers are left to the island above them: two apps over the same
- * elements would compile the markup twice and fight over the DOM.
+ * Islands may be nested; see the note below on how the inner ones are carved
+ * out of their parent rather than compiled twice.
  *
- * A template that fails to compile now takes down its own island and nothing
- * else - the whole page used to go with it.
+ * A template that fails to compile takes down its own island and nothing else -
+ * the whole page used to go with it.
  */
 export function mountIslands(root = document) {
     if (!rootVm) return
-    root.querySelectorAll(ISLAND_SELECTOR).forEach(el => {
-        if (el.__vueIsland) return
-        // Skipped, not marked: mounting the island above this one re-creates
-        // every node inside it, so anything written on this element would be
-        // thrown away with it. A partial can be standalone in one theme and
-        // nested in the next - the newsletter block is its own island in
-        // Grand.Web and sits inside the footer in Theme.Modern - so nesting is
-        // a normal outcome rather than a mistake.
-        if (el.parentElement?.closest(ISLAND_SELECTOR)) return
-        el.__vueIsland = true
-        try {
-            const app = makeApp({ data: () => rootVm })
-            islands.push(app.mount(el))
-        } catch (err) {
-            console.error('[grand] island failed to mount', el, err)
+    /*
+     * Outermost first, one level at a time.
+     *
+     * A nested island is lifted out of its parent before the parent compiles,
+     * and put back afterwards: the parent renders a bare placeholder in its
+     * place, so the inner markup is never compiled twice and a syntax error
+     * inside it cannot take the parent down - a broken review block stops at
+     * the review block. The inner islands can only mount on the next pass,
+     * once their parent has rendered the placeholder they slot back into.
+     *
+     * Lifting rather than `v-pre`: v-pre does stop the parent compiling the
+     * subtree, but the parent then re-creates it with setAttribute, and `@click`
+     * is not a valid HTML attribute name - the DOMException took out the whole
+     * parent island.
+     *
+     * Nesting is normal, not a mistake: a partial can be standalone in one
+     * theme and nested in the next (the newsletter block is its own island in
+     * Grand.Web and sits inside the footer in Theme.Modern), and the product
+     * page renders reviews, ask-a-question and the related-product grids inside
+     * the add-to-cart form.
+     */
+    const hasPendingAncestor = el => {
+        for (let a = el.parentElement?.closest(ISLAND_SELECTOR); a; a = a.parentElement?.closest(ISLAND_SELECTOR)) {
+            if (!a.__vueIsland) return true
         }
-    })
+        return false
+    }
+
+    for (let depth = 0; depth < 10; depth++) {
+        const outermost = [...root.querySelectorAll(ISLAND_SELECTOR)]
+            .filter(el => !el.__vueIsland && !hasPendingAncestor(el))
+        if (!outermost.length) return
+
+        const holes = new Map()
+        outermost.forEach(el => {
+            el.querySelectorAll(ISLAND_SELECTOR).forEach(inner => {
+                const key = 'h' + (holeSeq++)
+                // same tag and classes, so the parent lays out as it will once
+                // the real subtree is back
+                const placeholder = document.createElement(inner.tagName)
+                placeholder.className = inner.className
+                placeholder.setAttribute(HOLE_ATTRIBUTE, key)
+                holes.set(key, inner)
+                inner.replaceWith(placeholder)
+            })
+            el.__vueIsland = true
+            try {
+                const app = makeApp({ data: () => rootVm })
+                islands.push(app.mount(el))
+            } catch (err) {
+                console.error('[grand] island failed to mount', el, err)
+            }
+        })
+
+        // back into whatever the parent rendered; a placeholder that never made
+        // it into the output (a v-if that was false) simply drops its island
+        holes.forEach((node, key) => {
+            const placeholder = root.querySelector(`[${HOLE_ATTRIBUTE}="${key}"]`)
+            if (placeholder) placeholder.replaceWith(node)
+        })
+    }
 }
 
 /**

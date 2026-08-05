@@ -1,4 +1,4 @@
-@model SearchModel
+﻿@model SearchModel
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_TwoColumns";
@@ -97,7 +97,7 @@
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_before_results" })
     <div class="search-results">
-        <div id="catalog-products">
+        <div id="catalog-products" vue-island>
             @await Component.InvokeAsync("Widget", new { widgetZone = "productsearch_page_before_results" })
             <partial name="Partials/Selectors"/>
             <template v-if="catalog.Model.Products.length > 0">

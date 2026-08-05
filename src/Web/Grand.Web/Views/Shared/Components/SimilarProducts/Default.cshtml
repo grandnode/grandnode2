@@ -1,7 +1,7 @@
 ﻿@model IList<ProductOverviewModel>
 @if (Model.Any())
 {
-    <div class="similar-products-grid product-grid col-12 px-0">
+    <div class="similar-products-grid product-grid col-12 px-0" vue-island>
         <h2 class="h3 generalTitle text-center">@Loc["Products.SimilarProducts"]</h2>
         <div class="row">
             @foreach (var item in Model)

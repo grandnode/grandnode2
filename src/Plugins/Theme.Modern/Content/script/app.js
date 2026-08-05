@@ -147,8 +147,9 @@ var vm = Vue.shell({
         // carry as a v-bind is applied from here. The initial state is rendered
         // by the layout, which keeps the sidebar from flickering open on load.
         menuToggled: function (value) {
-            var container = document.querySelector('.left-side-container');
-            if (container) container.classList.toggle('toggled', !value);
+            document.querySelectorAll('.left-side-container, #home-page').forEach(function (el) {
+                el.classList.toggle('toggled', !value);
+            });
         }
     },
     methods: {

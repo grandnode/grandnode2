@@ -1,6 +1,6 @@
 ﻿@model IList<ProductOverviewModel>
 @inject DisplayOrderHomePage order
-<div class="product-grid suggested-product-grid order-@order.SuggestedProducts">
+<div class="product-grid suggested-product-grid order-@order.SuggestedProducts" vue-island>
     <h2 class="generalTitle text-center">@Loc["HomePage.Suggested.Products"]</h2>
     <div class="col-12 px-0">
         <div class="row">

@@ -31,7 +31,7 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_before_featured_products", additionalData = Model.Id })
     @*Rendering featured products section*@
     @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_after_featured_products", additionalData = Model.Id })
-    <div id="catalog-products">
+    <div id="catalog-products" vue-island>
         @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_before_filters", additionalData = Model.Id })
         <partial name="Partials/Selectors"/>
         <template v-if="catalog.Model.Products.length > 0">

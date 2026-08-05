@@ -53,7 +53,7 @@
 }
 
 <vc:widget widget-zone="productdetails_after_breadcrumb" additional-data="@Model.Id"></vc:widget>
-<div class="page product-details-page product-standard">
+<div class="page product-details-page product-standard" vue-island>
     <validation-observer ref="ProductFormObserver">
         <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id=@($"product-details-form-{Model.Id}") ref="form" v-on:submit.prevent="formSubmitParam($event, vm.$refs.ProductFormObserver)">
             <div itemscope itemtype="https://schema.org/Product" data-productid="@Model.Id">
