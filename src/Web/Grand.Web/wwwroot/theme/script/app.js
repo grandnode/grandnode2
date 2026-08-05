@@ -233,10 +233,18 @@ var vm = Vue.shell({
                     }
                 },
                 mounted: function () {
-                    var self = this;
+                    /*
+                     * This used to be `this.$refs[el].show()` - a BootstrapVue
+                     * `<b-modal ref>` reaching for the component instance. The
+                     * partials it renders carry no `ref` at all and Bootstrap 5
+                     * modals are plain elements, so the lookup was undefined and
+                     * both popups mounted invisibly. Query the modal out of the
+                     * container instead: its own id duplicates the container's,
+                     * so getElementById would hand back the wrapper.
+                     */
                     this.$nextTick(function () {
-                        var modal = self.$refs[el];
-                        if (modal && modal.show) modal.show();
+                        var modal = container.querySelector('.modal');
+                        if (modal) bootstrap.Modal.getOrCreateInstance(modal).show();
                     });
                 }
             });
