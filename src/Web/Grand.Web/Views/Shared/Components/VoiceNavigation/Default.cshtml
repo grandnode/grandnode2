@@ -2,6 +2,20 @@
 @{
     var lang = contextAccessor.WorkContext.WorkingLanguage.LanguageCulture;
 }
+@*
+    The island wrapper is load-bearing, not decoration. _Layout renders this
+    component straight into <main>, which deliberately carries no island, and the
+    block below is a bare <template> - markup no island compiles renders as
+    nothing at all, with no error and nothing in the DOM to show for it. The
+    button was dead for exactly that reason until this wrapper was added.
+
+    The <template v-if> cannot be the mount point itself: Vue reads a mount
+    point's innerHTML, so a directive on it is ignored.
+
+    The JSON island below stays outside the wrapper - initViews() has already
+    consumed it by the time this mounts, and Vue would otherwise re-render it.
+*@
+<div class="voice-navigation" vue-island="voicenavigator">
 <template v-if="voicenavigator.allowed">
     <button id="voicePageButton"
             @@touchstart="voicenavigator.recording = true"
@@ -35,6 +49,7 @@
         <small class="form-text w-100">@Loc["voicenavigator.voice.annotation"]</small>
     </div>
 </template>
+</div>
 @{
     var voiceCommands = new[] {
         new { name = "cart", url = "/cart", triggers = Loc["voicenavigator.commands.cart"].Value.Split(',') },

@@ -6,6 +6,7 @@
  * view used to build seven near-identical JSON literals by hand.
  */
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { watchMicrophonePermission } from './shared'
 
@@ -18,7 +19,7 @@ function speak(text) {
 }
 
 registerView('voiceNavigation', ({ lang, commands, res }) => {
-    window.voicenavigator = createViewModel({
+    window.voicenavigator = registerViewModel('voicenavigator', createViewModel({
         data: () => ({
             recording: false,
             recognition: null,
@@ -90,5 +91,5 @@ registerView('voiceNavigation', ({ lang, commands, res }) => {
                 this.recognition.addEventListener('result', event => this.handleSpeech(event))
             }
         }
-    })
+    }))
 })
