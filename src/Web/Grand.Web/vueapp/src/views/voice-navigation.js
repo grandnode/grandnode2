@@ -5,7 +5,7 @@
  * The command list and its localized trigger words come from the payload; the
  * view used to build seven near-identical JSON literals by hand.
  */
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 import { watchMicrophonePermission } from './shared'
 
@@ -18,7 +18,7 @@ function speak(text) {
 }
 
 registerView('voiceNavigation', ({ lang, commands, res }) => {
-    window.voicenavigator = new LegacyVue({
+    window.voicenavigator = createViewModel({
         data: () => ({
             recording: false,
             recognition: null,

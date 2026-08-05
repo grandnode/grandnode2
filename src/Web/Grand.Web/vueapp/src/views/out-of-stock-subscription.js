@@ -11,7 +11,7 @@
  * to show and the new button caption.
  */
 import * as bootstrap from 'bootstrap'
-import { onRootReady } from '../compat/core'
+import { onRootReady } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, notifyRequestError } from './shared'
 

@@ -5,8 +5,8 @@
  * dropdowns, tooltips and carousels straight from the data-bs-* attributes the
  * Razor views render. Vue is left with the pieces that are genuinely dynamic.
  *
- * Exposes `window.Vue` - a Vue 2 style compatibility facade (see compat/core.js)
- * used by the Razor views and theme scripts - plus the shared globals
+ * Exposes `window.Vue` - the public Vue surface the Razor views and the theme
+ * script files use (see compat/vue-global.js) - plus the shared globals
  * (bootstrap, axios, Pikaday, $bvToast).
  */
 import 'bootstrap/dist/css/bootstrap.css'
@@ -25,7 +25,8 @@ import * as bootstrap from 'bootstrap'
 import axios from 'axios'
 import Pikaday from 'pikaday'
 
-import LegacyVue, { onAppCreate, onBeforeRootMount, mountIslands } from './compat/core'
+import { onAppCreate, onBeforeRootMount, mountIslands } from './runtime/islands'
+import StorefrontVue from './compat/vue-global'
 import { registerBvComponents, VueGallerySlideshow } from './compat/bv-components'
 import { registerValidation, veeGetMessage } from './compat/validate'
 import { $bvToast } from './compat/bv-services'
@@ -106,6 +107,17 @@ if (document.readyState === 'loading') {
 }
 
 /*
+ * Dismisses the tooltip on an element. A touch leaves the tooltip on screen with
+ * nothing to close it - there is no mouseleave on a phone - so the voice-search
+ * button asks for it explicitly on touchend. Replaces the BootstrapVue
+ * `$root.$emit('bv::hide::tooltip')` the templates used to send into a $root
+ * that no longer has $emit.
+ */
+window.hideTooltip = function (element) {
+    if (element) bootstrap.Tooltip.getInstance(element)?.hide()
+}
+
+/*
  * Per-page view-models are built from the [data-grand-vm] JSON islands. Two
  * triggers, both idempotent:
  *  - right before the islands are mounted, which is the deadline (their
@@ -126,7 +138,7 @@ window.grandInitViews = initViews
 window.grandMountIslands = mountIslands
 
 window.bootstrap = bootstrap
-window.Vue = LegacyVue
+window.Vue = StorefrontVue
 window.axios = axios
 window.Pikaday = Pikaday
 window.VueGallerySlideshow = VueGallerySlideshow

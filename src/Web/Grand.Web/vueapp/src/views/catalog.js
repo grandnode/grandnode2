@@ -13,7 +13,7 @@
  * render: it only takes the list over once `clientRendered` flips, on the first
  * successful sort/filter/page request.
  */
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 import { axios, notify } from './shared'
 
@@ -69,7 +69,7 @@ export function applyCatalogModel(vm, value) {
 }
 
 registerView('catalog', ({ model, res }) => {
-    window.catalog = new LegacyVue({
+    window.catalog = createViewModel({
         data: () => ({
             Model: [],
             pager: [],

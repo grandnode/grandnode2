@@ -1,7 +1,7 @@
 "use strict";
 
 /* Vue 2 -> Vue 3: replaces vue-awesome-swiper (which registered <swiper> and
- * <swiper-slide> via Vue.use, an API the LegacyVue compat shim does not have).
+ * <swiper-slide> via Vue.use, an API the storefront's window.Vue does not have).
  * <swiper>/<swiper-slide> are registered here as thin wrappers around the
  * (framework-agnostic) Swiper core library loaded just before this script. */
 Vue.component('swiper-slide', {

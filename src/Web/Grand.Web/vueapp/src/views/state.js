@@ -15,9 +15,9 @@
  * apostrophe broke the page and a value containing </script> was an injection
  * point. JSON is encoded properly by Json.Serialize.
  */
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 
 registerView('state', ({ name, data }) => {
-    window[name] = new LegacyVue({ data: () => ({ ...data }) })
+    window[name] = createViewModel({ data: () => ({ ...data }) })
 })

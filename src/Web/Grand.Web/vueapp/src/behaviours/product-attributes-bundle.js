@@ -7,7 +7,7 @@
  * mounted() hook then evaluated. One delegated listener on the bundle container
  * replaces the whole generator.
  */
-import LegacyVue from '../compat/core'
+import { registerComponent } from '../runtime/islands'
 import { registerView } from '../views/index'
 import { axios } from '../views/shared'
 import { delegate } from './dom'
@@ -32,7 +32,7 @@ delegate('click', '[data-bundle-product] [id^="product_attribute_"]',
     control => reprice(control.closest('[data-bundle-product]')))
 
 registerView('productAttributesBundle', ({ componentName, templateId, containerId, attributes }) => {
-    LegacyVue.component(componentName, {
+    registerComponent(componentName, {
         template: templateId,
         data: () => ({ productAttributes: attributes }),
         mounted() {

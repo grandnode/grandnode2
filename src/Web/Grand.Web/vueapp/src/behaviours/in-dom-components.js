@@ -6,12 +6,12 @@
  * The template stays in the markup - it is Razor-rendered and theme-specific -
  * and only the registration moves here.
  */
-import LegacyVue from '../compat/core'
+import { registerComponent } from '../runtime/islands'
 import { registerView } from '../views/index'
 
 registerView('inDomComponents', ({ components }) => {
     components.forEach(({ name, template, props }) => {
-        LegacyVue.component(name, {
+        registerComponent(name, {
             template,
             props: (props || []).reduce((definition, prop) => {
                 definition[prop] = null

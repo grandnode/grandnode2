@@ -11,7 +11,7 @@
  * one per helpfulness vote - notify() replaces all of them.
  */
 import * as bootstrap from 'bootstrap'
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 import { axios, notify, notifyRequestError } from './shared'
 
@@ -21,7 +21,7 @@ registerView('reviews', payload => {
         helpfulness, res
     } = payload
 
-    const vm = new LegacyVue({
+    const vm = createViewModel({
         data: () => ({
             Model: payload.model,
             rating: null,

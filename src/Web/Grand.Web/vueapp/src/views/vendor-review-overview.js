@@ -5,11 +5,11 @@
  * thing without the extra state, and guards the divide-by-zero that bound NaN
  * into the stars when a vendor had no reviews yet.
  */
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 
 registerView('vendorReviewOverview', ({ model }) => {
-    window.vendorreviewsoverview = new LegacyVue({
+    window.vendorreviewsoverview = createViewModel({
         data: () => ({ Model: model }),
         computed: {
             rating() {

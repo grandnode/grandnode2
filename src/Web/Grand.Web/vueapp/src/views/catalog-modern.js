@@ -13,13 +13,13 @@
  * `AjaxFilter` is a global from a separate plugin and may legitimately not be
  * there, hence the typeof guards.
  */
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 import { applyCatalogModel } from './catalog'
 import { axios, notify } from './shared'
 
 registerView('catalogModern', ({ model, res }) => {
-    window.catalog = new LegacyVue({
+    window.catalog = createViewModel({
         data: () => ({
             Model: [],
             pager: [],

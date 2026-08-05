@@ -7,7 +7,7 @@
  * element at registration time is thrown away, and a DOM change made then is
  * read back as part of the template. Both of these avoid that.
  */
-import { onRootReady } from '../compat/core'
+import { onRootReady } from '../runtime/islands'
 
 /** Runs `fn` once the root app has rendered its markup. */
 export function onReady(fn) {

@@ -2,7 +2,7 @@
  * Puts the caret in the search field when the search modal opens
  * (was the inline script in Views/Shared/Partials/Header.cshtml).
  */
-import { getRootVm } from '../compat/core'
+import { getRootVm } from '../runtime/islands'
 import { registerView } from '../views/index'
 import { delegate } from './dom'
 

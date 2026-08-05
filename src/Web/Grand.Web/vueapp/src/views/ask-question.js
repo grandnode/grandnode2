@@ -7,14 +7,15 @@
  * posts. The fields are read from the root vm's $refs because the markup is
  * part of #app's template.
  */
-import LegacyVue, { getRootVm } from '../compat/core'
+import { createViewModel } from '../compat/view-model'
+import { getRootVm } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, formData, notifyRequestError } from './shared'
 
 const FIELDS = ['AskQuestionEmail', 'AskQuestionFullName', 'AskQuestionPhone', 'AskQuestionMessage']
 
 registerView('askQuestion', ({ data, captchaTarget, res }) => {
-    window.askquestion = new LegacyVue({
+    window.askquestion = createViewModel({
         data: () => ({ ...data }),
         methods: {
             async sendContactUsForm(url) {

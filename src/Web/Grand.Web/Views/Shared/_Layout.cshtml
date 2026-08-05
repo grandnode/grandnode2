@@ -29,7 +29,7 @@
 
 @*
     #app is a plain wrapper now - a styling hook, not a Vue mount point. Vue only
-    takes over the elements marked `vue-island`; see vueapp/src/compat/core.js.
+    takes over the elements marked `vue-island`; see vueapp/src/runtime/islands.js.
     Its dark-theme attribute is set before the first paint by Partials/ColorScheme
     (it used to be a v-bind here, which Vue 3 ignores on a mount point anyway).
 

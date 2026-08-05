@@ -16,7 +16,7 @@
  * in the payload says where it goes.
  */
 import * as bootstrap from 'bootstrap'
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 import { axios, notify, notifyRequestError } from './shared'
 
@@ -27,7 +27,7 @@ function moveCaptcha(targetId) {
 }
 
 registerView('contactForm', ({ name, data, formId, submitMethod, modalId, captcha, res }) => {
-    const vm = new LegacyVue({
+    const vm = createViewModel({
         data: () => ({
             ...data,
             Message: { Result: null, SuccessfullySent: false }

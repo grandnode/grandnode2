@@ -3,7 +3,7 @@
  * (was Views/Shared/Partials/Notifications.cshtml, which called
  * vm.displayBarNotification directly from a footer script ordered after app.js).
  */
-import { onRootReady } from '../compat/core'
+import { onRootReady } from '../runtime/islands'
 import { registerView } from '../views/index'
 
 registerView('barNotifications', ({ messages }) => {

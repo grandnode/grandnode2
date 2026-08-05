@@ -5,7 +5,7 @@
  * The two views carried the same code twice, differing only in the global name,
  * the form id and whether there was a title field. One factory covers both.
  */
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 import { axios } from './shared'
 
@@ -13,7 +13,7 @@ registerView('comments', ({ name, formId, comments, fields }) => {
     const blank = {}
     fields.forEach(field => { blank[field] = '' })
 
-    window[name] = new LegacyVue({
+    window[name] = createViewModel({
         data: () => ({ Model: comments, ...blank }),
         methods: {
             submitComment() {

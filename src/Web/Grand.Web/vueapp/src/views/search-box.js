@@ -7,7 +7,8 @@
  * /catalog/searchtermautocomplete 600ms later. The handle now lives with the
  * view-model, which is what the 600ms was for.
  */
-import LegacyVue, { getRootVm } from '../compat/core'
+import { createViewModel } from '../compat/view-model'
+import { getRootVm } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, watchMicrophonePermission } from './shared'
 
@@ -20,7 +21,7 @@ function bySearchType(items, type) {
 registerView('searchBox', ({ lang, routes, res }) => {
     let delayTimer = null
 
-    window.searchbox = new LegacyVue({
+    window.searchbox = createViewModel({
         data: () => ({
             recording: false,
             recognition: null,

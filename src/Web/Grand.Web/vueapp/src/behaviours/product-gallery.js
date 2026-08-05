@@ -6,7 +6,7 @@
  * both built their template - and the image array - as a Razor-interpolated JS
  * string. The markup is here, the pictures come in on the payload.
  */
-import LegacyVue from '../compat/core'
+import { registerComponent } from '../runtime/islands'
 import { VueGallerySlideshow } from '../compat/bv-components'
 import { registerView } from '../views/index'
 import { delegate } from './dom'
@@ -27,7 +27,7 @@ const TEMPLATES = {
 }
 
 registerView('productGallery', ({ componentName, variant, mainImageId, images }) => {
-    LegacyVue.component(componentName, {
+    registerComponent(componentName, {
         template: TEMPLATES[variant](mainImageId),
         data: () => ({ images, index: null }),
         components: { VueGallerySlideshow }

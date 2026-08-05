@@ -5,12 +5,12 @@
  * callback, which does nothing - the visitor got an alert and the form posted
  * anyway. Preventing the default on the click actually stops the submit.
  */
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 import { notify } from './shared'
 
 registerView('applyVendor', ({ model, res }) => {
-    window.applyvendor = new LegacyVue({
+    window.applyvendor = createViewModel({
         data: () => ({
             Name: model.Name,
             Email: model.Email,

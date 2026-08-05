@@ -5,11 +5,11 @@
  * Works together with catalog-modern.js: that module appends each new page and
  * clears `stop` once the response is in, which re-arms the scroll handler.
  */
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 
 registerView('scrollPagination', () => {
-    const vm = new LegacyVue({
+    const vm = createViewModel({
         data: () => ({ stop: false }),
         methods: {
             next() {

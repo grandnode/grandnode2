@@ -10,11 +10,12 @@
  * The two themes differ only in where the list comes from: the default theme
  * serializes it into the page, Modern asks the root vm to fetch it.
  */
-import LegacyVue, { onRootReady } from '../compat/core'
+import { createViewModel } from '../compat/view-model'
+import { onRootReady } from '../runtime/islands'
 import { registerView } from './index'
 
 registerView('compareProducts', ({ model, specificationAttributes, loadRoute }) => {
-    window.specificationAttributes = new LegacyVue({
+    window.specificationAttributes = createViewModel({
         data: () => ({ Model: specificationAttributes })
     })
 

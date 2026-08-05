@@ -4,14 +4,14 @@
  * One `quantity_<itemId>` field per returnable line, which is why the state has
  * to be built from the payload rather than declared literally.
  */
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 
 registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds }) => {
     const quantities = {}
     itemIds.forEach(id => { quantities['quantity_' + id] = '0' })
 
-    window.merchandisereturns = new LegacyVue({
+    window.merchandisereturns = createViewModel({
         data: () => ({
             ...(showPickupDate ? { PickupDate: pickupDate ?? '' } : {}),
             newAddress: false,

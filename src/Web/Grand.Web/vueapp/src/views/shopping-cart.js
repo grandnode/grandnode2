@@ -5,14 +5,14 @@
  * page - and the root #app template - address it by that name.
  */
 import * as bootstrap from 'bootstrap'
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 import { axios, formData, notify, notifyRequestError } from './shared'
 
 registerView('shoppingCart', ({ model, routes, res }) => {
     const warn = message => notify(message, res.warning)
 
-    window.vmorder = new LegacyVue({
+    window.vmorder = createViewModel({
         data: () => ({
             cart: model,
             totals: null,

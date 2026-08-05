@@ -12,7 +12,8 @@
  * slide (falling back to the <img> for grouped products). `picture` in the
  * payload picks between them.
  */
-import LegacyVue, { onRootReady } from '../compat/core'
+import { createViewModel } from '../compat/view-model'
+import { onRootReady } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, notifyRequestError } from './shared'
 
@@ -61,7 +62,7 @@ function updatePicture(productId, url, mode) {
 }
 
 registerView('productAttributes', ({ productId, attributes, route, picture, res }) => {
-    const vm = new LegacyVue({
+    const vm = createViewModel({
         data: () => ({ ProductAttributes: attributes }),
         methods: {
             attrchange() {

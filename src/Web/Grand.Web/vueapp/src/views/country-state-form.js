@@ -14,7 +14,8 @@
  * and survives Vue re-rendering the selects, which a directly attached listener
  * would not.
  */
-import LegacyVue, { onRootReady } from '../compat/core'
+import { createViewModel } from '../compat/view-model'
+import { onRootReady } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, notifyRequestError } from './shared'
 
@@ -67,7 +68,7 @@ function delegate() {
 }
 
 registerView('countryStateForm', form => {
-    window[form.name] = new LegacyVue({ data: () => ({ ...form.data }) })
+    window[form.name] = createViewModel({ data: () => ({ ...form.data }) })
 
     forms.set(form.name, form)
     delegate()

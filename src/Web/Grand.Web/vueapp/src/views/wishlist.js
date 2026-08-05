@@ -4,12 +4,12 @@
  * Published as the global `vmwishlist` - the wishlist markup binds to it.
  */
 import * as bootstrap from 'bootstrap'
-import LegacyVue from '../compat/core'
+import { createViewModel } from '../compat/view-model'
 import { registerView } from './index'
 import { axios, formData, notify, notifyRequestError } from './shared'
 
 registerView('wishlist', ({ model, routes, res }) => {
-    window.vmwishlist = new LegacyVue({
+    window.vmwishlist = createViewModel({
         data: () => ({
             Model: model,
             PopupUpdateVueModal: null
