@@ -8,16 +8,17 @@
 }
 <input asp-for="Id" type="hidden"/>
 @*
-    The declaration lives here rather than on each host view because the name
-    carries the field prefix, and the six hosts use five different ones -
-    Address, BillingNewAddress, ShippingNewAddress, MerchandiseReturnNewAddress.
-    Declaring it once here is automatically right for all of them, including
-    Theme.Modern's account views, which render this same partial.
+    Deliberately NOT an island, however tempting: <validation-observer> wraps this
+    partial from the host view, and the <validation-provider>s are inside it.
+    Making this element an island puts the providers in a separate Vue app, and
+    provide/inject does not cross apps - the observer then registers zero fields
+    and handleSubmit reports valid whatever the form contains. It submitted an
+    empty required address that way.
 
-    The marker goes on the form's own .edit-address row: a new wrapper element
-    would sit between .row and its .col-* children and break the grid.
+    So the `createorupdateaddress<prefix>` view-model has to be declared on
+    whichever island already contains the observer, in the host view.
 *@
-<div class="edit-address row" vue-island="@addressVmName">
+<div class="edit-address row">
     @if (Model.NameEnabled)
     {
         <div class="form-group col-sm-12 col-md-12">
