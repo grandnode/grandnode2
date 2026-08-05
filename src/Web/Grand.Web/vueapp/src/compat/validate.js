@@ -7,14 +7,25 @@
  */
 import { h } from 'vue'
 
-export function veeGetMessage(field, rule) {
+/**
+ * The message a field carries for a rule, read from its `data-val-*` attribute.
+ *
+ * `scope` is the provider's own element. Without it this searched the whole
+ * document and took the first match, so two fields sharing a name - the page and
+ * the quick-view modal render the same forms - would answer with each other's
+ * message. Nothing on the storefront currently duplicates a *validated* name, so
+ * this was a trap rather than a live fault; it is the same shape as the bug that
+ * broke reservation dates in quick view.
+ *
+ * Falls back to the document when called without a scope, which is how
+ * window.vee_getMessage is used from outside the bundle.
+ */
+export function veeGetMessage(field, rule, scope) {
     if (!field) return null
-    const elements = document.getElementsByName(field)
-    if (elements && elements[0]) {
-        const text = elements[0].getAttribute('data-val-' + rule)
-        if (text) return text
-    }
-    return null
+    const root = scope || document
+    const escaped = typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(field) : field
+    const element = root.querySelector(`[name="${escaped}"]`)
+    return element?.getAttribute('data-val-' + rule) || null
 }
 
 /*
@@ -37,17 +48,18 @@ function localized(key, fallback, param) {
     return param === undefined ? text : String(text).replace('{0}', param)
 }
 
+/* `scope` is the provider's element - see veeGetMessage. */
 const messages = {
-    required: (f, p, msg) =>
-        veeGetMessage(f, 'required') || msg || localized('required', 'This field is required.'),
-    email: f =>
-        veeGetMessage(f, 'email') || localized('email', 'This field must be a valid email.'),
-    confirmed: f =>
-        veeGetMessage(f, 'equalto') || localized('confirmed', 'The confirmation does not match.'),
-    min: (f, p) =>
-        veeGetMessage(f, 'min') || localized('minlength', 'This field should be at least {0} characters.', p),
-    max: (f, p) =>
-        veeGetMessage(f, 'max') || localized('maxlength', 'This field should be at most {0} characters.', p),
+    required: (f, p, msg, scope) =>
+        veeGetMessage(f, 'required', scope) || msg || localized('required', 'This field is required.'),
+    email: (f, p, msg, scope) =>
+        veeGetMessage(f, 'email', scope) || localized('email', 'This field must be a valid email.'),
+    confirmed: (f, p, msg, scope) =>
+        veeGetMessage(f, 'equalto', scope) || localized('confirmed', 'The confirmation does not match.'),
+    min: (f, p, msg, scope) =>
+        veeGetMessage(f, 'min', scope) || localized('minlength', 'This field should be at least {0} characters.', p),
+    max: (f, p, msg, scope) =>
+        veeGetMessage(f, 'max', scope) || localized('maxlength', 'This field should be at most {0} characters.', p),
     exact_length: (f, p, msg) =>
         msg || localized('exactlength', 'Select at least {0} option.', p)
 }
@@ -93,8 +105,21 @@ const validators = {
         const other = provider.observer ? provider.observer.findProvider(target) : null
         return other ? value === other.getValue() : true
     },
-    exact_length(value) {
-        return !(value && value.length < 1) && !isEmpty(value)
+    /*
+     * Despite the name this is "at least N", which is what its message says and
+     * what the checkbox groups using it mean. It used to ignore the parameter
+     * altogether and only test for non-empty, so `exact_length:3` behaved exactly
+     * like `exact_length:1` - harmless while every call site passes 1, and a
+     * silent wrong answer the first time one does not.
+     */
+    exact_length(value, param) {
+        if (isEmpty(value)) return false
+        const raw = Array.isArray(param) ? param[0] : param
+        const min = parseInt(raw, 10)
+        const required = Number.isNaN(min) ? 1 : min
+        // a checkbox group reports an array; anything else is measured as text
+        const length = value.length !== undefined ? value.length : String(value).length
+        return length >= required
     }
 }
 
@@ -227,7 +252,9 @@ export const ValidationProvider = {
                     const msgFn = messages[rule.name]
                     const p = Array.isArray(rule.params) ? rule.params[0] : rule.params
                     const msg = (rule.params && rule.params[1]) || declaredMessage
-                    errors.push(msgFn ? msgFn(this.fieldName(), p, msg) : localized('invalid', 'Invalid value.'))
+                    errors.push(msgFn
+                        ? msgFn(this.fieldName(), p, msg, this.$el)
+                        : localized('invalid', 'Invalid value.'))
                 }
             }
             this.errors = errors
