@@ -43,7 +43,24 @@ registerView('reviews', payload => {
                 }).catch(error => notifyRequestError(error, res.warning))
             },
             [methods.addReview]() {
-                bootstrap.Modal.getOrCreateInstance(document.getElementById(modalId)).show()
+                const modal = document.getElementById(modalId)
+                /*
+                 * The review modal is rendered inside the "Reviews" tab pane, and
+                 * an inactive pane is display:none - its descendants measure 0x0.
+                 * Opening it from there gives a backdrop over a modal nobody can
+                 * see: the page just greys out. The product page hides that
+                 * because its trigger lives in the same pane; the vendor page's
+                 * "Be the first to review" sits in the rating summary, outside the
+                 * tabs, and hit it every time.
+                 *
+                 * Show the pane first, if there is one to show.
+                 */
+                const pane = modal?.closest('.tab-pane')
+                if (pane && !pane.classList.contains('active')) {
+                    const tab = document.querySelector(`[data-bs-target="#${pane.id}"], #${pane.id}-tab`)
+                    if (tab) bootstrap.Tab.getOrCreateInstance(tab).show()
+                }
+                bootstrap.Modal.getOrCreateInstance(modal).show()
             },
             modalReviewShown() {
                 const modal = document.getElementById(modalId)
