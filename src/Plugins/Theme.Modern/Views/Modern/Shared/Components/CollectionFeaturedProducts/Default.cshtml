@@ -1,29 +1,30 @@
 ﻿@model IList<CollectionModel>
-<template>
-    <div class="home-page-section">
-        <div id="CollectionFeaturedProducts" class="section">
-            <div class="featured-product-grid">
-                <b-tabs class="products-tabs" content-class="products-tabs-content">
-                    <template v-for="(Collection, index) in homePCollectionProducts.Model">
-                        <b-tab :title="Collection.Name" lazy>
-                            <div class="item-row">
-                                <div :key="Model.Id" class="col-for-5-xl col-xl-3 col-lg-3 col-md-4 col-sm-6 col-6" v-for="Model in Collection.FeaturedProducts">
-                                    <product-box-vue :Model="Model"></product-box-vue>
-                                </div>
+<div class="home-page-section" vue-island="homePCollectionProducts">
+    <div id="CollectionFeaturedProducts" class="section">
+        <div class="featured-product-grid">
+            @*v-cloak sits on the block itself now that the root no longer carries it -
+                everything in here is rendered by Vue*@
+            <div class="tabs products-tabs" v-cloak>
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" role="presentation" v-for="(Collection, index) in homePCollectionProducts.Model" :key="'nav-' + index">
+                        <button type="button" class="nav-link" :class="{ active: index === 0 }" role="tab"
+                                data-bs-toggle="tab" :data-bs-target="'#featured-collection-' + index"
+                                :aria-controls="'featured-collection-' + index" :aria-selected="index === 0">{{Collection.Name}}</button>
+                    </li>
+                </ul>
+                <div class="tab-content products-tabs-content">
+                    <div class="tab-pane fade" :class="{ 'show active': index === 0 }" role="tabpanel"
+                         v-for="(Collection, index) in homePCollectionProducts.Model" :key="'pane-' + index"
+                         :id="'featured-collection-' + index">
+                        <div class="item-row">
+                            <div :key="Model.Id" class="col-for-5-xl col-xl-3 col-lg-3 col-md-4 col-sm-6 col-6" v-for="Model in Collection.FeaturedProducts">
+                                <product-box v-bind="{ Model: Model }"></product-box>
                             </div>
-                        </b-tab>
-                    </template>
-                </b-tabs>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</template>
-<script asp-location="Footer" asp-order="300">
-    var homePCollectionProducts = new Vue({
-        data: function () {
-            return {
-                Model: @Json.Serialize(Model)
-            }
-        }
-    });
-</script>
+</div>
+<script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "homePCollectionProducts", data = new { Model } })</script>

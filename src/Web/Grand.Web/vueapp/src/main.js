@@ -1,335 +1,184 @@
-import Vue from 'vue'
-Vue.config.productionTip = true
-
+/*
+ * Storefront bundle entry (Vue 3 + Bootstrap 5).
+ *
+ * Bootstrap's own JavaScript drives modals, offcanvas drawers, collapse, tabs,
+ * dropdowns, tooltips and carousels straight from the data-bs-* attributes the
+ * Razor views render. Vue is left with the pieces that are genuinely dynamic.
+ *
+ * Exposes `window.Vue` - the public Vue surface the Razor views and the theme
+ * script files use (see compat/vue-global.js) - plus the shared globals
+ * (bootstrap, axios, Pikaday, $bvToast).
+ */
 import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-import 'animate.css'
+// The full icon set, deliberately: category, brand and collection icons are stored
+// per record in the database and rendered as `bi bi-@Model.Category.Icon`, so a
+// build-time subset scanned from the views would blank out whatever a merchant had
+// configured.
+import 'bootstrap-icons/font/bootstrap-icons.css'
+// animate.css is not here on purpose: 95 kB of keyframes that only Theme.Modern
+// used, and only for fadeIn - it now ships its own subset from
+// Plugins/Theme.Modern/Content/css/animate-subset.css
 import 'pikaday/css/pikaday.css'
+import './compat/compat.css'
 
-import { LinkPlugin } from 'bootstrap-vue'
-Vue.use(LinkPlugin)
-import { CardPlugin } from 'bootstrap-vue'
-Vue.use(CardPlugin)
-import { ButtonPlugin } from 'bootstrap-vue'
-Vue.use(ButtonPlugin)
-import { ButtonGroupPlugin } from 'bootstrap-vue'
-Vue.use(ButtonGroupPlugin)
-import { LayoutPlugin } from 'bootstrap-vue'
-Vue.use(LayoutPlugin)
-import { ModalPlugin } from 'bootstrap-vue'
-Vue.use(ModalPlugin)
-import { SidebarPlugin } from 'bootstrap-vue'
-Vue.use(SidebarPlugin)
-import { CarouselPlugin } from 'bootstrap-vue'
-Vue.use(CarouselPlugin)
-import { DropdownPlugin } from 'bootstrap-vue'
-Vue.use(DropdownPlugin)
-import { FormCheckboxPlugin } from 'bootstrap-vue'
-Vue.use(FormCheckboxPlugin)
-import { FormRatingPlugin } from 'bootstrap-vue'
-Vue.use(FormRatingPlugin)
-import { FormFilePlugin } from 'bootstrap-vue'
-Vue.use(FormFilePlugin)
-import { ImagePlugin } from 'bootstrap-vue'
-Vue.use(ImagePlugin)
-import { ToastPlugin } from 'bootstrap-vue'
-Vue.use(ToastPlugin)
-import { AlertPlugin } from 'bootstrap-vue'
-Vue.use(AlertPlugin)
-import { TabsPlugin } from 'bootstrap-vue'
-Vue.use(TabsPlugin)
-import { CollapsePlugin } from 'bootstrap-vue'
-Vue.use(CollapsePlugin)
-import { TooltipPlugin } from 'bootstrap-vue'
-Vue.use(TooltipPlugin)
-
-import {
-    BIcon,
-    BIconAspectRatio,
-    BIconCalendar2Check,
-    BIconSearch,
-    BIconTrash,
-    BIconEnvelope,
-    BIconHandThumbsDown,
-    BIconHandThumbsUp,
-    BIconHouseDoor,
-    BIconList,
-    BIconGrid3x2Gap,
-    BIconXCircleFill,
-    BIconClipboardPlus,
-    BIconServer,
-    BIconX,
-    BIconHeart,
-    BIconShuffle,
-    BIconTruck,
-    BIconQuestionCircle,
-    BIconGear,
-    BIconWrench,
-    BIconCart,
-    BIconCashStack,
-    BIconCartCheck,
-    BIconPerson,
-    BIconFileEarmarkEasel,
-    BIconFileEarmarkFont,
-    BIconFileEarmarkCheck,
-    BIconArrowReturnLeft,
-    BIconCloudDownload,
-    BIconSkipBackward,
-    BIconChevronLeft,
-    BIconTrophy,
-    BIconPersonCircle,
-    BIconFileRuled,
-    BIconShop,
-    BIconStar,
-    BIconStarFill,
-    BIconStarHalf,
-    BIconPersonPlus,
-    BIconHandbag,
-    BIconLock,
-    BIconShieldLock,
-    BIconCartX,
-    BIconCart2,
-    BIconLayoutSidebarInset,
-    BIconArrowClockwise,
-    BIconFileEarmarkLock2,
-    BIconFileEarmarkRuled,
-    BIconMoon,
-    BIconSun,
-    BIconFileEarmarkRichtext,
-    BIconHammer,
-    BIconMic,
-    BIconMicMute,
-    BIconCheck,
-    BIconPencil,
-} from 'bootstrap-vue'
-Vue.component('BIcon', BIcon)
-Vue.component('BIconAspectRatio', BIconAspectRatio)
-Vue.component('BIconCalendar2Check', BIconCalendar2Check)
-Vue.component('BIconSearch', BIconSearch)
-Vue.component('BIconTrash', BIconTrash)
-Vue.component('BIconEnvelope', BIconEnvelope)
-Vue.component('BIconHandThumbsDown', BIconHandThumbsDown)
-Vue.component('BIconHandThumbsUp', BIconHandThumbsUp)
-Vue.component('BIconHouseDoor', BIconHouseDoor)
-Vue.component('BIconList', BIconList)
-Vue.component('BIconGrid3x2Gap', BIconGrid3x2Gap)
-Vue.component('BIconXCircleFill', BIconXCircleFill)
-Vue.component('BIconClipboardPlus', BIconClipboardPlus)
-Vue.component('BIconServer', BIconServer)
-Vue.component('BIconX', BIconX)
-Vue.component('BIconHeart', BIconHeart)
-Vue.component('BIconShuffle', BIconShuffle)
-Vue.component('BIconTruck', BIconTruck)
-Vue.component('BIconQuestionCircle', BIconQuestionCircle)
-Vue.component('BIconGear', BIconGear)
-Vue.component('BIconWrench', BIconWrench)
-Vue.component('BIconCart', BIconCart)
-Vue.component('BIconCashStack', BIconCashStack)
-Vue.component('BIconCartCheck', BIconCartCheck)
-Vue.component('BIconPerson', BIconPerson)
-Vue.component('BIconFileEarmarkEasel', BIconFileEarmarkEasel)
-Vue.component('BIconFileEarmarkFont', BIconFileEarmarkFont)
-Vue.component('BIconFileEarmarkCheck', BIconFileEarmarkCheck)
-Vue.component('BIconArrowReturnLeft', BIconArrowReturnLeft)
-Vue.component('BIconCloudDownload', BIconCloudDownload)
-Vue.component('BIconSkipBackward', BIconSkipBackward)
-Vue.component('BIconChevronLeft', BIconChevronLeft)
-Vue.component('BIconTrophy', BIconTrophy)
-Vue.component('BIconPersonCircle', BIconPersonCircle)
-Vue.component('BIconFileRuled', BIconFileRuled)
-Vue.component('BIconShop', BIconShop)
-Vue.component('BIconStar', BIconStar)
-Vue.component('BIconStarFill', BIconStarFill)
-Vue.component('BIconStarHalf', BIconStarHalf)
-Vue.component('BIconPersonPlus', BIconPersonPlus)
-Vue.component('BIconHandbag', BIconHandbag)
-Vue.component('BIconLock', BIconLock)
-Vue.component('BIconShieldLock', BIconShieldLock)
-Vue.component('BIconCartX', BIconCartX)
-Vue.component('BIconCart2', BIconCart2)
-Vue.component('BIconLayoutSidebarInset', BIconLayoutSidebarInset)
-Vue.component('BIconArrowClockwise', BIconArrowClockwise)
-Vue.component('BIconFileEarmarkLock2', BIconFileEarmarkLock2)
-Vue.component('BIconFileEarmarkRuled', BIconFileEarmarkRuled)
-Vue.component('BIconMoon', BIconMoon)
-Vue.component('BIconSun', BIconSun)
-Vue.component('BIconFileEarmarkRichtext', BIconFileEarmarkRichtext)
-Vue.component('BIconHammer', BIconHammer)
-Vue.component('BIconMic', BIconMic)
-Vue.component('BIconMicMute', BIconMicMute)
-Vue.component('BIconCheck', BIconCheck)
-Vue.component('BIconPencil', BIconPencil)
-
-import { ValidationObserver, ValidationProvider } from 'vee-validate';
-Vue.component('ValidationProvider', ValidationProvider);
-Vue.component('ValidationObserver', ValidationObserver);
-
-import { extend, configure } from 'vee-validate';
-
-export const config = {
-    classes: {
-        valid: 'is-valid',
-        invalid: 'is-invalid'
-    },
-};
-
-configure(config);
-
-extend('confirmed', {
-    params: ['target'],
-    // Target here is the value of the target field
-    validate(value, { target }) {
-        return value === target;
-    },
-    message: (fieldName) => {
-        const text = vee_getMessage(fieldName, 'equalto');
-        if (text) {
-            return text;
-        }
-        return 'The ' + fieldName + ' field confirmation does not match.'
-    }
-});
-
-extend('email', {
-    validate: value => {
-        // if the field is empty
-        if (!value) {
-            return true;
-        }
-        // if the field is not a valid email
-        if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
-            return false;
-        }
-        // All is good
-        return true;
-    },
-    message: (fieldName) => {
-        const text = vee_getMessage(fieldName, 'email');
-        if (text) {
-            return text;
-        }
-        return 'This field must be a valid email.'
-    }
-});
-
-extend('required', {
-    params: ['allowFalse'],
-    validate(value, { allowFalse }) {
-        if (allowFalse !== undefined) {
-            if (value === true && !allowFalse) {
-                return {
-                    required: true,
-                    valid: ['', null, undefined].indexOf(value) === -1
-                }
-            }
-        }
-        else {
-            return {
-                required: true,
-                valid: ['', null, undefined].indexOf(value) === -1
-            };
-        }
-    },
-    computesRequired: true,
-    message: (fieldName) => {
-        const text = vee_getMessage(fieldName, 'required');
-        if (text) {
-            return text;
-        }
-        return 'The ' + fieldName + ' field is required.'
-    }
-});
-extend('max', {
-    params: ['target'],
-    options: {
-        hasTarget: true
-    },
-    validate: function (value, ref) {
-        const maxVal = ref.target;
-        const length = value.length;
-
-        if (!value) {
-            return true;
-        }
-
-        if (length > maxVal) {
-            return false;
-        }
-        if (length === maxVal) {
-            return true;
-        }
-        return true;
-    },
-    message: (fieldName) => {
-        const text = vee_getMessage(fieldName, 'max');
-        if (text) {
-            return text;
-        }
-        const element = document.getElementsByName(fieldName);
-        let maxLength = element[0].maxLength;
-
-        return 'This ' + fieldName + ' should be at most ' + maxLength + ' characters.';
-    }
-});
-extend('min', {
-    params: ['target'],
-    options: {
-        hasTarget: true
-    },
-    validate: function (value, ref) {
-        const minVal = ref.target;
-        const length = value.length;
-
-        if (!value) {
-            return true;
-        }
-        if (length < minVal) {
-            return false;
-        }
-
-        return true;
-    },
-    message: (fieldName) => {
-        const text = vee_getMessage(fieldName, 'min');
-        if (text) {
-            return text;
-        }
-        const element = document.getElementsByName(fieldName);
-        let minLength = element[0].minLength;
-
-        return 'This ' + fieldName + ' should be at least ' + minLength + ' characters.'
-    }
-});
-
-extend("exact_length", {
-    params: ["length", "message"],
-    validate(val, { length, message }) {
-        if (val.length < 1)
-            return message ?? "Must have " + length + " items";
-
-        return true;
-    }
-});
-
-export function vee_getMessage(field, rule) {
-    const element = document.getElementsByName(field);
-    if (element && element[0]) {
-        const text = element[0].getAttribute('data-val-' + rule);
-        if (text)
-            return text;
-    }
-}
-
-import VueGallerySlideshow from 'vue-gallery-slideshow'
-
+import * as bootstrap from 'bootstrap'
 import axios from 'axios'
 import Pikaday from 'pikaday'
 
-window.axios = require('axios').default;
-window.Pikaday = require('pikaday');
-window.VueGallerySlideshow = VueGallerySlideshow;
+import { onAppCreate, onBeforeRootMount, mountIslands, getRootVm } from './runtime/islands'
+import StorefrontVue from './compat/vue-global'
+import { registerBvComponents, VueGallerySlideshow } from './compat/bv-components'
+import { registerValidation, veeGetMessage } from './compat/validate'
+import { $bvToast } from './compat/bv-services'
+import { initViews } from './views'
 
-import vueAwesomeCountdown from 'vue-awesome-countdown'
-Vue.use(vueAwesomeCountdown, 'vac')
+// Storefront helpers that used to be classic <script src> tags ordered by hand
+// in Head.cshtml. They publish the globals the Razor markup still calls.
+import './theme/common'
+import './theme/axios-cart'
+import './theme/push-notifications'
+import './behaviours/advanced-search'
+import './behaviours/attribute-forms'
+import './behaviours/bar-notifications'
+import './behaviours/checkout-steps'
+import './behaviours/js-resources'
+import './behaviours/confirm-delete'
+import './behaviours/confirm-post'
+import './behaviours/estimate-shipping'
+import './behaviours/cookie-bar'
+import './behaviours/geolocation'
+import './behaviours/in-dom-components'
+import './behaviours/password-page'
+import './behaviours/product-attributes-bundle'
+import './behaviours/product-gallery'
+import './behaviours/push-notifications'
+import './behaviours/quantity-stepper'
+import './behaviours/quick-view-modal'
+import './behaviours/reservation-info'
+import './behaviours/search-modal'
+import './behaviours/two-columns-sidebar'
+import './behaviours/toggles'
+import './behaviours/username-availability'
+import './behaviours/warehouse-selector'
 
-window.Vue = Vue;
+import './views/state'
+import './views/apply-vendor'
+import './views/ask-question'
+import './views/catalog'
+import './views/catalog-modern'
+import './views/comments'
+import './views/compare-products'
+import './views/contact-form'
+import './views/country-state-form'
+import './views/globals'
+import './views/merchandise-return'
+import './views/out-of-stock-subscription'
+import './views/product-attributes'
+import './views/reviews'
+import './views/scroll-pagination'
+import './views/search-box'
+import './views/shopping-cart'
+import './views/vendor-review-overview'
+import './views/voice-navigation'
+import './views/wishlist'
+
+/*
+ * The globals a Razor template may name in a Vue expression.
+ *
+ * These used to arrive through a Proxy that forwarded *any* miss to `window`.
+ * That made every undeclared view-model work by accident, which is exactly how
+ * missing island declarations stayed invisible, and it turned a typo into
+ * `undefined` instead of a warning. The list is short and now explicit; a name
+ * that is not here is a mistake, and Vue says so.
+ *
+ * `document`, `window` and `location` are here because Vue's own allowed-globals
+ * list does not include them - only Math, JSON, console and friends - so a
+ * template calling document.getElementById() resolves it as an instance property.
+ */
+function installTemplateGlobals(app) {
+    /*
+     * `vm` is layered into every island's data, but an app made with
+     * Vue.createApp() - the popups displayPopup renders - is not an island and
+     * gets no layering, so it needs the shell here too. A getter because the
+     * shell does not exist yet when the first apps are created.
+     */
+    Object.defineProperty(app.config.globalProperties, 'vm', {
+        get: () => getRootVm(),
+        configurable: true
+    })
+    Object.assign(app.config.globalProperties, {
+        window,
+        document,
+        location,
+        localStorage,
+        bootstrap,
+        hideTooltip
+    })
+}
+
+onAppCreate(app => {
+    registerBvComponents(app)
+    registerValidation(app)
+    installTemplateGlobals(app)
+    app.config.globalProperties.$bvToast = $bvToast
+    // warnHandler is silenced (legacy in-DOM templates trigger noisy dev
+    // warnings), but real render/setup errors must stay visible - otherwise
+    // Vue silently swallows them and renders an empty comment node instead.
+    app.config.errorHandler = (err, instance, info) => console.error(err, info)
+})
+
+// One delegated Tooltip instance covers the whole page, including markup Vue
+// renders later - a per-element init would miss everything added after load.
+function initTooltips() {
+    if (document.body.__tooltipDelegate) return
+    document.body.__tooltipDelegate = new bootstrap.Tooltip(document.body, {
+        selector: '[data-bs-toggle="tooltip"]'
+    })
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTooltips)
+} else {
+    initTooltips()
+}
+
+/*
+ * Dismisses the tooltip on an element. A touch leaves the tooltip on screen with
+ * nothing to close it - there is no mouseleave on a phone - so the voice-search
+ * button asks for it explicitly on touchend. Replaces the BootstrapVue
+ * `$root.$emit('bv::hide::tooltip')` the templates used to send into a $root
+ * that no longer has $emit.
+ */
+function hideTooltip(element) {
+    if (element) bootstrap.Tooltip.getInstance(element)?.hide()
+}
+// a declaration, not an assignment, so installTemplateGlobals can hand it to the
+// islands; still on window for markup outside a Vue expression
+window.hideTooltip = hideTooltip
+
+/*
+ * Per-page view-models are built from the [data-grand-vm] JSON islands. Two
+ * triggers, both idempotent:
+ *  - right before the islands are mounted, which is the deadline (their
+ *    templates address the view-models by their global name);
+ *  - on DOMContentLoaded, so data islands on a layout that never defines a
+ *    shell still come up.
+ * Also exposed on window for markup injected after load.
+ */
+onBeforeRootMount(() => initViews())
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initViews())
+} else {
+    initViews()
+}
+window.grandInitViews = initViews
+// markup fetched after load (a widget, a re-rendered block) can bring its own
+// islands up without waiting for a page reload
+window.grandMountIslands = mountIslands
+
+window.bootstrap = bootstrap
+window.Vue = StorefrontVue
+window.axios = axios
+window.Pikaday = Pikaday
+window.VueGallerySlideshow = VueGallerySlideshow
+window.$bvToast = $bvToast
+window.vee_getMessage = veeGetMessage

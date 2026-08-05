@@ -66,77 +66,13 @@ else
             </div>
         </form>
     </validation-observer>
-    <script asp-location="Footer" asp-order="300">
-                var contactvendor = new Vue({
-                    data: () => ({
-                        @{
-                            <text>
-                                FullName: '@Html.Raw(Model.FullName)',
-                                Email: '@Html.Raw(Model.Email)',
-                                Subject: '@Html.Raw(Model.Subject)',
-                                Enquiry: '@Html.Raw(Model.Enquiry)',
-                                Message: {
-                                    Result: null,
-                                    SuccessfullySent: false
-                                }
-                            </text>
-                        }
-                    }),
-                    created() {
-
-                    },
-                    methods: {
-                        getCaptcha() {
-                            @if (Model.DisplayCaptcha)
-                            {
-                                <text>
-                                    var html = document.getElementById("captcha-box");
-                                    document.getElementById("captcha-place").prepend(html);
-                                </text>
-                            }
-                        },
-                        submitVendorContact(url) {
-                            var bodyFormData = new FormData(document.getElementById("vendorContact"));
-                            axios({
-                                url: url,
-                                data: bodyFormData,
-                                method: 'post',
-                                headers: {
-                                    'Accept': 'application/json'                                    
-                                }
-                            }).then(function (response) {
-                                contactvendor.Message.Result = response.data.Result;
-                                contactvendor.Message.SuccessfullySent = response.data.SuccessfullySent;
-
-                                var result = response.data.Result;
-                                var variant = "";
-
-                                if (response.data.SuccessfullySent) {
-                                    variant = "info";
-                                    document.getElementById("vendorContact").style.display = "none";
-                                } else {
-                                    variant = "danger";
-                                }
-
-                                new Vue({
-                                    el: ".modal-place",
-                                    methods: {
-                                        toast() {
-                                            this.$bvToast.toast(result, {
-                                                variant: variant,
-                                                autoHideDelay: 3000,
-                                                solid: true
-                                            })
-                                        }
-                                    },
-                                    mounted: function () {
-                                        this.toast();
-                                    }
-                                });
-                            })
-                        }
-                    }
-                });
-    </script>
+    <script type="application/json" data-grand-vm="contactForm">@Json.Serialize(new {
+                                                                   name = "contactvendor",
+                                                                   formId = "vendorContact",
+                                                                   submitMethod = "submitVendorContact",
+                                                                   data = new { Model.FullName, Model.Email, Model.Subject, Model.Enquiry },
+                                                                   captcha = Model.DisplayCaptcha ? new { tabTarget = "captcha-place" } : null,
+                                                                   res = new { warning = Loc["common.warning"].ToString() }
+                                                               })</script>
 }
 @await Component.InvokeAsync("Widget", new { widgetZone = "contactvendor_bottom" })

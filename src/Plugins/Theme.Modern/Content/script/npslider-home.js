@@ -1,5 +1,4 @@
-﻿Vue.use(VueAwesomeSwiper)
-var hpnslider = new Vue({
+﻿var hpnslider = new Vue({
     data() {
         return {
             Model: null,

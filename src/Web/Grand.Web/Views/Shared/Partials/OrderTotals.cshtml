@@ -1,11 +1,12 @@
-﻿<div v-if="vmorder.totals != null" class="total-info table-responsive px-0">
+﻿@*v-cloak - see the note in Views/Checkout/Partials/ConfirmOrder*@
+<div v-if="vmorder.totals != null" v-cloak class="total-info table-responsive px-0">
     <table class="table table-hover">
         <tbody>
         <tr class="col-12 px-0 order-subtotal d-flex justify-content-start">
             <td class="col-6 cart-total-left">
                 <span>@Loc["ShoppingCart.Totals.SubTotal"]:</span>
             </td>
-            <td class="col-6 cart-total-right  text-right">
+            <td class="col-6 cart-total-right  text-end">
                 <span class="value-summary">{{vmorder.totals.SubTotal}}</span>
             </td>
         </tr>
@@ -13,7 +14,7 @@
             <td class="col-6 cart-total-left">
                 <span>@Loc["ShoppingCart.Totals.SubTotalDiscount"]:</span>
             </td>
-            <td class="col-6 cart-total-right  text-right">
+            <td class="col-6 cart-total-right  text-end">
                 <span class="value-summary">{{vmorder.totals.SubTotalDiscount}}</span>
             </td>
         </tr>
@@ -22,7 +23,7 @@
                 <span>@Loc["ShoppingCart.Totals.Shipping"]:</span>
                 <span v-if="vmorder.totals.RequiresShipping && vmorder.totals.SelectedShippingMethod !== null" class="selected-shipping-method">@Loc["ShoppingCart.Totals.Shipping.Method"].ToString().Replace("{0}", "{{vmorder.totals.SelectedShippingMethod}}")</span>
             </td>
-            <td class="col-6 cart-total-right  text-right">
+            <td class="col-6 cart-total-right  text-end">
                 <div v-if="vmorder.totals.RequiresShipping">
                     <span v-if="vmorder.totals.Shipping !== null">
                         {{vmorder.totals.Shipping}}
@@ -40,7 +41,7 @@
             <td class="col-6 cart-total-left">
                 <span>@Loc["ShoppingCart.Totals.PaymentMethodAdditionalFee"]:</span>
             </td>
-            <td class="col-6 cart-total-right text-right">
+            <td class="col-6 cart-total-right text-end">
                 <span class="value-summary">{{vmorder.totals.PaymentMethodAdditionalFee}}</span>
             </td>
         </tr>
@@ -51,7 +52,7 @@
                     @Loc["ShoppingCart.Totals.TaxRateLine"].ToString().Replace("{0}", "{{taxRate.Rate}}")
                 </span>
             </td>
-            <td class="col-6 cart-total-right text-right">
+            <td class="col-6 cart-total-right text-end">
                 <span>{{taxRate.Value}}</span>
             </td>
         </tr>
@@ -59,7 +60,7 @@
             <td class="col-6 cart-total-left">
                 <span>@Loc["ShoppingCart.Totals.Tax"]:</span>
             </td>
-            <td class="col-6 cart-total-right  text-right">
+            <td class="col-6 cart-total-right  text-end">
                 <span class="value-summary">{{vmorder.totals.Tax}}</span>
             </td>
         </tr>
@@ -67,7 +68,7 @@
             <td class="col-6 cart-total-left">
                 <span>@Loc["ShoppingCart.Totals.OrderTotalDiscount"]:</span>
             </td>
-            <td class="col-6 cart-total-right  text-right">
+            <td class="col-6 cart-total-right  text-end">
                 <span class="value-summary">{{vmorder.totals.OrderTotalDiscount}}</span>
             </td>
         </tr>
@@ -77,19 +78,19 @@
                 <span>@Loc["ShoppingCart.Totals.GiftVoucherInfo.Code"].ToString().Replace("{0}", "{{gc.CouponCode}}")</span>
                 <span class="giftvoucher-remaining">@Loc["ShoppingCart.Totals.GiftVoucherInfo.Remaining"].ToString().Replace("{0}", "{{gc.Remaining}}")</span>
             </td>
-            <td class="col-6 cart-total-right  text-right">
+            <td class="col-6 cart-total-right  text-end">
                 <span class="value-summary">{{gc.Amount}}</span>
 
-                <b-button v-if="vmorder.cart.IsEditable" variant="danger" type="button" name="removegiftvoucher" id="remove-gift-card-button" @@click="vmorder.removeGiftVoucher('@Url.RouteUrl("RemoveGiftVoucherCode")?giftVoucherId=' + gc.Id)">
+                <button class="btn btn-danger" type="button" v-if="vmorder.cart.IsEditable" name="removegiftvoucher" id="remove-gift-card-button" @@click="vmorder.removeGiftVoucher('@Url.RouteUrl("RemoveGiftVoucherCode")?giftVoucherId=' + gc.Id)">
                     @Loc["Common.Remove"]
-                </b-button>
+                </button>
             </td>
         </tr>
         <tr v-if="vmorder.totals.RedeemedLoyaltyPoints > 0" class="col-12 px-0 loyalty-points d-flex justify-content-start">
             <td class="col-6 cart-total-left">
                 <span>@Loc["ShoppingCart.Totals.LoyaltyPoints"].ToString().Replace("{0}", "{{vmorder.totals.RedeemedLoyaltyPoints}}")</span>
             </td>
-            <td class="col-6 cart-total-right  text-right">
+            <td class="col-6 cart-total-right  text-end">
                 <span class="value-summary">{{vmorder.totals.RedeemedLoyaltyPointsAmount}}</span>
             </td>
         </tr>
@@ -97,7 +98,7 @@
             <td class="col-6 cart-total-left">
                 <span>@Loc["ShoppingCart.Totals.OrderTotal"]:</span>
             </td>
-            <td class="col-6 cart-total-right  text-right">
+            <td class="col-6 cart-total-right  text-end">
                 <span v-if="vmorder.totals.OrderTotal !== null" class="value-summary">
                     <strong>{{vmorder.totals.OrderTotal}}</strong>
                 </span>
@@ -108,7 +109,7 @@
             <td class="col-6 cart-total-left">
                 <span>@Loc["ShoppingCart.Totals.LoyaltyPoints.WillEarn"]:</span>
             </td>
-            <td class="col-6 cart-total-right text-right">
+            <td class="col-6 cart-total-right text-end">
                 <span class="value-summary">@Loc["ShoppingCart.Totals.LoyaltyPoints.WillEarn.Point"].ToString().Replace("{0}", "{{vmorder.totals.WillEarnLoyaltyPoints}}")</span>
             </td>
         </tr>

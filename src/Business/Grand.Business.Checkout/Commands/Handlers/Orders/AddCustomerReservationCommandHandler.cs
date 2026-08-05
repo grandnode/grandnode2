@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
 using MediatR;
@@ -27,55 +28,17 @@ public class AddCustomerReservationCommandHandler : IRequestHandler<AddCustomerR
                 if (match != null) reservations.Remove(match);
             }
 
-            IGrouping<string, ProductReservation> groupToBook = null;
-
-            var grouped = reservations.GroupBy(x => x.Resource);
-            foreach (var group in grouped)
-            {
-                var groupCanBeBooked = true;
-                if (request.Product.IncBothDate && request.Product.IntervalUnitId == IntervalUnit.Day)
-                    for (var iterator = request.RentalStartDate.Value;
-                         iterator <= request.RentalEndDate.Value;
-                         iterator += new TimeSpan(24, 0, 0))
-                    {
-                        if (group.Select(x => x.Date).Contains(iterator)) continue;
-                        groupCanBeBooked = false;
-                        break;
-                    }
-                else
-                    for (var iterator = request.RentalStartDate.Value;
-                         iterator < request.RentalEndDate.Value;
-                         iterator += new TimeSpan(24, 0, 0))
-                    {
-                        if (group.Select(x => x.Date).Contains(iterator)) continue;
-                        groupCanBeBooked = false;
-                        break;
-                    }
-
-                if (!groupCanBeBooked) continue;
-                groupToBook = group;
-                break;
-            }
+            var groupToBook = reservations.FindGroupToBook(request.Product, request.RentalStartDate.Value,
+                request.RentalEndDate.Value);
 
             if (groupToBook != null)
-            {
-                if (request.Product.IncBothDate && request.Product.IntervalUnitId == IntervalUnit.Day)
-                    foreach (var item in groupToBook.Where(x =>
-                                 x.Date >= request.RentalStartDate && x.Date <= request.RentalEndDate))
-                        await _productReservationService.InsertCustomerReservationsHelper(new CustomerReservationsHelper {
-                            CustomerId = request.Customer.Id,
-                            ReservationId = item.Id,
-                            ShoppingCartItemId = request.ShoppingCartItem.Id
-                        });
-                else
-                    foreach (var item in groupToBook.Where(x =>
-                                 x.Date >= request.RentalStartDate && x.Date < request.RentalEndDate))
-                        await _productReservationService.InsertCustomerReservationsHelper(new CustomerReservationsHelper {
-                            CustomerId = request.Customer.Id,
-                            ReservationId = item.Id,
-                            ShoppingCartItemId = request.ShoppingCartItem.Id
-                        });
-            }
+                foreach (var item in groupToBook.InRentalPeriod(request.Product, request.RentalStartDate.Value,
+                             request.RentalEndDate.Value))
+                    await _productReservationService.InsertCustomerReservationsHelper(new CustomerReservationsHelper {
+                        CustomerId = request.Customer.Id,
+                        ReservationId = item.Id,
+                        ShoppingCartItemId = request.ShoppingCartItem.Id
+                    });
         }
 
         if (!string.IsNullOrEmpty(request.ReservationId))

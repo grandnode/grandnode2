@@ -13,7 +13,7 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.MerchandiseReturns })
 }
 
-<div class="page account-page return-request-list-page pl-lg-3 pt-3 pt-lg-0">
+<div class="page account-page return-request-list-page ps-lg-3 pt-3 pt-lg-0">
     <h1 class="h2 generalTitle">@Loc["Account.CustomerMerchandiseReturns"]</h1>
     @if (Model.Items.Any())
     {
@@ -41,7 +41,7 @@
                         </td>
                         <td>
                             <div class="d-inline-flex align-items-center flex-nowrap">
-                                <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                                <i class="b-icon bi bi-calendar2-check text-info mx-2" aria-hidden="true"></i>
                                 <small class="date text-muted">
                                     <span>@item.CreatedOn.ToString(CultureInfo.InvariantCulture)</span>
                                 </small>

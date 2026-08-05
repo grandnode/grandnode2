@@ -1,30 +1,51 @@
 ﻿@{
+    <partial name="Partials/ColorScheme"/>
+
     <script asp-location="Head" src="/bundles/app.runtime.bundle.js" asp-append-version="true"></script>
-    <script asp-location="Head" src="/bundles/chunk-vendors.runtime.bundle.js" asp-append-version="true"></script>
     <link asp-src="/bundles/libs.css" rel="stylesheet" asp-append-version="true">
 
     <link rel="stylesheet" type="text/css" asp-src="/assets/custom/style.css">
 
+    @*animate.css used to ride along in the shared bundle for both themes; only the
+        handful of classes this theme uses are kept, and only this theme loads them*@
+    <link asp-src="/Plugins/Theme.Modern/Content/css/animate-subset.css" rel="stylesheet" asp-append-version="true">
+
     <link asp-src="/Plugins/Theme.Modern/Content/swiper/swiper.min.css" rel="stylesheet">
-    <link asp-src="/Plugins/Theme.Modern/Content/css/fonts/simple-line-icons.min.css" rel="stylesheet">
+    <link asp-src="/Plugins/Theme.Modern/Content/css/fonts/simple-line-icons.min.css" rel="stylesheet" asp-append-version="true">
 
 
-    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/common/common.css">
-    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/header/header.css">
-    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/catalog/catalog.css">
-    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/product/product.css">
-    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/customer/customer.css">
-    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/cart/cart.css">
-    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/blog-news/blog-news.css">
+    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/common/common.css" asp-append-version="true">
+    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/header/header.css" asp-append-version="true">
+    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/catalog/catalog.css" asp-append-version="true">
+    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/product/product.css" asp-append-version="true">
+    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/customer/customer.css" asp-append-version="true">
+    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/cart/cart.css" asp-append-version="true">
+    <link rel="stylesheet" type="text/css" asp-src="/Plugins/Theme.Modern/Content/css/blog-news/blog-news.css" asp-append-version="true">
 
-    <script asp-location="Footer" asp-src="/theme/script/public.common.js" asp-order="201"></script>
-    <script asp-location="Footer" asp-src="/theme/script/public.axios.js" asp-order="202"></script>
+    <partial name="Partials/JsResources"/>
 
     <script asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/swiper/swiper.min.js" asp-order="298"></script>
-    <script asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/swiper/vue-awesome-swiper.min.js" asp-order="299"></script>
+    <script asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/script/swiper-vue3.js" asp-order="299"></script>
 
     <script asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/script/menu.js" asp-order="902"></script>
-    <script asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/script/app.js" asp-order="903"></script>
+    @*
+        `defer` here is about ordering, not performance. app.js creates the shell and
+        mounts the islands, so every script that has to register something first must
+        run before it. Checkout/Start.cshtml emits public.checkout.js with `defer`
+        (mandatory for Grand.Web, whose bundle is deferred); a plain script runs
+        during parsing, i.e. *ahead* of any deferred one, so a non-deferred app.js
+        mounted the checkout before its controllers existed - "checkout controllers
+        missing - public.checkout.js did not load", and the steps never advanced.
+        Deferred scripts run in document order, and asp-order puts public.checkout.js
+        (300) ahead of this one (903).
 
-    <script asp-location="Footer" asp-src="/assets/custom/script.js" asp-order="906"></script>
+        This is not the `defer` that was tried and reverted for LCP: the bundle above
+        stays parser-blocking, and this file already sits at the end of the body, so
+        the shell now comes up right after parsing instead of just before it.
+    *@
+    <script defer asp-location="Footer" asp-src="/Plugins/Theme.Modern/Content/script/app.js" asp-order="903"></script>
+
+    @*deferred too, so it keeps running *after* app.js the way it always did -
+        deferred scripts execute in document order, which asp-order controls*@
+    <script defer asp-location="Footer" asp-src="/assets/custom/script.js" asp-order="906"></script>
 }

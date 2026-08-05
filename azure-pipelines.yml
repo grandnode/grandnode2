@@ -1,3 +1,13 @@
+trigger:
+  branches:
+    include:
+      - develop
+      - feature/*
+pr:
+  branches:
+    include:
+      - develop
+
 resources:
   containers:
   - container: mongo
@@ -13,8 +23,31 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
-  
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
+  NUGET_PACKAGES: '$(Agent.TempDirectory)/.nuget/packages'
+  NUGET_HTTP_CACHE_PATH: '$(Agent.TempDirectory)/.nuget/http-cache'
+  NUGET_PLUGINS_CACHE_PATH: '$(Agent.TempDirectory)/.nuget/plugins-cache'
+  DOTNET_CLI_HOME: '$(Agent.TempDirectory)'
+  DOTNET_NOLOGO: '1'
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  VSTEST_CONNECTION_TIMEOUT: '120'
+  VSTEST_RESULTS_DIRECTORY: '$(Agent.TempDirectory)/TestResults'
+
 steps:
+- checkout: self
+  clean: true
+  fetchDepth: 1
+
+- bash: |
+    sudo rm -rf /usr/local/lib/android
+    sudo rm -rf /usr/share/swift
+    sudo rm -rf /opt/hostedtoolcache/CodeQL
+    sudo rm -rf /usr/local/share/powershell
+    sudo apt-get clean
+    
+    df -h
+  displayName: Free disk space
+
 - task: UseDotNet@2
   displayName: 'Install .NET Core SDK 10'
   inputs:
@@ -39,14 +72,14 @@ steps:
   inputs:
     command: 'build'
     projects: '**/Grand.Web.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration) --no-restore'
   displayName: 'dotnet build $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test'
   inputs:
     command: 'test'
-    arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura'
+    arguments: '--configuration $(buildConfiguration) --no-restore --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura --results-directory "$(VSTEST_RESULTS_DIRECTORY)"'
     publishTestResults: true
     projects: '**/Tests/**/*.csproj'
 
@@ -54,13 +87,13 @@ steps:
   displayName: 'Publish code coverage report'
   inputs:
     codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+    summaryFileLocation: '$(VSTEST_RESULTS_DIRECTORY)/**/coverage.cobertura.xml'
 
 - task: DotNetCoreCLI@2
   inputs:
     command: publish
     publishWebProjects: True
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    arguments: '--configuration $(buildConfiguration) --no-restore --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: True
 
 - task: PublishPipelineArtifact@1

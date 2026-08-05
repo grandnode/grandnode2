@@ -76,11 +76,11 @@
     padding: 10px;
     border-left: 1px solid #d6d6d6;
     border-bottom: 1px solid #d6d6d6;
-    background-color: #fff;
+    background-color: var(--bs-body-bg);
     line-height: 1;
 }
 .card.post-news .post-date .day {
-    color: #000;
+    color: var(--bs-body-color);
     font-size: 24px;
     font-weight: 700;
 }

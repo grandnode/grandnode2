@@ -2,10 +2,13 @@
     var categoryLink = Url.RouteUrl("Category");
     var productLink = Url.RouteUrl("Product");
 }
-<b-modal id="ModalQuickView" ref="ModalQuickView" :dark-theme="darkMode" @@shown="initReservationQV(), QuickViewShown()" size="xl" centered hide-footer hide-header>
+<div class="modal fade" id="ModalQuickView" tabindex="-1" aria-hidden="true" vue-island>
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
 <template v-if="PopupQuickViewVueModal !== null">
 <form method="post" id="product-details-form" :action="'/' + PopupQuickViewVueModal.SeName">
-<div itemscope itemtype="http://schema.org/Product" :data-productid="PopupQuickViewVueModal.Id">
+<div itemscope itemtype="https://schema.org/Product" :data-productid="PopupQuickViewVueModal.Id">
 <div class="quick-view">
 <div class="col-12 px-0">
 <div class="form-row">
@@ -35,31 +38,31 @@
 <div class="quick-view-overview">
 <template v-if="PopupQuickViewVueModal.Breadcrumb.Enabled">
     <div class="container px-0">
-        <ol class="breadcrumb pt-0 mb-3" itemscope="itemscope" itemtype="http://schema.org/BreadcrumbList">
-            <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+        <ol class="breadcrumb pt-0 mb-3" itemscope="itemscope" itemtype="https://schema.org/BreadcrumbList">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem">
                 <a href="@Url.RouteUrl("HomePage")" target="_self">
-                    <b-icon icon="house-door" scale="1.25" shift-v="1.25" aria-hidden="true"></b-icon>
+                    <i class="b-icon bi bi-house-door" style="font-size:1.25em; position:relative; top:-1.25px" aria-hidden="true"></i>
                     <span itemprop="name">@Loc["Products.Breadcrumb.Top"]</span>
-                    <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                    <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                           id="@Url.RouteUrl("HomePage")">
                     </span>
                     <meta itemprop="position" content="1"/>
                 </a>
             </li>
             <template v-for="(category, index) in PopupQuickViewVueModal.Breadcrumb.CategoryBreadcrumb">
-                <li itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem" class="breadcrumb-item">
+                <li itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem" class="breadcrumb-item">
                     <a :href="category.SeName" target="_self">
                         <span itemprop="name">{{category.Name}}</span>
-                        <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                        <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                               :id="category.SeName">
                         </span>
                         <meta itemprop="position" :content="index + 2"/>
                     </a>
                 </li>
             </template>
-            <li itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem" class="breadcrumb-item active">
+            <li itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem" class="breadcrumb-item active">
                 <strong class="current-item" itemprop="name">{{PopupQuickViewVueModal.Breadcrumb.ProductName}}</strong>
-                <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                <span itemprop="item" itemscope itemtype="https://schema.org/Thing"
                       :id="'@productLink' + PopupQuickViewVueModal.SeName">
                 </span>
                 <meta itemprop="position" content="2"/>
@@ -78,24 +81,23 @@
         <span class="review-count">{{PopupQuickViewVueModal.ProductReviewOverview.TotalReviews}} @Loc["Reviews.Overview.Reviews"]</span>
     </div>
 </template>
-<a class="modal-close" @@click="$bvModal.hide('ModalQuickView')">
-    <b-icon icon="x"></b-icon>
+<a class="modal-close" data-bs-dismiss="modal">
+    <i class="b-icon bi bi-x" aria-hidden="true"></i>
 </a>
-<template>
-    <div class="accordion" role="tablist">
+<div class="accordion" role="tablist">
         <div role="tab">
-            <a v-b-toggle.accordion-qv-details class="btn btn-light collapse-button">
+            <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-details" aria-expanded="true" aria-controls="accordion-qv-details" class="btn btn-light collapse-button">
                 <span class="icons icon-info"></span>
                 <span>@Loc["products.details"]</span>
-                <b-icon icon="chevron-double-down"></b-icon>
+                <i class="b-icon bi bi-chevron-double-down" aria-hidden="true"></i>
             </a>
         </div>
-        <b-collapse class="collapse-panel" visible id="accordion-qv-details" accordion="accordion-qv-details" role="tabpanel">
+        <div class="collapse show collapse-panel" id="accordion-qv-details" role="tabpanel">
             <template v-if="PopupQuickViewVueModal.StockAvailability !== ''">
                 <div class="stock mb-3">
                     <label class="label col-form-label">@Loc["Products.Availability"]:</label>
                     <span class="value" :id="'stock-availability-value-' + PopupQuickViewVueModal.Id">
-                        <link itemprop="availability" href="http://schema.org/InStock"/>
+                        <link itemprop="availability" href="https://schema.org/InStock"/>
                         <template v-if="PopupQuickViewVueModal.StockAvailability !== ''">
                             {{PopupQuickViewVueModal.StockAvailability}}
                         </template>
@@ -118,14 +120,7 @@
                     </table>
                 </div>
             </template>
-            <script asp-location="Footer" asp-order="302">
-                                       Vue.component('product-attribute-quickview', {
-                                           template: '#product-attribute-quickview',
-                                           props: {
-                                               attribute: null
-                                           }
-                                       });
-                                    </script>
+            <script type="application/json" data-grand-vm="inDomComponents">{"components":[{"name":"product-attribute-quickview","template":"#product-attribute-quickview","props":["attribute"]}]}</script>
             @* WAREHOUSES *@
             <partial name="Partials/QuickView/Warehouses"/>
             @* RESERVATIONS *@
@@ -147,16 +142,16 @@
                 </template>
             </template>
             @* END OF ADD TO CART *@
-        </b-collapse>
+        </div>
         <template v-if="PopupQuickViewVueModal.ProductSpecifications.length !== 0">
             <div role="tab">
-                <a v-b-toggle.accordion-qv-spec class="btn btn-light collapse-button">
+                <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-spec" aria-expanded="false" aria-controls="accordion-qv-spec" class="btn btn-light collapse-button collapsed">
                     <span class="icons icon-speedometer"></span>
                     <span>@Loc["Products.Specs"]</span>
-                    <b-icon icon="chevron-double-down"></b-icon>
+                    <i class="b-icon bi bi-chevron-double-down" aria-hidden="true"></i>
                 </a>
             </div>
-            <b-collapse class="collapse-panel" id="accordion-qv-spec" accordion="accordion-qv-spec" role="tabpanel">
+            <div class="collapse collapse-panel" id="accordion-qv-spec" role="tabpanel">
                 <div class="spec-container table-responsive">
                     <table class="table data-table border-bottom-0">
                         <colgroup>
@@ -174,14 +169,14 @@
                                 <td class="border-bottom border-top-0">
                                     <div class="spec-value d-inline-flex w-100">
                                         <template v-if="item.ColorSquaresRgb !== null">
-                                            <div class="color-squares mb-2 mr-2">
+                                            <div class="color-squares mb-2 me-2">
                                                 <span class="color-container" :title="item.ValueRaw">
                                                     <span class="color" v-bind:style="'background-color:' + item.ValueRaw">&nbsp;</span>
                                                 </span>
                                             </div>
                                         </template>
                                         <template v-else>
-                                            <div class="mb-2 mr-2" v-html="item.ValueRaw"></div>
+                                            <div class="mb-2 me-2" v-html="item.ValueRaw"></div>
                                         </template>
                                     </div>
                                 </td>
@@ -190,30 +185,30 @@
                         </tbody>
                     </table>
                 </div>
-            </b-collapse>
+            </div>
         </template>
         <template v-if="PopupQuickViewVueModal.ShortDescription !== null">
             <div role="tab">
-                <a v-b-toggle.accordion-qv-desc class="btn btn-light collapse-button">
+                <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-desc" aria-expanded="true" aria-controls="accordion-qv-desc" class="btn btn-light collapse-button">
                     <span class="icons icon-book-open"></span>
                     <span>@Loc["Products.description"]</span>
-                    <b-icon icon="chevron-double-down"></b-icon>
+                    <i class="b-icon bi bi-chevron-double-down" aria-hidden="true"></i>
                 </a>
             </div>
-            <b-collapse visible class="collapse-panel" id="accordion-qv-desc" accordion="accordion-qv-desc" role="tabpanel">
+            <div class="collapse show collapse-panel" id="accordion-qv-desc" role="tabpanel">
                 <div class="qv-description" v-html="PopupQuickViewVueModal.ShortDescription"></div>
-            </b-collapse>
+            </div>
         </template>
         @* ASSOCIATED PRODUCTS *@
         <template v-if="PopupQuickViewVueModal.ProductType == 10">
             <div role="tab">
-                <a v-b-toggle.accordion-qv-group class="btn btn-light collapse-button">
+                <a data-bs-toggle="collapse" data-bs-target="#accordion-qv-group" aria-expanded="true" aria-controls="accordion-qv-group" class="btn btn-light collapse-button">
                     <span class="icons icon-list"></span>
                     <span>@Loc["admin.catalog.products.associatedproducts"]</span>
-                    <b-icon icon="chevron-double-down"></b-icon>
+                    <i class="b-icon bi bi-chevron-double-down" aria-hidden="true"></i>
                 </a>
             </div>
-            <b-collapse visible class="collapse-panel" id="accordion-qv-group" accordion="accordion-qv-group" role="tabpanel">
+            <div class="collapse show collapse-panel" id="accordion-qv-group" role="tabpanel">
                 <template v-if="PopupQuickViewVueModal.AssociatedProducts.length > 0">
                     <template v-for="variant in PopupQuickViewVueModal.AssociatedProducts">
                         <div class="card overflow-hidden associatedItem mb-3">
@@ -230,7 +225,7 @@
                                             <div class="stock">
                                                 <label class="col-form-label">@Loc["Products.Availability"]:</label>
                                                 <span class="value" :id="'stock-availability-value-' + variant.Id">
-                                                    <link itemprop="availability" href="http://schema.org/InStock"/>
+                                                    <link itemprop="availability" href="https://schema.org/InStock"/>
                                                     {{variant.StockAvailability}}
                                                 </span>
                                             </div>
@@ -259,11 +254,10 @@
                         @Loc["Products.NoAssociatedProducts"]
                     </div>
                 </template>
-            </b-collapse>
+            </div>
         </template>
         @* END OF ASSOCIATED PRODUCTS *@
     </div>
-</template>
 </div>
 </div>
 <partial name="Partials/QuickView/LinkedProducts"/>
@@ -273,4 +267,8 @@
 </div>
 </form>
 </template>
-</b-modal>
+</div>
+        </div>
+    </div>
+</div>
+<script type="application/json" data-grand-vm="quickViewModal">{"elements":{"modalId":"ModalQuickView"}}</script>

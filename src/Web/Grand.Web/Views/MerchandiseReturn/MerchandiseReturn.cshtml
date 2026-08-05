@@ -6,7 +6,7 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.ReturnItems"]);
 }
-<div class="page return-request-page">
+<div class="page return-request-page" vue-island="merchandisereturns">
     <h1 class="text-center generalTitle h2">@string.Format(Loc["MerchandiseReturns.Title"], Model.OrderNumber)</h1>
     @if (!string.IsNullOrEmpty(Model.Result))
     {
@@ -62,7 +62,7 @@
                                             <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
                                             @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                             {
-                                                <a id="attributes-btn" class="btn btn-sm btn-outline-info" v-b-tooltip.html.right.hover title="@Html.Raw(item.AttributeInfo)">Attributes</a>
+                                                <a id="attributes-btn" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true" title="@Html.Raw(item.AttributeInfo)">Attributes</a>
                                             }
                                             @if (!string.IsNullOrEmpty(item.VendorName))
                                             {
@@ -79,7 +79,7 @@
                                             <input type="hidden" asp-for="@Model.Items[j].ProductName"/>
                                             <validation-provider tag="div" rules="required" v-slot="{ errors, classes }">
                                                 <select data-val-required="@(string.Format(Loc["Fields.IsRequired"], Loc["MerchandiseReturns.Products.Quantity"]))"
-                                                        v-bind:class="[classes , 'custom-select form-control']" v-model="merchandisereturns.quantity_@(item.Id)"
+                                                        v-bind:class="[classes , 'form-select form-control']" v-model="merchandisereturns.quantity_@(item.Id)"
                                                         ref="quantity@(item.Id)"
                                                         asp-for="@Model.Items[j].Quantity">
                                                     @for (var i = 0; i <= item.Quantity; i++)
@@ -99,7 +99,7 @@
                                                 }).ToList();
                                             }
                                             <select asp-for="@Model.Items[j].MerchandiseReturnReasonId"
-                                                    asp-items="@reasonsSelectList" class="form-control custom-select return-reasons">
+                                                    asp-items="@reasonsSelectList" class="form-control form-select return-reasons">
                                             </select>
                                         </div>
                                         <div>
@@ -111,7 +111,7 @@
                                                 }).ToList();
                                             }
                                             <select asp-for="@Model.Items[j].MerchandiseReturnActionId"
-                                                    asp-items="@actionsSelectList" class="form-control custom-select return-actions">
+                                                    asp-items="@actionsSelectList" class="form-control form-select return-actions">
                                             </select>
                                         </div>
                                     </td>
@@ -136,7 +136,7 @@
                                     <div class="section select-pickup-address">
                                         <label for="pickup-address-select">@Loc["MerchandiseReturns.SelectPickupAddressOrEnterNewOne"]</label>
                                         <div>
-                                            <select name="PickupAddressId" id="pickup-address-select" class="custom-select address-select"
+                                            <select name="PickupAddressId" id="pickup-address-select" class="form-select address-select"
                                                     title="" @@change="merchandisereturns.isNewAddress()">
                                                 @foreach (var address in Model.ExistingAddresses)
                                                 {
@@ -225,47 +225,13 @@
         </validation-observer>
     }
 </div>
-<script asp-location="Footer" asp-order="300">
-    var merchandisereturns = new Vue({
-        data: () => ({
-            @if (Model.ShowPickupDate)
-            {
-                <text>
-                    PickupDate: '@Html.Raw(Model.PickupDate)',
-                </text>
-            }
-            newAddress: false,
-            @foreach (var item in Model.Items)
-            {
-                <text>quantity_</text>
-                @item.Id
-                <text>: '0',</text>
-            }
-            checkboxes: []
-        }),
-        methods: {
-            allowed(checkbox,element) {
-                if (checkbox.checked) {
-                    vm.$refs[element].removeAttribute("disabled");
-                } else {
-                    vm.$refs[element].setAttribute("disabled", "disabled");
-                }
-            },
-            isNewAddress() {
-                if (document.getElementById('pickup-address-select') !== null) {
-                    const value = document.getElementById('pickup-address-select').value;
-                    if (value === '') {
-                        this.newAddress = true;
-                    } else {
-                        this.newAddress = false;
-                    }
-                } else {
-                    this.newAddress = true;
-                }
-            }
-        },
-        created() {
-            this.isNewAddress();
-        }
-    });
-</script>
+@*
+    PickupDate is formatted for <input type="date">, which only accepts
+    yyyy-MM-dd. It used to be written out with the server's default DateTime
+    formatting, so the input silently rejected it and came up empty.
+*@
+<script type="application/json" data-grand-vm="merchandiseReturn">@Json.Serialize(new {
+                                                                    showPickupDate = Model.ShowPickupDate,
+                                                                    pickupDate = Model.PickupDate?.ToString("yyyy-MM-dd"),
+                                                                    itemIds = Model.Items.Select(item => item.Id)
+                                                                })</script>

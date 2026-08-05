@@ -15,67 +15,12 @@
 
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
-    <script asp-location="Footer" asp-order="300">
-            function @Html.IdFor(model => model.CountryId)_select_element(e) {
-                var selectedItem = e.value;
-                var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-                axios({
-                    method: 'get',
-                    url: "@(Url.RouteUrl("GetStatesByCountryId"))",
-                    params: { "countryId": selectedItem, "addSelectStateItem": "true" },
-                }).then(function (response) {
-                    ddlStates.innerHTML = '';
-                    response.data.forEach(function (id, option) {
-                        elChild = document.createElement('option');
-                        elChild.setAttribute('value', id.id);
-                        elChild.innerHTML = id.name;
-                        ddlStates.appendChild(elChild);
-                    });
-                    customer.StateProvinceId = response.data[0].id;
-                }).then(function () {
-                    ddlStates.classList.remove('is-valid');
-                    ddlStates.classList.add('is-invalid');
-                }).catch(function (error) {
-                    alert(error);
-                });
-            }
-        function @Html.IdFor(model => model.StateProvinceId)_select_element(e) {
-            var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-            if (e.selectedIndex > 0) {
-                ddlStates.classList.remove('is-invalid');
-                ddlStates.classList.add('is-valid');
-            } else {
-                ddlStates.classList.remove('is-valid');
-                ddlStates.classList.add('is-invalid');
-            }
-        }
-    </script>
 }
-<script asp-location="Footer">
-    function toggleNewsletterCat() {
-                var element = document.getElementById('@Html.IdFor(model => model.Newsletter)');
-                if (element) {
-                    if (document.getElementById('@Html.IdFor(model => model.Newsletter)').checked) {
-                        if (document.querySelector('.register-category-newsletter')) {
-                            document.querySelector('.register-category-newsletter').style.display = "block";
-                        }
-                    }
-                    else {
-                        if (document.querySelector('.register-category-newsletter')) {
-                            document.querySelector('.register-category-newsletter').style.display = "none";
-                        }
-                    }
-                }
-    }
-    document.addEventListener("DOMContentLoaded", function () {
-        toggleNewsletterCat();
-    });
-</script>
-<div class="page account-page customer-info-page pl-lg-3 pt-3 pt-lg-0">
+<div class="page account-page customer-info-page ps-lg-3 pt-3 pt-lg-0" vue-island="customer">
 @if (customerSettings.AllowUsersToExportData)
 {
     <button class="btn btn-info float-sm-right mt-2" onclick="location.href='/account/export'">
-        <b-icon icon="server"></b-icon> @Loc["Account.CustomerExportToXls"]
+        <i class="b-icon bi bi-server" aria-hidden="true"></i> @Loc["Account.CustomerExportToXls"]
     </button>
 }
 <h2 class="generalTitle">
@@ -382,8 +327,7 @@
                                 <validation-provider tag="div" rules="required" name="CountryId" v-slot="{ errors, classes }">
                                     <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
                                     <span class="required">*</span>
-                                    <select asp-for="CountryId" asp-items="Model.AvailableCountries"
-                                            onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control custom-select']" v-model="customer.CountryId">
+                                    <select asp-for="CountryId" asp-items="Model.AvailableCountries" v-bind:class="[classes , 'form-control custom-select']" v-model="customer.CountryId">
                                     </select>
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="CountryId"></span>
@@ -407,8 +351,7 @@
                                 {
                                     <span class="required">*</span>
                                 }
-                                <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control"
-                                        onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="customer.StateProvinceId">
+                                <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control" asp-items="Model.AvailableStates" v-model="customer.StateProvinceId">
                                 </select>
                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                 <span asp-validation-for="StateProvinceId"></span>
@@ -488,8 +431,8 @@
                 @if (Model.NewsletterEnabled)
                 {
                     <div class="form-group">
-                        <label for="Newsletter" class="ml-1 custom-control custom-checkbox">
-                            <input class="custom-control-input" asp-for="Newsletter" onchange="toggleNewsletterCat()"/>
+                        <label for="Newsletter" class="ms-1 custom-control custom-checkbox">
+                            <input class="custom-control-input" asp-for="Newsletter"/>
                             <span class="custom-control-label">@Loc["account.fields.newsletter"]</span>
                             <span class="sr-only">@Loc["account.fields.newsletter"]</span>
                         </label>
@@ -590,103 +533,68 @@
 </form>
 </validation-observer>
 </div>
-<script asp-location="Footer" asp-order="300">
-    var customer = new Vue({
-        data: () => ({
-            @{
-            <text>
-                    FirstName: '@Html.Raw(Model.FirstName)',
-                    LastName: '@Html.Raw(Model.LastName)',
-                    Company: '@Html.Raw(Model.Company)',
-                    StreetAddress: '@Html.Raw(Model.StreetAddress)',
-                    StreetAddress2: '@Html.Raw(Model.StreetAddress2)',
-                    ZipPostalCode: '@Html.Raw(Model.ZipPostalCode)',
-                    City: '@Html.Raw(Model.City)',
-                    CountryId: '@Model.CountryId',
-                    StateProvinceId: '@Model.StateProvinceId',
-                    Phone: '@Html.Raw(Model.Phone)',
-                    Fax: '@Html.Raw(Model.Fax)',
-                    Username: '@Html.Raw(Model.Username)',
-                    Email: '@Html.Raw(Model.Email)',
-                    @foreach (var item in Model.CustomerAttributes)
-                    {
-                        @switch (item.AttributeControlType)
-                        {
-                            case AttributeControlType.DropdownList:
-                            {
-                                @foreach (var itemValue in item.Values)
-                                {
-                                    if (itemValue.IsPreSelected)
-                                    {
-                                        <text>customer_attribute_</text>
-                                        @item.Id
-                                        <text>: '@itemValue.Id',</text>
-                                        break;
-                                    }
-
-                                    @:customer_attribute_ @item.Id : '',
-                                }
-                            }
-                                break;
-                            case AttributeControlType.Checkboxes:
-                            case AttributeControlType.RadioList:
-                            case AttributeControlType.ReadonlyCheckboxes:
-                            {
-                                <text>customer_attribute_</text>
-                                @item.Id
-                                <text>: [
-                                        @foreach (var itemValue in item.Values)
-                                        {
-                                            if (itemValue.IsPreSelected)
-                                            {
-                                                <text>'@itemValue.Id',</text>
-                                            }
-                                        }
-                                    ],</text>
-                            }
-                                break;
-                            case AttributeControlType.TextBox:
-                            case AttributeControlType.MultilineTextbox:
-                            {
-                                <text>customer_attribute_</text>
-                                @item.Id
-                                <text>: @if (item.DefaultValue != null)
-                                        {
-                                            <text>'@item.DefaultValue'</text>
-                                        }
-                                        else
-                                        {
-                                            <text>''</text>
-                                        },</text>
-                            }
-                                break;
-                        }
-                    }
-                </text>}
-        }),
-        created() {
-            document.addEventListener("DOMContentLoaded", function () {
-                document.querySelectorAll("[data-checked='true']").forEach(function (element) {
-                    element.checked = true;
-                })
-            });
+@{
+    var customerVmData = new Dictionary<string, object> {
+        ["FirstName"] = Model.FirstName,
+        ["LastName"] = Model.LastName,
+        ["Company"] = Model.Company,
+        ["StreetAddress"] = Model.StreetAddress,
+        ["StreetAddress2"] = Model.StreetAddress2,
+        ["ZipPostalCode"] = Model.ZipPostalCode,
+        ["City"] = Model.City,
+        //empty string, never null: these drive v-model on a <select>, and Vue
+        //matches the option by value - null matches nothing and clears the
+        //selection, where "" selects the "Select country" placeholder. The old
+        //inline script always produced a string because it interpolated into a
+        //JS literal.
+        ["CountryId"] = Model.CountryId ?? "",
+        ["StateProvinceId"] = Model.StateProvinceId ?? "",
+        ["AvailableStates"] = Model.AvailableStates.Select(s => new { id = s.Value, name = s.Text }),
+        ["Phone"] = Model.Phone,
+        ["Fax"] = Model.Fax,
+        ["Username"] = Model.Username,
+        ["Email"] = Model.Email
+    };
+    foreach (var item in Model.CustomerAttributes)
+    {
+        var key = $"customer_attribute_{item.Id}";
+        switch (item.AttributeControlType)
+        {
+            case AttributeControlType.DropdownList:
+                customerVmData[key] = item.Values.FirstOrDefault(v => v.IsPreSelected)?.Id ?? "";
+                break;
+            //A checkbox group binds to an array and a radio group to a scalar, and
+            //the required rule checks the bound value. The empty-string filler the
+            //view used to emit for every unselected option made both look answered:
+            //["", ""] is neither empty nor shorter than one item, so client-side
+            //validation passed with nothing selected and only the server refused
+            //the form - with no message on the field.
+            case AttributeControlType.Checkboxes:
+            case AttributeControlType.ReadonlyCheckboxes:
+                customerVmData[key] = item.Values.Where(v => v.IsPreSelected).Select(v => v.Id).ToList();
+                break;
+            case AttributeControlType.RadioList:
+                customerVmData[key] = item.Values.FirstOrDefault(v => v.IsPreSelected)?.Id ?? "";
+                break;
+            case AttributeControlType.TextBox:
+            case AttributeControlType.MultilineTextbox:
+                customerVmData[key] = item.DefaultValue ?? "";
+                break;
         }
-    });
-    function removeexternalassociation(itemId) {
-        if (confirm('@Loc["Common.AreYouSure"]')) {
-            var bodyFormData = new FormData();
-            bodyFormData.append('Id', itemId);
-            bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
-            axios({
-                method: 'POST',
-                url: '@Url.Action("RemoveExternalAssociation", "Account")',
-                data: bodyFormData,
-            }).then(function (response) {
-                location = response.data.redirect;
-            }).catch(function (error) {
-                alert(error);
-            })
-        }
-        return false;
     }
-</script>
+}
+@*Behaviour lives in vueapp/src/views/country-state-form.js, shared with the address forms.*@
+<script type="application/json" data-grand-vm="countryStateForm">@Json.Serialize(new {
+                                                                    name = "customer",
+                                                                    data = customerVmData,
+                                                                    routes = new { getStates = Url.RouteUrl("GetStatesByCountryId") },
+                                                                    elements = new {
+                                                                        countrySelectId = Html.IdFor(m => m.CountryId),
+                                                                        stateSelectId = Html.IdFor(m => m.StateProvinceId)
+                                                                    },
+                                                                    newsletterToggle = new {
+                                                                        checkboxId = Html.IdFor(m => m.Newsletter),
+                                                                        targetSelector = ".register-category-newsletter"
+                                                                    },
+                                                                    res = new { warning = Loc["common.warning"].ToString() }
+                                                                })</script>

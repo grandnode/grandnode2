@@ -1,14 +1,21 @@
 ﻿"use strict";
 
-Vue.use(VueAwesomeSwiper)
-var vm = new Vue({
-    el: '#app',
+/*
+ * The shell: the state and methods the page chrome shares. See the note in
+ * Grand.Web's theme/script/app.js - this used to be one Vue instance compiling
+ * the whole <body>, and is now a reactive object shared by the `vue-island`
+ * elements Vue actually mounts on.
+ */
+var vm = Vue.shell({
     data: function () {
         return {
             show: false,
             fluid: false,
             hover: false,
-            darkMode: false,
+            // resolved in <head> by Partials/ColorScheme (explicit choice, else the OS
+            // preference). Set here and not in mounted() so the watcher does not fire on
+            // the initial value - that would persist a choice the visitor never made.
+            darkMode: typeof window.grandColorSchemeIsDark === 'function' && window.grandColorSchemeIsDark(),
             active: false,
             NextDropdownVisible: false,
             value: 5,
@@ -60,6 +67,29 @@ var vm = new Vue({
                     slideToClickedSlide: true,
                 },
             },
+            // Product image gallery (see Pictures.cshtml, which sets
+            // window.productGallery before this vm is created). loop mode
+            // needs at least loopedSlides real slides to work; with fewer,
+            // Swiper's loop math breaks and navigation silently does nothing.
+            swiperOptionTop: {
+                loop: !!window.productGallery && window.productGallery.pictureCount > 4,
+                loopedSlides: 4,
+                spaceBetween: 10,
+                navigation: {
+                    nextEl: '#ppslider .swiper-button-next',
+                    prevEl: '#ppslider .swiper-button-prev'
+                },
+            },
+            swiperOptionThumbs: {
+                direction: 'vertical',
+                loop: !!window.productGallery && window.productGallery.pictureCount > 4,
+                loopedSlides: 4,
+                spaceBetween: 10,
+                centeredSlides: true,
+                slidesPerView: 'auto',
+                touchRatio: 0.2,
+                slideToClickedSlide: true,
+            },
         }
     },
     props: {
@@ -75,9 +105,8 @@ var vm = new Vue({
         if (localStorage.fluid == "true") this.fluid = "fluid";
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
-        if (localStorage.darkMode == "true") this.darkMode = true;
         this.TopScroll();
-        //this.wishindicator = parseInt(this.$refs.wishlistQty.innerText);
+        this.wishindicator = this.readWishlistQty();
         this.updateCompareProductsQty();
         this.backToTop();
         if (991 < window.innerWidth) {
@@ -86,6 +115,15 @@ var vm = new Vue({
         window.addEventListener('DOMContentLoaded', () => {
             vm.$forceUpdate();
         });
+        if (window.productGallery) {
+            setTimeout(function () {
+                if (!vm.$refs.swiperTop || !vm.$refs.swiperThumbs) return;
+                const swiperTop = vm.$refs.swiperTop.$swiper
+                const swiperThumbs = vm.$refs.swiperThumbs.$swiper
+                swiperTop.controller.control = swiperThumbs
+                swiperThumbs.controller.control = swiperTop
+            }, 1000)
+        }
     },
     created: function () {
         if (location.pathname !== "/") {
@@ -97,13 +135,27 @@ var vm = new Vue({
             localStorage.fluid = newName;
         },
         darkMode: function (newValue) {
-            localStorage.darkMode = newValue;
+            // fires only when the visitor uses the switch, which is exactly when the
+            // choice should become explicit and stop following the OS
+            window.grandSetColorScheme(newValue);
         },
         PopupQuickViewVueModal: function () {
             vm.getLinkedProductsQV(vm.PopupQuickViewVueModal.Id);
+        },
+        // .left-side-container is the element an island mounts on, and Vue never
+        // sees the attributes of its own mount point - so the class it used to
+        // carry as a v-bind is applied from here. The initial state is rendered
+        // by the layout, which keeps the sidebar from flickering open on load.
+        menuToggled: function (value) {
+            document.querySelectorAll('.left-side-container, #home-page').forEach(function (el) {
+                el.classList.toggle('toggled', !value);
+            });
         }
     },
     methods: {
+        slideToThumb(index) {
+            this.$refs.swiperTop.$swiper.slideTo(index)
+        },
         openMenu(el, mainMenu) {
             var menu = document.getElementById(mainMenu);
             if (menu.classList.contains('show')) {
@@ -298,37 +350,51 @@ var vm = new Vue({
                 alert(error);
             });
         },
+        /*
+         * Mounts server-rendered modal markup (privacy preferences, newsletter
+         * categories) as an app of its own.
+         *
+         * It used to render through `Vue.compile`, which the Vue 3 build does not
+         * expose - the markup silently never appeared. Passing the HTML as the
+         * `template` option compiles it the same way an island does.
+         */
         displayPopup(html, el) {
-            new Vue({
-                el: '#' + el,
-                data: {
-                    template: null,
-                },
-                render: function (createElement) {
-                    if (!this.template) {
-                        return createElement('b-overlay', {
-                            attrs: {
-                                show: 'true'
-                            }
-                        });
-                    } else {
-                        return this.template();
-                    }
-                },
-                methods: {
-                    showModal: function () {
-                        this.$refs[el].show()
+            var container = document.getElementById(el);
+            if (!container) {
+                container = document.createElement('div');
+                container.id = el;
+                document.body.appendChild(container);
+            }
+            if (!vm._popupApps) vm._popupApps = {};
+            if (vm._popupApps[el]) {
+                vm._popupApps[el].unmount();
+                delete vm._popupApps[el];
+            }
+            var popup = Vue.createApp({
+                template: html,
+                data: function () {
+                    return {
+                        darkMode: vm.darkMode
                     }
                 },
                 mounted: function () {
-                    var self = this;
-                    self.template = Vue.compile(html).render;
-                    this.darkMode = vm.darkMode;
-                },
-                updated: function () {
-                    this.showModal();
+                    /*
+                     * This used to be `this.$refs[el].show()` - a BootstrapVue
+                     * `<b-modal ref>` reaching for the component instance. The
+                     * partials it renders carry no `ref` at all and Bootstrap 5
+                     * modals are plain elements, so the lookup was undefined and
+                     * both popups mounted invisibly. Query the modal out of the
+                     * container instead: its own id duplicates the container's,
+                     * so getElementById would hand back the wrapper.
+                     */
+                    this.$nextTick(function () {
+                        var modal = container.querySelector('.modal');
+                        if (modal) bootstrap.Modal.getOrCreateInstance(modal).show();
+                    });
                 }
             });
+            popup.mount(container);
+            vm._popupApps[el] = popup;
         },
         displayBarNotification(message, url, messagetype, timeout) {
             var variant;
@@ -360,6 +426,21 @@ var vm = new Vue({
                 alert(error);
             });
             return false;
+        },
+        /*
+         * Seeds the wishlist counter from the server-rendered header.
+         *
+         * The element only exists when the wishlist is enabled for the current
+         * customer, so reading the ref unguarded threw and aborted the rest of
+         * mounted() - which is why the call had been commented out. The number comes
+         * from data-qty rather than the element text, which is a localized template
+         * a store is free to decorate ("(0)", "0 items") and parseInt cannot read.
+         */
+        readWishlistQty: function () {
+            const el = this.$refs.wishlistQty;
+            if (!el) return undefined;
+            const qty = parseInt(el.dataset.qty, 10);
+            return isNaN(qty) ? undefined : qty;
         },
         updateCompareProductsQty: function () {
             const cookie = AxiosCart.getCookie('Grand.CompareProduct');
@@ -434,9 +515,6 @@ var vm = new Vue({
                 vm.compareproducts.Products.splice(0);
             }
             this.updateCompareProductsQty();
-        },
-        showModalOutOfStock: function () {
-            this.$refs['out-of-stock'].show()
         },
         productImage: function (event) {
             var Imagesrc = event.target.parentElement.getAttribute('data-href');
@@ -526,18 +604,27 @@ var vm = new Vue({
                     if (response.data.stockAvailability) {
                         vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
                     }
-                    if (response.data.enabledattributemappingids) {
-                        for (var i = 0; i < response.data.enabledattributemappingids.length; i++) {
-                            document.querySelector('#product_attribute_label_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
-                            document.querySelector('#product_attribute_input_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
+                    /*
+                     * Conditional attributes: show the rows this choice unlocks, hide the
+                     * ones it rules out.
+                     *
+                     * Scoped to the modal, and null-guarded. Both matter: the product page
+                     * behind the quick view renders the *same* element ids, so a bare
+                     * document.querySelector returned the page's row and left the modal's
+                     * untouched; and when neither exists the unguarded `.style` threw,
+                     * which aborted the rest of this handler.
+                     */
+                    var modal = document.getElementById('ModalQuickView');
+                    var setRows = function (ids, display) {
+                        for (var i = 0; i < (ids || []).length; i++) {
+                            var label = modal && modal.querySelector('#product_attribute_label_' + ids[i]);
+                            var input = modal && modal.querySelector('#product_attribute_input_' + ids[i]);
+                            if (label) label.style.display = display;
+                            if (input) input.style.display = display;
                         }
-                    }
-                    if (response.data.disabledattributemappingids) {
-                        for (var i = 0; i < response.data.disabledattributemappingids.length; i++) {
-                            document.querySelector('#product_attribute_label_' + response.data.disabledattributemappingids[i]).style.display = "none";
-                            document.querySelector('#product_attribute_input_' + response.data.disabledattributemappingids[i]).style.display = "none";
-                        }
-                    }
+                    };
+                    setRows(response.data.enabledattributemappingids, "table-cell");
+                    setRows(response.data.disabledattributemappingids, "none");
                     /*if (response.data.notAvailableAttributeMappingids) {
                         document.querySelectorAll('[data-disable]').forEach((element) => element.disabled = false);
                         for (var i = 0; i < response.data.notAvailableAttributeMappingids.length; i++) {
@@ -547,17 +634,31 @@ var vm = new Vue({
                         }
                     }*/
                     if (response.data.pictureDefaultSizeUrl !== null) {
-                        if (vm.PopupQuickViewVueModal.PictureModels.length > 1) {
-                            const active_img_src = vm.$refs.QuickViewSlider.$swiper.slides[vm.$refs.QuickViewSlider.$swiper.activeIndex].querySelector("img").dataset.srcs;
-                            if (!(active_img_src == response.data.pictureDefaultSizeUrl)) {
-                                vm.$refs.QuickViewSlider.$swiper.slides.forEach(function (element, index) {
-                                    const img_src = element.querySelector('img').dataset.srcs;
-                                    if (img_src == response.data.pictureDefaultSizeUrl) {
-                                        vm.$refs.QuickViewSlider.$swiper.slideTo(index, 1000, false)
+                        /*
+                         * Slide the gallery to the picture the chosen attribute maps to.
+                         *
+                         * The swiper is read defensively: inside the quick view it never
+                         * finishes initialising (no .swiper-initialized, slides is empty),
+                         * so indexing it threw "Cannot read properties of undefined
+                         * (reading 'querySelector')" on *every* attribute change - which
+                         * aborted this handler and left the picture on the old value. The
+                         * single-picture path is the fallback: it swaps the image source
+                         * directly, which is what the visitor actually needs to see.
+                         */
+                        var swiper = vm.$refs.QuickViewSlider && vm.$refs.QuickViewSlider.$swiper;
+                        var slides = (swiper && swiper.slides) || [];
+                        if (vm.PopupQuickViewVueModal.PictureModels.length > 1 && slides.length) {
+                            var active = slides[swiper.activeIndex];
+                            var activeImg = active && active.querySelector("img");
+                            if (!activeImg || activeImg.dataset.srcs != response.data.pictureDefaultSizeUrl) {
+                                Array.prototype.forEach.call(slides, function (element, index) {
+                                    var img = element.querySelector('img');
+                                    if (img && img.dataset.srcs == response.data.pictureDefaultSizeUrl) {
+                                        swiper.slideTo(index, 1000, false)
                                     }
                                 })
                             }
-                        } else {
+                        } else if (vm.PopupQuickViewVueModal.DefaultPictureModel) {
                             vm.PopupQuickViewVueModal.DefaultPictureModel.ImageUrl = response.data.pictureDefaultSizeUrl;
                         }
                     }
@@ -626,8 +727,12 @@ var vm = new Vue({
             });
         },
         warehouse_change_handler(id, url) {
+            //scoped to the modal: the product page behind it uses the same
+            //element id, and getElementById would return that one instead
+            var select = document.querySelector('#ModalQuickView #WarehouseId');
+            if (!select) return;
             var data = new FormData();
-            data.append('warehouseId', document.getElementById('WarehouseId').value);
+            data.append('warehouseId', select.value);
             data.append('productId', id);
             axios({
                 url: url,
@@ -636,6 +741,12 @@ var vm = new Vue({
             }).then(function (response) {
                 if (response.data.stockAvailability) {
                     vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
+                }
+                //an attribute product prices per warehouse too, so let the
+                //attribute handler refresh price and availability together
+                if (vm.PopupQuickViewVueModal.ProductAttributes
+                    && vm.PopupQuickViewVueModal.ProductAttributes.length > 0) {
+                    vm.attrchange(id, true);
                 }
             })
         },

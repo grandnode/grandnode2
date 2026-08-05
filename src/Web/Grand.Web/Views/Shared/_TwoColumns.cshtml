@@ -62,19 +62,34 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_brand", additionalData = Model.Id })
 }
 <div id="TwoColumns" class="row custom-container mt-3">
-    <div class="d-lg-none d-block">
+    <div class="d-lg-none d-block" id="mobile-filters-toggle">
         <div class="col-12">
-            <button id="sidebar-mobile-button" class="btn btn-outline-info" v-b-toggle.sidebar-mobile>
-                <b-icon icon="layout-sidebar-inset"></b-icon> @Loc["catalog.selectors.fiters"]
+            <button id="sidebar-mobile-button" class="btn btn-outline-info" data-bs-toggle="offcanvas" data-bs-target="#sidebar-mobile" aria-controls="sidebar-mobile">
+                <i class="b-icon bi bi-layout-sidebar-inset" aria-hidden="true"></i> @Loc["catalog.selectors.fiters"]
             </button>
         </div>
-        <b-sidebar id="sidebar-mobile"
-                   backdrop
-                   left
-                   shadow>
-        </b-sidebar>
+        <div class="offcanvas offcanvas-start b-sidebar shadow" tabindex="-1" id="sidebar-mobile" aria-labelledby="sidebar-mobile-label">
+                <div class="b-sidebar-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    <strong class="ms-2" id="sidebar-mobile-label"></strong>
+                </div>
+                <div class="b-sidebar-body">
+        </div>
+            </div>
     </div>
-    <div class="col-lg-3 col-md-12 generalLeftSide order-1">
+    @*The filters render here as a bare <template v-if>, so this column needs an
+        island of its own: an uncompiled <template> renders nothing at all - the
+        catalog filters silently vanished rather than showing raw markup.*@
+    @*
+        The declaration is conditional because this column is shared: only the
+        catalog layouts define a `filters` section, and only that section reads the
+        `catalog` view-model. Declaring it unconditionally would ask every
+        two-column page for a view-model that is not there, which logs a warning
+        per page. No declaration is a valid state - the island then renders against
+        the shell alone.
+    *@
+    <div class="col-lg-3 col-md-12 generalLeftSide order-1"
+         vue-island="@(IsSectionDefined("filters") ? "catalog" : "")">
         @if (IsSectionDefined("left"))
         {
             @await RenderSectionAsync("left")
@@ -100,19 +115,12 @@
         @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_after" })
     </div>
 </div>
-<script asp-location="Footer" asp-order="300">
-    document.addEventListener("DOMContentLoaded", function () {
-        var leftSide = document.querySelector('.generalLeftSide');
-        function LeftSideBar() {
-            if (991 > (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth)) {
-                document.querySelector("#sidebar-mobile .b-sidebar-body").appendChild(leftSide);
-            } else {
-                document.getElementById("TwoColumns").appendChild(leftSide);
-            }
-        }
-        LeftSideBar();
-        window.addEventListener("resize", function () {
-            LeftSideBar();
-        });
-    });
-</script>
+<script type="application/json" data-grand-vm="twoColumnsSidebar">@Json.Serialize(new {
+                                                                      elements = new {
+                                                                          sidebarSelector = ".generalLeftSide",
+                                                                          desktopHostId = "TwoColumns",
+                                                                          mobileHostSelector = "#sidebar-mobile .b-sidebar-body",
+                                                                          toggleId = "mobile-filters-toggle",
+                                                                          categoryNavigationId = "block-category-navigation"
+                                                                      }
+                                                                  })</script>

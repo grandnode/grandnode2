@@ -6,7 +6,7 @@
     {
         <div class="container" style="margin-left:-15px">
             <label for="parameterDropdown" class="col-form-label">@Loc["Products.AdditionalParameter"]:</label>
-            <select class="custom-select form-control" name="parameterDropdown" id="parameterDropdown">
+            <select class="form-select form-control" name="parameterDropdown" id="parameterDropdown">
                 @foreach (var parameter in Model.Parameters)
                 {
                     <option value="@parameter.Value">@parameter.Text</option>
@@ -34,15 +34,21 @@
         </div>
         <div>
             <h5 style="margin-top:10px">@Loc["Products.Reservation.Hour"]:</h5>
-            <div id="hoursDiv" class="d-inline-flex flex-wrap" data-toggle="buttons"></div>
+            <div id="hoursDiv" class="d-inline-flex flex-wrap" data-bs-toggle="buttons"></div>
         </div>
     }
 </div>
 
-<script asp-location="Footer" asp-order="300">
-    document.addEventListener("DOMContentLoaded", function () {
-        Reservation.init("@Model.StartDate.ToString("d", CultureInfo.CreateSpecificCulture("en-US"))", "@Model.StartDate.Year", "@Model.StartDate.Month", "@Loc["Products.Noavailablereservations"]",
-            "@(Url.Action("GetDatesForMonth", "Product"))", "@Model.Id",
-            "@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = Model.Id }))");
-    });
-</script>
+<script type="application/json" data-grand-vm="reservationInfo">@Json.Serialize(new {
+                                                                    productId = Model.Id,
+                                                                    start = new {
+                                                                        date = Model.StartDate.ToString("d", CultureInfo.CreateSpecificCulture("en-US")),
+                                                                        year = Model.StartDate.Year,
+                                                                        month = Model.StartDate.Month
+                                                                    },
+                                                                    routes = new {
+                                                                        datesForMonth = Url.Action("GetDatesForMonth", "Product"),
+                                                                        attributeChange = Url.Action("productdetails_attributechange", "product", new { productId = Model.Id })
+                                                                    },
+                                                                    res = new { noAvailableReservations = Loc["Products.Noavailablereservations"].ToString() }
+                                                                })</script>

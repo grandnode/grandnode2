@@ -16,6 +16,7 @@
     <partial name="Partials/Favicons"/>
     <resources asp-type="HeadLink"/>
     <resources asp-type="HeadScript"/>
+    <partial name="Partials/SiteStructuredData"/>
     @await RenderSectionAsync("head", false)
 </head>
 <body>
@@ -26,13 +27,35 @@
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
 
-<div id="app" :dark-theme="darkMode" v-cloak>
+@*
+    #app is a plain wrapper now - a styling hook, not a Vue mount point. Vue only
+    takes over the elements marked `vue-island`; see vueapp/src/runtime/islands.js.
+    Its dark-theme attribute is set before the first paint by Partials/ColorScheme
+    (it used to be a v-bind here, which Vue 3 ignores on a mount point anyway).
+
+    No v-cloak on it either: that used to paint an opaque white sheet over the
+    whole viewport until the deferred bundle mounted, which hid every
+    server-rendered page - the catalog listing included - behind a blank screen.
+    Markup that only Vue can fill carries v-cloak on itself instead.
+*@
+<div id="app">
     <div class="page-loader-container">
         <div class="page-loader"></div>
     </div>
     <vc:get-coordinate></vc:get-coordinate>
+    @*
+        Skip link: the header carries the menu, search, account and cart controls, so
+        without it keyboard and screen-reader users tab through the whole navigation
+        again on every page (WCAG 2.4.1). It is off-screen until focused.
+
+        tabindex="-1" on the target so that following the link actually moves focus -
+        a plain <main> is not focusable and browsers would only scroll.
+    *@
+    <a class="visually-hidden-focusable skip-link" href="#content">@Loc["Common.SkipToContent"]</a>
     <partial name="Partials/Header"/>
-    <b-container class="main-container">
+    @*No island on <main> itself: the views inside it carry their own, so a broken
+        template takes down one block rather than the whole page body.*@
+    <main id="content" class="container main-container" tabindex="-1">
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
         @if (IsSectionDefined("Breadcrumb"))
         {
@@ -41,7 +64,7 @@
         @RenderBody()
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
         <vc:voice-navigation></vc:voice-navigation>
-    </b-container>
+    </main>
     @await Component.InvokeAsync("Footer")
     <partial name="Partials/Cookie"/>
     <partial name="Partials/Notifications"/>

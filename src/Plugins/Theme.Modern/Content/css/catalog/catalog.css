@@ -3,6 +3,7 @@
 .breadcrumb {
     margin: 0;
     padding: 15px 0 0 0;
+    align-items: center;
 }
 
 /* category list */
@@ -28,7 +29,7 @@
 .category-item .title {
     font-size: 22px;
     font-weight: 400;
-    color: #000;
+    color: var(--bs-body-color);
     font-family: 'Poppins', sans-serif;
     margin: 5px 0 0 0;
     white-space: pre-wrap;
@@ -89,7 +90,7 @@
     overflow-x: hidden;
     overflow-y: auto;
     max-height: calc(100% - 54px);
-    background-color: #fff;
+    background-color: var(--bs-body-bg);
     margin: 15px 0 0 0;
     border: 1px solid rgba(0,0,0,.1);
     padding: 0 15px 15px 15px;
@@ -148,7 +149,7 @@
     margin: 0 0 15px 0;
     padding: 10px;
     border: 0;
-    background: #eaf0fa;
+    background: var(--bs-secondary-bg);
     border-radius: .25rem;
 }
 .generalLeftSide .available-items ul {
@@ -160,10 +161,10 @@
     text-transform: uppercase;
 }
 .generalLeftSide .available-items ul .btn {
-    color: #1c1b1b;
+    color: var(--bs-body-color);
     font-size: 14px;
     font-weight: 700;
-    background-color: #fff;
+    background-color: var(--bs-body-bg);
 }
 .generalLeftSide .available-items ul .btn.color-container {
     background-color: transparent;
@@ -191,7 +192,7 @@
 }
 .generalLeftSide li a {
     position: relative;
-    color: #1c1b1b;
+    color: var(--bs-body-color);
     text-decoration: none;
     font-size: 14px;
     font-weight: 400;
@@ -320,7 +321,7 @@ a.left-side-toggler:hover {
     align-items: center;
     justify-content: space-between;
     padding: 5%;
-    background: #eaf0fa;
+    background: var(--bs-secondary-bg);
     overflow: hidden;
 }
 .parallax-banner .content {
@@ -470,7 +471,7 @@ a.left-side-toggler:hover {
     text-transform: uppercase;
     font-weight: 700;
     font-family: Poppins, sans-serif;
-    color: #000;
+    color: var(--bs-body-color);
     background-color: transparent;
     border: 1px solid rgba(0,0,0,.1);
     border-bottom: 0;
@@ -529,11 +530,12 @@ a.left-side-toggler:hover {
 }
 .sort-container .col-form-label {
     position: absolute;
-    top: -10px;
+    top: -20px;
     left: 4px;
     padding: 0 4px;
-    background-color: #eaf0fa;
+    background-color: var(--bs-secondary-bg);
     font-size: 12px;
+    line-height: 18px;
     font-weight: 400;
     white-space: nowrap;
 }
@@ -585,7 +587,7 @@ a.left-side-toggler:hover {
 /* selectors */
 
 .catalog-selectors {
-    background: #eaf0fa;
+    background: var(--bs-secondary-bg);
     padding: 10px;
 }
 .grid-icon {
@@ -687,7 +689,7 @@ a.left-side-toggler:hover {
     position: relative;
     height: 100%;
     overflow: hidden;
-    background-color: #eaf0fa;
+    background-color: var(--bs-secondary-bg);
 }
 .block-recently-viewed-products .card a.picture::before {
     content: "";
@@ -702,7 +704,7 @@ a.left-side-toggler:hover {
     left: 0;
     max-width: 100%;
     margin: auto;
-    background-color: #eaf0fa;
+    background-color: var(--bs-secondary-bg);
 }
 
 /* new cols */

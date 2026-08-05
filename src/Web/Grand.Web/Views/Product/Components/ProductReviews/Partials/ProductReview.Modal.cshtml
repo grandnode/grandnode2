@@ -4,13 +4,16 @@
     var productlink = Url.RouteUrl("Product", new { SeName = Model.ProductSeName });
 }
 
-<b-modal id="ModalProductReview" ref="ModalProductReview" :dark-theme="darkMode" size="xl" @@shown="productreviews.modalReviewShown()" @@hide="productreviews.modalReviewClose()" centered hide-footer hide-header>
+<div class="modal fade" id="ModalProductReview" tabindex="-1" aria-hidden="true" vue-island="productreviews">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
     <template v-if="productreviews.Model !== null">
         <h2 class="generalTitle h3">
             @Loc["Reviews.ProductReviewsFor"] <a :href="'@productlink'">{{productreviews.Model.ProductName}}</a>
         </h2>
-        <a class="modal-close" @@click="$bvModal.hide('ModalProductReview')">
-            <b-icon icon="x"></b-icon>
+        <a class="modal-close" data-bs-dismiss="modal">
+            <i class="b-icon bi bi-x" aria-hidden="true"></i>
         </a>
         <template v-if="!productreviews.Model.AddProductReview.SuccessfullyAdded">
             <div class="write-review" id="review-form">
@@ -41,7 +44,7 @@
                                 <div class="form-group review-rating d-flex flex-wrap">
                                     <label for="AddProductReview_Rating" class="col-form-label w-100">@Loc["Reviews.Fields.Rating"]:</label>
                                     <b-form-rating v-model="value" variant="warning" show-value value="5" inline></b-form-rating>
-                                    <input class="sr-only" id="AddProductReview_Rating" name="AddProductReview.Rating" v-model="value"/>
+                                    <input class="visually-hidden" id="AddProductReview_Rating" name="AddProductReview.Rating" v-model="value"/>
                                 </div>
                                 <template v-if="productreviews.Model.AddProductReview.DisplayCaptcha">
                                     <div id="captcha-popup"></div>
@@ -61,4 +64,7 @@
             </div>
         </template>
     </template>
-</b-modal>
+</div>
+        </div>
+    </div>
+</div>

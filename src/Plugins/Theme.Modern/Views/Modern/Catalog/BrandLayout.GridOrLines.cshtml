@@ -15,16 +15,18 @@
         pagebuilder.AddCanonicalUrlParts(collectionUrl);
     }
 
-    <script asp-location="Header" asp-src="/theme/script/catalog.js"></script>
+    @*was /theme/script/catalog.js, which does not exist - the file is the theme's own*@
+    <script asp-location="Header" asp-src="/Plugins/Theme.Modern/Content/script/catalog.js"></script>
 }
 
-<b-skeleton-wrapper :loading="catalog.loading == true">
-    <template #loading>
-        <div>
-            <b-skeleton width="100%" height="20vh" class="mb-3"></b-skeleton>
-            <b-skeleton width="100%" height="80vh"></b-skeleton>
-        </div>
-    </template>
+@*One island over both branches: the loading skeleton and the content are a
+    v-if/v-else pair and a directive pair cannot be split across islands.*@
+<div class="catalog-island" vue-island="catalog">
+<div v-if="catalog.loading == true" class="placeholder-glow">
+    <span class="placeholder col-12 mb-3" style="height: 20vh"></span>
+    <span class="placeholder col-12" style="height: 80vh"></span>
+</div>
+<div v-else>
     <div class="page brand-page catalog-page mb-2">
         <template v-if="catalog.Model.Description !== null">
             <div v-html="catalog.Model.Description"></div>
@@ -42,34 +44,34 @@
                 <partial name="Partials/Selectors"/>
                 <template v-if="catalog.Model.Products.length > 0">
                     <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
-                        <b-col cols="12" class="product-grid standard px-0">
-                            <b-form-row>
+                        <div class="col-12 product-grid standard px-0">
+                            <div class="form-row">
                                 <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                                    <b-col lg="3" sm="4" cols="6" class="product-container px-0 mb-2">
-                                        <product-box-vue :Model="Model"></product-box-vue>
-                                    </b-col>
+                                    <div class="col-6 col-sm-4 col-lg-3 product-container px-0 mb-2">
+                                        <product-box v-bind="{ Model: Model }"></product-box>
+                                    </div>
                                 </template>
-                            </b-form-row>
-                        </b-col>
+                            </div>
+                        </div>
                     </template>
                     <template v-else>
                         <div class="product-list">
-                            <b-col cols="12">
-                                <b-row>
+                            <div class="col-12">
+                                <div class="row">
                                     <template :key="Model.Id" v-for="Model in catalog.Model.Products">
-                                        <product-box-list-vue :Model="Model"></product-box-list-vue>
+                                        <product-box-list v-bind="{ Model: Model }"></product-box-list>
                                     </template>
-                                </b-row>
-                            </b-col>
+                                </div>
+                            </div>
                         </div>
                     </template>
                     @*<partial name="Partials/Pagination" />*@
                     <partial name="Partials/ScrollPagination"/>
                 </template>
                 <template v-else>
-                    <b-alert variant="info" show class="my-3">
+                    <div class="alert alert-info my-3" role="alert">
                         @Loc["search.noresultstext"]
-                    </b-alert>
+                    </div>
                 </template>
             </template>
         </div>
@@ -80,7 +82,8 @@
 
         @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_bottom", additionalData = Model.Id })
     </div>
-</b-skeleton-wrapper>
+</div>
+</div>
 
 @section filters
 {
@@ -91,4 +94,4 @@
     }*@
 }
 
-<partial name="Partials/ModelScript" model="@Json.Serialize(Model)"/>
+<partial name="Partials/ModelScript" model="Model"/>

@@ -46,7 +46,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="@Url.RouteUrl("Wishlist")">
                     <span class="icon-heart icons"></span>
-                    <div class="qty-indicator wishlist-qty" ref="wishlistQty">@Loc["Wishlist.HeaderQuantity", wishlistItems]</div>
+                    <div class="qty-indicator wishlist-qty" ref="wishlistQty" data-qty="@wishlistItems">@Loc["Wishlist.HeaderQuantity", wishlistItems]</div>
                 </a>
             </li>
         }

@@ -46,7 +46,7 @@
     </h1>
 
     <div class="card">
-        <div class="card-body">
+        <div class="card-body" v-pre>
             @Html.Raw(Model.Content)
         </div>
     </div>
@@ -93,7 +93,7 @@
                         </div>
                     }
                 </div>
-                <div class="buttons text-xs-center text-md-left generalMarginSupporter">
+                <div class="buttons text-xs-center text-md-start generalMarginSupporter">
                     <input type="submit" name="add-comment" asp-action="ArticleCommentAdd" class="btn btn-info blog-post-add-comment-button" value="@Loc["Knowledgebase.Article.Comments.SubmitButton"]"/>
                 </div>
             </form>
@@ -111,7 +111,7 @@
                             <div class="card-header">
                                 <div class="d-inline-flex w-100">
                                     <h6 class="mb-0">@comment.CustomerName</h6>
-                                    <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                                    <i class="b-icon bi bi-calendar2-check text-info mx-2" aria-hidden="true"></i>
                                     <small class="date text-muted">
                                         <span>@Loc["Knowledgebase.Article.Comments.CreatedOn"]:</span>
                                         <span>@comment.CreatedOn.ToString("g")</span>

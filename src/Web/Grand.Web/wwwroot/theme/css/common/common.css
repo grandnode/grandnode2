@@ -29,7 +29,7 @@ span.required {
     color: #dc3545;
     font-weight: 500;
 }
-.custom-control {
+.form-check {
     cursor: pointer;
 }
 .disabled {
@@ -45,6 +45,9 @@ span.required {
 body:not(.modal-open) {
     overflow-x: hidden;
 }
+body[dark-theme="true"] {
+    background-color: #363c40;
+}
 .modal {
     -webkit-transition: none;
     transition: none;
@@ -57,10 +60,17 @@ body:not(.modal-open) {
 .modal.fade + .modal-backdrop  {
     opacity: .5;
 }
-[v-cloak] .axios-request::before {
-    opacity: 0.5
-}
-[v-cloak] .page-loader-container::before {
+/*
+    The loader is keyed off .axios-request, which app.js toggles around XHR, and no
+    longer off [v-cloak] on #app.
+
+    Keyed on [v-cloak] it covered the whole viewport in opaque white from the first
+    paint until the deferred bundle had run, so every server-rendered page - the
+    catalog listing included - was invisible until the JavaScript arrived. FCP was
+    effectively TTI. What has to stay hidden before Vue mounts is only the markup
+    Vue itself fills in; that is handled by the scoped [v-cloak] rules below.
+*/
+.page-loader-container.axios-request::before {
     content: '';
     position: fixed;
     top: 0;
@@ -68,15 +78,16 @@ body:not(.modal-open) {
     width: 100%;
     height: 100%;
     background: #fff;
+    opacity: 0.5;
     overflow: hidden;
     z-index: 1040;
 }
-[v-cloak] .page-loader,
-[v-cloak] .page-loader:before,
-[v-cloak] .page-loader:after {
+.axios-request .page-loader,
+.axios-request .page-loader:before,
+.axios-request .page-loader:after {
     border-radius: 50%;
 }
-[v-cloak] .page-loader {
+.axios-request .page-loader {
     color: #01b7f4;
     margin: 22.5px auto;
     position: fixed;
@@ -90,12 +101,12 @@ body:not(.modal-open) {
     transform: translateZ(0);
     z-index: 1041;
 }
-[v-cloak] .page-loader:before,
-[v-cloak] .page-loader:after {
+.axios-request .page-loader:before,
+.axios-request .page-loader:after {
   position: absolute;
   content: '';
 }
-[v-cloak] .page-loader:before {
+.axios-request .page-loader:before {
   width: 27.5px;
   height: 55px;
   background: #01b7f4;
@@ -108,7 +119,7 @@ body:not(.modal-open) {
   -webkit-animation: load2 2s infinite ease 1.5s;
   animation: load2 2s infinite ease 1.5s;
 }
-[v-cloak] .page-loader:after {
+.axios-request .page-loader:after {
   width: 27.5px;
   height: 55px;
   background: #01b7f4;
@@ -121,6 +132,54 @@ body:not(.modal-open) {
   -webkit-animation: load2 2s infinite ease;
   animation: load2 2s infinite ease;
 }
+/*
+    Regions whose text only Vue can produce would otherwise show their raw {{ }}
+    source between first paint and the moment the deferred bundle mounts. Marked
+    with v-cloak on the region itself - Vue strips the attribute on mount - rather
+    than by hiding the whole page.
+
+    visibility rather than display: the element keeps its box, so revealing it does
+    not shift the layout around it.
+*/
+[v-cloak] {
+    visibility: hidden;
+}
+
+/*
+    Skip link. Bootstrap's .visually-hidden-focusable already reveals it on focus,
+    but it would then take part in the normal flow and push the header down; pinning
+    it means the rest of the page does not move when it appears.
+*/
+.skip-link:focus-visible,
+.skip-link:focus {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 1080;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    background: #fff;
+    color: #212529;
+    box-shadow: 0 0 0 .25rem rgba(1, 183, 244, .5);
+}
+
+/*
+    The main landmark is focused programmatically by the skip link, so it must not
+    draw a focus ring the way an interactive control would.
+*/
+#content:focus {
+    outline: none;
+}
+
+/*
+    Vue replaces <validation-provider> with the element named by its `tag` attribute,
+    so this selector stops matching the moment the app mounts. Only the message span
+    is hidden - hiding the provider itself would blank out the input as well.
+*/
+validation-provider .field-validation-error {
+    visibility: hidden;
+}
+
 @-webkit-keyframes load2 {
   0% {
     -webkit-transform: rotate(0deg);
@@ -193,7 +252,7 @@ body:not(.modal-open) {
 select option:disabled {
     color: #aaa;
 }
-.custom-select:disabled {
+.form-select:disabled {
     opacity: 0.5;
 }
 
@@ -521,6 +580,45 @@ dl, ol, ul {
 #ModalAddToCart img {
     background-color: #F8F9FB;
 }
+@media (min-width: 1200px) {
+    #ModalQuickView .modal-xl {
+        max-width: min(1360px, 94vw);
+    }
+}
+#ModalQuickView .related-products-grid > .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+#ModalAddToCart .atc-header {
+    background-color: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1rem 1.25rem;
+}
+#ModalAddToCart .jumbotron {
+    background-color: #f8f9fa;
+    border-radius: .5rem;
+}
+#ModalAddToCart .card-footer {
+    background-color: transparent;
+    border-top: 0;
+    padding: 0 1rem 1rem;
+}
+#ModalAddToCart .card-footer .btn {
+    padding: .7rem .75rem;
+}
+[dark-theme="true"] #ModalAddToCart .atc-header {
+    background-color: transparent;
+    border-bottom-color: #343a40;
+}
+[dark-theme="true"] #ModalAddToCart .btn-dark {
+    background-color: #fff;
+    border-color: #fff;
+    color: #212529;
+}
+[dark-theme="true"] #ModalAddToCart .btn-outline-secondary {
+    color: #dee2e6;
+    border-color: #6c757d;
+}
 [dark-theme="true"] .modal-close .b-icon.bi {
     color: #fff;
 }
@@ -625,7 +723,7 @@ dl, ol, ul {
     -webkit-transition: all .2s ease-in-out;
     transition: all .2s ease-in-out;
 }
-.quick-view-overview .accordion .btn.collapse-button.not-collapsed::after {
+.quick-view-overview .accordion .btn.collapse-button:not(.collapsed)::after {
     -webkit-transform: rotate( 180deg );
     transform: rotate( 180deg );
 }
@@ -1214,10 +1312,13 @@ input:checked ~ .color-container .color::before {
     display: inline-flex;
     align-items: center;
 }
-.countdown-box > span span:not(:last-child)::after {
+.countdown-box > span span:not(:last-child):not(.col-form-label)::after {
     content: ":";
     position: relative;
     margin: 0 3px;
+}
+.countdown-box > span .col-form-label {
+    margin-right: 6px;
 }
 
 /* product box list */
@@ -1313,6 +1414,7 @@ input:checked ~ .color-container .color::before {
 .breadcrumb {
     padding: 15px 0;
     background-color: transparent;
+    align-items: center;
 }
 .breadcrumb-item.active {
     color: #000;
@@ -1506,55 +1608,52 @@ footer .list-group-item span:last-child {
 
 /* dark mode */
 
-.contrast-switch.custom-switch.b-custom-control-lg .custom-control-label::before{
-    top: 0;
+.contrast-switch {
+    display: inline-flex;
+    align-items: center;
 }
-.contrast-switch.custom-switch.b-custom-control-lg .custom-control-label::after {
-    top: 2px;
-}
-.contrast-switch.custom-switch.custom-control * {
+.contrast-switch .form-check-input {
+    order: 2;
+    width: 2.5rem;
+    height: 1.375rem;
+    margin-top: 0;
+    margin-left: 6px;
     cursor: pointer;
-}
-.contrast-switch .b-icon {
-    position: absolute;
-    top: 3px;
-    left: calc(-2.8125rem + 3px);
-    font-size: 14px !important;
-    transition: transform .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-transform .15s ease-in-out;
-    visibility: hidden;
-    z-index: 1;
-}
-.contrast-switch .custom-control-label::before {
-    border-width: 2px;
     border-color: #1FB0C7;
 }
-.contrast-switch.custom-switch .custom-control-label::after {
-    background-color: #fff;
-}
-.contrast-switch .custom-control-input:checked ~ .custom-control-label::before {
+.contrast-switch .form-check-input:checked {
     background-color: #1FB0C7;
     border-color: #1FB0C7;
 }
-.contrast-switch .b-icon.light {
-    visibility: visible;
+.contrast-switch .form-check-input:focus {
+    box-shadow: none;
+}
+.contrast-switch .form-check-label {
+    order: 1;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+.contrast-switch .b-icon {
+    font-size: 14px !important;
+    pointer-events: none;
 }
 .contrast-switch .b-icon.dark {
-    color: #2d3133 !important;
+    display: none;
 }
-.contrast-switch.custom-switch .custom-control-input:checked~.custom-control-label .b-icon.light {
-    visibility: hidden;
+.contrast-switch .form-check-input:checked ~ .form-check-label .b-icon.light {
+    display: none;
 }
-.contrast-switch.custom-switch .custom-control-input:checked~.custom-control-label .b-icon.dark {
-    visibility: visible;
-    -webkit-transform: translateX(.9375rem);
-    transform: translateX(.9375rem)
+.contrast-switch .form-check-input:checked ~ .form-check-label .b-icon.dark {
+    display: inline;
 }
 
 /* dark bootstrap */
 
-[dark-theme="true"] .custom-select, [dark-theme="true"] input.form-control {
-    background-color: #efefef;
-}
+/* Form controls are themed by Bootstrap 5.3 through data-bs-theme. The override that
+   used to force #efefef here paired a light field with the dark text the old rules
+   supplied; now that the text colour comes from --bs-body-color it turned light-on-light
+   and the values were barely legible. */
 [dark-theme="true"] .bg-white {
     background-color: #343a40 !important;
 }
@@ -1564,6 +1663,7 @@ footer .list-group-item span:last-child {
 }
 [dark-theme="true"] .list-group-item {
     background-color: #2d3133;
+    color: #fff;
 }
 [dark-theme="true"] .text-info {
     color: #1FB0C7 !important;
@@ -1633,6 +1733,9 @@ footer .list-group-item span:last-child {
 [dark-theme="true"] .shopping-cart.table td, [dark-theme="true"] .b-rating:focus, [dark-theme="true"] .product-box .picture-container .img-container img, [dark-theme="true"] .Menu li:not(.category):hover {
     background-color: #2d3133;
 }
+[dark-theme="true"] .card {
+    color: #fff;
+}
 [dark-theme="true"] .advanced-search-results .products .list .media img {
     background-color: #545a5e;
 }
@@ -1664,6 +1767,17 @@ footer .list-group-item span:last-child {
 [dark-theme="true"] .generalLeftSide .block-category-navigation li.active > .sublist > li a, [dark-theme="true"] .table, [dark-theme="true"] .advanced-search-results .title, [dark-theme="true"] .cookie-bar-notification p, [dark-theme="true"] button.close {
     color: #fff;
 }
+[dark-theme="true"] .table {
+    --bs-table-color: #fff;
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+    --bs-table-striped-color: #fff;
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.075);
+    --bs-table-hover-color: #fff;
+    --bs-table-active-bg: rgba(255, 255, 255, 0.1);
+    --bs-table-active-color: #fff;
+    --bs-table-border-color: #555;
+}
 [dark-theme="true"] .newsletter-email::placeholder {
     color: #2d3133;
 }
@@ -1683,6 +1797,22 @@ footer .list-group-item span:last-child {
 [dark-theme="true"] .Menu li.-hasSubmenu > a:after, [dark-theme="true"] .shopping-cart, [dark-theme="true"] .Menu li.-hasSubmenu > div:after, [dark-theme="true"] .newsletter-email-button {
     color: #fff;
     border-color: #fff;
+}
+[dark-theme="true"] .b-sidebar {
+    background-color: #363c40;
+    color: #fff;
+}
+[dark-theme="true"] .b-sidebar .btn-close {
+    filter: invert(1);
+}
+[dark-theme="true"] .b-sidebar-header {
+    border-bottom: 1px solid #555;
+}
+[dark-theme="true"] .b-sidebar-footer {
+    border-top: 1px solid #555;
+}
+[dark-theme="true"] .b-sidebar .text-muted {
+    color: #ccc !important;
 }
 [dark-theme="true"] .b-sidebar-body::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2);

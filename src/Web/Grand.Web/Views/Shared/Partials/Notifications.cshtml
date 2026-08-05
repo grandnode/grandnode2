@@ -24,17 +24,16 @@
         errorMessages.AddRange(ViewData[$"Grand.notifications.{NotifyType.Error}"] as IList<string>);
     }
 }
-@foreach (var message in successMessages)
-{
-    <script asp-location="Footer" asp-order="901">
-        vm.displayBarNotification('@Html.Raw(JavaScriptEncoder.Default.Encode(message))','', 'success', 3500);
-    </script>
+@{
+    var barMessages = successMessages.Select(text => new { text, variant = "success" })
+        .Concat(errorMessages.Select(text => new { text, variant = "error" }))
+        .ToList();
 }
-@foreach (var message in errorMessages)
+@if (barMessages.Any())
 {
-    <script asp-location="Footer" asp-order="901">
-        vm.displayBarNotification('@Html.Raw(JavaScriptEncoder.Default.Encode(message))','', 'error', 3500);
-    </script>
+    @*One island for the lot, instead of a script tag per message escaped into a
+        JS string literal. Behaviour: vueapp/src/behaviours/bar-notifications.js*@
+    <script type="application/json" data-grand-vm="barNotifications">@Json.Serialize(new { messages = barMessages })</script>
 }
 
 <div id="bar-notification" class="generalNote"></div>

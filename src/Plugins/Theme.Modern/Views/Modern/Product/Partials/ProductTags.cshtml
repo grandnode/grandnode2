@@ -1,11 +1,11 @@
 ﻿@model IList<ProductTagModel>
-<b-col cols="12" class="product-tags-box px-0">
+<div class="col-12 product-tags-box px-0">
     <div class="product-tags-list">
         @for (var i = 0; i < Model.Count; i++)
         {
-            <b-button size="sm" variant="outline-secondary" class="producttag" href="@Url.RouteUrl("ProductsByTagName", new { Model[i].SeName })">
+            <a class="btn btn-outline-secondary btn-sm producttag" href="@Url.RouteUrl("ProductsByTagName", new { Model[i].SeName })" role="button">
                 @Model[i].Name <span>@Loc["Products.Tags.Count", Model[i].ProductCount]</span>
-            </b-button>
+            </a>
         }
     </div>
-</b-col>
+</div>

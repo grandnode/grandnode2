@@ -3,7 +3,7 @@
 .generalTitle {
     margin: 15px 0;
 }
-[v-cloak] .products-tabs {
+.products-tabs[v-cloak] {
     display: none;
 }
 .home-page .home-page-section {
@@ -16,7 +16,7 @@
     position: relative;
     height: calc(100vh - 195px);
     min-height: 550px;
-    background-color: #eaf0fa;
+    background-color: var(--bs-secondary-bg);
     -webkit-transition: all .2s ease-in-out;
     transition: all .2s ease-in-out;
 }
@@ -131,7 +131,7 @@
     z-index: 3;
 }
 .product-box-slide .content .title a {
-    color: #1c1b1b;
+    color: var(--bs-body-color);
     font-size: 48px;
     line-height: 1;
     font-weight: 900;
@@ -336,7 +336,7 @@
 	margin: 0 -1px 1px 0;
 	padding: 16px 26px;
 	font-family: 'Poppins', sans-serif;
-	color: #000;
+	color: var(--bs-body-color);
 	background-color: transparent;
 	font-size: 14px;
 	font-weight: 700;
@@ -385,7 +385,7 @@
  .brands-container {
      padding: 0 10%;
      margin: 0 -15px;
-     background-color: #fff;
+     background-color: var(--bs-body-bg);
 }
  .brands-container .swiper-wrapper {
      align-items: center;
@@ -419,7 +419,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 10%;
-    background: #eaf0fa;
+    background: var(--bs-secondary-bg);
     overflow: hidden;
 }
 .parallax-banner .content {
@@ -508,7 +508,7 @@
 	position: relative;
 	top: -118px;
 	padding: 15px 7.5px;
-	background: #fff;
+	background: var(--bs-body-bg);
 	z-index: 15;
 }
 .home-page-banner + * {

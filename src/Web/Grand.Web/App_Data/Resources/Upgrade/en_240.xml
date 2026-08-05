@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language Name="English">
+	<Resource Name="shoppingcart.estimateshipping.failed" Area="Front">
+		<Value>We could not work out a shipping estimate. Please try again.</Value>
+	</Resource>
+	<Resource Name="common.darkmode" Area="Front">
+		<Value>Dark mode</Value>
+	</Resource>
+	<Resource Name="catalog.loadfailed" Area="Front">
+		<Value>We could not load the products. Please try again.</Value>
+	</Resource>
+	<Resource Name="common.skiptocontent" Area="Front">
+		<Value>Skip to main content</Value>
+	</Resource>
+	<Resource Name="Countdown.Days" Area="Front">
+		<Value>d</Value>
+	</Resource>
+	<Resource Name="Countdown.Hours" Area="Front">
+		<Value>h</Value>
+	</Resource>
+	<Resource Name="Countdown.Minutes" Area="Front">
+		<Value>m</Value>
+	</Resource>
+	<Resource Name="Countdown.Seconds" Area="Front">
+		<Value>s</Value>
+	</Resource>
+	<Resource Name="validation.required" Area="Front">
+		<Value>This field is required.</Value>
+	</Resource>
+	<Resource Name="validation.email" Area="Front">
+		<Value>This field must be a valid email.</Value>
+	</Resource>
+	<Resource Name="validation.confirmed" Area="Front">
+		<Value>The confirmation does not match.</Value>
+	</Resource>
+	<Resource Name="validation.minlength" Area="Front">
+		<Value>This field should be at least {0} characters.</Value>
+	</Resource>
+	<Resource Name="validation.maxlength" Area="Front">
+		<Value>This field should be at most {0} characters.</Value>
+	</Resource>
+	<Resource Name="validation.exactlength" Area="Front">
+		<Value>Select at least {0} option.</Value>
+	</Resource>
+	<Resource Name="validation.invalid" Area="Front">
+		<Value>Invalid value.</Value>
+	</Resource>
+</Language>

@@ -6,7 +6,7 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.WishlistEmailAFriend"]);
 }
-<div class="page email-a-friend-page">
+<div class="page email-a-friend-page" vue-island="emailwishlist">
     <h2 class="h2 generalTitle text-xs-center">@Loc["Wishlist.EmailAFriend.Title"]</h2>
     @if (Model.SuccessfullySent)
     {
@@ -61,18 +61,6 @@
                 </div>
             </form>
         </validation-observer>
-        <script asp-location="Footer" asp-order="300">
-            var emailwishlist = new Vue({
-                    data: () => ({
-                        @{
-                            <text>
-                                FriendEmail: '@Html.Raw(Model.FriendEmail)',
-                                YourEmailAddress: '@Html.Raw(Model.YourEmailAddress)',
-                                PersonalMessage: '@Html.Raw(Model.PersonalMessage)',
-                            </text>
-                        }
-                    })
-                });
-        </script>
+        <script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "emailwishlist", data = new { Model.FriendEmail, Model.YourEmailAddress, Model.PersonalMessage } })</script>
     }
 </div>

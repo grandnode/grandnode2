@@ -180,7 +180,8 @@
     color: #ccc;
 }
 [dark-theme="true"] .b-rating .b-rating-value, [dark-theme="true"] .attributes .attribute-name,
-[dark-theme="true"] .product-details-page .nav-tabs .nav-link:hover:not(.active) {
+[dark-theme="true"] .product-details-page .nav-tabs .nav-link:hover:not(.active),
+[dark-theme="true"] .attributes .custom-control-description, [dark-theme="true"] .attributes .form-check-label {
     color: #fff;
 }
 [dark-theme="true"] .product-details-page .nav-tabs .nav-link {

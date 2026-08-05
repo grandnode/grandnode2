@@ -2,7 +2,7 @@
 @model ProductDetailsModel.ProductPriceModel
 @inject IContextAccessor contextAccessor
 
-<div class="prices d-flex justify-content-center align-items-start row px-3 flex-column" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+<div class="prices d-flex justify-content-center align-items-start row px-3 flex-column" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
     @if (Model.EnteredPrice)
     {
         @*Display empty space*@
@@ -10,12 +10,22 @@
     else if (Model.CallForPrice)
     {
         <div class="product-price call-for-price col-12 px-0">
-            <b-button v-b-modal.modal-1>@Loc["Products.CallForPrice"]</b-button>
-            <b-modal id="modal-1" hide-footer title="@Loc["Products.CallForPrice"]">
+            <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modal-1">@Loc["Products.CallForPrice"]</button>
+            <div class="modal fade" id="modal-1" tabindex="-1" aria-labelledby="modal-1-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-1-label">@Loc["Products.CallForPrice"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
                 <p class="my-4">
                     <span>@Loc["Products.CallForPrice"]:</span><a href="tel:@contextAccessor.StoreContext.CurrentStore.CompanyPhoneNumber"> @contextAccessor.StoreContext.CurrentStore.CompanyPhoneNumber</a>
                 </p>
-            </b-modal>
+            </div>
+        </div>
+    </div>
+</div>
         </div>
     }
     else
@@ -87,7 +97,7 @@
 
         if (!string.IsNullOrEmpty(Model.BasePricePAngV))
         {
-            <div class="base-price-pangv ml-2">
+            <div class="base-price-pangv ms-2">
                 @Model.BasePricePAngV
             </div>
         }

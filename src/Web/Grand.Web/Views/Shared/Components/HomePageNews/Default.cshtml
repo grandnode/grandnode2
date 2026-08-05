@@ -5,20 +5,20 @@
         @Loc["News"]
     </h2>
     <div class="col-12 px-0">
-        <div class="form-row">
+        <div class="row">
             @foreach (var item in Model.NewsItems)
             {
                 <div class="col-xl-@order.Pn_Xl col-lg-@order.Pn_Lg col-md-@order.Pn_Md col-sm-@order.Pn_Sm col-@order.Pn_Col mb-3">
                     <div class="card">
                         @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
                         {
-                            <b-img-lazy class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-img-lazy>
+                            <img class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" loading="lazy">
                         }
                         <div class="card-header">
                             <h3 class="h5 mb-0">
-                                <b-link href="@Url.RouteUrl("NewsItem", new { item.SeName })">
+                                <a href="@Url.RouteUrl("NewsItem", new { item.SeName })">
                                     @item.Title
-                                </b-link>
+                                </a>
                             </h3>
                         </div>
                         <div class="card-body">

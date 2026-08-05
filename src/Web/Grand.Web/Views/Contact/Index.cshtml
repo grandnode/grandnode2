@@ -6,9 +6,9 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.ContactUs"]);
 }
-<div class="page contact-page">
+<div class="page contact-page" vue-island="contactus">
     <h1 class="generalTitle h2">@Loc["Title.ContactUs"]</h1>
-    <div class="generalMarginSupporter text-left">
+    <div class="generalMarginSupporter text-start">
         @await Component.InvokeAsync("PageBlock", new { systemName = "ContactUs" })
         @await Component.InvokeAsync("Widget", new { widgetZone = "contactus_top" })
         @if (Model.SuccessfullySent)
@@ -75,20 +75,7 @@
                     </div>
                 </form>
             </validation-observer>
-            <script asp-location="Footer" asp-order="300">
-                var contactus = new Vue({
-                    data: () => ({
-                        @{
-                            <text>
-                                FullName: '@Html.Raw(Model.FullName)',
-                                Email: '@Html.Raw(Model.Email)',
-                                Subject: '@Html.Raw(Model.Subject)',
-                                Enquiry: '@Html.Raw(Model.Enquiry)',
-                            </text>
-                        }
-                    })
-                });
-            </script>
+            <script type="application/json" data-grand-vm="state">@Json.Serialize(new { name = "contactus", data = new { Model.FullName, Model.Email, Model.Subject, Model.Enquiry } })</script>
         }
         @await Component.InvokeAsync("Widget", new { widgetZone = "contactus_bottom" })
     </div>

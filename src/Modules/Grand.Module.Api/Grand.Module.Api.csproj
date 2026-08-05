@@ -43,6 +43,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.JsonPatch.SystemTextJson" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Microsoft.OpenApi" />
         <PackageReference Include="Scalar.AspNetCore" />
         <PackageReference Include="System.Linq.Dynamic.Core" />
     </ItemGroup>

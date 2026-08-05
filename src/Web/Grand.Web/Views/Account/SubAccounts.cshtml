@@ -13,10 +13,10 @@
 }
 
 <vc:widget widget-zone="customer-subaccounts" additional-data="@Model"></vc:widget>
-<div class="page account-page subaccounts-list-page pl-lg-3 pt-lg-0 pt-3">
+<div class="page account-page subaccounts-list-page ps-lg-3 pt-lg-0 pt-3">
     @Html.AntiForgeryToken()
-    <button class="btn btn-info add-address-button float-sm-right mt-2" onclick="location = '@Url.RouteUrl("CustomerSubAccountAdd")'">
-        <b-icon icon="clipboard-plus"></b-icon> @Loc["Common.AddNew"]
+    <button class="btn btn-info add-address-button float-sm-end mt-2" onclick="location = '@Url.RouteUrl("CustomerSubAccountAdd")'">
+        <i class="b-icon bi bi-clipboard-plus" aria-hidden="true"></i> @Loc["Common.AddNew"]
     </button>
     <h1 class="h2 generalTitle">@Loc["Account.SubAccounts"]</h1>
     @if (Model.Any())
@@ -43,7 +43,7 @@
                                     <button class="btn btn-secondary edit-subaccount-button" onclick="location = '@(Url.RouteUrl("CustomerSubAccountEdit", new { id = account.Id }))'">
                                         @Loc["Common.Edit"]
                                     </button>
-                                    <button class="btn btn-danger delete-subaccount-button" onclick="deletecustomersubaccount('@(account.Id)')">
+                                    <button class="btn btn-danger delete-subaccount-button" data-delete-id="@(account.Id)">
                                         @Loc["Common.Delete"]
                                     </button>
                                 </div>
@@ -53,35 +53,15 @@
                 }
             </div>
         </div>
-        <script asp-location="Footer">
-                function deletecustomersubaccount(accountId) {
-                    if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
-                        var postData = {
-                            Id: accountId
-                        };
-                        addAntiForgeryToken(postData);
-
-                        var bodyFormData = new FormData();
-                        bodyFormData.append('Id', accountId)
-                        bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
-                        axios({
-                            method: 'post',
-                            url: '@(Url.RouteUrl("CustomerSubAccountDelete"))',
-                            data: bodyFormData,
-                            headers: { 'Content-Type': 'multipart/form-data' }
-                        }).then(function (response) {
-                            if (response.data.success) {
-                                location = response.data.redirect;
-                            }
-                            else {
-                                alert(response.error);
-                            }
-                        }).catch(function (error) {
-                            alert(error);
-                        })
-                    }
-                }
-        </script>
+        <script type="application/json" data-grand-vm="confirmDelete">@Json.Serialize(new {
+                                                                  route = Url.RouteUrl("CustomerSubAccountDelete"),
+                                                                  field = "Id",
+                                                                  selector = ".delete-subaccount-button",
+                                                                  res = new {
+                                                                      areYouSure = Loc["Admin.Common.AreYouSure"].ToString(),
+                                                                      warning = Loc["common.warning"].ToString()
+                                                                  }
+                                                              })</script>
     }
     else
     {

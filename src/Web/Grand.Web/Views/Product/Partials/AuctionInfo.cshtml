@@ -10,10 +10,10 @@
                     <countdown :end-time="@Model.EndTime.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds">
                         <template v-slot:process="{ timeObj }">
                             <span class="col-form-label">@Loc["AddToCart.Timeleft"]</span>
-                            <span>{{ `${timeObj.d}` }}</span>
-                            <span>{{ `${timeObj.h}` }}</span>
-                            <span>{{ `${timeObj.m}` }}</span>
-                            <span>{{ `${timeObj.s}` }}</span>
+                            <span>{{ `${timeObj.d}` }}@Loc["Countdown.Days"]</span>
+                            <span>{{ `${timeObj.h}` }}@Loc["Countdown.Hours"]</span>
+                            <span>{{ `${timeObj.m}` }}@Loc["Countdown.Minutes"]</span>
+                            <span>{{ `${timeObj.s}` }}@Loc["Countdown.Seconds"]</span>
                         </template>
                         <template v-slot:finish>
                             <span>@Loc["ShoppingCart.Auctionends"]</span>
@@ -33,8 +33,8 @@
         {
             <div class="btn-group w-100 mt-3">
                 <input name="HighestBidValue" type="number" class="form-control" value="@(Model.HighestBidValue > 0 ? (Model.HighestBidValue + 1).ToString(CultureInfo.InvariantCulture) : (Model.StartPrice + 1).ToString(CultureInfo.InvariantCulture))"/>
-                <button id="bid-button-@Model.Id" class="btn btn-info add-to-cart-button d-inline-flex align-items-center" data-productid="@Model.Id" onclick="AxiosCart.addbid('@Url.RouteUrl("AddBid", new { productId = Model.Id })', @($"'#product-details-form-{Model.Id}'")); return false;">
-                    <b-icon icon="hammer" class="mx-1"></b-icon><span>@Loc["ShoppingCart.Bid"]</span>
+                <button id="bid-button-@Model.Id" class="btn btn-info add-to-cart-button d-inline-flex align-items-center" data-productid="@Model.Id" data-cart-action="bid" data-url="@Url.RouteUrl("AddBid", new { productId = Model.Id })" data-form="#product-details-form-@(Model.Id)">
+                    <i class="b-icon bi bi-hammer mx-1" aria-hidden="true"></i><span>@Loc["ShoppingCart.Bid"]</span>
                 </button>
             </div>
         }

@@ -2,7 +2,7 @@
 
 @if (!customerSettings.HideNewsletterBlock)
 {
-    <div class="newsletter mt-3 bg-info col-12">
+    <div class="newsletter mt-3 bg-info col-12" vue-island>
         <div class="d-flex justify-content-center justify-content-lg-start">
             <div class="newsletter-subscribe container w-100" id="newsletter-subscribe-block">
                 <div class="d-flex flex-row row">
@@ -14,14 +14,14 @@
                             @Loc["Newsletter.Desc"]
                         </div>
                     </div>
-                    <div class="col-lg-5 col-12 px-lg-3 pr-lg-0 px-0 mt-lg-0 newsletter-inputs d-flex flex-column justify-content-center align-items-center">
+                    <div class="col-lg-5 col-12 px-lg-3 pe-lg-0 px-0 mt-lg-0 newsletter-inputs d-flex flex-column justify-content-center align-items-center">
                         <div class="input-group" role="group">
                             <input id="newsletter-email" class="input-group-text form-control newsletter-email"
                                    placeholder="@Loc["Newsletter.Email.Placeholder"]" aria-label="@Loc["Newsletter.Email.Placeholder"]"/>
-                            <label for="newsletter-email" class="sr-only">newsletter</label>
+                            <label for="newsletter-email" class="visually-hidden">newsletter</label>
                             <div class="input-group-append">
                                 <button class="btn btn-secondary newsletter-email-button" id="newsletter-subscribe-button" @@click="newsletterBox(@customerSettings.NewsletterBlockAllowToUnsubscribe.ToString().ToLower(), '@(Url.RouteUrl("SubscribeNewsletter"))')">
-                                    <b-icon icon="envelope"></b-icon>
+                                    <i class="b-icon bi bi-envelope" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
@@ -30,13 +30,13 @@
                         {
                             <div class="custom-controls-stacked newsletter-subscribe-unsubscribe justify-content-center w-100 pt-1">
                                 <fieldset class="d-inline-flex justify-content-center w-100">
-                                    <div class="custom-control custom-radio mb-2">
-                                        <input value="newsletter_unsubscribe" id="newsletter_subscribe" ref="newsletterSubscribe" name="newsletter_block" type="radio" class="custom-control-input" checked="checked">
-                                        <label class="custom-control-label text-white" for="newsletter_subscribe">@Loc["Newsletter.Options.Subscribe"]</label>
+                                    <div class="form-check mb-2">
+                                        <input value="newsletter_unsubscribe" id="newsletter_subscribe" ref="newsletterSubscribe" name="newsletter_block" type="radio" class="form-check-input" checked="checked">
+                                        <label class="form-check-label text-white" for="newsletter_subscribe">@Loc["Newsletter.Options.Subscribe"]</label>
                                     </div>
-                                    <div class="custom-control custom-radio ml-3 mb-2">
-                                        <input value="newsletter_unsubscribe" id="newsletter_unsubscribe" name="newsletter_block" type="radio" class="custom-control-input">
-                                        <label class="custom-control-label text-white" for="newsletter_unsubscribe">@Loc["Newsletter.Options.Unsubscribe"]</label>
+                                    <div class="form-check ms-3 mb-2">
+                                        <input value="newsletter_unsubscribe" id="newsletter_unsubscribe" name="newsletter_block" type="radio" class="form-check-input">
+                                        <label class="form-check-label text-white" for="newsletter_unsubscribe">@Loc["Newsletter.Options.Unsubscribe"]</label>
                                     </div>
                                 </fieldset>
                             </div>

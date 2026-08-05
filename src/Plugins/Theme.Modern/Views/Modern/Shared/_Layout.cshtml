@@ -16,6 +16,7 @@
     <partial name="Partials/Favicons"/>
     <resources asp-type="HeadLink"/>
     <resources asp-type="HeadScript"/>
+    <partial name="Partials/SiteStructuredData"/>
     @await RenderSectionAsync("head", false)
 </head>
 <body>
@@ -23,38 +24,51 @@
 <resources asp-type="ScriptHeader"/>
 @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
 
-<div id="app" v-cloak>
+@*No v-cloak on the root - see the note in Grand.Web's _Layout.cshtml*@
+<div id="app">
     <div class="page-loader-container">
         <div class="page-loader"></div>
     </div>
     <partial name="Partials/Notifications"/>
     <vc:get-coordinate></vc:get-coordinate>
-    <b-container fluid class="main-container">
+    @*Skip link - see the note in Grand.Web's _Layout.cshtml*@
+    <a class="visually-hidden-focusable skip-link" href="#content">@Loc["Common.SkipToContent"]</a>
+    <div class="container-fluid main-container">
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
         <div class="row">
-            <div class="left-side-container" v-bind:class="{ toggled : !menuToggled}">
+            @*`toggled` is maintained by the menuToggled watcher in the theme's app.js
+                   rather than a v-bind: this element is an island mount point, and Vue
+                   never sees the attributes of the element it mounts on. Rendered here in
+                   its initial state so the sidebar does not flicker open on load.*@
+            <div class="left-side-container toggled">
                 <div class="container px-0">
                     <partial name="Header"/>
-                    <div class="header-nav-bottom">
+                    <div class="header-nav-bottom" vue-island>
                         <partial name="Partials/Logo"/>
                         @await Component.InvokeAsync("SearchBox")
                         <ul class="navbar-nav top-header-items">
-                            <template>
-                                <li class="nav-item">
-                                    <a class="nav-link" v-b-toggle.sidebar-right>
-                                        <span class="icons icon-user"></span>
-                                    </a>
-                                    <template>
-                                        <b-sidebar id="sidebar-right" bg-variant="white" text-variant="standard" body-class="user-panel" title="@Loc["Account.MyAccount"]" right backdrop>
-                                            <partial name="Partials/HeaderLinks"/>
-                                        </b-sidebar>
-                                    </template>
-                                </li>
-                            </template>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="offcanvas" data-bs-target="#sidebar-right" aria-controls="sidebar-right">
+                                    <span class="icons icon-user"></span>
+                                </a>
+                            </li>
+                            @* Colour-scheme switch. Only one icon is bound rather than
+                               hiding the other in CSS, so this needs no theme styling. *@
+                            <li class="nav-item">
+                                <span class="nav-link">
+                                    <div class="form-check form-switch contrast-switch">
+                                        <input class="form-check-input" type="checkbox" id="contrast-button" name="contrast-button" v-model="darkMode">
+                                        <label class="form-check-label" for="contrast-button">
+                                            <i class="bi" :class="darkMode ? 'bi-moon' : 'bi-sun'" aria-hidden="true"></i>
+                                            <span class="visually-hidden">@Loc["Common.DarkMode"]</span>
+                                        </label>
+                                    </div>
+                                </span>
+                            </li>
                             <partial name="Partials/ShoppingCartLinks"/>
                         </ul>
                     </div>
-                    <div class="top-menu-container">
+                    <div class="top-menu-container" vue-island>
                         <div id="menu-toggler" class="menu-toggler d-lg-none d-flex" @@click="openMenu($event.target, 'mainMenu')">
                             <span></span>
                             <span></span>
@@ -75,22 +89,37 @@
                     </div>
                 </div>
             </div>
-            <div class="container right-container">
+            @*No island on <main> - see the note in Grand.Web's _Layout.cshtml*@
+            <main id="content" class="container right-container" tabindex="-1">
                 @if (IsSectionDefined("Breadcrumb"))
                 {
                     @await RenderSectionAsync("Breadcrumb")
                 }
                 @RenderBody()
-            </div>
+            </main>
         </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
-    </b-container>
+    </div>
     <div id="backdrop-menu" class="backdrop-menu"></div>
     @await Component.InvokeAsync("Footer")
     <partial name="Partials/Cookie"/>
+    @* Drawers live here rather than in the header: .left-side-container has a
+       transform, which would become the containing block for their fixed
+       positioning. Their triggers up in the header target them by id. *@
+    <div class="offcanvas offcanvas-end b-sidebar b-sidebar-right" tabindex="-1" id="sidebar-right" aria-labelledby="sidebar-right-label">
+        <div class="b-sidebar-header">
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <strong class="ms-2" id="sidebar-right-label">@Loc["Account.MyAccount"]</strong>
+        </div>
+        <div class="b-sidebar-body user-panel">
+            <partial name="Partials/HeaderLinks"/>
+        </div>
+    </div>
+    <partial name="Partials/SidebarPanels"/>
 </div>
 @await Component.InvokeAsync("Widget", new { widgetZone = "body_end_html_tag_before" })
-<partial name="Partials/ProductBoxVue"/>
+<partial name="Partials/ProductBoxTemplate"/>
+<partial name="Partials/ProductBoxListTemplate"/>
 <resources asp-type="ScriptFooter"/>
 <resources asp-type="TemplateFooter"/>
 </body>

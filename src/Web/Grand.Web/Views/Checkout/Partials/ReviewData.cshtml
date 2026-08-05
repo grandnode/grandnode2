@@ -1,8 +1,9 @@
-﻿<div class="mb-3">
+﻿@*v-cloak - see the note in Partials/ConfirmOrder*@
+<div class="mb-3" v-cloak>
     <div class="card-group">
         <div class="card" title="@Loc["Order.BillingAddress"]">
             <div class="card-body">
-                <ul class="billing-info pl-0">
+                <ul class="billing-info ps-0">
                     <li class="name">
                         {{vmorder.OrderReviewData.BillingAddress.FirstName}} {{vmorder.OrderReviewData.BillingAddress.LastName}}
                     </li>
@@ -67,7 +68,7 @@
         </div>
         <div class="card" v-if="vmorder.OrderReviewData.IsShippable" title="@Loc["Order.ShippingAddress"]">
             <div class="card-body">
-                <ul class="shipping-info pl-0">
+                <ul class="shipping-info ps-0">
                     <template v-if="!vmorder.OrderReviewData.SelectedPickUpInStore">
                         <li class="name">
                             {{vmorder.OrderReviewData.ShippingAddress.FirstName}} {{vmorder.OrderReviewData.ShippingAddress.LastName}}

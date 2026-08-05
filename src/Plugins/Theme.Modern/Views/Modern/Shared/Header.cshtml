@@ -1,9 +1,10 @@
 ﻿@inject StoreInformationSettings StoreInformationSettings
 @inject CommonSettings CommonSettings
 
-<div class="header-nav">
+@*<header> rather than a plain div - see the note in Grand.Web's Partials/Header*@
+<header class="header-nav" vue-island>
     <nav class="navbar navbar-light navbar-expand">
-        <b-container fluid id="header-container">
+        <div class="container-fluid" id="header-container">
             <ul class="navbar-nav selectors">
                 <partial name="Partials/Selector_TaxType"/>
                 <partial name="Partials/Selector_Currency"/>
@@ -20,6 +21,6 @@
             <swiper class="swiper-info" ref="topHeaderInfo" :options="topHeaderInfo.swiperOptions">
                 @await Component.InvokeAsync("PageBlock", new { systemName = "topHeaderInfo" })
             </swiper>
-        </b-container>
+        </div>
     </nav>
-</div>
+</header>

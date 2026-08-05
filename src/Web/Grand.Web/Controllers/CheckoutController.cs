@@ -129,6 +129,19 @@ public class CheckoutController : BasePublicController
         if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed)
             return Challenge();
 
+        //validation (checkout attributes)
+        //this route is reachable by GET - a bookmark, the back button, or the
+        //"checkout as guest" button - so it cannot rely on ShoppingCart/StartCheckout
+        //having run the same check on the way in. Without it a cart with an unanswered
+        //required checkout attribute walked into checkout and only failed at the very
+        //end, when the order was placed.
+        var checkoutAttributes = _contextAccessor.WorkContext.CurrentCustomer
+            .GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
+                _contextAccessor.StoreContext.CurrentStore.Id);
+        var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes, true, true);
+        if (cartWarnings.Any())
+            return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
+
         //validation (each shopping cart item)
         foreach (var sci in cart)
         {

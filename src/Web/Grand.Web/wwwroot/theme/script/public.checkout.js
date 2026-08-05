@@ -1,4 +1,10 @@
-var vmorder = new Vue({
+/*
+ * Registered under the name the checkout island declares (`vue-island="vmorder"`
+ * on Views/Checkout/Start.cshtml), so its markup resolves `vmorder` as component
+ * data. This file is ordered 300 and the theme's app.js - which mounts the
+ * islands via Vue.shell() - is 900, so the registration is always in time.
+ */
+var vmorder = Vue.registerViewModel('vmorder', new Vue({
     data: function () {
         return {
             cart: null,
@@ -280,8 +286,10 @@ var vmorder = new Vue({
 
                         if (!response.data.wrong_billing_address) {
                             if (!(document.querySelector("#opc-confirm-order").classList.contains('show'))) {
-                                vm.$root.$emit('bv::toggle::collapse', 'opc-' + response.data.update_section.name)
-                                vmorder.vmresetSteps(document.querySelector('#opc-' + response.data.update_section.name));
+                                var section = document.querySelector('#opc-' + response.data.update_section.name);
+                                // the panels share data-bs-parent, so showing one collapses the others
+                                bootstrap.Collapse.getOrCreateInstance(section).show();
+                                vmorder.vmresetSteps(section);
                             }
                         }
                     }
@@ -850,12 +858,24 @@ var vmorder = new Vue({
             });
         },
         scrollToSection() {
-            var container = document.getElementById("checkout-steps");
-            window.scrollTo({
-                top: container.offsetTop,
-                left: 0,
-                behavior: 'smooth'
-            });
+            // Scroll to the whole checkout block, not to #checkout-steps: the steps start
+            // below the "Checkout" heading, so targeting them pushed the heading off the
+            // top of the screen on every step change.
+            var container = document.querySelector('.checkout-page') || document.getElementById('checkout-steps');
+            if (!container) return;
+
+            // Below the navbar breakpoint .header-nav turns sticky and would cover the
+            // top of whatever we scroll to; a static header overlaps nothing.
+            var header = document.querySelector('.header-nav');
+            var headerStyle = header && getComputedStyle(header);
+            var overlap = headerStyle && (headerStyle.position === 'sticky' || headerStyle.position === 'fixed')
+                ? header.getBoundingClientRect().height
+                : 0;
+
+            // offsetTop is measured against the offsetParent (.cart-view is positioned
+            // here), so it is not a document coordinate - this is.
+            var top = container.getBoundingClientRect().top + window.scrollY - overlap - 12;
+            window.scrollTo({ top: Math.max(top, 0), left: 0, behavior: 'smooth' });
         }
     },
     created() {
@@ -899,4 +919,4 @@ var vmorder = new Vue({
             }
         }
     }
-});
+}));

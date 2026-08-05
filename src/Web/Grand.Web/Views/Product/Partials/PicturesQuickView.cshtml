@@ -3,10 +3,7 @@
     <div class="gallery">
         @if (Model.PictureModels.Count > 1)
         {
-            <b-img-lazy id="main-product-img-@Model.Id" class="image main-image"
-                        src="@Model.DefaultPictureModel.ImageUrl"
-                        alt="@Model.DefaultPictureModel.AlternateText"
-                        title="@Model.DefaultPictureModel.Title"/>
+            <img class="image main-image" src="@Model.DefaultPictureModel.ImageUrl" alt="@Model.DefaultPictureModel.AlternateText" loading="lazy" id="main-product-img-@Model.Id" title="@Model.DefaultPictureModel.Title">
             @foreach (var picture in Model.PictureModels)
             {
                 <img class="image thumb-image"
@@ -19,13 +16,7 @@
         }
         else
         {
-            <b-img-lazy class="img-fluid"
-                        alt="@Model.DefaultPictureModel.AlternateText"
-                        src="@Model.DefaultPictureModel.ImageUrl"
-                        data-fullsize="@Model.DefaultPictureModel.FullSizeImageUrl"
-                        title="@Model.DefaultPictureModel.Title"
-                        itemprop="image"
-                        id="main-product-img-@Model.Id"/>
+            <img class="img-fluid" src="@Model.DefaultPictureModel.ImageUrl" alt="@Model.DefaultPictureModel.AlternateText" loading="lazy" data-fullsize="@Model.DefaultPictureModel.FullSizeImageUrl" title="@Model.DefaultPictureModel.Title" itemprop="image" id="main-product-img-@Model.Id">
         }
     </div>
 </div>

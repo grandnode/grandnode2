@@ -1,5 +1,4 @@
-﻿Vue.use(VueAwesomeSwiper)
-var hpi = new Vue({
+﻿var hpi = new Vue({
     props: {
         HomePageItems: {
             type: Array,

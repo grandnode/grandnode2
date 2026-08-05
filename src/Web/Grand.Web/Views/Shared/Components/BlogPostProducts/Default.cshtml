@@ -1,10 +1,10 @@
 ﻿@model IList<ProductOverviewModel>
 
-<div class="product-grid blogpost-product-grid col-12 px-0">
+<div class="product-grid blogpost-product-grid col-12 px-0" vue-island>
     <h2 class="h3 generalTitle text-center">
         @Loc["Blog.Products"]
     </h2>
-    <div class=" form-row flex-grid">
+    <div class=" row flex-grid">
         @foreach (var product in Model)
         {
             <div class="col-lg-4 col-sm-6 col-6 mb-2">

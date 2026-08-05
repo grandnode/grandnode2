@@ -12,7 +12,7 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Addresses })
 }
 
-<div class="page account-page address-list-page pl-lg-3 pt-lg-0 pt-3">
+<div class="page account-page address-list-page ps-lg-3 pt-lg-0 pt-3">
     @Html.AntiForgeryToken()
     <h1 class="h2 generalTitle">
         <div>@Loc["Account.CustomerAddresses"]</div>
@@ -28,9 +28,9 @@
         </div>
     </a>
     <div class="w-100">
-        <b-button variant="outline-secondary" class="add-address-button my-3" onclick="location.href='@Url.RouteUrl("CustomerAddressAdd")'">
-            <b-icon icon="clipboard-plus"></b-icon> @Loc["Common.AddNew"]
-        </b-button>
+        <button class="btn btn-outline-secondary add-address-button my-3" type="button" onclick="location.href='@Url.RouteUrl("CustomerAddressAdd")'">
+            <i class="b-icon bi bi-clipboard-plus" aria-hidden="true"></i> @Loc["Common.AddNew"]
+        </button>
     </div>
     @if (Model.Addresses.Any())
     {
@@ -149,7 +149,7 @@
                                 <button class="btn btn-secondary edit-address-button" onclick="location.href='@(Url.RouteUrl("CustomerAddressEdit", new { addressId = address.Id }))'">
                                     @Loc["Common.Edit"]
                                 </button>
-                                <button class="btn btn-danger delete-address-button mt-1" onclick="deletecustomeraddress('@(address.Id)')">
+                                <button class="btn btn-danger delete-address-button mt-1" data-delete-id="@(address.Id)">
                                     @Loc["Common.Delete"]
                                 </button>
                             </div>
@@ -159,26 +159,15 @@
                 </tbody>
             </table>
         </div>
-        <script asp-location="Footer">
-                function deletecustomeraddress(addressId) {
-                    if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
-
-                        var bodyFormData = new FormData();
-                        bodyFormData.append('addressId', addressId);
-                        bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
-
-                        axios({
-                            url: '@Url.Action("AddressDelete", "Account")',
-                            data: bodyFormData,
-                            method: 'post',
-                        }).then(function (response) {
-                            location = response.data.redirect;
-                        }).catch(function (error) {
-                            alert(error)
-                        })
-                    }
-                }
-        </script>
+        <script type="application/json" data-grand-vm="confirmDelete">@Json.Serialize(new {
+                                                                  route = Url.Action("AddressDelete", "Account"),
+                                                                  field = "addressId",
+                                                                  selector = ".delete-address-button",
+                                                                  res = new {
+                                                                      areYouSure = Loc["Admin.Common.AreYouSure"].ToString(),
+                                                                      warning = Loc["common.warning"].ToString()
+                                                                  }
+                                                              })</script>
     }
     else
     {

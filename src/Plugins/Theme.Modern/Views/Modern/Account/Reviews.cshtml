@@ -12,7 +12,13 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Reviews })
 }
 
-<div class="page account-page product-reviews-page pl-lg-3 pt-lg-0 pt-3">
+@*
+    Needs an island: Partials/Rating renders a <b-form-rating> per review, and a
+    component tag outside every island stays an unknown element - no error, no
+    stars. Grepping this file alone shows no Vue construct; the components come in
+    through the shared partial.
+*@
+<div class="page account-page product-reviews-page ps-lg-3 pt-lg-0 pt-3" vue-island>
     <h1 class="h2 generalTitle">
         <div>@Loc["Account.Reviews"]</div>
     </h1>
@@ -35,9 +41,9 @@
                 <div class="card product-review-item mb-3">
                     <header class="card-header">
                         <div class="review-info d-inline-flex w-100">
-                            <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                            <i class="b-icon bi bi-calendar2-check text-info mx-2" aria-hidden="true"></i>
                             <small class="date d-flex text-muted">
-                                <span class="mr-1">@Loc["Reviews.Date"]:</span>
+                                <span class="me-1">@Loc["Reviews.Date"]:</span>
                                 <span>@review.CreatedOn.ToString("g")</span>
                             </small>
                         </div>
@@ -49,10 +55,12 @@
                                     <h6 class="mb-0">@review.ProductName</h6>
                                 </a>
                             </div>
-                            <b-form-rating id='rating-inline2' class='p-0' variant='warning' no-border size='sm' show-value precision='2' readonly inline value='@(ratingStars)'></b-form-rating>
+                            <partial name="Partials/Rating" model="(double)ratingStars" />
                         </div>
                         <div class="review-content">
-                            <div class="review-text">
+                            <div class="review-text" v-pre>
+                                @* v-pre: customer-written text inside an island; a
+                                   review containing {{ }} would be compiled away. *@
                                 @review.ReviewText
                             </div>
                         </div>

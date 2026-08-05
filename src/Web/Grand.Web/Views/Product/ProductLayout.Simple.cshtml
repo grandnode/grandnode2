@@ -39,6 +39,10 @@
         <meta property="twitter:image" content="@Model.DefaultPictureModel.ImageUrl"/>
         <meta property="twitter:url" content="@Url.ActionContext.HttpContext.Request.GetEncodedUrl()"/>
     }
+
+    @*Product JSON-LD - not gated on the Open Graph settings, which are about social
+        previews; this is what search engines read for rich results*@
+    <partial name="Partials/ProductStructuredData" model="Model"/>
 }
 
 <!--product breadcrumb-->
@@ -49,22 +53,22 @@
 }
 
 <vc:widget widget-zone="productdetails_after_breadcrumb" additional-data="@Model.Id"></vc:widget>
-<div class="page product-details-page product-standard">
+<div class="page product-details-page product-standard" vue-island="productreviews productreviewsoverview">
     <vc:widget widget-zone="productdetails_top" additional-data="@Model.Id"></vc:widget>
     <validation-observer ref="ProductFormObserver">
         <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id=@($"product-details-form-{Model.Id}") ref="form" v-on:submit.prevent="formSubmitParam($event, vm.$refs.ProductFormObserver)">
-            <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
+            <div itemscope itemtype="https://schema.org/Product" data-productid="@Model.Id">
                 <div class="container position-relative">
                     <div class="row">
                         <vc:widget widget-zone="productdetails_before_pictures" additional-data="@Model.Id"></vc:widget>
                         <!--product pictures-->
                         <partial name="Partials/Pictures" model="Model"/>
                         <vc:widget widget-zone="productdetails_after_pictures" additional-data="@Model.Id"></vc:widget>
-                        <div class="col-xl-6 col-lg-6 col-md-7 col-12 overview pl-md-3 pl-0 pr-0">
+                        <div class="col-xl-6 col-lg-6 col-md-7 col-12 overview ps-md-3 ps-0 pe-0">
                             @if (!string.IsNullOrEmpty(Model.Flag))
                             {
                                 <div class="product-label">
-                                    <div class="badge badge-info">@Model.Flag</div>
+                                    <div class="badge text-bg-info">@Model.Flag</div>
                                 </div>
                             }
                             <partial name="Partials/Unavailable" model="Model"/>
@@ -79,7 +83,7 @@
                             <vc:widget widget-zone="productdetails_overview_top" additional-data="@Model.Id"></vc:widget>
                             @if (!string.IsNullOrEmpty(Model.ShortDescription))
                             {
-                                <div class="short-description generalMarginSupporter">
+                                <div class="short-description generalMarginSupporter" v-pre>
                                     @Html.Raw(Model.ShortDescription)
                                 </div>
                             }
@@ -177,39 +181,41 @@
 
                 <div class="col-12 px-0 my-3">
                     <div>
-                        <b-tabs content-class="mt-3" align="center">
-                            <b-tab title="@Loc["Products.Description"]" active>
-                                @Html.Raw(Model.FullDescription)
-                            </b-tab>
+                        <gn-tabs content-class="mt-3" align="center">
+                            <gn-tab title="@Loc["Products.Description"]" active="true">
+                                @* v-pre: this content comes from the database and lands inside the #app template,
+                                   so Vue would compile any {{ }} it contains - a stray brace in an editor's text
+                                   threw at compile time and took the whole page down with it *@
+                                <div v-pre>
+                                    @Html.Raw(Model.FullDescription)
+                                </div>
+                            </gn-tab>
                             @if (Model.ProductTags.Any())
                             {
-                                <b-tab title="@Loc["Products.Tags"]">
+                                <gn-tab title="@Loc["Products.Tags"]">
                                     <partial name="Partials/ProductTags" model="Model.ProductTags"/>
-                                </b-tab>
+                                </gn-tab>
                             }
                             @if (Model.ProductSpecifications.Any())
                             {
-                                <b-tab title="@Loc["Products.Specs"]">
+                                <gn-tab title="@Loc["Products.Specs"]">
                                     <partial name="Partials/ProductSpecifications" model="Model.ProductSpecifications"/>
-                                </b-tab>
+                                </gn-tab>
                             }
                             @if (Model.ProductReviewOverview.AllowCustomerReviews)
                             {
-                                <b-tab id="review-tab" title="@Loc["Products.Reviews"]" :active="active ? true : false">
+                                <gn-tab id="review-tab" title="@Loc["Products.Reviews"]">
                                     @await Component.InvokeAsync("ProductReviews", new { productId = Model.Id })
-                                </b-tab>
+                                </gn-tab>
                             }
                             @if (Model.AskQuestionOnProduct)
                             {
-                                <b-tab title="@Loc["Products.ContactUs"]"
-                                       @if (Model.ProductAskQuestion.DisplayCaptcha)
-                                       {
-                                           <text> @@click="askquestion.getCaptcha()" </text>
-                                       }>
+                                <gn-tab title="@Loc["Products.ContactUs"]"
+                                        on-click="@(Model.ProductAskQuestion.DisplayCaptcha ? "askquestion.getCaptcha()" : null)">
                                     <partial name="Partials/AskQuestionOnProduct" model="Model.ProductAskQuestion"/>
-                                </b-tab>
+                                </gn-tab>
                             }
-                        </b-tabs>
+                        </gn-tabs>
                     </div>
                 </div>
                 <vc:products-also-purchased product-id="@Model.Id" product-thumb-picture-size="null"></vc:products-also-purchased>

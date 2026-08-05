@@ -1,5 +1,4 @@
-﻿Vue.use(VueAwesomeSwiper)
-var subcatslider = new Vue({
+﻿var subcatslider = new Vue({
     data() {
         return {
             swiperOptions: {
@@ -34,6 +33,14 @@ var subcatslider = new Vue({
         }
     },
 });
+/*
+ * Published under the name the category page's island declares. This script is
+ * not part of the bundle, so views/ cannot register it - Vue.registerViewModel is
+ * the way in. It has to run before the islands mount, which it does: the theme's
+ * scripts are ordered ahead of app.js, and app.js is what calls Vue.shell().
+ */
+Vue.registerViewModel('subcatslider', subcatslider);
+
 function sideToggle() {
     var leftSide = document.querySelector(".generalLeftSide");
     if (leftSide.classList.contains('show')) {
@@ -72,4 +79,20 @@ function closeLeftSide() {
         }
     }, 400);
 }
+
+function updateFiltersToggleVisibility() {
+    var toggle = document.getElementById('mobile-filters-toggle');
+    var leftSide = document.querySelector('.generalLeftSide');
+    if (!toggle || !leftSide) return;
+    // block-category-navigation is d-lg-block/d-none, so it only counts as
+    // real content above the lg breakpoint - modal-close is always present
+    // and isn't filter content, so it's excluded from the check.
+    var hasContent = Array.prototype.some.call(leftSide.children, function (el) {
+        if (el.classList.contains('modal-close')) return false;
+        return getComputedStyle(el).display !== 'none';
+    });
+    toggle.style.display = hasContent ? '' : 'none';
+}
+document.addEventListener("DOMContentLoaded", updateFiltersToggleVisibility);
+window.addEventListener("resize", updateFiltersToggleVisibility);
 

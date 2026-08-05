@@ -8,7 +8,7 @@
                 <label class="genera" for="billing-address-select">@Loc["Checkout.SelectBillingAddressOrEnterNewOne"]</label>
             </div>
             <div class="col-12 px-0">
-                <select name="BillingAddressId" ref="billingSelect" id="billing-address-select" class="custom-select address-select"
+                <select name="BillingAddressId" ref="billingSelect" id="billing-address-select" class="form-select address-select"
                         title="" onchange="vmorder.vBilling.newAddress(!this.value)">
                     @foreach (var address in Model.ExistingAddresses)
                     {
