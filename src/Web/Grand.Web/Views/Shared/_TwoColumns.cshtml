@@ -77,7 +77,10 @@
         </div>
             </div>
     </div>
-    <div class="col-lg-3 col-md-12 generalLeftSide order-1">
+    @*The filters render here as a bare <template v-if>, so this column needs an
+        island of its own: an uncompiled <template> renders nothing at all - the
+        catalog filters silently vanished rather than showing raw markup.*@
+    <div class="col-lg-3 col-md-12 generalLeftSide order-1" vue-island>
         @if (IsSectionDefined("left"))
         {
             @await RenderSectionAsync("left")

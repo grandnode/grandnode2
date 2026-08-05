@@ -53,7 +53,10 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_collection", additionalData = Model.Id })
 }
 <div class="row custom-container mt-3" id="TwoColumns">
-    <div class="col-9 col-sm-8 col-md-6 col-lg-4 col-xl-3 generalLeftSide" onclick="StopPropagation(event)">
+    @*The filters render here as a bare <template v-if>, so this column needs an
+        island of its own: an uncompiled <template> renders nothing at all - the
+        catalog filters silently vanished rather than showing raw markup.*@
+    <div class="col-9 col-sm-8 col-md-6 col-lg-4 col-xl-3 generalLeftSide" onclick="StopPropagation(event)" vue-island>
         <div class="modal-close" onclick="closeLeftSide()">
             <i class="b-icon bi bi-x" aria-hidden="true"></i>
         </div>
