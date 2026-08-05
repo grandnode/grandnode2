@@ -15,7 +15,12 @@
     @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Reviews })
 }
 
-<div class="page account-page product-reviews-page ps-lg-3 pt-lg-0 pt-3">
+@*
+    Needs an island: the rating on each review is a <b-form-rating>, and a
+    component tag outside every island stays an unknown element - no error, no
+    stars, nothing to show that anything is missing. This page had 39 of them.
+*@
+<div class="page account-page product-reviews-page ps-lg-3 pt-lg-0 pt-3" vue-island>
     <h1 class="h2 generalTitle">@Loc["Account.Reviews"]</h1>
     @if (Model.Reviews.Any())
     {
@@ -51,7 +56,10 @@
                             <partial name="Partials/Rating" model="(double)ratingStars" />
                         </div>
                         <div class="review-content">
-                            <div class="review-text">
+                            @* v-pre: this is customer-written text inside an island,
+                               so a review containing {{ }} would otherwise be compiled
+                               as a template expression and silently disappear. *@
+                            <div class="review-text" v-pre>
                                 @review.ReviewText
                             </div>
                         </div>
