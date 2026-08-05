@@ -1,4 +1,10 @@
-var vmorder = new Vue({
+/*
+ * Registered under the name the checkout island declares (`vue-island="vmorder"`
+ * on Views/Checkout/Start.cshtml), so its markup resolves `vmorder` as component
+ * data. This file is ordered 300 and the theme's app.js - which mounts the
+ * islands via Vue.shell() - is 900, so the registration is always in time.
+ */
+var vmorder = Vue.registerViewModel('vmorder', new Vue({
     data: function () {
         return {
             cart: null,
@@ -913,4 +919,4 @@ var vmorder = new Vue({
             }
         }
     }
-});
+}));

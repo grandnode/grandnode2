@@ -9,7 +9,7 @@
  */
 import { nextTick, reactive } from 'vue'
 import { createViewModel, defineShell } from './view-model'
-import { createStorefrontApp, mountIslands, registerComponent } from '../runtime/islands'
+import { createStorefrontApp, mountIslands, registerComponent, registerViewModel } from '../runtime/islands'
 
 export function StorefrontVue(options = {}) {
     /*
@@ -32,5 +32,13 @@ StorefrontVue.nextTick = nextTick
 StorefrontVue.reactive = reactive
 StorefrontVue.shell = defineShell
 StorefrontVue.mountIslands = mountIslands
+/*
+ * Lets an out-of-bundle script publish its view-model under the name an island
+ * declares (`vue-island="vmorder"`), so the template resolves it as ordinary
+ * component data rather than through the window fall-through Proxy. Must run
+ * before the islands mount - these scripts do, they are ordered ahead of the
+ * theme's app.js, which is what calls Vue.shell().
+ */
+StorefrontVue.registerViewModel = registerViewModel
 
 export default StorefrontVue

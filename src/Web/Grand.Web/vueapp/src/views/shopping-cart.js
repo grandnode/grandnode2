@@ -1,18 +1,21 @@
 /*
  * Shopping cart page view-model (was Views/ShoppingCart/Partials/ModelScript.cshtml).
  *
- * Still published as the global `vmorder` because the Razor markup of the cart
- * page - and the root #app template - address it by that name.
+ * Registered under the name the cart island declares (`vue-island="vmorder"`),
+ * so the cart markup resolves it as ordinary component data. Still published on
+ * `window` too: axios-cart.js and the attribute/checkout behaviours reach for
+ * `window.vmorder` from outside any island.
  */
 import * as bootstrap from 'bootstrap'
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, formData, notify, notifyRequestError } from './shared'
 
 registerView('shoppingCart', ({ model, routes, res }) => {
     const warn = message => notify(message, res.warning)
 
-    window.vmorder = createViewModel({
+    window.vmorder = registerViewModel('vmorder', createViewModel({
         data: () => ({
             cart: model,
             totals: null,
@@ -176,5 +179,5 @@ registerView('shoppingCart', ({ model, routes, res }) => {
                 warn(message)
             }
         }
-    })
+    }))
 })
