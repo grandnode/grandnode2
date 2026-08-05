@@ -19,7 +19,7 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_blog_after" })
 }
 
-<div class="page blogpost-page">
+<div class="page blogpost-page" vue-island="blog">
     @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_top", additionalData = Model.Id })
     <div class="card mt-3">
         <div class="card-header">
