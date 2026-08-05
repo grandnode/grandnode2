@@ -13,12 +13,18 @@
  * using that shell as its data. See `defineShell` / `mountIslands`.
  *
  * This module recreates the Vue 2 semantics on top of Vue 3:
- *  - `LegacyVue(options)` (callable with `new`) either mounts a real app
- *    (when `options.el` is given) or builds a reactive state view-model.
+ *  - `LegacyVue(options)` (callable with `new`) builds a reactive state
+ *    view-model. `el` is rejected - islands and `Vue.shell()` replaced it.
  *  - `LegacyVue.component()` collects global components registered by view
  *    scripts *before* the islands are created.
  *  - Template identifier lookup falls back to `window.*` via a Proxy placed
  *    over `app.config.globalProperties`.
+ *
+ * That last one is what actually keeps this file alive: around 65 .cshtml files
+ * address their view-models by bare global name (`catalog.Model`,
+ * `vmorder.cart`). The facade is a symptom - the templates living in Razor are
+ * the cause - so retiring it means moving templates into components, not
+ * rewriting the 22 `new Vue({ data })` call sites into `reactive()`.
  */
 import { createApp, reactive, computed, watch, nextTick } from 'vue'
 
@@ -317,29 +323,22 @@ export function defineShell(options = {}) {
 }
 
 export function LegacyVue(options = {}) {
+    /*
+     * `el` is not supported any more. Nothing in the storefront mounts that way
+     * since the shell replaced the single #app root, but window.Vue is a public
+     * surface a plugin could still call - and silently building an unmounted
+     * view-model instead would look like "my component renders nothing".
+     */
     if (options.el) {
-        const el = options.el
-        const opts = { ...options }
-        delete opts.el
-        // before makeApp, not just before mount: a callback may register a
-        // global component, and makeApp is where pending components are applied
-        beforeRootMountCallbacks.splice(0).forEach(fn => fn())
-        const app = makeApp(opts)
-        const instance = app.mount(el)
-        // its refs have to join the page-wide set, the same as an island's
-        islands.push(instance)
-        return instance
+        console.error('[grand] new Vue({ el }) is gone: mark the element `vue-island` ' +
+            'and put shared state in Vue.shell(), or use Vue.createApp(...).mount(el)', options.el)
+        return null
     }
     return makeStateVm(options)
 }
 
 LegacyVue.component = function (name, def) {
     pendingComponents[name] = def
-}
-LegacyVue.extend = function (options) {
-    return function () {
-        return makeStateVm(options || {})
-    }
 }
 LegacyVue.createApp = makeApp
 LegacyVue.nextTick = nextTick
