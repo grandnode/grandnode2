@@ -1,13 +1,55 @@
 /*
- * The last Vue 2 prosthesis the Razor templates need.
+ * The Vue 2 semantics the Razor templates still rely on.
  *
- * The `window` fall-through that used to live here is gone. Every view-model a
- * template names is declared on its island in both themes, and the globals those
- * templates genuinely call - document, window, location, localStorage, bootstrap,
- * hideTooltip - are installed explicitly in main.js. A name nothing provides is
- * now undefined rather than silently picked off `window`, which is what makes a
- * missing declaration visible instead of invisible.
+ * The `window` fall-through is on its last stretch. Grand.Web no longer needs it:
+ * every view-model its templates name is declared on an island, and the globals
+ * those templates genuinely call - document, window, location, bootstrap,
+ * hideTooltip - are installed explicitly in main.js. Theme.Modern is not there
+ * yet, so the fall-through stays and now *reports* each name it resolves.
+ *
+ * Removing it while Modern still depends on it is not a soft failure: an
+ * undeclared view-model stops being silently fine and starts throwing
+ * "Cannot read properties of undefined" out of the render function, which takes
+ * the island down. Clear the warnings first, then delete this.
  */
+
+/**
+ * Rebuilds Vue 2's `with(this)` fall-through: an identifier the instance does not
+ * have is looked up on `window`. `getOwnPropertyDescriptor` matters as much as
+ * `get` - Vue tests for the key before it reads it.
+ *
+ * Every resolved name is reported once, with the island that needed it, so the
+ * remaining work is a list rather than a guess. Silent while nothing uses it.
+ */
+const reported = new Set()
+
+export function withWindowFallback(base) {
+    const note = key => {
+        if (reported.has(key)) return
+        reported.add(key)
+        console.warn(`[grand] "${key}" resolved through the window fall-through - ` +
+            'declare it on the island (vue-island="' + key + '") or install it in main.js')
+    }
+    return new Proxy(base, {
+        getOwnPropertyDescriptor(target, key) {
+            const own = Reflect.getOwnPropertyDescriptor(target, key)
+            if (own) return own
+            if (typeof key === 'string' && key in window) {
+                note(key)
+                return { configurable: true, enumerable: false, value: window[key], writable: true }
+            }
+            return undefined
+        },
+        get(target, key) {
+            if (key in target) return target[key]
+            if (typeof key === 'string' && key in window) {
+                note(key)
+                return window[key]
+            }
+            return undefined
+        }
+    })
+}
 
 /*
  * Root-level props without a parent were plain reactive state in Vue 2; fold

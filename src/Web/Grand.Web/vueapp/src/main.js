@@ -25,7 +25,7 @@ import * as bootstrap from 'bootstrap'
 import axios from 'axios'
 import Pikaday from 'pikaday'
 
-import { onAppCreate, onBeforeRootMount, mountIslands } from './runtime/islands'
+import { onAppCreate, onBeforeRootMount, mountIslands, getRootVm } from './runtime/islands'
 import StorefrontVue from './compat/vue-global'
 import { registerBvComponents, VueGallerySlideshow } from './compat/bv-components'
 import { registerValidation, veeGetMessage } from './compat/validate'
@@ -96,6 +96,16 @@ import './views/wishlist'
  * template calling document.getElementById() resolves it as an instance property.
  */
 function installTemplateGlobals(app) {
+    /*
+     * `vm` is layered into every island's data, but an app made with
+     * Vue.createApp() - the popups displayPopup renders - is not an island and
+     * gets no layering, so it needs the shell here too. A getter because the
+     * shell does not exist yet when the first apps are created.
+     */
+    Object.defineProperty(app.config.globalProperties, 'vm', {
+        get: () => getRootVm(),
+        configurable: true
+    })
     Object.assign(app.config.globalProperties, {
         window,
         document,

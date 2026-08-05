@@ -2,9 +2,22 @@
 @model AddressModel
 @{
     var prefix = ViewData.TemplateInfo.HtmlFieldPrefix;
+    // the view-model this form binds to; the JSON island at the bottom publishes
+    // it under the same name, and the island below declares it
+    var addressVmName = $"createorupdateaddress{prefix}";
 }
 <input asp-for="Id" type="hidden"/>
-<div class="edit-address row">
+@*
+    The declaration lives here rather than on each host view because the name
+    carries the field prefix, and the six hosts use five different ones -
+    Address, BillingNewAddress, ShippingNewAddress, MerchandiseReturnNewAddress.
+    Declaring it once here is automatically right for all of them, including
+    Theme.Modern's account views, which render this same partial.
+
+    The marker goes on the form's own .edit-address row: a new wrapper element
+    would sit between .row and its .col-* children and break the grid.
+*@
+<div class="edit-address row" vue-island="@addressVmName">
     @if (Model.NameEnabled)
     {
         <div class="form-group col-sm-12 col-md-12">
@@ -239,7 +252,6 @@
     <div id="errors-address"></div>
 </div>
 @{
-    var addressVmName = $"createorupdateaddress{prefix}";
     var addressVmData = new Dictionary<string, object> {
         ["Name"] = Model.Name,
         ["FirstName"] = Model.FirstName,

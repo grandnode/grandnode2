@@ -179,7 +179,7 @@
                                 </form>
                                 <div class="col-12 buttons py-1 mt-3 px-0" id="payment-method-buttons-container">
                                     <a class="btn btn-secondary" href="#" id="back-payment_method" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
-                                    <input type="button" class="btn btn-info payment-method-next-step-button" @@click="vmorder.saveStep('vPaymentMethod', null, false);vmorder.setDisabled(event)" value="@Loc["Common.Continue"]"/>
+                                    <input type="button" class="btn btn-info payment-method-next-step-button" @@click="vmorder.saveStep('vPaymentMethod', null, false);vmorder.setDisabled($event)" value="@Loc["Common.Continue"]"/>
                                     <span class="please-wait" id="payment-method-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
                                 </div>
                             </div>
