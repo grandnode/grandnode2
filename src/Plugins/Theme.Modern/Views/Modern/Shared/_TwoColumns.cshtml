@@ -56,7 +56,14 @@
     @*The filters render here as a bare <template v-if>, so this column needs an
         island of its own: an uncompiled <template> renders nothing at all - the
         catalog filters silently vanished rather than showing raw markup.*@
-    <div class="col-9 col-sm-8 col-md-6 col-lg-4 col-xl-3 generalLeftSide" onclick="StopPropagation(event)" vue-island>
+    @*
+        The declaration is conditional: this column is shared with every other
+        two-column page, and only the catalog layouts define the `filters` section
+        that reads the `catalog` view-model. Declaring it unconditionally would ask
+        for a view-model that is not there and warn on each of those pages.
+    *@
+    <div class="col-9 col-sm-8 col-md-6 col-lg-4 col-xl-3 generalLeftSide" onclick="StopPropagation(event)"
+         vue-island="@(IsSectionDefined("filters") ? "catalog" : "")">
         <div class="modal-close" onclick="closeLeftSide()">
             <i class="b-icon bi bi-x" aria-hidden="true"></i>
         </div>

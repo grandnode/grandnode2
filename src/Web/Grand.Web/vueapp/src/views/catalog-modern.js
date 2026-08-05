@@ -14,12 +14,13 @@
  * there, hence the typeof guards.
  */
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { applyCatalogModel } from './catalog'
 import { axios, notify } from './shared'
 
 registerView('catalogModern', ({ model, res }) => {
-    window.catalog = createViewModel({
+    window.catalog = registerViewModel('catalog', createViewModel({
         data: () => ({
             Model: [],
             pager: [],
@@ -100,5 +101,5 @@ registerView('catalogModern', ({ model, res }) => {
                 this.Count = { ...this.Count, p_numbers: Array.from(Array(pages).keys()) }
             }
         }
-    })
+    }))
 })
