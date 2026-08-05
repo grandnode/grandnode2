@@ -70,7 +70,7 @@
                             <validation-provider tag="div" vid="applyvendor.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors, classes }">
                                 <div class="d-inline-flex">
                                     <label class="form-check">
-                                        <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="applyvendor.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" v-bind:class="[classes , 'form-control form-check-input']">
+                                        <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="applyvendor.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" v-bind:class="[classes , 'form-check-input']">
                                         <span class="form-check-label"></span>
                                         <span class="custom-control-description">@Loc["Vendors.ApplyAccount.AcceptTermsOfService"]</span>
                                     </label>
