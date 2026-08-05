@@ -66,7 +66,14 @@ const validators = {
     },
     email(value) {
         if (isEmpty(value)) return true
-        return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)
+        /*
+         * The top-level domain is not length-capped. `{2,4}` rejected every
+         * address on a TLD longer than four letters - .online, .travel, .museum,
+         * .company - on every form that uses this rule: contact, ask-a-question,
+         * email-a-friend, addresses and the account page. Still letters-only, so
+         * a TLD containing a digit is rejected as before.
+         */
+        return /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)
     },
     min(value, param) {
         if (isEmpty(value)) return true
