@@ -124,7 +124,7 @@
         </div>
     }
     @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_featured_products", additionalData = Model.Id })
-    <div id="catalog-products" vue-island>
+    <div id="catalog-products" vue-island="catalog">
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
         <template v-if="catalog.Model !== undefined">
             <partial name="Partials/Selectors"/>

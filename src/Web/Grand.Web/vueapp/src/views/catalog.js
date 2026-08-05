@@ -14,6 +14,7 @@
  * successful sort/filter/page request.
  */
 import { createViewModel } from '../compat/view-model'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, notify } from './shared'
 
@@ -69,7 +70,7 @@ export function applyCatalogModel(vm, value) {
 }
 
 registerView('catalog', ({ model, res }) => {
-    window.catalog = createViewModel({
+    window.catalog = registerViewModel('catalog', createViewModel({
         data: () => ({
             Model: [],
             pager: [],
@@ -139,5 +140,5 @@ registerView('catalog', ({ model, res }) => {
                 window.scrollTo({ top: container.offsetTop, left: 0, behavior: 'smooth' })
             }
         }
-    })
+    }))
 })

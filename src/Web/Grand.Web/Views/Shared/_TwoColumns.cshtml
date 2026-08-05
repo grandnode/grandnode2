@@ -80,7 +80,16 @@
     @*The filters render here as a bare <template v-if>, so this column needs an
         island of its own: an uncompiled <template> renders nothing at all - the
         catalog filters silently vanished rather than showing raw markup.*@
-    <div class="col-lg-3 col-md-12 generalLeftSide order-1" vue-island>
+    @*
+        The declaration is conditional because this column is shared: only the
+        catalog layouts define a `filters` section, and only that section reads the
+        `catalog` view-model. Declaring it unconditionally would ask every
+        two-column page for a view-model that is not there, which logs a warning
+        per page. No declaration is a valid state - the island then renders against
+        the shell alone.
+    *@
+    <div class="col-lg-3 col-md-12 generalLeftSide order-1"
+         vue-island="@(IsSectionDefined("filters") ? "catalog" : "")">
         @if (IsSectionDefined("left"))
         {
             @await RenderSectionAsync("left")
