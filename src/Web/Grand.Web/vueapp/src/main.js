@@ -82,9 +82,33 @@ import './views/vendor-review-overview'
 import './views/voice-navigation'
 import './views/wishlist'
 
+/*
+ * The globals a Razor template may name in a Vue expression.
+ *
+ * These used to arrive through a Proxy that forwarded *any* miss to `window`.
+ * That made every undeclared view-model work by accident, which is exactly how
+ * missing island declarations stayed invisible, and it turned a typo into
+ * `undefined` instead of a warning. The list is short and now explicit; a name
+ * that is not here is a mistake, and Vue says so.
+ *
+ * `document`, `window` and `location` are here because Vue's own allowed-globals
+ * list does not include them - only Math, JSON, console and friends - so a
+ * template calling document.getElementById() resolves it as an instance property.
+ */
+function installTemplateGlobals(app) {
+    Object.assign(app.config.globalProperties, {
+        window,
+        document,
+        location,
+        bootstrap,
+        hideTooltip
+    })
+}
+
 onAppCreate(app => {
     registerBvComponents(app)
     registerValidation(app)
+    installTemplateGlobals(app)
     app.config.globalProperties.$bvToast = $bvToast
     // warnHandler is silenced (legacy in-DOM templates trigger noisy dev
     // warnings), but real render/setup errors must stay visible - otherwise
@@ -113,9 +137,12 @@ if (document.readyState === 'loading') {
  * `$root.$emit('bv::hide::tooltip')` the templates used to send into a $root
  * that no longer has $emit.
  */
-window.hideTooltip = function (element) {
+function hideTooltip(element) {
     if (element) bootstrap.Tooltip.getInstance(element)?.hide()
 }
+// a declaration, not an assignment, so installTemplateGlobals can hand it to the
+// islands; still on window for markup outside a Vue expression
+window.hideTooltip = hideTooltip
 
 /*
  * Per-page view-models are built from the [data-grand-vm] JSON islands. Two

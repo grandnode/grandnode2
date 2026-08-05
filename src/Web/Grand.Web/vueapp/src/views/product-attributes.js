@@ -14,6 +14,7 @@
  */
 import { createViewModel } from '../compat/view-model'
 import { onRootReady } from '../runtime/islands'
+import { registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, notifyRequestError } from './shared'
 
@@ -100,7 +101,8 @@ registerView('productAttributes', ({ productId, attributes, route, picture, res 
         }
     })
 
-    window['standardProductAttributes_' + productId] = vm
+    const name = 'standardProductAttributes_' + productId
+    window[name] = registerViewModel(name, vm)
 
     // Prime the price and availability for the preselected attribute values.
     // This has to wait for the root app: the attribute inputs are rendered by

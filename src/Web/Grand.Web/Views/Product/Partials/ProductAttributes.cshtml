@@ -3,7 +3,13 @@
 @{
     var fileLink = Url.RouteUrl("UploadFileProductAttribute");
     //render scripts
-    <div id="product-attributes">
+    @*
+        Its own island, because the view-model's name carries the product id and a
+        grouped product renders this partial once per variant - each needs to
+        declare its own. Nesting inside the product page's island is fine: the
+        outer one renders a placeholder and this mounts on the next pass.
+    *@
+    <div id="product-attributes" vue-island="standardProductAttributes_@(Model.Id)">
         <template v-if="standardProductAttributes_@(Model.Id).ProductAttributes !== 'undefined'">
             <div class="attributes">
                 <table class="table">

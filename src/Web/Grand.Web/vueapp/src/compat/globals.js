@@ -1,34 +1,51 @@
 /*
- * The two Vue 2 semantics the Razor templates still rely on.
+ * The Vue 2 semantics the Razor templates still rely on.
  *
- * Both live here rather than in runtime/ because both are prostheses, not
- * architecture: they exist only because the templates are .cshtml files written
- * against Vue 2, and both can go the day the last of those templates becomes a
- * component. Nothing else in the bundle needs them.
+ * The `window` fall-through is on its last stretch. Grand.Web no longer needs it:
+ * every view-model its templates name is declared on an island, and the globals
+ * those templates genuinely call - document, window, location, bootstrap,
+ * hideTooltip - are installed explicitly in main.js. Theme.Modern is not there
+ * yet, so the fall-through stays and now *reports* each name it resolves.
+ *
+ * Removing it while Modern still depends on it is not a soft failure: an
+ * undeclared view-model stops being silently fine and starts throwing
+ * "Cannot read properties of undefined" out of the render function, which takes
+ * the island down. Clear the warnings first, then delete this.
  */
 
 /**
- * Vue 2 compiled templates with `with(this)`, so an identifier the instance did
- * not have fell through to `window`. Around 65 .cshtml files address their
- * view-model by bare global name (`catalog.Model`, `vmorder.cart`), so the same
- * fall-through is rebuilt as a Proxy over `app.config.globalProperties`.
+ * Rebuilds Vue 2's `with(this)` fall-through: an identifier the instance does not
+ * have is looked up on `window`. `getOwnPropertyDescriptor` matters as much as
+ * `get` - Vue tests for the key before it reads it.
  *
- * `getOwnPropertyDescriptor` matters as much as `get`: the Vue 3 compiler tests
- * for the key before it reads it.
+ * Every resolved name is reported once, with the island that needed it, so the
+ * remaining work is a list rather than a guess. Silent while nothing uses it.
  */
+const reported = new Set()
+
 export function withWindowFallback(base) {
+    const note = key => {
+        if (reported.has(key)) return
+        reported.add(key)
+        console.warn(`[grand] "${key}" resolved through the window fall-through - ` +
+            'declare it on the island (vue-island="' + key + '") or install it in main.js')
+    }
     return new Proxy(base, {
         getOwnPropertyDescriptor(target, key) {
             const own = Reflect.getOwnPropertyDescriptor(target, key)
             if (own) return own
             if (typeof key === 'string' && key in window) {
+                note(key)
                 return { configurable: true, enumerable: false, value: window[key], writable: true }
             }
             return undefined
         },
         get(target, key) {
             if (key in target) return target[key]
-            if (typeof key === 'string' && key in window) return window[key]
+            if (typeof key === 'string' && key in window) {
+                note(key)
+                return window[key]
+            }
             return undefined
         }
     })

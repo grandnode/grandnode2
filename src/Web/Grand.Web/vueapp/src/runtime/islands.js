@@ -23,11 +23,12 @@ let rootVm = null
 /**
  * Publishes a per-page view-model under a name an island can ask for.
  *
- * Templates address these by bare name (`applyvendor.Email`). Today that name is
- * resolved by the `window` fall-through Proxy in compat/globals.js; an island
- * that declares `vue-island="applyvendor"` gets the same object as ordinary
- * component data instead, and needs no fall-through. Once every island declares
- * what it uses, that Proxy can go.
+ * Templates address these by bare name (`applyvendor.Email`), and an island that
+ * declares `vue-island="applyvendor"` gets that object as ordinary component
+ * data. A Proxy still forwards any miss to `window` for Theme.Modern's sake, so
+ * an undeclared view-model keeps working - which is exactly why omissions went
+ * unnoticed for so long. It now warns on every name it resolves; when Modern is
+ * fully declared that Proxy goes, and an undeclared name becomes undefined.
  */
 export function registerViewModel(name, vm) {
     viewModels[name] = vm
@@ -86,6 +87,7 @@ export function createStorefrontApp(options) {
     app.config.warnHandler = () => {}
     Object.entries(pendingComponents).forEach(([name, def]) => app.component(name, def))
     appInstalls.forEach(fn => fn(app))
+    // still there for Theme.Modern; see compat/globals.js
     app.config.globalProperties = withWindowFallback(app.config.globalProperties)
     return app
 }
@@ -105,9 +107,14 @@ const ISLAND_ATTRIBUTE = 'vue-island'
 function islandData(el) {
     const names = (el.getAttribute(ISLAND_ATTRIBUTE) || '')
         .split(/[\s,]+/).filter(Boolean)
-    if (!names.length) return rootVm
 
-    const declared = {}
+    /*
+     * `vm` is the shell's own name in the templates (`vm.$refs.searchForm`), and
+     * it is layered in for every island, declared or not. It used to resolve
+     * through the window fall-through like any other global; giving it to the
+     * islands directly is what lets that Proxy go.
+     */
+    const declared = { vm: rootVm }
     names.forEach(name => {
         if (viewModels[name]) declared[name] = viewModels[name]
         else console.warn('[grand] island asked for an unknown view-model', name, el)
