@@ -10,7 +10,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Messages;
 using Grand.Domain.Tax;
 using Grand.Web.Commands.Models.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Customers;
 

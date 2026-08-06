@@ -6,7 +6,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Common.Services.Directory;
 

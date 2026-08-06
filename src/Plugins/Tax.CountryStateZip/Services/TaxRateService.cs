@@ -2,7 +2,7 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 using Tax.CountryStateZip.Domain;
 
 namespace Tax.CountryStateZip.Services;

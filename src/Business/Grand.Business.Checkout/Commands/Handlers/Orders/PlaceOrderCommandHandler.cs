@@ -27,7 +27,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;

@@ -29,7 +29,7 @@ using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Localization;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net;
 using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;

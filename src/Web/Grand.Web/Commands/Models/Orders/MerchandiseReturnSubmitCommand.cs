@@ -1,7 +1,7 @@
 ﻿using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Web.Models.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Models.Orders;
 

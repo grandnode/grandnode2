@@ -1,6 +1,6 @@
 ﻿using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Pages;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Components;

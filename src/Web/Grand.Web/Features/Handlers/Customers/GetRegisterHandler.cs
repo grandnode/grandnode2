@@ -8,7 +8,7 @@ using Grand.Domain.Tax;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Grand.Web.Models.Newsletter;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Features.Handlers.Customers;

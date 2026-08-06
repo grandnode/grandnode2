@@ -1,7 +1,7 @@
 ﻿using DotLiquid;
 using Grand.Domain;
 using Grand.Domain.Messages;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Events.Messages;
 

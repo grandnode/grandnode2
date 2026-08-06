@@ -1,6 +1,6 @@
 # Domain Events and Notifications
 
-GrandNode uses MediatR for three distinct things. Keeping them apart matters, because they have different failure semantics.
+GrandNode uses `Grand.Mediator` (`src/Core/Grand.Mediator`, in-house) for three distinct things. Keeping them apart matters, because they have different failure semantics.
 
 | Kind | Interface | Handlers | Failure |
 |---|---|---|---|
@@ -64,7 +64,7 @@ Handlers are discovered by assembly scanning, including in plugins. This is the 
 
 ### Handler rules
 
-1. **A handler must not throw.** MediatR's default publisher runs handlers sequentially; an exception aborts the remaining handlers and surfaces in the caller's write path. Catch, log, and return.
+1. **A handler must not throw.** `Publish` runs handlers sequentially and fails fast; an exception aborts the remaining handlers and surfaces in the caller's write path. Catch, log, and return.
 2. A handler must be fast. It runs inline in the request. Long work belongs in a scheduled task — see `.ai/skills/scheduled-task.md`.
 3. A handler must not assume ambient context. Entity events fire from scheduled tasks and migrations too, where `IWorkContext` is null. Read what you need off the entity, or take it as an explicit parameter. See `.ai/knowledge/scoping.md`.
 4. A handler that writes the same entity type it subscribes to will re-enter itself. Guard it or restructure.

@@ -7,7 +7,7 @@ using Grand.Domain.Messages;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using System.IO;
 
 namespace Grand.Business.Marketing.Services.Newsletters;

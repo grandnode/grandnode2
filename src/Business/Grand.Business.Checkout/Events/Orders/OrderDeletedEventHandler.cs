@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Events.Orders;
 

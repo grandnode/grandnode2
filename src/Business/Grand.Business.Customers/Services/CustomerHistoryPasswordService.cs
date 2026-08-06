@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Customers.Services;
 

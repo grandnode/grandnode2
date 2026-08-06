@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Events.Orders;
 

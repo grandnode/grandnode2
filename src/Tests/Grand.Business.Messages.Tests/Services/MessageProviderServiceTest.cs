@@ -13,7 +13,7 @@ using Grand.Domain.Messages;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

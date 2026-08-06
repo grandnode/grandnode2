@@ -20,7 +20,7 @@ using Grand.Web.Events;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers;

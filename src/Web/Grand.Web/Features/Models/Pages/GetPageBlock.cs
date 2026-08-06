@@ -1,5 +1,5 @@
 ﻿using Grand.Web.Models.Pages;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Pages;
 

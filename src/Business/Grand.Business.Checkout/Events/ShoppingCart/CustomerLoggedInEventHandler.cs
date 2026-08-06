@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Events.ShoppingCart;
 

@@ -23,7 +23,7 @@ Answer "where does X live" and "how does X work" questions about GrandNode witho
    | "Which permission guards this?" | `.ai/skills/permission-navigation.md`, then grep the `PermissionSystemName` |
    | "How do I extend this?" | `.ai/skills/project-structure.md` |
 
-3. Follow the chain forward: controller → MediatR request → handler → business service → repository → domain entity.
+3. Follow the chain forward: controller → mediator request → handler → business service → repository → domain entity.
 4. Confirm each claim by opening the file. Do not report a path you have not read.
 5. When the question is about a plugin or theme, check `src/Plugins/` before assuming the behavior lives in core.
 

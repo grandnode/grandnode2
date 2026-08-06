@@ -1,5 +1,5 @@
 ﻿using Grand.Domain.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Events;
 

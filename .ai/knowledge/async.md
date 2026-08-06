@@ -20,7 +20,7 @@ public async void HandleAsync() { ... }
 
 ### Accept and forward CancellationToken throughout the call chain
 
-Every MediatR handler already accepts `CancellationToken`. Pass it to every async call you make.
+Every mediator handler already accepts `CancellationToken`. Pass it to every async call you make.
 
 ```csharp
 public async Task<int?> Handle(MaxOrderNumberCommand request, CancellationToken cancellationToken)

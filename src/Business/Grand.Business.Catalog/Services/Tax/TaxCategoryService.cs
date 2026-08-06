@@ -4,7 +4,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Tax;
 

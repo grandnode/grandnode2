@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Stores;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Checkout;
 

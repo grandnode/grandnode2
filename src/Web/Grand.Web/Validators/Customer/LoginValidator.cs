@@ -13,7 +13,7 @@ using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
 using Grand.Web.Common.Validators;
 using Grand.Web.Models.Customer;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Validators.Customer;
 

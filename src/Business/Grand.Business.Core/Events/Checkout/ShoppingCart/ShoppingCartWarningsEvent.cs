@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Common;
 using Grand.Domain.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Events.Checkout.ShoppingCart;
 

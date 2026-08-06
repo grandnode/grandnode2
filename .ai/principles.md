@@ -14,7 +14,7 @@ Every query, cache key, and setting read carries its scope. When in doubt about 
 
 ## 2. The domain has no dependencies
 
-`Grand.Domain` knows nothing about MongoDB, HTTP, Razor, or MediatR. Business logic that belongs to the domain lives with the entity; business logic about a use case lives in `Grand.Business.*`.
+`Grand.Domain` knows nothing about MongoDB, HTTP, Razor, or the mediator. Business logic that belongs to the domain lives with the entity; business logic about a use case lives in `Grand.Business.*`.
 
 Infrastructure never leaks inward. A `MongoDB.Driver` type in a business service signature, a `HttpContext` in a domain method, or a view model in a service is the same mistake in three places.
 

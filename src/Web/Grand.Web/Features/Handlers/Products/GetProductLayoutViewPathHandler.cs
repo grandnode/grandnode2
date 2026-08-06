@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Web.Features.Models.Products;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Products;
 

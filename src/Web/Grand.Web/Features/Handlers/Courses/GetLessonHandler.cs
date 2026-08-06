@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Courses;
 using Grand.Web.Models.Course;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Courses;
 

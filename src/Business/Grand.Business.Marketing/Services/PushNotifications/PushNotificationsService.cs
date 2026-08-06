@@ -4,7 +4,7 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.PushNotifications;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 

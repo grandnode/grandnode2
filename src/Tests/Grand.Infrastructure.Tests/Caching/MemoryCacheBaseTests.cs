@@ -1,6 +1,6 @@
 ﻿using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

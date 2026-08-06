@@ -40,7 +40,6 @@ A dependency upgrade compiles and then behaves differently. Check the areas that
 | Library | Verify |
 |---|---|
 | MongoDB driver | queries, serialization of `string` ids, date handling, aggregations |
-| MediatR | handler discovery, notification ordering, registration in plugins |
 | FluentValidation | validator discovery, message text, rule chaining semantics |
 | Serialization | round-trip of persisted documents, API request/response shapes |
 | ASP.NET Core / SDK | middleware order, routing, model binding, antiforgery, auth |

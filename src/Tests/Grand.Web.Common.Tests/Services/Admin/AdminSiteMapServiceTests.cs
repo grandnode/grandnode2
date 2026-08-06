@@ -2,7 +2,7 @@
 using Grand.Domain.Admin;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Menu;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

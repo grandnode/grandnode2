@@ -4,7 +4,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Web.Features.Models.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Customers;
 

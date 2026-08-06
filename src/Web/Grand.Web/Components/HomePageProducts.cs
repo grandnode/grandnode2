@@ -4,7 +4,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Web.Common.Components;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Products;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Components;

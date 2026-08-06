@@ -4,7 +4,7 @@ using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

@@ -12,7 +12,7 @@ using Grand.Module.Api.DTOs.Customers;
 using Grand.Module.Api.DTOs.Shipping;
 using Grand.Module.Api.Queries.Handlers.Common;
 using Grand.Module.Api.Queries.Models.Common;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Module.Api.Infrastructure.Extensions

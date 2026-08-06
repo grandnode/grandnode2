@@ -3,7 +3,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Infrastructure;
 using Grand.Web.Features.Models.Common;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Common;
 

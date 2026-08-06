@@ -4,7 +4,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Vendors;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Vendors;
 

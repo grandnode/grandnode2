@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Web.Features.Models.Common;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Common;
 

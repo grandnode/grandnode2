@@ -4,7 +4,7 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Services.GiftVouchers;
 

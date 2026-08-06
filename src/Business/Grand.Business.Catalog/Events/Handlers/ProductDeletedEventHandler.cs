@@ -3,7 +3,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using System.Text.Json;
 
 namespace Grand.Business.Catalog.Events.Handlers;

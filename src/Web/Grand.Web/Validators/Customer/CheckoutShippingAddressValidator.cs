@@ -7,7 +7,7 @@ using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Checkout;
 using Grand.Web.Models.Common;
 using Grand.Web.Validators.Common;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Validators.Customer;
 

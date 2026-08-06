@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Orders;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Messages.Common;
 

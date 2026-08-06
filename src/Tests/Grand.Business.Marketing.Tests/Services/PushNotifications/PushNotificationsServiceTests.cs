@@ -3,7 +3,7 @@ using Grand.Business.Marketing.Utilities;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.PushNotifications;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

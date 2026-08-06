@@ -10,11 +10,11 @@ Consequences:
 
 - Project files reference packages **without** a version:
   ```xml
-  <PackageReference Include="MediatR" />
+  <PackageReference Include="FluentValidation" />
   ```
 - Versions are declared once, in `Directory.Packages.props`:
   ```xml
-  <PackageVersion Include="MediatR" Version="12.5.0" />
+  <PackageVersion Include="FluentValidation" Version="12.1.1" />
   ```
 - Adding a version attribute in a `.csproj` is a build error, not a style issue.
 - Bumping a version affects every project — call it out explicitly in the PR.
@@ -23,7 +23,7 @@ Do not add a new third-party package when the repository already has a capabilit
 
 | Need | Already present |
 |---|---|
-| Mediator / CQRS | `MediatR` |
+| Mediator / CQRS | `Grand.Mediator` (in-house; MediatR is **not** referenced) |
 | Validation | `FluentValidation` |
 | Object mapping | `Grand.Mapping` (AutoMapper-compatible API; AutoMapper itself is **not** referenced) |
 | MongoDB | `MongoDB.Driver` |

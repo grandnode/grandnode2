@@ -23,7 +23,7 @@ using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Checkout;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 

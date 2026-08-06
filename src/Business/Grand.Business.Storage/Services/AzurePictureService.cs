@@ -6,7 +6,7 @@ using Grand.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Storage.Services;

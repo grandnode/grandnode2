@@ -2,7 +2,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Storage.Services;
 

@@ -3,7 +3,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

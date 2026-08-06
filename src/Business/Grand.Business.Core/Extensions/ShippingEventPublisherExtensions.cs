@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Events.Checkout.Shipping;
 using Grand.Domain.Shipping;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Extensions;
 

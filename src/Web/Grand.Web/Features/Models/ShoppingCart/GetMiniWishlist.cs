@@ -4,7 +4,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Web.Models.ShoppingCart;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.ShoppingCart;
 

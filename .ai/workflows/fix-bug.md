@@ -24,7 +24,7 @@ If you cannot reproduce it, stop and report what you tried and what information 
 
 Goal: an explanation that accounts for **every** observation from phase 1, including the cases that work.
 
-1. Trace the path: controller → MediatR request → handler → business service → cache → repository. See `.ai/knowledge/request-lifecycle.md`.
+1. Trace the path: controller → mediator request → handler → business service → cache → repository. See `.ai/knowledge/request-lifecycle.md`.
 2. Check the usual causes before the unusual ones — in this codebase, in this order:
    - a cache key missing store id, language id, or another result-changing variable
    - a query missing a store or vendor filter

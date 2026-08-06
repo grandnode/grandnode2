@@ -10,7 +10,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Services.Orders;
 

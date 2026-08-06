@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Blogs;
 using Grand.Web.Models.Blogs;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Blogs;
 

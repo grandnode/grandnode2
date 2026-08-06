@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Commands.Messages.Common;
 using Grand.Data;
 using Grand.Domain.Messages;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Messages.Commands.Handlers.Common;
 

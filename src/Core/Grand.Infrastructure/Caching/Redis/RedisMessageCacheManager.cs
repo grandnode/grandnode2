@@ -1,6 +1,6 @@
 using Grand.Infrastructure.Caching.Message;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Grand.Infrastructure.Caching.Redis;

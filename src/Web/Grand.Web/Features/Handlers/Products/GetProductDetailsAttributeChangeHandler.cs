@@ -14,7 +14,7 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Products;
 

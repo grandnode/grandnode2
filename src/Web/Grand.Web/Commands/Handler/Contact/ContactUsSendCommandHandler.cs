@@ -6,7 +6,7 @@ using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Contact;
 using Grand.Web.Models.Contact;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Contact;
 

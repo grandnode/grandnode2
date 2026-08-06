@@ -1,5 +1,5 @@
 ﻿using Grand.Domain.Common;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Messages.Common;
 

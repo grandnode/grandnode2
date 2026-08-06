@@ -2,7 +2,7 @@
 using Grand.Infrastructure.Configuration;
 using Grand.Module.Api.Commands.Models.Customers;
 using Grand.SharedKernel;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Customers;
 

@@ -1,6 +1,6 @@
 ﻿using Grand.Module.Api.Models;
 using Grand.Domain;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.Api.Queries.Models.Common;
 

@@ -1,5 +1,5 @@
 ﻿using Grand.Domain.Payments;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Checkout.Orders;
 

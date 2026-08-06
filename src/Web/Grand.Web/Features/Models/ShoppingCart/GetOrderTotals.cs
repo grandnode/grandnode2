@@ -5,7 +5,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Web.Models.ShoppingCart;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.ShoppingCart;
 

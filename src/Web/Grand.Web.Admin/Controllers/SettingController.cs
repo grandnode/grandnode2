@@ -34,7 +34,7 @@ using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Themes;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OperatingSystem = Grand.Infrastructure.OperatingSystem;

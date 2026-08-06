@@ -2,7 +2,7 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Web.Commands.Models.Contact;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Contact;
 

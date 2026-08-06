@@ -12,7 +12,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.News;
 using Grand.Web.Models.News;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
 

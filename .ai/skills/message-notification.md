@@ -4,7 +4,7 @@
 Create, modify, and review GrandNode email message templates, DotLiquid tokens, message sending flows, queued email lifecycle, and domain event notification handlers.
 
 ## When To Use
-Use this skill when adding or changing a message template, adding new DotLiquid tokens or drop properties, triggering a new email notification from business code, seeding message templates in the installer, extending an existing `Liquid*` drop class, or wiring a MediatR event handler that sends a notification.
+Use this skill when adding or changing a message template, adding new DotLiquid tokens or drop properties, triggering a new email notification from business code, seeding message templates in the installer, extending an existing `Liquid*` drop class, or wiring a mediator event handler that sends a notification.
 
 ## When Not To Use
 Do not use this skill for general admin UI work, settings, or localization changes beyond message template resource keys; combine it with `admin-area-changes` or `settings-and-localization` when those are also involved.
@@ -47,8 +47,8 @@ Do not use this skill as the primary review for MongoDB queries or security; com
 
 #### DotLiquid Drops and Tokens
 10. Add new token properties to an existing `Liquid*` drop class in `src/Business/Grand.Business.Core/Utilities/Messages/DotLiquidDrops/` when the data already belongs to that drop's entity. Do not add properties that require loading additional entities unless those are already available in the drop constructor.
-11. Add a new drop class inheriting from `DotLiquid.Drop` only when the new template uses a domain entity that has no existing drop. Place it in the drops folder and wire it via a new MediatR `GetXxxTokensCommand` following the pattern of existing token commands under `src/Business/Grand.Business.Core/Commands/Messages/Tokens/`.
-12. Handle `MessageTokensAddedEvent` in a MediatR `INotificationHandler` to inject extra tokens from a plugin without modifying core drop classes. The event carries the `MessageTemplate` name and the current `LiquidObject`.
+11. Add a new drop class inheriting from `DotLiquid.Drop` only when the new template uses a domain entity that has no existing drop. Place it in the drops folder and wire it via a new `GetXxxTokensCommand` following the pattern of existing token commands under `src/Business/Grand.Business.Core/Commands/Messages/Tokens/`.
+12. Handle `MessageTokensAddedEvent` in an `INotificationHandler` to inject extra tokens from a plugin without modifying core drop classes. The event carries the `MessageTemplate` name and the current `LiquidObject`.
 13. Never access `ITranslationService`, repositories, or services directly from inside a `Liquid*` drop property getter. Populate all values in the command handler that constructs the drop.
 
 #### Queued Emails
@@ -59,7 +59,7 @@ Do not use this skill as the primary review for MongoDB queries or security; com
 #### Domain Events and Handlers
 17. Raise domain events via `IMediator.Publish(new XxxEvent(...))` after the triggering business action completes. Do not publish inside a repository or data layer.
 18. Implement `INotificationHandler<TEvent>` in the relevant `Grand.Business.*` project when the notification should be sent in response to a domain event.
-19. Register event handlers automatically — MediatR scans assemblies registered in startup. No explicit handler registration is required beyond ensuring the assembly is included.
+19. Register event handlers automatically — `Grand.Mediator` scans assemblies registered in startup. No explicit handler registration is required beyond ensuring the assembly is included.
 
 ### Recommendations
 1. Prefer adding a property to an existing drop over creating a new drop when the entity is already available in the build pipeline.

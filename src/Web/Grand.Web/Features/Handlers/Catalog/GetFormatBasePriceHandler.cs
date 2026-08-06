@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Features.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 

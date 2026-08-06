@@ -2,7 +2,7 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Messages.Tokens;
 

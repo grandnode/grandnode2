@@ -7,7 +7,7 @@ using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Vendor.Interfaces;
 using Grand.Web.Vendor.Models.VendorReview;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Vendor.Services;
 

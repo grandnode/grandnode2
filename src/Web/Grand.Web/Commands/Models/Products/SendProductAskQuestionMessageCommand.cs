@@ -2,7 +2,7 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Models.Products;
 

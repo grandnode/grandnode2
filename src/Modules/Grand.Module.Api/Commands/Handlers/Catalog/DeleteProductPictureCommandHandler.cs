@@ -1,6 +1,6 @@
 ﻿using Grand.Module.Api.Commands.Models.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;
 

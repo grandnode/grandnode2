@@ -7,7 +7,7 @@ using Grand.Domain.Messages;
 using Grand.Web.Commands.Models.Contact;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Models.Contact;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Contact;
 

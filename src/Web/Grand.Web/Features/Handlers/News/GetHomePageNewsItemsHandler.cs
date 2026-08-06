@@ -11,7 +11,7 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.News;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.News;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.News;
 

@@ -4,7 +4,7 @@ using Grand.Infrastructure.Extensions;
 using Grand.Web.Common.Localization;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 

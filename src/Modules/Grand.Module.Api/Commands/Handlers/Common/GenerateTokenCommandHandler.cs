@@ -2,7 +2,7 @@
 using Grand.Module.Api.Infrastructure.Extensions;
 using Grand.Module.Api.Jwt;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Common;
 

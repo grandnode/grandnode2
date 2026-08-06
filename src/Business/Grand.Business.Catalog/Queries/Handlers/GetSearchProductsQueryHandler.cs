@@ -5,7 +5,7 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 

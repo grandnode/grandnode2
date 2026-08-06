@@ -8,7 +8,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

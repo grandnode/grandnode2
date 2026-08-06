@@ -22,7 +22,7 @@ using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Orders;
 

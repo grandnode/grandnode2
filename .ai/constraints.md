@@ -13,7 +13,7 @@ Central package management is on (`ManagePackageVersionsCentrally=true`). An inl
 → Add `<PackageVersion>` to `Directory.Packages.props`, reference without a version.
 
 ### Never add a package for a capability the repository already has
-MediatR, FluentValidation, `Grand.Mapping`, `MongoDB.Driver`, `StackExchange.Redis`, DotLiquid, Scryber, ImageSharp, MailKit, Scrutor are already present. Adding a second library for the same job splits the codebase.
+`Grand.Mediator`, FluentValidation, `Grand.Mapping`, `MongoDB.Driver`, `StackExchange.Redis`, DotLiquid, Scryber, ImageSharp, MailKit, Scrutor are already present. Adding a second library for the same job splits the codebase.
 → See the table in `.ai/standards/dependencies.md`.
 
 ### Never use Newtonsoft.Json
@@ -97,7 +97,7 @@ Prices, ids, and stored strings must not depend on the request's culture.
 ## Web layer
 
 ### Never put business logic in a controller
-→ A MediatR command or query handler.
+→ A `Grand.Mediator` command or query handler.
 
 ### Never trust an id from a request
 A posted `vendorId`, `storeId`, or `customerId` is attacker-controlled.

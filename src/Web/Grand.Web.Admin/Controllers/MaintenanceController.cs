@@ -14,7 +14,7 @@ using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Directory;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 

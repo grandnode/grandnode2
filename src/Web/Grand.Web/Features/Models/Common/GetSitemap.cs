@@ -2,7 +2,7 @@
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Common;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Common;
 

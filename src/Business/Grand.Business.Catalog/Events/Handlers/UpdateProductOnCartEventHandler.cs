@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Events.Catalog;
 using Grand.Data;
 using Grand.Domain.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Events.Handlers;
 

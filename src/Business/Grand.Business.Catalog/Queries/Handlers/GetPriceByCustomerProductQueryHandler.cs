@@ -3,7 +3,7 @@ using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 

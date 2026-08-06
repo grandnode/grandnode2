@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Checkout.Orders;
 

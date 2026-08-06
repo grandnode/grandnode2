@@ -12,7 +12,7 @@ using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 using System.Globalization;
 
 namespace Grand.Business.Catalog.Services.Prices;

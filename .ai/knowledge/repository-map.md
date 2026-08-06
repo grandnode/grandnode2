@@ -17,7 +17,7 @@
 - .NET and ASP.NET Core.
 - MongoDB through repository/data abstractions.
 - Redis for caching and data protection integration.
-- MediatR for commands, queries, and events.
+- Custom mediator in `Grand.Mediator` for commands, queries, and events, with a MediatR-compatible API (`IRequest`, `IRequestHandler`, `INotification`, `INotificationHandler`, `IMediator`). MediatR package is not used.
 - FluentValidation for validators.
 - Custom mapping framework in `Grand.Mapping` with an AutoMapper-compatible profile API (`Profile`, `CreateMap`, `ForMember`). AutoMapper package is not used.
 - Razor views, partials, view components, and tag helpers.
@@ -74,6 +74,10 @@ Use this area for:
 
 ### `src/Core/Grand.Mapping`
 Use for shared mapping infrastructure and mapping support.
+
+### `src/Core/Grand.Mediator`
+Use for the mediator itself — request/notification abstractions, dispatch, and handler registration.
+Handlers and the messages they handle belong to the owning project, never here.
 
 ### `src/Core/Grand.SharedKernel`
 Use for low-level shared primitives, attributes, extensions, and small cross-cutting helpers.
@@ -254,6 +258,7 @@ Choose the closest test project by target ownership:
 - Domain changes: `Grand.Domain.Tests`
 - Infrastructure changes: `Grand.Infrastructure.Tests`
 - Mapping changes: `Grand.Mapping.Tests`
+- Mediator changes: `Grand.Mediator.Tests`
 - Module changes: `Grand.Modules.Tests` or module-specific tests
 - API changes: `Grand.Module.Api.Tests`
 - Web common changes: `Grand.Web.Common.Tests`

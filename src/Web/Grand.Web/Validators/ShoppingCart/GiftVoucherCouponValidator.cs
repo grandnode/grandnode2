@@ -5,7 +5,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.ShoppingCart;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Validators.ShoppingCart;
 

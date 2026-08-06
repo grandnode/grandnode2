@@ -8,7 +8,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Controllers;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
