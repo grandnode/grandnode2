@@ -14,7 +14,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;

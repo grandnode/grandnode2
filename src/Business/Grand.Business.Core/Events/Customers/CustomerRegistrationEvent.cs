@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Utilities.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Events.Customers;
 

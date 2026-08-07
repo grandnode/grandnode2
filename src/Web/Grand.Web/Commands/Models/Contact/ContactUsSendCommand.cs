@@ -1,5 +1,5 @@
 ﻿using Grand.Web.Models.Contact;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Models.Contact;
 

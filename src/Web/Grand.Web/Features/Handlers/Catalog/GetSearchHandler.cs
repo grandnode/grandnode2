@@ -16,7 +16,7 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 

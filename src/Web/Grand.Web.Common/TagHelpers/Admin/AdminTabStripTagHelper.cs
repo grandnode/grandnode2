@@ -1,5 +1,5 @@
 ﻿using Grand.Web.Common.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;

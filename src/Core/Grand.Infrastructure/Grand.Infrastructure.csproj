@@ -10,7 +10,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyModel" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" />
-    <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
     <PackageReference Include="Scrutor" />
     <PackageReference Include="StackExchange.Redis" />
@@ -20,5 +19,6 @@
     <ProjectReference Include="..\Grand.Data\Grand.Data.csproj" />
     <ProjectReference Include="..\Grand.Domain\Grand.Domain.csproj" />
     <ProjectReference Include="..\Grand.Mapping\Grand.Mapping.csproj" />
+    <ProjectReference Include="..\Grand.Mediator\Grand.Mediator.csproj" />
   </ItemGroup>
 </Project>

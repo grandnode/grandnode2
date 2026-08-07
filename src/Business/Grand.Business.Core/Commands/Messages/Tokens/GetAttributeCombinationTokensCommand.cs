@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Domain.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Messages.Tokens;
 

@@ -13,7 +13,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.News;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System.Text.RegularExpressions;

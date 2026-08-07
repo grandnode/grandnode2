@@ -17,7 +17,7 @@ using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.AdminShared.Models.Discounts;
 using Grand.Web.AdminShared.Extensions;

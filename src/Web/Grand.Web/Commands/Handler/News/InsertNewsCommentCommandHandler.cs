@@ -5,7 +5,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.News;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.News;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.News;
 

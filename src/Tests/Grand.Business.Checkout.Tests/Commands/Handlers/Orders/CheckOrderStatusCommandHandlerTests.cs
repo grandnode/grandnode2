@@ -3,7 +3,7 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

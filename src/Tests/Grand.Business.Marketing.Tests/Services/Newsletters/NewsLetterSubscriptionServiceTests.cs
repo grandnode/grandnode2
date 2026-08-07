@@ -7,7 +7,7 @@ using Grand.Domain;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

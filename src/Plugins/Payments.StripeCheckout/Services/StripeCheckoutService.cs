@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 using Stripe;
 using Stripe.Checkout;

@@ -4,7 +4,7 @@ using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Documents;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Documents;
 

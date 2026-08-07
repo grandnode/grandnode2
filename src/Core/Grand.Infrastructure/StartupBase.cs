@@ -1,5 +1,6 @@
 ﻿using Grand.Data;
 using Grand.Mapping;
+using Grand.Mediator;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Mapper;
@@ -144,21 +145,13 @@ public static class StartupBase
     }
 
     /// <summary>
-    ///     Adds services for mediatR
+    ///     Adds the mediator and every request/notification handler found in the loaded assemblies
     /// </summary>
     /// <param name="services">Collection of service descriptors</param>
     /// <param name="typeSearcher"></param>
     private static void AddMediator(this IServiceCollection services, ITypeSearcher typeSearcher)
     {
-        var assemblies = typeSearcher.GetAssemblies().ToArray();
-
-        foreach (var assembly in assemblies)
-        {
-            services.AddMediatR(options =>
-            {
-                options.RegisterServicesFromAssembly(assembly);
-            });
-        }
+        services.AddGrandMediator(typeSearcher.GetAssemblies());
     }
    
     /// <summary>

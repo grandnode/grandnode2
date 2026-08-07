@@ -4,7 +4,7 @@ using Grand.Domain.Localization;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using System.Collections.Concurrent;
 using System.Xml;
 

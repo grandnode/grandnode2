@@ -2,7 +2,7 @@
 using Grand.Module.Api.DTOs.Customers;
 using Grand.Module.Api.Extensions;
 using Grand.Business.Core.Interfaces.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Customers;
 

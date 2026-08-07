@@ -8,7 +8,7 @@ using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Discounts;
 

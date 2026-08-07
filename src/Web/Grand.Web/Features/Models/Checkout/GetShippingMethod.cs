@@ -5,7 +5,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Checkout;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Checkout;
 

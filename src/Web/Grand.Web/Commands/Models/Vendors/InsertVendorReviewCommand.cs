@@ -1,7 +1,7 @@
 ﻿using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Web.Models.Vendors;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Models.Vendors;
 

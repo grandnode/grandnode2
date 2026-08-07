@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Commands.Catalog;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Localization;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.ScheduledTasks.Commands.Handlers.Catalog;
 

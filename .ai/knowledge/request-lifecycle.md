@@ -104,7 +104,7 @@ Controller action
 
 Rules that fall out of this:
 
-1. Controllers hold no business logic. They resolve input, send a MediatR request, and return a result.
+1. Controllers hold no business logic. They resolve input, send a mediator request, and return a result.
 2. Query handlers live in `Features/Handlers/`, command handlers in `Commands/Handler/`, mirroring the request type's folder.
 3. Handlers prepare view models. Business services do not know about view models.
 4. Caching sits in the business service, wrapping the repository call — not in the handler or controller.
@@ -119,7 +119,7 @@ The active theme's `IThemeView.GetViewLocations()` is consulted before the defau
 
 | You are adding | Put it in |
 |---|---|
-| A page | controller action + MediatR query + handler + view model + view |
+| A page | controller action + mediator query + handler + view model + view |
 | A cross-cutting request concern | middleware registered from an `IStartupApplication` |
 | Service registration | `IStartupApplication.ConfigureServices` in the owning project |
 | Something that must run before auth | `IStartupApplication` with `BeforeConfigure = true` and a low `Priority` |

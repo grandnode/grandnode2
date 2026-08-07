@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 using System.Security.Claims;
 
 namespace Authentication.Facebook.Infrastructure.Cache;

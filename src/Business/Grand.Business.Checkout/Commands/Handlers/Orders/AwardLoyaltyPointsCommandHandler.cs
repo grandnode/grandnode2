@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
 

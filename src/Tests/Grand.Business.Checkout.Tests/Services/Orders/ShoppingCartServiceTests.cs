@@ -11,7 +11,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

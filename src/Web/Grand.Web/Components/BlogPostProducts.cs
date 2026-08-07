@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Cms;
 using Grand.Domain.Catalog;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Products;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Components;

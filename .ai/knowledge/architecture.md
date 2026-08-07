@@ -24,7 +24,7 @@ Grand.SharedKernel             — Interfaces and utilities shared across all la
 Rules:
 - Domain has no dependencies on infrastructure or business layers.
 - Business layer depends on Domain and Data abstractions (`IRepository<T>`), not on concrete Mongo types.
-- Controllers delegate to MediatR — never contain business logic.
+- Controllers delegate to the mediator — never contain business logic.
 - Infrastructure registrations go in `IStartupApplication`, not `Program.cs`.
 - Dependencies point inward. Core, business, and web projects never reference a plugin.
 
@@ -67,7 +67,7 @@ public class StartupApplication : IStartupApplication
 
 ---
 
-## MediatR — Commands and Queries
+## Grand.Mediator — Commands and Queries
 
 All mutations (writes) go through commands; all reads go through queries. Controllers only call `_mediator.Send(...)`.
 
@@ -137,6 +137,6 @@ Handler failure semantics, re-entrancy, and the missing-ambient-context trap are
 | Injecting `IMongoDatabase` into a business service | Inject `IRepository<T>` |
 | Forgetting `_mediator.EntityUpdated` after `_repo.UpdateAsync` | Always publish after every mutation |
 | Singleton service with `IRepository<T>` dependency | `IRepository<T>` is Scoped — its consumer must also be Scoped |
-| Caching in a controller or MediatR handler | Cache in the business service, around the repository call |
+| Caching in a controller or mediator handler | Cache in the business service, around the repository call |
 | Reading `IWorkContext` from a scheduled task or migration | Pass store/customer explicitly — there is no ambient context |
 | A cache key that omits the store id for store-scoped data | Include every variable that changes the result |

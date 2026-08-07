@@ -5,7 +5,7 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Services.Products;
 

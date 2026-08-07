@@ -1,5 +1,5 @@
 ﻿using Grand.Domain.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Queries.Messages;
 

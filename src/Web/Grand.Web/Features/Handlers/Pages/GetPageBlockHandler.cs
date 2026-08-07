@@ -7,7 +7,7 @@ using Grand.Domain.Pages;
 using Grand.Infrastructure;
 using Grand.Web.Features.Models.Pages;
 using Grand.Web.Models.Pages;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Pages;
 

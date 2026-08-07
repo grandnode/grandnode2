@@ -5,7 +5,7 @@ using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Events.Handlers;
 

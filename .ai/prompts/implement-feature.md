@@ -20,7 +20,7 @@ Implement a new feature or change an existing one in GrandNode without breaking 
    1. Domain entity or settings class in `Grand.Domain`.
    2. Repository access through `IRepository<T>` in the business layer.
    3. Business service + interface in `Grand.Business.Core` / `Grand.Business.*`.
-   4. MediatR command/query + handler for the web layer.
+   4. Mediator command/query + handler for the web layer.
    5. FluentValidation validator.
    6. Controller action with the correct authorization attribute.
    7. View model, Razor view, and localization keys.
@@ -33,7 +33,7 @@ Implement a new feature or change an existing one in GrandNode without breaking 
 
 ## Mandatory Rules
 
-1. Do not add business logic to controllers — delegate to MediatR or a business service.
+1. Do not add business logic to controllers — delegate to the mediator or a business service.
 2. Do not reference concrete MongoDB types from the business layer; use `IRepository<T>`.
 3. Do not register services in `Program.cs`; use `IStartupApplication` in the owning project.
 4. Do not add a NuGet package version inline; add it to `Directory.Packages.props`.

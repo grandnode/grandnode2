@@ -9,7 +9,7 @@ using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Features.Handlers.Common;

@@ -3,7 +3,7 @@ using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Contacts;
 

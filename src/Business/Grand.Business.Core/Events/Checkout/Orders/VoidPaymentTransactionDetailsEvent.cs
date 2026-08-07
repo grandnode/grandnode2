@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Payments;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Events.Checkout.Orders;
 

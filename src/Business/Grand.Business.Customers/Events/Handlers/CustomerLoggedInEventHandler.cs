@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Customers.Events.Handlers;
 

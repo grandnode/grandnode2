@@ -9,7 +9,7 @@ using Grand.Module.Api.Commands.Models.Common;
 using Grand.Module.Api.Controllers;
 using Grand.Module.Api.DTOs;
 using Grand.Module.Api.Models.Common;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

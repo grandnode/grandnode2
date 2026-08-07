@@ -2,7 +2,7 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Messages.Commands.Handlers.Messages;
 

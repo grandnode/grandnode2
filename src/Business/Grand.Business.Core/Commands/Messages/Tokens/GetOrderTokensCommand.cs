@@ -3,7 +3,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Core.Commands.Messages.Tokens;
 

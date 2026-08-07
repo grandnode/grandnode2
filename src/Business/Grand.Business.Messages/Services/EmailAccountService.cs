@@ -7,7 +7,7 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Messages.Services;
 

@@ -7,7 +7,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Customers.Services;
 

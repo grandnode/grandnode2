@@ -5,7 +5,7 @@ using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
 

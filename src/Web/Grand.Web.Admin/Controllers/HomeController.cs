@@ -11,7 +11,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.AdminShared.Models.Home;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;

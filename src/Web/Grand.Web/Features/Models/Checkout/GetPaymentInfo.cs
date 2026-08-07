@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Web.Models.Checkout;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Checkout;
 

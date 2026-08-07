@@ -4,7 +4,7 @@ using Grand.Module.Api.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Customers;
 

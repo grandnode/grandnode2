@@ -93,7 +93,7 @@ When adding a cached family, ask what *else* embeds this data in a cached projec
 | Layer | Caches? |
 |---|---|
 | Controller | No |
-| MediatR handler | No — a handler may compose cached services, but does not own a cache key |
+| Mediator handler | No — a handler may compose cached services, but does not own a cache key |
 | Business service | **Yes** — this is the only layer that calls `ICacheBase` |
 | Repository | No |
 

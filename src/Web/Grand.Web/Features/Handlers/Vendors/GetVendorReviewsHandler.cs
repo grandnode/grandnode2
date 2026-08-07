@@ -7,7 +7,7 @@ using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.Features.Models.Vendors;
 using Grand.Web.Models.Vendors;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Vendors;
 

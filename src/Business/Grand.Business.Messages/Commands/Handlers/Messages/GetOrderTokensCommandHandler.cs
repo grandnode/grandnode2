@@ -12,7 +12,7 @@ using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
-using MediatR;
+using Grand.Mediator;
 using System.Globalization;
 using System.Net;
 

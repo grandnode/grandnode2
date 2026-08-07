@@ -5,7 +5,7 @@ using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Constants;
 using Grand.Module.Api.DTOs.Common;
 using Grand.Module.Api.Queries.Models.Common;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;

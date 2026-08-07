@@ -5,7 +5,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Customers;
 

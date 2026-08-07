@@ -7,7 +7,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

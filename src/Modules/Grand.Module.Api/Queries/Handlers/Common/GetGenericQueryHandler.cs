@@ -2,7 +2,7 @@
 using Grand.Module.Api.Queries.Models.Common;
 using Grand.Data;
 using Grand.Domain;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.Api.Queries.Handlers.Common;
 

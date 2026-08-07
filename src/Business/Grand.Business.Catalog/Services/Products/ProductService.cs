@@ -11,7 +11,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 using System.Linq.Expressions;
 
 namespace Grand.Business.Catalog.Services.Products;

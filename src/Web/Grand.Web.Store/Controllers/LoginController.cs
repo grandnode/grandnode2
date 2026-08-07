@@ -7,7 +7,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.Store.Extensions;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;

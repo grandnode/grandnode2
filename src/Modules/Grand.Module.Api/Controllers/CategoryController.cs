@@ -4,7 +4,7 @@ using Grand.Module.Api.Queries.Models.Common;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Domain.Catalog;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Module.Api.Attributes;

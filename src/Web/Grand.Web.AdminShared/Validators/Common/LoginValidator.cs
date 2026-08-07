@@ -11,7 +11,7 @@ using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Validators;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 

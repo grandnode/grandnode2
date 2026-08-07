@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Queries.Catalog;
 using Grand.Data;
 using Grand.Domain.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 

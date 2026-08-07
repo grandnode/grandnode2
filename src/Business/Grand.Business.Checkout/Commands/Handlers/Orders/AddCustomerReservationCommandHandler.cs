@@ -2,7 +2,7 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
 

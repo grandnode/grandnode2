@@ -7,7 +7,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Products;
 

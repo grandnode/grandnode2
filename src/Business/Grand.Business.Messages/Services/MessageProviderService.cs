@@ -20,7 +20,7 @@ using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using System.Net;
 
 namespace Grand.Business.Messages.Services;

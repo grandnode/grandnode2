@@ -29,9 +29,9 @@ Plugin group prefixes are fixed: `Payments`, `Shipping`, `Tax`, `Widgets`, `Auth
 | Plugin entry point | `{Feature}Plugin` | inherits `BasePlugin` |
 | Plugin constants | `{Feature}Defaults` | static class of system names, resource keys, URLs |
 | Theme view | `{Name}ThemeView` | implements `IThemeView` |
-| MediatR query | `Get{Thing}Query` / `Get{Thing}` | matches the handler name |
-| MediatR command | `{Verb}{Thing}Command` | `InsertBlogCommentCommand` |
-| MediatR handler | `{RequestName}Handler` | `GetBlogPostHandler`, `ContactUsCommandHandler` |
+| Mediator query | `Get{Thing}Query` / `Get{Thing}` | matches the handler name |
+| Mediator command | `{Verb}{Thing}Command` | `InsertBlogCommentCommand` |
+| Mediator handler | `{RequestName}Handler` | `GetBlogPostHandler`, `ContactUsCommandHandler` |
 | Validator | `{Model}Validator` | `AbstractValidator<T>` |
 | Validator input record | `{Name}ValidatorRecord` | positional record |
 | View model | `{Thing}Model` | lives in the web project, never in `Grand.Domain` |

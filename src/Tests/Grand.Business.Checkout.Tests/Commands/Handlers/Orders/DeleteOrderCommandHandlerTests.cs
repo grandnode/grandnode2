@@ -6,7 +6,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

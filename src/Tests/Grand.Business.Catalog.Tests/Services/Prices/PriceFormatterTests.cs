@@ -12,7 +12,7 @@ using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Globalization;

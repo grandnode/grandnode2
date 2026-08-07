@@ -4,7 +4,7 @@ using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Customers;
 

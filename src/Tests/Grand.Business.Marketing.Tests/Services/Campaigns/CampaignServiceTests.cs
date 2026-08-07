@@ -10,7 +10,7 @@ using Grand.Domain.Messages;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

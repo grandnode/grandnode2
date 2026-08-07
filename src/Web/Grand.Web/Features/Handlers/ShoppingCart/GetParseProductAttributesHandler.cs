@@ -2,7 +2,7 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Web.Features.Models.ShoppingCart;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart;
 

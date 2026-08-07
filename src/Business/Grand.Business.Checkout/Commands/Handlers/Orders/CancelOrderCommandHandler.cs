@@ -6,7 +6,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Domain.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
 

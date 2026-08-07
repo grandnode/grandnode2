@@ -2,7 +2,7 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Events.Handlers;
 

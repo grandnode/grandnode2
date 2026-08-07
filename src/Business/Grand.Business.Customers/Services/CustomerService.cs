@@ -12,7 +12,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 using System.Linq.Expressions;
 
 namespace Grand.Business.Customers.Services;

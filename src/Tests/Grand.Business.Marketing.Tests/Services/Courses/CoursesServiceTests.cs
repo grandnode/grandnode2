@@ -5,7 +5,7 @@ using Grand.Domain.Courses;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

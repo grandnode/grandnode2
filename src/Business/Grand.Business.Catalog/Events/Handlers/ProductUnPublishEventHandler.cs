@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Events.Catalog;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Events.Handlers;
 

@@ -7,7 +7,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Validators.Common;
 

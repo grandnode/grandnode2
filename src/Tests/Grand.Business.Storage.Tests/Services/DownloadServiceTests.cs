@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Events;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

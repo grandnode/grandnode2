@@ -5,7 +5,7 @@ using Grand.Module.Api.Attributes;
 using Grand.Module.Api.Commands.Models.Catalog;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Module.Api.Queries.Models.Common;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
 using Microsoft.AspNetCore.Mvc;

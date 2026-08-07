@@ -10,7 +10,7 @@ using Grand.Infrastructure;
 using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Models.Blogs;
 using Grand.Web.Models.Media;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Blogs;
 

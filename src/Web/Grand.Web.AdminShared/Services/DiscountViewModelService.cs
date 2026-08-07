@@ -20,7 +20,7 @@ using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.AdminShared.Models.Discounts;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.AdminShared.Services;

@@ -4,7 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Customers;
 

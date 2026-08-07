@@ -15,7 +15,7 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Interfaces;
 using Grand.Web.Vendor.Models.Shipment;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Controllers;

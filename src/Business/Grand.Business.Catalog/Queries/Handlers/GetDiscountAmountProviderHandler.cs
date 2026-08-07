@@ -3,7 +3,7 @@ using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Discounts;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 

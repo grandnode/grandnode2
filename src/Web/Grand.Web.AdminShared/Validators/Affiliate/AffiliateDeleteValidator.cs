@@ -5,7 +5,7 @@ using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Queries.Customers;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Affiliates;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.AdminShared.Validators.Affiliate;
 

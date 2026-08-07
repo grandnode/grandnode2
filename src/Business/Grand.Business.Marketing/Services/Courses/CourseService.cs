@@ -7,7 +7,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Courses;
 

@@ -4,7 +4,7 @@ using Grand.Domain.Shipping;
 using Grand.Module.Api.Attributes;
 using Grand.Module.Api.DTOs.Shipping;
 using Grand.Module.Api.Queries.Models.Common;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;

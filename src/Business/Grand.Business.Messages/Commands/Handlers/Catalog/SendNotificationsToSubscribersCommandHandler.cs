@@ -6,7 +6,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.SharedKernel.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Module.ScheduledTasks.Commands.Handlers.Catalog;
 

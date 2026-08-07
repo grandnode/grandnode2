@@ -8,7 +8,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

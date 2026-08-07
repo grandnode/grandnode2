@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Discounts;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 

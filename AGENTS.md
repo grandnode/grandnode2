@@ -65,7 +65,7 @@ Use a workflow when the answer is not known at the start. Each ends by handing o
 - Use `.ai/knowledge/mongodb.md` for IRepository<T> usage, query patterns, partial updates, and write conventions.
 - Use `.ai/knowledge/performance.md` for ICacheBase, CacheKey constants, cache invalidation, pagination, and partial field writes.
 - Use `.ai/knowledge/security.md` for authorization checks, FluentValidation patterns, guard clauses, HTML encoding, and safe MongoDB queries.
-- Use `.ai/knowledge/architecture.md` for layering rules, DI lifetimes, MediatR commands/queries, and domain events.
+- Use `.ai/knowledge/architecture.md` for layering rules, DI lifetimes, mediator commands/queries, and domain events.
 - Use `.ai/knowledge/request-lifecycle.md` for startup, IStartupApplication priorities, middleware order, ContextMiddleware, and the controller-to-view path.
 - Use `.ai/knowledge/scoping.md` for store, vendor, customer group, language, and currency boundaries, and for code that runs without ambient context.
 - Use `.ai/knowledge/caching.md` for ICacheBase, CacheKey constants, key composition, and invalidation including cross-family clearing.

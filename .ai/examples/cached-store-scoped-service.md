@@ -117,7 +117,7 @@ Every public method is `virtual`. That is deliberate — plugins replace core se
 
 | Not here | Where it belongs |
 |---|---|
-| View models | `Grand.Web/Models` + a MediatR handler |
+| View models | `Grand.Web/Models` + a mediator handler |
 | `IWorkContext` | the caller — the service takes `storeId` explicitly |
 | MongoDB filters and collections | inside `IRepository<T>` |
 | Authorization checks | the controller's `[PermissionAuthorize]` attribute |

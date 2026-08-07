@@ -1,7 +1,7 @@
 ﻿using Grand.Domain.Blogs;
 using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Blogs;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Components;

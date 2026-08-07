@@ -5,7 +5,7 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

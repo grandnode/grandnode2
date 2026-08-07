@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Commands.System.Common;
 using Grand.Data;
 using Grand.Domain.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Messages.Commands.Handlers.Common;
 

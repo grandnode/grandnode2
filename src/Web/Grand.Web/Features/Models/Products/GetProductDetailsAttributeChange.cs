@@ -3,7 +3,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Catalog;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Products;
 

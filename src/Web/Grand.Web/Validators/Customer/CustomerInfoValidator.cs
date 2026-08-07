@@ -9,7 +9,7 @@ using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Validators.Customer;
 

@@ -6,7 +6,7 @@ using Grand.Domain.Permissions;
 using Grand.Module.Api.Commands.Models.Customers;
 using Grand.Module.Api.DTOs.Customers;
 using Grand.Module.Api.Queries.Models.Customers;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;

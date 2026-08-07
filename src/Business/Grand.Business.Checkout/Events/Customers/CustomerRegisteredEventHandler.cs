@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Events.Customers;
 

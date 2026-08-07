@@ -17,7 +17,7 @@ using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Knowledgebase;
 using Grand.Web.Models.Pages;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Common;
 

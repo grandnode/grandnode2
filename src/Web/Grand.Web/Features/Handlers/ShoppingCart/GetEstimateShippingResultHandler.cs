@@ -8,7 +8,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart;
 

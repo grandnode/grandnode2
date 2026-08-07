@@ -2,7 +2,7 @@
 using Grand.Data;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Extensions;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Business.Marketing.Services.Newsletters;
 

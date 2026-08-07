@@ -3,7 +3,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Web.Common.Models;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Models.ShoppingCart;
 

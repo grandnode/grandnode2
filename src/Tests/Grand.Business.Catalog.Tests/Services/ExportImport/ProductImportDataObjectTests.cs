@@ -31,7 +31,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.Infrastructure.TypeSearch;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

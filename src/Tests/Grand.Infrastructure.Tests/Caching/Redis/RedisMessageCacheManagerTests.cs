@@ -1,7 +1,7 @@
 using Grand.Infrastructure.Caching.Message;
 using Grand.Infrastructure.Caching.Redis;
 using Grand.Infrastructure.Configuration;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -1,5 +1,5 @@
 ﻿using Grand.Web.Models.Newsletter;
-using MediatR;
+using Grand.Mediator;
 
 namespace Grand.Web.Commands.Models.Newsletter;
 

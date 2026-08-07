@@ -21,7 +21,7 @@ using Grand.Web.Common.Themes;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
-using MediatR;
+using Grand.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
