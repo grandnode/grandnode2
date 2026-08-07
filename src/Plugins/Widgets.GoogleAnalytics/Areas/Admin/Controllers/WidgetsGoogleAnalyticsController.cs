@@ -48,6 +48,7 @@ public class WidgetsGoogleAnalyticsController : BaseAdminPluginController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         //load settings for a chosen store scope

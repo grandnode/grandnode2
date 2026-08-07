@@ -48,6 +48,7 @@ public class WidgetsFacebookPixelController : BaseAdminPluginController
 
     [HttpPost]
     [AuthorizeAdmin]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         //load settings for a chosen store scope

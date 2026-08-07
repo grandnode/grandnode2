@@ -54,6 +54,7 @@ public class PaymentBrainTreeController : BasePaymentController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         if (!ModelState.IsValid)

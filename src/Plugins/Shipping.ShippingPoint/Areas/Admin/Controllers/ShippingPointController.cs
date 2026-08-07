@@ -42,6 +42,7 @@ public class ShippingPointController : BaseShippingController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> List(DataSourceRequest command)
     {
         var shippingPoints = await _shippingPointService.GetAllStoreShippingPoint("",
@@ -90,6 +91,7 @@ public class ShippingPointController : BaseShippingController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Create(ShippingPointModel model)
     {
         if (ModelState.IsValid)
@@ -115,6 +117,7 @@ public class ShippingPointController : BaseShippingController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Edit(ShippingPointModel model)
     {
         if (ModelState.IsValid)
@@ -133,6 +136,7 @@ public class ShippingPointController : BaseShippingController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Delete(string id)
     {
         var model = await _shippingPointService.GetStoreShippingPointById(id);

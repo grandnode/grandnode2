@@ -4,6 +4,7 @@
 @inject SliderWidgetSettings setting
 
 <form method="post" id="widget-settings-form">
+    @Html.AntiForgeryToken()
     <div class="panel-group">
         <div class="panel panel-default">
             <div class="panel-body">
@@ -37,7 +38,6 @@
                         $('#savegeneralsettings').click(function () {
 
                             var postData = $(this.form).serialize();
-                            addAntiForgeryToken(postData);
 
                             $.ajax({
                                 cache: false,
