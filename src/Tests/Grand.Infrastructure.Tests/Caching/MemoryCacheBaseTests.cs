@@ -161,4 +161,45 @@ public class MemoryCacheBaseTests
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => _service.RemoveByPrefix("key"));
     }
+
+    /// <summary>
+    ///     Guards against disposing the reset token in <see cref="MemoryCacheBase.Clear" />.
+    /// </summary>
+    /// <remarks>
+    ///     A writer reads the token source, then MemoryCache registers an eviction callback on it while
+    ///     storing the entry. Disposing the previous source in Clear makes that registration throw
+    ///     ObjectDisposedException, and swapping the field first only narrows the window rather than
+    ///     closing it. The assertion only fires on an exception actually raised by the race, so this
+    ///     cannot fail spuriously - it can only miss.
+    /// </remarks>
+    [TestMethod]
+    [Timeout(60000)]
+    [DoNotParallelize]
+    public void Clear_WhileEntriesAreBeingWritten_DoesNotThrow()
+    {
+        Exception captured = null;
+        var stopWriting = false;
+
+        var writer = Task.Run(async () =>
+        {
+            var i = 0;
+            while (!stopWriting)
+                try
+                {
+                    await _service.SetAsync($"race-{i++}", () => Task.FromResult("value"));
+                }
+                catch (Exception ex)
+                {
+                    captured ??= ex;
+                    return;
+                }
+        });
+
+        for (var i = 0; i < 5000 && captured == null; i++) _service.Clear(false).GetAwaiter().GetResult();
+
+        stopWriting = true;
+        writer.Wait(TimeSpan.FromSeconds(5));
+
+        Assert.IsNull(captured, $"Clear raced a concurrent write: {captured}");
+    }
 }

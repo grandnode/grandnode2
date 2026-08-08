@@ -133,11 +133,13 @@ public class MemoryCacheBase : ICacheBase
         foreach (var cacheEntry in CacheEntries.Keys.ToList())
             _cache.Remove(cacheEntry);
 
-        //swap first, so a concurrent Clear cannot cancel or dispose a token another
-        //thread has already handed to GetMemoryCacheEntryOptions
-        var previousToken = Interlocked.Exchange(ref _resetCacheToken, new CancellationTokenSource());
-        previousToken.Cancel();
-        previousToken.Dispose();
+        //cancel, but do not dispose: a writer that already read this source is still handing it to
+        //MemoryCache, which registers an eviction callback on it while storing the entry, and that
+        //registration throws ObjectDisposedException on a disposed source. Cancelling releases the
+        //registrations, and the source has no timer and no WaitHandle, so it is simply collected
+        _resetCacheToken.Cancel();
+
+        _resetCacheToken = new CancellationTokenSource();
 
         return Task.CompletedTask;
     }
