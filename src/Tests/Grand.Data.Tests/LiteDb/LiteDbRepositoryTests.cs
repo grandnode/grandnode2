@@ -552,4 +552,18 @@ public class LiteDbRepositoryTests
         Assert.IsTrue(p.UpdatedOnUtc.HasValue);
         Assert.AreEqual("user", p.UpdatedBy);
     }
+
+    [TestMethod]
+    public void TableCollection_ReadsTheEntityCollection()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        myRepository.Insert(new SampleCollection { Id = "1", Name = "Test" });
+        myRepository.Insert(new SampleCollection { Id = "2", Name = "Test2" });
+
+        //reads the collection named after the entity, not one named "T"
+        var result = myRepository.TableCollection<SampleCollection>().ToList();
+
+        Assert.AreEqual(2, result.Count);
+        Assert.IsNotNull(result.FirstOrDefault(x => x.Id == "1"));
+    }
 }

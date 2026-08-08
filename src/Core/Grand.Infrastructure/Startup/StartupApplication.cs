@@ -51,7 +51,10 @@ public class StartupApplication : IStartupApplication
                 var mongoUrl = new MongoUrl(connectionString);
                 var databaseName = mongoUrl.DatabaseName;
                 var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
-                serviceCollection.AddScoped(_ => new MongoClient(clientSettings).GetDatabase(databaseName));
+                //the driver expects a single client per connection string - it owns the connection
+                //pool and the cluster monitoring, and is thread-safe
+                serviceCollection.AddSingleton<IMongoClient>(_ => new MongoClient(clientSettings));
+                serviceCollection.AddScoped(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(databaseName));
             }
             else
             {

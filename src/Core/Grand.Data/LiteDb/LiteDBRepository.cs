@@ -413,7 +413,8 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// </summary>
     public virtual IQueryable<C> TableCollection<C>() where C : class
     {
-        return Database.GetCollection<C>(nameof(T)).Query().ToEnumerable().AsQueryable();
+        //typeof(T).Name, not nameof(T) - the latter is the literal "T"
+        return Database.GetCollection<C>(typeof(T).Name).Query().ToEnumerable().AsQueryable();
     }
 
     #endregion
