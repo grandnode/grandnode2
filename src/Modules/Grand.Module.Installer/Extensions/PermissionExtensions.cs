@@ -214,7 +214,22 @@ public static class PermissionExtensions
                     StandardPermission.ManageCheckoutAttribute,
                     StandardPermission.ManageReports,
                     StandardPermission.ManageNews,
-                    StandardPermission.ManageBlog
+                    StandardPermission.ManageBlog,
+                    StandardPermission.ManageCustomers,
+                    StandardPermission.ManageCustomerAttribute,
+                    StandardPermission.ManageAddressAttribute,
+                    StandardPermission.ManageContactAttribute,
+                    StandardPermission.ManageSettings,
+                    StandardPermission.ManagePaymentMethods,
+                    StandardPermission.ManageShippingSettings,
+                    StandardPermission.ManageTaxSettings,
+                    StandardPermission.ManageCurrencies,
+                    StandardPermission.ManageDiscounts,
+                    StandardPermission.ManageGiftVouchers,
+                    StandardPermission.ManageLanguages,
+                    StandardPermission.ManageEmailAccounts,
+                    StandardPermission.ManageMessageTemplates,
+                    StandardPermission.ManagePages
                 ]
             },
 
