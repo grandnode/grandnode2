@@ -1,12 +1,16 @@
 name: ASP.NET Core CI
 
-on: [push]
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    branches: [ develop, main ]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET Core
@@ -14,46 +18,19 @@ jobs:
       with:
         dotnet-version: 10.0.x
     - name: Install .NET Aspire workload
-      run: dotnet workload install aspire        
+      run: dotnet workload install aspire
     - name: Restore
       run: dotnet restore ./GrandNode.sln
     - name: Build with dotnet
       run: dotnet build ./GrandNode.sln --configuration Release
     - name: Start Docker for Mongodb
       run: docker run -d -p 27017:27017 mongo
-    - name: Grand.Business.Authentication Unit Tests
-      run: dotnet test ./src/Tests/Grand.Business.Authentication.Tests/Grand.Business.Authentication.Tests.csproj
-    - name: Grand.Business.Catalog Unit Tests
-      run: dotnet test ./src/Tests/Grand.Business.Catalog.Tests/Grand.Business.Catalog.Tests.csproj
-    - name: Grand.Business.Checkout Unit Tests
-      run: dotnet test ./src/Tests/Grand.Business.Checkout.Tests/Grand.Business.Checkout.Tests.csproj
-    - name: Grand.Business.Cms Unit Tests
-      run: dotnet test ./src/Tests/Grand.Business.Cms.Tests/Grand.Business.Cms.Tests.csproj
-    - name: Grand.Business.Common Unit Tests
-      run: dotnet test ./src/Tests/Grand.Business.Common.Tests/Grand.Business.Common.Tests.csproj
-    - name: Grand.Business.Customers Unit Tests
-      run: dotnet test ./src/Tests/Grand.Business.Customers.Tests/Grand.Business.Customers.Tests.csproj
-    - name: Grand.Business.Marketing Unit Tests
-      run: dotnet test ./src/Tests/Grand.Business.Marketing.Tests/Grand.Business.Marketing.Tests.csproj
-    - name: Grand.Business.Messages Unit Tests
-      run: dotnet test ./src/Tests/Grand.Business.Messages.Tests/Grand.Business.Messages.Tests.csproj
-    - name: Grand.Business.Storage Unit Tests
-      run: dotnet test ./src/Tests/Grand.Business.Storage.Tests/Grand.Business.Storage.Tests.csproj
-    - name: Grand.Business.System Unit Tests
-      run: dotnet test ./src/Tests/Grand.Modules.Tests/Grand.Modules.Tests.csproj
-    - name: Grand.Business.Data Unit Tests
-      run: dotnet test ./src/Tests/Grand.Data.Tests/Grand.Data.Tests.csproj
-    - name: Grand.Domain.Domain.Tests Unit Tests
-      run: dotnet test ./src/Tests/Grand.Domain.Tests/Grand.Domain.Tests.csproj
-    - name: Grand.Infrastructure.Tests Unit Tests
-      run: dotnet test ./src/Tests/Grand.Infrastructure.Tests/Grand.Infrastructure.Tests.csproj
-    - name: Grand.SharedKernel.Tests Unit Tests
-      run: dotnet test ./src/Tests/Grand.SharedKernel.Tests/Grand.SharedKernel.Tests.csproj
-    - name: Grand.Mapping.Tests Unit Tests
-      run: dotnet test ./src/Tests/Grand.Mapping.Tests/Grand.Mapping.Tests.csproj
-    - name: Grand.Web.Common.Tests Unit Tests
-      run: dotnet test ./src/Tests/Grand.Web.Common.Tests/Grand.Web.Common.Tests.csproj
-    - name: Grand.Web.Admin.Tests Unit Tests
-      run: dotnet test ./src/Tests/Grand.Web.Admin.Tests/Grand.Web.Admin.Tests.csproj
-    - name: Grand.Web.Store.Tests Unit Tests
-      run: dotnet test ./src/Tests/Grand.Web.Store.Tests/Grand.Web.Store.Tests.csproj
+    - name: Wait for MongoDB to be ready
+      run: |
+        for i in {1..30}; do
+          nc -z localhost 27017 && echo "MongoDB is up" && exit 0
+          sleep 2
+        done
+        echo "MongoDB did not become ready" && exit 1
+    - name: Unit tests
+      run: ./.github/scripts/run-tests.sh Release

@@ -4,6 +4,9 @@
 * text=auto
 *.verified.txt text eol=lf working-tree-encoding=UTF-8
 
+# Shell scripts run on the Linux CI runners - CRLF makes the shebang unusable
+*.sh text eol=lf
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #
