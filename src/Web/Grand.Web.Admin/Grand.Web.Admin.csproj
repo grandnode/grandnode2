@@ -19,7 +19,6 @@
 		<PackageReference Include="elFinder.Net.AspNetCore" />
 		<PackageReference Include="elFinder.Net.Core" />
 		<PackageReference Include="elFinder.Net.Drivers.FileSystem" />		
-		<PackageReference Include="SixLabors.ImageSharp" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj" />
