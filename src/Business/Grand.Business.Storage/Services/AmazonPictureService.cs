@@ -185,9 +185,9 @@ public class AmazonPictureService : PictureService
     /// </summary>
     /// <param name="thumbFileName">Thumb file name</param>
     /// <param name="binary">Picture binary</param>
-    protected override Task SaveThumb(string thumbFileName, byte[] binary)
+    protected override async Task SaveThumb(string thumbFileName, byte[] binary)
     {
-        CheckBucketExists().Wait();
+        await CheckBucketExists();
 
         using (Stream stream = new MemoryStream(binary))
         {
@@ -197,11 +197,10 @@ public class AmazonPictureService : PictureService
                 Key = thumbFileName,
                 StorageClass = S3StorageClass.Standard
             };
-            _s3Client.PutObjectAsync(putObjectRequest).Wait();
+            await _s3Client.PutObjectAsync(putObjectRequest);
         }
 
-        _s3Client.MakeObjectPublicAsync(_bucketName, thumbFileName, true).Wait();
-        return Task.CompletedTask;
+        await _s3Client.MakeObjectPublicAsync(_bucketName, thumbFileName, true);
     }
 
     /// <summary>

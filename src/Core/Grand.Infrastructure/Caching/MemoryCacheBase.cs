@@ -110,25 +110,21 @@ public class MemoryCacheBase : ICacheBase
         }
     }
 
-    public virtual Task RemoveAsync(string key, bool publisher = true)
+    public virtual async Task RemoveAsync(string key, bool publisher = true)
     {
         _cache.Remove(key);
 
         if (publisher)
-            _mediator.Publish(new EntityCacheEvent(key, CacheEvent.RemoveKey));
-
-        return Task.CompletedTask;
+            await _mediator.Publish(new EntityCacheEvent(key, CacheEvent.RemoveKey));
     }
 
-    public virtual Task RemoveByPrefix(string prefix, bool publisher = true)
+    public virtual async Task RemoveByPrefix(string prefix, bool publisher = true)
     {
         var entriesToRemove = CacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
         foreach (var cacheEntries in entriesToRemove) _cache.Remove(cacheEntries.Key);
 
         if (publisher)
-            _mediator.Publish(new EntityCacheEvent(prefix, CacheEvent.RemovePrefix));
-
-        return Task.CompletedTask;
+            await _mediator.Publish(new EntityCacheEvent(prefix, CacheEvent.RemovePrefix));
     }
 
     public virtual Task Clear(bool publisher = true)
@@ -137,10 +133,11 @@ public class MemoryCacheBase : ICacheBase
         foreach (var cacheEntry in CacheEntries.Keys.ToList())
             _cache.Remove(cacheEntry);
 
-        //cancel
+        //cancel, but do not dispose: a writer that already read this source is still handing it to
+        //MemoryCache, which registers an eviction callback on it while storing the entry, and that
+        //registration throws ObjectDisposedException on a disposed source. Cancelling releases the
+        //registrations, and the source has no timer and no WaitHandle, so it is simply collected
         _resetCacheToken.Cancel();
-        //dispose
-        _resetCacheToken.Dispose();
 
         _resetCacheToken = new CancellationTokenSource();
 

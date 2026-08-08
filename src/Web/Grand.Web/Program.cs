@@ -16,7 +16,7 @@ builder.Host.UseDefaultServiceProvider((_, options) =>
 });
 
 //add services
-StartupBase.ConfigureServices(builder.Services, builder.Configuration);
+StartupBase.ConfigureServices(builder.Services, builder.Configuration, builder.Environment);
 
 builder.ConfigureApplicationSettings();
 

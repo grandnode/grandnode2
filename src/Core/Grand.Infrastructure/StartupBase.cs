@@ -231,7 +231,8 @@ public static class StartupBase
     /// </summary>
     /// <param name="services">Collection of service descriptors</param>
     /// <param name="configuration">Configuration root of the application</param>
-    public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    public static void ConfigureServices(IServiceCollection services, IConfiguration configuration,
+        IWebHostEnvironment hostingEnvironment)
     {
         services.AddFeatureManagement();
 
@@ -239,26 +240,21 @@ public static class StartupBase
         var typeSearcher = new TypeSearcher();
         services.AddSingleton<ITypeSearcher>(typeSearcher);
 
-        var provider = services.BuildServiceProvider();
-        var hostingEnvironment = provider.GetRequiredService<IWebHostEnvironment>();
-
         //register application
         var mvcBuilder = RegisterApplication(services, configuration, hostingEnvironment, typeSearcher);
 
-        //register extensions 
+        //register extensions
         RegisterExtensions(mvcBuilder, configuration, hostingEnvironment);
 
-        var startupConfigurations = typeSearcher.ClassesOfType<IStartupApplication>();
-
-        //Register startup
-        var instancesBefore = startupConfigurations
+        //instantiate once - the same instances serve both configuration passes
+        var startupInstances = typeSearcher.ClassesOfType<IStartupApplication>()
             .Where(PluginExtensions.OnlyInstalledPlugins)
             .Select(startup => (IStartupApplication)Activator.CreateInstance(startup))
-            .Where(startup => startup!.BeforeConfigure)
-            .OrderBy(startup => startup.Priority);
+            .OrderBy(startup => startup!.Priority)
+            .ToList();
 
         //configure services
-        foreach (var instance in instancesBefore)
+        foreach (var instance in startupInstances.Where(startup => startup.BeforeConfigure))
             instance.ConfigureServices(services, configuration);
 
         //register mapper configurations
@@ -273,15 +269,8 @@ public static class StartupBase
         //add mediator
         AddMediator(services, typeSearcher);
 
-        //Register startup
-        var instancesAfter = startupConfigurations
-            .Where(PluginExtensions.OnlyInstalledPlugins)
-            .Select(startup => (IStartupApplication)Activator.CreateInstance(startup))
-            .Where(startup => !startup!.BeforeConfigure)
-            .OrderBy(startup => startup.Priority);
-
         //configure services
-        foreach (var instance in instancesAfter)
+        foreach (var instance in startupInstances.Where(startup => !startup.BeforeConfigure))
             instance.ConfigureServices(services, configuration);
 
         //Execute startup interface
