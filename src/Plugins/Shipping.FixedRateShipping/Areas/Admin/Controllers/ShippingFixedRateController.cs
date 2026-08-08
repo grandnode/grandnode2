@@ -34,6 +34,7 @@ public class ShippingFixedRateController : BaseShippingController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Configure(DataSourceRequest command)
     {
         if (!await _permissionService.Authorize(StandardPermission.ManageShippingSettings))

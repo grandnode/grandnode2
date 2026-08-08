@@ -28,6 +28,7 @@ public class TaxFixedRateController : BaseAdminPluginController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Configure(DataSourceRequest command)
     {
         var taxRateModels = new List<FixedTaxRateModel>();
@@ -46,6 +47,7 @@ public class TaxFixedRateController : BaseAdminPluginController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> TaxRateUpdate(FixedTaxRateModel model)
     {
         var taxCategoryId = model.TaxCategoryId;

@@ -58,6 +58,7 @@ public class GoogleAuthenticationSettingsController : BaseAdminPluginController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         if (!await _permissionService.Authorize(StandardPermission.ManageExternalAuthenticationMethods))

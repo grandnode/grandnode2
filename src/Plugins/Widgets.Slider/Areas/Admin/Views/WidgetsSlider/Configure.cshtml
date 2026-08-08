@@ -39,12 +39,14 @@
                     read: {
                         url: "@Html.Raw(Url.Action("List", "WidgetsSlider"))",
                         type: "POST",
-                        dataType: "json"
+                        dataType: "json",
+                        data: addAntiForgeryToken
                     },
                     destroy: {
                         url: "@Html.Raw(Url.Action("Delete", "WidgetsSlider"))",
                         type: "POST",
                         dataType: "json",
+                        data: addAntiForgeryToken
                     }
                 },
                 schema: {
