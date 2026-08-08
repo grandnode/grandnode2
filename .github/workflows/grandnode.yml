@@ -30,9 +30,12 @@ jobs:
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build sln
-      run: dotnet build "GrandNode.sln"
+      run: dotnet build "GrandNode.sln" --configuration ${{ env.CONFIGURATION }}
     - name: Unit tests
-      run: ./.github/scripts/run-tests.sh Debug
+      # The job-level CONFIGURATION env var is picked up by MSBuild as the Configuration
+      # property, so "Build sln" above produces Release regardless of the missing
+      # --configuration flag. The tests must look in the same place.
+      run: ./.github/scripts/run-tests.sh ${{ env.CONFIGURATION }}
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore -p:SourceRevisionId=${{ github.sha }} -p:GitBranch=${{ github.ref_name }}
     - name: Publish
