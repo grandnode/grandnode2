@@ -72,11 +72,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.17.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.17.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.17.0" />
-    <PackageVersion Include="Aspire.Dashboard.Sdk.$(NETCoreSdkRuntimeIdentifier)" Version="9.0.0" />
-    <PackageVersion Include="Aspire.Hosting.Orchestration.$(NETCoreSdkRuntimeIdentifier)" Version="9.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageVersion Update="Aspire.Dashboard.Sdk.win-x64" Version="13.4.6" />
-    <PackageVersion Update="Aspire.Hosting.Orchestration.win-x64" Version="13.4.6" />
+    <PackageVersion Include="Aspire.Dashboard.Sdk.$(NETCoreSdkRuntimeIdentifier)" Version="13.4.6" />
+    <PackageVersion Include="Aspire.Hosting.Orchestration.$(NETCoreSdkRuntimeIdentifier)" Version="13.4.6" />
   </ItemGroup>
 </Project>

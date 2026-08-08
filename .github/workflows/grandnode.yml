@@ -27,8 +27,6 @@ jobs:
           sleep 2
         done
         echo "MongoDB did not become ready" && exit 1
-    - name: Install .NET Aspire workload
-      run: dotnet workload install aspire
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build sln
