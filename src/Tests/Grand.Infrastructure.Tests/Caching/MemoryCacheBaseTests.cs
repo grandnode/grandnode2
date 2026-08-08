@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Events;
 using Grand.Mediator;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -138,5 +139,26 @@ public class MemoryCacheBaseTests
         var cacheResult = _memoryCache.Get(key);
         Assert.IsNotNull(cacheResult);
         Assert.AreEqual(cacheEntry, cacheResult);
+    }
+
+    [TestMethod]
+    public async Task RemoveAsync_AwaitsTheNotification()
+    {
+        _mediatorMock
+            .Setup(x => x.Publish(It.IsAny<EntityCacheEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("handler failed"));
+
+        //a fire-and-forget Publish would swallow this
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.RemoveAsync("key"));
+    }
+
+    [TestMethod]
+    public async Task RemoveByPrefix_AwaitsTheNotification()
+    {
+        _mediatorMock
+            .Setup(x => x.Publish(It.IsAny<EntityCacheEvent>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("handler failed"));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.RemoveByPrefix("key"));
     }
 }
