@@ -4,9 +4,9 @@ using Grand.Web.Common.Components;
 using Grand.Web.Store.Models.Common;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Vendor.Components;
+namespace Grand.Web.Store.Components;
 
-public class StorePageViewComponent : BaseVendorViewComponent
+public class StorePageViewComponent : BaseAdminViewComponent
 {
     #region Fields
 
