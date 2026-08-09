@@ -41,7 +41,7 @@ Scaffold a new installable GrandNode plugin end to end, with the correct project
 
 1. `SystemName` in `Manifest.cs` must equal the value in `{Feature}Defaults` and the output folder name.
 2. `Group` must be one of the existing group names in `.ai/knowledge/plugin-types.md`.
-3. All GrandNode project references must be `Private="false"`.
+3. Import `src/Build/Grand.Plugin.props` for the shared host references; do not repeat them in the plugin. Anything referenced beyond that set must be `Private="false"`.
 4. Use `Microsoft.NET.Sdk.Razor` when the plugin contains `.cshtml` files, `Microsoft.NET.Sdk` otherwise.
 5. `Install()` saves default settings and adds localization resources, then calls `base.Install()` last.
 6. `Uninstall()` deletes settings and removes localization resources, then calls `base.Uninstall()` last.
