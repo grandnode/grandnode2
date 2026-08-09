@@ -49,7 +49,8 @@ public class ProductCategoryService : IProductCategoryService
             return new PagedList<ProductsCategory>(new List<ProductsCategory>(), pageIndex, pageSize);
 
         var key = string.Format(CacheKey.PRODUCTCATEGORIES_ALLBYCATEGORYID_KEY, showHidden, categoryId, pageIndex,
-            pageSize, _contextAccessor.WorkContext.CurrentCustomer.Id, _contextAccessor.StoreContext.CurrentStore.Id);
+            pageSize, string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _contextAccessor.StoreContext.CurrentStore.Id);
         return await _cacheBase.GetAsync(key, () =>
         {
             var query = _productRepository.Table.Where(x => x.ProductCategories.Any(y => y.CategoryId == categoryId));
