@@ -1,0 +1,35 @@
+<Project>
+
+    <!--
+        The host assemblies every plugin compiles against.
+
+        Private=false keeps them out of the plugin's output folder: the plugin is loaded
+        into the host's AssemblyLoadContext, which already has them, and a second copy of
+        a host assembly beside a plugin is a hazard - if that copy is ever the one loaded,
+        its types are not the host's types and DI resolution fails in ways that are hard
+        to trace.
+
+        Private=false does not carry to a reference's own dependencies, which is why each
+        project is listed rather than relying on the transitive graph. Keeping the list in
+        one file is the point: it used to be duplicated across every plugin, so a new core
+        project was added to some and forgotten in others - Grand.Mediator shipped that way
+        and was copied into all 16 plugin folders.
+
+        Add a new core project here, not in the individual plugins.
+
+        Paths are anchored to this file so a plugin can sit at any depth.
+    -->
+
+    <ItemGroup>
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" Private="false" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Domain\Grand.Domain.csproj" Private="false" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Data\Grand.Data.csproj" Private="false" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Mapping\Grand.Mapping.csproj" Private="false" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Mediator\Grand.Mediator.csproj" Private="false" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" Private="false" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Core\Grand.Business.Core.csproj" Private="false" />
+        <!-- ExcludeAssets=all: referenced for its views and tag helpers, nothing is linked from it -->
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Web\Grand.Web.Common\Grand.Web.Common.csproj" Private="false" ExcludeAssets="all" />
+    </ItemGroup>
+
+</Project>

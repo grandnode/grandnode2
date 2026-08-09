@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 	<Import Project="..\..\Build\Grand.Common.props" />
+	<Import Project="..\..\Build\Grand.Plugin.props" />
 	<PropertyGroup>
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 		<StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
@@ -15,30 +16,6 @@
 		<OutDir>$(OutputPath)</OutDir>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Core\Grand.Mapping\Grand.Mapping.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj">
-			<Private>false</Private>
-			<ExcludeAssets>all</ExcludeAssets>
-		</ProjectReference>
-	</ItemGroup>
 	<ItemGroup>
 		<None Update="Assets\**\*.*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
