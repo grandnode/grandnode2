@@ -194,7 +194,6 @@ public class LanguageController : BaseAdminController
 
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     [HttpPost]
-    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> Resources(string languageId, DataSourceRequest command,
         LanguageResourceFilterModel model)
     {

@@ -10,11 +10,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Grand.Web.AdminShared.Services;
 
 public class ElFinderViewModelService : IElFinderViewModelService
 {
+    private readonly JsonSerializerOptions _connectorJsonOptions;
     private readonly IConnector _connector;
     private readonly IDriver _driver;
     private readonly string _fullPathToThumbs;
@@ -36,8 +39,12 @@ public class ElFinderViewModelService : IElFinderViewModelService
         IHttpContextAccessor httpContextAccessor,
         IMediaFileStore mediaFileStore,
         LinkGenerator linkGenerator,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings,
+        IOptions<Microsoft.AspNetCore.Mvc.JsonOptions> jsonOptions)
     {
+        _connectorJsonOptions = new JsonSerializerOptions(jsonOptions.Value.JsonSerializerOptions);
+        _connectorJsonOptions.Converters.Add(new BaseInfoResponseConverter());
+
         _driver = driver;
         _connector = connector;
         _httpContextAccessor = httpContextAccessor;
@@ -118,6 +125,11 @@ public class ElFinderViewModelService : IElFinderViewModelService
         var ccTokenSource = ConnectorHelper.RegisterCcTokenSource(_httpContextAccessor.HttpContext);
         var conResult = await _connector.ProcessAsync(cmd, ccTokenSource);
         var actionResult = conResult.ToActionResult(_httpContextAccessor.HttpContext);
+
+        //serialize file info by its runtime type, otherwise cwd loses phash - see BaseInfoResponseConverter
+        if (actionResult is JsonResult jsonResult)
+            jsonResult.SerializerSettings = _connectorJsonOptions;
+
         return actionResult;
     }
 
