@@ -17,5 +17,16 @@
 		     Microsoft.AspNetCore.Http 2.1.1 has a known high severity advisory (GHSA-hxrm-9w7p-39cc).
 		     This reference lifts it to a patched 2.x. Remove only together with elFinder. -->
 		<PackageReference Include="Microsoft.AspNetCore.Http" />
+		<!-- Same story, same package graph. elFinder.Net.Core 1.5.0 brings Newtonsoft.Json 11.0.2
+		     (GHSA-5crp-9r3c-p9vr) and SixLabors.ImageSharp 2.0.0 (GHSA-2cmq-823j-5qj8 and six more),
+		     and neither is used from this project's code.
+
+		     Until Grand.Web.Common referenced the whole business layer, these floors arrived by
+		     accident: Scryber.Core and the rest of that graph outvoted elFinder and the versions
+		     below are exactly what resolved then. Moving those references to the hosts, where they
+		     belong, took the accident away and the vulnerable versions surfaced - so the floor is
+		     stated here on purpose. Remove only together with elFinder. -->
+		<PackageReference Include="Newtonsoft.Json" />
+		<PackageReference Include="SixLabors.ImageSharp" />
 	</ItemGroup>
 </Project>
