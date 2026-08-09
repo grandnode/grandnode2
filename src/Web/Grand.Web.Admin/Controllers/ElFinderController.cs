@@ -31,7 +31,6 @@ public class ElFinderController : BaseAdminController
 
     #region Methods
 
-    [IgnoreAntiforgeryToken]
     public virtual async Task<IActionResult> Connector()
     {
         if (!await _permissionService.Authorize(StandardPermission.HtmlEditorManagePictures))
