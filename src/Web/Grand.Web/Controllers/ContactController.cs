@@ -45,7 +45,7 @@ public class ContactController : BasePublicController
     {
         if (storeInformationSettings.StoreClosed)
         {
-            var closestorepage = await pageService.GetPageBySystemName("ContactUs");
+            var closestorepage = await pageService.GetPageBySystemName("ContactUs", _contextAccessor.StoreContext.CurrentStore.Id);
             if (closestorepage is not { AccessibleWhenStoreClosed: true })
                 return RedirectToRoute("StoreClosed");
         }
@@ -68,7 +68,7 @@ public class ContactController : BasePublicController
     {
         if (storeInformationSettings.StoreClosed)
         {
-            var closeStorePage = await pageService.GetPageBySystemName("ContactUs");
+            var closeStorePage = await pageService.GetPageBySystemName("ContactUs", _contextAccessor.StoreContext.CurrentStore.Id);
             if (closeStorePage is not { AccessibleWhenStoreClosed: true })
                 return RedirectToRoute("StoreClosed");
         }

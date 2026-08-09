@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
+using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Vendor.Models.Common;
 using Microsoft.AspNetCore.Mvc;
@@ -10,15 +11,18 @@ public class VendorPageViewComponent : BaseVendorViewComponent
     #region Fields
 
     private readonly IPageService _pageService;
+    private readonly IContextAccessor _contextAccessor;
 
     #endregion
 
     #region Constructors
 
     public VendorPageViewComponent(
-        IPageService pageService)
+        IPageService pageService,
+        IContextAccessor contextAccessor)
     {
         _pageService = pageService;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -27,7 +31,8 @@ public class VendorPageViewComponent : BaseVendorViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync(string systemName)
     {
-        var page = await _pageService.GetPageBySystemName(systemName);
+        var page = await _pageService.GetPageBySystemName(systemName,
+            _contextAccessor.StoreContext.CurrentStore.Id);
         var model = new VendorPortalModel(page?.Title, page?.Body);
         return View(model);
     }

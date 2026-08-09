@@ -65,7 +65,7 @@ public class PageService : IPageService
     /// <param name="systemName">The page system name</param>
     /// <param name="storeId">Store identifier; pass 0 to ignore filtering by store and load the first one</param>
     /// <returns>Page</returns>
-    public virtual async Task<Page> GetPageBySystemName(string systemName, string storeId = "")
+    public virtual async Task<Page> GetPageBySystemName(string systemName, string storeId)
     {
         if (string.IsNullOrEmpty(systemName))
             return null;

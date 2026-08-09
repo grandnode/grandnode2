@@ -67,7 +67,7 @@ public class BlogService : IBlogService
     /// <param name="blogPostName">Blog post name</param>
     /// <param name="categoryId">Category ident</param>
     /// <returns>Blog posts</returns>
-    public virtual async Task<IPagedList<BlogPost>> GetAllBlogPosts(string storeId = "",
+    public virtual async Task<IPagedList<BlogPost>> GetAllBlogPosts(string storeId,
         DateTime? dateFrom = null, DateTime? dateTo = null,
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false, string tag = null,
         string blogPostName = "", string categoryId = "")
@@ -123,7 +123,7 @@ public class BlogService : IBlogService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <returns>Blog posts</returns>
-    public virtual async Task<IPagedList<BlogPost>> GetAllBlogPostsByTag(string storeId = "",
+    public virtual async Task<IPagedList<BlogPost>> GetAllBlogPostsByTag(string storeId,
         string tag = "",
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
@@ -336,7 +336,7 @@ public class BlogService : IBlogService
     ///     Get all blog categories
     /// </summary>
     /// <returns></returns>
-    public virtual async Task<IList<BlogCategory>> GetAllBlogCategories(string storeId = "")
+    public virtual async Task<IList<BlogCategory>> GetAllBlogCategories(string storeId)
     {
         var query = from c in _blogCategoryRepository.Table
             select c;
