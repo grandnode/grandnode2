@@ -232,7 +232,7 @@ public class CustomerServiceTests
         Assert.IsNull(result);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("   ")]
     public async Task GetCustomerByEmail_EmptyOrWhitespaceEmail_ReturnsNull(string email)

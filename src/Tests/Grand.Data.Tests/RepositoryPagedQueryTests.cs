@@ -1,7 +1,5 @@
-using Grand.Data.LiteDb;
 using Grand.Data.Tests.LiteDb;
 using Grand.Data.Tests.MongoDb;
-using Grand.Data.Mongo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Data.Tests;
@@ -14,33 +12,31 @@ namespace Grand.Data.Tests;
 [TestClass]
 public class RepositoryPagedQueryTests
 {
-    private IRepository<SampleCollection> _liteDbRepository;
+    private const string Mongo = "MongoDB";
+    private const string LiteDb = "LiteDB";
+
+    private IRepository<SampleCollection> _liteDb;
     private IRepository<SampleCollection> _mongoRepository;
 
     [TestInitialize]
     public async Task Init()
     {
         _mongoRepository = new MongoDBRepositoryTest<SampleCollection>();
-        _liteDbRepository = new LiteDBRepositoryMock<SampleCollection>();
+        _liteDb = new LiteDBRepositoryMock<SampleCollection>();
 
-        foreach (var repository in new[] { _mongoRepository, _liteDbRepository })
+        foreach (var repository in new[] { _mongoRepository, _liteDb })
             for (var i = 1; i <= 25; i++)
                 await repository.InsertAsync(new SampleCollection { Name = $"sample {i:00}", Count = i });
     }
 
-    private static IEnumerable<object[]> Providers()
-    {
-        yield return [nameof(MongoRepository<SampleCollection>)];
-        yield return [nameof(LiteDBRepository<SampleCollection>)];
-    }
-
     private IRepository<SampleCollection> Repository(string provider)
     {
-        return provider == nameof(MongoRepository<SampleCollection>) ? _mongoRepository : _liteDbRepository;
+        return provider == Mongo ? _mongoRepository : _liteDb;
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(Providers), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
     public async Task PagedAsync_FirstPage_ReturnsPageAndTotals(string provider)
     {
         var repository = Repository(provider);
@@ -58,8 +54,9 @@ public class RepositoryPagedQueryTests
         Assert.IsTrue(result.HasNextPage);
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(Providers), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
     public async Task PagedAsync_LastPartialPage_ReturnsRemainder(string provider)
     {
         var repository = Repository(provider);
@@ -74,8 +71,9 @@ public class RepositoryPagedQueryTests
         Assert.IsFalse(result.HasNextPage);
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(Providers), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
     public async Task PagedAsync_PageBeyondRange_ReturnsEmptyPageWithTotals(string provider)
     {
         var repository = Repository(provider);
@@ -88,8 +86,9 @@ public class RepositoryPagedQueryTests
         Assert.AreEqual(3, result.TotalPages);
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(Providers), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
     public async Task PagedAsync_NoMatches_ReturnsEmpty(string provider)
     {
         var repository = Repository(provider);
@@ -102,8 +101,9 @@ public class RepositoryPagedQueryTests
         Assert.AreEqual(0, result.TotalPages);
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(Providers), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
     public async Task PagedAsync_NonPositivePageSize_NormalizesToOne(string provider)
     {
         var repository = Repository(provider);
@@ -116,8 +116,9 @@ public class RepositoryPagedQueryTests
         Assert.AreEqual(25, result.TotalPages);
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(Providers), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
     public async Task PagedAsync_Projection_ReturnsProjectedPage(string provider)
     {
         var repository = Repository(provider);
@@ -130,8 +131,9 @@ public class RepositoryPagedQueryTests
         Assert.AreEqual("sample 01", result.First());
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(Providers), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
     public async Task ToListAsync_ReturnsAllMatches(string provider)
     {
         var repository = Repository(provider);
@@ -141,8 +143,9 @@ public class RepositoryPagedQueryTests
         Assert.AreEqual(3, result.Count);
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(Providers), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
     public async Task CountAsync_ReturnsNumberOfMatches(string provider)
     {
         var repository = Repository(provider);
@@ -150,8 +153,9 @@ public class RepositoryPagedQueryTests
         Assert.AreEqual(3, await repository.CountAsync(repository.Table.Where(x => x.Count <= 3)));
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(Providers), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
     public async Task PagedAsync_NullQuery_Throws(string provider)
     {
         var repository = Repository(provider);
