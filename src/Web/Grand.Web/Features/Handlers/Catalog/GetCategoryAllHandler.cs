@@ -48,7 +48,7 @@ public class GetCategoryAllHandler : IRequestHandler<GetCategoryAll, CategoryLis
             request.Command.PageSize = _catalogSettings.MaxCatalogPageSize;
 
         var model = new List<CategoryModel>();
-        var categories = await _categoryService.GetAllCategories(storeId: request.Store.Id,
+        var categories = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: request.Store.Id,
             pageIndex: request.Command.PageNumber - 1,
             pageSize: request.Command.PageSize
         );

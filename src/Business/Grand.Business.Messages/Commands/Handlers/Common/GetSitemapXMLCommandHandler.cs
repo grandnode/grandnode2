@@ -231,7 +231,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
 
     private async Task<IEnumerable<SitemapUrl>> GetBrandUrls(Language language, Store store)
     {
-        var brands = await _brandService.GetAllBrands(storeId: store.Id);
+        var brands = await _brandService.GetAllBrands(brandName: "", storeId: store.Id);
         var brandUrls = new List<SitemapUrl>();
         var storeLocation = GetStoreLocation();
         foreach (var brand in brands)

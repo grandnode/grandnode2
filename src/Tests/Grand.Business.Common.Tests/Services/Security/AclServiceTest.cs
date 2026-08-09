@@ -42,4 +42,22 @@ public class AclServiceTest
         _accessControlConfig.IgnoreStoreLimitations = true;
         Assert.IsTrue(_aclService.Authorize(product, "id"));
     }
+
+    /// <summary>
+    ///     Pins the fail-open: an empty store grants access even to an entity that is limited to other
+    ///     stores. Callers therefore carry the whole burden of supplying the store - which is why the
+    ///     list services no longer default that argument away.
+    /// </summary>
+    [TestMethod]
+    public void Authorize_WithoutAStore_GrantsAccessToAnEntityLimitedToOtherStores()
+    {
+        var product = new Product {
+            LimitedToStores = true,
+            Stores = { "another-store" }
+        };
+
+        Assert.IsFalse(_aclService.Authorize(product, "this-store"), "the store is not among the entity's stores");
+        Assert.IsTrue(_aclService.Authorize(product, ""), "fail-open: no store means no check");
+        Assert.IsTrue(_aclService.Authorize(product, (string)null), "fail-open: no store means no check");
+    }
 }
