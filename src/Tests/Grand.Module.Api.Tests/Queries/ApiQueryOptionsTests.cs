@@ -1,4 +1,4 @@
-using Grand.Module.Api.DTOs.Catalog;
+﻿using Grand.Module.Api.DTOs.Catalog;
 using Grand.Module.Api.Queries;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq.Dynamic.Core;
@@ -24,7 +24,7 @@ public class ApiQueryOptionsTests
         ApiQueryOptions.ValidateFilter("Name == \"Password\"", ElementType);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("PasswordHash != null", DisplayName = "field the model does not expose")]
     [DataRow("it.GetType().Assembly != null", DisplayName = "reflection through the context keyword")]
     [DataRow("\"\".GetType().Assembly.GetTypes().Length > 0", DisplayName = "type walk from a literal")]
@@ -66,7 +66,7 @@ public class ApiQueryOptionsTests
         Assert.AreEqual("Name asc, Sku desc", ApiQueryOptions.ParseOrderBy("Name, Sku DESC", ElementType));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("PasswordHash")]
     [DataRow("Name sideways")]
     [DataRow("Name asc extra")]
@@ -82,7 +82,7 @@ public class ApiQueryOptionsTests
         Assert.AreEqual("new(Id, Name)", ApiQueryOptions.ParseSelect("Id, Name", ElementType));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("PasswordHash", DisplayName = "field the model does not expose")]
     [DataRow("Name as Alias", DisplayName = "expression rather than a field")]
     [DataRow("it.GetType()", DisplayName = "reflection")]
