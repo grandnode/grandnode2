@@ -57,8 +57,8 @@ public class BrandService : IBrandService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Brands</returns>
-    public virtual async Task<IPagedList<Brand>> GetAllBrands(string brandName = "",
-        string storeId = "",
+    public virtual async Task<IPagedList<Brand>> GetAllBrands(string brandName,
+        string storeId,
         int pageIndex = 0,
         int pageSize = int.MaxValue,
         bool showHidden = false)

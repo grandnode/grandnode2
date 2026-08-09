@@ -1,4 +1,4 @@
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
@@ -74,8 +74,8 @@ public class CategoryService : ICategoryService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Categories</returns>
-    public virtual async Task<IPagedList<Category>> GetAllCategories(string parentId = null, string categoryName = "",
-        string storeId = "",
+    public virtual async Task<IPagedList<Category>> GetAllCategories(string parentId, string categoryName,
+        string storeId,
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
         var query = from c in _categoryRepository.Table
@@ -178,7 +178,7 @@ public class CategoryService : ICategoryService
     private async Task<IList<Category>> GetChildCategories(string parentCategoryId, bool showHidden)
     {
         var key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, showHidden,
-            CurrentCustomer.Id, CurrentStore.Id);
+            string.Join(",", CurrentCustomer.GetCustomerGroupIds()), CurrentStore.Id);
         return await _cacheBase.GetAsync(key, () =>
         {
             var query = _categoryRepository.Table.Where(c => c.ParentCategoryId == parentCategoryId);

@@ -106,7 +106,7 @@ public class CategoryServiceDbTests
     {
         var allCategory = GetMockCategoryList();
         allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-        var result = await _categoryService.GetAllCategories();
+        var result = await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: "");
         Assert.HasCount(5, result);
     }
 

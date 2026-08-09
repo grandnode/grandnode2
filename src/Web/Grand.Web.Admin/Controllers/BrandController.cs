@@ -273,7 +273,7 @@ public class BrandController : BaseAdminController
     {
         try
         {
-            var bytes = await exportManager.Export(await _brandService.GetAllBrands(showHidden: true));
+            var bytes = await exportManager.Export(await _brandService.GetAllBrands(brandName: "", storeId: "", showHidden: true));
             return File(bytes, "text/xls", "brands.xlsx");
         }
         catch (Exception exc)

@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
@@ -515,7 +515,7 @@ public class DiscountController : BaseStoreController
     public async Task<IActionResult> CategoryAddPopupList(DataSourceRequest command,
         DiscountModel.AddCategoryToDiscountModel model, [FromServices] ICategoryService categoryService)
     {
-        var categories = await categoryService.GetAllCategories(categoryName: model.SearchCategoryName,
+        var categories = await categoryService.GetAllCategories(parentId: null, categoryName: model.SearchCategoryName,
             storeId: CurrentStoreId, pageIndex: command.Page - 1, pageSize: command.PageSize, showHidden: true);
         var items = new List<CategoryModel>();
         foreach (var item in categories)

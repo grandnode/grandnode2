@@ -230,7 +230,7 @@ public class CategoryController : BaseAdminController
     {
         try
         {
-            var bytes = await exportManager.Export(await _categoryService.GetAllCategories(showHidden: true));
+            var bytes = await exportManager.Export(await _categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: "", showHidden: true));
             return File(bytes, "text/xls", "categories.xlsx");
         }
         catch (Exception exc)
