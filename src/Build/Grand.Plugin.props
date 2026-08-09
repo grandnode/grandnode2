@@ -1,6 +1,21 @@
 <Project>
 
     <!--
+        A plugin is a library, and the SDK does not copy NuGet assemblies into a library's
+        output - it expects the runtime to resolve them from deps.json, which does not happen
+        for an assembly side-loaded from a plugin folder. So the plugin's own packages have to
+        be copied, and CopyLocalLockFileAssemblies does that.
+
+        On its own it would also copy the host's entire package graph - 62 assemblies for a
+        plugin that needs one. ExcludeAssets=runtime on each host reference is what prevents
+        that: the plugin still compiles against the project, but nothing from its runtime
+        closure is copied. The same pairing is what the projects in src/Modules use.
+    -->
+    <PropertyGroup>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <!--
         The host assemblies every plugin compiles against.
 
         Private=false keeps them out of the plugin's output folder: the plugin is loaded
@@ -21,13 +36,13 @@
     -->
 
     <ItemGroup>
-        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" Private="false" />
-        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Domain\Grand.Domain.csproj" Private="false" />
-        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Data\Grand.Data.csproj" Private="false" />
-        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Mapping\Grand.Mapping.csproj" Private="false" />
-        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Mediator\Grand.Mediator.csproj" Private="false" />
-        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" Private="false" />
-        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Core\Grand.Business.Core.csproj" Private="false" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" Private="false" ExcludeAssets="runtime" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Domain\Grand.Domain.csproj" Private="false" ExcludeAssets="runtime" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Data\Grand.Data.csproj" Private="false" ExcludeAssets="runtime" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Mapping\Grand.Mapping.csproj" Private="false" ExcludeAssets="runtime" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Mediator\Grand.Mediator.csproj" Private="false" ExcludeAssets="runtime" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" Private="false" ExcludeAssets="runtime" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Core\Grand.Business.Core.csproj" Private="false" ExcludeAssets="runtime" />
         <!-- ExcludeAssets=all: referenced for its views and tag helpers, nothing is linked from it -->
         <ProjectReference Include="$(MSBuildThisFileDirectory)..\Web\Grand.Web.Common\Grand.Web.Common.csproj" Private="false" ExcludeAssets="all" />
     </ItemGroup>
