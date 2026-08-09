@@ -111,7 +111,7 @@ public class CampaignService(
             where c.CampaignId == campaign.Id
             orderby c.CreatedDateUtc descending
             select c;
-        return await PagedList<CampaignHistory>.Create(query, pageIndex, pageSize);
+        return await campaignHistoryRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     public virtual async Task<IPagedList<NewsLetterSubscription>> CustomerSubscriptions(Campaign campaign,
@@ -119,7 +119,7 @@ public class CampaignService(
     {
         ArgumentNullException.ThrowIfNull(campaign);
 
-        PagedList<NewsLetterSubscription> model;
+        IPagedList<NewsLetterSubscription> model;
         if (campaign.CustomerCreatedDateFrom.HasValue || campaign.CustomerCreatedDateTo.HasValue ||
             campaign.CustomerHasShoppingCart is not (CampaignCondition.All and CampaignCondition.All) ||
             campaign.CustomerLastActivityDateFrom.HasValue || campaign.CustomerLastActivityDateTo.HasValue ||
@@ -197,7 +197,7 @@ public class CampaignService(
             if (campaign.NewsletterCategories.Count > 0)
                 foreach (var item in campaign.NewsletterCategories)
                     query = query.Where(x => x.NewsletterCategories.Contains(item));
-            model = await PagedList<NewsLetterSubscription>.Create(
+            model = await newsLetterSubscriptionRepository.PagedAsync(
                 query.Select(x => new NewsLetterSubscription {
                     CustomerId = x.CustomerId, Email = x.Email,
                     NewsLetterSubscriptionGuid = x.NewsLetterSubscriptionGuid
@@ -212,7 +212,7 @@ public class CampaignService(
             if (campaign.NewsletterCategories.Count > 0)
                 foreach (var item in campaign.NewsletterCategories)
                     query = query.Where(x => x.Categories.Contains(item));
-            model = await PagedList<NewsLetterSubscription>.Create(query, pageIndex, pageSize);
+            model = await newsLetterSubscriptionRepository.PagedAsync(query, pageIndex, pageSize);
         }
 
         return await Task.FromResult(model);

@@ -148,7 +148,7 @@ public class SlugService : ISlugService
             query = query.Where(ur => ur.IsActive == active.Value);
 
         query = query.OrderBy(ur => ur.Slug);
-        return await PagedList<EntityUrl>.Create(query, pageIndex, pageSize);
+        return await _urlEntityRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

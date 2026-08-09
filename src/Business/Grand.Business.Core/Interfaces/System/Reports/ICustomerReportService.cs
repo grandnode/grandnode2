@@ -24,7 +24,7 @@ public interface ICustomerReportService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Report</returns>
-    IPagedList<BestCustomerReportLine> GetBestCustomersReport(string storeId = "", string vendorId = "",
+    Task<IPagedList<BestCustomerReportLine>> GetBestCustomersReport(string storeId = "", string vendorId = "",
         DateTime? createdFromUtc = null,
         DateTime? createdToUtc = null, int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
         int orderBy = 0,

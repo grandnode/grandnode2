@@ -203,7 +203,7 @@ public class DiscountService : IDiscountService
             query = query.Where(duh => duh.DiscountId == discountId);
         query = query.OrderByDescending(c => c.CouponCode);
 
-        return await PagedList<DiscountCoupon>.Create(query, pageIndex, pageSize);
+        return await _discountCouponRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 

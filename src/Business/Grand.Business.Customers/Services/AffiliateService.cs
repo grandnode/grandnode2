@@ -108,7 +108,7 @@ public class AffiliateService : IAffiliateService
 
         query = query.OrderByDescending(a => a.Id);
 
-        return await PagedList<Affiliate>.Create(query, pageIndex, pageSize);
+        return await _affiliateRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

@@ -76,7 +76,7 @@ public class VendorService : IVendorService
             query = query.Where(v => v.Active);
         query = query.Where(v => !v.Deleted);
         query = query.OrderBy(v => v.DisplayOrder).ThenBy(v => v.Name);
-        return await PagedList<Vendor>.Create(query, pageIndex, pageSize);
+        return await _vendorRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -218,7 +218,7 @@ public class VendorService : IVendorService
         if (!string.IsNullOrEmpty(vendorId))
             query = query.Where(c => c.VendorId == vendorId);
         query = query.OrderByDescending(c => c.CreatedOnUtc);
-        return await PagedList<VendorReview>.Create(query, pageIndex, pageSize);
+        return await _vendorReviewRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 

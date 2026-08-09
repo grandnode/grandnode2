@@ -1,5 +1,6 @@
 using Grand.Domain;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System.Linq.Expressions;
 
 namespace Grand.Data.Mongo;
@@ -340,6 +341,50 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public virtual IQueryable<C> TableCollection<C>() where C : class
     {
         return Database.GetCollection<C>(typeof(T).Name).AsQueryable();
+    }
+
+    #endregion
+
+    #region Query execution
+
+    /// <summary>
+    ///     Executes the query and returns its results
+    /// </summary>
+    public virtual async Task<IList<TResult>> ToListAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Executes the query and returns the number of matching documents
+    /// </summary>
+    public virtual async Task<int> CountAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.CountAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Executes the query and returns a single page of its results
+    /// </summary>
+    public virtual async Task<IPagedList<TResult>> PagedAsync<TResult>(IQueryable<TResult> query, int pageIndex,
+        int pageSize, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        //keep the same normalization the paged list applies, so the skip matches the reported page size
+        if (pageSize <= 0)
+            pageSize = 1;
+
+        var totalCount = await CountAsync(query, cancellationToken);
+        var items = await ToListAsync(query.Skip(pageIndex * pageSize).Take(pageSize), cancellationToken);
+
+        return new PagedList<TResult>(items, pageIndex, pageSize, totalCount);
     }
 
     #endregion

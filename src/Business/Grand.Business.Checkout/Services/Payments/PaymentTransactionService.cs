@@ -149,7 +149,7 @@ public class PaymentTransactionService : IPaymentTransactionService
         };
 
         var query = await _mediator.Send(model);
-        return await PagedList<PaymentTransaction>.Create(query, pageIndex, pageSize);
+        return await _repositoryPaymentTransaction.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

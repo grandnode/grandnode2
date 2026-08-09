@@ -64,7 +64,7 @@ public class WarehouseService : IWarehouseService
             query = query.Where(wh => wh.StoreId == storeId);
         query = query.OrderBy(wh => wh.DisplayOrder);
 
-        return await PagedList<Warehouse>.Create(query, pageIndex, pageSize);
+        return await _warehouseRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

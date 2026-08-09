@@ -122,7 +122,7 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
         var paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
         var shippingStatus = model.ShippingStatusId > 0 ? (ShippingStatus?)model.ShippingStatusId : null;
 
-        var items = _customerReportService.GetBestCustomersReport(
+        var items = await _customerReportService.GetBestCustomersReport(
             model.StoreId,
             createdFromUtc: startDateValue,
             createdToUtc: endDateValue,

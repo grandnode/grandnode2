@@ -123,7 +123,7 @@ public class MaintenanceController : BaseAdminController
         var numberOfConvertItems = 0;
         if (storageSettings.PictureStoreInDb)
         {
-            var pictures = pictureService.GetPictures();
+            var pictures = await pictureService.GetPictures();
             foreach (var picture in pictures)
                 try
                 {

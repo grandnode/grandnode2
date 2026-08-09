@@ -45,7 +45,7 @@ public class CourseService : ICourseService
             orderby q.DisplayOrder
             select q;
 
-        return await PagedList<Course>.Create(query, pageIndex, pageSize);
+        return await _courseRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     public virtual async Task<IList<Course>> GetByCustomer(Customer customer, string storeId)

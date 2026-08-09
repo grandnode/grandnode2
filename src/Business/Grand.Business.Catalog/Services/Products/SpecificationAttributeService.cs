@@ -98,7 +98,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
 
         query = query.OrderBy(sa => sa.DisplayOrder).ThenBy(sa => sa.Name);
 
-        return await PagedList<SpecificationAttribute>.Create(query, pageIndex, pageSize);
+        return await _specificationAttributeRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 

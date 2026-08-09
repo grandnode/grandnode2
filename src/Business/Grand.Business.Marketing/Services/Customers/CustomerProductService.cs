@@ -126,7 +126,7 @@ public class CustomerProductService : ICustomerProductService
         var query = from pp in _customerProductPriceRepository.Table
             where pp.CustomerId == customerId
             select pp;
-        return await PagedList<CustomerProductPrice>.Create(query, pageIndex, pageSize);
+        return await _customerProductPriceRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     #endregion
@@ -219,7 +219,7 @@ public class CustomerProductService : ICustomerProductService
             where pp.CustomerId == customerId
             orderby pp.DisplayOrder
             select pp;
-        return await PagedList<CustomerProduct>.Create(query, pageIndex, pageSize);
+        return await _customerProductRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     #endregion

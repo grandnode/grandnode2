@@ -91,7 +91,7 @@ public class BrandService : IBrandService
         }
 
         query = query.OrderBy(m => m.DisplayOrder).ThenBy(m => m.Name);
-        return await PagedList<Brand>.Create(query, pageIndex, pageSize);
+        return await _brandRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

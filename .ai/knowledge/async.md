@@ -63,15 +63,34 @@ var result = await _repository.GetByIdAsync(id);
 
 `ValueTask` avoids allocation for code that often returns a cached result without awaiting. Do not retrofit existing `Task`-returning code unless profiling shows allocation is a problem.
 
-### Avoid `.ToList()` inside async lambdas passed to cache
+### Never execute a query built on `Table` synchronously
 
-`IQueryable<T>.ToList()` is synchronous and blocks. Use LINQ's `ToList()` only on in-memory sequences, or use repository methods that return `Task<IList<T>>`.
+`Table` is an `IQueryable` over the MongoDB driver. `ToList()`, `Count()`, `First()` and plain
+enumeration on it each issue a **blocking** round trip and hold a thread pool thread for its
+duration. Being MongoDB rather than EF does not make it synchronous-safe — it makes it a network
+call with no async on that path unless you ask for one.
+
+Execute through the repository instead. `MongoRepository` runs the query on the driver's
+asynchronous API. Hand it a sequence you already materialised and it throws — that is deliberate,
+because quietly enumerating it would be the very pattern this rule exists to remove.
 
 ```csharp
-// This is fine — the LINQ query is materialised synchronously here
-// because Table is IQueryable against MongoDB, not EF
+// wrong — blocks a thread for the whole round trip
 var productIds = query.Take(request.ProductsNumber).ToList();
+var total = query.Count();
+return new PagedList<Product>(query, pageIndex, pageSize);
+
+// correct
+var productIds = await _productRepository.ToListAsync(query.Take(request.ProductsNumber));
+var total = await _productRepository.CountAsync(query);
+return await _productRepository.PagedAsync(query, pageIndex, pageSize);
 ```
+
+The same applies inside a lambda passed to `ICacheBase.GetAsync` — make the lambda `async` and
+await the repository, rather than returning `Task.FromResult(query.ToList())`. Blocking there is
+worse than elsewhere, because the cache holds a lock while the acquire function runs.
+
+`ToList()` on a sequence that is already in memory is fine and needs no repository call.
 
 ### Run independent operations concurrently with `Task.WhenAll`
 

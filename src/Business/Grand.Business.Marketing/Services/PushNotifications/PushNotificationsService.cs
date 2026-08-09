@@ -116,7 +116,7 @@ public class PushNotificationsService : IPushNotificationsService
     public virtual async Task<IPagedList<PushMessage>> GetPushMessages(int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = _pushMessagesRepository.Table.OrderByDescending(x => x.SentOn);
-        return await Task.FromResult(new PagedList<PushMessage>(query, pageIndex, pageSize));
+        return await _pushMessagesRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -126,7 +126,7 @@ public class PushNotificationsService : IPushNotificationsService
         int pageSize = int.MaxValue)
     {
         var query = _pushRegistrationRepository.Table.OrderByDescending(x => x.RegisteredOn);
-        return await Task.FromResult(new PagedList<PushRegistration>(query, pageIndex, pageSize));
+        return await _pushRegistrationRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

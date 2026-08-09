@@ -53,14 +53,14 @@ public class AuctionService : IAuctionService
         int pageSize = int.MaxValue)
     {
         var query = _bidRepository.Table.Where(x => x.ProductId == productId).OrderByDescending(x => x.Date);
-        return await Task.FromResult(new PagedList<Bid>(query, pageIndex, pageSize));
+        return await _bidRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     public virtual async Task<IPagedList<Bid>> GetBidsByCustomerId(string customerId, int pageIndex = 0,
         int pageSize = int.MaxValue)
     {
         var query = _bidRepository.Table.Where(x => x.CustomerId == customerId);
-        return await Task.FromResult(new PagedList<Bid>(query, pageIndex, pageSize));
+        return await _bidRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     public virtual async Task InsertBid(Bid bid)

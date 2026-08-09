@@ -110,7 +110,7 @@ public class BlogService : IBlogService
 
         query = query.OrderByDescending(b => b.CreatedOnUtc);
 
-        return await PagedList<BlogPost>.Create(query, pageIndex, pageSize);
+        return await _blogPostRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 

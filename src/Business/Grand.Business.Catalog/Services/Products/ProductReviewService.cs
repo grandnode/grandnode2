@@ -60,7 +60,7 @@ public class ProductReviewService : IProductReviewService
 
         query = query.OrderByDescending(c => c.CreatedOnUtc);
 
-        return await PagedList<ProductReview>.Create(query, pageIndex, pageSize);
+        return await _productReviewRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

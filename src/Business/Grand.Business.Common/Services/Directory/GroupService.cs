@@ -76,7 +76,7 @@ public class GroupService : IGroupService
 
         query = query.OrderBy(m => m.DisplayOrder).ThenBy(m => m.Name);
 
-        return await PagedList<CustomerGroup>.Create(query, pageIndex, pageSize);
+        return await _customerGroupRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
