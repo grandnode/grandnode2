@@ -41,7 +41,7 @@ public class GetHomepageBrandsHandler : IRequestHandler<GetHomepageBrands, IList
         var model = await _cacheBase.GetAsync(brandsCacheKey, async () =>
         {
             var modelBrands = new List<BrandModel>();
-            var allBrands = await _brandService.GetAllBrands(storeId: request.Store.Id);
+            var allBrands = await _brandService.GetAllBrands(brandName: "", storeId: request.Store.Id);
             foreach (var x in allBrands.Where(x => x.ShowOnHomePage))
             {
                 var brandModel = x.ToModel(request.Language);

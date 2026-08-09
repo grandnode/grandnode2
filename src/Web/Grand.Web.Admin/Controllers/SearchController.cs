@@ -90,7 +90,7 @@ public class SearchController : BaseAdminController
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCategories)
             {
-                var categories = await _categoryService.GetAllCategories(categoryName: searchTerm,
+                var categories = await _categoryService.GetAllCategories(parentId: null, categoryName: searchTerm, storeId: "",
                     pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden:
                     await _groupService.IsAdmin(_contextAccessor.WorkContext.CurrentCustomer));
                 foreach (var category in categories)
@@ -104,7 +104,7 @@ public class SearchController : BaseAdminController
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCollections)
             {
-                var collections = await _collectionService.GetAllCollections(searchTerm,
+                var collections = await _collectionService.GetAllCollections(searchTerm, storeId: "",
                     pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
                 foreach (var collection in collections)
                     result.Add(new Tuple<object, int>(new
@@ -300,6 +300,7 @@ public class SearchController : BaseAdminController
     {
         var brands = await _brandService.GetAllBrands(
             model.GetNameFilterValue(),
+            storeId: "",
             pageSize: _adminSearchSettings.BrandSizeLimit);
 
         var gridModel = await DataSourceResultHelper.GetSearchResult(brandId, brands, brand => Task.FromResult(brand.Name));

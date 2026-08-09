@@ -268,7 +268,7 @@ public class CollectionController : BaseAdminController
     {
         try
         {
-            var bytes = await exportManager.Export(await _collectionService.GetAllCollections(showHidden: true));
+            var bytes = await exportManager.Export(await _collectionService.GetAllCollections(collectionName: "", storeId: "", showHidden: true));
             return File(bytes, "text/xls", "collections.xlsx");
         }
         catch (Exception exc)

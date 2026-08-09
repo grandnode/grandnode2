@@ -513,7 +513,7 @@ public class DiscountController : BaseAdminController
     public async Task<IActionResult> CategoryAddPopupList(DataSourceRequest command,
         DiscountModel.AddCategoryToDiscountModel model, [FromServices] ICategoryService categoryService)
     {
-        var categories = await categoryService.GetAllCategories(categoryName: model.SearchCategoryName,
+        var categories = await categoryService.GetAllCategories(parentId: null, categoryName: model.SearchCategoryName, storeId: "",
             pageIndex: command.Page - 1, pageSize: command.PageSize, showHidden: true);
         var items = new List<CategoryModel>();
         foreach (var item in categories)

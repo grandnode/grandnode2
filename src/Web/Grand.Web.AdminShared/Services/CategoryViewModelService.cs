@@ -76,6 +76,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         CategoryListModel model, int pageIndex, int pageSize)
     {
         var categories = await _categoryService.GetAllCategories(
+            parentId: null,
             categoryName: model.SearchCategoryName,
             storeId: model.SearchStoreId,
             pageSize: pageSize,

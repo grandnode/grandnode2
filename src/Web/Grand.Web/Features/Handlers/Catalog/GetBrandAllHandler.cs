@@ -47,7 +47,7 @@ public class GetBrandAllHandler : IRequestHandler<GetBrandAll, BrandListModel>
             request.Command.PageSize = _catalogSettings.MaxCatalogPageSize;
 
         var model = new List<BrandModel>();
-        var brands = await _brandService.GetAllBrands(storeId: request.Store.Id,
+        var brands = await _brandService.GetAllBrands(brandName: "", storeId: request.Store.Id,
             pageIndex: request.Command.PageNumber - 1,
             pageSize: request.Command.PageSize
         );
