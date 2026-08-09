@@ -50,7 +50,8 @@ Do not override `TargetFramework` or `LangVersion` in an individual project.
 
 ## Project references
 
-- Reference GrandNode projects with `<Private>false</Private>` in plugins and modules — the host already loads those assemblies.
+- Plugins import `src/Build/Grand.Plugin.props`, which carries the host projects every plugin compiles against, each already `Private="false"`. Do not restate that list in a plugin — a new core project goes in the props file, so it reaches all plugins at once.
+- Reference GrandNode projects with `<Private>false</Private>` in modules, and in a plugin for anything beyond the shared set — the host already loads those assemblies. `Private="false"` does not carry to a reference's own dependencies, so each project has to be named.
 - Use `<ExcludeAssets>all</ExcludeAssets>` (plugins referencing `Grand.Web` / `Grand.Web.Common`) or `<ExcludeAssets>runtime</ExcludeAssets>` (modules) following the nearest existing project of the same kind.
 - Never reference a plugin from core, business, or web projects. Dependencies point inward only.
 

@@ -13,6 +13,10 @@
             <Private>False</Private>
             <ExcludeAssets>runtime</ExcludeAssets>
         </ProjectReference>
+        <ProjectReference Include="..\..\Core\Grand.Mediator\Grand.Mediator.csproj">
+            <Private>False</Private>
+            <ExcludeAssets>runtime</ExcludeAssets>
+        </ProjectReference>
         <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
             <Private>False</Private>
             <ExcludeAssets>runtime</ExcludeAssets>

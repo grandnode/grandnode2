@@ -13,6 +13,7 @@ Placeholders: `{SystemName}` = `{Group}.{Name}`, `{Feature}` = type-name prefix.
 ```xml
 <Project Sdk="Microsoft.NET.Sdk.Razor">
 	<Import Project="..\..\Build\Grand.Common.props" />
+	<Import Project="..\..\Build\Grand.Plugin.props" />
 	<PropertyGroup>
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 		<StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
@@ -29,31 +30,6 @@ Placeholders: `{SystemName}` = `{Group}.{Name}`, `{Feature}` = type-name prefix.
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Core\Grand.Mapping\Grand.Mapping.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
-			<Private>false</Private>
-		</ProjectReference>
-		<ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj">
-			<Private>false</Private>
-			<ExcludeAssets>all</ExcludeAssets>
-		</ProjectReference>
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Update="logo.jpg">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
@@ -61,7 +37,11 @@ Placeholders: `{SystemName}` = `{Group}.{Name}`, `{Feature}` = type-name prefix.
 </Project>
 ```
 
-Use `Microsoft.NET.Sdk` and drop the Razor properties when the plugin ships no `.cshtml`. Trim project references down to what the plugin actually uses.
+Use `Microsoft.NET.Sdk` and drop the Razor properties when the plugin ships no `.cshtml`.
+
+`Grand.Plugin.props` brings in the host projects every plugin compiles against — `Grand.SharedKernel`, `Grand.Domain`, `Grand.Data`, `Grand.Mapping`, `Grand.Mediator`, `Grand.Infrastructure`, `Grand.Business.Core` and `Grand.Web.Common` — each with `Private=false` so nothing is copied into the plugin folder. Do not restate them in the plugin: they were duplicated across all 16 plugins until `Grand.Mediator` was added to the solution, added to none of them, and copied into every plugin's output. Add a new core project to `src/Build/Grand.Plugin.props`, not here.
+
+The unused references cost nothing at runtime, so there is no need to trim the list. A plugin needing something beyond that set — a NuGet package, or `Grand.Web` as `Theme.Modern` does — declares it in its own `ItemGroup`.
 
 ## 2. `Manifest.cs`
 

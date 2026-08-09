@@ -254,7 +254,7 @@ public static class PluginManager
             Group = pluginInfo.Group,
             SystemName = pluginInfo.SystemName,
             Version = pluginInfo.Version,
-            SupportedVersion = pluginInfo.SupportedVersion,
+            SupportedVersion = PluginVersionResolver.ResolveSupportedVersion(assembly, pluginInfo.SupportedVersion),
             Author = pluginInfo.Author,
             PluginFileName = plug.Name,
             OriginalAssemblyFile = pluginFile,
