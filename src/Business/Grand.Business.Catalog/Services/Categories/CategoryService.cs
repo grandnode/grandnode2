@@ -159,9 +159,27 @@ public class CategoryService : ICategoryService
     public virtual async Task<IList<Category>> GetAllCategoriesByParentCategoryId(string parentCategoryId = "",
         bool showHidden = false, bool includeAllLevels = false)
     {
+        var categories = await GetChildCategories(parentCategoryId, showHidden);
+        if (!includeAllLevels) return categories;
+
+        //walk the tree outside the cache: every level resolves through its own cache entry, so no
+        //semaphore is held while the next level is fetched, and a subtree is stored once rather than
+        //once per ancestor
+        var allLevels = new List<Category>(categories);
+        foreach (var category in categories)
+            allLevels.AddRange(await GetAllCategoriesByParentCategoryId(category.Id, showHidden, true));
+
+        return allLevels;
+    }
+
+    /// <summary>
+    ///     Gets the direct children of a category, filtered by the current customer's groups and store
+    /// </summary>
+    private async Task<IList<Category>> GetChildCategories(string parentCategoryId, bool showHidden)
+    {
         var key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, showHidden,
-            CurrentCustomer.Id, CurrentStore.Id, includeAllLevels);
-        return await _cacheBase.GetAsync(key, async () =>
+            CurrentCustomer.Id, CurrentStore.Id);
+        return await _cacheBase.GetAsync(key, () =>
         {
             var query = _categoryRepository.Table.Where(c => c.ParentCategoryId == parentCategoryId);
             if (!showHidden)
@@ -185,14 +203,7 @@ public class CategoryService : ICategoryService
                         select p;
             }
 
-            var categories = query.OrderBy(x => x.DisplayOrder).ToList();
-            if (!includeAllLevels) return categories;
-            var childCategories = new List<Category>();
-            //add child levels
-            foreach (var category in categories)
-                childCategories.AddRange(await GetAllCategoriesByParentCategoryId(category.Id, showHidden, true));
-            categories.AddRange(childCategories);
-            return categories;
+            return Task.FromResult<IList<Category>>(query.OrderBy(x => x.DisplayOrder).ToList());
         });
     }
 

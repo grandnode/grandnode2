@@ -25,7 +25,7 @@ public static partial class CacheKey
     ///     {3} : store ID
     ///     {4} : include all levels (child)
     /// </remarks>
-    public static string CATEGORIES_BY_PARENT_CATEGORY_ID_KEY => "Grand.category.byparent-{0}-{1}-{2}-{3}-{4}";
+    public static string CATEGORIES_BY_PARENT_CATEGORY_ID_KEY => "Grand.category.byparent-{0}-{1}-{2}-{3}";
 
     /// <summary>
     ///     Key pattern to clear cache
