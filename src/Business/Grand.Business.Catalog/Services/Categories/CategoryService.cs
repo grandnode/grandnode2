@@ -1,4 +1,4 @@
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
@@ -160,7 +160,7 @@ public class CategoryService : ICategoryService
         bool showHidden = false, bool includeAllLevels = false)
     {
         var key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, showHidden,
-            CurrentCustomer.Id, CurrentStore.Id, includeAllLevels);
+            string.Join(",", CurrentCustomer.GetCustomerGroupIds()), CurrentStore.Id, includeAllLevels);
         return await _cacheBase.GetAsync(key, async () =>
         {
             var query = _categoryRepository.Table.Where(c => c.ParentCategoryId == parentCategoryId);

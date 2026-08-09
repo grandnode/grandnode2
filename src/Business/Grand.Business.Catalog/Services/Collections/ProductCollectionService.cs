@@ -45,7 +45,7 @@ public class ProductCollectionService : IProductCollectionService
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
         var key = string.Format(CacheKey.PRODUCTCOLLECTIONS_ALLBYCOLLECTIONID_KEY, showHidden, collectionId, pageIndex,
-            pageSize, _contextAccessor.WorkContext.CurrentCustomer.Id, storeId);
+            pageSize, string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()), storeId);
         return await _cacheBase.GetAsync(key, () =>
         {
             var query = _productRepository.Table.Where(x =>
