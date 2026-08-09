@@ -45,7 +45,7 @@ public class CustomerTagService : ICustomerTagService
         var query = from c in _customerRepository.Table
             where c.CustomerTags.Contains(customerTagId)
             select c;
-        return await PagedList<Customer>.Create(query, pageIndex, pageSize);
+        return await _customerRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

@@ -46,12 +46,12 @@ public class ShippingByWeightService : IShippingByWeightService
     public virtual async Task<IPagedList<ShippingByWeightRecord>> GetAll(int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var key = string.Format(SHIPPINGBYWEIGHT_ALL_KEY, pageIndex, pageSize);
-        return await _cacheBase.GetAsync(key, () =>
+        return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from sbw in _sbwRepository.Table
                 select sbw;
 
-            return Task.FromResult(new PagedList<ShippingByWeightRecord>(query, pageIndex, pageSize));
+            return await _sbwRepository.PagedAsync(query, pageIndex, pageSize);
         });
     }
 

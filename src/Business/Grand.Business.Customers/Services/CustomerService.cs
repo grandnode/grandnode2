@@ -114,7 +114,7 @@ public class CustomerService : ICustomerService
             OrderBySelector = orderBySelector
         };
         var query = await _mediator.Send(queryModel);
-        return await PagedList<Customer>.Create(query, pageIndex, pageSize);
+        return await _customerRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ public class CustomerService : ICustomerService
             query = query.Where(c => c.SeId == salesEmployeeId);
 
         query = query.OrderByDescending(c => c.LastActivityDateUtc);
-        return await PagedList<Customer>.Create(query, pageIndex, pageSize);
+        return await _customerRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

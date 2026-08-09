@@ -161,7 +161,7 @@ public class MessageTemplateService : IMessageTemplateService
 
         query = query.OrderBy(t => t.Name);
 
-        return await PagedList<MessageTemplate>.Create(query, pageIndex, pageSize);
+        return await _messageTemplateRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

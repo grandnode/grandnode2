@@ -197,7 +197,7 @@ public class OrderService : IOrderService
             SalesEmployeeId = salesEmployeeId
         };
         var query = await _mediator.Send(queryModel);
-        return await PagedList<Order>.Create(query, pageIndex, pageSize);
+        return await _orderRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

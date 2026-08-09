@@ -173,7 +173,7 @@ public class QueuedEmailService : IQueuedEmailService
             :
             //load by priority
             query.OrderByDescending(qe => qe.PriorityId).ThenBy(qe => qe.CreatedOnUtc);
-        return await PagedList<QueuedEmail>.Create(query, pageIndex, pageSize);
+        return await _queuedEmailRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

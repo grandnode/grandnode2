@@ -95,7 +95,7 @@ public class CollectionService : ICollectionService
         }
 
         query = query.OrderBy(m => m.DisplayOrder).ThenBy(m => m.Name);
-        return await PagedList<Collection>.Create(query, pageIndex, pageSize);
+        return await _collectionRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 

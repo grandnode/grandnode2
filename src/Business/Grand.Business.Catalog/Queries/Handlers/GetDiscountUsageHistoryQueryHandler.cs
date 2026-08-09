@@ -33,6 +33,6 @@ public class
             query = query.Where(duh => duh.Canceled == request.Canceled.Value);
         query = query.OrderByDescending(c => c.CreatedOnUtc);
 
-        return await PagedList<DiscountUsageHistory>.Create(query, request.PageIndex, request.PageSize);
+        return await _discountUsageHistoryRepository.PagedAsync(query, request.PageIndex, request.PageSize);
     }
 }

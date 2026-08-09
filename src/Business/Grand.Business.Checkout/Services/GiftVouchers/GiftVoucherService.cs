@@ -79,7 +79,7 @@ public class GiftVoucherService : IGiftVoucherService
         };
 
         var query = await _mediator.Send(model);
-        return await PagedList<GiftVoucher>.Create(query, pageIndex, pageSize);
+        return await _giftVoucherRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     public virtual async Task<IList<GiftVoucherUsageHistory>> GetAllGiftVoucherUsageHistory(string orderId = "")

@@ -111,7 +111,7 @@ public class CategoryService : ICategoryService
         query = query.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name);
 
         //pagination
-        return await Task.FromResult(new PagedList<Category>(query, pageIndex, pageSize));
+        return await _categoryRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

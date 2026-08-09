@@ -85,7 +85,7 @@ public class ShipmentService : IShipmentService
             query = query.Where(s => createdToUtc.Value >= s.CreatedOnUtc);
 
         query = query.OrderByDescending(x => x.CreatedOnUtc);
-        var shipments = await PagedList<Shipment>.Create(query, pageIndex, pageSize);
+        var shipments = await _shipmentRepository.PagedAsync(query, pageIndex, pageSize);
         return shipments;
     }
 

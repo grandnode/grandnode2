@@ -153,7 +153,7 @@ public class ProductService : IProductService
                     where c.AppliedDiscounts.Any(x => x == discountId)
                     select c;
 
-        return await PagedList<Product>.Create(query, pageIndex, pageSize);
+        return await _productRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 
@@ -577,7 +577,7 @@ public class ProductService : IProductService
 
         query = query.OrderBy(x => x.Name);
 
-        return await PagedList<Product>.Create(query, pageIndex, pageSize);
+        return await _productRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

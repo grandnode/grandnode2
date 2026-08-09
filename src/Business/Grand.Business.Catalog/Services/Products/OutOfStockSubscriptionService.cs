@@ -58,7 +58,7 @@ public class OutOfStockSubscriptionService : IOutOfStockSubscriptionService
 
         query = query.OrderByDescending(x => x.CreatedOnUtc);
 
-        return await PagedList<OutOfStockSubscription>.Create(query, pageIndex, pageSize);
+        return await _outOfStockSubscriptionRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 

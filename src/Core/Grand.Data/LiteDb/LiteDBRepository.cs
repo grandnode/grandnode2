@@ -419,6 +419,54 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
 
     #endregion
 
+    #region Query execution
+
+    //LiteDB is an embedded database with no asynchronous API, and Table already materialises the
+    //collection before the query runs. These complete synchronously by design - unlike the rest of
+    //the codebase, Task.FromResult here is honest rather than a fake async signature.
+
+    /// <summary>
+    ///     Executes the query and returns its results
+    /// </summary>
+    public virtual Task<IList<TResult>> ToListAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return Task.FromResult<IList<TResult>>(query.ToList());
+    }
+
+    /// <summary>
+    ///     Executes the query and returns the number of matching documents
+    /// </summary>
+    public virtual Task<int> CountAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return Task.FromResult(query.Count());
+    }
+
+    /// <summary>
+    ///     Executes the query and returns a single page of its results
+    /// </summary>
+    public virtual Task<IPagedList<TResult>> PagedAsync<TResult>(IQueryable<TResult> query, int pageIndex,
+        int pageSize, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        //keep the same normalization the paged list applies, so the skip matches the reported page size
+        if (pageSize <= 0)
+            pageSize = 1;
+
+        var totalCount = query.Count();
+        var items = query.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+        return Task.FromResult<IPagedList<TResult>>(new PagedList<TResult>(items, pageIndex, pageSize, totalCount));
+    }
+
+    #endregion
+
     #region Helpers
 
     private static string GetName(LambdaExpression lambdaexpression)

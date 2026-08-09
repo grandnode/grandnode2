@@ -56,7 +56,7 @@ public class ProductReservationService : IProductReservationService
         }
 
         query = query.OrderBy(x => x.Date);
-        return await PagedList<ProductReservation>.Create(query, pageIndex, pageSize);
+        return await _productReservationRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

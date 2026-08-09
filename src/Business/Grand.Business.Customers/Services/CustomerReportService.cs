@@ -62,7 +62,7 @@ public class CustomerReportService : ICustomerReportService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Report</returns>
-    public virtual IPagedList<BestCustomerReportLine> GetBestCustomersReport(string storeId = "", string vendorId = "",
+    public virtual async Task<IPagedList<BestCustomerReportLine>> GetBestCustomersReport(string storeId = "", string vendorId = "",
         DateTime? createdFromUtc = null,
         DateTime? createdToUtc = null, int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
         int orderBy = 0,
@@ -101,7 +101,7 @@ public class CustomerReportService : ICustomerReportService
                 _ => throw new ArgumentException("Wrong orderBy parameter", nameof(orderBy))
             };
 
-            var tmp = new PagedList<dynamic>(query2, pageIndex, pageSize);
+            var tmp = await _orderRepository.PagedAsync(query2, pageIndex, pageSize);
             return new PagedList<BestCustomerReportLine>(tmp.Select(x => new BestCustomerReportLine {
                 CustomerId = x.CustomerId,
                 OrderTotal = x.OrderTotal,
@@ -135,7 +135,7 @@ public class CustomerReportService : ICustomerReportService
             _ => throw new ArgumentException("Wrong orderBy parameter", nameof(orderBy))
         };
 
-        var vendorReport = new PagedList<dynamic>(vendorQueryGroup, pageIndex, pageSize);
+        var vendorReport = await _orderRepository.PagedAsync(vendorQueryGroup, pageIndex, pageSize);
         return new PagedList<BestCustomerReportLine>(vendorReport.Select(x => new BestCustomerReportLine {
             CustomerId = x.CustomerId,
             OrderTotal = x.OrderTotal,

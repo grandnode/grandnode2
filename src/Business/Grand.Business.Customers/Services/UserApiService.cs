@@ -84,7 +84,7 @@ public class UserApiService : IUserApiService
         if (!string.IsNullOrEmpty(email))
             query = query.Where(x => x.Email.Contains(email.ToLowerInvariant()));
 
-        return await PagedList<UserApi>.Create(query, pageIndex, pageSize);
+        return await _userRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     #region Fields

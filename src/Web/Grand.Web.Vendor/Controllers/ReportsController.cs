@@ -357,7 +357,7 @@ public class ReportsController : BaseVendorController
 
         var paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
 
-        var items = _customerReportService.GetBestCustomersReport("", _contextAccessor.WorkContext.CurrentVendor.Id, startDateValue,
+        var items = await _customerReportService.GetBestCustomersReport("", _contextAccessor.WorkContext.CurrentVendor.Id, startDateValue,
             endDateValue,
             null, paymentStatus, null, 2, command.Page - 1, command.PageSize);
 

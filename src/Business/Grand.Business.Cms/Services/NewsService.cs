@@ -97,7 +97,7 @@ public class NewsService : INewsService
         }
 
         query = query.OrderByDescending(n => n.CreatedOnUtc);
-        return await PagedList<NewsItem>.Create(query, pageIndex, pageSize);
+        return await _newsItemRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

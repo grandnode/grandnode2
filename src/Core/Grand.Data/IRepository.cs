@@ -158,5 +158,33 @@ public interface IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Gets a table collection
     /// </summary>
-    IQueryable<C> TableCollection<C>() where C : class;    
+    IQueryable<C> TableCollection<C>() where C : class;
+
+    /// <summary>
+    ///     Executes the query and returns its results
+    /// </summary>
+    /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
+    /// <param name="query">Query built on top of <see cref="Table" /> or <see cref="TableCollection{C}" /></param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<IList<TResult>> ToListAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Executes the query and returns the number of matching documents
+    /// </summary>
+    /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
+    /// <param name="query">Query built on top of <see cref="Table" /> or <see cref="TableCollection{C}" /></param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<int> CountAsync<TResult>(IQueryable<TResult> query, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Executes the query and returns a single page of its results
+    /// </summary>
+    /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
+    /// <param name="query">Query built on top of <see cref="Table" /> or <see cref="TableCollection{C}" /></param>
+    /// <param name="pageIndex">Zero based page index</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<IPagedList<TResult>> PagedAsync<TResult>(IQueryable<TResult> query, int pageIndex, int pageSize,
+        CancellationToken cancellationToken = default);
 }

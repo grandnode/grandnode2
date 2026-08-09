@@ -148,6 +148,6 @@ public class EmailAccountService : IEmailAccountService
         if (!string.IsNullOrEmpty(storeId))
             query = query.Where(ea => ea.StoreId == storeId);
 
-        return await PagedList<EmailAccount>.Create(query, pageIndex, pageSize);
+        return await _emailAccountRepository.PagedAsync(query, pageIndex, pageSize);
     }
 }

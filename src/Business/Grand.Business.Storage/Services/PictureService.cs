@@ -528,12 +528,11 @@ public class PictureService : IPictureService
     /// <param name="pageIndex">Current page</param>
     /// <param name="pageSize">Items on each page</param>
     /// <returns>Paged list of pictures</returns>
-    public virtual IPagedList<Picture> GetPictures(int pageIndex = 0, int pageSize = int.MaxValue)
+    public virtual async Task<IPagedList<Picture>> GetPictures(int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = from p in _pictureRepository.Table
             select p;
-        var pictures = new PagedList<Picture>(query, pageIndex, pageSize);
-        return pictures;
+        return await _pictureRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

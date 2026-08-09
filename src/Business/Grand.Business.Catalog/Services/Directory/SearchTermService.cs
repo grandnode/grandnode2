@@ -94,7 +94,7 @@ public class SearchTermService : ISearchTermService
                 Keyword = r.Keyword,
                 Count = r.Count
             });
-        return await PagedList<SearchTermReportLine>.Create(query, pageIndex, pageSize);
+        return await _searchTermRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

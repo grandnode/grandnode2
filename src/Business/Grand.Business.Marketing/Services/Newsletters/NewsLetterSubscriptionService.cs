@@ -238,7 +238,7 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
             query = query.Where(c => c.Categories.Any(x => categoryIds.Contains(x)));
 
         query = query.OrderBy(nls => nls.Email);
-        return await PagedList<NewsLetterSubscription>.Create(query, pageIndex, pageSize);
+        return await _subscriptionRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
