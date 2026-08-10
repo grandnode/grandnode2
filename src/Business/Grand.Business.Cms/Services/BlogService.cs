@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Cms;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Blogs;
@@ -231,7 +231,7 @@ public class BlogService : IBlogService
             where (customerId == "" || c.CustomerId == customerId) && (storeId == "" || c.StoreId == storeId)
             select c;
 
-        return await Task.FromResult(query.ToList());
+        return await _blogCommentRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -251,7 +251,7 @@ public class BlogService : IBlogService
             orderby c.CreatedOnUtc
             select c;
 
-        return await Task.FromResult(query.ToList());
+        return await _blogCommentRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -316,8 +316,8 @@ public class BlogService : IBlogService
     /// <returns></returns>
     public virtual async Task<IList<BlogCategory>> GetBlogCategoryByPostId(string blogPostId)
     {
-        return await Task.FromResult(_blogCategoryRepository.Table
-            .Where(x => x.BlogPosts.Any(x => x.BlogPostId == blogPostId)).ToList());
+        return await _blogCategoryRepository.ToListAsync(_blogCategoryRepository.Table
+            .Where(x => x.BlogPosts.Any(x => x.BlogPostId == blogPostId)));
     }
 
     /// <summary>
@@ -344,7 +344,7 @@ public class BlogService : IBlogService
         if (!string.IsNullOrEmpty(storeId) && !_accessControlConfig.IgnoreStoreLimitations)
             query = query.Where(b => b.Stores.Contains(storeId) || !b.LimitedToStores);
 
-        return await Task.FromResult(query.OrderBy(x => x.DisplayOrder).ToList());
+        return await _blogCategoryRepository.ToListAsync(query.OrderBy(x => x.DisplayOrder));
     }
 
     /// <summary>
@@ -463,7 +463,7 @@ public class BlogService : IBlogService
             orderby bp.DisplayOrder
             select bp;
 
-        return await Task.FromResult(query.ToList());
+        return await _blogProductRepository.ToListAsync(query);
     }
 
     #endregion
