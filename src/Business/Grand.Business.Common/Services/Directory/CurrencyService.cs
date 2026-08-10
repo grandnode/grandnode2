@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
 using Grand.Domain.Directory;
@@ -99,7 +99,7 @@ public class CurrencyService : ICurrencyService
             var query = from q in _currencyRepository.Table
                 where q.CurrencyCode.ToLowerInvariant() == currencyCode.ToLowerInvariant()
                 select q;
-            return await Task.FromResult(query.FirstOrDefault());
+            return await _currencyRepository.FirstOrDefaultAsync(query);
         });
     }
 
@@ -120,7 +120,7 @@ public class CurrencyService : ICurrencyService
             if (!showHidden)
                 query = query.Where(c => c.Published);
             query = query.OrderBy(c => c.DisplayOrder);
-            return await Task.FromResult(query.ToList());
+            return (await _currencyRepository.ToListAsync(query)).ToList();
         });
 
         //store acl
