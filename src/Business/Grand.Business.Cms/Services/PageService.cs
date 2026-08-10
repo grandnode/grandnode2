@@ -106,7 +106,7 @@ public class PageService : IPageService
             query = query.OrderBy(t => t.DisplayOrder).ThenBy(t => t.SystemName);
 
             if ((string.IsNullOrEmpty(storeId) || _accessControlConfig.IgnoreStoreLimitations) &&
-                (ignoreAcl || _accessControlConfig.IgnoreAcl)) return await Task.FromResult(query.ToList());
+                (ignoreAcl || _accessControlConfig.IgnoreAcl)) return await _pageRepository.ToListAsync(query);
             {
                 if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
                 {
@@ -118,14 +118,14 @@ public class PageService : IPageService
 
                 //Store acl
                 if (string.IsNullOrEmpty(storeId) || _accessControlConfig.IgnoreStoreLimitations)
-                    return await Task.FromResult(query.ToList());
+                    return await _pageRepository.ToListAsync(query);
                 query = from p in query
                     where !p.LimitedToStores || p.Stores.Contains(storeId)
                     select p;
 
                 query = query.OrderBy(t => t.SystemName);
             }
-            return await Task.FromResult(query.ToList());
+            return await _pageRepository.ToListAsync(query);
         });
     }
 
