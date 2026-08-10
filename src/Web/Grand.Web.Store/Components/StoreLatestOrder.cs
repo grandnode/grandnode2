@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Components;
 
-public class StoreLatestOrderViewComponent : BaseAdminViewComponent
+public class StoreLatestOrderViewComponent : BaseStoreViewComponent
 {
     private readonly IPermissionService _permissionService;
 
