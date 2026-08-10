@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Components;
 
-public class StoreWidgetViewComponent : BaseAdminViewComponent
+public class StoreWidgetViewComponent : BaseStoreViewComponent
 {
     #region Constructors
 
