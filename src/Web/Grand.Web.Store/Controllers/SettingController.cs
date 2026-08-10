@@ -128,7 +128,15 @@ public class SettingController(
         var storeScope = GetStoreScope();
 
         var storeInformationSettings = await settingService.LoadSetting<StoreInformationSettings>(storeScope);
+
+        // Preserve the admin theme selection - store owners cannot change it
+        var allowToSelectAdminTheme = storeInformationSettings.AllowToSelectAdminTheme;
+
         storeInformationSettings = model.StoreInformationSettings.ToEntity(storeInformationSettings);
+
+        // Restore the preserved admin theme selection
+        storeInformationSettings.AllowToSelectAdminTheme = allowToSelectAdminTheme;
+
         await settingService.SaveSetting(storeInformationSettings, storeScope);
 
         var dateTimeSettings = await settingService.LoadSetting<DateTimeSettings>(storeScope);
