@@ -107,7 +107,9 @@ public class MessageTemplateService : IMessageTemplateService
     /// </summary>
     /// <param name="messageTemplateName">Message template name</param>
     /// <param name="storeId">Store identifier</param>
-    /// <returns>Message template</returns>
+    /// <returns>
+    ///     The template a store overrode this name with, if it has one; otherwise the template shared by every store
+    /// </returns>
     public virtual async Task<MessageTemplate> GetMessageTemplateByName(string messageTemplateName, string storeId)
     {
         if (string.IsNullOrWhiteSpace(messageTemplateName))
@@ -121,13 +123,14 @@ public class MessageTemplateService : IMessageTemplateService
 
             query = query.Where(t => t.Name == messageTemplateName);
             query = query.OrderBy(t => t.Id);
-            var templates = await Task.FromResult(query.ToList());
+            IEnumerable<MessageTemplate> templates = await _messageTemplateRepository.ToListAsync(query);
 
             //store acl
             if (!string.IsNullOrEmpty(storeId))
+                //a template this store was given for itself is the one it means, even though the shared template is older
                 templates = templates
                     .Where(t => _aclService.Authorize(t, storeId))
-                    .ToList();
+                    .OrderByDescending(t => t.LimitedToStores && t.Stores.Contains(storeId));
 
             return templates.FirstOrDefault();
         });

@@ -63,8 +63,10 @@ public class PageService : IPageService
     ///     Gets a page
     /// </summary>
     /// <param name="systemName">The page system name</param>
-    /// <param name="storeId">Store identifier; pass 0 to ignore filtering by store and load the first one</param>
-    /// <returns>Page</returns>
+    /// <param name="storeId">Store identifier; pass "" to ignore filtering by store and load the first one</param>
+    /// <returns>
+    ///     The page a store overrode this system name with, if it has one; otherwise the page shared by every store
+    /// </returns>
     public virtual async Task<Page> GetPageBySystemName(string systemName, string storeId)
     {
         if (string.IsNullOrEmpty(systemName))
@@ -78,8 +80,11 @@ public class PageService : IPageService
 
             query = query.Where(t => t.SystemName.ToLower() == systemName.ToLower());
             query = query.OrderBy(t => t.Id);
-            var pages = await Task.FromResult(query.ToList());
-            if (!string.IsNullOrEmpty(storeId)) pages = pages.Where(x => _aclService.Authorize(x, storeId)).ToList();
+            IEnumerable<Page> pages = await _pageRepository.ToListAsync(query);
+            if (!string.IsNullOrEmpty(storeId))
+                //a page this store was given for itself is the one it means, even though the shared page is older
+                pages = pages.Where(x => _aclService.Authorize(x, storeId))
+                    .OrderByDescending(x => x.LimitedToStores && x.Stores.Contains(storeId));
             return pages.FirstOrDefault();
         });
     }
