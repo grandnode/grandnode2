@@ -73,9 +73,10 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// </summary>
     /// <param name="id">Merchandise return identifier</param>
     /// <returns>Merchandise return</returns>
-    public virtual Task<MerchandiseReturn> GetMerchandiseReturnById(int id)
+    public virtual async Task<MerchandiseReturn> GetMerchandiseReturnById(int id)
     {
-        return Task.FromResult(_merchandiseReturnRepository.Table.FirstOrDefault(x => x.ReturnNumber == id));
+        return await _merchandiseReturnRepository.FirstOrDefaultAsync(
+            _merchandiseReturnRepository.Table.Where(x => x.ReturnNumber == id));
     }
 
     /// <summary>
@@ -368,7 +369,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
             orderby merchandiseReturnNote.CreatedOnUtc descending
             select merchandiseReturnNote;
 
-        return await Task.FromResult(query.ToList());
+        return await _merchandiseReturnNoteRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -376,10 +377,10 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// </summary>
     /// <param name="merchandiseReturnNoteId">The merchandise return note identifier</param>
     /// <returns>MerchandiseReturnNote</returns>
-    public virtual Task<MerchandiseReturnNote> GetMerchandiseReturnNote(string merchandiseReturnNoteId)
+    public virtual async Task<MerchandiseReturnNote> GetMerchandiseReturnNote(string merchandiseReturnNoteId)
     {
-        return Task.FromResult(
-            _merchandiseReturnNoteRepository.Table.FirstOrDefault(x => x.Id == merchandiseReturnNoteId));
+        return await _merchandiseReturnNoteRepository.FirstOrDefaultAsync(
+            _merchandiseReturnNoteRepository.Table.Where(x => x.Id == merchandiseReturnNoteId));
     }
 
     #endregion

@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
+﻿using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -85,7 +85,7 @@ public class CheckoutAttributeService : ICheckoutAttributeService
             }
 
             if (excludeShippableAttributes) query = query.Where(x => !x.ShippableProductRequired);
-            return await Task.FromResult(query.ToList());
+            return (await _checkoutAttributeRepository.ToListAsync(query)).ToList();
         });
     }
 
