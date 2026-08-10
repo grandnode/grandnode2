@@ -457,7 +457,7 @@ public class PictureService : IPictureService
                         Style = p.Style,
                         ExtraField = p.ExtraField
                     });
-            return await Task.FromResult(query.FirstOrDefault());
+            return await _pictureRepository.FirstOrDefaultAsync(query);
         });
     }
 

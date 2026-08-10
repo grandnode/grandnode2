@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.System.ScheduleTasks;
+﻿using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Data;
 using Grand.Domain.Tasks;
 
@@ -53,7 +53,7 @@ public class ScheduleTaskService : IScheduleTaskService
     /// <returns>Tasks</returns>
     public virtual async Task<IList<ScheduleTask>> GetAllTasks()
     {
-        return await Task.FromResult(_taskRepository.Table.ToList());
+        return await _taskRepository.ToListAsync(_taskRepository.Table);
     }
 
     /// <summary>
