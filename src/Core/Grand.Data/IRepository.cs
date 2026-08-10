@@ -178,6 +178,23 @@ public interface IRepository<T> where T : BaseEntity
     Task<int> CountAsync<TResult>(IQueryable<TResult> query, CancellationToken cancellationToken = default);
 
     /// <summary>
+    ///     Executes the query and returns its first result, or the default value when nothing matches
+    /// </summary>
+    /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
+    /// <param name="query">Query built on top of <see cref="Table" /> or <see cref="TableCollection{C}" /></param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<TResult> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Executes the query and returns whether any document matches it
+    /// </summary>
+    /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
+    /// <param name="query">Query built on top of <see cref="Table" /> or <see cref="TableCollection{C}" /></param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task<bool> AnyAsync<TResult>(IQueryable<TResult> query, CancellationToken cancellationToken = default);
+
+    /// <summary>
     ///     Executes the query and returns a single page of its results
     /// </summary>
     /// <typeparam name="TResult">Type of the query result - the entity itself or a projection</typeparam>
