@@ -99,7 +99,7 @@ public class CampaignService(
         var query = from c in campaignRepository.Table
             orderby c.CreatedOnUtc
             select c;
-        return await Task.FromResult(query.ToList());
+        return await campaignRepository.ToListAsync(query);
     }
 
     public virtual async Task<IPagedList<CampaignHistory>> GetCampaignHistory(Campaign campaign, int pageIndex = 0,

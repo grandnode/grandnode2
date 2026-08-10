@@ -36,7 +36,7 @@ public class CourseSubjectService : ICourseSubjectService
             orderby c.DisplayOrder
             select c;
 
-        return await Task.FromResult(query.ToList());
+        return await _courseSubjectRepository.ToListAsync(query);
     }
 
     public virtual Task<CourseSubject> GetById(string id)
