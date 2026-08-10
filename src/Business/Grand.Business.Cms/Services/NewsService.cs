@@ -60,7 +60,7 @@ public class NewsService : INewsService
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <param name="newsTitle">News title</param>
     /// <returns>News items</returns>
-    public virtual async Task<IPagedList<NewsItem>> GetAllNews(string storeId = "",
+    public virtual async Task<IPagedList<NewsItem>> GetAllNews(string storeId,
         int pageIndex = 0, int pageSize = int.MaxValue, bool ignoreAcl = false, bool showHidden = false,
         string newsTitle = "")
     {

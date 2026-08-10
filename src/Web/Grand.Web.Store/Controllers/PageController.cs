@@ -242,10 +242,12 @@ public class PageController : BaseStoreController
         if (page == null)
             return RedirectToAction("List");
 
-        if (!page.AccessToEntityByStore(storeId))
+        // A page is copyable only while it is still readable here and not yet owned by this store,
+        // so AccessToEntityByStore - which demands sole ownership - cannot be the guard.
+        if (page.LimitedToStores && !page.Stores.Contains(storeId))
             return RedirectToAction("List");
 
-        // Only allow copy for multistore or store-unrestricted topics
+        // Only allow copy for multistore or store-unrestricted pages
         if (page.LimitedToStores && page.Stores.Count <= 1)
             return RedirectToAction("Edit", new { id });
 

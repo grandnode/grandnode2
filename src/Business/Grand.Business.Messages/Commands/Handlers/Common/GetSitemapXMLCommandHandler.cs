@@ -294,6 +294,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     {
         var now = DateTime.UtcNow;
         return (await _pageService.GetAllPages(store.Id))
+            .PreferStoreOverrides(store.Id)
             .Where(t => t.IncludeInSitemap && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
                         (!t.EndDateUtc.HasValue || t.EndDateUtc > now))
             .Select(topic =>

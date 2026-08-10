@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Components;
 
-public class StoreBestsellersBriefReportByAmountViewComponent : BaseAdminViewComponent
+public class StoreBestsellersBriefReportByAmountViewComponent : BaseStoreViewComponent
 {
     private readonly IPermissionService _permissionService;
 

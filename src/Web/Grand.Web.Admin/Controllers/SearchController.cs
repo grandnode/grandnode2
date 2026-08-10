@@ -131,7 +131,7 @@ public class SearchController : BaseAdminController
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInNews)
             {
-                var news = await _newsService.GetAllNews(newsTitle: searchTerm,
+                var news = await _newsService.GetAllNews(storeId: "", newsTitle: searchTerm,
                     pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
                 foreach (var signleNews in news)
                     result.Add(new Tuple<object, int>(new
@@ -144,7 +144,7 @@ public class SearchController : BaseAdminController
 
             if (result.Count < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInBlogs)
             {
-                var blogPosts = await _blogService.GetAllBlogPosts(blogPostName: searchTerm,
+                var blogPosts = await _blogService.GetAllBlogPosts(storeId: "", blogPostName: searchTerm,
                     pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count, showHidden: true);
                 foreach (var blogPost in blogPosts)
                     result.Add(new Tuple<object, int>(new
