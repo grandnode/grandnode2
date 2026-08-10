@@ -30,7 +30,8 @@ public class UserApiService : IUserApiService
     /// <param name="email">email</param>
     public virtual async Task<UserApi> GetUserByEmail(string email)
     {
-        return await Task.FromResult(_userRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant()));
+        return await _userRepository.FirstOrDefaultAsync(
+            _userRepository.Table.Where(x => x.Email == email.ToLowerInvariant()));
     }
 
     /// <summary>
