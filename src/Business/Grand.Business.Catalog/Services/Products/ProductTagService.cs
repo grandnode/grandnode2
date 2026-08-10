@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
@@ -74,7 +74,7 @@ public class ProductTagService : IProductTagService
     public virtual async Task<IList<ProductTag>> GetAllProductTags()
     {
         return await _cacheBase.GetAsync(CacheKey.PRODUCTTAG_ALL_KEY,
-            async () => await Task.FromResult(_productTagRepository.Table.ToList()));
+            async () => (await _productTagRepository.ToListAsync(_productTagRepository.Table)).ToList());
     }
 
     /// <summary>

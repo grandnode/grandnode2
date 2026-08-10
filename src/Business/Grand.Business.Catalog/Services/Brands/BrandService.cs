@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -166,7 +166,7 @@ public class BrandService : IBrandService
             where c.AppliedDiscounts.Any(x => x == discountId)
             select c;
 
-        return await Task.FromResult(query.ToList());
+        return await _brandRepository.ToListAsync(query);
     }
 
     #endregion

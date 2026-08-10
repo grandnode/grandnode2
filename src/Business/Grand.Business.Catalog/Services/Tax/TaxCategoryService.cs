@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Tax;
+﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Data;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Caching;
@@ -55,7 +55,7 @@ public class TaxCategoryService : ITaxCategoryService
             var query = _taxCategoryRepository.Table.AsQueryable();
             if (!string.IsNullOrEmpty(storeId))
                 query = query.Where(tc => tc.StoreId == storeId || string.IsNullOrEmpty(tc.StoreId));
-            return await Task.FromResult(query.OrderBy(tc => tc.DisplayOrder).ToList());
+            return (await _taxCategoryRepository.ToListAsync(query.OrderBy(tc => tc.DisplayOrder))).ToList();
         });
     }
 

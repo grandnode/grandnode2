@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
@@ -53,7 +53,7 @@ public class CategoryLayoutService : ICategoryLayoutService
             var query = from pt in _categoryLayoutRepository.Table
                 orderby pt.DisplayOrder
                 select pt;
-            return await Task.FromResult(query.ToList());
+            return (await _categoryLayoutRepository.ToListAsync(query)).ToList();
         });
     }
 

@@ -95,10 +95,9 @@ public class CustomerGroupProductService : ICustomerGroupProductService
         var key = string.Format(CacheKey.CUSTOMERGROUPSPRODUCTS_ROLE_KEY, customerGroupId);
         return await _cacheBase.GetAsync(key, async () =>
         {
-            return await Task.FromResult(_customerGroupProductRepository
+            return (await _customerGroupProductRepository.ToListAsync(_customerGroupProductRepository
                 .Table.Where(x => x.CustomerGroupId == customerGroupId)
-                .OrderBy(x => x.DisplayOrder)
-                .ToList());
+                .OrderBy(x => x.DisplayOrder))).ToList();
         });
     }
 
@@ -110,9 +109,9 @@ public class CustomerGroupProductService : ICustomerGroupProductService
     /// <returns>Customer group product</returns>
     public virtual async Task<CustomerGroupProduct> GetCustomerGroupProduct(string customerGroupId, string productId)
     {
-        return await Task.FromResult(_customerGroupProductRepository.Table
+        return await _customerGroupProductRepository.FirstOrDefaultAsync(_customerGroupProductRepository.Table
             .Where(x => x.CustomerGroupId == customerGroupId && x.ProductId == productId)
-            .OrderBy(x => x.DisplayOrder).FirstOrDefault());
+            .OrderBy(x => x.DisplayOrder));
     }
 
     /// <summary>
@@ -127,7 +126,7 @@ public class CustomerGroupProductService : ICustomerGroupProductService
             orderby cr.DisplayOrder
             select cr;
 
-        return await Task.FromResult(query.FirstOrDefault());
+        return await _customerGroupProductRepository.FirstOrDefaultAsync(query);
     }
 
     #endregion

@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
@@ -70,7 +70,7 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
                 where p.CustomerId == customerId
                 orderby p.CreatedOnUtc descending
                 select p.ProductId;
-            return await Task.FromResult(query.Take(number).ToList());
+            return (await _recentlyViewedProducts.ToListAsync(query.Take(number))).ToList();
         });
     }
 

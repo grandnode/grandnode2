@@ -115,7 +115,7 @@ public class DiscountService : IDiscountService
 
         query = query.OrderBy(d => d.Name);
 
-        return await Task.FromResult(query.ToList());
+        return await _discountRepository.ToListAsync(query);
     }
 
     /// <summary>

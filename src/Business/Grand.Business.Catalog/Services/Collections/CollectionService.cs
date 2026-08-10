@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Collections;
+﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
 using Grand.Domain;
@@ -109,7 +109,7 @@ public class CollectionService : ICollectionService
         var query = _collectionRepository.Table.Where(x => x.Published && x.FeaturedProductsOnHomePage)
             .OrderBy(x => x.DisplayOrder);
 
-        var collections = await Task.FromResult(query.ToList());
+        var collections = await _collectionRepository.ToListAsync(query);
         if (!showHidden)
             collections = collections
                 .Where(c => _aclService.Authorize(c, _contextAccessor.WorkContext.CurrentCustomer) &&
@@ -193,7 +193,7 @@ public class CollectionService : ICollectionService
             where c.AppliedDiscounts.Any(x => x == discountId)
             select c;
 
-        return await Task.FromResult(query.ToList());
+        return await _collectionRepository.ToListAsync(query);
     }
 
     #endregion

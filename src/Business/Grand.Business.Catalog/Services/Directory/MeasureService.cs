@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Directory;
+﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Data;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
@@ -94,7 +94,7 @@ public class MeasureService : IMeasureService
             var query = from md in _measureDimensionRepository.Table
                         orderby md.DisplayOrder
                         select md;
-            return await Task.FromResult(query.ToList());
+            return (await _measureDimensionRepository.ToListAsync(query)).ToList();
         });
     }
 
@@ -250,7 +250,7 @@ public class MeasureService : IMeasureService
             var query = from mw in _measureWeightRepository.Table
                         orderby mw.DisplayOrder
                         select mw;
-            return await Task.FromResult(query.ToList());
+            return (await _measureWeightRepository.ToListAsync(query)).ToList();
         });
     }
 
@@ -391,7 +391,7 @@ public class MeasureService : IMeasureService
             var query = from md in _measureUnitRepository.Table
                         orderby md.DisplayOrder
                         select md;
-            return await Task.FromResult(query.ToList());
+            return (await _measureUnitRepository.ToListAsync(query)).ToList();
         });
     }
 
