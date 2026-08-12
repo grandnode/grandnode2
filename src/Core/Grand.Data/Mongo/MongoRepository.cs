@@ -1,4 +1,5 @@
 using Grand.Domain;
+using Grand.SharedKernel;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using System.Linq.Expressions;
@@ -98,7 +99,15 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        Collection.InsertOne(entity);
+        try
+        {
+            Collection.InsertOne(entity);
+        }
+        catch (MongoWriteException ex) when (ex.WriteError?.Category == ServerErrorCategory.DuplicateKey)
+        {
+            throw DuplicateKey(ex);
+        }
+
         return entity;
     }
 
@@ -110,8 +119,26 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        await Collection.InsertOneAsync(entity);
+        try
+        {
+            await Collection.InsertOneAsync(entity);
+        }
+        catch (MongoWriteException ex) when (ex.WriteError?.Category == ServerErrorCategory.DuplicateKey)
+        {
+            throw DuplicateKey(ex);
+        }
+
         return entity;
+    }
+
+    /// <summary>
+    ///     Translates a driver duplicate key error into a store independent exception
+    /// </summary>
+    /// <param name="exception">Driver exception</param>
+    private static DuplicateKeyGrandException DuplicateKey(MongoWriteException exception)
+    {
+        return new DuplicateKeyGrandException(
+            $"Insert into {typeof(T).Name} rejected - it violates a unique index", exception);
     }
 
     /// <summary>

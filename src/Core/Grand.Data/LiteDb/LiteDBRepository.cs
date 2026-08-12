@@ -1,4 +1,5 @@
 using Grand.Domain;
+using Grand.SharedKernel;
 using Grand.SharedKernel.Attributes;
 using LiteDB;
 using System.Linq.Expressions;
@@ -107,7 +108,16 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        Collection.Insert(entity);
+        try
+        {
+            Collection.Insert(entity);
+        }
+        catch (LiteException ex) when (ex.ErrorCode == LiteException.INDEX_DUPLICATE_KEY)
+        {
+            throw new DuplicateKeyGrandException(
+                $"Insert into {typeof(T).Name} rejected - it violates a unique index", ex);
+        }
+
         return entity;
     }
 
