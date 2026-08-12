@@ -54,7 +54,7 @@ public class PageLayoutService : IPageLayoutService
                 orderby pt.DisplayOrder
                 select pt;
 
-            return (await _pageLayoutRepository.ToListAsync(query)).ToList();
+            return await _pageLayoutRepository.ToListAsync(query);
         });
     }
 

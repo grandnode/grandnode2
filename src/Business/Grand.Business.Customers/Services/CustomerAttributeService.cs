@@ -79,7 +79,7 @@ public class CustomerAttributeService : ICustomerAttributeService
                     where !ca.LimitedToStores || ca.Stores.Contains(storeId)
                     select ca;
 
-            return (await _customerAttributeRepository.ToListAsync(query)).ToList();
+            return await _customerAttributeRepository.ToListAsync(query);
         });
     }
 

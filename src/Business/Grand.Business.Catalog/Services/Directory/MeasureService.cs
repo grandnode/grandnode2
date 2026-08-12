@@ -94,7 +94,7 @@ public class MeasureService : IMeasureService
             var query = from md in _measureDimensionRepository.Table
                         orderby md.DisplayOrder
                         select md;
-            return (await _measureDimensionRepository.ToListAsync(query)).ToList();
+            return await _measureDimensionRepository.ToListAsync(query);
         });
     }
 
@@ -250,7 +250,7 @@ public class MeasureService : IMeasureService
             var query = from mw in _measureWeightRepository.Table
                         orderby mw.DisplayOrder
                         select mw;
-            return (await _measureWeightRepository.ToListAsync(query)).ToList();
+            return await _measureWeightRepository.ToListAsync(query);
         });
     }
 
@@ -391,7 +391,7 @@ public class MeasureService : IMeasureService
             var query = from md in _measureUnitRepository.Table
                         orderby md.DisplayOrder
                         select md;
-            return (await _measureUnitRepository.ToListAsync(query)).ToList();
+            return await _measureUnitRepository.ToListAsync(query);
         });
     }
 

@@ -70,7 +70,7 @@ public class RecentlyViewedProductsService : IRecentlyViewedProductsService
                 where p.CustomerId == customerId
                 orderby p.CreatedOnUtc descending
                 select p.ProductId;
-            return (await _recentlyViewedProducts.ToListAsync(query.Take(number))).ToList();
+            return await _recentlyViewedProducts.ToListAsync(query.Take(number));
         });
     }
 

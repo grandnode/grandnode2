@@ -195,7 +195,7 @@ public class CustomerTagService : ICustomerTagService
                 where cr.CustomerTagId == customerTagId
                 orderby cr.DisplayOrder
                 select cr;
-            return (await _customerTagProductRepository.ToListAsync(query)).ToList();
+            return await _customerTagProductRepository.ToListAsync(query);
         });
     }
 

@@ -79,7 +79,7 @@ public class AddressAttributeService : IAddressAttributeService
                     where !aa.LimitedToStores || aa.Stores.Contains(storeId)
                     select aa;
 
-            return (await _addressAttributeRepository.ToListAsync(query)).ToList();
+            return await _addressAttributeRepository.ToListAsync(query);
         });
     }
 

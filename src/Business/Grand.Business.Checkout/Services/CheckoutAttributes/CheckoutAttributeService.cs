@@ -85,7 +85,7 @@ public class CheckoutAttributeService : ICheckoutAttributeService
             }
 
             if (excludeShippableAttributes) query = query.Where(x => !x.ShippableProductRequired);
-            return (await _checkoutAttributeRepository.ToListAsync(query)).ToList();
+            return await _checkoutAttributeRepository.ToListAsync(query);
         });
     }
 

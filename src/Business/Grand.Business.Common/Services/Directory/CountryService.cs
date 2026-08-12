@@ -75,7 +75,7 @@ public class CountryService : ICountryService
                     where !p.LimitedToStores || p.Stores.Contains(storeId)
                     select p;
 
-            var countries = (await _countryRepository.ToListAsync(query.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name))).ToList();
+            var countries = await _countryRepository.ToListAsync(query.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name));
             if (!string.IsNullOrEmpty(languageId))
                 countries = countries
                     .OrderBy(c => c.DisplayOrder)

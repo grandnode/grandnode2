@@ -53,7 +53,7 @@ public class BrandLayoutService : IBrandLayoutService
             var query = from pt in _brandLayoutRepository.Table
                 orderby pt.DisplayOrder
                 select pt;
-            return (await _brandLayoutRepository.ToListAsync(query)).ToList();
+            return await _brandLayoutRepository.ToListAsync(query);
         });
     }
 

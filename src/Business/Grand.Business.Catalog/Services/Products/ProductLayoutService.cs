@@ -53,7 +53,7 @@ public class ProductLayoutService : IProductLayoutService
             var query = from pt in _productLayoutRepository.Table
                 orderby pt.DisplayOrder
                 select pt;
-            return (await _productLayoutRepository.ToListAsync(query)).ToList();
+            return await _productLayoutRepository.ToListAsync(query);
         });
     }
 

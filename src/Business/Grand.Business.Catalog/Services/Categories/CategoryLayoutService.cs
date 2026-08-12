@@ -53,7 +53,7 @@ public class CategoryLayoutService : ICategoryLayoutService
             var query = from pt in _categoryLayoutRepository.Table
                 orderby pt.DisplayOrder
                 select pt;
-            return (await _categoryLayoutRepository.ToListAsync(query)).ToList();
+            return await _categoryLayoutRepository.ToListAsync(query);
         });
     }
 

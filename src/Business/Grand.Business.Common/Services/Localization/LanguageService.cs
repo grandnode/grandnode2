@@ -59,7 +59,7 @@ public class LanguageService : ILanguageService
             if (!showHidden)
                 query = query.Where(l => l.Published);
             query = query.OrderBy(l => l.DisplayOrder);
-            return (await _languageRepository.ToListAsync(query)).ToList();
+            return await _languageRepository.ToListAsync(query);
         });
 
         //store acl

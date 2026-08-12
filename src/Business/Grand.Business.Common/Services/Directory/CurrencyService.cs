@@ -120,7 +120,7 @@ public class CurrencyService : ICurrencyService
             if (!showHidden)
                 query = query.Where(c => c.Published);
             query = query.OrderBy(c => c.DisplayOrder);
-            return (await _currencyRepository.ToListAsync(query)).ToList();
+            return await _currencyRepository.ToListAsync(query);
         });
 
         //store acl

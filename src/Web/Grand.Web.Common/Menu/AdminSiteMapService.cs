@@ -32,7 +32,7 @@ public class AdminSiteMapService : IAdminSiteMapService
                 orderby c.DisplayOrder
                 select c;
 
-            return (await _adminSiteMapRepository.ToListAsync(query)).ToList();
+            return await _adminSiteMapRepository.ToListAsync(query);
         });
     }
 

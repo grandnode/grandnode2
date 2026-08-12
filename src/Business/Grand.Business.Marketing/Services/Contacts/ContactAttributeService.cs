@@ -85,7 +85,7 @@ public class ContactAttributeService : IContactAttributeService
 
             if ((string.IsNullOrEmpty(storeId) || _accessControlConfig.IgnoreStoreLimitations) &&
                 (ignoreAcl || _accessControlConfig.IgnoreAcl))
-                return (await _contactAttributeRepository.ToListAsync(query)).ToList();
+                return await _contactAttributeRepository.ToListAsync(query);
             if (!ignoreAcl && !_accessControlConfig.IgnoreAcl)
             {
                 var allowedCustomerGroupsIds = _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds();
@@ -99,7 +99,7 @@ public class ContactAttributeService : IContactAttributeService
                 query = from p in query
                     where !p.LimitedToStores || p.Stores.Contains(storeId)
                     select p;
-            return (await _contactAttributeRepository.ToListAsync(query)).ToList();
+            return await _contactAttributeRepository.ToListAsync(query);
         });
     }
 

@@ -32,7 +32,7 @@ public class OrderStatusService : IOrderStatusService
                 select p;
 
             query = query.OrderBy(l => l.DisplayOrder);
-            return (await _orderStatusRepository.ToListAsync(query)).ToList();
+            return await _orderStatusRepository.ToListAsync(query);
         });
 
         return orderStatuses;

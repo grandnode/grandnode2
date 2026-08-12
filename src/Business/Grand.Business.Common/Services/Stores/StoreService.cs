@@ -52,7 +52,7 @@ public class StoreService : IStoreService
     {
         return await _cacheBase.GetAsync(CacheKey.STORES_ALL_KEY, async () =>
         {
-            return (await _storeRepository.ToListAsync(_storeRepository.Table.OrderBy(x => x.DisplayOrder))).ToList();
+            return await _storeRepository.ToListAsync(_storeRepository.Table.OrderBy(x => x.DisplayOrder));
         });
     }
 

@@ -74,7 +74,7 @@ public class ProductTagService : IProductTagService
     public virtual async Task<IList<ProductTag>> GetAllProductTags()
     {
         return await _cacheBase.GetAsync(CacheKey.PRODUCTTAG_ALL_KEY,
-            async () => (await _productTagRepository.ToListAsync(_productTagRepository.Table)).ToList());
+            async () => await _productTagRepository.ToListAsync(_productTagRepository.Table));
     }
 
     /// <summary>

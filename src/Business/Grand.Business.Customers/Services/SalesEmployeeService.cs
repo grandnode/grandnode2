@@ -42,7 +42,7 @@ public class SalesEmployeeService : ISalesEmployeeService
             var query = from se in _salesEmployeeRepository.Table
                 orderby se.DisplayOrder
                 select se;
-            return (await _salesEmployeeRepository.ToListAsync(query)).ToList();
+            return await _salesEmployeeRepository.ToListAsync(query);
         });
     }
 

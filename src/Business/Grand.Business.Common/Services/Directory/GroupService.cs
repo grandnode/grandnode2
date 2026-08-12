@@ -202,7 +202,7 @@ public class GroupService : IGroupService
             var query = from cr in _customerGroupRepository.Table
                 orderby cr.Name
                 select cr;
-            return (await _customerGroupRepository.ToListAsync(query)).ToList();
+            return await _customerGroupRepository.ToListAsync(query);
         });
         return customerGroups.Where(x => ids.Contains(x.Id)).ToList();
     }
