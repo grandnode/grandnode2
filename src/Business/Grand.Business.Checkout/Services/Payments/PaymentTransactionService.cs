@@ -80,9 +80,8 @@ public class PaymentTransactionService : IPaymentTransactionService
     /// <returns>PaymentTransaction</returns>
     public virtual async Task<IList<PaymentTransaction>> GetByOrderCode(string orderCode)
     {
-        return await Task.FromResult(
-            _repositoryPaymentTransaction.Table.Where(x => x.OrderCode == orderCode)
-                .ToList());
+        return await _repositoryPaymentTransaction.ToListAsync(
+            _repositoryPaymentTransaction.Table.Where(x => x.OrderCode == orderCode));
     }
 
     /// <summary>
@@ -92,7 +91,8 @@ public class PaymentTransactionService : IPaymentTransactionService
     /// <returns>PaymentTransaction</returns>
     public virtual async Task<PaymentTransaction> GetOrderByGuid(Guid orderGuid)
     {
-        return await Task.FromResult(_repositoryPaymentTransaction.Table.FirstOrDefault(x => x.OrderGuid == orderGuid));
+        return await _repositoryPaymentTransaction.FirstOrDefaultAsync(
+            _repositoryPaymentTransaction.Table.Where(x => x.OrderGuid == orderGuid));
     }
 
     /// <summary>
@@ -113,7 +113,7 @@ public class PaymentTransactionService : IPaymentTransactionService
         if (!string.IsNullOrEmpty(paymentMethodSystemName))
             query = query.Where(c => c.PaymentMethodSystemName == paymentMethodSystemName);
 
-        return await Task.FromResult(query.ToList());
+        return await _repositoryPaymentTransaction.ToListAsync(query);
     }
 
     /// <summary>

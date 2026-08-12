@@ -92,7 +92,7 @@ public class CustomerAttributeServiceTests
     public async Task GetAllCustomerAttributes_InvokeRepositoryAndCache()
     {
         await _atrService.GetAllCustomerAttributes();
-        _cacheMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<CustomerAttribute>>>>()),
+        _cacheMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<IList<CustomerAttribute>>>>()),
             Times.Once);
     }
 }

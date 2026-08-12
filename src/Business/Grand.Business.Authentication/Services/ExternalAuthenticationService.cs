@@ -1,4 +1,4 @@
-using Grand.Business.Core.Commands.Customers;
+﻿using Grand.Business.Core.Commands.Customers;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
@@ -327,7 +327,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         var query = from p in _externalAuthenticationRecordRepository.Table
             where p.CustomerId == customer.Id
             select p;
-        return await Task.FromResult(query.ToList());
+        return await _externalAuthenticationRecordRepository.ToListAsync(query);
     }
 
     /// <summary>

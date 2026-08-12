@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Cms;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Customers;
@@ -158,7 +158,7 @@ public class NewsService : INewsService
             where customerId == "" || c.CustomerId == customerId
             select c;
 
-        return await Task.FromResult(query2.ToList());
+        return await _newsItemRepository.ToListAsync(query2);
     }
 
     #endregion

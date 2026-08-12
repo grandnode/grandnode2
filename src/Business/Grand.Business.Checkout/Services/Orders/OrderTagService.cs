@@ -65,7 +65,7 @@ public class OrderTagService : IOrderTagService
     /// <returns>Order tags</returns>
     public virtual async Task<IList<OrderTag>> GetAllOrderTags()
     {
-        return await Task.FromResult(_orderTagRepository.Table.ToList());
+        return await _orderTagRepository.ToListAsync(_orderTagRepository.Table);
     }
 
     /// <summary>

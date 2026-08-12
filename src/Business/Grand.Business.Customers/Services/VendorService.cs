@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -181,7 +181,7 @@ public class VendorService : IVendorService
         var query = from c in _vendorRepository.Table
             where c.AppliedDiscounts.Any(x => x == discountId)
             select c;
-        return await Task.FromResult(query.ToList());
+        return await _vendorRepository.ToListAsync(query);
     }
 
     #region Vendor reviews
@@ -342,7 +342,7 @@ public class VendorService : IVendorService
             query = query.Where(p => p.Name.ToLower().Contains(keywords.ToLower()));
         //vendor filtering
         if (!string.IsNullOrEmpty(vendorId)) query = query.Where(x => x.Id == vendorId);
-        return await Task.FromResult(query.ToList());
+        return await _vendorRepository.ToListAsync(query);
     }
 
     #endregion

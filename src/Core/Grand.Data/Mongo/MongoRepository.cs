@@ -370,6 +370,28 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     }
 
     /// <summary>
+    ///     Executes the query and returns its first result, or the default value when nothing matches
+    /// </summary>
+    public virtual async Task<TResult> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Executes the query and returns whether any document matches it
+    /// </summary>
+    public virtual async Task<bool> AnyAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.AnyAsync(cancellationToken);
+    }
+
+    /// <summary>
     ///     Executes the query and returns a single page of its results
     /// </summary>
     public virtual async Task<IPagedList<TResult>> PagedAsync<TResult>(IQueryable<TResult> query, int pageIndex,

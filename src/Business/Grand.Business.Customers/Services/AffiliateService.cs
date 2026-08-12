@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Affiliates;
@@ -62,7 +62,7 @@ public class AffiliateService : IAffiliateService
         var query = from a in _affiliateRepository.Table
             where a.FriendlyUrlName != null && a.FriendlyUrlName.Contains(friendlyUrlName.ToLowerInvariant())
             select a;
-        var affiliate = await Task.FromResult(query.FirstOrDefault());
+        var affiliate = await _affiliateRepository.FirstOrDefaultAsync(query);
         return affiliate;
     }
 

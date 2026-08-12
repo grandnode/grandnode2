@@ -107,9 +107,9 @@ public class AuctionService : IAuctionService
 
     public virtual async Task<IList<Product>> GetAuctionsToEnd()
     {
-        return await Task.FromResult(_productRepository.Table
+        return await _productRepository.ToListAsync(_productRepository.Table
             .Where(x => x.ProductTypeId == ProductType.Auction &&
-                        !x.AuctionEnded && x.AvailableEndDateTimeUtc < DateTime.UtcNow).ToList());
+                        !x.AuctionEnded && x.AvailableEndDateTimeUtc < DateTime.UtcNow));
     }
 
     public virtual async Task UpdateAuctionEnded(Product product, bool ended, bool endDate = false)

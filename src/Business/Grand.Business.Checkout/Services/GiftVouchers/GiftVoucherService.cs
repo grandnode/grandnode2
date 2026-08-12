@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
+﻿using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain;
@@ -89,7 +89,7 @@ public class GiftVoucherService : IGiftVoucherService
             select h;
 
         query = query.Where(x => x.UsedWithOrderId == orderId);
-        return await Task.FromResult(query.ToList());
+        return await _giftVoucherRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -156,7 +156,7 @@ public class GiftVoucherService : IGiftVoucherService
             gc.PurchasedWithOrderItem != null && gc.PurchasedWithOrderItem.Id == purchasedWithOrderItemId);
         query = query.OrderBy(gc => gc.Id);
 
-        return await Task.FromResult(query.ToList());
+        return await _giftVoucherRepository.ToListAsync(query);
     }
 
     /// <summary>

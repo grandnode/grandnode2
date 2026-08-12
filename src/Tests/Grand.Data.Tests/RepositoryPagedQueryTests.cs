@@ -156,6 +156,53 @@ public class RepositoryPagedQueryTests
     [TestMethod]
     [DataRow(Mongo)]
     [DataRow(LiteDb)]
+    public async Task FirstOrDefaultAsync_ReturnsFirstMatchInQueryOrder(string provider)
+    {
+        var repository = Repository(provider);
+
+        var result = await repository.FirstOrDefaultAsync(
+            repository.Table.Where(x => x.Count <= 3).OrderByDescending(x => x.Count));
+
+        Assert.AreEqual(3, result.Count);
+    }
+
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
+    public async Task FirstOrDefaultAsync_NoMatches_ReturnsDefault(string provider)
+    {
+        var repository = Repository(provider);
+
+        Assert.IsNull(await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.Count > 1000)));
+    }
+
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
+    public async Task FirstOrDefaultAsync_Projection_ReturnsProjectedValue(string provider)
+    {
+        var repository = Repository(provider);
+
+        var result =
+            await repository.FirstOrDefaultAsync(repository.Table.OrderBy(x => x.Count).Select(x => x.Name));
+
+        Assert.AreEqual("sample 01", result);
+    }
+
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
+    public async Task AnyAsync_ReturnsWhetherAnythingMatches(string provider)
+    {
+        var repository = Repository(provider);
+
+        Assert.IsTrue(await repository.AnyAsync(repository.Table.Where(x => x.Count <= 3)));
+        Assert.IsFalse(await repository.AnyAsync(repository.Table.Where(x => x.Count > 1000)));
+    }
+
+    [TestMethod]
+    [DataRow(Mongo)]
+    [DataRow(LiteDb)]
     public async Task PagedAsync_NullQuery_Throws(string provider)
     {
         var repository = Repository(provider);
@@ -178,5 +225,9 @@ public class RepositoryPagedQueryTests
             _mongoRepository.ToListAsync(items.AsQueryable().Where(x => x.Count <= 4)));
         await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
             _mongoRepository.PagedAsync(items.AsQueryable().OrderBy(x => x.Count), 0, 10));
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
+            _mongoRepository.FirstOrDefaultAsync(items.AsQueryable().Where(x => x.Count <= 4)));
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
+            _mongoRepository.AnyAsync(items.AsQueryable().Where(x => x.Count <= 4)));
     }
 }

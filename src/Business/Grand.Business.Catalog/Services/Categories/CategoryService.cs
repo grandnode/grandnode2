@@ -129,7 +129,7 @@ public class CategoryService : ICategoryService
         {
             case true when
                 string.IsNullOrEmpty(CurrentStore.Id) || _accessControlConfig.IgnoreStoreLimitations:
-                return await Task.FromResult(query.ToList());
+                return await _categoryRepository.ToListAsync(query);
             case false:
             {
                 //Limited to customer group (access control list)
@@ -146,7 +146,7 @@ public class CategoryService : ICategoryService
             query = from p in query
                 where !p.LimitedToStores || p.Stores.Contains(CurrentStore.Id)
                 select p;
-        return await Task.FromResult(query.ToList());
+        return await _categoryRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -217,7 +217,7 @@ public class CategoryService : ICategoryService
         var query = _categoryRepository.Table
             .Where(x => x.Published && x.ShowOnHomePage)
             .OrderBy(x => x.DisplayOrder);
-        var categories = await Task.FromResult(query.ToList());
+        var categories = await _categoryRepository.ToListAsync(query);
         if (!showHidden)
             categories = categories
                 .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
@@ -238,7 +238,7 @@ public class CategoryService : ICategoryService
             .Where(x => x.Published && x.FeaturedProductsOnHomePage)
             .OrderBy(x => x.DisplayOrder);
 
-        var categories = await Task.FromResult(query.ToList());
+        var categories = await _categoryRepository.ToListAsync(query);
         if (!showHidden)
             categories = categories
                 .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
@@ -257,7 +257,7 @@ public class CategoryService : ICategoryService
             .Where(x => x.Published && x.ShowOnSearchBox)
             .OrderBy(x => x.SearchBoxDisplayOrder);
 
-        var categories = (await Task.FromResult(query.ToList()))
+        var categories = (await _categoryRepository.ToListAsync(query))
             .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
                         _aclService.Authorize(c, CurrentStore.Id))
             .ToList();
@@ -392,7 +392,7 @@ public class CategoryService : ICategoryService
             where c.AppliedDiscounts.Any(x => x == discountId)
             select c;
 
-        return await Task.FromResult(query.ToList());
+        return await _categoryRepository.ToListAsync(query);
     }
 
     /// <summary>

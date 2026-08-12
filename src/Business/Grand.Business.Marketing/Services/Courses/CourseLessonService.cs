@@ -35,7 +35,7 @@ public class CourseLessonService : ICourseLessonService
             where c.CourseId == courseId
             select c;
 
-        return await Task.FromResult(query.ToList());
+        return await _courseLessonRepository.ToListAsync(query);
     }
 
     public virtual Task<CourseLesson> GetById(string id)

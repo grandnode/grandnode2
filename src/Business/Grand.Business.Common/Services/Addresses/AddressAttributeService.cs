@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Common.Addresses;
+﻿using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Caching;
@@ -79,7 +79,7 @@ public class AddressAttributeService : IAddressAttributeService
                     where !aa.LimitedToStores || aa.Stores.Contains(storeId)
                     select aa;
 
-            return await Task.FromResult(query.ToList());
+            return await _addressAttributeRepository.ToListAsync(query);
         });
     }
 

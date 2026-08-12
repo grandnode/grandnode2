@@ -166,7 +166,7 @@ public class InventoryManageService : IInventoryManageService
             where j.ProductId == product.Id && j.PositionId == shipmentItem.Id
             select j.Id;
 
-        return await Task.FromResult(query.Any());
+        return await _inventoryJournalRepository.AnyAsync(query);
     }
 
     private async Task ReverseBookedInventory(Product product, InventoryJournal inventoryJournal)

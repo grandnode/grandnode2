@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Directory;
+﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
@@ -71,7 +71,7 @@ public class SearchTermService : ISearchTermService
         var query = from st in _searchTermRepository.Table
             where st.Keyword == keyword && st.StoreId == storeId
             select st;
-        return await Task.FromResult(query.FirstOrDefault());
+        return await _searchTermRepository.FirstOrDefaultAsync(query);
     }
 
     /// <summary>

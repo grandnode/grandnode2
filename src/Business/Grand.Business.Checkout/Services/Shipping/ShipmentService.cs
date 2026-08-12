@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Checkout.Shipping;
+﻿using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Shipping;
@@ -102,13 +102,14 @@ public class ShipmentService : IShipmentService
         var query = from o in _shipmentRepository.Table
             where shipmentIds.Contains(o.Id)
             select o;
-        return await Task.FromResult(query.ToList());
+        return await _shipmentRepository.ToListAsync(query);
     }
 
 
     public virtual async Task<IList<Shipment>> GetShipmentsByOrder(string orderId)
     {
-        return await Task.FromResult(_shipmentRepository.Table.Where(x => x.OrderId == orderId).ToList());
+        return await _shipmentRepository.ToListAsync(
+            _shipmentRepository.Table.Where(x => x.OrderId == orderId));
     }
 
     /// <summary>
@@ -201,7 +202,7 @@ public class ShipmentService : IShipmentService
             orderby shipmentNote.CreatedOnUtc descending
             select shipmentNote;
 
-        return await Task.FromResult(query.ToList());
+        return await _shipmentNoteRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -209,9 +210,10 @@ public class ShipmentService : IShipmentService
     /// </summary>
     /// <param name="shipmentNoteId">Shipment note identifier</param>
     /// <returns>shipmentNote</returns>
-    public virtual Task<ShipmentNote> GetShipmentNote(string shipmentNoteId)
+    public virtual async Task<ShipmentNote> GetShipmentNote(string shipmentNoteId)
     {
-        return Task.FromResult(_shipmentNoteRepository.Table.FirstOrDefault(x => x.Id == shipmentNoteId));
+        return await _shipmentNoteRepository.FirstOrDefaultAsync(
+            _shipmentNoteRepository.Table.Where(x => x.Id == shipmentNoteId));
     }
 
     #endregion

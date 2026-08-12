@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Common.Seo;
+﻿using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Seo;
@@ -104,7 +104,7 @@ public class SlugService : ISlugService
             where ur.Slug == slug
             orderby ur.IsActive
             select ur;
-        return await Task.FromResult(query.FirstOrDefault());
+        return await _urlEntityRepository.FirstOrDefaultAsync(query);
     }
 
     /// <summary>
@@ -170,7 +170,7 @@ public class SlugService : ISlugService
                       ur.LanguageId == languageId &&
                       ur.IsActive
                 select ur.Slug;
-            var slug = await Task.FromResult(query.FirstOrDefault()) ?? "";
+            var slug = await _urlEntityRepository.FirstOrDefaultAsync(query) ?? "";
             return slug;
         });
     }

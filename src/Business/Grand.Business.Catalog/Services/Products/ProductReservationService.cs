@@ -169,8 +169,8 @@ public class ProductReservationService : IProductReservationService
     /// </returns>
     public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelpers(string customerId)
     {
-        return await Task.FromResult(_customerReservationsHelperRepository.Table.Where(x => x.CustomerId == customerId)
-            .ToList());
+        return await _customerReservationsHelperRepository.ToListAsync(
+            _customerReservationsHelperRepository.Table.Where(x => x.CustomerId == customerId));
     }
 
     /// <summary>
@@ -182,7 +182,7 @@ public class ProductReservationService : IProductReservationService
     /// </returns>
     public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelperBySciId(string sciId)
     {
-        return await Task.FromResult(_customerReservationsHelperRepository.Table
-            .Where(x => x.ShoppingCartItemId == sciId).ToList());
+        return await _customerReservationsHelperRepository.ToListAsync(
+            _customerReservationsHelperRepository.Table.Where(x => x.ShoppingCartItemId == sciId));
     }
 }

@@ -32,7 +32,7 @@ public class DocumentTypeService : IDocumentTypeService
         var query = from t in _documentTypeRepository.Table
             orderby t.DisplayOrder
             select t;
-        return await Task.FromResult(query.ToList());
+        return await _documentTypeRepository.ToListAsync(query);
     }
 
     public virtual Task<DocumentType> GetById(string id)

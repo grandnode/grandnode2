@@ -448,6 +448,28 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     }
 
     /// <summary>
+    ///     Executes the query and returns its first result, or the default value when nothing matches
+    /// </summary>
+    public virtual Task<TResult> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return Task.FromResult(query.FirstOrDefault());
+    }
+
+    /// <summary>
+    ///     Executes the query and returns whether any document matches it
+    /// </summary>
+    public virtual Task<bool> AnyAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return Task.FromResult(query.Any());
+    }
+
+    /// <summary>
     ///     Executes the query and returns a single page of its results
     /// </summary>
     public virtual Task<IPagedList<TResult>> PagedAsync<TResult>(IQueryable<TResult> query, int pageIndex,
