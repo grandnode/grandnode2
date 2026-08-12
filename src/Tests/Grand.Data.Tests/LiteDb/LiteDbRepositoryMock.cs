@@ -1,6 +1,7 @@
 ﻿using Grand.Data.LiteDb;
 using Grand.Domain;
 using LiteDB;
+using System.Linq.Expressions;
 
 namespace Grand.Data.Tests.LiteDb;
 
@@ -11,5 +12,10 @@ public class LiteDBRepositoryMock<T> : LiteDBRepository<T>, IRepository<T> where
         Database = new LiteDatabase(new MemoryStream());
         Database.DropCollection(typeof(T).Name);
         Collection = Database.GetCollection<T>(typeof(T).Name);
+    }
+
+    public void EnsureUniqueIndex<K>(Expression<Func<T, K>> keySelector)
+    {
+        Collection.EnsureIndex(keySelector, true);
     }
 }

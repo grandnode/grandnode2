@@ -8,6 +8,7 @@ using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
+using Grand.SharedKernel;
 
 namespace Grand.Business.Checkout.Services.Orders;
 
@@ -37,6 +38,11 @@ public class OrderService : IOrderService
     #endregion
 
     #region Fields
+
+    /// <summary>
+    ///     How many times an order insert is retried when another checkout took the same order number
+    /// </summary>
+    private const int OrderNumberAttempts = 5;
 
     private readonly IRepository<Order> _orderRepository;
     private readonly IRepository<OrderNote> _orderNoteRepository;
@@ -210,11 +216,23 @@ public class OrderService : IOrderService
     {
         ArgumentNullException.ThrowIfNull(order);
 
-        var orderExists = _orderRepository.Table.OrderByDescending(x => x.OrderNumber).Select(x => x.OrderNumber)
-            .FirstOrDefault();
-        order.OrderNumber = orderExists != 0 ? orderExists + 1 : 1;
+        //the order number is taken from the collection itself, so two concurrent checkouts can read the same
+        //value - the unique index on OrderNumber rejects the loser and the number is read again
+        for (var attempt = 1;; attempt++)
+        {
+            var lastOrderNumber = await _orderRepository.FirstOrDefaultAsync(
+                _orderRepository.Table.OrderByDescending(x => x.OrderNumber).Select(x => x.OrderNumber));
+            order.OrderNumber = lastOrderNumber + 1;
 
-        await _orderRepository.InsertAsync(order);
+            try
+            {
+                await _orderRepository.InsertAsync(order);
+                break;
+            }
+            catch (DuplicateKeyGrandException) when (attempt < OrderNumberAttempts)
+            {
+            }
+        }
 
         //event notification
         await _mediator.EntityInserted(order);
