@@ -9,14 +9,18 @@ using Moq;
 namespace Grand.Web.Common.Tests.Infrastructure.HealthChecks;
 
 [TestClass]
+[DoNotParallelize]
 public class StartupHealthCheckTests
 {
     // DataSettingsManager caches DatabaseIsInstalled() on first call and its public ResetCache()
     // can only force the cached value to false, never back to true - see DataSettingsManager.cs.
     // Resetting the private static instance per test keeps "installed" and "not installed" cases
-    // independent instead of depending on test execution order.
+    // independent instead of depending on test execution order. [DoNotParallelize] on this class
+    // stops these tests running concurrently with each other against that same process-wide state.
     private static readonly FieldInfo InstanceField = typeof(DataSettingsManager)
-        .GetField("_instance", BindingFlags.NonPublic | BindingFlags.Static)!;
+        .GetField("_instance", BindingFlags.NonPublic | BindingFlags.Static)
+        ?? throw new InvalidOperationException(
+            "DataSettingsManager._instance field not found - has the type changed?");
 
     private string _settingsPath = null!;
 
@@ -31,6 +35,7 @@ public class StartupHealthCheckTests
     [TestCleanup]
     public void Cleanup()
     {
+        InstanceField.SetValue(null, null);
         if (File.Exists(_settingsPath))
             File.Delete(_settingsPath);
     }

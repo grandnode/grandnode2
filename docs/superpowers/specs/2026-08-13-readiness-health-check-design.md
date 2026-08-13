@@ -54,6 +54,14 @@ Two tags distinguish the two endpoints, following the standard ASP.NET Core
   - Unhealthy when started but `DatabaseIsInstalled()` is false.
   - Healthy when both conditions are true.
 
+### Operational caveat
+
+`DataSettingsManager.DatabaseIsInstalled()` caches its result after the first call and can only be
+forced to `false` afterward (never back to `true`) without a process restart. As a result, a
+freshly-installed instance keeps returning `503` on `/health/ready` until the app restarts
+post-install - this matches the installer's own existing guidance to restart after installation
+completes, and is expected behavior, not a bug.
+
 ### Non-goals
 
 - No MongoDB/Redis connectivity check (explicit user decision — future work under `OBS-011`).

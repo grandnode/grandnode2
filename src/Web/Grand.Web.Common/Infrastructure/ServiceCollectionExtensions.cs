@@ -268,10 +268,13 @@ public static class ServiceCollectionExtensions
     public static void AddGrandHealthChecks(this IServiceCollection services)
     {
         var hcBuilder = services.AddHealthChecks();
+        //every check registered here must carry a "live" or "ready" tag - /health/live and
+        //  /health/ready each filter by tag, so an untagged check would silently run on neither
         //liveness: process can respond to a request - never touches an external dependency
         hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"]);
-        //readiness: application finished starting and is configured - intentionally does not
-        //probe MongoDB/Redis, see OBS-011 in docs/architecture/grandnode-architecture-roadmap.md
+        //readiness: application finished starting and is configured. Intentionally does not probe
+        //MongoDB or Redis - readiness here covers only the application process itself. Dependency
+        //probing (DB/Redis ping) is a deliberate future extension, not an oversight.
         hcBuilder.AddCheck<StartupHealthCheck>("startup", tags: ["ready"]);
     }
 

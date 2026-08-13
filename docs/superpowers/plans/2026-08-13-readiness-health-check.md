@@ -308,6 +308,6 @@ git commit -m "Map /health/ready alongside /health/live"
 - [ ] All three `StartupHealthCheck` unit tests pass (Task 1).
 - [ ] `Grand.Web.Common` builds with no warnings introduced.
 - [ ] `/health/live` still returns `200` unconditionally (unchanged behavior, verified manually in Task 3).
-- [ ] `/health/ready` returns `503` before startup completes / before the database is configured, `200` once both hold (verified manually in Task 3).
+- [ ] `/health/ready` returns `503` before startup completes / before the database is configured (covered by `StartupHealthCheck`'s unit tests with real assertions - Task 1), and `200` once both hold (verified both by unit test and manually via curl in Task 3; the manual curl check only exercised the already-configured/healthy case, since the dev environment used for verification had a database configured).
 - [ ] No MongoDB or Redis check was added anywhere in this change.
 - [ ] Design spec (`docs/superpowers/specs/2026-08-13-readiness-health-check-design.md`) and this plan are committed alongside the code changes.

@@ -200,8 +200,9 @@ public static class ApplicationBuilderExtensions
             Predicate = check => check.Tags.Contains("live")
         });
 
-        //intentionally does not probe MongoDB/Redis - see OBS-011 in
-        //docs/architecture/grandnode-architecture-roadmap.md for that extension
+        //intentionally does not probe MongoDB or Redis - readiness here covers only the
+        //application process itself. Dependency probing (DB/Redis ping) is a deliberate future
+        //extension, not an oversight.
         application.UseHealthChecks("/health/ready", new HealthCheckOptions {
             Predicate = check => check.Tags.Contains("ready")
         });

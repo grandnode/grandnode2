@@ -6,8 +6,9 @@ namespace Grand.Web.Common.Infrastructure.HealthChecks;
 
 /// <summary>
 ///     Reports whether the application has finished starting and is configured with a database
-///     connection. Intentionally does not probe MongoDB or Redis - see OBS-011 in
-///     docs/architecture/grandnode-architecture-roadmap.md for that extension.
+///     connection. Intentionally does not probe MongoDB or Redis - readiness here covers only the
+///     application process itself. Dependency probing (DB/Redis ping) is a deliberate future
+///     extension, not an oversight.
 /// </summary>
 public class StartupHealthCheck : IHealthCheck
 {
@@ -15,6 +16,7 @@ public class StartupHealthCheck : IHealthCheck
 
     public StartupHealthCheck(IHostApplicationLifetime applicationLifetime)
     {
+        ArgumentNullException.ThrowIfNull(applicationLifetime);
         _applicationLifetime = applicationLifetime;
     }
 
