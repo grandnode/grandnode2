@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 
 namespace Grand.Web.Vendor.Models.Shipment;
 
@@ -36,6 +37,7 @@ public class ShipmentModel : BaseEntityModel
     public bool CanDeliver { get; set; }
     public DateTime? DeliveryDateUtc { get; set; }
 
+    [NoHtml]
     [GrandResourceDisplayName("Vendor.Orders.Shipments.AdminComment")]
     public string AdminComment { get; set; }
 

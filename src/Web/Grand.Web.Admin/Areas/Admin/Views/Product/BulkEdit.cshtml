@@ -1,4 +1,5 @@
-﻿@model BulkEditListModel
+﻿@using System.Text.Encodings.Web
+@model BulkEditListModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     //page title
@@ -95,7 +96,7 @@
                     <text>
                         {
                             Id: '@(method.Value)',
-                            Name: "@Html.Raw(method.Text)"
+                            Name: "@Html.Raw(JavaScriptEncoder.Default.Encode(method.Text))"
                         },
                         </text>
                 }

@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using System.ComponentModel.DataAnnotations;
@@ -14,6 +15,7 @@ public class ProductAttributeModel : BaseEntityModel, ILocalizedModel<ProductAtt
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.SeName")]
     public string SeName { get; set; }
 
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.Description")]
     public string Description { get; set; }
 
@@ -45,7 +47,7 @@ public class ProductAttributeLocalizedModel : ILocalizedModelLocal
     public string Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.Description")]
-
+    [SanitizeHtml]
     public string Description { get; set; }
 
     public string LanguageId { get; set; }

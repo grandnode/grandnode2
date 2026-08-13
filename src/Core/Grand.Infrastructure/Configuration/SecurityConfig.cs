@@ -93,4 +93,12 @@ public class SecurityConfig
     ///     The value is embedded in each stored hash, so raising it later does not break existing hashes.
     /// </summary>
     public int PasswordHashIterations { get; set; }
+
+    /// <summary>
+    ///     Hosts whose iframes survive HTML sanitization of rich-text content (product descriptions, blog posts, pages).
+    ///     An iframe pointing anywhere else is removed, because its src is otherwise attacker-controlled.
+    ///     Matching is case-insensitive on the host only; a leading "*." matches any subdomain.
+    ///     Leave empty to fall back to the built-in video-embed defaults; set to a single empty entry to block every iframe.
+    /// </summary>
+    public string[] SanitizerAllowedIframeHosts { get; set; }
 }

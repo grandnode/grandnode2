@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using System.ComponentModel.DataAnnotations;
@@ -16,11 +17,11 @@ public class BlogPostModel : BaseEntityModel, ILocalizedModel<BlogLocalizedModel
     public string PictureId { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Body")]
-
+    [SanitizeHtml]
     public string Body { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.BodyOverview")]
-
+    [SanitizeHtml]
     public string BodyOverview { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.AllowComments")]
@@ -46,15 +47,15 @@ public class BlogPostModel : BaseEntityModel, ILocalizedModel<BlogLocalizedModel
     public DateTime? EndDate { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaKeywords")]
-
+    [NoHtml]
     public string MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaDescription")]
-
+    [NoHtml]
     public string MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaTitle")]
-
+    [NoHtml]
     public string MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.SeName")]
@@ -78,23 +79,23 @@ public class BlogLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     public string Title { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.BodyOverview")]
-
+    [SanitizeHtml]
     public string BodyOverview { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Body")]
-
+    [SanitizeHtml]
     public string Body { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaKeywords")]
-
+    [NoHtml]
     public string MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaDescription")]
-
+    [NoHtml]
     public string MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaTitle")]
-
+    [NoHtml]
     public string MetaTitle { get; set; }
 
     public string LanguageId { get; set; }

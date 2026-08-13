@@ -20,7 +20,7 @@
                         <span class="custom-control-description">@category.Name</span>
                     </label>
                     <div v-pre>
-                        @Html.Raw(category.Description)
+                        @Html.RawSanitized(category.Description)
                     </div>
                 }
                 <div class="newsletter-category-save pt-1 pb-1">

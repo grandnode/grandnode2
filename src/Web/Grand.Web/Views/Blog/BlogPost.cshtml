@@ -36,7 +36,7 @@
         </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_before_body", additionalData = Model.Id })
         <div class="card-body" v-pre>
-            @Html.Raw(Model.Body)
+            @Html.RawSanitized(Model.Body)
         </div>
     </div>
 

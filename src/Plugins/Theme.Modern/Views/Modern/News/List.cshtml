@@ -45,7 +45,7 @@
                     <div class="card-body">
                         <div class="card-text">
                             <div class="short">
-                                @Html.Raw(item.Short)
+                                @Html.RawSanitized(item.Short)
                             </div>
                         </div>
                         <div class="buttons mt-3">

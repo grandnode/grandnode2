@@ -9,7 +9,7 @@
                     @Loc["ShoppingCart.EstimateShipping.ShippingOptionWithRate", shippingOption.Name, shippingOption.Price]
                 </strong>
                 <span class="option-description" v-pre>
-                    @Html.Raw(shippingOption.Description)
+                    @Html.RawSanitized(shippingOption.Description)
                 </span>
             </li>
         }

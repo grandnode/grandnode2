@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Models;
 
 namespace Grand.Web.Vendor.Models.Catalog;
@@ -11,7 +12,7 @@ public class ProductAttributeLocalizedModel : ILocalizedModelLocal
     public string Name { get; set; }
 
     [GrandResourceDisplayName("Vendor.Catalog.Attributes.ProductAttributes.Fields.Description")]
-
+    [SanitizeHtml]
     public string Description { get; set; }
 
     public string LanguageId { get; set; }

@@ -7,6 +7,7 @@ using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Modules;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
+using Grand.Infrastructure.Security;
 using Grand.Infrastructure.TypeConverters;
 using Grand.Infrastructure.TypeSearch;
 using Grand.Infrastructure.Validators;
@@ -175,9 +176,13 @@ public static class StartupBase
 
         InitDatabase(services, configuration);
 
+        services.AddSingleton<IHtmlSanitizationService, HtmlSanitizationService>();
+        services.AddTransient<HtmlSanitizationFilter>();
         services.AddTransient<ValidationFilter>();
         var mvcCoreBuilder = services.AddMvcCore(options =>
         {
+            //sanitize first, so validators and the action body both see the value that will be persisted
+            options.Filters.AddService<HtmlSanitizationFilter>();
             options.Filters.AddService<ValidationFilter>();
             var frontConfig = new FrontendAPIConfig();
             configuration.GetSection("FrontendAPI").Bind(frontConfig);

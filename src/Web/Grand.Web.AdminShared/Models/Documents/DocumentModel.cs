@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Link;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
@@ -19,6 +20,7 @@ public class DocumentModel : BaseEntityModel, IGroupLinkModel, IStoreLinkModel
 
     public IList<SelectListItem> AvailableSelesEmployees { get; set; } = new List<SelectListItem>();
 
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Documents.Document.Fields.Description")]
     public string Description { get; set; }
 
