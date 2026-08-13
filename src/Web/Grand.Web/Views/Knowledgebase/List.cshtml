@@ -85,7 +85,7 @@
         }
         }
 
-        @Html.Raw(Model.CurrentCategoryDescription)
+        @Html.RawSanitized(Model.CurrentCategoryDescription)
 
         @if (Model.Items.Any())
         {

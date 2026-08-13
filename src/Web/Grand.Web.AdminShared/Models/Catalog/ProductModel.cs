@@ -4,7 +4,7 @@ using Grand.Infrastructure.Models;
 using Grand.Web.AdminShared.Models.Discounts;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
-using Grand.Web.Common.Validators;
+using Grand.Infrastructure.Validators;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -44,18 +44,18 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Name")]
     public string Name { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ShortDescription")]
     public string ShortDescription { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.FullDescription")]
     public string FullDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Flag")]
     public string Flag { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.AdminComment")]
     public string AdminComment { get; set; }
 
@@ -73,15 +73,15 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.BestSeller")]
     public bool BestSeller { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 
@@ -152,7 +152,7 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.HasUserAgreement")]
     public bool HasUserAgreement { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.UserAgreementText")]
     public string UserAgreementText { get; set; }
 
@@ -1058,23 +1058,23 @@ public class ProductLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Name")]
     public string Name { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ShortDescription")]
     public string ShortDescription { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.FullDescription")]
     public string FullDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 

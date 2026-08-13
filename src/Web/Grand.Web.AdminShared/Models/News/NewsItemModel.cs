@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using System.ComponentModel.DataAnnotations;
@@ -15,9 +16,11 @@ public class NewsItemModel : BaseEntityModel, ILocalizedModel<NewsLocalizedModel
     [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.Picture")]
     public string PictureId { get; set; }
 
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.Short")]
     public string Short { get; set; }
 
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.Full")]
     public string Full { get; set; }
 
@@ -32,12 +35,15 @@ public class NewsItemModel : BaseEntityModel, ILocalizedModel<NewsLocalizedModel
     [UIHint("DateTimeNullable")]
     public DateTime? EndDate { get; set; }
 
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 
@@ -73,23 +79,23 @@ public class NewsLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     public string Title { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.Short")]
-
+    [SanitizeHtml]
     public string Short { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.Full")]
-
+    [SanitizeHtml]
     public string Full { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.MetaKeywords")]
-
+    [NoHtml]
     public string MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.MetaDescription")]
-
+    [NoHtml]
     public string MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.News.NewsItems.Fields.MetaTitle")]
-
+    [NoHtml]
     public string MetaTitle { get; set; }
 
     public string LanguageId { get; set; }

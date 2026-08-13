@@ -26,7 +26,7 @@
                         </h3>
                     </div>
                     <div class="card-body">
-                        @Html.Raw(item.Short)
+                        @Html.RawSanitized(item.Short)
                     </div>
                     <div class="buttons mb-3 px-3">
                         <a class="btn btn-sm btn-outline-info read-more" href="@Url.RouteUrl("NewsItem", new { item.SeName })">@Loc["News.MoreInfo"]</a>

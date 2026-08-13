@@ -47,7 +47,7 @@
 
     <div class="card">
         <div class="card-body" v-pre>
-            @Html.Raw(Model.Content)
+            @Html.RawSanitized(Model.Content)
         </div>
     </div>
 

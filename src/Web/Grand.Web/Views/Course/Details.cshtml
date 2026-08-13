@@ -28,7 +28,7 @@
                     @if (!string.IsNullOrWhiteSpace(Model.Description))
                     {
                         <p v-pre>
-                            @Html.Raw(Model.Description)
+                            @Html.RawSanitized(Model.Description)
                         </p>
                     }
                 </div>

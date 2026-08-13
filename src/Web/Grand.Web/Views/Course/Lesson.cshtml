@@ -53,7 +53,7 @@
                         @if (!string.IsNullOrWhiteSpace(Model.ShortDescription))
                         {
                             <p v-pre>
-                                @Html.Raw(Model.ShortDescription)
+                                @Html.RawSanitized(Model.ShortDescription)
                             </p>
                         }
                     </div>
@@ -72,7 +72,7 @@
     }
     <div class="card description mt-3">
         <div class="card-body" v-pre>
-            @Html.Raw(Model.Description)
+            @Html.RawSanitized(Model.Description)
         </div>
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "courselessondetails_bottom", additionalData = Model.Id })

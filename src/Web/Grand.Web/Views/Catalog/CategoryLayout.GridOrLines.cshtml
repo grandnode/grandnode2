@@ -76,7 +76,7 @@
     {
         <div class="card mb-2">
             <div class="card-body" v-pre>
-                @Html.Raw(Model.Description)
+                @Html.RawSanitized(Model.Description)
             </div>
         </div>
     }
@@ -221,7 +221,7 @@
     {
         <div class="card">
             <div class="card-body">
-                @Html.Raw(Model.BottomDescription)
+                @Html.RawSanitized(Model.BottomDescription)
             </div>
         </div>
     }

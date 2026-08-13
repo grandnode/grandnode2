@@ -27,13 +27,13 @@
                             @if (string.IsNullOrEmpty(spec.ColorSquaresRgb))
                             {
                                 <div class="mb-2 me-2">
-                                    @Html.Raw(spec.ValueRaw)
+                                    @Html.RawSanitized(spec.ValueRaw)
                                 </div>
                             }
                             else
                             {
                                 <div class="color-squares mb-2 me-2">
-                                    <span class="color-container" title="@Html.Raw(spec.ValueRaw)">
+                                    <span class="color-container" title="@(spec.ValueRaw)">
                                         <span class="color" style="background-color: @(spec.ColorSquaresRgb);">&nbsp;</span>
                                     </span>
                                 </div>

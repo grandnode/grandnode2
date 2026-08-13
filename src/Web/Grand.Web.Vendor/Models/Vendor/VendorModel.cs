@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Models;
 using Grand.Web.Vendor.Models.Common;
 
@@ -16,19 +17,19 @@ public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel
     public string Email { get; set; }
 
     [GrandResourceDisplayName("Vendor.Fields.Description")]
-
+    [SanitizeHtml]
     public string Description { get; set; }
 
     [GrandResourceDisplayName("Vendor.Fields.MetaKeywords")]
-
+    [NoHtml]
     public string MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Vendor.Fields.MetaDescription")]
-
+    [NoHtml]
     public string MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Vendor.Fields.MetaTitle")]
-
+    [NoHtml]
     public string MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Vendor.Fields.SeName")]
@@ -56,19 +57,19 @@ public class VendorLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     public string Name { get; set; }
 
     [GrandResourceDisplayName("Vendor.Fields.Description")]
-
+    [SanitizeHtml]
     public string Description { get; set; }
 
     [GrandResourceDisplayName("Vendor.Fields.MetaKeywords")]
-
+    [NoHtml]
     public string MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Vendor.Fields.MetaDescription")]
-
+    [NoHtml]
     public string MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Vendor.Fields.MetaTitle")]
-
+    [NoHtml]
     public string MetaTitle { get; set; }
 
     public string LanguageId { get; set; }

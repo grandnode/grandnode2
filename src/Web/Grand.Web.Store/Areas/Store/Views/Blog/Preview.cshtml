@@ -1,4 +1,4 @@
-@model BlogPostModel
+﻿@model BlogPostModel
 @{
     //page title
     ViewBag.Title = Loc["Admin.Content.Blog.BlogPosts.Preview"];
@@ -23,13 +23,13 @@
                     @if (!string.IsNullOrEmpty(Model.BodyOverview))
                     {
                         <div class="overview">
-                            @Html.Raw(Model.BodyOverview)
+                            @Html.RawSanitized(Model.BodyOverview)
                         </div>
                     }
                     @if (!string.IsNullOrEmpty(Model.Body))
                     {
                         <div class="body">
-                            @Html.Raw(Model.Body)
+                            @Html.RawSanitized(Model.Body)
                         </div>
                     }
                     @if (!string.IsNullOrEmpty(Model.Tags))

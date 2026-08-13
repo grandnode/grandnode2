@@ -1,9 +1,11 @@
-﻿using Grand.Module.Api.Models;
+﻿using Grand.Infrastructure.Validators;
+using Grand.Module.Api.Models;
 
 namespace Grand.Module.Api.DTOs.Shipping;
 
 public class WarehouseDto : BaseApiEntityModel
 {
     public string Name { get; set; }
+    [NoHtml]
     public string AdminComment { get; set; }
 }
