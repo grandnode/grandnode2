@@ -45,6 +45,7 @@ public class HtmlSanitizationServiceTests
     [DataRow("<base href=\"//evil.tld/\">", DisplayName = "base tag")]
     [DataRow("<div v-html=\"x\" @click=\"y\" :id=\"z\">x</div>", DisplayName = "vue directives")]
     [DataRow("<iframe src=\"https://evil.tld/frame\"></iframe>", DisplayName = "iframe from unlisted host")]
+    [DataRow("<iframe src=\"//evil.tld/frame\"></iframe>", DisplayName = "iframe protocol-relative unlisted host")]
     public void ContainsDisallowedRichText_FlagsExecutableMarkup(string payload)
     {
         Assert.IsTrue(_service.ContainsDisallowedRichText(payload), $"payload was not flagged: {payload}");

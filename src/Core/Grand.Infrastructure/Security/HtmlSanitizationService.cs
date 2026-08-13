@@ -8,8 +8,11 @@ namespace Grand.Infrastructure.Security;
 ///     allowlist and reports whether anything would have been removed, which is all a rejecting
 ///     <see cref="System.ComponentModel.DataAnnotations.ValidationAttribute" /> needs.
 ///     Registered as a singleton: the two underlying sanitizers are configured once in the constructor and never
-///     mutated afterwards. Each detection call resets a [ThreadStatic] flag before running Sanitize - safe because
-///     Sanitize is synchronous and does not yield, so no other call can observe a thread's flag mid-run.
+///     mutated afterwards. Detection itself is serialized behind <see cref="_detectionLock" /> - the event
+///     handlers that observe removals are attached once, to the shared instance, and write to a plain instance
+///     field; without the lock a second thread's Sanitize call could flip the flag mid-check. Sanitization only
+///     runs on form submission (not a hot path), so serializing it is the simple, easy-to-verify choice over
+///     thread-local storage.
 /// </summary>
 public class HtmlSanitizationService : IHtmlSanitizationService
 {
@@ -35,11 +38,11 @@ public class HtmlSanitizationService : IHtmlSanitizationService
         "datalist", "output", "progress", "meter"
     ];
 
-    [ThreadStatic] private static bool _disallowedContentSeen;
-
+    private readonly object _detectionLock = new();
     private readonly string[] _allowedIframeHosts;
     private readonly HtmlSanitizer _plainTextSanitizer;
     private readonly HtmlSanitizer _richTextSanitizer;
+    private bool _disallowedContentSeen;
 
     public HtmlSanitizationService(SecurityConfig securityConfig)
     {
@@ -52,19 +55,22 @@ public class HtmlSanitizationService : IHtmlSanitizationService
     {
         if (string.IsNullOrWhiteSpace(html)) return false;
 
-        _disallowedContentSeen = false;
-        var document = _richTextSanitizer.SanitizeDom(html);
+        lock (_detectionLock)
+        {
+            _disallowedContentSeen = false;
+            var document = _richTextSanitizer.SanitizeDom(html);
 
-        //a literal <html>/<head>/<body> tag in the input is merged into the parser's own document root, which
-        //sits outside the per-element sanitization loop - RemovingAttribute never fires for its own attributes
-        //even though everything inside it is correctly sanitized (verified: <body onload=alert(1)> survives
-        //with the handler intact). Rich-text content is always a fragment and never legitimately needs
-        //attributes on that wrapper, so any attribute there means the raw input smuggled one in.
-        if (HasOwnAttributes(document.DocumentElement) || HasOwnAttributes(document.Head) ||
-            HasOwnAttributes(document.Body))
-            _disallowedContentSeen = true;
+            //a literal <html>/<head>/<body> tag in the input is merged into the parser's own document root, which
+            //sits outside the per-element sanitization loop - RemovingAttribute never fires for its own attributes
+            //even though everything inside it is correctly sanitized (verified: <body onload=alert(1)> survives
+            //with the handler intact). Rich-text content is always a fragment and never legitimately needs
+            //attributes on that wrapper, so any attribute there means the raw input smuggled one in.
+            if (HasOwnAttributes(document.DocumentElement) || HasOwnAttributes(document.Head) ||
+                HasOwnAttributes(document.Body))
+                _disallowedContentSeen = true;
 
-        return _disallowedContentSeen;
+            return _disallowedContentSeen;
+        }
     }
 
     private static bool HasOwnAttributes(AngleSharp.Dom.IElement element)
@@ -76,16 +82,19 @@ public class HtmlSanitizationService : IHtmlSanitizationService
     {
         if (string.IsNullOrWhiteSpace(text)) return false;
 
-        _disallowedContentSeen = false;
-        var document = _plainTextSanitizer.SanitizeDom(text);
+        lock (_detectionLock)
+        {
+            _disallowedContentSeen = false;
+            var document = _plainTextSanitizer.SanitizeDom(text);
 
-        //see the identical guard in ContainsDisallowedRichText - a literal <html>/<head>/<body> tag merges
-        //into the document root and its own attributes never reach RemovingAttribute
-        if (HasOwnAttributes(document.DocumentElement) || HasOwnAttributes(document.Head) ||
-            HasOwnAttributes(document.Body))
-            _disallowedContentSeen = true;
+            //see the identical guard in ContainsDisallowedRichText - a literal <html>/<head>/<body> tag merges
+            //into the document root and its own attributes never reach RemovingAttribute
+            if (HasOwnAttributes(document.DocumentElement) || HasOwnAttributes(document.Head) ||
+                HasOwnAttributes(document.Body))
+                _disallowedContentSeen = true;
 
-        return _disallowedContentSeen;
+            return _disallowedContentSeen;
+        }
     }
 
     private static string[] ResolveAllowedIframeHosts(SecurityConfig securityConfig)
@@ -137,7 +146,7 @@ public class HtmlSanitizationService : IHtmlSanitizationService
         return sanitizer;
     }
 
-    private static HtmlSanitizer BuildPlainTextSanitizer()
+    private HtmlSanitizer BuildPlainTextSanitizer()
     {
         var sanitizer = new HtmlSanitizer(new HtmlSanitizerOptions {
             AllowedTags = new HashSet<string>(),
@@ -185,9 +194,15 @@ public class HtmlSanitizationService : IHtmlSanitizationService
     {
         if (_allowedIframeHosts.Length == 0) return false;
 
+        //protocol-relative ("//host/path") is parsed as a relative Uri by .NET - IsAbsoluteUri is false - but a
+        //browser resolves it against the current page's scheme, i.e. as an absolute url to an arbitrary host.
+        //Reject it before the relative-url fast path below would otherwise wave it through as same-origin.
+        if (url.StartsWith("//", StringComparison.Ordinal)) return false;
+
         if (!Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out var uri)) return false;
 
-        //a relative url cannot leave this origin - it is how the file manager inserts self-hosted video
+        //a genuinely relative url (no leading "//") cannot leave this origin - it is how the file manager
+        //inserts self-hosted video
         if (!uri.IsAbsoluteUri) return true;
 
         if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) return false;
