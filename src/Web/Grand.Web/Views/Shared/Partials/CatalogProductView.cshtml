@@ -130,7 +130,7 @@
                                     @foreach (var spec in groupList)
                                     {
                                         <span>
-                                            @Html.RawSanitized(spec.ValueRaw)
+                                            @Html.Raw(spec.ValueRaw)
                                         </span>
                                     }
                                 </div>
@@ -211,7 +211,7 @@
             </div>
         }
         <div class="desc" v-pre>
-            @Html.RawSanitized(Model.ShortDescription)
+            @Html.Raw(Model.ShortDescription)
         </div>
         @if (Model.ShowQty)
         {

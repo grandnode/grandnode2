@@ -1,14 +1,12 @@
 ﻿@model string
 @{
     var random = CommonHelper.GenerateRandomInteger();
-    //content saved before sanitization was applied on write is still in the database
-    var editorValue = Html.RawSanitized(ViewData.TemplateInfo.FormattedModelValue as string).ToHtmlString();
 }
 <div id="s-@(random)-summernote" class="summernote" data-name="null" data-file="null" data-format="null">
-    @Html.Raw(editorValue)
+    @Html.Raw(ViewData.TemplateInfo.FormattedModelValue)
 </div>
 @Html.TextArea(string.Empty, /* Name suffix */
-    editorValue /* Initial value */
+    ViewData.TemplateInfo.FormattedModelValue /* Initial value */
 )
 <script>
     $(document).ready(function () {

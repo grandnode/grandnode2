@@ -22,7 +22,7 @@
                             </h3>
                         </div>
                         <div class="card-body">
-                            @Html.RawSanitized(item.Short)
+                            @Html.Raw(item.Short)
                         </div>
                         <div class="card-footer">
                             <small class="date-text">@item.CreatedOn.ToString("D")</small>

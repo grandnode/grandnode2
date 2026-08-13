@@ -75,7 +75,7 @@
                         </h3>
                     </div>
                     <div class="card-body" v-pre>
-                        @Html.RawSanitized(!string.IsNullOrEmpty(item.BodyOverview) ? item.BodyOverview : item.Body)
+                        @Html.Raw(!string.IsNullOrEmpty(item.BodyOverview) ? item.BodyOverview : item.Body)
                         @if (item.Tags.Any())
                         {
                             <div class="tags">

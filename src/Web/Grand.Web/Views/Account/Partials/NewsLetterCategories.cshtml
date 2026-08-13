@@ -17,7 +17,7 @@
                             <span class="custom-control-description">@(attribute.Name)</span>
                         </label>
                         <div v-pre>
-                            @Html.RawSanitized(attribute.Description)
+                            @Html.Raw(attribute.Description)
                         </div>
                     </li>
                 }

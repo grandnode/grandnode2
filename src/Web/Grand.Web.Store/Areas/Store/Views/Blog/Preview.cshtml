@@ -23,13 +23,13 @@
                     @if (!string.IsNullOrEmpty(Model.BodyOverview))
                     {
                         <div class="overview">
-                            @Html.RawSanitized(Model.BodyOverview)
+                            @Html.Raw(Model.BodyOverview)
                         </div>
                     }
                     @if (!string.IsNullOrEmpty(Model.Body))
                     {
                         <div class="body">
-                            @Html.RawSanitized(Model.Body)
+                            @Html.Raw(Model.Body)
                         </div>
                     }
                     @if (!string.IsNullOrEmpty(Model.Tags))

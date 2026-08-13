@@ -54,7 +54,7 @@
                    so Vue would compile any {{ }} it contains - a stray brace in an editor's text
                    threw at compile time and took the whole page down with it *@
                 <div v-pre>
-                    @Html.RawSanitized(Model.Body)
+                    @Html.Raw(Model.Body)
                 </div>
             </div>
         </div>

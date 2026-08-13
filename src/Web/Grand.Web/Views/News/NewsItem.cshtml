@@ -24,7 +24,7 @@
         </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = "newsitem_page_before_body", additionalData = Model.Id })
         <div class="card-body">
-            @Html.RawSanitized(Model.Full)
+            @Html.Raw(Model.Full)
         </div>
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "newsitem_page_before_comments", additionalData = Model.Id })

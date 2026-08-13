@@ -44,7 +44,7 @@
                 @if (!string.IsNullOrEmpty(item.ShortDescription))
                 {
                     <div class="card-body" v-pre>
-                        @Html.RawSanitized(item.ShortDescription)
+                        @Html.Raw(item.ShortDescription)
                     </div>
                 }
             </div>

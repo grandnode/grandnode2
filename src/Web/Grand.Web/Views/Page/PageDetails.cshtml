@@ -73,6 +73,6 @@
         <h1>@Model.Title</h1>
     </div>
     <div class="page-body" v-pre>
-        @Html.RawSanitized(Model.Body)
+        @Html.Raw(Model.Body)
     </div>
 </div>

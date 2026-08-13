@@ -12,16 +12,11 @@
     //(which also issues the cookie) rather than from a __RequestVerificationToken input
     var requestToken = antiforgery.GetAndStoreTokens(Context).RequestToken;
 }
-@{
-    //the stored value lands in the DOM before summernote initialises, so anything executable in it runs in this
-    //administrator's session - and this page also carries a live antiforgery token for the file manager
-    var editorValue = Html.RawSanitized(ViewData.TemplateInfo.FormattedModelValue as string).ToHtmlString();
-}
 <div id="s-@(random)-summernote" class="summernote" data-name="null" data-file="null" data-format="null">
-    @Html.Raw(editorValue)
+    @Html.Raw(ViewData.TemplateInfo.FormattedModelValue)
 </div>
 @Html.TextArea(string.Empty, /* Name suffix */
-    editorValue /* Initial value */
+    ViewData.TemplateInfo.FormattedModelValue /* Initial value */
 )
 <script>
     function elfinderDialog@(random)(context) { // <------------------ +context

@@ -27,7 +27,7 @@
                             @if (string.IsNullOrEmpty(spec.ColorSquaresRgb))
                             {
                                 <div class="mb-2 me-2">
-                                    @Html.RawSanitized(spec.ValueRaw)
+                                    @Html.Raw(spec.ValueRaw)
                                 </div>
                             }
                             else

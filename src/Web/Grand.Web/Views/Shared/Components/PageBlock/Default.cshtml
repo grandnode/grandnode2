@@ -41,7 +41,7 @@
             <h1 class="generalTitle h2 text-sm-center">@Model.Title</h1>
         </div>
         <div class="col-12 page-body px-0" v-pre>
-            @Html.RawSanitized(Model.Body)
+            @Html.Raw(Model.Body)
         </div>
     </div>
 }
@@ -53,7 +53,7 @@ else
             <h1 class="generalTitle h2 text-sm-center">@Model.Title</h1>
         }
         <div class="page-block-body pt-3" v-pre>
-            @Html.RawSanitized(Model.Body)
+            @Html.Raw(Model.Body)
         </div>
     </div>
 }

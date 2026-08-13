@@ -84,7 +84,7 @@
                             @if (!string.IsNullOrEmpty(Model.ShortDescription))
                             {
                                 <div class="short-description generalMarginSupporter" v-pre>
-                                    @Html.RawSanitized(Model.ShortDescription)
+                                    @Html.Raw(Model.ShortDescription)
                                 </div>
                             }
                             <!--collections-->
@@ -187,7 +187,7 @@
                                    so Vue would compile any {{ }} it contains - a stray brace in an editor's text
                                    threw at compile time and took the whole page down with it *@
                                 <div v-pre>
-                                    @Html.RawSanitized(Model.FullDescription)
+                                    @Html.Raw(Model.FullDescription)
                                 </div>
                             </gn-tab>
                             @if (Model.ProductTags.Any())

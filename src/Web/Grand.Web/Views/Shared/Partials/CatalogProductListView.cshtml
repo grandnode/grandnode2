@@ -117,7 +117,7 @@
                                     <div class="spec-value">
                                         @foreach (var spec in item)
                                         {
-                                            <span>@Html.RawSanitized(spec.ValueRaw)</span>
+                                            <span>@Html.Raw(spec.ValueRaw)</span>
                                         }
                                     </div>
                                 </td>
@@ -194,7 +194,7 @@
                 </div>
             }
             <div class="desc" v-pre>
-                @Html.RawSanitized(Model.ShortDescription)
+                @Html.Raw(Model.ShortDescription)
             </div>
             @if (Model.ShowQty)
             {
