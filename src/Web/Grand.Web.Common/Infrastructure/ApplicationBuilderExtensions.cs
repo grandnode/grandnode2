@@ -7,6 +7,7 @@ using Grand.Web.Common.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -195,7 +196,15 @@ public static class ApplicationBuilderExtensions
     /// <param name="application">Builder for configuring an application's request pipeline</param>
     public static void UseGrandHealthChecks(this WebApplication application)
     {
-        application.UseHealthChecks("/health/live");
+        application.UseHealthChecks("/health/live", new HealthCheckOptions {
+            Predicate = check => check.Tags.Contains("live")
+        });
+
+        //intentionally does not probe MongoDB/Redis - see OBS-011 in
+        //docs/architecture/grandnode-architecture-roadmap.md for that extension
+        application.UseHealthChecks("/health/ready", new HealthCheckOptions {
+            Predicate = check => check.Tags.Contains("ready")
+        });
     }
 
     /// <summary>
