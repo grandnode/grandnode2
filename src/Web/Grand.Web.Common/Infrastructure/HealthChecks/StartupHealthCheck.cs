@@ -9,6 +9,10 @@ namespace Grand.Web.Common.Infrastructure.HealthChecks;
 ///     connection. Intentionally does not probe MongoDB or Redis - readiness here covers only the
 ///     application process itself. Dependency probing (DB/Redis ping) is a deliberate future
 ///     extension, not an oversight.
+///     Note: DataSettingsManager.DatabaseIsInstalled() caches its result after the first call and
+///     can only be forced to false afterward, never back to true, without a process restart - so a
+///     freshly-installed instance keeps returning Unhealthy here until the app restarts post-install
+///     (expected: the installer already asks for a restart once setup completes).
 /// </summary>
 public class StartupHealthCheck : IHealthCheck
 {
