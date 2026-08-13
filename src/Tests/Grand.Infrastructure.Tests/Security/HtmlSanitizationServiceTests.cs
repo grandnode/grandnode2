@@ -44,31 +44,15 @@ public class HtmlSanitizationServiceTests
     [DataRow("<div style=\"background:url(javascript:alert(1))\">x</div>", DisplayName = "css url javascript")]
     [DataRow("<base href=\"//evil.tld/\">", DisplayName = "base tag")]
     [DataRow("<div v-html=\"x\" @click=\"y\" :id=\"z\">x</div>", DisplayName = "vue directives")]
-    public void SanitizeRichText_RemovesExecutableMarkup(string payload)
+    [DataRow("<iframe src=\"https://evil.tld/frame\"></iframe>", DisplayName = "iframe from unlisted host")]
+    public void ContainsDisallowedRichText_FlagsExecutableMarkup(string payload)
     {
-        var result = _service.SanitizeRichText(payload) ?? string.Empty;
-
-        Assert.IsFalse(result.Contains("script", StringComparison.OrdinalIgnoreCase),
-            $"script survived: {result}");
-        Assert.IsFalse(result.Contains("javascript", StringComparison.OrdinalIgnoreCase),
-            $"javascript scheme survived: {result}");
-        Assert.IsFalse(result.Contains("alert(1)", StringComparison.OrdinalIgnoreCase),
-            $"handler survived: {result}");
-        Assert.IsFalse(result.Contains("srcdoc", StringComparison.OrdinalIgnoreCase),
-            $"srcdoc survived: {result}");
-        Assert.IsFalse(result.Contains("formaction", StringComparison.OrdinalIgnoreCase),
-            $"formaction survived: {result}");
-        Assert.IsFalse(result.Contains("<form", StringComparison.OrdinalIgnoreCase),
-            $"form survived: {result}");
-        Assert.IsFalse(result.Contains("<base", StringComparison.OrdinalIgnoreCase),
-            $"base survived: {result}");
-        Assert.IsFalse(result.Contains("v-html", StringComparison.OrdinalIgnoreCase),
-            $"vue directive survived: {result}");
+        Assert.IsTrue(_service.ContainsDisallowedRichText(payload), $"payload was not flagged: {payload}");
     }
 
     /// <summary>
-    ///     Sanitizing on render touches content that is already in every existing database, so ordinary editor
-    ///     output has to come through unchanged.
+    ///     Ordinary editor output must not be rejected, even the parts the allowlist reformats (e.g. an implied
+    ///     &lt;tbody&gt; made explicit, or a css declaration re-spaced) - those are not removals.
     /// </summary>
     [TestMethod]
     [DataRow("<p>Hello <strong>world</strong></p>")]
@@ -77,115 +61,96 @@ public class HtmlSanitizationServiceTests
     [DataRow("<a href=\"mailto:sales@grandnode.com\">mail</a>")]
     [DataRow("<img src=\"/content/images/p.jpg\" alt=\"product\" width=\"200\">")]
     [DataRow("<h2>Heading</h2><blockquote>quote</blockquote>")]
-    public void SanitizeRichText_KeepsLegitimateEditorOutput(string html)
+    [DataRow("<table class=\"table\"><tr><td>cell</td></tr></table>")]
+    [DataRow("<p style=\"text-align:center\">centered</p>")]
+    public void ContainsDisallowedRichText_AllowsLegitimateEditorOutput(string html)
     {
-        var result = _service.SanitizeRichText(html);
-
-        Assert.AreEqual(html, result);
-    }
-
-    /// <summary>
-    ///     The sanitizer parses and re-serializes, so markup comes back normalized: an implied tbody is made
-    ///     explicit and css declarations are re-formatted. Nothing is lost, but the stored string and the rendered
-    ///     string are no longer byte-identical.
-    /// </summary>
-    [TestMethod]
-    [DataRow("<table class=\"table\"><tr><td>cell</td></tr></table>",
-        "<table class=\"table\"><tbody><tr><td>cell</td></tr></tbody></table>")]
-    [DataRow("<p style=\"text-align:center\">centered</p>", "<p style=\"text-align: center\">centered</p>")]
-    public void SanitizeRichText_NormalizesMarkupWithoutLosingIt(string html, string expected)
-    {
-        Assert.AreEqual(expected, _service.SanitizeRichText(html));
+        Assert.IsFalse(_service.ContainsDisallowedRichText(html), $"legitimate markup was flagged: {html}");
     }
 
     [TestMethod]
-    public void SanitizeRichText_KeepsIframeFromAllowedHost()
+    public void ContainsDisallowedRichText_AllowsIframeFromAllowedHost()
     {
-        const string html = "<iframe src=\"https://www.youtube.com/embed/abc123\"></iframe>";
-
-        Assert.IsTrue(_service.SanitizeRichText(html).Contains("youtube.com/embed/abc123"));
+        Assert.IsFalse(_service.ContainsDisallowedRichText(
+            "<iframe src=\"https://www.youtube.com/embed/abc123\"></iframe>"));
     }
 
     [TestMethod]
-    public void SanitizeRichText_KeepsRelativeIframe()
+    public void ContainsDisallowedRichText_AllowsRelativeIframe()
     {
         //the file manager inserts self-hosted video as a relative url; it cannot leave this origin
-        const string html = "<iframe src=\"/assets/media/promo.mp4\"></iframe>";
-
-        Assert.IsTrue(_service.SanitizeRichText(html).Contains("promo.mp4"));
+        Assert.IsFalse(_service.ContainsDisallowedRichText("<iframe src=\"/assets/media/promo.mp4\"></iframe>"));
     }
 
     [TestMethod]
-    public void SanitizeRichText_RemovesIframeFromUnknownHost()
-    {
-        const string html = "<iframe src=\"https://evil.tld/frame\"></iframe>";
-
-        Assert.IsFalse(_service.SanitizeRichText(html).Contains("evil.tld"));
-        Assert.IsFalse(_service.SanitizeRichText(html).Contains("<iframe"));
-    }
-
-    [TestMethod]
-    public void SanitizeRichText_RemovesEveryIframeWhenHostListIsConfiguredEmpty()
+    public void ContainsDisallowedRichText_FlagsEveryIframeWhenHostListIsConfiguredEmpty()
     {
         var service = new HtmlSanitizationService(new SecurityConfig { SanitizerAllowedIframeHosts = [] });
 
-        Assert.IsFalse(service.SanitizeRichText("<iframe src=\"https://www.youtube.com/embed/a\"></iframe>")
-            .Contains("<iframe"));
+        Assert.IsTrue(service.ContainsDisallowedRichText(
+            "<iframe src=\"https://www.youtube.com/embed/a\"></iframe>"));
     }
 
     [TestMethod]
-    public void SanitizeRichText_HonoursConfiguredHosts()
+    public void ContainsDisallowedRichText_HonoursConfiguredHosts()
     {
         var service = new HtmlSanitizationService(new SecurityConfig {
             SanitizerAllowedIframeHosts = ["*.trusted.tld"]
         });
 
-        Assert.IsTrue(service.SanitizeRichText("<iframe src=\"https://cdn.trusted.tld/x\"></iframe>")
-            .Contains("cdn.trusted.tld"));
-        Assert.IsFalse(service.SanitizeRichText("<iframe src=\"https://www.youtube.com/embed/a\"></iframe>")
-            .Contains("youtube"));
+        Assert.IsFalse(service.ContainsDisallowedRichText("<iframe src=\"https://cdn.trusted.tld/x\"></iframe>"));
+        Assert.IsTrue(service.ContainsDisallowedRichText("<iframe src=\"https://www.youtube.com/embed/a\"></iframe>"));
     }
 
     [TestMethod]
-    public void SanitizeRichText_KeepsInlineImageButNotInlineDocument()
+    public void ContainsDisallowedRichText_AllowsInlineImageButNotInlineDocument()
     {
-        const string image = "<img src=\"data:image/png;base64,iVBORw0KGgo=\">";
-
-        Assert.IsTrue(_service.SanitizeRichText(image).Contains("data:image/png"));
-        Assert.IsFalse(_service.SanitizeRichText("<a href=\"data:text/html,<script>alert(1)</script>\">x</a>")
-            .Contains("data:text/html"));
+        Assert.IsFalse(_service.ContainsDisallowedRichText("<img src=\"data:image/png;base64,iVBORw0KGgo=\">"));
+        Assert.IsTrue(_service.ContainsDisallowedRichText(
+            "<a href=\"data:text/html,<script>alert(1)</script>\">x</a>"));
     }
 
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
     [DataRow("   ")]
-    public void SanitizeRichText_PassesThroughEmptyInput(string value)
+    public void ContainsDisallowedRichText_TreatsEmptyInputAsClean(string value)
     {
-        Assert.AreEqual(value, _service.SanitizeRichText(value));
+        Assert.IsFalse(_service.ContainsDisallowedRichText(value));
     }
 
     [TestMethod]
-    public void StripHtml_RemovesMarkupAndKeepsText()
+    public void ContainsMarkup_FlagsAnyTag()
     {
-        Assert.AreEqual("Bold title", _service.StripHtml("<b>Bold</b> title"));
-        Assert.AreEqual("alert(1)", _service.StripHtml("<script>alert(1)</script>"));
-        Assert.AreEqual("clickme", _service.StripHtml("<img src=x onerror=alert(1)>click<span>me</span>"));
+        Assert.IsTrue(_service.ContainsMarkup("<b>Bold</b> title"));
+        Assert.IsTrue(_service.ContainsMarkup("<script>alert(1)</script>"));
+        Assert.IsTrue(_service.ContainsMarkup("plain<br>text"));
     }
 
     [TestMethod]
-    public void StripHtml_ReturnsDecodedText()
+    public void ContainsMarkup_AllowsPlainText()
     {
-        //the view layer encodes once; returning encoded text here would double-encode it
-        Assert.AreEqual("Tea & Coffee", _service.StripHtml("Tea & Coffee"));
-        Assert.AreEqual("Tea & Coffee", _service.StripHtml("<p>Tea &amp; Coffee</p>"));
+        Assert.IsFalse(_service.ContainsMarkup("Just a title"));
+        Assert.IsFalse(_service.ContainsMarkup("Tea & Coffee"));
+        Assert.IsFalse(_service.ContainsMarkup("Price < 10 and > 2"));
     }
 
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
-    public void StripHtml_PassesThroughEmptyInput(string value)
+    public void ContainsMarkup_TreatsEmptyInputAsClean(string value)
     {
-        Assert.AreEqual(value, _service.StripHtml(value));
+        Assert.IsFalse(_service.ContainsMarkup(value));
+    }
+
+    /// <summary>
+    ///     The [ThreadStatic] detection flag must not leak between unrelated calls on the same thread.
+    /// </summary>
+    [TestMethod]
+    public void ContainsDisallowedRichText_DoesNotLeakStateBetweenCalls()
+    {
+        Assert.IsTrue(_service.ContainsDisallowedRichText("<script>alert(1)</script>"));
+        Assert.IsFalse(_service.ContainsDisallowedRichText("<p>clean</p>"));
+        Assert.IsTrue(_service.ContainsDisallowedRichText("<script>alert(1)</script>"));
     }
 }

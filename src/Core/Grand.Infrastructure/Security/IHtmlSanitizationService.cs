@@ -1,25 +1,28 @@
 namespace Grand.Infrastructure.Security;
 
 /// <summary>
-///     Sanitizes untrusted markup against an allowlist.
-///     Content edited by a vendor, a store manager, or any non-superadmin account is untrusted: it is rendered
-///     back into the administration panel, so markup that survives here executes in an administrator's session.
+///     Detects markup that falls outside an allowlist. Content edited by a vendor, a store manager, or any
+///     non-superadmin account is untrusted: it is rendered back into the administration panel, so markup that
+///     survives here executes in an administrator's session.
+///     This is detection, not rewriting: callers reject the value (see <see cref="Grand.Infrastructure.Validators.SanitizeHtmlAttribute" />
+///     / <see cref="Grand.Infrastructure.Validators.NoHtmlAttribute" />) rather than silently cleaning it, so a
+///     rejected save always shows the editor what needs to change.
 /// </summary>
 public interface IHtmlSanitizationService
 {
     /// <summary>
-    ///     Sanitizes rich-text markup (product descriptions, blog posts, page bodies), keeping the formatting an
-    ///     editor legitimately produces and removing everything that can execute or navigate on its own.
+    ///     True when the rich-text allowlist would remove something from <paramref name="html" /> - a tag,
+    ///     attribute, style rule, class, comment, or url (script, iframe to an unlisted host, javascript:, etc.)
+    ///     that can execute or navigate on its own. False for markup an editor legitimately produces, even if the
+    ///     allowlist would reformat it (e.g. an implied &lt;tbody&gt; made explicit).
     /// </summary>
     /// <param name="html">Untrusted markup; may be null</param>
-    /// <returns>Markup safe to write into a page, or the input unchanged when it is null or empty</returns>
-    string SanitizeRichText(string html);
+    bool ContainsDisallowedRichText(string html);
 
     /// <summary>
-    ///     Removes all markup and returns the plain text it contained. For fields that are never rich text:
-    ///     meta titles, meta keywords, meta descriptions, admin comments, attribute names.
+    ///     True when <paramref name="text" /> contains any HTML markup at all. For fields that are never rich
+    ///     text: meta titles, meta keywords, meta descriptions, admin comments, attribute names.
     /// </summary>
     /// <param name="text">Untrusted text; may be null</param>
-    /// <returns>The text with every tag removed and entities decoded</returns>
-    string StripHtml(string text);
+    bool ContainsMarkup(string text);
 }

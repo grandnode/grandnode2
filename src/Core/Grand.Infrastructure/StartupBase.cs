@@ -176,13 +176,12 @@ public static class StartupBase
 
         InitDatabase(services, configuration);
 
+        //resolved by SanitizeHtmlAttribute/NoHtmlAttribute via ValidationContext.GetService - no filter needed,
+        //ASP.NET Core's built-in model validation already invokes DataAnnotations attributes on every bind
         services.AddSingleton<IHtmlSanitizationService, HtmlSanitizationService>();
-        services.AddTransient<HtmlSanitizationFilter>();
         services.AddTransient<ValidationFilter>();
         var mvcCoreBuilder = services.AddMvcCore(options =>
         {
-            //sanitize first, so validators and the action body both see the value that will be persisted
-            options.Filters.AddService<HtmlSanitizationFilter>();
             options.Filters.AddService<ValidationFilter>();
             var frontConfig = new FrontendAPIConfig();
             configuration.GetSection("FrontendAPI").Bind(frontConfig);

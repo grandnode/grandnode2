@@ -1,14 +1,15 @@
-using System.Net;
-using AngleSharp.Dom;
 using Ganss.Xss;
 using Grand.Infrastructure.Configuration;
 
 namespace Grand.Infrastructure.Security;
 
 /// <summary>
-///     Allowlist-based implementation over HtmlSanitizer.
-///     Registered as a singleton: both underlying sanitizers are configured in the constructor and never mutated
-///     afterwards, which is the condition under which HtmlSanitizer.Sanitize is safe to call concurrently.
+///     Allowlist-based implementation over HtmlSanitizer. Sanitizes nothing itself - it runs the library's
+///     allowlist and reports whether anything would have been removed, which is all a rejecting
+///     <see cref="System.ComponentModel.DataAnnotations.ValidationAttribute" /> needs.
+///     Registered as a singleton: the two underlying sanitizers are configured once in the constructor and never
+///     mutated afterwards. Each detection call resets a [ThreadStatic] flag before running Sanitize - safe because
+///     Sanitize is synchronous and does not yield, so no other call can observe a thread's flag mid-run.
 /// </summary>
 public class HtmlSanitizationService : IHtmlSanitizationService
 {
@@ -34,6 +35,8 @@ public class HtmlSanitizationService : IHtmlSanitizationService
         "datalist", "output", "progress", "meter"
     ];
 
+    [ThreadStatic] private static bool _disallowedContentSeen;
+
     private readonly string[] _allowedIframeHosts;
     private readonly HtmlSanitizer _plainTextSanitizer;
     private readonly HtmlSanitizer _richTextSanitizer;
@@ -45,18 +48,44 @@ public class HtmlSanitizationService : IHtmlSanitizationService
         _plainTextSanitizer = BuildPlainTextSanitizer();
     }
 
-    public string SanitizeRichText(string html)
+    public bool ContainsDisallowedRichText(string html)
     {
-        return string.IsNullOrWhiteSpace(html) ? html : _richTextSanitizer.Sanitize(html);
+        if (string.IsNullOrWhiteSpace(html)) return false;
+
+        _disallowedContentSeen = false;
+        var document = _richTextSanitizer.SanitizeDom(html);
+
+        //a literal <html>/<head>/<body> tag in the input is merged into the parser's own document root, which
+        //sits outside the per-element sanitization loop - RemovingAttribute never fires for its own attributes
+        //even though everything inside it is correctly sanitized (verified: <body onload=alert(1)> survives
+        //with the handler intact). Rich-text content is always a fragment and never legitimately needs
+        //attributes on that wrapper, so any attribute there means the raw input smuggled one in.
+        if (HasOwnAttributes(document.DocumentElement) || HasOwnAttributes(document.Head) ||
+            HasOwnAttributes(document.Body))
+            _disallowedContentSeen = true;
+
+        return _disallowedContentSeen;
     }
 
-    public string StripHtml(string text)
+    private static bool HasOwnAttributes(AngleSharp.Dom.IElement element)
     {
-        if (string.IsNullOrWhiteSpace(text)) return text;
+        return element is not null && element.Attributes.Length > 0;
+    }
 
-        //the sanitizer re-encodes the text it keeps; decode so the caller gets plain text back and the view
-        //layer encodes it exactly once
-        return WebUtility.HtmlDecode(_plainTextSanitizer.Sanitize(text));
+    public bool ContainsMarkup(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return false;
+
+        _disallowedContentSeen = false;
+        var document = _plainTextSanitizer.SanitizeDom(text);
+
+        //see the identical guard in ContainsDisallowedRichText - a literal <html>/<head>/<body> tag merges
+        //into the document root and its own attributes never reach RemovingAttribute
+        if (HasOwnAttributes(document.DocumentElement) || HasOwnAttributes(document.Head) ||
+            HasOwnAttributes(document.Body))
+            _disallowedContentSeen = true;
+
+        return _disallowedContentSeen;
     }
 
     private static string[] ResolveAllowedIframeHosts(SecurityConfig securityConfig)
@@ -85,8 +114,7 @@ public class HtmlSanitizationService : IHtmlSanitizationService
         sanitizer.AllowedAttributes.Add("allow");
         sanitizer.AllowedAttributes.Add("loading");
 
-        //editors emit class names for tables, images and alignment; dropping them would visibly change content
-        //that is already in the database
+        //editors emit class names for tables, images and alignment
         sanitizer.AllowedAttributes.Add("class");
 
         //data-* is not allowlisted per attribute, so it cannot be vetted; it is also read by the storefront
@@ -98,24 +126,31 @@ public class HtmlSanitizationService : IHtmlSanitizationService
         //data: is accepted only for images, and only on img/src - enforced in OnFilterUrl
         sanitizer.AllowedSchemes.Add("data");
 
+        sanitizer.RemovingTag += (_, _) => _disallowedContentSeen = true;
+        sanitizer.RemovingAttribute += (_, _) => _disallowedContentSeen = true;
+        sanitizer.RemovingStyle += (_, _) => _disallowedContentSeen = true;
+        sanitizer.RemovingAtRule += (_, _) => _disallowedContentSeen = true;
+        sanitizer.RemovingCssClass += (_, _) => _disallowedContentSeen = true;
+        sanitizer.RemovingComment += (_, _) => _disallowedContentSeen = true;
         sanitizer.FilterUrl += OnFilterUrl;
-        sanitizer.PostProcessDom += OnPostProcessDom;
 
         return sanitizer;
     }
 
     private static HtmlSanitizer BuildPlainTextSanitizer()
     {
-        return new HtmlSanitizer(new HtmlSanitizerOptions {
+        var sanitizer = new HtmlSanitizer(new HtmlSanitizerOptions {
             AllowedTags = new HashSet<string>(),
             AllowedAttributes = new HashSet<string>(),
             AllowedSchemes = new HashSet<string>(),
             AllowedCssProperties = new HashSet<string>(),
             UriAttributes = new HashSet<string>()
-        }) {
-            //without this the text inside a removed tag would be discarded along with the tag
-            KeepChildNodes = true
-        };
+        });
+
+        sanitizer.RemovingTag += (_, _) => _disallowedContentSeen = true;
+        sanitizer.RemovingComment += (_, _) => _disallowedContentSeen = true;
+
+        return sanitizer;
     }
 
     private void OnFilterUrl(object sender, FilterUrlEventArgs e)
@@ -130,25 +165,20 @@ public class HtmlSanitizationService : IHtmlSanitizationService
             //data:text/html is a script execution vector; an inline image is not
             var isInlineImage = string.Equals(tagName, "IMG", StringComparison.OrdinalIgnoreCase) &&
                                 url.StartsWith("data:image/", StringComparison.OrdinalIgnoreCase);
-            if (!isInlineImage) e.SanitizedUrl = null;
+            if (!isInlineImage)
+            {
+                e.SanitizedUrl = null;
+                _disallowedContentSeen = true;
+            }
+
             return;
         }
 
         if (string.Equals(tagName, "IFRAME", StringComparison.OrdinalIgnoreCase) && !IsAllowedIframeUrl(url))
+        {
             e.SanitizedUrl = null;
-    }
-
-    /// <summary>
-    ///     Drops iframes whose src was rejected by <see cref="OnFilterUrl" />. The attribute filter can only remove
-    ///     the attribute, which would leave a src-less frame behind.
-    /// </summary>
-    private static void OnPostProcessDom(object sender, PostProcessDomEventArgs e)
-    {
-        var framesWithoutSource = e.Document.QuerySelectorAll("iframe")
-            .Where(frame => string.IsNullOrEmpty(frame.GetAttribute("src")))
-            .ToList();
-
-        foreach (var frame in framesWithoutSource) frame.Remove();
+            _disallowedContentSeen = true;
+        }
     }
 
     private bool IsAllowedIframeUrl(string url)
