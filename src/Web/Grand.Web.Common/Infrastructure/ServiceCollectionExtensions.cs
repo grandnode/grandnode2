@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.WebEncoders;
+using Grand.Web.Common.Infrastructure.HealthChecks;
 using StackExchange.Redis;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
@@ -267,7 +268,11 @@ public static class ServiceCollectionExtensions
     public static void AddGrandHealthChecks(this IServiceCollection services)
     {
         var hcBuilder = services.AddHealthChecks();
-        hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
+        //liveness: process can respond to a request - never touches an external dependency
+        hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"]);
+        //readiness: application finished starting and is configured - intentionally does not
+        //probe MongoDB/Redis, see OBS-011 in docs/architecture/grandnode-architecture-roadmap.md
+        hcBuilder.AddCheck<StartupHealthCheck>("startup", tags: ["ready"]);
     }
 
     /// <summary>
