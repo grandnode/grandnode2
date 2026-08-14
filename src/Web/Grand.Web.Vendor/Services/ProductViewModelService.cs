@@ -750,7 +750,7 @@ public class ProductViewModelService : IProductViewModelService
         {
             var product = products[i];
             //a vendor should have access only to his products
-            if (product.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
+            if (!_contextAccessor.WorkContext.HasAccessToProduct(product))
                 continue;
 
             await DeleteProduct(product);
@@ -898,7 +898,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product == null || product.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id) continue;
+            if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
 
             var existingRelatedProducts = productId1.RelatedProducts;
             if (model.ProductId == id) continue;
@@ -943,7 +943,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product != null && productId1.VendorId == _contextAccessor.WorkContext.CurrentVendor.Id)
+            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(productId1))
             {
                 var existingSimilarProducts = productId1.SimilarProducts;
                 if (model.ProductId != id)
@@ -991,7 +991,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product != null && productId1.VendorId == _contextAccessor.WorkContext.CurrentVendor.Id)
+            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(productId1))
             {
                 var existingBundleProducts = productId1.BundleProducts;
                 if (model.ProductId != id)
@@ -1012,6 +1012,11 @@ public class ProductViewModelService : IProductViewModelService
     public virtual async Task UpdateBundleProductModel(ProductModel.BundleProductModel model)
     {
         var product = await _productService.GetProductById(model.ProductBundleId, true);
+        //the IProductValidVendor filter validates model.ProductId (the bundled item), not
+        //model.ProductBundleId (the product actually mutated below) - check it explicitly
+        if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product))
+            throw new ArgumentException("No product found with the specified id");
+
         var bundleProduct = product.BundleProducts.FirstOrDefault(x => x.Id == model.Id);
         if (bundleProduct == null)
             throw new ArgumentException("No bundle product found with the specified id");
@@ -1025,6 +1030,11 @@ public class ProductViewModelService : IProductViewModelService
     public virtual async Task DeleteBundleProductModel(ProductModel.BundleProductModel model)
     {
         var product = await _productService.GetProductById(model.ProductBundleId, true);
+        //the IProductValidVendor filter validates model.ProductId (the bundled item), not
+        //model.ProductBundleId (the product actually mutated below) - check it explicitly
+        if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product))
+            throw new ArgumentException("No product found with the specified id");
+
         var bundleProduct = product.BundleProducts.FirstOrDefault(x => x.Id == model.Id);
         if (bundleProduct == null)
             throw new ArgumentException("No bundle product found with the specified id");
@@ -1038,7 +1048,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product != null && product.VendorId == _contextAccessor.WorkContext.CurrentVendor.Id &&
+            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(product) &&
                 crossSellProduct.CrossSellProduct.All(x => x != id))
                 if (model.ProductId != id)
                     await _productService.InsertCrossSellProduct(
@@ -1064,7 +1074,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product != null && product.VendorId == _contextAccessor.WorkContext.CurrentVendor.Id)
+            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(product))
                 if (mainproduct.RecommendedProduct.All(x => x != id))
                     if (model.ProductId != id)
                         await _productService.InsertRecommendedProduct(model.ProductId, id);
@@ -1081,7 +1091,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product == null || product.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id) continue;
+            if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
             product.ParentGroupedProductId = model.ProductId;
             await _productService.UpdateAssociatedProduct(product);
         }
@@ -1182,7 +1192,7 @@ public class ProductViewModelService : IProductViewModelService
         {
             //update
             var product = await _productService.GetProductById(pModel.Id, true);
-            if (product == null || product.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id) continue;
+            if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
 
             var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product, total: true);
 
@@ -1212,7 +1222,7 @@ public class ProductViewModelService : IProductViewModelService
         {
             //delete
             var product = await _productService.GetProductById(pModel.Id, true);
-            if (product == null || product.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id) continue;
+            if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
 
             await _productService.DeleteProduct(product);
         }

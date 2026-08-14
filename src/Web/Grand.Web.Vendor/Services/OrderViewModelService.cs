@@ -427,7 +427,7 @@ public class OrderViewModelService : IOrderViewModelService
         model.CheckoutAttributeInfo = order.CheckoutAttributeDescription;
         var hasDownloadableItems = false;
         var products = order.OrderItems
-            .Where(orderItem => orderItem.VendorId == _contextAccessor.WorkContext.CurrentVendor.Id)
+            .Where(orderItem => _contextAccessor.WorkContext.HasAccessToOrderItem(orderItem))
             .ToList();
 
         foreach (var orderItem in products)
