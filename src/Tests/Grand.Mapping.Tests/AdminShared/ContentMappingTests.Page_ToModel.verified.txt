@@ -16,5 +16,6 @@
   MetaDescription: About us,
   MetaTitle: About Us,
   SeName: about-us,
+  ShowCopyButton: false,
   Id: page-001
 }
