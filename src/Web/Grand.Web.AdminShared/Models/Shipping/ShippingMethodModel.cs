@@ -1,5 +1,6 @@
-﻿using Grand.Infrastructure.ModelBinding;
+using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -12,7 +13,7 @@ public class ShippingMethodModel : BaseEntityModel, ILocalizedModel<ShippingMeth
     public string Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Methods.Fields.Description")]
-
+    [NoHtml]
     public string Description { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Methods.Fields.DisplayOrder")]
@@ -35,7 +36,7 @@ public class ShippingMethodLocalizedModel : ILocalizedModelLocal
     public string Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Methods.Fields.Description")]
-
+    [NoHtml]
     public string Description { get; set; }
 
     public string LanguageId { get; set; }

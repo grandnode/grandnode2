@@ -50,7 +50,7 @@ public class ShipmentModel : BaseEntityModel
     public bool AddShipmentNoteDisplayToCustomer { get; set; }
 
     [GrandResourceDisplayName("Vendor.Orders.Shipments.ShipmentNotes.Fields.Note")]
-
+    [NoHtml]
     public string AddShipmentNoteMessage { get; set; }
 
 
