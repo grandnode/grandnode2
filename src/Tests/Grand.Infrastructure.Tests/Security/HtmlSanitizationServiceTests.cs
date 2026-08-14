@@ -145,7 +145,7 @@ public class HtmlSanitizationServiceTests
     }
 
     /// <summary>
-    ///     The [ThreadStatic] detection flag must not leak between unrelated calls on the same thread.
+    ///     The per-call detection flag must not leak between unrelated calls on the same thread.
     /// </summary>
     [TestMethod]
     public void ContainsDisallowedRichText_DoesNotLeakStateBetweenCalls()
@@ -153,5 +153,35 @@ public class HtmlSanitizationServiceTests
         Assert.IsTrue(_service.ContainsDisallowedRichText("<script>alert(1)</script>"));
         Assert.IsFalse(_service.ContainsDisallowedRichText("<p>clean</p>"));
         Assert.IsTrue(_service.ContainsDisallowedRichText("<script>alert(1)</script>"));
+    }
+
+    /// <summary>
+    ///     The singleton holds no mutable shared state - each call builds its own HtmlSanitizer around read-only
+    ///     allowlists, with a result flag captured in a local closure - so concurrent calls on different threads
+    ///     must never see each other's result, without needing a lock. Runs enough iterations across enough
+    ///     threads that the old [ThreadStatic]-without-serialization design (and a naive shared mutable-field
+    ///     design) would reliably produce a wrong verdict here.
+    /// </summary>
+    [TestMethod]
+    public void ContainsDisallowedRichText_IsCorrectUnderConcurrentCalls()
+    {
+        const string dangerous = "<script>alert(1)</script>";
+        const string clean = "<p>clean</p>";
+
+        var wrongVerdicts = 0;
+        Parallel.For(0, 2000, i =>
+        {
+            var service = _service; // shared singleton instance, as it is registered in DI
+            if (i % 2 == 0)
+            {
+                if (!service.ContainsDisallowedRichText(dangerous)) Interlocked.Increment(ref wrongVerdicts);
+            }
+            else
+            {
+                if (service.ContainsDisallowedRichText(clean)) Interlocked.Increment(ref wrongVerdicts);
+            }
+        });
+
+        Assert.AreEqual(0, wrongVerdicts, "a concurrent call observed another call's detection result");
     }
 }
