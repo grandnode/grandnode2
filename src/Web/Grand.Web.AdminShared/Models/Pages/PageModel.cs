@@ -95,6 +95,12 @@ public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, I
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.LimitedToStores")]
     [UIHint("Stores")]
     public string[] Stores { get; set; }
+
+    /// <summary>
+    /// True when the page is global or shared with more than one store, so a store manager may copy it
+    /// into their own store instead of editing it directly.
+    /// </summary>
+    public bool ShowCopyButton { get; set; }
 }
 
 public class PageLocalizedModel : ILocalizedModelLocal, ISlugModelLocal

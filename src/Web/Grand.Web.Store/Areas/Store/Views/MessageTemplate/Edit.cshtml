@@ -1,8 +1,8 @@
-@model MessageTemplateModel
+@model MessageTemplateStoreModel
 @{
     ViewBag.Title = Loc["Admin.Content.MessageTemplates.EditMessageTemplateDetails"];
     Layout = Constants.LayoutStore;
-    var isReadOnly = (bool)(ViewBag.IsReadOnly ?? false);
+    var isReadOnly = Model.IsReadOnly;
 }
 <form asp-area="@Constants.AreaStore" asp-controller="MessageTemplate" asp-action="Edit" method="post">
 

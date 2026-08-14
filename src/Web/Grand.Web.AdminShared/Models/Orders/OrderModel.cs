@@ -344,6 +344,11 @@ public class OrderModel : BaseEntityModel
         public string OrderItemId { get; set; }
 
         [UIHint("Download")] public string LicenseDownloadId { get; set; }
+
+        /// <summary>
+        /// Set by the controller after a successful save, so the popup view can signal the parent page to refresh.
+        /// </summary>
+        public bool RefreshPage { get; set; }
     }
 
     public class AddOrderProductModel : BaseModel

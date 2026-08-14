@@ -427,7 +427,7 @@ public class PaymentTransactionController : BaseStoreController
             if (errors.Count == 0)
             {
                 //success
-                ViewBag.RefreshPage = true;
+                model.RefreshPage = true;
                 return View(model);
             }
 
@@ -488,7 +488,7 @@ public class PaymentTransactionController : BaseStoreController
             await _mediator.Send(new PartiallyPaidOfflineCommand
                 { PaymentTransaction = paymentTransaction, AmountToPaid = amountToPaid });
 
-            ViewBag.RefreshPage = true;
+            model.RefreshPage = true;
             return View(model);
         }
         catch (Exception exc)

@@ -357,7 +357,6 @@ public class ProductController : BaseStoreController
     public async Task<IActionResult> RequiredProductAddPopup(string productIdsInput)
     {
         var model = await _productViewModelService.PrepareAddRequiredProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
-        ViewBag.productIdsInput = productIdsInput;
         return View(model);
     }
 

@@ -612,7 +612,7 @@ public class OrderController(
         await orderService.UpdateOrder(order);
 
         //success
-        ViewBag.RefreshPage = true;
+        model.RefreshPage = true;
 
         return View(model);
     }
@@ -636,9 +636,6 @@ public class OrderController(
         //attach license
         orderItem.LicenseDownloadId = null;
         await orderService.UpdateOrder(order);
-
-        //success
-        ViewBag.RefreshPage = true;
 
         return RedirectToAction("Edit", "Order", new { id = model.OrderId });
     }
