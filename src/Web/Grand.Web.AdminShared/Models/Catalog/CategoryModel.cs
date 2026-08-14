@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 using Grand.Web.AdminShared.Models.Discounts;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
-using Grand.Web.Common.Validators;
+using Grand.Infrastructure.Validators;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -22,11 +22,11 @@ public class CategoryModel : BaseEntityModel, ILocalizedModel<CategoryLocalizedM
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Name")]
     public string Name { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Description")]
     public string Description { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.BottomDescription")]
     public string BottomDescription { get; set; }
 
@@ -35,15 +35,15 @@ public class CategoryModel : BaseEntityModel, ILocalizedModel<CategoryLocalizedM
 
     public IList<SelectListItem> AvailableCategoryLayouts { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 
@@ -191,23 +191,23 @@ public class CategoryLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Name")]
     public string Name { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Description")]
     public string Description { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.BottomDescription")]
     public string BottomDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 

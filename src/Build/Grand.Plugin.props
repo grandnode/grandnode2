@@ -43,8 +43,8 @@
         <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Mediator\Grand.Mediator.csproj" Private="false" ExcludeAssets="runtime" />
         <ProjectReference Include="$(MSBuildThisFileDirectory)..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" Private="false" ExcludeAssets="runtime" />
         <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Core\Grand.Business.Core.csproj" Private="false" ExcludeAssets="runtime" />
-        <!-- ExcludeAssets=all: referenced for its views and tag helpers, nothing is linked from it -->
-        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Web\Grand.Web.Common\Grand.Web.Common.csproj" Private="false" ExcludeAssets="all" />
+        <!-- ExcludeAssets=runtime: referenced for its views and tag helpers, nothing is linked from it -->
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Web\Grand.Web.Common\Grand.Web.Common.csproj" Private="false" ExcludeAssets="runtime" />
     </ItemGroup>
 
 </Project>

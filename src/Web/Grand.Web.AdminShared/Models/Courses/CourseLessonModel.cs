@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -13,6 +14,7 @@ public class CourseLessonModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Courses.Course.Lesson.Fields.ShortDescription")]
     public string ShortDescription { get; set; }
 
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Courses.Course.Lesson.Fields.Description")]
     public string Description { get; set; }
 

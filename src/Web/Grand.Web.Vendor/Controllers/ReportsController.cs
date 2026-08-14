@@ -12,6 +12,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Models.Report;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -176,7 +177,7 @@ public class ReportsController : BaseVendorController
                 m.ProductName = product.Name;
             if (_contextAccessor.WorkContext.CurrentVendor != null)
             {
-                if (product?.VendorId == _contextAccessor.WorkContext.CurrentVendor.Id)
+                if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(product))
                     result.Add(m);
             }
             else

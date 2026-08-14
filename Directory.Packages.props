@@ -5,6 +5,7 @@
   <ItemGroup>
     <PackageVersion Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.6.0" />
     <PackageVersion Include="ExcelMapper" Version="6.0.641" />
+    <PackageVersion Include="HtmlSanitizer" Version="9.2.995" />
     <PackageVersion Include="MessagePack" Version="3.1.8" />
     <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.11" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />

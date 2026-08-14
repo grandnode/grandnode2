@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 10.0.x
+        dotnet-version: 10.0.301
     - name: Restore
       run: dotnet restore ./GrandNode.sln
     - name: Build with dotnet

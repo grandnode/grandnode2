@@ -1,5 +1,5 @@
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:10.0.301 AS build-env
 LABEL stage=build-env
 WORKDIR /app
 

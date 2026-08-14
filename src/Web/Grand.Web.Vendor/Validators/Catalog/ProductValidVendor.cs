@@ -32,12 +32,13 @@ public class ProductRelatedValidVendor : BaseGrandValidator<IProductRelatedValid
     {
         RuleFor(x => x).MustAsync(async (x, _, _) =>
         {
+            //RelatedProductModel/SimilarProductModel actions only ever read and mutate ProductId1's
+            //mapping list, so ownership of ProductId1 is what must be enforced here. Accepting ownership
+            //of ProductId2 as an alternative (the previous "||") let a vendor who owns any product supply
+            //it as ProductId2 and edit/delete another vendor's ProductId1 mapping.
             var product1 = await productService.GetProductById(x.ProductId1);
             if (product1 == null) return true;
-            var product2 = await productService.GetProductById(x.ProductId2);
-            if (product2 == null) return true;
-            return product1.VendorId == contextAccessor.WorkContext.CurrentVendor.Id ||
-                   product2.VendorId == contextAccessor.WorkContext.CurrentVendor.Id;
+            return product1.VendorId == contextAccessor.WorkContext.CurrentVendor.Id;
         }).WithMessage(translationService.GetResource("Vendor.Catalog.Products.Permissions"));
     }
 }

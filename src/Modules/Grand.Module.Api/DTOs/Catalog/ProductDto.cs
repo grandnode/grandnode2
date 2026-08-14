@@ -1,4 +1,5 @@
-﻿using Grand.Module.Api.Models;
+﻿using Grand.Infrastructure.Validators;
+using Grand.Module.Api.Models;
 using Grand.Domain.Catalog;
 
 namespace Grand.Module.Api.DTOs.Catalog;
@@ -10,15 +11,21 @@ public class ProductDto : BaseApiEntityModel
     public bool VisibleIndividually { get; set; }
     public string Name { get; set; }
     public string SeName { get; set; }
+    [SanitizeHtml]
     public string ShortDescription { get; set; }
+    [SanitizeHtml]
     public string FullDescription { get; set; }
+    [NoHtml]
     public string AdminComment { get; set; }
     public string ProductLayoutId { get; set; }
     public string BrandId { get; set; }
     public string VendorId { get; set; }
     public bool ShowOnHomePage { get; set; }
+    [NoHtml]
     public string MetaKeywords { get; set; }
+    [NoHtml]
     public string MetaDescription { get; set; }
+    [NoHtml]
     public string MetaTitle { get; set; }
     public bool AllowCustomerReviews { get; set; }
     public int ApprovedRatingSum { get; set; }
@@ -44,6 +51,7 @@ public class ProductDto : BaseApiEntityModel
     public bool HasSampleDownload { get; set; }
     public string SampleDownloadId { get; set; }
     public bool HasUserAgreement { get; set; }
+    [SanitizeHtml]
     public string UserAgreementText { get; set; }
     public bool IsRecurring { get; set; }
     public int RecurringCycleLength { get; set; }
