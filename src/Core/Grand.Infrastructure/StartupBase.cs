@@ -7,6 +7,7 @@ using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Modules;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
+using Grand.Infrastructure.Security;
 using Grand.Infrastructure.TypeConverters;
 using Grand.Infrastructure.TypeSearch;
 using Grand.Infrastructure.Validators;
@@ -175,6 +176,9 @@ public static class StartupBase
 
         InitDatabase(services, configuration);
 
+        //resolved by SanitizeHtmlAttribute/NoHtmlAttribute via ValidationContext.GetService - no filter needed,
+        //ASP.NET Core's built-in model validation already invokes DataAnnotations attributes on every bind
+        services.AddSingleton<IHtmlSanitizationService, HtmlSanitizationService>();
         services.AddTransient<ValidationFilter>();
         var mvcCoreBuilder = services.AddMvcCore(options =>
         {

@@ -93,4 +93,21 @@ public class SecurityConfig
     ///     The value is embedded in each stored hash, so raising it later does not break existing hashes.
     /// </summary>
     public int PasswordHashIterations { get; set; }
+
+    /// <summary>
+    ///     Hosts whose iframes survive HTML sanitization of rich-text content (product descriptions, blog posts, pages).
+    ///     An iframe pointing anywhere else is removed, because its src is otherwise attacker-controlled.
+    ///     Matching is case-insensitive on the host only; a leading "*." matches any subdomain.
+    ///     Leave empty to fall back to the built-in video-embed defaults; set to a single empty entry to block every iframe.
+    /// </summary>
+    public string[] SanitizerAllowedIframeHosts { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether [SanitizeHtml] and [NoHtml] reject markup on save. Default true.
+    ///     This is an operational escape hatch, not a security setting: turn it off only temporarily, if the
+    ///     allowlist is found to reject legitimate content in production, while a fix is prepared - every field
+    ///     these attributes guard (Vendor/Store-manager-editable rich text rendered unencoded via Html.Raw/v-html)
+    ///     goes back to accepting raw, unsanitized HTML the moment this is false. Re-enable as soon as possible.
+    /// </summary>
+    public bool EnableHtmlSanitization { get; set; } = true;
 }

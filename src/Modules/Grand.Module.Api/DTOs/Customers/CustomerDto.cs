@@ -1,4 +1,5 @@
-﻿using Grand.Module.Api.Models;
+﻿using Grand.Infrastructure.Validators;
+using Grand.Module.Api.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Module.Api.DTOs.Customers;
@@ -10,6 +11,7 @@ public class CustomerDto : BaseApiEntityModel
 
     [Key] public string Email { get; set; }
 
+    [NoHtml]
     public string AdminComment { get; set; }
     public bool IsTaxExempt { get; set; }
     public bool FreeShipping { get; set; }

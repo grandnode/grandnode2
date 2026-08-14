@@ -1,4 +1,5 @@
-﻿using Grand.Module.Api.Models;
+﻿using Grand.Infrastructure.Validators;
+using Grand.Module.Api.Models;
 
 namespace Grand.Module.Api.DTOs.Customers;
 
@@ -8,8 +9,10 @@ public class VendorDto : BaseApiEntityModel
     public string SeName { get; set; }
     public string PictureId { get; set; }
     public string Email { get; set; }
+    [SanitizeHtml]
     public string Description { get; set; }
     public string StoreId { get; set; }
+    [NoHtml]
     public string AdminComment { get; set; }
     public bool Active { get; set; }
     public bool Deleted { get; set; }

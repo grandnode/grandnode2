@@ -2,7 +2,7 @@
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Models;
-using Grand.Web.Common.Validators;
+using Grand.Infrastructure.Validators;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -42,18 +42,18 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.Name")]
     public string Name { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.ShortDescription")]
     public string ShortDescription { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.FullDescription")]
     public string FullDescription { get; set; }
 
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.Flag")]
     public string Flag { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.AdminComment")]
     public string AdminComment { get; set; }
 
@@ -62,15 +62,15 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     public string BrandId { get; set; }
 
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 
@@ -389,11 +389,11 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
             "Vendor.Catalog.Products.SpecificationAttributes.Fields.SpecificationAttributeOption")]
         public string SpecificationAttributeOptionId { get; set; }
 
-        [NoScripts]
+        [NoHtml]
         [GrandResourceDisplayName("Vendor.Catalog.Products.SpecificationAttributes.Fields.CustomName")]
         public string CustomName { get; set; }
 
-        [NoScripts]
+        [NoHtml]
         [GrandResourceDisplayName("Vendor.Catalog.Products.SpecificationAttributes.Fields.CustomValue")]
         public string CustomValue { get; set; }
 
@@ -965,23 +965,23 @@ public class ProductLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
 
     public string Name { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.ShortDescription")]
     public string ShortDescription { get; set; }
 
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.FullDescription")]
-    [NoScripts]
+    [SanitizeHtml]
     public string FullDescription { get; set; }
 
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.MetaKeywords")]
-    [NoScripts]
+    [NoHtml]
     public string MetaKeywords { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Vendor.Catalog.Products.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 

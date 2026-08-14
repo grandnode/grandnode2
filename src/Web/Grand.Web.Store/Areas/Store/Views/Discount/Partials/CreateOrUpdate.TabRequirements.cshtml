@@ -1,3 +1,4 @@
+﻿@using System.Text.Encodings.Web
 @model DiscountModel
 
 @{
@@ -99,7 +100,7 @@
                      @for (var i = 0; i < Model.DiscountRequirementMetaInfos.Count; i++)
                      {
                          var drmi = Model.DiscountRequirementMetaInfos[i];
-                         <text>{ discountRequirementId: "@(drmi.DiscountRequirementId)", ruleName: "@(drmi.RuleName)", url:  "@(Html.Raw(drmi.ConfigurationUrl))" } </text>
+                         <text>{ discountRequirementId: "@(drmi.DiscountRequirementId)", ruleName: "@(drmi.RuleName)", url:  "@(Html.Raw(JavaScriptEncoder.Default.Encode(drmi.ConfigurationUrl)))" } </text>
                          if (i != Model.DiscountRequirementMetaInfos.Count - 1)
                          {
                              <text>, </text>
