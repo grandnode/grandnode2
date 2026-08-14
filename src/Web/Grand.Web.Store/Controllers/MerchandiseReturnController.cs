@@ -230,6 +230,7 @@ public class MerchandiseReturnController : BaseStoreController
             return Json(new { Result = false });
 
         if (merchandiseReturn.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return Json(new { Result = false });
+        if (order.Id != merchandiseReturn.OrderId) return Json(new { Result = false });
 
         await _merchandiseReturnViewModelService.InsertMerchandiseReturnNote(merchandiseReturn, order, downloadId,
             displayToCustomer, message);

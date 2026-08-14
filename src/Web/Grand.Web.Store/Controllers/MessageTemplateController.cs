@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Models.Messages;
 using Grand.Web.Common.DataSource;
@@ -165,8 +166,9 @@ public class MessageTemplateController(
         if (messageTemplate.LimitedToStores && !messageTemplate.Stores.Contains(CurrentStoreId))
             return RedirectToAction("List");
 
-        // Global templates (LimitedToStores=false) are shown read-only
-        ViewBag.IsReadOnly = !messageTemplate.LimitedToStores;
+        // Global or multi-store-shared templates are shown read-only; only an exclusively-owned
+        // template (LimitedToStores && Stores == [CurrentStoreId]) can actually be saved (see Edit POST).
+        ViewBag.IsReadOnly = !messageTemplate.AccessToEntityByStore(CurrentStoreId);
 
         var model = messageTemplate.ToModel();
         model.SendImmediately = !model.DelayBeforeSend.HasValue;
@@ -196,7 +198,7 @@ public class MessageTemplateController(
         if (messageTemplate == null)
             return RedirectToAction("List");
 
-        if (!messageTemplate.LimitedToStores || !messageTemplate.Stores.Contains(CurrentStoreId))
+        if (!messageTemplate.AccessToEntityByStore(CurrentStoreId))
             return RedirectToAction("List");
 
         var prevAttachment = messageTemplate.AttachedDownloadId;
@@ -249,7 +251,7 @@ public class MessageTemplateController(
         if (messageTemplate == null)
             return RedirectToAction("List");
 
-        if (!messageTemplate.LimitedToStores || !messageTemplate.Stores.Contains(CurrentStoreId))
+        if (!messageTemplate.AccessToEntityByStore(CurrentStoreId))
             return RedirectToAction("List");
 
         await messageTemplateService.DeleteMessageTemplate(messageTemplate);

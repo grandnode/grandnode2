@@ -56,12 +56,14 @@ public class SettingController(
 
     /// <summary>
     /// Returns true if the store owner is allowed to access (edit/delete) the given store-linked item.
-    /// Store owners can only access items that are explicitly assigned to their store
-    /// (LimitedToStores = true and their storeId is in the Stores collection).
-    /// Items available to all stores (LimitedToStores = false) are not editable by store owners.
+    /// Store owners can only access items exclusively assigned to their store
+    /// (LimitedToStores = true and Stores contains only their storeId).
+    /// Items available to all stores (LimitedToStores = false) or shared with other stores are not
+    /// editable/deletable by a single store owner - editing/deleting would silently affect every
+    /// other store the item is also assigned to.
     /// </summary>
     private static bool IsStoreOwnerAccessAllowed(string storeId, bool limitedToStores, ICollection<string> stores)
-        => string.IsNullOrEmpty(storeId) || (limitedToStores && stores.Contains(storeId));
+        => string.IsNullOrEmpty(storeId) || (limitedToStores && stores.Count == 1 && stores.Contains(storeId));
 
     #endregion
 

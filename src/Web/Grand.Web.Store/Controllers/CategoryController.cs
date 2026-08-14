@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -26,7 +27,8 @@ public class CategoryController : BaseStoreController
         ILanguageService languageService,
         ITranslationService translationService,
         IContextAccessor contextAccessor,
-        IPictureViewModelService pictureViewModelService)
+        IPictureViewModelService pictureViewModelService,
+        IProductService productService)
     {
         _categoryService = categoryService;
         _categoryViewModelService = categoryViewModelService;
@@ -34,6 +36,7 @@ public class CategoryController : BaseStoreController
         _translationService = translationService;
         _contextAccessor = contextAccessor;
         _pictureViewModelService = pictureViewModelService;
+        _productService = productService;
     }
 
     #endregion
@@ -46,6 +49,7 @@ public class CategoryController : BaseStoreController
     private readonly ITranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IPictureViewModelService _pictureViewModelService;
+    private readonly IProductService _productService;
 
     #endregion
 
@@ -276,6 +280,10 @@ public class CategoryController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> ProductUpdate(CategoryModel.CategoryProductModel model)
     {
+        var product = await _productService.GetProductById(model.ProductId);
+        if (product == null || !product.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return ErrorForKendoGridJson("This is not your product");
+
         if (ModelState.IsValid)
         {
             await _categoryViewModelService.UpdateProductCategoryModel(model);
@@ -288,6 +296,10 @@ public class CategoryController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> ProductDelete(CategoryModel.CategoryProductModel model)
     {
+        var product = await _productService.GetProductById(model.ProductId);
+        if (product == null || !product.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return ErrorForKendoGridJson("This is not your product");
+
         if (ModelState.IsValid)
         {
             await _categoryViewModelService.DeleteProductCategoryModel(model.Id, model.ProductId);
@@ -322,9 +334,26 @@ public class CategoryController : BaseStoreController
     [HttpPost]
     public async Task<IActionResult> ProductAddPopup(CategoryModel.AddCategoryProductModel model)
     {
+        var category = await _categoryService.GetCategoryById(model.CategoryId);
+        if (category == null || !category.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return Content("This is not your category");
+
         if (ModelState.IsValid)
         {
-            if (model.SelectedProductIds != null) await _categoryViewModelService.InsertCategoryProductModel(model);
+            //InsertCategoryProductModel mutates each selected product's ProductCategories collection,
+            //so every selected id must also belong to the current store.
+            if (model.SelectedProductIds != null)
+            {
+                var validIds = new List<string>();
+                foreach (var id in model.SelectedProductIds)
+                {
+                    var selected = await _productService.GetProductById(id);
+                    if (selected != null && selected.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                        validIds.Add(id);
+                }
+                model.SelectedProductIds = validIds.ToArray();
+                if (validIds.Any()) await _categoryViewModelService.InsertCategoryProductModel(model);
+            }
 
             return Content("");
         }
