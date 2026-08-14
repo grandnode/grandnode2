@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Interfaces;
 using Grand.Web.Vendor.Models.VendorReview;
 using Grand.Mediator;
@@ -115,7 +116,7 @@ public class VendorReviewViewModelService : IVendorReviewViewModelService
         foreach (var id in selectedIds)
         {
             var vendorReview = await _vendorService.GetVendorReviewById(id);
-            if (vendorReview == null || vendorReview.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id) continue;
+            if (vendorReview == null || !_contextAccessor.WorkContext.HasAccessToVendorReview(vendorReview)) continue;
 
             var previousIsApproved = vendorReview.IsApproved;
             vendorReview.IsApproved = true;
@@ -133,7 +134,7 @@ public class VendorReviewViewModelService : IVendorReviewViewModelService
         foreach (var id in selectedIds)
         {
             var vendorReview = await _vendorService.GetVendorReviewById(id);
-            if (vendorReview == null || vendorReview.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id) continue;
+            if (vendorReview == null || !_contextAccessor.WorkContext.HasAccessToVendorReview(vendorReview)) continue;
 
             vendorReview.IsApproved = false;
             await _vendorService.UpdateVendorReview(vendorReview);

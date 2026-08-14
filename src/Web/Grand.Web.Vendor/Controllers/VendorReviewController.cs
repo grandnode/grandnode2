@@ -5,6 +5,7 @@ using Grand.Infrastructure;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Interfaces;
 using Grand.Web.Vendor.Models.VendorReview;
 using Microsoft.AspNetCore.Mvc;
@@ -73,7 +74,7 @@ public class VendorReviewController : BaseVendorController
     {
         var vendorReview = await _vendorService.GetVendorReviewById(id);
 
-        if (vendorReview == null || vendorReview.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
+        if (vendorReview == null || !_contextAccessor.WorkContext.HasAccessToVendorReview(vendorReview))
             //No vendor review found with the specified id
             return RedirectToAction("List");
 
@@ -88,7 +89,7 @@ public class VendorReviewController : BaseVendorController
     public async Task<IActionResult> Edit(VendorReviewModel model, bool continueEditing)
     {
         var vendorReview = await _vendorService.GetVendorReviewById(model.Id);
-        if (vendorReview == null || vendorReview.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
+        if (vendorReview == null || !_contextAccessor.WorkContext.HasAccessToVendorReview(vendorReview))
             //No vendor review found with the specified id
             return RedirectToAction("List");
 
@@ -112,7 +113,7 @@ public class VendorReviewController : BaseVendorController
     public async Task<IActionResult> Delete(string id)
     {
         var vendorReview = await _vendorService.GetVendorReviewById(id);
-        if (vendorReview == null || vendorReview.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
+        if (vendorReview == null || !_contextAccessor.WorkContext.HasAccessToVendorReview(vendorReview))
             //No vendor review found with the specified id
             return RedirectToAction("List");
 

@@ -104,7 +104,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
                 if (orderItem == null)
                     continue;
 
-                if (orderItem.VendorId != _contextAccessor.WorkContext.CurrentVendor.Id)
+                if (!_contextAccessor.WorkContext.HasAccessToOrderItem(orderItem))
                     continue;
 
                 //quantities
