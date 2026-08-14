@@ -637,7 +637,9 @@ public class ShippingController(
         var countries = await countryService.GetAllCountries(showHidden: true);
         var shippingMethods = await shippingMethodService.GetAllShippingMethods(storeId: CurrentStoreId);
         var customerGroups = await groupService.GetAllCustomerGroups();
-        foreach (var shippingMethod in shippingMethods)
+        //GetAllShippingMethods also returns global (StoreId=="") shipping methods, shared by every store;
+        //only mutate restrictions on methods this store manager exclusively owns.
+        foreach (var shippingMethod in shippingMethods.Where(x => x.StoreId == CurrentStoreId))
         {
             await SaveRestrictedCountries(model, shippingMethod, countries);
             await SaveRestrictedGroup(model, shippingMethod, customerGroups);

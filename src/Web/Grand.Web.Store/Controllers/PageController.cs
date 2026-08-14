@@ -118,7 +118,6 @@ public class PageController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> Create()
     {
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         var model = new PageModel {
             DisplayOrder = 1,
             Published = true
@@ -142,7 +141,6 @@ public class PageController : BaseStoreController
         }
 
         //If we got this far, something failed, redisplay form
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         await _pageViewModelService.PrepareLayoutsModel(model);
         return View(model);
     }
@@ -165,9 +163,8 @@ public class PageController : BaseStoreController
                 return RedirectToAction("List");
         }
 
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
-        ViewBag.ShowCopyButton = !page.LimitedToStores || page.Stores.Count > 1;
         var model = page.ToModel(_dateTimeService);
+        model.ShowCopyButton = !page.LimitedToStores || page.Stores.Count > 1;
         model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) }, Request.Scheme);
         await _pageViewModelService.PrepareLayoutsModel(model);
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
@@ -211,7 +208,6 @@ public class PageController : BaseStoreController
         }
 
         //If we got this far, something failed, redisplay form
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) }, "http");
         await _pageViewModelService.PrepareLayoutsModel(model);
         return View(model);

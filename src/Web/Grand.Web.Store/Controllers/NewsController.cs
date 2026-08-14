@@ -71,7 +71,7 @@ public class NewsController : BaseStoreController
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, NewsItemListModel model)
     {
-        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
+        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         var newsSettings = await _settingService.LoadSetting<NewsSettings>(storeId);
 
         var news = await _newsService.GetAllNews(storeId, command.Page - 1, command.PageSize, newsTitle: model.SearchNewsTitle);
@@ -93,7 +93,6 @@ public class NewsController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> Create()
     {
-        ViewBag.AllLanguages = _languageService.GetAllLanguages(true);
         var model = new NewsItemModel {
             //default values
             Published = true,
@@ -121,7 +120,6 @@ public class NewsController : BaseStoreController
         }
 
         //If we got this far, something failed, redisplay form
-        ViewBag.AllLanguages = _languageService.GetAllLanguages(true);
         return View(model);
     }
 
@@ -145,7 +143,6 @@ public class NewsController : BaseStoreController
                 return RedirectToAction("List");
         }
 
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         var model = newsItem.ToModel(_dateTimeService);
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
@@ -192,7 +189,6 @@ public class NewsController : BaseStoreController
         }
 
         //If we got this far, something failed, redisplay form
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
 
         return View(model);
     }

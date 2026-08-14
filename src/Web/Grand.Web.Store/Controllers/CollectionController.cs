@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
@@ -29,7 +30,8 @@ public class CollectionController : BaseStoreController
         ILanguageService languageService,
         ITranslationService translationService,
         IGroupService groupService,
-        IPictureViewModelService pictureViewModelService)
+        IPictureViewModelService pictureViewModelService,
+        IProductService productService)
     {
         _collectionViewModelService = collectionViewModelService;
         _collectionService = collectionService;
@@ -38,6 +40,7 @@ public class CollectionController : BaseStoreController
         _translationService = translationService;
         _groupService = groupService;
         _pictureViewModelService = pictureViewModelService;
+        _productService = productService;
     }
 
     #endregion
@@ -51,6 +54,7 @@ public class CollectionController : BaseStoreController
     private readonly ITranslationService _translationService;
     private readonly IGroupService _groupService;
     private readonly IPictureViewModelService _pictureViewModelService;
+    private readonly IProductService _productService;
 
     #endregion
 
@@ -313,6 +317,10 @@ public class CollectionController : BaseStoreController
     [HttpPost]
     public async Task<IActionResult> ProductUpdate(CollectionModel.CollectionProductModel model)
     {
+        var product = await _productService.GetProductById(model.ProductId);
+        if (product == null || !product.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return ErrorForKendoGridJson("This is not your product");
+
         if (ModelState.IsValid)
         {
             await _collectionViewModelService.ProductUpdate(model);
@@ -326,6 +334,10 @@ public class CollectionController : BaseStoreController
     [HttpPost]
     public async Task<IActionResult> ProductDelete(CollectionModel.CollectionProductModel model)
     {
+        var product = await _productService.GetProductById(model.ProductId);
+        if (product == null || !product.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return ErrorForKendoGridJson("This is not your product");
+
         if (ModelState.IsValid)
         {
             await _collectionViewModelService.ProductDelete(model.Id, model.ProductId);
@@ -362,9 +374,26 @@ public class CollectionController : BaseStoreController
     [HttpPost]
     public async Task<IActionResult> ProductAddPopup(CollectionModel.AddCollectionProductModel model)
     {
+        var collection = await _collectionService.GetCollectionById(model.CollectionId);
+        if (collection == null || !collection.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+            return Content("This is not your collection");
+
         if (ModelState.IsValid)
         {
-            if (model.SelectedProductIds != null) await _collectionViewModelService.InsertCollectionProductModel(model);
+            //InsertCollectionProductModel mutates each selected product's ProductCollections collection,
+            //so every selected id must also belong to the current store.
+            if (model.SelectedProductIds != null)
+            {
+                var validIds = new List<string>();
+                foreach (var id in model.SelectedProductIds)
+                {
+                    var selected = await _productService.GetProductById(id);
+                    if (selected != null && selected.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
+                        validIds.Add(id);
+                }
+                model.SelectedProductIds = validIds.ToArray();
+                if (validIds.Any()) await _collectionViewModelService.InsertCollectionProductModel(model);
+            }
             return Content("");
         }
 

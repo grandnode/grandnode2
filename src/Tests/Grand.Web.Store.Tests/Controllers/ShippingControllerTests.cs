@@ -101,7 +101,7 @@ public class ShippingControllerTests
     {
         var country = new Country { Id = "countryId", Name = "Poland" };
         var customerGroup = new CustomerGroup { Name = "Guests" };
-        var shippingMethod = new ShippingMethod { Name = "Ground" };
+        var shippingMethod = new ShippingMethod { Name = "Ground", StoreId = StoreId };
         SetupCommonData(country, shippingMethod, customerGroup);
 
         var form = new Dictionary<string, string[]> {
@@ -124,7 +124,7 @@ public class ShippingControllerTests
     {
         var country = new Country { Id = "countryId", Name = "Poland" };
         var customerGroup = new CustomerGroup { Name = "Guests" };
-        var shippingMethod = new ShippingMethod { Name = "Ground" };
+        var shippingMethod = new ShippingMethod { Name = "Ground", StoreId = StoreId };
         shippingMethod.RestrictedCountries.Add(country);
         shippingMethod.RestrictedGroups.Add(customerGroup.Id);
         SetupCommonData(country, shippingMethod, customerGroup);
@@ -142,12 +142,33 @@ public class ShippingControllerTests
     {
         var country = new Country { Id = "countryId", Name = "Poland" };
         var customerGroup = new CustomerGroup { Name = "Guests" };
-        var shippingMethod = new ShippingMethod { Name = "Ground" };
+        var shippingMethod = new ShippingMethod { Name = "Ground", StoreId = StoreId };
         SetupCommonData(country, shippingMethod, customerGroup);
 
         var result = await _controller.RestrictionSave(new Dictionary<string, string[]>());
 
         Assert.IsInstanceOfType<RedirectToActionResult>(result);
+        _shippingMethodServiceMock.Verify(s => s.UpdateShippingMethod(It.IsAny<ShippingMethod>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RestrictionSave_GlobalShippingMethod_NotUpdated()
+    {
+        // GetAllShippingMethods(storeId) also returns global (StoreId=="") shipping methods, shared by
+        // every store - RestrictionSave must not mutate restrictions on a method it doesn't exclusively own.
+        var country = new Country { Id = "countryId", Name = "Poland" };
+        var customerGroup = new CustomerGroup { Name = "Guests" };
+        var globalShippingMethod = new ShippingMethod { Name = "Ground", StoreId = "" };
+        SetupCommonData(country, globalShippingMethod, customerGroup);
+
+        var form = new Dictionary<string, string[]> {
+            [$"restrict_{globalShippingMethod.Id}"] = ["countryId"]
+        };
+
+        var result = await _controller.RestrictionSave(form);
+
+        Assert.IsInstanceOfType<RedirectToActionResult>(result);
+        Assert.IsFalse(globalShippingMethod.RestrictedCountries.Any(c => c.Id == "countryId"));
         _shippingMethodServiceMock.Verify(s => s.UpdateShippingMethod(It.IsAny<ShippingMethod>()), Times.Never);
     }
 }

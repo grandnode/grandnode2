@@ -14,6 +14,7 @@ using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Store.Models.Blogs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
@@ -92,7 +93,6 @@ public class BlogController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> Create()
     {
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         var model = new BlogPostModel {
             //default values
             AllowComments = true,
@@ -118,7 +118,6 @@ public class BlogController : BaseStoreController
         }
 
         //If we got this far, something failed, redisplay form
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         return View(model);
     }
 
@@ -142,7 +141,6 @@ public class BlogController : BaseStoreController
                 return RedirectToAction("List");
         }
 
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         var model = blogPost.ToModel(_dateTimeService);
 
         //locales
@@ -188,7 +186,6 @@ public class BlogController : BaseStoreController
         }
 
         //If we got this far, something failed, redisplay form
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         return View(model);
     }
 
@@ -285,8 +282,8 @@ public class BlogController : BaseStoreController
 
     public IActionResult Comments(string filterByBlogPostId)
     {
-        ViewBag.FilterByBlogPostId = filterByBlogPostId;
-        return View();
+        var model = new BlogCommentListModel { FilterByBlogPostId = filterByBlogPostId };
+        return View(model);
     }
 
     [PermissionAuthorizeAction(PermissionActionName.List)]
@@ -450,7 +447,6 @@ public class BlogController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> CategoryCreate()
     {
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         var model = new BlogCategoryModel();
         //locales
         await AddLocales(_languageService, model.Locales);
@@ -480,7 +476,6 @@ public class BlogController : BaseStoreController
         }
 
         //If we got this far, something failed, redisplay form
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         //locales
         await AddLocales(_languageService, model.Locales);
         return View(model);
@@ -497,7 +492,6 @@ public class BlogController : BaseStoreController
         if (!blogCategory.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
             return RedirectToAction(CategoryListAction);
 
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
         var model = blogCategory.ToModel();
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
@@ -542,7 +536,6 @@ public class BlogController : BaseStoreController
         }
 
         //If we got this far, something failed, redisplay form
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
 
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>

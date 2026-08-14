@@ -2,14 +2,18 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Domain.Messages;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Mapper;
 using Grand.SharedKernel;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Models.Messages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Store.Models.Messages;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
@@ -165,10 +169,11 @@ public class MessageTemplateController(
         if (messageTemplate.LimitedToStores && !messageTemplate.Stores.Contains(CurrentStoreId))
             return RedirectToAction("List");
 
-        // Global templates (LimitedToStores=false) are shown read-only
-        ViewBag.IsReadOnly = !messageTemplate.LimitedToStores;
+        var model = messageTemplate.MapTo<MessageTemplate, MessageTemplateStoreModel>();
 
-        var model = messageTemplate.ToModel();
+        // Global or multi-store-shared templates are shown read-only; only an exclusively-owned
+        // template (LimitedToStores && Stores == [CurrentStoreId]) can actually be saved (see Edit POST).
+        model.IsReadOnly = !messageTemplate.AccessToEntityByStore(CurrentStoreId);
         model.SendImmediately = !model.DelayBeforeSend.HasValue;
         model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
         model.AllowedTokens = messageTokenProvider.GetListOfAllowedTokens();
@@ -196,7 +201,7 @@ public class MessageTemplateController(
         if (messageTemplate == null)
             return RedirectToAction("List");
 
-        if (!messageTemplate.LimitedToStores || !messageTemplate.Stores.Contains(CurrentStoreId))
+        if (!messageTemplate.AccessToEntityByStore(CurrentStoreId))
             return RedirectToAction("List");
 
         var prevAttachment = messageTemplate.AttachedDownloadId;
@@ -249,7 +254,7 @@ public class MessageTemplateController(
         if (messageTemplate == null)
             return RedirectToAction("List");
 
-        if (!messageTemplate.LimitedToStores || !messageTemplate.Stores.Contains(CurrentStoreId))
+        if (!messageTemplate.AccessToEntityByStore(CurrentStoreId))
             return RedirectToAction("List");
 
         await messageTemplateService.DeleteMessageTemplate(messageTemplate);

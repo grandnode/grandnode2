@@ -1,8 +1,10 @@
-﻿@inject AdminAreaSettings adminAreaSettings
+﻿@using Grand.Web.Store.Models.Blogs
+@model BlogCommentListModel
+@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Content.Blog.Comments"];
-    string filterByBlogPostId = ViewBag.FilterByBlogPostId;
+    var filterByBlogPostId = Model.FilterByBlogPostId;
 }
 
 <div class="row">
