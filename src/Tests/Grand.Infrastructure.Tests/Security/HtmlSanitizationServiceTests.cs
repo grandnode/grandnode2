@@ -184,4 +184,37 @@ public class HtmlSanitizationServiceTests
 
         Assert.AreEqual(0, wrongVerdicts, "a concurrent call observed another call's detection result");
     }
+
+    /// <summary>
+    ///     SecurityConfig.EnableHtmlSanitization is an operational kill switch: false must make both detection
+    ///     methods report "nothing disallowed" even for payloads that are otherwise always flagged.
+    /// </summary>
+    [TestMethod]
+    [DataRow("<script>alert(1)</script>")]
+    [DataRow("<iframe src=\"https://evil.tld/frame\"></iframe>")]
+    public void ContainsDisallowedRichText_AcceptsEverything_WhenSanitizationDisabled(string payload)
+    {
+        var service = new HtmlSanitizationService(new SecurityConfig { EnableHtmlSanitization = false });
+
+        Assert.IsFalse(service.ContainsDisallowedRichText(payload));
+    }
+
+    [TestMethod]
+    [DataRow("<script>alert(1)</script>")]
+    [DataRow("<b>bold</b>")]
+    public void ContainsMarkup_AcceptsEverything_WhenSanitizationDisabled(string payload)
+    {
+        var service = new HtmlSanitizationService(new SecurityConfig { EnableHtmlSanitization = false });
+
+        Assert.IsFalse(service.ContainsMarkup(payload));
+    }
+
+    [TestMethod]
+    public void EnableHtmlSanitization_DefaultsToTrue_WhenNotSetExplicitly()
+    {
+        // mirrors what configuration binding leaves behind when the appsettings.json key is absent
+        var service = new HtmlSanitizationService(new SecurityConfig());
+
+        Assert.IsTrue(service.ContainsDisallowedRichText("<script>alert(1)</script>"));
+    }
 }

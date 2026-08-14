@@ -13,6 +13,9 @@ namespace Grand.Infrastructure.Security;
 ///     HtmlSanitizer around those shared, read-only allowlists, with event handlers that close over a local
 ///     "was anything removed" flag - so two concurrent calls can never observe or overwrite each other's result,
 ///     and no lock is needed.
+///     <see cref="SecurityConfig.EnableHtmlSanitization" /> is an operational kill switch, read once at
+///     construction: when false, both detection methods report "nothing disallowed" unconditionally, so
+///     [SanitizeHtml]/[NoHtml] accept any input. Off by exception only - see that property's remarks.
 /// </summary>
 public class HtmlSanitizationService : IHtmlSanitizationService
 {
@@ -39,10 +42,14 @@ public class HtmlSanitizationService : IHtmlSanitizationService
     ];
 
     private readonly string[] _allowedIframeHosts;
+    private readonly bool _enabled;
     private readonly HtmlSanitizerOptions _richTextOptions;
 
     public HtmlSanitizationService(SecurityConfig securityConfig)
     {
+        //defaults to enabled: a missing SecurityConfig or a config binder that never touched this property
+        //must fail closed (sanitize), not open (accept anything)
+        _enabled = securityConfig?.EnableHtmlSanitization ?? true;
         _allowedIframeHosts = ResolveAllowedIframeHosts(securityConfig);
         _richTextOptions = BuildRichTextOptions();
     }
@@ -96,6 +103,7 @@ public class HtmlSanitizationService : IHtmlSanitizationService
     public bool ContainsDisallowedRichText(string html)
     {
         if (string.IsNullOrWhiteSpace(html)) return false;
+        if (!_enabled) return false;
 
         var disallowedContentSeen = false;
 
@@ -159,6 +167,7 @@ public class HtmlSanitizationService : IHtmlSanitizationService
     public bool ContainsMarkup(string text)
     {
         if (string.IsNullOrWhiteSpace(text)) return false;
+        if (!_enabled) return false;
 
         var disallowedContentSeen = false;
 
