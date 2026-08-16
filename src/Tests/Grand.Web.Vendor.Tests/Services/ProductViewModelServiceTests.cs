@@ -167,16 +167,14 @@ public class ProductViewModelServiceTests
     }
 
     [TestMethod]
-    public async Task InsertSimilarProductModel_ChecksAccessOnTheSourceProductNotTheCandidate()
+    public async Task InsertSimilarProductModel_SkipsCandidateNotOwnedByCurrentVendor()
     {
-        // SUSPECTED BUG (found while writing this characterization test, not fixed here): unlike
-        // InsertRelatedProductModel/InsertBundleProductModel's sibling checks, this one evaluates
+        // Regression test for a fixed authorization bug: this used to check
         // HasAccessToProduct(productId1) - the product already being edited, which the vendor is
         // guaranteed to own - instead of HasAccessToProduct(product), the candidate being linked in
-        // via `id`. The access check is therefore always true and never actually excludes another
-        // vendor's product from being linked as "similar". This test locks down that current
-        // (likely wrong) behavior so it isn't silently changed by the consolidation refactor; the fix,
-        // if wanted, is a separate change.
+        // via `id`. That made the check a no-op: any vendor could link any other vendor's product as
+        // "similar". Now it checks the candidate, matching InsertRelatedProductModel/
+        // InsertBundleProductModel.
         var source = new Product { Id = "source", VendorId = CurrentVendorId };
         var other = new Product { Id = "other", VendorId = OtherVendorId };
         _productServiceMock.Setup(p => p.GetProductById("source", true)).ReturnsAsync(source);
@@ -187,7 +185,43 @@ public class ProductViewModelServiceTests
             SelectedProductIds = ["other"]
         });
 
-        Assert.IsTrue(source.SimilarProducts.Any(x => x.ProductId2 == "other"),
-            "current code links the candidate regardless of its owner - see comment above");
+        Assert.IsFalse(source.SimilarProducts.Any(x => x.ProductId2 == "other"));
+        _productServiceMock.Verify(p => p.InsertSimilarProduct(It.IsAny<SimilarProduct>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task InsertSimilarProductModel_LinksCandidateOwnedByCurrentVendor()
+    {
+        var source = new Product { Id = "source", VendorId = CurrentVendorId };
+        var own = new Product { Id = "own", VendorId = CurrentVendorId };
+        _productServiceMock.Setup(p => p.GetProductById("source", true)).ReturnsAsync(source);
+        _productServiceMock.Setup(p => p.GetProductById("own", false)).ReturnsAsync(own);
+
+        await _service.InsertSimilarProductModel(new ProductModel.AddSimilarProductModel {
+            ProductId = "source",
+            SelectedProductIds = ["own"]
+        });
+
+        Assert.IsTrue(source.SimilarProducts.Any(x => x.ProductId2 == "own"));
+        _productServiceMock.Verify(p => p.InsertSimilarProduct(It.IsAny<SimilarProduct>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task InsertBundleProductModel_SkipsCandidateNotOwnedByCurrentVendor()
+    {
+        // Same fixed bug as InsertSimilarProductModel, same fix.
+        var source = new Product { Id = "source", VendorId = CurrentVendorId };
+        var other = new Product { Id = "other", VendorId = OtherVendorId };
+        _productServiceMock.Setup(p => p.GetProductById("source", true)).ReturnsAsync(source);
+        _productServiceMock.Setup(p => p.GetProductById("other", false)).ReturnsAsync(other);
+
+        await _service.InsertBundleProductModel(new ProductModel.AddBundleProductModel {
+            ProductId = "source",
+            SelectedProductIds = ["other"]
+        });
+
+        Assert.IsFalse(source.BundleProducts.Any(x => x.ProductId == "other"));
+        _productServiceMock.Verify(p => p.InsertBundleProduct(It.IsAny<BundleProduct>(), It.IsAny<string>()),
+            Times.Never);
     }
 }

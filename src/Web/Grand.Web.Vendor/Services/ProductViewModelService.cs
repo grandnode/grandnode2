@@ -943,7 +943,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(productId1))
+            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(product))
             {
                 var existingSimilarProducts = productId1.SimilarProducts;
                 if (model.ProductId != id)
@@ -991,7 +991,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
-            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(productId1))
+            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(product))
             {
                 var existingBundleProducts = productId1.BundleProducts;
                 if (model.ProductId != id)
