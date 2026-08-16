@@ -1256,6 +1256,7 @@ Same per-row discipline as Task 8: one method (or tightly-coupled small group, e
 - [ ] `PrepareRecommendedProductModel(storeId)` — drop `storeId`
 - [ ] `PrepareAssociatedProductModel(storeId)` — drop `storeId`
 - [ ] `PrepareBulkEditListModel(storeId)` — drop `storeId`
+- [ ] `PrepareBulkEditProductModel` — **hard prerequisite, not optional:** Vendor's original implementation (`src/Web/Grand.Web.Vendor/Services/ProductViewModelService.cs`) passes `vendorId: contextAccessor.WorkContext.CurrentVendor.Id` into the underlying `SearchProducts` call, vendor-scoping the bulk-edit grid; AdminShared's version and `BulkEditListModel` have no vendor-id field/parameter at all. `BaseProductController.BulkEditSelect` (Task 8 row 15, already migrated) routes to AdminShared's unfiltered version — this is fine today only because Vendor is not yet subclassed onto `BaseProductController`. **Task 11 must not wire Vendor's `ProductController` onto `BaseProductController` until this method gains vendor-scoped filtering** (e.g. via `scope.ApplyScope` on the underlying query, or an injected filter callback) — doing so first would silently let any vendor see every vendor's products in the bulk-edit grid. Flag this row's completion as blocking Task 11, not merely a nice-to-have cleanup.
 - [ ] `PrepareTierPriceModel(Product, storeId)` — drop `storeId`
 - [ ] `PrepareBidMode`
 - [ ] `PrepareProductAttributeMappingModel` (4 overloads at lines 1365/1379/1392/1526 — AdminShared has one more overload than Vendor per the interface diff; confirm which one and whether Vendor needs it)
@@ -1288,6 +1289,8 @@ Expected: no matches (or only local variables inside method bodies that read `sc
 ---
 
 ## Task 11: Convert the three host `ProductController`s to thin subclasses
+
+**Blocking prerequisite (added after Task 8 row 15's review):** do not subclass Vendor's `ProductController` onto `BaseProductController` until Task 10's `PrepareBulkEditProductModel` row is done and confirmed to preserve vendor-scoped filtering on the bulk-edit grid — see that row's note. Wiring Vendor on first would silently expose every vendor's products in `BulkEditSelect`'s grid to every other vendor. Admin and Store have no equivalent gap and can be subclassed independently of this prerequisite.
 
 **Files:**
 - Modify (rewrite, shrink): `src/Web/Grand.Web.Admin/Controllers/ProductController.cs`
