@@ -983,7 +983,9 @@ Expected: no unexplained diffs (action name + parameter type list should match; 
 **Files:**
 - Modify: `src/Web/Grand.Web.AdminShared/Interfaces/IProductViewModelService.cs`
 - Modify: `src/Web/Grand.Web.AdminShared/Services/ProductViewModelService.cs`
+- Modify: `src/Web/Grand.Web.AdminShared/Controllers/BaseProductController.cs` — every call site of the 13 methods listed in Step 1 that Task 8 already migrated into a region (Required products, Related/Similar/Bundle/Cross-sell/Recommended/Associated products, Bulk editing, Tier prices, the attribute-value-association popup) loses its `storeId`/`scope.DefaultStoreId` argument in this same task. Find them with `grep -n "scope.DefaultStoreId" src/Web/Grand.Web.AdminShared/Controllers/BaseProductController.cs` before starting Step 2 below, and fix every hit that calls one of the 13 methods.
 - Test: `src/Tests/Grand.Web.Admin.Tests/Services/ProductViewModelServiceTests.cs` (existing file, extend)
+- Test: `src/Tests/Grand.Web.Admin.Tests/Controllers/BaseProductControllerTests.cs` — update any test asserting the old arity for the 13 methods
 
 **Interfaces:**
 - Consumes: `IAdminDataScope<Product>` (Task 1).
@@ -1102,7 +1104,9 @@ Same per-row discipline as Task 8: one method (or tightly-coupled small group, e
 **Files (per row):**
 - Modify: `src/Web/Grand.Web.AdminShared/Services/ProductViewModelService.cs`
 - Modify: `src/Web/Grand.Web.AdminShared/Interfaces/IProductViewModelService.cs` (drop any remaining `storeId` param for that method)
+- Modify (when the row drops a `storeId` param): `src/Web/Grand.Web.AdminShared/Controllers/BaseProductController.cs` — grep for the method name and update every call site the same way Task 9 did for `PrepareProductListModel`.
 - Test: `src/Tests/Grand.Web.Admin.Tests/Services/ProductViewModelServiceTests.cs`
+- Test (when a call site changed): `src/Tests/Grand.Web.Admin.Tests/Controllers/BaseProductControllerTests.cs`
 - Read: `src/Web/Grand.Web.Vendor/Services/ProductViewModelService.cs` at the matching method (method names are shared — same name, different arity/body — locate with `grep -n "MethodName" src/Web/Grand.Web.Vendor/Services/ProductViewModelService.cs`).
 
 **Checklist (from the AdminShared method list; each unchecked row still has a `storeId` param or an unverified arity mismatch with Vendor per Task 9 Step 1):**
