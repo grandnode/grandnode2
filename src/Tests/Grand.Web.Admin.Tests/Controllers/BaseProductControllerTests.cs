@@ -551,4 +551,155 @@ public class BaseProductControllerTests
         Assert.IsInstanceOfType<JsonResult>(result);
         Assert.AreEqual("explicit", model.SearchStoreId);
     }
+
+    // --- ProductCategoryList ----------------------------------------------------------------------
+    // HasAccess (strict), not CanView: mirrors Store's CanAccessProduct (AccessToEntityByStore) and
+    // Vendor's CheckAccessToProduct (VendorId equality) gating this action on both hosts.
+
+    [TestMethod]
+    public async Task ProductCategoryList_ScopeDeniesAccess_ReturnsErrorJson()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.ProductCategoryList(
+            new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.PrepareProductCategoryModel(It.IsAny<Product>()), Times.Never);
+    }
+
+    // Guards against a real regression found in review: the denial message must be templated via
+    // scope.ResourceKeyPrefix, not hardcoded to "Admin." - "Vendor.Catalog.Products.Permissions" exists
+    // at the XML resource layer (en_220.xml) even though Task 6's narrower file-scoped audit never saw a
+    // Vendor call site for it.
+    [TestMethod]
+    public async Task ProductCategoryList_ScopeDeniesAccess_UsesScopeResourceKeyPrefix()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
+
+        var result = await _controller.ProductCategoryList(
+            new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Vendor.Catalog.Products.Permissions"), Times.Once);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductCategoryList_ScopeGrantsAccess_ReturnsGrid()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _productViewModelServiceMock.Setup(s => s.PrepareProductCategoryModel(product))
+            .ReturnsAsync(new List<ProductModel.ProductCategoryModel> { new() { Id = "c1", ProductId = "p1" } });
+
+        var result = await _controller.ProductCategoryList(
+            new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = json.Value as Grand.Web.Common.DataSource.DataSourceResult;
+        Assert.IsNotNull(gridModel);
+        Assert.AreEqual(1, gridModel.Total);
+    }
+
+    // --- ProductCategoryInsert ---------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductCategoryInsert_ScopeDeniesAccess_ReturnsErrorJson_DoesNotInsert()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.ProductCategoryModel { ProductId = "p1" };
+
+        var result = await _controller.ProductCategoryInsert(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.InsertProductCategoryModel(It.IsAny<ProductModel.ProductCategoryModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductCategoryInsert_ScopeGrantsAccess_ValidModel_Inserts()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.ProductCategoryModel { ProductId = "p1" };
+
+        var result = await _controller.ProductCategoryInsert(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(s => s.InsertProductCategoryModel(model), Times.Once);
+    }
+
+    // --- ProductCategoryUpdate ---------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductCategoryUpdate_ScopeDeniesAccess_ReturnsErrorJson_DoesNotUpdate()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.ProductCategoryModel { ProductId = "p1" };
+
+        var result = await _controller.ProductCategoryUpdate(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.UpdateProductCategoryModel(It.IsAny<ProductModel.ProductCategoryModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductCategoryUpdate_ScopeGrantsAccess_ValidModel_Updates()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.ProductCategoryModel { ProductId = "p1" };
+
+        var result = await _controller.ProductCategoryUpdate(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(s => s.UpdateProductCategoryModel(model), Times.Once);
+    }
+
+    // --- ProductCategoryDelete ---------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductCategoryDelete_ScopeDeniesAccess_ReturnsErrorJson_DoesNotDelete()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.ProductCategoryModel { Id = "c1", ProductId = "p1" };
+
+        var result = await _controller.ProductCategoryDelete(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.DeleteProductCategory(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductCategoryDelete_ScopeGrantsAccess_ValidModel_Deletes()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.ProductCategoryModel { Id = "c1", ProductId = "p1" };
+
+        var result = await _controller.ProductCategoryDelete(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(s => s.DeleteProductCategory("c1", "p1"), Times.Once);
+    }
 }

@@ -32,7 +32,7 @@ namespace Grand.Web.AdminShared.Controllers;
 // ledger entry). Inlined in full here (not just referenced) since planning artifacts under .superpowers/
 // are untracked and do not survive in the repo once this branch merges.
 //
-// Templated via {scope.ResourceKeyPrefix} (Admin.<suffix> and Vendor.<suffix> both exist) — 22:
+// Templated via {scope.ResourceKeyPrefix} (Admin.<suffix> and Vendor.<suffix> both exist) — 23:
 //   Common.All, Customers.Guest, Configuration.Tax.Settings.TaxCategories.None,
 //   Catalog.Products.Added, Catalog.Products.Updated, Catalog.Products.Deleted,
 //   Catalog.Products.Fields.ChangedWarning, Catalog.Products.Fields.DeliveryDate.None,
@@ -45,11 +45,19 @@ namespace Grand.Web.AdminShared.Controllers;
 //   Catalog.Products.ProductAttributes.Attributes.ValidationRules.MaxLength,
 //   Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileAllowedExtensions,
 //   Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileMaximumSize,
-//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.DefaultValue.
+//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.DefaultValue,
+//   Catalog.Products.Permissions (CORRECTED 2026-08-16, Task 8 row "Product categories": this row's
+//     original pass kept it as an "Admin-only literal" below, trusting Task 6's audit - but that audit
+//     only scanned the 5 files under migration [2 ProductControllers + 2 ProductViewModelServices], never
+//     validators. "Vendor.Catalog.Products.Permissions" genuinely exists in
+//     src/Web/Grand.Web/App_Data/Resources/Upgrade/en_220.xml and is consumed by
+//     Grand.Web.Vendor/Validators/Catalog/ProductValidVendor.cs and BundleProductModelValidator.cs.
+//     Lesson for later rows: "no call site found in the files under migration" is NOT the same claim as
+//     "no resource key exists for Vendor" - check the XML resource files too before treating a key as
+//     host-specific).
 //
-// Admin-only literal (no Vendor equivalent call site; keep as literal "Admin.<suffix>") — 6:
-//   Catalog.Products.Permissions (Vendor has no Permissions-suffixed resource lookup anywhere - its
-//     permission-denied paths don't emit this message), Catalog.Products.List.SearchPublished.ShowOnHomePage,
+// Admin-only literal (no Vendor equivalent call site; keep as literal "Admin.<suffix>") — 5:
+//   Catalog.Products.List.SearchPublished.ShowOnHomePage,
 //   Catalog.Products.Imported, Catalog.Products.TierPrices.Fields.CustomerGroup.All,
 //   Catalog.Products.TierPrices.Fields.Store.All, Common.UploadFile.
 //
@@ -385,6 +393,101 @@ public abstract class BaseProductController(
             Total = totalCount
         };
         return Json(gridModel);
+    }
+
+    #endregion
+
+    #region Product categories
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> ProductCategoryList(DataSourceRequest command, string productId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess (strict), not CanView: mirrors Store's CanAccessProduct (AccessToEntityByStore) and
+        // Vendor's CheckAccessToProduct (VendorId equality) - both strict rules, both gate this same
+        // action on their respective hosts. Applying it uniformly also closes a real gap: Vendor's
+        // original ProductCategoryInsert/Update/Delete (below) had no ownership check at all, letting
+        // any vendor mutate another vendor's product-category mappings by id.
+        if (!await scope.HasAccess(product))
+            // Templated, not the literal "Admin.Catalog.Products.Permissions": Task 6's audit (the header
+            // comment above) only covered the files under migration (the 2 ProductControllers + 2
+            // ProductViewModelServices) and found no "Permissions"-suffixed GetResource call in Vendor's
+            // copies of *those* files - but "Vendor.Catalog.Products.Permissions" genuinely exists at the
+            // XML resource layer (src/Web/Grand.Web/App_Data/Resources/Upgrade/en_220.xml, consumed by
+            // Grand.Web.Vendor's ProductValidVendor/BundleProductModelValidator). That audit's scope was
+            // narrower than "Admin-only" - don't cite it as precedent for skipping templating elsewhere.
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var productCategoriesModel = await productViewModelService.PrepareProductCategoryModel(product);
+        var gridModel = new DataSourceResult {
+            Data = productCategoriesModel,
+            Total = productCategoriesModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductCategoryInsert(ProductModel.ProductCategoryModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+            try
+            {
+                await productViewModelService.InsertProductCategoryModel(model);
+                return new JsonResult("");
+            }
+            catch (Exception ex)
+            {
+                return ErrorForKendoGridJson(ex.Message);
+            }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductCategoryUpdate(ProductModel.ProductCategoryModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+            try
+            {
+                await productViewModelService.UpdateProductCategoryModel(model);
+                return new JsonResult("");
+            }
+            catch (Exception ex)
+            {
+                return ErrorForKendoGridJson(ex.Message);
+            }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductCategoryDelete(ProductModel.ProductCategoryModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+        {
+            await productViewModelService.DeleteProductCategory(model.Id, model.ProductId);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
     }
 
     #endregion
