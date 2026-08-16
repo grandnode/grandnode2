@@ -3155,4 +3155,158 @@ public class BaseProductControllerTests
         _productViewModelServiceMock.Verify(
             s => s.UpdateBulkEdit(It.IsAny<IEnumerable<BulkEditProductModel>>()), Times.Never);
     }
+
+    // --- ProductPriceList -------------------------------------------------------------------------
+    // HasAccess (strict), not CanView: mirrors Store's CanAccessProduct check on this action. Applying it
+    // uniformly also closes real gaps on the mutate actions below: Store's original checked access only on
+    // List/Insert (Update/Delete had no check at all), and Vendor's original checked access only on List
+    // (Insert/Update/Delete had no check at all).
+
+    [TestMethod]
+    public async Task ProductPriceList_ScopeDeniesAccess_ReturnsErrorJson()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.ProductPriceList(
+            new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductPriceList_ScopeDeniesAccess_UsesScopeResourceKeyPrefix()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
+
+        var result = await _controller.ProductPriceList(
+            new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Vendor.Catalog.Products.Permissions"), Times.Once);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductPriceList_ScopeGrantsAccess_ReturnsGrid()
+    {
+        var product = new Product { Id = "p1" };
+        product.ProductPrices.Add(new ProductPrice { Id = "pp1", CurrencyCode = "EUR", Price = 9.99 });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+
+        var result = await _controller.ProductPriceList(
+            new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = json.Value as Grand.Web.Common.DataSource.DataSourceResult;
+        Assert.IsNotNull(gridModel);
+        Assert.AreEqual(1, gridModel.Total);
+    }
+
+    // --- ProductPriceInsert -----------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductPriceInsert_ScopeDeniesAccess_ReturnsErrorJson_DoesNotInsert()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.ProductPriceModel { ProductId = "p1", CurrencyCode = "EUR", Price = 9.99 };
+
+        var result = await _controller.ProductPriceInsert(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productServiceMock.Verify(s => s.InsertProductPrice(It.IsAny<ProductPrice>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductPriceInsert_ScopeGrantsAccess_ValidModel_Inserts()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.ProductPriceModel { ProductId = "p1", CurrencyCode = "EUR", Price = 9.99 };
+
+        var result = await _controller.ProductPriceInsert(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productServiceMock.Verify(s => s.InsertProductPrice(It.Is<ProductPrice>(
+            pp => pp.ProductId == "p1" && pp.CurrencyCode == "EUR" && pp.Price == 9.99)), Times.Once);
+    }
+
+    // --- ProductPriceUpdate -----------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductPriceUpdate_ScopeDeniesAccess_ReturnsErrorJson_DoesNotUpdate()
+    {
+        var product = new Product { Id = "p1" };
+        product.ProductPrices.Add(new ProductPrice { Id = "pp1", CurrencyCode = "EUR", Price = 9.99 });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.ProductPriceModel { Id = "pp1", ProductId = "p1", CurrencyCode = "USD", Price = 19.99 };
+
+        var result = await _controller.ProductPriceUpdate(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productServiceMock.Verify(s => s.UpdateProductPrice(It.IsAny<ProductPrice>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductPriceUpdate_ScopeGrantsAccess_ValidModel_Updates()
+    {
+        var product = new Product { Id = "p1" };
+        product.ProductPrices.Add(new ProductPrice { Id = "pp1", CurrencyCode = "EUR", Price = 9.99 });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.ProductPriceModel { Id = "pp1", ProductId = "p1", CurrencyCode = "USD", Price = 19.99 };
+
+        var result = await _controller.ProductPriceUpdate(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productServiceMock.Verify(s => s.UpdateProductPrice(It.Is<ProductPrice>(
+            pp => pp.Id == "pp1" && pp.CurrencyCode == "USD" && pp.Price == 19.99 && pp.ProductId == "p1")), Times.Once);
+    }
+
+    // --- ProductPriceDelete -----------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductPriceDelete_ScopeDeniesAccess_ReturnsErrorJson_DoesNotDelete()
+    {
+        var product = new Product { Id = "p1" };
+        product.ProductPrices.Add(new ProductPrice { Id = "pp1", CurrencyCode = "EUR", Price = 9.99 });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.ProductPriceModel { Id = "pp1", ProductId = "p1" };
+
+        var result = await _controller.ProductPriceDelete(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productServiceMock.Verify(s => s.DeleteProductPrice(It.IsAny<ProductPrice>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductPriceDelete_ScopeGrantsAccess_ValidModel_Deletes()
+    {
+        var product = new Product { Id = "p1" };
+        product.ProductPrices.Add(new ProductPrice { Id = "pp1", CurrencyCode = "EUR", Price = 9.99 });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.ProductPriceModel { Id = "pp1", ProductId = "p1" };
+
+        var result = await _controller.ProductPriceDelete(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productServiceMock.Verify(s => s.DeleteProductPrice(It.Is<ProductPrice>(
+            pp => pp.Id == "pp1" && pp.ProductId == "p1")), Times.Once);
+    }
 }

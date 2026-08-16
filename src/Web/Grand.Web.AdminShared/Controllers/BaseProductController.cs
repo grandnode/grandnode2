@@ -2046,4 +2046,139 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Product currency price
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> ProductPriceList(DataSourceRequest command, string productId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess (strict), not CanView: mirrors Store's CanAccessProduct (AccessToEntityByStore) check
+        // on this action. Applying it uniformly also closes real gaps on the mutate actions below: Store's
+        // original checked access only on List/Insert (ProductPriceUpdate/ProductPriceDelete had no check
+        // at all), and Vendor's original checked access only on List (ProductPriceInsert/Update/Delete had
+        // no check at all) - both let another party's product prices be updated/deleted by id.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var items = new List<ProductModel.ProductPriceModel>();
+        foreach (var item in product.ProductPrices)
+            items.Add(new ProductModel.ProductPriceModel {
+                Id = item.Id,
+                CurrencyCode = item.CurrencyCode,
+                Price = item.Price,
+                ProductId = product.Id
+            });
+
+        var gridModel = new DataSourceResult {
+            Data = items,
+            Total = items.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductPriceInsert(ProductModel.ProductPriceModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (product.ProductPrices.Any(x => x.CurrencyCode == model.CurrencyCode))
+            throw new ArgumentException("Currency code exists");
+
+        if (ModelState.IsValid)
+            try
+            {
+                await productService.InsertProductPrice(new ProductPrice {
+                    ProductId = product.Id,
+                    CurrencyCode = model.CurrencyCode,
+                    Price = model.Price
+                });
+                return new JsonResult("");
+            }
+            catch (Exception ex)
+            {
+                return ErrorForKendoGridJson(ex.Message);
+            }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductPriceUpdate(ProductModel.ProductPriceModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var productPrice = product.ProductPrices.FirstOrDefault(x => x.Id == model.Id);
+        if (productPrice == null)
+            throw new ArgumentException("Product price model not exists");
+
+        if (product.ProductPrices.Any(x => x.Id != model.Id && x.CurrencyCode == model.CurrencyCode))
+            throw new ArgumentException("You can't use this currency code");
+
+        if (ModelState.IsValid)
+            try
+            {
+                productPrice!.CurrencyCode = model.CurrencyCode;
+                productPrice.Price = model.Price;
+                productPrice.ProductId = model.ProductId;
+
+                await productService.UpdateProductPrice(productPrice);
+
+                return new JsonResult("");
+            }
+            catch (Exception ex)
+            {
+                return ErrorForKendoGridJson(ex.Message);
+            }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductPriceDelete(ProductModel.ProductPriceModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var productPrice = product.ProductPrices.FirstOrDefault(x => x.Id == model.Id);
+        if (productPrice == null)
+            throw new ArgumentException("Product price model not exists");
+
+        if (ModelState.IsValid)
+        {
+            productPrice!.ProductId = model.ProductId;
+            await productService.DeleteProductPrice(productPrice);
+
+            return new JsonResult("");
+        }
+
+        // ErrorForKendoGridJson(ModelState), not Content(ModelState.GetErrors()): matches Admin/Store.
+        // Vendor's original used the Vendor-only GetErrors() extension here (and inconsistently, since
+        // several of Vendor's *other* grid actions in this same file already use ErrorForKendoGridJson) -
+        // not a deliberate host-specific contract, just Vendor's own inconsistency. AdminShared cannot
+        // reference Grand.Web.Vendor.Extensions.ModelStateExtensions.GetErrors() from this project anyway.
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    #endregion
 }
