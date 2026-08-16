@@ -980,4 +980,126 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Cross-sell products
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> CrossSellProductList(DataSourceRequest command, string productId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess (strict), not CanView: same shape as "Related products"/"Bundle products" above -
+        // mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating this action on both
+        // hosts. Admin's original CrossSellProductList had no check at all - applying HasAccess uniformly
+        // also closes that gap without changing Admin's superuser behaviour (HasAccess is a no-op for
+        // Admin's scope).
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var crossSellProducts = product.CrossSellProduct;
+        var crossSellProductsModel = new List<ProductModel.CrossSellProductModel>();
+        foreach (var x in crossSellProducts)
+            crossSellProductsModel.Add(new ProductModel.CrossSellProductModel {
+                Id = x,
+                ProductId = product.Id,
+                Product2Name = (await productService.GetProductById(x))?.Name
+            });
+        var gridModel = new DataSourceResult {
+            Data = crossSellProductsModel,
+            Total = crossSellProductsModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> CrossSellProductDelete(ProductModel.CrossSellProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null) throw new ArgumentException("Product not exists");
+
+        // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Vendor's original
+        // CrossSellProductDelete had no check at all, letting any vendor delete another vendor's
+        // cross-sell-product mappings by id - closed here the same way as the List gap above.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var crossSellProduct = product.CrossSellProduct.FirstOrDefault(x => x == model.Id);
+        if (string.IsNullOrEmpty(crossSellProduct))
+            throw new ArgumentException("No cross-sell product found with the specified id");
+
+        if (ModelState.IsValid)
+        {
+            await productViewModelService.DeleteCrossSellProduct(product.Id, crossSellProduct);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> CrossSellProductAddPopup(string productId)
+    {
+        // No access check here in any of the three original hosts (Admin/Store/Vendor all open this
+        // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
+        // ties access to a specific product. scope.DefaultStoreId ?? "" matches Store's
+        // PrepareCrossSellProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
+        var model = await productViewModelService.PrepareCrossSellProductModel(scope.DefaultStoreId ?? "");
+        model.ProductId = productId;
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> CrossSellProductAddPopupList(DataSourceRequest command,
+        ProductModel.AddCrossSellProductModel model)
+    {
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+
+        var (products, totalCount) =
+            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = products.ToList(),
+            Total = totalCount
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> CrossSellProductAddPopup(ProductModel.AddCrossSellProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Vendor's original
+        // CrossSellProductAddPopup(POST) had no check at all, letting any vendor add cross-sell-product
+        // mappings onto another vendor's product by posting its id - closed here the same way as the
+        // List/Delete gap above.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+        {
+            if (model.SelectedProductIds != null) await productViewModelService.InsertCrossSellProductModel(model);
+            return Content("");
+        }
+
+        return await InvalidCrossSellProductAddPopupResult(model);
+    }
+
+    /// <summary>Hook for the host-specific invalid-model-state response of the AddPopup(POST) action
+    /// above. Admin and Store both re-prepare the popup model and return the View; Vendor instead
+    /// returns Content(ModelState.GetErrors()) - a Vendor-only extension method that AdminShared cannot
+    /// reference. Default here matches Admin/Store; a future Vendor subclass overrides it once hosts are
+    /// subclassed onto BaseProductController (Task 11).</summary>
+    protected virtual async Task<IActionResult> InvalidCrossSellProductAddPopupResult(ProductModel.AddCrossSellProductModel model)
+    {
+        Error(ModelState);
+        model = await productViewModelService.PrepareCrossSellProductModel(scope.DefaultStoreId ?? "");
+        return View(model);
+    }
+
+    #endregion
 }
