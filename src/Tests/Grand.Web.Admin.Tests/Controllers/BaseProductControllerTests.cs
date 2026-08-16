@@ -3309,4 +3309,263 @@ public class BaseProductControllerTests
         _productServiceMock.Verify(s => s.DeleteProductPrice(It.Is<ProductPrice>(
             pp => pp.Id == "pp1" && pp.ProductId == "p1")), Times.Once);
     }
+
+    // --- TierPriceList ----------------------------------------------------------------------------
+    // HasAccess applied uniformly on every action in this region. Vendor's original checked ownership
+    // only on List and TierPriceEditPopup(GET); TierPriceCreatePopup(POST), TierPriceEditPopup(POST) and
+    // TierPriceDelete had NO ownership check at all, letting a vendor create/update/delete a tier price on
+    // any product by id. Store's original never checked TierPriceEditPopup(GET) either.
+
+    [TestMethod]
+    public async Task TierPriceList_ScopeDeniesAccess_ReturnsErrorJson()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.TierPriceList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(
+            s => s.PrepareTierPriceModel(It.IsAny<Product>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task TierPriceList_ScopeDeniesAccess_UsesScopeResourceKeyPrefix()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
+
+        var result = await _controller.TierPriceList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Vendor.Catalog.Products.Permissions"), Times.Once);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task TierPriceList_ScopeGrantsAccess_UsesScopeDefaultStoreId_ReturnsGrid()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
+        var tierPrices = new List<ProductModel.TierPriceModel> { new() { Id = "tp1" } };
+        _productViewModelServiceMock.Setup(s => s.PrepareTierPriceModel(product, "store1")).ReturnsAsync(tierPrices);
+
+        var result = await _controller.TierPriceList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = json.Value as Grand.Web.Common.DataSource.DataSourceResult;
+        Assert.IsNotNull(gridModel);
+        Assert.AreEqual(1, gridModel.Total);
+    }
+
+    [TestMethod]
+    public async Task TierPriceList_ScopeGrantsAccess_NullDefaultStoreId_PassesEmptyString()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _productViewModelServiceMock.Setup(s => s.PrepareTierPriceModel(product, ""))
+            .ReturnsAsync(new List<ProductModel.TierPriceModel>());
+
+        var result = await _controller.TierPriceList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(s => s.PrepareTierPriceModel(product, ""), Times.Once);
+    }
+
+    // --- TierPriceCreatePopup (GET) ----------------------------------------------------------------
+
+    [TestMethod]
+    public async Task TierPriceCreatePopup_Get_PreparesModelWithScopeDefaultStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
+
+        var result = await _controller.TierPriceCreatePopup("p1");
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _productViewModelServiceMock.Verify(
+            s => s.PrepareTierPriceModel(It.Is<ProductModel.TierPriceModel>(m => m.ProductId == "p1"), "store1"),
+            Times.Once);
+    }
+
+    // --- TierPriceCreatePopup (POST) ---------------------------------------------------------------
+
+    [TestMethod]
+    public async Task TierPriceCreatePopup_Post_ScopeDeniesAccess_DoesNotInsert()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.TierPriceModel { ProductId = "p1" };
+
+        var result = await _controller.TierPriceCreatePopup(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productServiceMock.Verify(s => s.InsertTierPrice(It.IsAny<TierPrice>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task TierPriceCreatePopup_Post_ScopeGrantsAccess_ValidModel_Inserts()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.TierPriceModel { ProductId = "p1" };
+
+        var result = await _controller.TierPriceCreatePopup(model);
+
+        Assert.IsInstanceOfType<ContentResult>(result);
+        _productServiceMock.Verify(
+            s => s.InsertTierPrice(It.IsAny<TierPrice>(), "p1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task TierPriceCreatePopup_Post_MissingProduct_Throws()
+    {
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        var model = new ProductModel.TierPriceModel { ProductId = "missing" };
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.TierPriceCreatePopup(model));
+    }
+
+    // --- TierPriceEditPopup (GET) ------------------------------------------------------------------
+    // HasAccess added here: Store's original had no ownership check on this GET action at all.
+
+    [TestMethod]
+    public async Task TierPriceEditPopup_Get_ScopeDeniesAccess_ReturnsNotYourProductContent()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.TierPriceEditPopup("tp1", "p1");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("This is not your product", content.Content);
+        _productViewModelServiceMock.Verify(
+            s => s.PrepareTierPriceModel(It.IsAny<ProductModel.TierPriceModel>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task TierPriceEditPopup_Get_ScopeGrantsAccess_TierPriceMissing_ReturnsEmptyContent()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+
+        var result = await _controller.TierPriceEditPopup("missing-tp", "p1");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("Empty tier price", content.Content);
+    }
+
+    [TestMethod]
+    public async Task TierPriceEditPopup_Get_ScopeGrantsAccess_PreparesModelWithScopeDefaultStoreId()
+    {
+        var product = new Product { Id = "p1" };
+        product.TierPrices.Add(new TierPrice { Id = "tp1" });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
+
+        var result = await _controller.TierPriceEditPopup("tp1", "p1");
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _productViewModelServiceMock.Verify(
+            s => s.PrepareTierPriceModel(It.Is<ProductModel.TierPriceModel>(m => m.ProductId == "p1"), "store1"),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task TierPriceEditPopup_Get_MissingProduct_Throws()
+    {
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.TierPriceEditPopup("tp1", "missing"));
+    }
+
+    // --- TierPriceEditPopup (POST) -----------------------------------------------------------------
+
+    [TestMethod]
+    public async Task TierPriceEditPopup_Post_ScopeDeniesAccess_DoesNotUpdate()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.TierPriceModel { Id = "tp1", ProductId = "p1" };
+
+        var result = await _controller.TierPriceEditPopup("p1", model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productServiceMock.Verify(s => s.UpdateTierPrice(It.IsAny<TierPrice>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task TierPriceEditPopup_Post_ScopeGrantsAccess_ValidModel_Updates()
+    {
+        var product = new Product { Id = "p1" };
+        product.TierPrices.Add(new TierPrice { Id = "tp1" });
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.TierPriceModel { Id = "tp1", ProductId = "p1" };
+
+        var result = await _controller.TierPriceEditPopup("p1", model);
+
+        Assert.IsInstanceOfType<ContentResult>(result);
+        _productServiceMock.Verify(s => s.UpdateTierPrice(It.IsAny<TierPrice>(), "p1"), Times.Once);
+    }
+
+    // --- TierPriceDelete ----------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task TierPriceDelete_ScopeDeniesAccess_DoesNotDelete()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.TierPriceDeleteModel("tp1", "p1");
+
+        var result = await _controller.TierPriceDelete(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productServiceMock.Verify(s => s.DeleteTierPrice(It.IsAny<TierPrice>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task TierPriceDelete_ScopeGrantsAccess_ValidModel_Deletes()
+    {
+        var product = new Product { Id = "p1" };
+        product.TierPrices.Add(new TierPrice { Id = "tp1" });
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.TierPriceDeleteModel("tp1", "p1");
+
+        var result = await _controller.TierPriceDelete(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productServiceMock.Verify(s => s.DeleteTierPrice(It.IsAny<TierPrice>(), "p1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task TierPriceDelete_ScopeGrantsAccess_TierPriceMissing_Throws()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.TierPriceDeleteModel("missing-tp", "p1");
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.TierPriceDelete(model));
+    }
 }

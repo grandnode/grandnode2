@@ -2181,4 +2181,150 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Tier prices
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> TierPriceList(DataSourceRequest command, string productId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess on List (Store/Vendor both checked here; Admin's Global scope is a no-op). Closes the
+        // same class of gap as "Product currency price": Vendor's original checked ownership only on List
+        // and TierPriceEditPopup(GET) - TierPriceCreatePopup(POST), TierPriceEditPopup(POST) and
+        // TierPriceDelete had NO ownership check at all, so a vendor could create/update/delete a tier
+        // price on any product (not just their own) by posting a known productId. Applying scope.HasAccess
+        // uniformly on every mutating action below closes that.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        // Old storeId-parameter overload (still present pending Task 9/10); scope.DefaultStoreId is null for
+        // Admin/Vendor (Global/VendorProduct scopes) and the staff store for Store, same as the other rows
+        // still on this signature.
+        var tierPricesModel = await productViewModelService.PrepareTierPriceModel(product, scope.DefaultStoreId ?? "");
+        var gridModel = new DataSourceResult {
+            Data = tierPricesModel,
+            Total = tierPricesModel.Count
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> TierPriceCreatePopup(string productId)
+    {
+        var model = new ProductModel.TierPriceModel {
+            ProductId = productId
+        };
+        await productViewModelService.PrepareTierPriceModel(model, scope.DefaultStoreId ?? "");
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> TierPriceCreatePopup(ProductModel.TierPriceModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var product = await productService.GetProductById(model.ProductId);
+            if (product == null)
+                throw new ArgumentException("No product found with the specified id");
+
+            // Vendor's original never even loaded the product here - it inserted straight off
+            // model.ProductId with no ownership check at all. See the List-action comment above.
+            if (!await scope.HasAccess(product))
+                return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+            var tierPrice = model.ToEntity(dateTimeService);
+            await productService.InsertTierPrice(tierPrice, product.Id);
+
+            return Content("");
+        }
+
+        Error(ModelState);
+        //If we got this far, something failed, redisplay form
+        await productViewModelService.PrepareTierPriceModel(model, scope.DefaultStoreId ?? "");
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> TierPriceEditPopup(string id, string productId)
+    {
+        var product = await productService.GetProductById(productId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        // HasAccess here too: Store's original never checked ownership on this GET action (only on the
+        // List/Create-POST/Edit-POST/Delete siblings), which would let store staff open (read-only,
+        // via this popup) the tier-price edit view for a product outside their store. Vendor's original did
+        // check (HasAccessToProduct), so this closes Store's gap while keeping Vendor's existing behavior.
+        if (!await scope.HasAccess(product))
+            return Content("This is not your product");
+
+        var tierPrice = product.TierPrices.FirstOrDefault(x => x.Id == id);
+        if (tierPrice == null)
+            return Content("Empty tier price");
+
+        var model = tierPrice.ToModel(dateTimeService);
+        model.ProductId = productId;
+        await productViewModelService.PrepareTierPriceModel(model, scope.DefaultStoreId ?? "");
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> TierPriceEditPopup(string productId, ProductModel.TierPriceModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var product = await productService.GetProductById(productId, true);
+            if (product == null)
+                throw new ArgumentException("No product found with the specified id");
+
+            // See the List-action comment: Vendor's original had no ownership check on this POST at all.
+            if (!await scope.HasAccess(product))
+                return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+            var tierPrice = product.TierPrices.FirstOrDefault(x => x.Id == model.Id);
+            if (tierPrice == null)
+                return Content("Empty tier price");
+
+            tierPrice = model.ToEntity(tierPrice, dateTimeService);
+            await productService.UpdateTierPrice(tierPrice, product.Id);
+
+            return Content("");
+        }
+
+        Error(ModelState);
+        //stores
+        await productViewModelService.PrepareTierPriceModel(model, scope.DefaultStoreId ?? "");
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> TierPriceDelete(ProductModel.TierPriceDeleteModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var product = await productService.GetProductById(model.ProductId, true);
+            if (product == null)
+                throw new ArgumentException("No product found with the specified id");
+
+            // See the List-action comment: Vendor's original had no ownership check on Delete at all.
+            if (!await scope.HasAccess(product))
+                return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+            var tierPrice = product.TierPrices.FirstOrDefault(x => x.Id == model.Id);
+            if (tierPrice == null)
+                throw new ArgumentException("No tier price found with the specified id");
+
+            await productService.DeleteTierPrice(tierPrice, product.Id);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    #endregion
 }
