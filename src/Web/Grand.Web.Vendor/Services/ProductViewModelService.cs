@@ -31,106 +31,40 @@ using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
 
 namespace Grand.Web.Vendor.Services;
 
-public class ProductViewModelService : IProductViewModelService
+public class ProductViewModelService(
+    IProductService productService,
+    IInventoryManageService inventoryManageService,
+    IPictureService pictureService,
+    IProductAttributeService productAttributeService,
+    ICurrencyService currencyService,
+    IMeasureService measureService,
+    IDateTimeService dateTimeService,
+    ICollectionService collectionService,
+    IProductCollectionService productCollectionService,
+    ICategoryService categoryService,
+    IProductCategoryService productCategoryService,
+    ITranslationService translationService,
+    IProductLayoutService productLayoutService,
+    ISpecificationAttributeService specificationAttributeService,
+    IContextAccessor contextAccessor,
+    IWarehouseService warehouseService,
+    IDeliveryDateService deliveryDateService,
+    ITaxCategoryService taxCategoryService,
+    ICustomerService customerService,
+    IStoreService storeService,
+    IOutOfStockSubscriptionService outOfStockSubscriptionService,
+    ILanguageService languageService,
+    IProductAttributeFormatter productAttributeFormatter,
+    IStockQuantityService stockQuantityService,
+    IAuctionService auctionService,
+    IPriceFormatter priceFormatter,
+    CurrencySettings currencySettings,
+    MeasureSettings measureSettings,
+    TaxSettings taxSettings,
+    ISeNameService seNameService,
+    IEnumTranslationService enumTranslationService)
+    : IProductViewModelService
 {
-    private readonly IAuctionService _auctionService;
-    private readonly ICategoryService _categoryService;
-    private readonly ICollectionService _collectionService;
-    private readonly ICurrencyService _currencyService;
-    private readonly CurrencySettings _currencySettings;
-    private readonly ICustomerService _customerService;
-    private readonly IDateTimeService _dateTimeService;
-    private readonly IDeliveryDateService _deliveryDateService;
-    private readonly IInventoryManageService _inventoryManageService;
-    private readonly ILanguageService _languageService;
-    private readonly IMeasureService _measureService;
-    private readonly MeasureSettings _measureSettings;
-    private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
-    private readonly IPictureService _pictureService;
-    private readonly IPriceFormatter _priceFormatter;
-    private readonly IProductAttributeFormatter _productAttributeFormatter;
-    private readonly IProductAttributeService _productAttributeService;
-    private readonly IProductCategoryService _productCategoryService;
-    private readonly IProductCollectionService _productCollectionService;
-    private readonly IProductLayoutService _productLayoutService;
-    private readonly IProductService _productService;
-    private readonly ISpecificationAttributeService _specificationAttributeService;
-    private readonly IStockQuantityService _stockQuantityService;
-    private readonly IStoreService _storeService;
-    private readonly ITaxCategoryService _taxCategoryService;
-    private readonly TaxSettings _taxSettings;
-    private readonly ITranslationService _translationService;
-    private readonly IWarehouseService _warehouseService;
-    private readonly IContextAccessor _contextAccessor;
-    private readonly ISeNameService _seNameService;
-    private readonly IEnumTranslationService _enumTranslationService;
-
-    public ProductViewModelService(
-        IProductService productService,
-        IInventoryManageService inventoryManageService,
-        IPictureService pictureService,
-        IProductAttributeService productAttributeService,
-        ICurrencyService currencyService,
-        IMeasureService measureService,
-        IDateTimeService dateTimeService,
-        ICollectionService collectionService,
-        IProductCollectionService productCollectionService,
-        ICategoryService categoryService,
-        IProductCategoryService productCategoryService,
-        ITranslationService translationService,
-        IProductLayoutService productLayoutService,
-        ISpecificationAttributeService specificationAttributeService,
-        IContextAccessor contextAccessor,
-        IWarehouseService warehouseService,
-        IDeliveryDateService deliveryDateService,
-        ITaxCategoryService taxCategoryService,
-        ICustomerService customerService,
-        IStoreService storeService,
-        IOutOfStockSubscriptionService outOfStockSubscriptionService,
-        ILanguageService languageService,
-        IProductAttributeFormatter productAttributeFormatter,
-        IStockQuantityService stockQuantityService,
-        IAuctionService auctionService,
-        IPriceFormatter priceFormatter,
-        CurrencySettings currencySettings,
-        MeasureSettings measureSettings,
-        TaxSettings taxSettings,
-        ISeNameService seNameService,
-        IEnumTranslationService enumTranslationService)
-    {
-        _productService = productService;
-        _inventoryManageService = inventoryManageService;
-        _pictureService = pictureService;
-        _productAttributeService = productAttributeService;
-        _currencyService = currencyService;
-        _measureService = measureService;
-        _dateTimeService = dateTimeService;
-        _collectionService = collectionService;
-        _productCollectionService = productCollectionService;
-        _categoryService = categoryService;
-        _productCategoryService = productCategoryService;
-        _translationService = translationService;
-        _productLayoutService = productLayoutService;
-        _specificationAttributeService = specificationAttributeService;
-        _contextAccessor = contextAccessor;
-        _warehouseService = warehouseService;
-        _deliveryDateService = deliveryDateService;
-        _taxCategoryService = taxCategoryService;
-        _customerService = customerService;
-        _storeService = storeService;
-        _outOfStockSubscriptionService = outOfStockSubscriptionService;
-        _stockQuantityService = stockQuantityService;
-        _languageService = languageService;
-        _productAttributeFormatter = productAttributeFormatter;
-        _auctionService = auctionService;
-        _priceFormatter = priceFormatter;
-        _currencySettings = currencySettings;
-        _measureSettings = measureSettings;
-        _taxSettings = taxSettings;
-        _seNameService = seNameService;
-        _enumTranslationService = enumTranslationService;
-    }
-
     public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
         Product product)
     {
@@ -148,7 +82,7 @@ public class ProductViewModelService : IProductViewModelService
             foreach (var attribute in attributes)
             {
                 var productAttribute =
-                    await _productAttributeService.GetProductAttributeById(attribute.ProductAttributeId);
+                    await productAttributeService.GetProductAttributeById(attribute.ProductAttributeId);
                 var attributeModel = new ProductAttributeCombinationModel.ProductAttributeModel {
                     Id = attribute.Id,
                     ProductAttributeId = attribute.ProductAttributeId,
@@ -180,7 +114,7 @@ public class ProductViewModelService : IProductViewModelService
 
         if (!string.IsNullOrEmpty(model.PictureId))
         {
-            var pictureThumbnailUrl = await _pictureService.GetPictureUrl(model.PictureId, 100, false);
+            var pictureThumbnailUrl = await pictureService.GetPictureUrl(model.PictureId, 100, false);
             model.PictureThumbnailUrl = pictureThumbnailUrl;
         }
 
@@ -189,18 +123,18 @@ public class ProductViewModelService : IProductViewModelService
                 Id = picture.Id,
                 ProductId = product.Id,
                 PictureId = picture.PictureId,
-                PictureUrl = await _pictureService.GetPictureUrl(picture.PictureId),
+                PictureUrl = await pictureService.GetPictureUrl(picture.PictureId),
                 DisplayOrder = picture.DisplayOrder,
                 IsDefault = picture.IsDefault
             });
 
         model.PrimaryStoreCurrencyCode =
-            (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
+            (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
     }
 
     public virtual async Task PrepareTierPriceModel(ProductModel.TierPriceModel model)
     {
-        foreach (var currency in await _currencyService.GetAllCurrencies())
+        foreach (var currency in await currencyService.GetAllCurrencies())
             model.AvailableCurrencies.Add(
                 new SelectListItem { Text = currency.Name, Value = currency.CurrencyCode });
     }
@@ -214,12 +148,12 @@ public class ProductViewModelService : IProductViewModelService
                 Id = x.Id,
                 ProductId = product.Id,
                 PictureId = x.PictureId,
-                PictureUrl = await _pictureService.GetPictureUrl(x.PictureId),
+                PictureUrl = await pictureService.GetPictureUrl(x.PictureId),
                 DisplayOrder = x.DisplayOrder,
                 IsDefault = x.IsDefault
             });
 
-        var associatedProduct = await _productService.GetProductById(model.AssociatedProductId);
+        var associatedProduct = await productService.GetProductById(model.AssociatedProductId);
         model.AssociatedProductName = associatedProduct != null ? associatedProduct.Name : "";
     }
 
@@ -230,10 +164,10 @@ public class ProductViewModelService : IProductViewModelService
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
             product.BackorderModeId == BackorderMode.NoBackorders &&
             product.AllowOutOfStockSubscriptions &&
-            _stockQuantityService.GetTotalStockQuantity(product, total: true) > 0 &&
+            stockQuantityService.GetTotalStockQuantity(product, total: true) > 0 &&
             prevStockQuantity <= 0 && !product.UseMultipleWarehouses &&
             product.Published)
-            await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
+            await outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
 
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
             product.BackorderModeId == BackorderMode.NoBackorders &&
@@ -249,13 +183,13 @@ public class ProductViewModelService : IProductViewModelService
                             x => x.WarehouseId == prevstock.WarehouseId);
                     if (actualStock != null)
                         if (actualStock.StockQuantity - actualStock.ReservedQuantity > 0)
-                            await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product,
+                            await outOfStockSubscriptionService.SendNotificationsToSubscribers(product,
                                 prevstock.WarehouseId);
                 }
 
             if (product.ProductWarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) > 0)
                 if (prevMultiWarehouseStock.Sum(x => x.StockQuantity - x.ReservedQuantity) <= 0)
-                    await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
+                    await outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
         }
     }
 
@@ -268,7 +202,7 @@ public class ProductViewModelService : IProductViewModelService
             combination.StockQuantity > 0 &&
             prevcombination.StockQuantity <= 0 && !product.UseMultipleWarehouses &&
             product.Published)
-            await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product, combination.Attributes,
+            await outOfStockSubscriptionService.SendNotificationsToSubscribers(product, combination.Attributes,
                 "");
 
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes &&
@@ -284,13 +218,13 @@ public class ProductViewModelService : IProductViewModelService
                         combination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == prevstock.WarehouseId);
                     if (actualStock != null)
                         if (actualStock.StockQuantity - actualStock.ReservedQuantity > 0)
-                            await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product,
+                            await outOfStockSubscriptionService.SendNotificationsToSubscribers(product,
                                 combination.Attributes, prevstock.WarehouseId);
                 }
 
             if (combination.WarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) > 0)
                 if (prevcombination.WarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) <= 0)
-                    await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product,
+                    await outOfStockSubscriptionService.SendNotificationsToSubscribers(product,
                         combination.Attributes, "");
         }
     }
@@ -301,21 +235,21 @@ public class ProductViewModelService : IProductViewModelService
         ArgumentNullException.ThrowIfNull(model);
 
         model.PrimaryStoreCurrencyCode =
-            (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
-        model.BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId))?.Name;
+            (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
+        model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId))?.Name;
         model.BaseDimensionIn =
-            (await _measureService.GetMeasureDimensionById(_measureSettings.BaseDimensionId))?.Name;
+            (await measureService.GetMeasureDimensionById(measureSettings.BaseDimensionId))?.Name;
 
         if (product != null)
         {
             //date
-            model.CreatedOn = _dateTimeService.ConvertToUserTime(product.CreatedOnUtc, DateTimeKind.Utc);
+            model.CreatedOn = dateTimeService.ConvertToUserTime(product.CreatedOnUtc, DateTimeKind.Utc);
             model.UpdatedOn = product.UpdatedOnUtc.HasValue
-                ? _dateTimeService.ConvertToUserTime(product.UpdatedOnUtc.Value, DateTimeKind.Utc)
+                ? dateTimeService.ConvertToUserTime(product.UpdatedOnUtc.Value, DateTimeKind.Utc)
                 : null;
 
             //parent grouped product
-            var parentGroupedProduct = await _productService.GetProductById(product.ParentGroupedProductId);
+            var parentGroupedProduct = await productService.GetProductById(product.ParentGroupedProductId);
             if (parentGroupedProduct != null)
             {
                 model.AssociatedToProductId = product.ParentGroupedProductId;
@@ -330,7 +264,7 @@ public class ProductViewModelService : IProductViewModelService
 
             model.AutoAddRequiredProducts = product.AutoAddRequiredProducts;
             //product attributes
-            foreach (var productAttribute in await _productAttributeService.GetAllProductAttributes())
+            foreach (var productAttribute in await productAttributeService.GetAllProductAttributes())
                 model.AvailableProductAttributes.Add(new SelectListItem {
                     Text = productAttribute.Name,
                     Value = productAttribute.Id
@@ -347,7 +281,7 @@ public class ProductViewModelService : IProductViewModelService
         }
 
         //layouts
-        var layouts = await _productLayoutService.GetAllProductLayouts();
+        var layouts = await productLayoutService.GetAllProductLayouts();
         foreach (var layout in layouts)
             model.AvailableProductLayouts.Add(new SelectListItem {
                 Text = layout.Name,
@@ -356,10 +290,10 @@ public class ProductViewModelService : IProductViewModelService
 
         //delivery dates
         model.AvailableDeliveryDates.Add(new SelectListItem {
-            Text = _translationService.GetResource("Vendor.Catalog.Products.Fields.DeliveryDate.None"),
+            Text = translationService.GetResource("Vendor.Catalog.Products.Fields.DeliveryDate.None"),
             Value = ""
         });
-        var deliveryDates = await _deliveryDateService.GetAllDeliveryDates();
+        var deliveryDates = await deliveryDateService.GetAllDeliveryDates();
         foreach (var deliveryDate in deliveryDates)
             model.AvailableDeliveryDates.Add(new SelectListItem {
                 Text = deliveryDate.Name,
@@ -367,9 +301,9 @@ public class ProductViewModelService : IProductViewModelService
             });
 
         //warehouses
-        var warehouses = await _warehouseService.GetAllWarehouses();
+        var warehouses = await warehouseService.GetAllWarehouses();
         model.AvailableWarehouses.Add(new SelectListItem {
-            Text = _translationService.GetResource("Vendor.Catalog.Products.Fields.Warehouse.None"),
+            Text = translationService.GetResource("Vendor.Catalog.Products.Fields.Warehouse.None"),
             Value = ""
         });
         foreach (var warehouse in warehouses)
@@ -401,9 +335,9 @@ public class ProductViewModelService : IProductViewModelService
         }
 
         //tax categories
-        var taxCategories = await _taxCategoryService.GetAllTaxCategories();
+        var taxCategories = await taxCategoryService.GetAllTaxCategories();
         model.AvailableTaxCategories.Add(new SelectListItem {
-            Text = _translationService.GetResource("Vendor.Configuration.Tax.Settings.TaxCategories.None"),
+            Text = translationService.GetResource("Vendor.Configuration.Tax.Settings.TaxCategories.None"),
             Value = ""
         });
         foreach (var tc in taxCategories)
@@ -413,7 +347,7 @@ public class ProductViewModelService : IProductViewModelService
             });
 
         //base-price units
-        var measureWeights = await _measureService.GetAllMeasureWeights();
+        var measureWeights = await measureService.GetAllMeasureWeights();
         foreach (var mw in measureWeights)
             model.AvailableBasepriceUnits.Add(new SelectListItem {
                 Text = mw.Name, Value = mw.Id,
@@ -426,7 +360,7 @@ public class ProductViewModelService : IProductViewModelService
             });
 
         //units
-        var units = await _measureService.GetAllMeasureUnits();
+        var units = await measureService.GetAllMeasureUnits();
         model.AvailableUnits.Add(new SelectListItem { Text = "---", Value = "" });
         foreach (var un in units)
             model.AvailableUnits.Add(new SelectListItem
@@ -442,7 +376,7 @@ public class ProductViewModelService : IProductViewModelService
             model.NotifyAdminForQuantityBelow = 1;
             model.OrderMinimumQuantity = 1;
             model.OrderMaximumQuantity = 10000;
-            model.TaxCategoryId = _taxSettings.DefaultTaxCategoryId;
+            model.TaxCategoryId = taxSettings.DefaultTaxCategoryId;
             model.IsShipEnabled = true;
             model.AllowCustomerReviews = true;
             model.Published = true;
@@ -461,7 +395,7 @@ public class ProductViewModelService : IProductViewModelService
         if (!product.UseMultipleWarehouses)
             return;
 
-        var warehouses = await _warehouseService.GetAllWarehouses();
+        var warehouses = await warehouseService.GetAllWarehouses();
 
         foreach (var warehouse in warehouses)
         {
@@ -474,12 +408,12 @@ public class ProductViewModelService : IProductViewModelService
                     //update existing record
                     existingPwI.StockQuantity = whim.StockQuantity;
                     existingPwI.ReservedQuantity = whim.ReservedQuantity;
-                    await _productService.UpdateProductWarehouseInventory(existingPwI, product.Id);
+                    await productService.UpdateProductWarehouseInventory(existingPwI, product.Id);
                 }
                 else
                 {
                     //delete. no need to store record for qty 0
-                    await _productService.DeleteProductWarehouseInventory(existingPwI, product.Id);
+                    await productService.DeleteProductWarehouseInventory(existingPwI, product.Id);
                 }
             }
             else
@@ -493,14 +427,14 @@ public class ProductViewModelService : IProductViewModelService
                         ReservedQuantity = whim.ReservedQuantity
                     };
                     product.ProductWarehouseInventory.Add(existingPwI);
-                    await _productService.InsertProductWarehouseInventory(existingPwI, product.Id);
+                    await productService.InsertProductWarehouseInventory(existingPwI, product.Id);
                 }
             }
         }
 
         product.StockQuantity = product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
         product.ReservedQuantity = product.ProductWarehouseInventory.Sum(x => x.ReservedQuantity);
-        await _inventoryManageService.UpdateStockProduct(product, false);
+        await inventoryManageService.UpdateStockProduct(product, false);
     }
 
     public virtual async Task PrepareProductReviewModel(ProductReviewModel model,
@@ -510,9 +444,9 @@ public class ProductViewModelService : IProductViewModelService
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(productReview);
 
-        var product = await _productService.GetProductById(productReview.ProductId);
-        var customer = await _customerService.GetCustomerById(productReview.CustomerId);
-        var store = await _storeService.GetStoreById(productReview.StoreId);
+        var product = await productService.GetProductById(productReview.ProductId);
+        var customer = await customerService.GetCustomerById(productReview.CustomerId);
+        var store = await storeService.GetStoreById(productReview.StoreId);
         model.Id = productReview.Id;
         model.StoreName = store != null ? store.Shortcut : "";
         model.ProductId = productReview.ProductId;
@@ -521,10 +455,10 @@ public class ProductViewModelService : IProductViewModelService
         model.CustomerInfo = customer != null
             ? !string.IsNullOrEmpty(customer.Email)
                 ? customer.Email
-                : _translationService.GetResource("Vendor.Customers.Guest")
+                : translationService.GetResource("Vendor.Customers.Guest")
             : "";
         model.Rating = productReview.Rating;
-        model.CreatedOn = _dateTimeService.ConvertToUserTime(productReview.CreatedOnUtc, DateTimeKind.Utc);
+        model.CreatedOn = dateTimeService.ConvertToUserTime(productReview.CreatedOnUtc, DateTimeKind.Utc);
         model.Signature = productReview.Signature;
         if (!excludeProperties)
         {
@@ -550,14 +484,14 @@ public class ProductViewModelService : IProductViewModelService
 
         //warehouses
         model.AvailableWarehouses.Add(new SelectListItem
-            { Text = _translationService.GetResource("Vendor.Common.All"), Value = " " });
-        foreach (var wh in await _warehouseService.GetAllWarehouses())
+            { Text = translationService.GetResource("Vendor.Common.All"), Value = " " });
+        foreach (var wh in await warehouseService.GetAllWarehouses())
             model.AvailableWarehouses.Add(new SelectListItem { Text = wh.Name, Value = wh.Id });
 
         //product types
-        model.AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
+        model.AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
         model.AvailableProductTypes.Insert(0,
-            new SelectListItem { Text = _translationService.GetResource("Vendor.Common.All"), Value = "0" });
+            new SelectListItem { Text = translationService.GetResource("Vendor.Common.All"), Value = "0" });
 
         //"published" property
         //0 - all (according to "ShowHidden" parameter)
@@ -565,18 +499,18 @@ public class ProductViewModelService : IProductViewModelService
         //2 - unpublished only
         //4 - mark as new
         model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = _translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.All"), Value = " "
+            Text = translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.All"), Value = " "
         });
         model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = _translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.PublishedOnly"),
+            Text = translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.PublishedOnly"),
             Value = "1"
         });
         model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = _translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.UnpublishedOnly"),
+            Text = translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.UnpublishedOnly"),
             Value = "2"
         });
         model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = _translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.MarkAsNew"),
+            Text = translationService.GetResource("Vendor.Catalog.Products.List.SearchPublished.MarkAsNew"),
             Value = "4"
         });
 
@@ -609,11 +543,11 @@ public class ProductViewModelService : IProductViewModelService
 
         var markedAsNewOnly = model.SearchPublishedId == 4;
 
-        var products = (await _productService.SearchProducts(
+        var products = (await productService.SearchProducts(
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
-            vendorId: _contextAccessor.WorkContext.CurrentVendor.Id,
+            vendorId: contextAccessor.WorkContext.CurrentVendor.Id,
             warehouseId: model.SearchWarehouseId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
@@ -628,7 +562,7 @@ public class ProductViewModelService : IProductViewModelService
         var items = new List<ProductModel>();
         foreach (var x in products)
         {
-            var productModel = x.ToModel(_dateTimeService);
+            var productModel = x.ToModel(dateTimeService);
             //"Error during serialization or deserialization using the JSON JavaScriptSerializer. The length of the string exceeds the value set on the maxJsonLength property. "
             //also it improves performance
             productModel.FullDescription = "";
@@ -636,15 +570,15 @@ public class ProductViewModelService : IProductViewModelService
             //picture
             var defaultProductPicture = x.ProductPictures.FirstOrDefault() ?? new ProductPicture();
             productModel.PictureThumbnailUrl =
-                await _pictureService.GetPictureUrl(defaultProductPicture.PictureId, 100);
+                await pictureService.GetPictureUrl(defaultProductPicture.PictureId, 100);
             //product type
-            productModel.ProductTypeName = _enumTranslationService.GetTranslationEnum(x.ProductTypeId);
+            productModel.ProductTypeName = enumTranslationService.GetTranslationEnum(x.ProductTypeId);
             //friendly stock quantity
             //if a simple product AND "manage inventory" is "Track inventory", then display
             if (x.ProductTypeId == ProductType.SimpleProduct &&
                 x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
                 productModel.StockQuantityStr =
-                    _stockQuantityService.GetTotalStockQuantity(x, total: true).ToString();
+                    stockQuantityService.GetTotalStockQuantity(x, total: true).ToString();
             items.Add(productModel);
         }
 
@@ -670,11 +604,11 @@ public class ProductViewModelService : IProductViewModelService
             _ => null
         };
 
-        var products = (await _productService.SearchProducts(
+        var products = (await productService.SearchProducts(
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
-            vendorId: _contextAccessor.WorkContext.CurrentVendor.Id,
+            vendorId: contextAccessor.WorkContext.CurrentVendor.Id,
             warehouseId: model.SearchWarehouseId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
@@ -688,16 +622,16 @@ public class ProductViewModelService : IProductViewModelService
     public virtual async Task<Product> InsertProductModel(ProductModel model)
     {
         //product
-        var product = model.ToEntity(_dateTimeService);
-        product.VendorId = _contextAccessor.WorkContext.CurrentVendor?.Id;
+        var product = model.ToEntity(dateTimeService);
+        product.VendorId = contextAccessor.WorkContext.CurrentVendor?.Id;
 
-        product.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
-        product.SeName = await _seNameService.ValidateSeName(product, model.SeName, product.Name, true);
+        product.Locales = await seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
+        product.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
 
-        await _productService.InsertProduct(product);
+        await productService.InsertProduct(product);
 
         //search engine name
-        await _seNameService.SaveSeName(product);
+        await seNameService.SaveSeName(product);
 
         //warehouses
         await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
@@ -707,23 +641,23 @@ public class ProductViewModelService : IProductViewModelService
 
     public virtual async Task<Product> UpdateProductModel(Product product, ProductModel model)
     {
-        var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product, total: true);
+        var prevStockQuantity = stockQuantityService.GetTotalStockQuantity(product, total: true);
         var prevMultiWarehouseStock = product.ProductWarehouseInventory.Select(i => new ProductWarehouseInventory {
                 WarehouseId = i.WarehouseId, StockQuantity = i.StockQuantity, ReservedQuantity = i.ReservedQuantity
             })
             .ToList();
 
         //product
-        product = model.ToEntity(product, _dateTimeService);
+        product = model.ToEntity(product, dateTimeService);
         product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
 
-        product.Locales = await _seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
-        product.SeName = await _seNameService.ValidateSeName(product, model.SeName, product.Name, true);
+        product.Locales = await seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
+        product.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
 
-        await _productService.UpdateProduct(product);
+        await productService.UpdateProduct(product);
 
         //search engine name
-        await _seNameService.SaveSeName(product);
+        await seNameService.SaveSeName(product);
 
         //warehouses
         await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
@@ -739,18 +673,18 @@ public class ProductViewModelService : IProductViewModelService
 
     public virtual async Task DeleteProduct(Product product)
     {
-        await _productService.DeleteProduct(product);
+        await productService.DeleteProduct(product);
     }
 
     public virtual async Task DeleteSelected(IEnumerable<string> selectedIds)
     {
         var products = new List<Product>();
-        products.AddRange(await _productService.GetProductsByIds(selectedIds.ToArray(), true));
+        products.AddRange(await productService.GetProductsByIds(selectedIds.ToArray(), true));
         for (var i = 0; i < products.Count; i++)
         {
             var product = products[i];
             //a vendor should have access only to his products
-            if (!_contextAccessor.WorkContext.HasAccessToProduct(product))
+            if (!contextAccessor.WorkContext.HasAccessToProduct(product))
                 continue;
 
             await DeleteProduct(product);
@@ -766,10 +700,10 @@ public class ProductViewModelService : IProductViewModelService
     public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(
         ProductModel.AddProductModel model, int pageIndex, int pageSize)
     {
-        var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
-            model.SearchCollectionId, string.Empty, _contextAccessor.WorkContext.CurrentVendor.Id, model.SearchProductTypeId,
+        var products = await productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
+            model.SearchCollectionId, string.Empty, contextAccessor.WorkContext.CurrentVendor.Id, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);
-        return (products.Select(x => x.ToModel(_dateTimeService)).ToList(), products.TotalCount);
+        return (products.Select(x => x.ToModel(dateTimeService)).ToList(), products.TotalCount);
     }
 
     public virtual async Task<IList<ProductModel.ProductCategoryModel>> PrepareProductCategoryModel(Product product)
@@ -778,10 +712,10 @@ public class ProductViewModelService : IProductViewModelService
         var items = new List<ProductModel.ProductCategoryModel>();
         foreach (var x in productCategories)
         {
-            var category = await _categoryService.GetCategoryById(x.CategoryId);
+            var category = await categoryService.GetCategoryById(x.CategoryId);
             items.Add(new ProductModel.ProductCategoryModel {
                 Id = x.Id,
-                Category = await _categoryService.GetFormattedBreadCrumb(category),
+                Category = await categoryService.GetFormattedBreadCrumb(category),
                 ProductId = product.Id,
                 CategoryId = x.CategoryId,
                 DisplayOrder = x.DisplayOrder
@@ -793,7 +727,7 @@ public class ProductViewModelService : IProductViewModelService
 
     public virtual async Task InsertProductCategoryModel(ProductModel.ProductCategoryModel model)
     {
-        var product = await _productService.GetProductById(model.ProductId, true);
+        var product = await productService.GetProductById(model.ProductId, true);
 
         if (product.ProductCategories.All(x => x.CategoryId != model.CategoryId))
         {
@@ -801,13 +735,13 @@ public class ProductViewModelService : IProductViewModelService
                 CategoryId = model.CategoryId,
                 DisplayOrder = model.DisplayOrder
             };
-            await _productCategoryService.InsertProductCategory(productCategory, product.Id);
+            await productCategoryService.InsertProductCategory(productCategory, product.Id);
         }
     }
 
     public virtual async Task UpdateProductCategoryModel(ProductModel.ProductCategoryModel model)
     {
-        var product = await _productService.GetProductById(model.ProductId, true);
+        var product = await productService.GetProductById(model.ProductId, true);
 
         var productCategory = product.ProductCategories.FirstOrDefault(x => x.Id == model.Id);
         if (productCategory == null)
@@ -818,18 +752,18 @@ public class ProductViewModelService : IProductViewModelService
         productCategory.CategoryId = model.CategoryId;
         productCategory.DisplayOrder = model.DisplayOrder;
 
-        await _productCategoryService.UpdateProductCategory(productCategory, product.Id);
+        await productCategoryService.UpdateProductCategory(productCategory, product.Id);
     }
 
     public virtual async Task DeleteProductCategory(string id, string productId)
     {
-        var product = await _productService.GetProductById(productId, true);
+        var product = await productService.GetProductById(productId, true);
 
         var productCategory = product.ProductCategories.FirstOrDefault(x => x.Id == id);
         if (productCategory == null)
             throw new ArgumentException("No product category mapping found with the specified id");
 
-        await _productCategoryService.DeleteProductCategory(productCategory, product.Id);
+        await productCategoryService.DeleteProductCategory(productCategory, product.Id);
     }
 
     public virtual async Task<IList<ProductModel.ProductCollectionModel>> PrepareProductCollectionModel(
@@ -839,7 +773,7 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var x in product.ProductCollections.OrderBy(x => x.DisplayOrder))
             items.Add(new ProductModel.ProductCollectionModel {
                 Id = x.Id,
-                Collection = (await _collectionService.GetCollectionById(x.CollectionId)).Name,
+                Collection = (await collectionService.GetCollectionById(x.CollectionId)).Name,
                 ProductId = product.Id,
                 CollectionId = x.CollectionId,
                 DisplayOrder = x.DisplayOrder
@@ -851,7 +785,7 @@ public class ProductViewModelService : IProductViewModelService
     public virtual async Task InsertProductCollection(ProductModel.ProductCollectionModel model)
     {
         var collectionId = model.CollectionId;
-        var product = await _productService.GetProductById(model.ProductId, true);
+        var product = await productService.GetProductById(model.ProductId, true);
 
         if (product.ProductCollections.All(x => x.CollectionId != collectionId))
         {
@@ -859,13 +793,13 @@ public class ProductViewModelService : IProductViewModelService
                 CollectionId = collectionId,
                 DisplayOrder = model.DisplayOrder
             };
-            await _productCollectionService.InsertProductCollection(productCollection, model.ProductId);
+            await productCollectionService.InsertProductCollection(productCollection, model.ProductId);
         }
     }
 
     public virtual async Task UpdateProductCollection(ProductModel.ProductCollectionModel model)
     {
-        var product = await _productService.GetProductById(model.ProductId, true);
+        var product = await productService.GetProductById(model.ProductId, true);
 
         var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == model.Id);
         if (productCollection == null)
@@ -877,28 +811,28 @@ public class ProductViewModelService : IProductViewModelService
         productCollection.CollectionId = model.CollectionId;
         productCollection.DisplayOrder = model.DisplayOrder;
 
-        await _productCollectionService.UpdateProductCollection(productCollection, product.Id);
+        await productCollectionService.UpdateProductCollection(productCollection, product.Id);
     }
 
     public virtual async Task DeleteProductCollection(string id, string productId)
     {
-        var product = await _productService.GetProductById(productId, true);
+        var product = await productService.GetProductById(productId, true);
 
         var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == id);
         if (productCollection == null)
             throw new ArgumentException("No product collection mapping found with the specified id");
 
-        await _productCollectionService.DeleteProductCollection(productCollection, product.Id);
+        await productCollectionService.DeleteProductCollection(productCollection, product.Id);
     }
 
     public virtual async Task InsertRelatedProductModel(ProductModel.AddRelatedProductModel model)
     {
-        var productId1 = await _productService.GetProductById(model.ProductId, true);
+        var productId1 = await productService.GetProductById(model.ProductId, true);
 
         foreach (var id in model.SelectedProductIds)
         {
-            var product = await _productService.GetProductById(id);
-            if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
+            var product = await productService.GetProductById(id);
+            if (product == null || !contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
 
             var existingRelatedProducts = productId1.RelatedProducts;
             if (model.ProductId == id) continue;
@@ -909,41 +843,41 @@ public class ProductViewModelService : IProductViewModelService
                     DisplayOrder = 1
                 };
                 productId1.RelatedProducts.Add(related);
-                await _productService.InsertRelatedProduct(related, model.ProductId);
+                await productService.InsertRelatedProduct(related, model.ProductId);
             }
         }
     }
 
     public virtual async Task UpdateRelatedProductModel(ProductModel.RelatedProductModel model)
     {
-        var product1 = await _productService.GetProductById(model.ProductId1, true);
+        var product1 = await productService.GetProductById(model.ProductId1, true);
 
         var relatedProduct = product1.RelatedProducts.FirstOrDefault(x => x.Id == model.Id);
         if (relatedProduct == null)
             throw new ArgumentException("No related product found with the specified id");
 
         relatedProduct.DisplayOrder = model.DisplayOrder;
-        await _productService.UpdateRelatedProduct(relatedProduct, model.ProductId1);
+        await productService.UpdateRelatedProduct(relatedProduct, model.ProductId1);
     }
 
     public virtual async Task DeleteRelatedProductModel(ProductModel.RelatedProductModel model)
     {
-        var product = await _productService.GetProductById(model.ProductId1, true);
+        var product = await productService.GetProductById(model.ProductId1, true);
 
         var relatedProduct = product.RelatedProducts.FirstOrDefault(x => x.Id == model.Id);
         if (relatedProduct == null)
             throw new ArgumentException("No related product found with the specified id");
 
-        await _productService.DeleteRelatedProduct(relatedProduct, model.ProductId1);
+        await productService.DeleteRelatedProduct(relatedProduct, model.ProductId1);
     }
 
     public virtual async Task InsertSimilarProductModel(ProductModel.AddSimilarProductModel model)
     {
-        var productId1 = await _productService.GetProductById(model.ProductId, true);
+        var productId1 = await productService.GetProductById(model.ProductId, true);
         foreach (var id in model.SelectedProductIds)
         {
-            var product = await _productService.GetProductById(id);
-            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(product))
+            var product = await productService.GetProductById(id);
+            if (product != null && contextAccessor.WorkContext.HasAccessToProduct(product))
             {
                 var existingSimilarProducts = productId1.SimilarProducts;
                 if (model.ProductId != id)
@@ -955,7 +889,7 @@ public class ProductViewModelService : IProductViewModelService
                             DisplayOrder = 1
                         };
                         productId1.SimilarProducts.Add(similar);
-                        await _productService.InsertSimilarProduct(similar);
+                        await productService.InsertSimilarProduct(similar);
                     }
             }
         }
@@ -963,35 +897,35 @@ public class ProductViewModelService : IProductViewModelService
 
     public virtual async Task UpdateSimilarProductModel(ProductModel.SimilarProductModel model)
     {
-        var product1 = await _productService.GetProductById(model.ProductId1, true);
+        var product1 = await productService.GetProductById(model.ProductId1, true);
         var similarProduct = product1.SimilarProducts.FirstOrDefault(x => x.Id == model.Id);
         if (similarProduct == null)
             throw new ArgumentException("No similar product found with the specified id");
 
         similarProduct.ProductId1 = model.ProductId1;
         similarProduct.DisplayOrder = model.DisplayOrder;
-        await _productService.UpdateSimilarProduct(similarProduct);
+        await productService.UpdateSimilarProduct(similarProduct);
     }
 
     public virtual async Task DeleteSimilarProductModel(ProductModel.SimilarProductModel model)
     {
-        var product = await _productService.GetProductById(model.ProductId1, true);
+        var product = await productService.GetProductById(model.ProductId1, true);
         var similarProduct = product.SimilarProducts.FirstOrDefault(x => x.Id == model.Id);
         if (similarProduct == null)
             throw new ArgumentException("No similar product found with the specified id");
 
         similarProduct.ProductId1 = model.ProductId1;
-        await _productService.DeleteSimilarProduct(similarProduct);
+        await productService.DeleteSimilarProduct(similarProduct);
     }
 
     public virtual async Task InsertBundleProductModel(ProductModel.AddBundleProductModel model)
     {
-        var productId1 = await _productService.GetProductById(model.ProductId, true);
+        var productId1 = await productService.GetProductById(model.ProductId, true);
 
         foreach (var id in model.SelectedProductIds)
         {
-            var product = await _productService.GetProductById(id);
-            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(product))
+            var product = await productService.GetProductById(id);
+            if (product != null && contextAccessor.WorkContext.HasAccessToProduct(product))
             {
                 var existingBundleProducts = productId1.BundleProducts;
                 if (model.ProductId != id)
@@ -1003,7 +937,7 @@ public class ProductViewModelService : IProductViewModelService
                             Quantity = 1
                         };
                         productId1.BundleProducts.Add(bundle);
-                        await _productService.InsertBundleProduct(bundle, model.ProductId);
+                        await productService.InsertBundleProduct(bundle, model.ProductId);
                     }
             }
         }
@@ -1011,10 +945,10 @@ public class ProductViewModelService : IProductViewModelService
 
     public virtual async Task UpdateBundleProductModel(ProductModel.BundleProductModel model)
     {
-        var product = await _productService.GetProductById(model.ProductBundleId, true);
+        var product = await productService.GetProductById(model.ProductBundleId, true);
         //the IProductValidVendor filter validates model.ProductId (the bundled item), not
         //model.ProductBundleId (the product actually mutated below) - check it explicitly
-        if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product))
+        if (product == null || !contextAccessor.WorkContext.HasAccessToProduct(product))
             throw new ArgumentException("No product found with the specified id");
 
         var bundleProduct = product.BundleProducts.FirstOrDefault(x => x.Id == model.Id);
@@ -1024,34 +958,34 @@ public class ProductViewModelService : IProductViewModelService
         bundleProduct.ProductId = model.ProductId;
         bundleProduct.Quantity = model.Quantity > 0 ? model.Quantity : 1;
         bundleProduct.DisplayOrder = model.DisplayOrder;
-        await _productService.UpdateBundleProduct(bundleProduct, model.ProductBundleId);
+        await productService.UpdateBundleProduct(bundleProduct, model.ProductBundleId);
     }
 
     public virtual async Task DeleteBundleProductModel(ProductModel.BundleProductModel model)
     {
-        var product = await _productService.GetProductById(model.ProductBundleId, true);
+        var product = await productService.GetProductById(model.ProductBundleId, true);
         //the IProductValidVendor filter validates model.ProductId (the bundled item), not
         //model.ProductBundleId (the product actually mutated below) - check it explicitly
-        if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product))
+        if (product == null || !contextAccessor.WorkContext.HasAccessToProduct(product))
             throw new ArgumentException("No product found with the specified id");
 
         var bundleProduct = product.BundleProducts.FirstOrDefault(x => x.Id == model.Id);
         if (bundleProduct == null)
             throw new ArgumentException("No bundle product found with the specified id");
 
-        await _productService.DeleteBundleProduct(bundleProduct, model.ProductBundleId);
+        await productService.DeleteBundleProduct(bundleProduct, model.ProductBundleId);
     }
 
     public virtual async Task InsertCrossSellProductModel(ProductModel.AddCrossSellProductModel model)
     {
-        var crossSellProduct = await _productService.GetProductById(model.ProductId, true);
+        var crossSellProduct = await productService.GetProductById(model.ProductId, true);
         foreach (var id in model.SelectedProductIds)
         {
-            var product = await _productService.GetProductById(id);
-            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(product) &&
+            var product = await productService.GetProductById(id);
+            if (product != null && contextAccessor.WorkContext.HasAccessToProduct(product) &&
                 crossSellProduct.CrossSellProduct.All(x => x != id))
                 if (model.ProductId != id)
-                    await _productService.InsertCrossSellProduct(
+                    await productService.InsertCrossSellProduct(
                         new CrossSellProduct {
                             ProductId1 = model.ProductId,
                             ProductId2 = id
@@ -1065,42 +999,42 @@ public class ProductViewModelService : IProductViewModelService
             ProductId1 = productId,
             ProductId2 = crossSellProductId
         };
-        await _productService.DeleteCrossSellProduct(crosssell);
+        await productService.DeleteCrossSellProduct(crosssell);
     }
 
     public virtual async Task InsertRecommendedProductModel(ProductModel.AddRecommendedProductModel model)
     {
-        var mainproduct = await _productService.GetProductById(model.ProductId, true);
+        var mainproduct = await productService.GetProductById(model.ProductId, true);
         foreach (var id in model.SelectedProductIds)
         {
-            var product = await _productService.GetProductById(id);
-            if (product != null && _contextAccessor.WorkContext.HasAccessToProduct(product))
+            var product = await productService.GetProductById(id);
+            if (product != null && contextAccessor.WorkContext.HasAccessToProduct(product))
                 if (mainproduct.RecommendedProduct.All(x => x != id))
                     if (model.ProductId != id)
-                        await _productService.InsertRecommendedProduct(model.ProductId, id);
+                        await productService.InsertRecommendedProduct(model.ProductId, id);
         }
     }
 
     public virtual async Task DeleteRecommendedProduct(string productId, string recommendedProductId)
     {
-        await _productService.DeleteRecommendedProduct(productId, recommendedProductId);
+        await productService.DeleteRecommendedProduct(productId, recommendedProductId);
     }
 
     public virtual async Task InsertAssociatedProductModel(ProductModel.AddAssociatedProductModel model)
     {
         foreach (var id in model.SelectedProductIds)
         {
-            var product = await _productService.GetProductById(id);
-            if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
+            var product = await productService.GetProductById(id);
+            if (product == null || !contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
             product.ParentGroupedProductId = model.ProductId;
-            await _productService.UpdateAssociatedProduct(product);
+            await productService.UpdateAssociatedProduct(product);
         }
     }
 
     public virtual async Task DeleteAssociatedProduct(Product product)
     {
         product.ParentGroupedProductId = "";
-        await _productService.UpdateAssociatedProduct(product);
+        await productService.UpdateAssociatedProduct(product);
     }
 
     public virtual Task<ProductModel.AddRelatedProductModel> PrepareRelatedProductModel()
@@ -1143,11 +1077,11 @@ public class ProductViewModelService : IProductViewModelService
     {
         var model = new BulkEditListModel {
             //product types
-            AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList()
+            AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList()
         };
 
         model.AvailableProductTypes.Insert(0,
-            new SelectListItem { Text = _translationService.GetResource("Vendor.Common.All"), Value = "0" });
+            new SelectListItem { Text = translationService.GetResource("Vendor.Common.All"), Value = "0" });
 
         return Task.FromResult(model);
     }
@@ -1159,10 +1093,10 @@ public class ProductViewModelService : IProductViewModelService
         if (!string.IsNullOrEmpty(model.SearchCategoryId))
             searchCategoryIds.Add(model.SearchCategoryId);
 
-        var products = (await _productService.SearchProducts(categoryIds: searchCategoryIds,
+        var products = (await productService.SearchProducts(categoryIds: searchCategoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
-            vendorId: _contextAccessor.WorkContext.CurrentVendor.Id,
+            vendorId: contextAccessor.WorkContext.CurrentVendor.Id,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
             pageIndex: pageIndex - 1,
@@ -1178,7 +1112,7 @@ public class ProductViewModelService : IProductViewModelService
                 OldPrice = x.OldPrice,
                 Price = x.Price,
                 ManageInventoryMethodId = (int)x.ManageInventoryMethodId,
-                ManageInventoryMethod = _enumTranslationService.GetTranslationEnum(x.ManageInventoryMethodId),
+                ManageInventoryMethod = enumTranslationService.GetTranslationEnum(x.ManageInventoryMethodId),
                 StockQuantity = x.StockQuantity,
                 Published = x.Published
             };
@@ -1191,10 +1125,10 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var pModel in products)
         {
             //update
-            var product = await _productService.GetProductById(pModel.Id, true);
-            if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
+            var product = await productService.GetProductById(pModel.Id, true);
+            if (product == null || !contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
 
-            var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product, total: true);
+            var prevStockQuantity = stockQuantityService.GetTotalStockQuantity(product, total: true);
 
             product.Sku = pModel.Sku;
             product.Price = pModel.Price;
@@ -1203,16 +1137,16 @@ public class ProductViewModelService : IProductViewModelService
             product.Published = pModel.Published;
             product.Name = pModel.Name;
             product.ManageInventoryMethodId = (ManageInventoryMethod)pModel.ManageInventoryMethodId;
-            await _productService.UpdateProduct(product);
+            await productService.UpdateProduct(product);
 
             //out of stock notifications
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
                 product.BackorderModeId == BackorderMode.NoBackorders &&
                 product.AllowOutOfStockSubscriptions &&
-                _stockQuantityService.GetTotalStockQuantity(product, total: true) > 0 &&
+                stockQuantityService.GetTotalStockQuantity(product, total: true) > 0 &&
                 prevStockQuantity <= 0 && !product.UseMultipleWarehouses &&
                 product.Published)
-                await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
+                await outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
         }
     }
 
@@ -1221,10 +1155,10 @@ public class ProductViewModelService : IProductViewModelService
         foreach (var pModel in products)
         {
             //delete
-            var product = await _productService.GetProductById(pModel.Id, true);
-            if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
+            var product = await productService.GetProductById(pModel.Id, true);
+            if (product == null || !contextAccessor.WorkContext.HasAccessToProduct(product)) continue;
 
-            await _productService.DeleteProduct(product);
+            await productService.DeleteProduct(product);
         }
     }
 
@@ -1241,10 +1175,10 @@ public class ProductViewModelService : IProductViewModelService
                 Quantity = x.Quantity,
                 Price = x.Price,
                 StartDateTime = x.StartDateTimeUtc.HasValue
-                    ? _dateTimeService.ConvertToUserTime(x.StartDateTimeUtc.Value, DateTimeKind.Utc)
+                    ? dateTimeService.ConvertToUserTime(x.StartDateTimeUtc.Value, DateTimeKind.Utc)
                     : new DateTime?(),
                 EndDateTime = x.EndDateTimeUtc.HasValue
-                    ? _dateTimeService.ConvertToUserTime(x.EndDateTimeUtc.Value, DateTimeKind.Utc)
+                    ? dateTimeService.ConvertToUserTime(x.EndDateTimeUtc.Value, DateTimeKind.Utc)
                     : new DateTime?()
             });
 
@@ -1254,16 +1188,16 @@ public class ProductViewModelService : IProductViewModelService
     public virtual async Task<(IEnumerable<ProductModel.BidModel> bidModels, int totalCount)> PrepareBidMode(
         string productId, int pageIndex, int pageSize)
     {
-        var bids = await _auctionService.GetBidsByProductId(productId, pageIndex - 1, pageSize);
+        var bids = await auctionService.GetBidsByProductId(productId, pageIndex - 1, pageSize);
         var bidsModel = new List<ProductModel.BidModel>();
         foreach (var x in bids)
             bidsModel.Add(new ProductModel.BidModel {
                 BidId = x.Id,
                 ProductId = x.ProductId,
-                Amount = _priceFormatter.FormatPrice(x.Amount),
-                Date = _dateTimeService.ConvertToUserTime(x.Date, DateTimeKind.Utc),
+                Amount = priceFormatter.FormatPrice(x.Amount),
+                Date = dateTimeService.ConvertToUserTime(x.Date, DateTimeKind.Utc),
                 CustomerId = x.CustomerId,
-                Email = (await _customerService.GetCustomerById(x.CustomerId))?.Email,
+                Email = (await customerService.GetCustomerById(x.CustomerId))?.Email,
                 OrderId = x.OrderId
             });
 
@@ -1276,7 +1210,7 @@ public class ProductViewModelService : IProductViewModelService
         var model = new ProductModel.ProductAttributeMappingModel {
             ProductId = product.Id
         };
-        foreach (var attribute in await _productAttributeService.GetAllProductAttributes())
+        foreach (var attribute in await productAttributeService.GetAllProductAttributes())
             model.AvailableProductAttribute.Add(new SelectListItem {
                 Value = attribute.Id,
                 Text = attribute.Name
@@ -1289,7 +1223,7 @@ public class ProductViewModelService : IProductViewModelService
         ProductAttributeMapping productAttributeMapping)
     {
         var model = productAttributeMapping.ToModel();
-        foreach (var attribute in await _productAttributeService.GetAllProductAttributes())
+        foreach (var attribute in await productAttributeService.GetAllProductAttributes())
             model.AvailableProductAttribute.Add(new SelectListItem {
                 Value = attribute.Id,
                 Text = attribute.Name,
@@ -1302,7 +1236,7 @@ public class ProductViewModelService : IProductViewModelService
     public virtual async Task<ProductModel.ProductAttributeMappingModel> PrepareProductAttributeMappingModel(
         ProductModel.ProductAttributeMappingModel model)
     {
-        foreach (var attribute in await _productAttributeService.GetAllProductAttributes())
+        foreach (var attribute in await productAttributeService.GetAllProductAttributes())
             model.AvailableProductAttribute.Add(new SelectListItem {
                 Value = attribute.Id,
                 Text = attribute.Name
@@ -1320,13 +1254,13 @@ public class ProductViewModelService : IProductViewModelService
             var attributeModel = new ProductModel.ProductAttributeMappingModel {
                 Id = x.Id,
                 ProductId = product.Id,
-                ProductAttribute = (await _productAttributeService.GetProductAttributeById(x.ProductAttributeId))
+                ProductAttribute = (await productAttributeService.GetProductAttributeById(x.ProductAttributeId))
                     ?.Name,
                 ProductAttributeId = x.ProductAttributeId,
                 TextPrompt = x.TextPrompt,
                 IsRequired = x.IsRequired,
                 ShowOnCatalogPage = x.ShowOnCatalogPage,
-                AttributeControlType = _enumTranslationService.GetTranslationEnum(x.AttributeControlTypeId),
+                AttributeControlType = enumTranslationService.GetTranslationEnum(x.AttributeControlTypeId),
                 AttributeControlTypeId = x.AttributeControlTypeId,
                 DisplayOrder = x.DisplayOrder,
                 Combination = x.Combination
@@ -1345,27 +1279,27 @@ public class ProductViewModelService : IProductViewModelService
                 attributeModel.ValidationRulesAllowed = true;
                 if (x.ValidationMinLength != null)
                     validationRules.AppendFormat("{0}: {1}<br />",
-                        _translationService.GetResource(
+                        translationService.GetResource(
                             "Vendor.Catalog.Products.ProductAttributes.Attributes.ValidationRules.MinLength"),
                         x.ValidationMinLength);
                 if (x.ValidationMaxLength != null)
                     validationRules.AppendFormat("{0}: {1}<br />",
-                        _translationService.GetResource(
+                        translationService.GetResource(
                             "Vendor.Catalog.Products.ProductAttributes.Attributes.ValidationRules.MaxLength"),
                         x.ValidationMaxLength);
                 if (!string.IsNullOrEmpty(x.ValidationFileAllowedExtensions))
                     validationRules.AppendFormat("{0}: {1}<br />",
-                        _translationService.GetResource(
+                        translationService.GetResource(
                             "Vendor.Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileAllowedExtensions"),
                         WebUtility.HtmlEncode(x.ValidationFileAllowedExtensions));
                 if (x.ValidationFileMaximumSize != null)
                     validationRules.AppendFormat("{0}: {1}<br />",
-                        _translationService.GetResource(
+                        translationService.GetResource(
                             "Vendor.Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileMaximumSize"),
                         x.ValidationFileMaximumSize);
                 if (!string.IsNullOrEmpty(x.DefaultValue))
                     validationRules.AppendFormat("{0}: {1}<br />",
-                        _translationService.GetResource(
+                        translationService.GetResource(
                             "Vendor.Catalog.Products.ProductAttributes.Attributes.ValidationRules.DefaultValue"),
                         WebUtility.HtmlEncode(x.DefaultValue));
                 attributeModel.ValidationRulesString = validationRules.ToString();
@@ -1378,7 +1312,7 @@ public class ProductViewModelService : IProductViewModelService
             if (conditionAttribute != null && conditionValue != null)
             {
                 var productAttribute =
-                    await _productAttributeService.GetProductAttributeById(conditionAttribute.ProductAttributeId);
+                    await productAttributeService.GetProductAttributeById(conditionAttribute.ProductAttributeId);
                 var paname = productAttribute != null ? productAttribute.Name : "";
                 attributeModel.ConditionString =
                     $"{WebUtility.HtmlEncode(paname)}: {WebUtility.HtmlEncode(conditionValue.Name)}";
@@ -1399,14 +1333,14 @@ public class ProductViewModelService : IProductViewModelService
         //insert mapping
         var productAttributeMapping = model.ToEntity();
         //predefined values
-        var predefinedValues = (await _productAttributeService.GetProductAttributeById(model.ProductAttributeId))
+        var predefinedValues = (await productAttributeService.GetProductAttributeById(model.ProductAttributeId))
             .PredefinedProductAttributeValues;
         foreach (var predefinedValue in predefinedValues)
         {
             var pav = predefinedValue.ToEntity();
             //locales
             pav.Locales.Clear();
-            var languages = await _languageService.GetAllLanguages(true);
+            var languages = await languageService.GetAllLanguages(true);
             //localization
             foreach (var lang in languages)
             {
@@ -1419,19 +1353,19 @@ public class ProductViewModelService : IProductViewModelService
             productAttributeMapping.ProductAttributeValues.Add(pav);
         }
 
-        await _productAttributeService.InsertProductAttributeMapping(productAttributeMapping, model.ProductId);
+        await productAttributeService.InsertProductAttributeMapping(productAttributeMapping, model.ProductId);
     }
 
     public virtual async Task UpdateProductAttributeMappingModel(ProductModel.ProductAttributeMappingModel model)
     {
-        var product = await _productService.GetProductById(model.ProductId, true);
+        var product = await productService.GetProductById(model.ProductId, true);
         if (product != null)
         {
             var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.Id);
             if (productAttributeMapping != null)
             {
                 productAttributeMapping = model.ToEntity(productAttributeMapping);
-                await _productAttributeService.UpdateProductAttributeMapping(productAttributeMapping,
+                await productAttributeService.UpdateProductAttributeMapping(productAttributeMapping,
                     model.ProductId);
             }
         }
@@ -1445,7 +1379,7 @@ public class ProductViewModelService : IProductViewModelService
         productAttributeMapping.ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions;
         productAttributeMapping.ValidationFileMaximumSize = model.ValidationFileMaximumSize;
         productAttributeMapping.DefaultValue = model.DefaultValue;
-        await _productAttributeService.UpdateProductAttributeMapping(productAttributeMapping, model.ProductId);
+        await productAttributeService.UpdateProductAttributeMapping(productAttributeMapping, model.ProductId);
     }
 
     public virtual async Task<ProductAttributeConditionModel> PrepareProductAttributeConditionModel(Product product,
@@ -1468,7 +1402,7 @@ public class ProductViewModelService : IProductViewModelService
             .ToList();
         foreach (var attribute in attributes)
         {
-            var pam = await _productAttributeService.GetProductAttributeById(attribute.ProductAttributeId);
+            var pam = await productAttributeService.GetProductAttributeById(attribute.ProductAttributeId);
             var attributeModel = new ProductAttributeConditionModel.ProductAttributeModel {
                 Id = attribute.Id,
                 ProductAttributeId = attribute.ProductAttributeId,
@@ -1613,7 +1547,7 @@ public class ProductViewModelService : IProductViewModelService
         }
 
         productAttributeMapping.ConditionAttribute = customAttributes;
-        await _productAttributeService.UpdateProductAttributeMapping(productAttributeMapping, model.ProductId);
+        await productAttributeService.UpdateProductAttributeMapping(productAttributeMapping, model.ProductId);
     }
 
     public virtual async Task<ProductModel.ProductAttributeValueModel> PrepareProductAttributeValueModel(
@@ -1631,7 +1565,7 @@ public class ProductViewModelService : IProductViewModelService
             DisplayImageSquaresPicture =
                 productAttributeMapping.AttributeControlTypeId == AttributeControlType.ImageSquares,
             PrimaryStoreCurrencyCode =
-                (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
+                (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
             //default quantity for associated product
             Quantity = 1
         };
@@ -1642,7 +1576,7 @@ public class ProductViewModelService : IProductViewModelService
                 Id = x.Id,
                 ProductId = product.Id,
                 PictureId = x.PictureId,
-                PictureUrl = await _pictureService.GetPictureUrl(x.PictureId),
+                PictureUrl = await pictureService.GetPictureUrl(x.PictureId),
                 DisplayOrder = x.DisplayOrder,
                 IsDefault = x.IsDefault
             });
@@ -1658,19 +1592,19 @@ public class ProductViewModelService : IProductViewModelService
         {
             Product associatedProduct = null;
             if (x.AttributeValueTypeId == AttributeValueType.AssociatedToProduct)
-                associatedProduct = await _productService.GetProductById(x.AssociatedProductId);
+                associatedProduct = await productService.GetProductById(x.AssociatedProductId);
 
-            var pictureThumbnailUrl = await _pictureService.GetPictureUrl(
+            var pictureThumbnailUrl = await pictureService.GetPictureUrl(
                 string.IsNullOrEmpty(x.PictureId) ? x.ImageSquaresPictureId : x.PictureId, 100, false);
 
             if (string.IsNullOrEmpty(pictureThumbnailUrl))
-                pictureThumbnailUrl = await _pictureService.GetPictureUrl("", 1);
+                pictureThumbnailUrl = await pictureService.GetPictureUrl("", 1);
 
             items.Add(new ProductModel.ProductAttributeValueModel {
                 Id = x.Id,
                 ProductAttributeMappingId = productAttributeMapping.Id, //TODO - check x.ProductAttributeMappingId,
                 AttributeValueTypeId = x.AttributeValueTypeId,
-                AttributeValueTypeName = _enumTranslationService.GetTranslationEnum(x.AttributeValueTypeId),
+                AttributeValueTypeName = enumTranslationService.GetTranslationEnum(x.AttributeValueTypeId),
                 AssociatedProductId = x.AssociatedProductId,
                 AssociatedProductName = associatedProduct != null ? associatedProduct.Name : "",
                 Name = productAttributeMapping.AttributeControlTypeId != AttributeControlType.ColorSquares
@@ -1686,7 +1620,7 @@ public class ProductViewModelService : IProductViewModelService
                     : "",
                 Cost = x.Cost,
                 PrimaryStoreCurrencyCode =
-                    (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))
+                    (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))
                     ?.CurrencyCode,
                 Quantity = x.Quantity,
                 IsPreSelected = x.IsPreSelected,
@@ -1703,12 +1637,12 @@ public class ProductViewModelService : IProductViewModelService
     public virtual async Task<ProductModel.ProductAttributeValueModel> PrepareProductAttributeValueModel(
         ProductAttributeMapping pa, ProductAttributeValue pav)
     {
-        var associatedProduct = await _productService.GetProductById(pav.AssociatedProductId);
+        var associatedProduct = await productService.GetProductById(pav.AssociatedProductId);
 
         var model = new ProductModel.ProductAttributeValueModel {
             ProductAttributeMappingId = pa.Id, //TODO - check pav.ProductAttributeMappingId,
             AttributeValueTypeId = pav.AttributeValueTypeId,
-            AttributeValueTypeName = _enumTranslationService.GetTranslationEnum(pav.AttributeValueTypeId),
+            AttributeValueTypeName = enumTranslationService.GetTranslationEnum(pav.AttributeValueTypeId),
             AssociatedProductId = pav.AssociatedProductId,
             AssociatedProductName = associatedProduct != null ? associatedProduct.Name : "",
             Name = pav.Name,
@@ -1720,7 +1654,7 @@ public class ProductViewModelService : IProductViewModelService
             WeightAdjustment = pav.WeightAdjustment,
             Cost = pav.Cost,
             PrimaryStoreCurrencyCode =
-                (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
+                (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
             Quantity = pav.Quantity,
             IsPreSelected = pav.IsPreSelected,
             DisplayOrder = pav.DisplayOrder,
@@ -1749,7 +1683,7 @@ public class ProductViewModelService : IProductViewModelService
             PictureId = model.PictureId,
             Locales = model.Locales.ToTranslationProperty()
         };
-        await _productAttributeService.InsertProductAttributeValue(pav, model.ProductId,
+        await productAttributeService.InsertProductAttributeValue(pav, model.ProductId,
             model.ProductAttributeMappingId);
     }
 
@@ -1770,7 +1704,7 @@ public class ProductViewModelService : IProductViewModelService
         pav.PictureId = model.PictureId;
         pav.Locales = model.Locales.ToTranslationProperty();
 
-        await _productAttributeService.UpdateProductAttributeValue(pav, model.ProductId,
+        await productAttributeService.UpdateProductAttributeValue(pav, model.ProductId,
             model.ProductAttributeMappingId);
     }
 
@@ -1789,8 +1723,8 @@ public class ProductViewModelService : IProductViewModelService
 
         foreach (var x in product.ProductAttributeCombinations)
         {
-            var attributes = await _productAttributeFormatter.FormatAttributes(product, x.Attributes,
-                _contextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false, true, true);
+            var attributes = await productAttributeFormatter.FormatAttributes(product, x.Attributes,
+                contextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false, true, true);
             var pacModel = new ProductModel.ProductAttributeCombinationModel {
                 Id = x.Id,
                 ProductId = product.Id,
@@ -1816,7 +1750,7 @@ public class ProductViewModelService : IProductViewModelService
     {
         var model = new ProductAttributeCombinationModel();
         var wim = new List<ProductAttributeCombinationModel.WarehouseInventoryModel>();
-        foreach (var warehouse in await _warehouseService.GetAllWarehouses())
+        foreach (var warehouse in await warehouseService.GetAllWarehouses())
         {
             var pwiModel = new ProductAttributeCombinationModel.WarehouseInventoryModel {
                 WarehouseId = warehouse.Id,
@@ -1840,8 +1774,8 @@ public class ProductViewModelService : IProductViewModelService
                 model.UseMultipleWarehouses = product.UseMultipleWarehouses;
                 model.WarehouseInventoryModels = wim;
                 model.ProductId = product.Id;
-                model.Attributes = await _productAttributeFormatter.FormatAttributes(product,
-                    combination.Attributes, _contextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false);
+                model.Attributes = await productAttributeFormatter.FormatAttributes(product,
+                    combination.Attributes, contextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false);
                 if (model.UseMultipleWarehouses)
                     foreach (var winv in combination.WarehouseInventory)
                     {
@@ -1869,7 +1803,7 @@ public class ProductViewModelService : IProductViewModelService
 
         async Task PrepareCombinationWarehouseInventory(ProductAttributeCombination combination)
         {
-            var warehouses = await _warehouseService.GetAllWarehouses();
+            var warehouses = await warehouseService.GetAllWarehouses();
 
             foreach (var warehouse in warehouses)
             {
@@ -2012,13 +1946,13 @@ public class ProductViewModelService : IProductViewModelService
                     combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
                 }
 
-                await _productAttributeService.InsertProductAttributeCombination(combination, product.Id);
+                await productAttributeService.InsertProductAttributeCombination(combination, product.Id);
 
                 if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
                 {
                     product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                     product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-                    await _inventoryManageService.UpdateStockProduct(product, false);
+                    await inventoryManageService.UpdateStockProduct(product, false);
                 }
             }
         }
@@ -2048,14 +1982,14 @@ public class ProductViewModelService : IProductViewModelService
             await OutOfStockNotifications(product, combination, prevCombination);
 
             //update combination
-            await _productAttributeService.UpdateProductAttributeCombination(combination, product.Id);
+            await productAttributeService.UpdateProductAttributeCombination(combination, product.Id);
 
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
-                var pr = await _productService.GetProductById(model.ProductId);
+                var pr = await productService.GetProductById(model.ProductId);
                 pr.StockQuantity = pr.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                 pr.ReservedQuantity = pr.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-                await _inventoryManageService.UpdateStockProduct(pr, false);
+                await inventoryManageService.UpdateStockProduct(pr, false);
             }
         }
 
@@ -2091,21 +2025,21 @@ public class ProductViewModelService : IProductViewModelService
                 OverriddenPrice = null,
                 NotifyAdminForQuantityBelow = 1
             };
-            await _productAttributeService.InsertProductAttributeCombination(combination, product.Id);
+            await productAttributeService.InsertProductAttributeCombination(combination, product.Id);
         }
 
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
         {
             product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
             product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-            await _inventoryManageService.UpdateStockProduct(product, false);
+            await inventoryManageService.UpdateStockProduct(product, false);
         }
     }
 
     public virtual async Task ClearAllAttributeCombinations(Product product)
     {
         foreach (var combination in product.ProductAttributeCombinations)
-            await _productAttributeService.DeleteProductAttributeCombination(combination, product.Id);
+            await productAttributeService.DeleteProductAttributeCombination(combination, product.Id);
     }
 
     public virtual Task<IList<ProductModel.ProductAttributeCombinationTierPricesModel>>
@@ -2139,7 +2073,7 @@ public class ProductViewModelService : IProductViewModelService
                 Quantity = model.Quantity
             };
             productAttributeCombination.TierPrices.Add(pctp);
-            await _productAttributeService.UpdateProductAttributeCombination(productAttributeCombination,
+            await productAttributeService.UpdateProductAttributeCombination(productAttributeCombination,
                 product.Id);
         }
     }
@@ -2155,7 +2089,7 @@ public class ProductViewModelService : IProductViewModelService
             {
                 tierPrice.Price = model.Price;
                 tierPrice.Quantity = model.Quantity;
-                await _productAttributeService.UpdateProductAttributeCombination(productAttributeCombination,
+                await productAttributeService.UpdateProductAttributeCombination(productAttributeCombination,
                     product.Id);
             }
         }
@@ -2165,7 +2099,7 @@ public class ProductViewModelService : IProductViewModelService
         ProductAttributeCombination productAttributeCombination, ProductCombinationTierPrices tierPrice)
     {
         productAttributeCombination.TierPrices.Remove(tierPrice);
-        await _productAttributeService.UpdateProductAttributeCombination(productAttributeCombination, product.Id);
+        await productAttributeService.UpdateProductAttributeCombination(productAttributeCombination, product.Id);
     }
 
     //Pictures
@@ -2174,12 +2108,12 @@ public class ProductViewModelService : IProductViewModelService
         var items = new List<ProductModel.ProductPictureModel>();
         foreach (var x in product.ProductPictures.OrderBy(x => x.DisplayOrder))
         {
-            var picture = await _pictureService.GetPictureById(x.PictureId);
+            var picture = await pictureService.GetPictureById(x.PictureId);
             var m = new ProductModel.ProductPictureModel {
                 Id = x.Id,
                 ProductId = product.Id,
                 PictureId = x.PictureId,
-                PictureUrl = picture != null ? await _pictureService.GetPictureUrl(picture) : null,
+                PictureUrl = picture != null ? await pictureService.GetPictureUrl(picture) : null,
                 AltAttribute = picture?.AltAttribute,
                 TitleAttribute = picture?.TitleAttribute,
                 DisplayOrder = x.DisplayOrder,
@@ -2196,12 +2130,12 @@ public class ProductViewModelService : IProductViewModelService
     public virtual async Task<(ProductModel.ProductPictureModel model, Picture Picture)> PrepareProductPictureModel(
         Product product, ProductPicture productPicture)
     {
-        var picture = await _pictureService.GetPictureById(productPicture.PictureId);
+        var picture = await pictureService.GetPictureById(productPicture.PictureId);
         var model = new ProductModel.ProductPictureModel {
             Id = productPicture.Id,
             ProductId = product.Id,
             PictureId = productPicture.PictureId,
-            PictureUrl = picture != null ? await _pictureService.GetPictureUrl(picture) : null,
+            PictureUrl = picture != null ? await pictureService.GetPictureUrl(picture) : null,
             AltAttribute = picture?.AltAttribute,
             TitleAttribute = picture?.TitleAttribute,
             DisplayOrder = productPicture.DisplayOrder,
@@ -2221,53 +2155,53 @@ public class ProductViewModelService : IProductViewModelService
         if (product.ProductPictures.Count(x => x.PictureId == picture.Id) > 0)
             return;
 
-        await _productService.InsertProductPicture(new ProductPicture {
+        await productService.InsertProductPicture(new ProductPicture {
             PictureId = picture.Id,
             DisplayOrder = displayOrder,
             IsDefault = product.ProductPictures.Any()
         }, product.Id);
 
-        await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(product.Name));
+        await pictureService.SetSeoFilename(picture, pictureService.GetPictureSeName(product.Name));
     }
 
     public virtual async Task UpdateProductPicture(ProductModel.ProductPictureModel model)
     {
-        var product = await _productService.GetProductById(model.ProductId, true);
+        var product = await productService.GetProductById(model.ProductId, true);
 
         var productPicture = product.ProductPictures.FirstOrDefault(x => x.Id == model.Id);
         if (productPicture == null)
             throw new ArgumentException("No product picture found with the specified id");
 
-        var picture = await _pictureService.GetPictureById(productPicture.PictureId);
+        var picture = await pictureService.GetPictureById(productPicture.PictureId);
         if (picture == null)
             throw new ArgumentException("No picture found with the specified id");
 
         productPicture.DisplayOrder = model.DisplayOrder;
         productPicture.IsDefault = model.IsDefault;
-        await _productService.UpdateProductPicture(productPicture, product.Id);
+        await productService.UpdateProductPicture(productPicture, product.Id);
 
         //Update picture fields
-        await _pictureService.UpdatePictureField(picture, x => x.AltAttribute, model.AltAttribute);
-        await _pictureService.UpdatePictureField(picture, x => x.TitleAttribute, model.TitleAttribute);
-        await _pictureService.UpdatePictureField(picture, x => x.Locales, model.Locales.ToTranslationProperty());
-        await _pictureService.UpdatePictureField(picture, x => x.Style, model.Style);
-        await _pictureService.UpdatePictureField(picture, x => x.ExtraField, model.ExtraField);
+        await pictureService.UpdatePictureField(picture, x => x.AltAttribute, model.AltAttribute);
+        await pictureService.UpdatePictureField(picture, x => x.TitleAttribute, model.TitleAttribute);
+        await pictureService.UpdatePictureField(picture, x => x.Locales, model.Locales.ToTranslationProperty());
+        await pictureService.UpdatePictureField(picture, x => x.Style, model.Style);
+        await pictureService.UpdatePictureField(picture, x => x.ExtraField, model.ExtraField);
     }
 
     public virtual async Task DeleteProductPicture(ProductModel.ProductPictureModel model)
     {
-        var product = await _productService.GetProductById(model.ProductId, true);
+        var product = await productService.GetProductById(model.ProductId, true);
 
         var productPicture = product.ProductPictures.FirstOrDefault(x => x.Id == model.Id);
         if (productPicture == null)
             throw new ArgumentException("No product picture found with the specified id");
 
         var pictureId = productPicture.PictureId;
-        await _productService.DeleteProductPicture(productPicture, product.Id);
+        await productService.DeleteProductPicture(productPicture, product.Id);
 
-        var picture = await _pictureService.GetPictureById(pictureId);
+        var picture = await pictureService.GetPictureById(pictureId);
         if (picture != null)
-            await _pictureService.DeletePicture(picture);
+            await pictureService.DeletePicture(picture);
     }
 
     //Product specification
@@ -2282,7 +2216,7 @@ public class ProductViewModelService : IProductViewModelService
                 AttributeTypeId = (int)x.AttributeTypeId,
                 AttributeId = x.SpecificationAttributeId,
                 ProductId = product.Id,
-                AttributeTypeName = _enumTranslationService.GetTranslationEnum(x.AttributeTypeId),
+                AttributeTypeName = enumTranslationService.GetTranslationEnum(x.AttributeTypeId),
                 AllowFiltering = x.AllowFiltering,
                 ShowOnProductPage = x.ShowOnProductPage,
                 DisplayOrder = x.DisplayOrder,
@@ -2293,7 +2227,7 @@ public class ProductViewModelService : IProductViewModelService
             {
                 case SpecificationAttributeType.Option:
                     var specificationAttribute =
-                        await _specificationAttributeService.GetSpecificationAttributeById(
+                        await specificationAttributeService.GetSpecificationAttributeById(
                             x.SpecificationAttributeId);
                     if (specificationAttribute != null)
                     {
@@ -2335,7 +2269,7 @@ public class ProductViewModelService : IProductViewModelService
 
         var psa = model.ToEntity();
 
-        await _specificationAttributeService.InsertProductSpecificationAttribute(psa, product.Id);
+        await specificationAttributeService.InsertProductSpecificationAttribute(psa, product.Id);
         product.ProductSpecificationAttributes.Add(psa);
     }
 
@@ -2343,31 +2277,31 @@ public class ProductViewModelService : IProductViewModelService
         ProductModel.AddProductSpecificationAttributeModel model)
     {
         psa = model.ToEntity(psa);
-        await _specificationAttributeService.UpdateProductSpecificationAttribute(psa, model.ProductId);
+        await specificationAttributeService.UpdateProductSpecificationAttribute(psa, model.ProductId);
     }
 
     public virtual async Task DeleteProductSpecificationAttribute(Product product,
         ProductSpecificationAttribute psa)
     {
         product.ProductSpecificationAttributes.Remove(psa);
-        await _specificationAttributeService.DeleteProductSpecificationAttribute(psa, product.Id);
+        await specificationAttributeService.DeleteProductSpecificationAttribute(psa, product.Id);
     }
 
     protected virtual async Task UpdatePictureSeoNames(Product product)
     {
-        var picturesename = _pictureService.GetPictureSeName(product.Name);
+        var picturesename = pictureService.GetPictureSeName(product.Name);
         foreach (var pp in product.ProductPictures)
         {
-            var picture = await _pictureService.GetPictureById(pp.PictureId);
+            var picture = await pictureService.GetPictureById(pp.PictureId);
             if (picture != null)
-                await _pictureService.SetSeoFilename(picture, picturesename);
+                await pictureService.SetSeoFilename(picture, picturesename);
         }
     }
 
     protected virtual async Task<List<string>> GetChildCategoryIds(string parentCategoryId)
     {
         var categoriesIds = new List<string>();
-        var categories = await _categoryService.GetAllCategoriesByParentCategoryId(parentCategoryId, true);
+        var categories = await categoryService.GetAllCategoriesByParentCategoryId(parentCategoryId, true);
         foreach (var category in categories)
         {
             categoriesIds.Add(category.Id);
@@ -2381,11 +2315,11 @@ public class ProductViewModelService : IProductViewModelService
     {
         var model = new T {
             //product types
-            AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList()
+            AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList()
         };
 
         model.AvailableProductTypes.Insert(0,
-            new SelectListItem { Text = _translationService.GetResource("Vendor.Common.All"), Value = "0" });
+            new SelectListItem { Text = translationService.GetResource("Vendor.Common.All"), Value = "0" });
 
         return model;
     }
