@@ -56,7 +56,9 @@ Skim each file's `using` block and test class setup (constructor mocks) — late
 - Create: `src/Web/Grand.Web.AdminShared/Interfaces/IAdminDataScope.cs`
 
 **Interfaces:**
-- Produces: `IAdminDataScope<TEntity>` with `Task<bool> HasAccess(TEntity entity)`, `IQueryable<TEntity> ApplyScope(IQueryable<TEntity> query)`, `string? DefaultStoreId { get; }`, `string ResourceKeyPrefix { get; }` — consumed by Tasks 2-4 (implementations) and Task 7+ (`BaseProductController`)/Task 9+ (shared service).
+- Produces: `IAdminDataScope<TEntity>` with `Task<bool> HasAccess(TEntity entity)`, `Task<bool> CanView(TEntity entity)` (default interface method, defaults to `HasAccess`), `IQueryable<TEntity> ApplyScope(IQueryable<TEntity> query)`, `string? DefaultStoreId { get; }`, `string ResourceKeyPrefix { get; }` — consumed by Tasks 2-4 (implementations) and Task 7+ (`BaseProductController`)/Task 9+ (shared service).
+
+**Addendum (added after Task 7's review found a real gap — see Task 7's fix round):** `CanView` was added retroactively as a default interface method, so this is additive/source-compatible — `GlobalAdminDataScope` and `VendorProductDataScope` (Tasks 2 and 4) need no change, only `StoreAdminDataScope` (Task 3) gets an override plus a test.
 
 - [ ] **Step 1: Write the interface**
 
@@ -70,8 +72,17 @@ namespace Grand.Web.AdminShared.Interfaces;
 /// </summary>
 public interface IAdminDataScope<TEntity>
 {
-    /// <summary>Whether the current user may access this specific, already-loaded entity.</summary>
+    /// <summary>Whether the current user may mutate (edit/delete) this specific, already-loaded entity.
+    /// This is the strict check — for Store, matches AclMappingExtension.AccessToEntityByStore exactly
+    /// (denies global and multi-store entities, only the entity's exclusive single store passes).</summary>
     Task<bool> HasAccess(TEntity entity);
+
+    /// <summary>Whether the current user may view/reference this entity (open its edit form, copy it) —
+    /// looser than <see cref="HasAccess"/> for hosts where viewing a shared/global entity is allowed but
+    /// mutating it isn't. Defaults to <see cref="HasAccess"/> for hosts with no such split (Admin: always
+    /// true either way; Vendor: the two are identical, verified against the existing, unsplit
+    /// `CheckAccessToProduct`). Only Store overrides this (see Task 3 addendum).</summary>
+    Task<bool> CanView(TEntity entity) => HasAccess(entity);
 
     /// <summary>Narrows a query to the entities the current user may see. No-op for global (Admin) scope.</summary>
     IQueryable<TEntity> ApplyScope(IQueryable<TEntity> query);
@@ -350,6 +361,51 @@ git commit -m "Add StoreAdminDataScope for the Store host (ARCH-001 Phase 1)"
 ```
 
 **Note for Task 7/8:** the current `Grand.Web.Store/Controllers/ProductController.cs:88-92` `CanAccessProduct` helper (added in #786, uses `product.AccessToEntityByStore(staffStoreId)`) and this `HasAccess` implementation must agree. `AccessToEntityByStore` is the existing extension in `Grand.Business.Core.Extensions`; check its exact semantics against the `HasAccess` body above during Task 7 Step 1 and use whichever is authoritative (prefer calling the existing `AccessToEntityByStore` extension from inside `HasAccess` over reimplementing the same rule twice, if its signature fits `IStoreLinkEntity`).
+
+**Addendum — `CanView` override (added after Task 7's review found this task's `HasAccess` alone can't represent Store's actual behavior):**
+
+`Grand.Web.Store/Controllers/ProductController.cs:184-194`'s `Edit(GET)` is NOT `HasAccess` plus a cosmetic warning — it is a materially looser rule that *replaces* the strict check for viewing: a global product or a multi-store product that includes the staff member's store is **allowed to view** (with a warning), and only a product limited to stores that exclude the staff member's store is denied. The existing test `Grand.Web.Store.Tests/Controllers/ProductControllerTests.cs:248-264` (`EditGet_ProductSharedAcrossMultipleStoresIncludingStaffStore_ShowsFormWithWarning`) locks this in with an explicit comment: *"This is the one path that must stay outside any shared 'authorize or redirect' helper."* `Store/ProductController.cs:289-290`'s `CopyProduct` uses the same looser rule (denies only when `LimitedToStores && !Stores.Contains(staff)`).
+
+Add to `StoreAdminDataScope<TEntity>` (Task 3's file), after `HasAccess`:
+
+```csharp
+public Task<bool> CanView(TEntity entity)
+{
+    if (entity is null) return Task.FromResult(false);
+    var staffStoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    var allowed = !entity.LimitedToStores || entity.Stores.Contains(staffStoreId);
+    return Task.FromResult(allowed);
+}
+```
+
+Add tests to `StoreAdminDataScopeTests.cs`:
+
+```csharp
+[TestMethod]
+public async Task CanView_ProductNotLimitedToStores_ReturnsTrue()
+{
+    var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
+    Assert.IsTrue(await scope.CanView(new Product { LimitedToStores = false }));
+}
+
+[TestMethod]
+public async Task CanView_ProductInMultipleStoresIncludingStaffStore_ReturnsTrue()
+{
+    var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
+    var product = new Product { LimitedToStores = true, Stores = [StaffStoreId, "store-3"] };
+    Assert.IsTrue(await scope.CanView(product));
+}
+
+[TestMethod]
+public async Task CanView_ProductLimitedToOtherStore_ReturnsFalse()
+{
+    var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
+    var product = new Product { LimitedToStores = true, Stores = ["store-2"] };
+    Assert.IsFalse(await scope.CanView(product));
+}
+```
+
+Run `dotnet test src/Tests/Grand.Web.Store.Tests --filter "FullyQualifiedName~StoreAdminDataScopeTests"` — expect 9/9 passing. Commit alongside (or amend into) Task 3's existing commit is fine since this is a direct addendum to the same file/task, not a new task.
 
 ---
 
@@ -630,7 +686,7 @@ Differences found, and how each is resolved:
 | `Edit()` GET extra "still has other stores" warning branch (Store only, lines 184-194) | absent | present | absent | Keep as a `protected virtual` no-op hook `EditWarningCheck(Product product)` overridden only in the Store subclass (Task 11) — this is host UI copy behavior, not scope logic, so it does not belong in `IAdminDataScope`. |
 | `PrepareProductModel(model, product, bool, bool)` arity | 4-arg | 4-arg | **3-arg** (no `excludeProperties`) | Resolved by Task 9 (interface unification) — until Task 9 lands, `BaseProductController` calls the 4-arg AdminShared signature with `excludeProperties: false` as Vendor's implicit default; verify against Vendor's actual usage (`false` in `Create()`, `true` in the redisplay-on-invalid branches) before assuming — re-check `src/Web/Grand.Web.Vendor/Controllers/ProductController.cs:139,157,174,222` line by line. |
 | Resource key prefix | `"Admin.*"` | `"Admin.*"` | `"Vendor.*"` | `$"{scope.ResourceKeyPrefix}.Catalog.Products.Added"` etc., per Task 6's table |
-| `DeleteSelected` | present | absent (verify — grep confirms only Admin/Vendor define it; if Store truly has no `DeleteSelected` action, keep it but note the missing UI wiring is pre-existing and out of scope) | present | Keep the action in the base class; it's harmless if a host's view never posts to it |
+| `DeleteSelected` | present, no controller-level filter | absent | present, no controller-level filter (Vendor's *service* — `Grand.Web.Vendor/Services/ProductViewModelService.cs:687` — filters per-id by `HasAccessToProduct`, but the controller doesn't) | **Not harmless** — MVC routes actions regardless of whether a host's views link to them, so shipping this unfiltered into the shared base hands Store a brand-new unscoped bulk-delete endpoint once Task 11 subclasses it, and leaves Vendor's only protection sitting in one host's service rather than the controller like every other guarded action here. Filter ids through `scope.HasAccess` in the base controller before delegating — see the code below. |
 
 - [ ] **Step 1a: File a note, don't fix, the Store `GoToSku` bug found above**
 
@@ -669,7 +725,37 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-// Resource-key-prefix audit (2026-08-16, ARCH-001 Phase 1 Task 6): <paste Task 6 Step 3 table here>
+// Resource-key-prefix audit (2026-08-16, ARCH-001 Phase 1 Task 6, corrected after review — see Task 6's
+// ledger entry). Inlined in full here (not just referenced) since planning artifacts under .superpowers/
+// are untracked and do not survive in the repo once this branch merges.
+//
+// Templated via {scope.ResourceKeyPrefix} (Admin.<suffix> and Vendor.<suffix> both exist) — 22:
+//   Common.All, Customers.Guest, Configuration.Tax.Settings.TaxCategories.None,
+//   Catalog.Products.Added, Catalog.Products.Updated, Catalog.Products.Deleted,
+//   Catalog.Products.Fields.ChangedWarning, Catalog.Products.Fields.DeliveryDate.None,
+//   Catalog.Products.Fields.Warehouse.None, Catalog.Products.Bids.CantDeleteWithOrder,
+//   Catalog.Products.List.SkuNotFound, Catalog.Products.List.SearchPublished.All,
+//   Catalog.Products.List.SearchPublished.PublishedOnly, Catalog.Products.List.SearchPublished.UnpublishedOnly,
+//   Catalog.Products.List.SearchPublished.MarkAsNew, Catalog.ProductReservations.CantDeleteWithOrder,
+//   Catalog.Products.Calendar.CannotChangeInterval,
+//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.MinLength,
+//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.MaxLength,
+//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileAllowedExtensions,
+//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileMaximumSize,
+//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.DefaultValue.
+//
+// Admin-only literal (no Vendor equivalent call site; keep as literal "Admin.<suffix>") — 6:
+//   Catalog.Products.Permissions (Vendor has no Permissions-suffixed resource lookup anywhere - its
+//     permission-denied paths don't emit this message), Catalog.Products.List.SearchPublished.ShowOnHomePage,
+//   Catalog.Products.Imported, Catalog.Products.TierPrices.Fields.CustomerGroup.All,
+//   Catalog.Products.TierPrices.Fields.Store.All, Common.UploadFile.
+//
+// Host-specific, not templated — 0: none found; every "Vendor.<suffix>" call site has a matching
+//   "Admin.<suffix>" one, so nothing needs a scope.ResourceKeyPrefix == "Vendor" guard instead of templating.
+//
+// Store makes no separate resource lookups at all - every Store call site uses the literal "Admin.*" key
+// directly (Store has no distinct resource set), consistent with StoreAdminDataScope.ResourceKeyPrefix
+// returning "Admin".
 
 [PermissionAuthorize(PermissionSystemName.Products)]
 public abstract class BaseProductController(
@@ -766,7 +852,10 @@ public abstract class BaseProductController(
         if (product == null) return RedirectToAction("List");
 
         EditWarningCheck(product);
-        if (!await scope.HasAccess(product)) return RedirectToAction("List");
+        // CanView, not HasAccess: viewing a shared/global product is allowed on Store (with a warning
+        // from EditWarningCheck above); only mutating one is restricted to the exclusive single-store
+        // owner. See IAdminDataScope<TEntity>.CanView's doc comment and Task 3's addendum.
+        if (!await scope.CanView(product)) return RedirectToAction("List");
 
         var model = product.ToModel(dateTimeService);
         if (scope.DefaultStoreId is not null) model.StoreId = scope.DefaultStoreId;
@@ -847,7 +936,20 @@ public abstract class BaseProductController(
     [HttpPost]
     public async Task<IActionResult> DeleteSelected(ICollection<string> selectedIds)
     {
-        if (selectedIds != null) await productViewModelService.DeleteSelected(selectedIds.ToList());
+        if (selectedIds == null || selectedIds.Count == 0) return Json(new { Result = true });
+
+        // This is a mutation (bulk delete), so it uses the strict HasAccess, matching Edit(POST)/Delete
+        // above — not a no-op pass-through to the service. Without this filter, Store gains an
+        // unscoped bulk-delete endpoint (any store staff could delete any product id in the system,
+        // bypassing AccessToEntityByStore entirely) purely because MVC routes actions regardless of
+        // whether a host's views ever link to them. See Task 7's review for the full analysis.
+        var products = await productService.GetProductsByIds(selectedIds.ToArray(), true);
+        var allowedIds = new List<string>();
+        foreach (var product in products)
+            if (await scope.HasAccess(product))
+                allowedIds.Add(product.Id);
+
+        if (allowedIds.Count > 0) await productViewModelService.DeleteSelected(allowedIds);
         return Json(new { Result = true });
     }
 
@@ -860,7 +962,10 @@ public abstract class BaseProductController(
         try
         {
             var originalProduct = await productService.GetProductById(copyModel.Id, true);
-            if (!await scope.HasAccess(originalProduct)) return RedirectToAction("List");
+            // CanView, not HasAccess: Store's original CopyProduct denies only when LimitedToStores is
+            // true AND the staff member's store isn't among them — the same looser rule as Edit(GET)
+            // above, not the strict mutation rule. See IAdminDataScope<TEntity>.CanView.
+            if (!await scope.CanView(originalProduct)) return RedirectToAction("List");
 
             if (scope.DefaultStoreId is not null)
             {
