@@ -163,8 +163,9 @@ public class ProductController : BaseVendorController
     public async Task<IActionResult> Edit(string id)
     {
         var product = await _productService.GetProductById(id, true);
-        if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product))
-            //No product found with the specified id
+        var permission = await CheckAccessToProduct(product);
+        if (!permission.allow)
+            //No product found with the specified id, or it's not this vendor's product
             return RedirectToAction("List");
 
         var model = product.ToModel(_dateTimeService);
@@ -191,8 +192,9 @@ public class ProductController : BaseVendorController
     public async Task<IActionResult> Edit(ProductModel model, bool continueEditing)
     {
         var product = await _productService.GetProductById(model.Id, true);
-        if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product))
-            //No product found with the specified id
+        var permission = await CheckAccessToProduct(product);
+        if (!permission.allow)
+            //No product found with the specified id, or it's not this vendor's product
             return RedirectToAction("List");
 
         if (model.Ticks != product.Ticks)
@@ -228,8 +230,9 @@ public class ProductController : BaseVendorController
     public async Task<IActionResult> Delete(string id)
     {
         var product = await _productService.GetProductById(id, true);
-        if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product))
-            //No product found with the specified id
+        var permission = await CheckAccessToProduct(product);
+        if (!permission.allow)
+            //No product found with the specified id, or it's not this vendor's product
             return RedirectToAction("List");
 
         if (ModelState.IsValid)
