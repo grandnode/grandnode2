@@ -1935,4 +1935,113 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Bulk editing
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> BulkEdit()
+    {
+        // scope.DefaultStoreId already encodes the per-host default: null for Admin/Vendor (Admin's
+        // original called PrepareBulkEditListModel() with no storeId; Vendor's own separate service
+        // (Grand.Web.Vendor.Interfaces.IProductViewModelService.PrepareBulkEditListModel) takes no
+        // storeId parameter at all - not store-scoped), StaffStoreId for Store.
+        var model = await productViewModelService.PrepareBulkEditListModel(scope.DefaultStoreId ?? "");
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> BulkEditSelect(DataSourceRequest command, BulkEditListModel model)
+    {
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+
+        // Known gap, not fixed here (out of this region's file scope): Vendor's original
+        // PrepareBulkEditProductModel additionally passed vendorId: CurrentVendor.Id into
+        // productService.SearchProducts, so the grid only ever listed the vendor's own products. The
+        // shared IProductViewModelService.PrepareBulkEditProductModel used here has no vendorId parameter
+        // (unlike PrepareProductModel(AddProductModel), which supports SearchVendorId - see
+        // AssociatedProductVendorId above) - BulkEditListModel carries no SearchVendorId field either.
+        // Closing this requires a ProductViewModelService/BulkEditListModel change, which this task's
+        // per-row scope (BaseProductController.cs + tests only) does not permit. Not a security gap by
+        // itself (a wider listing, not a mutation), but it does mean a vendor could currently see other
+        // vendors' products in this grid once Vendor is subclassed onto this controller (Task 11) unless
+        // that follow-up also adds vendor filtering here. The mutate endpoints below (BulkEditUpdate/
+        // BulkEditDelete) are scope-checked per item regardless and never leak another party's product.
+        var (bulkEditProductModels, totalCount) =
+            await productViewModelService.PrepareBulkEditProductModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = bulkEditProductModels.ToList(),
+            Total = totalCount
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> BulkEditUpdate(IEnumerable<BulkEditProductModel> products)
+    {
+        var validProducts = await FilterBulkEditProductsByAccess(products);
+        if (validProducts.Count > 0) await productViewModelService.UpdateBulkEdit(validProducts);
+
+        return new JsonResult("");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> BulkEditDelete(IEnumerable<BulkEditProductModel> products)
+    {
+        var validProducts = await FilterBulkEditProductsByAccess(products);
+        if (validProducts.Count > 0) await productViewModelService.DeleteBulkEdit(validProducts);
+
+        return new JsonResult("");
+    }
+
+    /// <summary>
+    /// Filters a caller-supplied bulk-edit product list (BulkEditUpdate/BulkEditDelete) down to the ones
+    /// the current user may mutate. Same shape as the DeleteSelected gap above: this is a caller-supplied
+    /// list of ids being mutated in one request, and each id must be scope-checked individually before
+    /// mutation, not just implicitly trusted because it appeared in a grid the user was shown.
+    ///
+    /// Admin's original had NO check at all here - both BulkEditUpdate and BulkEditDelete accepted a
+    /// client-supplied list of ids and mutated/deleted every one of them unconditionally, a real unscoped
+    /// bulk-mutate/bulk-delete IDOR (any authenticated admin user hitting these actions directly - not
+    /// through the grid - could update or delete any product in the system by id).
+    ///
+    /// Store's original had this exact check (FilterValidProductsForStore, via CanAccessProduct /
+    /// AccessToEntityByStore) - HasAccess (strict), matching CanAccessProduct's strict rule, not CanView.
+    ///
+    /// Vendor's original enforced the equivalent strict check (HasAccessToProduct / VendorId equality)
+    /// inside its own separate service (Grand.Web.Vendor's ProductViewModelService.UpdateBulkEdit/
+    /// DeleteBulkEdit), not in the controller - functionally the same per-item gate, just placed one layer
+    /// down. Routing it through scope.HasAccess here reproduces that gate at the controller layer, where
+    /// the shared IProductViewModelService.UpdateBulkEdit/DeleteBulkEdit used by this class does not
+    /// filter internally (verified: both loop and mutate/delete every product they're given, no ownership
+    /// check).
+    ///
+    /// No-op for Admin (GlobalAdminDataScope.HasAccess is always true, so validProducts == products).
+    /// Silently drops missing/inaccessible ids rather than throwing (matches Admin's/Vendor's
+    /// null-then-skip behavior, not Store's original throw-on-missing-id - the majority behavior, and a
+    /// single bad id in a bulk request shouldn't fail the whole batch).
+    /// </summary>
+    private async Task<List<BulkEditProductModel>> FilterBulkEditProductsByAccess(
+        IEnumerable<BulkEditProductModel> products)
+    {
+        if (products == null) return [];
+
+        var byId = products
+            .Where(x => !string.IsNullOrEmpty(x.Id))
+            .GroupBy(x => x.Id)
+            .ToDictionary(g => g.Key, g => g.First());
+        if (byId.Count == 0) return [];
+
+        var loadedProducts = await productService.GetProductsByIds(byId.Keys.ToArray(), true);
+        var validProducts = new List<BulkEditProductModel>();
+        foreach (var product in loadedProducts)
+            if (await scope.HasAccess(product))
+                validProducts.Add(byId[product.Id]);
+
+        return validProducts;
+    }
+
+    #endregion
 }

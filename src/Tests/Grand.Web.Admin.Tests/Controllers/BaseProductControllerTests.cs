@@ -2997,4 +2997,162 @@ public class BaseProductControllerTests
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
     }
+
+    // --- Bulk editing --------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task BulkEdit_UsesScopeDefaultStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
+        _productViewModelServiceMock.Setup(s => s.PrepareBulkEditListModel("store1"))
+            .ReturnsAsync(new BulkEditListModel());
+
+        var result = await _controller.BulkEdit();
+
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        _productViewModelServiceMock.Verify(s => s.PrepareBulkEditListModel("store1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task BulkEdit_NullDefaultStoreId_PassesEmptyString()
+    {
+        // Admin/Vendor: scope.DefaultStoreId is null (Admin is global; Vendor is not store-scoped) -
+        // matches Admin's original parameterless call and Vendor's own service's parameterless method.
+        _productViewModelServiceMock.Setup(s => s.PrepareBulkEditListModel(""))
+            .ReturnsAsync(new BulkEditListModel());
+
+        await _controller.BulkEdit();
+
+        _productViewModelServiceMock.Verify(s => s.PrepareBulkEditListModel(""), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task BulkEditSelect_StoreScoped_SetsSearchStoreIdFromScope()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
+        var model = new BulkEditListModel();
+        _productViewModelServiceMock
+            .Setup(s => s.PrepareBulkEditProductModel(It.IsAny<BulkEditListModel>(), 1, 10))
+            .ReturnsAsync((Enumerable.Empty<BulkEditProductModel>(), 0));
+
+        await _controller.BulkEditSelect(new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
+
+        Assert.AreEqual("store1", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task BulkEditSelect_NotStoreScoped_LeavesSearchStoreIdUntouched()
+    {
+        var model = new BulkEditListModel { SearchStoreId = "preset" };
+        _productViewModelServiceMock
+            .Setup(s => s.PrepareBulkEditProductModel(It.IsAny<BulkEditListModel>(), 1, 10))
+            .ReturnsAsync((Enumerable.Empty<BulkEditProductModel>(), 0));
+
+        await _controller.BulkEditSelect(new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
+
+        Assert.AreEqual("preset", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task BulkEditUpdate_NullProducts_DoesNotCallService()
+    {
+        var result = await _controller.BulkEditUpdate(null);
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateBulkEdit(It.IsAny<IEnumerable<BulkEditProductModel>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task BulkEditUpdate_FiltersOutProductsScopeDenies()
+    {
+        // Regression guard: Admin's original had no ownership check at all on this bulk-mutate endpoint
+        // (any client-supplied id list was updated unconditionally). Store's original filtered via
+        // FilterValidProductsForStore/CanAccessProduct; Vendor's original filtered via
+        // HasAccessToProduct inside its own service. Routing through scope.HasAccess here reproduces
+        // that per-item gate uniformly.
+        var owned = new Product { Id = "owned" };
+        var foreign = new Product { Id = "foreign" };
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" }, true))
+            .ReturnsAsync(new List<Product> { owned, foreign });
+        _scopeMock.Setup(s => s.HasAccess(owned)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
+
+        var ownedModel = new BulkEditProductModel { Id = "owned" };
+        var foreignModel = new BulkEditProductModel { Id = "foreign" };
+
+        await _controller.BulkEditUpdate(new List<BulkEditProductModel> { ownedModel, foreignModel });
+
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateBulkEdit(It.Is<List<BulkEditProductModel>>(
+                p => p.Count == 1 && p[0].Id == "owned")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task BulkEditUpdate_AllProductsScopeDenies_DoesNotCallUpdateBulkEdit()
+    {
+        var foreign = new Product { Id = "foreign" };
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "foreign" }, true))
+            .ReturnsAsync(new List<Product> { foreign });
+        _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
+
+        await _controller.BulkEditUpdate(new List<BulkEditProductModel> { new() { Id = "foreign" } });
+
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateBulkEdit(It.IsAny<IEnumerable<BulkEditProductModel>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task BulkEditDelete_NullProducts_DoesNotCallService()
+    {
+        var result = await _controller.BulkEditDelete(null);
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        _productViewModelServiceMock.Verify(
+            s => s.DeleteBulkEdit(It.IsAny<IEnumerable<BulkEditProductModel>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task BulkEditDelete_FiltersOutProductsScopeDenies()
+    {
+        var owned = new Product { Id = "owned" };
+        var foreign = new Product { Id = "foreign" };
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" }, true))
+            .ReturnsAsync(new List<Product> { owned, foreign });
+        _scopeMock.Setup(s => s.HasAccess(owned)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
+
+        await _controller.BulkEditDelete(new List<BulkEditProductModel> {
+            new() { Id = "owned" }, new() { Id = "foreign" }
+        });
+
+        _productViewModelServiceMock.Verify(
+            s => s.DeleteBulkEdit(It.Is<List<BulkEditProductModel>>(
+                p => p.Count == 1 && p[0].Id == "owned")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task BulkEditDelete_AllProductsScopeDenies_DoesNotCallDeleteBulkEdit()
+    {
+        var foreign = new Product { Id = "foreign" };
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "foreign" }, true))
+            .ReturnsAsync(new List<Product> { foreign });
+        _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
+
+        await _controller.BulkEditDelete(new List<BulkEditProductModel> { new() { Id = "foreign" } });
+
+        _productViewModelServiceMock.Verify(
+            s => s.DeleteBulkEdit(It.IsAny<IEnumerable<BulkEditProductModel>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task BulkEditUpdate_ProductsWithEmptyIds_AreIgnoredWithoutServiceCall()
+    {
+        var result = await _controller.BulkEditUpdate(new List<BulkEditProductModel> { new() { Id = "" } });
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        _productServiceMock.Verify(p => p.GetProductsByIds(It.IsAny<string[]>(), It.IsAny<bool>()), Times.Never);
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateBulkEdit(It.IsAny<IEnumerable<BulkEditProductModel>>()), Times.Never);
+    }
 }
