@@ -1750,12 +1750,16 @@ public abstract class BaseProductController(
     // _contextAccessor.WorkContext.CurrentVendor.Id internally, not via any model field), so it cannot
     // bind to this signature. That vendor-id scoping lives entirely inside Vendor's own
     // OrderViewModelService, outside anything IAdminDataScope<Product> expresses - flagging as a concern
-    // per the task brief rather than inventing a shared model/service pair. Left virtual so a future
-    // Vendor subclass can still override this action with its own types when Vendor is wired onto this
-    // base controller.
+    // per the task brief rather than inventing a shared model/service pair. Not virtual: C#'s override
+    // rules require an exact parameter-type match, so a Vendor override using
+    // Grand.Web.Vendor.Interfaces.IOrderViewModelService/Models.Orders.OrderListModel could never compile
+    // as an override of this signature anyway. When Vendor is wired onto this base controller (Task 11),
+    // its subclass will declare its own PurchasedWithOrders action with `new` to shadow this one (a
+    // standard, valid ASP.NET Core MVC pattern for a derived controller needing an incompatible signature
+    // under the same action name), not override it.
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     [HttpPost]
-    public virtual async Task<IActionResult> PurchasedWithOrders(DataSourceRequest command, string productId,
+    public async Task<IActionResult> PurchasedWithOrders(DataSourceRequest command, string productId,
         [FromServices] IOrderViewModelService orderViewModelService)
     {
         if (!await permissionService.Authorize(StandardPermission.ManageOrders))
