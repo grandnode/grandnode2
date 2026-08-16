@@ -1714,4 +1714,216 @@ public class BaseProductControllerTests
         Assert.AreSame(reprepared, view.Model);
         _productViewModelServiceMock.Verify(s => s.InsertCrossSellProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>()), Times.Never);
     }
+
+    // --- RecommendedProductList ---------------------------------------------------------------------
+    // HasAccess (strict), not CanView: same shape as CrossSellProductList above. Admin's original
+    // RecommendedProductList had no check at all. Vendor's original signature also dropped the
+    // DataSourceRequest command parameter entirely - kept here for parity with Admin/Store.
+
+    [TestMethod]
+    public async Task RecommendedProductList_ScopeDeniesAccess_ReturnsErrorJson()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.RecommendedProductList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task RecommendedProductList_ScopeGrantsAccess_ReturnsGrid()
+    {
+        var product = new Product { Id = "p1" };
+        product.RecommendedProduct.Add("p2");
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _productServiceMock.Setup(p => p.GetProductById("p2", false)).ReturnsAsync(new Product { Id = "p2", Name = "Second" });
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+
+        var result = await _controller.RecommendedProductList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = json.Value as Grand.Web.Common.DataSource.DataSourceResult;
+        Assert.IsNotNull(gridModel);
+        Assert.AreEqual(1, gridModel.Total);
+    }
+
+    // --- RecommendedProductDelete -------------------------------------------------------------------
+    // Admin/Store/Vendor all throw ArgumentException when the product does not exist; Vendor's original
+    // RecommendedProductDelete had no ownership check at all - closed here the same way as List above.
+
+    [TestMethod]
+    public async Task RecommendedProductDelete_ProductNotFound_Throws()
+    {
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync((Product)null);
+        var model = new ProductModel.RecommendedProductModel { ProductId = "p1", Id = "p2" };
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.RecommendedProductDelete(model));
+    }
+
+    [TestMethod]
+    public async Task RecommendedProductDelete_ScopeDeniesAccess_ReturnsErrorJson_DoesNotDelete()
+    {
+        var product = new Product { Id = "p1" };
+        product.RecommendedProduct.Add("p2");
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.RecommendedProductModel { ProductId = "p1", Id = "p2" };
+
+        var result = await _controller.RecommendedProductDelete(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.DeleteRecommendedProduct(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RecommendedProductDelete_NoMatchingRecommendedProduct_Throws()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.RecommendedProductModel { ProductId = "p1", Id = "p2" };
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.RecommendedProductDelete(model));
+    }
+
+    [TestMethod]
+    public async Task RecommendedProductDelete_ScopeGrantsAccess_ValidModel_Deletes()
+    {
+        var product = new Product { Id = "p1" };
+        product.RecommendedProduct.Add("p2");
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.RecommendedProductModel { ProductId = "p1", Id = "p2" };
+
+        var result = await _controller.RecommendedProductDelete(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(s => s.DeleteRecommendedProduct("p1", "p2"), Times.Once);
+    }
+
+    // --- RecommendedProductAddPopup (GET) -------------------------------------------------------------
+
+    [TestMethod]
+    public async Task RecommendedProductAddPopupGet_UsesScopeDefaultStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _productViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel("store-1"))
+            .ReturnsAsync(new ProductModel.AddRecommendedProductModel());
+
+        var result = await _controller.RecommendedProductAddPopup("p1") as ViewResult;
+
+        Assert.IsNotNull(result);
+        var model = result.Model as ProductModel.AddRecommendedProductModel;
+        Assert.IsNotNull(model);
+        Assert.AreEqual("p1", model.ProductId);
+        _productViewModelServiceMock.Verify(s => s.PrepareRecommendedProductModel("store-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task RecommendedProductAddPopupGet_NoDefaultStoreId_PassesEmptyString()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _productViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel(""))
+            .ReturnsAsync(new ProductModel.AddRecommendedProductModel());
+
+        var result = await _controller.RecommendedProductAddPopup("p1") as ViewResult;
+
+        Assert.IsNotNull(result);
+        _productViewModelServiceMock.Verify(s => s.PrepareRecommendedProductModel(""), Times.Once);
+    }
+
+    // --- RecommendedProductAddPopupList ---------------------------------------------------------------
+
+    [TestMethod]
+    public async Task RecommendedProductAddPopupList_UsesScopeDefaultStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _productViewModelServiceMock
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>(), 0, 10))
+            .ReturnsAsync((new List<ProductModel>(), 0));
+
+        var model = new ProductModel.AddRecommendedProductModel();
+        var result = await _controller.RecommendedProductAddPopupList(
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        Assert.AreEqual("store-1", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task RecommendedProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _productViewModelServiceMock
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>(), 0, 10))
+            .ReturnsAsync((new List<ProductModel>(), 0));
+
+        var model = new ProductModel.AddRecommendedProductModel { SearchStoreId = "explicit" };
+        var result = await _controller.RecommendedProductAddPopupList(
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        Assert.AreEqual("explicit", model.SearchStoreId);
+    }
+
+    // --- RecommendedProductAddPopup (POST) --------------------------------------------------------------
+    // HasAccess (strict): closes a real gap - Vendor's original RecommendedProductAddPopup(POST) had no
+    // ownership check at all, letting any vendor attach recommended-product mappings onto another
+    // vendor's product by posting its id.
+
+    [TestMethod]
+    public async Task RecommendedProductAddPopupPost_ScopeDeniesAccess_ReturnsContentMessage_DoesNotInsert()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.AddRecommendedProductModel { ProductId = "p1", SelectedProductIds = ["p2"] };
+
+        var result = await _controller.RecommendedProductAddPopup(model);
+
+        Assert.IsInstanceOfType<ContentResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.InsertRecommendedProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RecommendedProductAddPopupPost_ScopeGrantsAccess_ValidModel_Inserts()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.AddRecommendedProductModel { ProductId = "p1", SelectedProductIds = ["p2"] };
+
+        var result = await _controller.RecommendedProductAddPopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("", content.Content);
+        _productViewModelServiceMock.Verify(s => s.InsertRecommendedProductModel(model), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task RecommendedProductAddPopupPost_ScopeGrantsAccess_InvalidModel_ReturnsViewWithRepreparedModel()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var reprepared = new ProductModel.AddRecommendedProductModel();
+        _productViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel("store-1")).ReturnsAsync(reprepared);
+        var model = new ProductModel.AddRecommendedProductModel { ProductId = "p1" };
+        _controller.ModelState.AddModelError("x", "error");
+
+        var result = await _controller.RecommendedProductAddPopup(model);
+
+        var view = result as ViewResult;
+        Assert.IsNotNull(view);
+        Assert.AreSame(reprepared, view.Model);
+        _productViewModelServiceMock.Verify(s => s.InsertRecommendedProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>()), Times.Never);
+    }
 }

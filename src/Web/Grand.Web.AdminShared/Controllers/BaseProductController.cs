@@ -1102,4 +1102,126 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Recommended products
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> RecommendedProductList(DataSourceRequest command, string productId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess (strict), not CanView: same shape as "Cross-sell products" above - mirrors Store's
+        // CanAccessProduct and Vendor's CheckAccessToProduct gating this action on both hosts. Admin's
+        // original RecommendedProductList had no check at all - applying HasAccess uniformly also closes
+        // that gap without changing Admin's superuser behaviour (HasAccess is a no-op for Admin's scope).
+        // Vendor's original signature also dropped the DataSourceRequest command parameter entirely
+        // (unused by the body on any host either way) - kept here for parity with Admin/Store.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var recommendedProductsModel = new List<ProductModel.RecommendedProductModel>();
+        foreach (var x in product.RecommendedProduct)
+            recommendedProductsModel.Add(new ProductModel.RecommendedProductModel {
+                Id = x,
+                ProductId = product.Id,
+                Product2Name = (await productService.GetProductById(x))?.Name
+            });
+        var gridModel = new DataSourceResult {
+            Data = recommendedProductsModel,
+            Total = recommendedProductsModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> RecommendedProductDelete(ProductModel.RecommendedProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null) throw new ArgumentException("Product not exists");
+
+        // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Vendor's original
+        // RecommendedProductDelete had no check at all, letting any vendor delete another vendor's
+        // recommended-product mappings by id - closed here the same way as the List gap above.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var recommendedProduct = product.RecommendedProduct.FirstOrDefault(x => x == model.Id);
+        if (string.IsNullOrEmpty(recommendedProduct))
+            throw new ArgumentException("No recommended product found with the specified id");
+
+        if (ModelState.IsValid)
+        {
+            await productViewModelService.DeleteRecommendedProduct(product.Id, recommendedProduct);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> RecommendedProductAddPopup(string productId)
+    {
+        // No access check here in any of the three original hosts (Admin/Store/Vendor all open this
+        // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
+        // ties access to a specific product. scope.DefaultStoreId ?? "" matches Store's
+        // PrepareRecommendedProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
+        var model = await productViewModelService.PrepareRecommendedProductModel(scope.DefaultStoreId ?? "");
+        model.ProductId = productId;
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> RecommendedProductAddPopupList(DataSourceRequest command,
+        ProductModel.AddRecommendedProductModel model)
+    {
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+
+        var (products, totalCount) =
+            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = products.ToList(),
+            Total = totalCount
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> RecommendedProductAddPopup(ProductModel.AddRecommendedProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Vendor's original
+        // RecommendedProductAddPopup(POST) had no check at all, letting any vendor add recommended-product
+        // mappings onto another vendor's product by posting its id - closed here the same way as the
+        // List/Delete gap above.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+        {
+            if (model.SelectedProductIds != null) await productViewModelService.InsertRecommendedProductModel(model);
+            return Content("");
+        }
+
+        return await InvalidRecommendedProductAddPopupResult(model);
+    }
+
+    /// <summary>Hook for the host-specific invalid-model-state response of the AddPopup(POST) action
+    /// above. Admin and Store both re-prepare the popup model and return the View; Vendor instead
+    /// returns Content(ModelState.GetErrors()) - a Vendor-only extension method that AdminShared cannot
+    /// reference. Default here matches Admin/Store; a future Vendor subclass overrides it once hosts are
+    /// subclassed onto BaseProductController (Task 11).</summary>
+    protected virtual async Task<IActionResult> InvalidRecommendedProductAddPopupResult(ProductModel.AddRecommendedProductModel model)
+    {
+        Error(ModelState);
+        model = await productViewModelService.PrepareRecommendedProductModel(scope.DefaultStoreId ?? "");
+        return View(model);
+    }
+
+    #endregion
 }
