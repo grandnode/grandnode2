@@ -113,6 +113,8 @@ public class ContactController : BasePublicController
 
     [HttpPost]
     [DenySystemAccount]
+    //rejected by ASP.NET Core before the body is buffered into memory, regardless of the attribute's configured limit
+    [RequestSizeLimit(FileExtensions.MaxAttributeUploadRequestBytes)]
     public virtual async Task<IActionResult> UploadFileContactAttribute(string attributeId, IFormFile file,
         [FromServices] IDownloadService downloadService,
         [FromServices] IContactAttributeService contactAttributeService)
@@ -146,20 +148,21 @@ public class ContactController : BasePublicController
                 downloadGuid = Guid.Empty
             });
 
-        //enforce a hard cap regardless of attribute configuration, and check it against the size reported by the
-        //multipart headers before buffering the file into memory
-        var maxFileSizeKb = attribute.ValidationFileMaximumSize.HasValue
-            ? Math.Min(attribute.ValidationFileMaximumSize.Value, FileExtensions.MaxAttributeUploadFileSizeKb)
-            : FileExtensions.MaxAttributeUploadFileSizeKb;
-        if (file.Length > maxFileSizeKb * 1024L)
-            //when returning JSON the mime-type must be set to text/plain
-            //otherwise some browsers will pop-up a "Save As" dialog.
-            return Json(new
-            {
-                success = false,
-                message = string.Format(_translationService.GetResource("ContactUs.MaximumUploadedFileSize"), maxFileSizeKb),
-                downloadGuid = Guid.Empty
-            });
+        if (attribute.ValidationFileMaximumSize.HasValue)
+        {
+            //compare in bytes - check the size reported by the multipart headers before buffering the file into memory
+            var maxFileSizeBytes = attribute.ValidationFileMaximumSize.Value * 1024L;
+            if (file.Length > maxFileSizeBytes)
+                //when returning JSON the mime-type must be set to text/plain
+                //otherwise some browsers will pop-up a "Save As" dialog.
+                return Json(new
+                {
+                    success = false,
+                    message = string.Format(_translationService.GetResource("ContactUs.MaximumUploadedFileSize"),
+                        attribute.ValidationFileMaximumSize.Value),
+                    downloadGuid = Guid.Empty
+                });
+        }
 
         var fileBinary = file.GetDownloadBits();
 
