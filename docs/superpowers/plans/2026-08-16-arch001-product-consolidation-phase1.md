@@ -232,13 +232,22 @@ public class StoreAdminDataScopeTests
         _contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
     }
 
+    // These three mirror AclMappingExtension.AccessToEntityByStore's existing, deliberately strict
+    // rule (src/Web/Grand.Web.AdminShared/Extensions/AclMappingExtension.cs), the same rule
+    // ProductController.CanAccessProduct already enforces for Edit(POST)/Delete/CopyProduct today
+    // (see src/Tests/Grand.Web.Store.Tests/Controllers/ProductControllerTests.cs,
+    // Delete_ProductNotLimitedToAnyStore_IsDenied and
+    // Delete_ProductInMultipleStoresIncludingStaffStore_IsDenied, both commented
+    // "counter-intuitive but current behavior... must not silently fix this"). Access is granted
+    // ONLY when the product is limited to stores, is in exactly one store, and that store is the
+    // staff member's store — a global product or one shared across multiple stores is denied.
     [TestMethod]
-    public async Task HasAccess_ProductNotLimitedToStores_ReturnsTrue()
+    public async Task HasAccess_ProductNotLimitedToStores_ReturnsFalse()
     {
         var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
         var product = new Product { LimitedToStores = false };
 
-        Assert.IsTrue(await scope.HasAccess(product));
+        Assert.IsFalse(await scope.HasAccess(product));
     }
 
     [TestMethod]
@@ -251,12 +260,21 @@ public class StoreAdminDataScopeTests
     }
 
     [TestMethod]
-    public async Task HasAccess_ProductLimitedToStaffStore_ReturnsTrue()
+    public async Task HasAccess_ProductLimitedToStaffStoreOnly_ReturnsTrue()
     {
         var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
         var product = new Product { LimitedToStores = true, Stores = [StaffStoreId] };
 
         Assert.IsTrue(await scope.HasAccess(product));
+    }
+
+    [TestMethod]
+    public async Task HasAccess_ProductInMultipleStoresIncludingStaffStore_ReturnsFalse()
+    {
+        var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
+        var product = new Product { LimitedToStores = true, Stores = [StaffStoreId, "store-3"] };
+
+        Assert.IsFalse(await scope.HasAccess(product));
     }
 
     [TestMethod]
@@ -282,32 +300,33 @@ public class StoreAdminDataScopeTests
 Run: `dotnet test src/Tests/Grand.Web.Store.Tests --filter "FullyQualifiedName~StoreAdminDataScopeTests"`
 Expected: FAIL (compile error — type doesn't exist).
 
-- [ ] **Step 3: Write the implementation**
+- [ ] **Step 3: Write the implementation — delegate to the existing `AccessToEntityByStore` extension**
+
+Do not reimplement the store-access rule. `src/Web/Grand.Web.AdminShared/Extensions/AclMappingExtension.cs` already has it (`AccessToEntityByStore<T>(this T entity, string storeId) where T : BaseEntity, IStoreLinkEntity`), and it's the same rule `ProductController.CanAccessProduct` already enforces today. Add the `BaseEntity` constraint and call it directly:
 
 ```csharp
+using Grand.Domain;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 
 namespace Grand.Web.AdminShared.Services;
 
 public class StoreAdminDataScope<TEntity>(IContextAccessor contextAccessor) : IAdminDataScope<TEntity>
-    where TEntity : IStoreLinkEntity
+    where TEntity : BaseEntity, IStoreLinkEntity
 {
     public Task<bool> HasAccess(TEntity entity)
     {
-        if (entity is null) return Task.FromResult(false);
-
         var staffStoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-        var allowed = !entity.LimitedToStores || entity.Stores.Contains(staffStoreId);
-        return Task.FromResult(allowed);
+        return Task.FromResult(entity != null && entity.AccessToEntityByStore(staffStoreId));
     }
 
     public IQueryable<TEntity> ApplyScope(IQueryable<TEntity> query)
     {
         var staffStoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
         if (string.IsNullOrEmpty(staffStoreId)) return query;
-        return query.Where(x => !x.LimitedToStores || x.Stores.Contains(staffStoreId));
+        return query.Where(x => x.LimitedToStores && x.Stores.Contains(staffStoreId) && x.Stores.Count == 1);
     }
 
     public string? DefaultStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
@@ -316,10 +335,12 @@ public class StoreAdminDataScope<TEntity>(IContextAccessor contextAccessor) : IA
 }
 ```
 
+`ApplyScope` mirrors the same strict rule inline (there's no queryable-friendly overload of `AccessToEntityByStore` — it's written for a single loaded entity) so that a product list built through this scope shows exactly the products `HasAccess` would allow, keeping the two methods consistent with each other.
+
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `dotnet test src/Tests/Grand.Web.Store.Tests --filter "FullyQualifiedName~StoreAdminDataScopeTests"`
-Expected: PASS (5/5).
+Expected: PASS (6/6).
 
 - [ ] **Step 5: Commit**
 

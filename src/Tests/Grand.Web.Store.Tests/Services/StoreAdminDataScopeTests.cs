@@ -22,13 +22,22 @@ public class StoreAdminDataScopeTests
         _contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
     }
 
+    // These three mirror AclMappingExtension.AccessToEntityByStore's existing, deliberately strict
+    // rule (src/Web/Grand.Web.AdminShared/Extensions/AclMappingExtension.cs), the same rule
+    // ProductController.CanAccessProduct already enforces for Edit(POST)/Delete/CopyProduct today
+    // (see src/Tests/Grand.Web.Store.Tests/Controllers/ProductControllerTests.cs,
+    // Delete_ProductNotLimitedToAnyStore_IsDenied and
+    // Delete_ProductInMultipleStoresIncludingStaffStore_IsDenied, both commented
+    // "counter-intuitive but current behavior... must not silently fix this"). Access is granted
+    // ONLY when the product is limited to stores, is in exactly one store, and that store is the
+    // staff member's store — a global product or one shared across multiple stores is denied.
     [TestMethod]
-    public async Task HasAccess_ProductNotLimitedToStores_ReturnsTrue()
+    public async Task HasAccess_ProductNotLimitedToStores_ReturnsFalse()
     {
         var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
         var product = new Product { LimitedToStores = false };
 
-        Assert.IsTrue(await scope.HasAccess(product));
+        Assert.IsFalse(await scope.HasAccess(product));
     }
 
     [TestMethod]
@@ -41,12 +50,21 @@ public class StoreAdminDataScopeTests
     }
 
     [TestMethod]
-    public async Task HasAccess_ProductLimitedToStaffStore_ReturnsTrue()
+    public async Task HasAccess_ProductLimitedToStaffStoreOnly_ReturnsTrue()
     {
         var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
         var product = new Product { LimitedToStores = true, Stores = [StaffStoreId] };
 
         Assert.IsTrue(await scope.HasAccess(product));
+    }
+
+    [TestMethod]
+    public async Task HasAccess_ProductInMultipleStoresIncludingStaffStore_ReturnsFalse()
+    {
+        var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
+        var product = new Product { LimitedToStores = true, Stores = [StaffStoreId, "store-3"] };
+
+        Assert.IsFalse(await scope.HasAccess(product));
     }
 
     [TestMethod]
