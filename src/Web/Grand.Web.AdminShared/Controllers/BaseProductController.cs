@@ -1739,4 +1739,55 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Purchased with order
+
+    // Type note: this method covers Admin and Store only. Both already share
+    // Grand.Web.AdminShared's IOrderViewModelService and Models.Orders.OrderListModel (see the usings
+    // at the top of this file). Vendor defines its own, structurally different
+    // Grand.Web.Vendor.Interfaces.IOrderViewModelService and Grand.Web.Vendor.Models.Orders.OrderListModel
+    // (no StoreId property at all - Vendor's PrepareOrderModel scopes by
+    // _contextAccessor.WorkContext.CurrentVendor.Id internally, not via any model field), so it cannot
+    // bind to this signature. That vendor-id scoping lives entirely inside Vendor's own
+    // OrderViewModelService, outside anything IAdminDataScope<Product> expresses - flagging as a concern
+    // per the task brief rather than inventing a shared model/service pair. Left virtual so a future
+    // Vendor subclass can still override this action with its own types when Vendor is wired onto this
+    // base controller.
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public virtual async Task<IActionResult> PurchasedWithOrders(DataSourceRequest command, string productId,
+        [FromServices] IOrderViewModelService orderViewModelService)
+    {
+        if (!await permissionService.Authorize(StandardPermission.ManageOrders))
+            return Json(new DataSourceResult {
+                Data = null,
+                Total = 0
+            });
+
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Admin's original had
+        // no check at all - GlobalAdminDataScope.HasAccess is a no-op there, so this closes that gap the
+        // same way as every other row in this task.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var model = new OrderListModel {
+            ProductId = productId,
+            // DefaultStoreId is the staff member's store for Store (matches its original
+            // model.StoreId = StaffStoreId) and null for Admin (matches its original, which never set
+            // StoreId at all).
+            StoreId = scope.DefaultStoreId
+        };
+
+        var (orderModels, totalCount) =
+            await orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = orderModels.ToList(),
+            Total = totalCount
+        };
+        return Json(gridModel);
+    }
+
+    #endregion
 }

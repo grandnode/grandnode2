@@ -6,12 +6,14 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
+using Grand.Domain.Permissions;
 using Grand.Infrastructure.Mapper;
 using Grand.Mapping;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -52,6 +54,7 @@ public class BaseProductControllerTests
     private Mock<IProductViewModelService> _productViewModelServiceMock;
     private Mock<ITranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<Product>> _scopeMock;
+    private Mock<IPermissionService> _permissionServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -72,6 +75,9 @@ public class BaseProductControllerTests
         _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
 
+        _permissionServiceMock = new Mock<IPermissionService>();
+        _permissionServiceMock.Setup(p => p.Authorize(It.IsAny<Permission>())).ReturnsAsync(true);
+
         var languageServiceMock = new Mock<ILanguageService>();
         languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>())).ReturnsAsync(new List<Domain.Localization.Language>());
 
@@ -84,7 +90,7 @@ public class BaseProductControllerTests
             new Mock<IProductReservationService>().Object,
             new Mock<IAuctionService>().Object,
             new Mock<IDateTimeService>().Object,
-            new Mock<IPermissionService>().Object,
+            _permissionServiceMock.Object,
             new Mock<IEnumTranslationService>().Object,
             _scopeMock.Object);
 
@@ -2684,5 +2690,72 @@ public class BaseProductControllerTests
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _productServiceMock.Verify(p => p.GetProductById(It.IsAny<string>(), It.IsAny<bool>()), Times.Never);
+    }
+
+    // --- Purchased with order ------------------------------------------------------------------------
+    // Covers Admin and Store only - Vendor cannot bind to this signature (see the region comment in
+    // BaseProductController.cs: Vendor has its own, structurally different IOrderViewModelService and
+    // OrderListModel types).
+
+    [TestMethod]
+    public async Task PurchasedWithOrders_PermissionDenied_ReturnsEmptyGrid_DoesNotLoadProduct()
+    {
+        _permissionServiceMock.Setup(p => p.Authorize(StandardPermission.ManageOrders)).ReturnsAsync(false);
+        var orderViewModelServiceMock = new Mock<IOrderViewModelService>();
+
+        var result = await _controller.PurchasedWithOrders(
+            new Grand.Web.Common.DataSource.DataSourceRequest(), "p1", orderViewModelServiceMock.Object);
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = json.Value as Grand.Web.Common.DataSource.DataSourceResult;
+        Assert.IsNotNull(gridModel);
+        Assert.AreEqual(0, gridModel.Total);
+        Assert.IsNull(gridModel.Data);
+        _productServiceMock.Verify(p => p.GetProductById(It.IsAny<string>(), It.IsAny<bool>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PurchasedWithOrders_ScopeDeniesAccess_ReturnsErrorJson()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var orderViewModelServiceMock = new Mock<IOrderViewModelService>();
+
+        var result = await _controller.PurchasedWithOrders(
+            new Grand.Web.Common.DataSource.DataSourceRequest(), "p1", orderViewModelServiceMock.Object);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        orderViewModelServiceMock.Verify(
+            s => s.PrepareOrderModel(It.IsAny<OrderListModel>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PurchasedWithOrders_ScopeGrantsAccess_UsesDefaultStoreIdAndReturnsGrid()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        // DefaultStoreId stands in for Store's original model.StoreId = StaffStoreId (and for Admin's
+        // original, which left StoreId unset/null - GlobalAdminDataScope.DefaultStoreId is null).
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var orders = new List<OrderModel> { new() { Id = "order1" } };
+        var orderViewModelServiceMock = new Mock<IOrderViewModelService>();
+        orderViewModelServiceMock
+            .Setup(s => s.PrepareOrderModel(
+                It.Is<OrderListModel>(m => m.ProductId == "p1" && m.StoreId == "store-1"), 1, 10))
+            .ReturnsAsync((orders, orders.Count));
+
+        var result = await _controller.PurchasedWithOrders(
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, "p1",
+            orderViewModelServiceMock.Object);
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = json.Value as Grand.Web.Common.DataSource.DataSourceResult;
+        Assert.IsNotNull(gridModel);
+        Assert.AreEqual(1, gridModel.Total);
     }
 }
