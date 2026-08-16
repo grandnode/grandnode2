@@ -2327,4 +2327,154 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Product attributes
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeMappingList(DataSourceRequest command, string productId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess applied uniformly across this region (Admin's Global scope is a no-op). Store originally
+        // checked ownership here (CanAccessProduct) and Vendor did too (CheckAccessToProduct), but neither
+        // host checked ProductAttributeMappingPopup(POST) or ProductAttributeValidationRulesPopup(POST) at
+        // all - a store/vendor user could edit an attribute mapping's name/values or its validation rules on
+        // any product (not just their own/in-scope one) by posting a known productId. Vendor's
+        // ProductAttributeMappingPopup(POST) had no check either, despite its own GET sibling checking.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var attributesModel = await productViewModelService.PrepareProductAttributeMappingModels(product);
+        var gridModel = new DataSourceResult {
+            Data = attributesModel,
+            Total = attributesModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductAttributeMappingPopup(string productId, string productAttributeMappingId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // See the List-action comment above.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (string.IsNullOrEmpty(productAttributeMappingId))
+        {
+            var model = await productViewModelService.PrepareProductAttributeMappingModel(product);
+            return View(model);
+        }
+
+        var productAttributeMapping =
+            product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
+        var editModel = await productViewModelService.PrepareProductAttributeMappingModel(product,
+            productAttributeMapping);
+        return View(editModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeMappingPopup(ProductModel.ProductAttributeMappingModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var product = await productService.GetProductById(model.ProductId);
+            if (product == null)
+                throw new ArgumentException("No product found with the specified id");
+
+            // HasAccess here too: Vendor's original never checked ownership on this POST at all (only its
+            // GET sibling did), letting a vendor insert/update an attribute mapping on any product. See the
+            // List-action comment.
+            if (!await scope.HasAccess(product))
+                return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+            if (string.IsNullOrEmpty(model.Id))
+                await productViewModelService.InsertProductAttributeMappingModel(model);
+            else
+                await productViewModelService.UpdateProductAttributeMappingModel(model);
+
+            return Content("");
+        }
+
+        Error(ModelState);
+        model = await productViewModelService.PrepareProductAttributeMappingModel(model);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeMappingDelete(string id, string productId,
+        [FromServices] IProductAttributeService productAttributeService)
+    {
+        var product = await productService.GetProductById(productId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == id);
+        if (productAttributeMapping == null)
+            throw new ArgumentException("No product attribute mapping found with the specified id");
+
+        // See the List-action comment above.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        await productAttributeService.DeleteProductAttributeMapping(productAttributeMapping, product.Id);
+        return new JsonResult("");
+    }
+
+    //edit
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductAttributeValidationRulesPopup(string id, string productId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // See the List-action comment above. Store's original used ErrorForKendoGridJson here even though
+        // this action returns a View (not a grid), which would have rendered raw JSON as page content on
+        // denial - using Content(...) instead, consistent with the other popup GET action in this region.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == id);
+        if (productAttributeMapping == null)
+            return Content("No attribute value found with the specified id");
+
+        var model = await productViewModelService.PrepareProductAttributeMappingModel(productAttributeMapping);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeValidationRulesPopup(
+        ProductModel.ProductAttributeMappingModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.Id);
+        if (productAttributeMapping == null)
+            throw new ArgumentException("No attribute value found with the specified id");
+
+        // HasAccess here too: none of the three original hosts checked ownership on this POST at all -
+        // a store/vendor user could update an attribute mapping's validation rules (min/max length,
+        // allowed file extensions, default value) on any product by posting a known productId/model.Id.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+        {
+            await productViewModelService.UpdateProductAttributeValidationRulesModel(productAttributeMapping, model);
+            return Content("");
+        }
+
+        Error(ModelState);
+        model = await productViewModelService.PrepareProductAttributeMappingModel(productAttributeMapping);
+        return View(model);
+    }
+
+    #endregion
 }

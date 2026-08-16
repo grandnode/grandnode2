@@ -3568,4 +3568,377 @@ public class BaseProductControllerTests
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.TierPriceDelete(model));
     }
+
+    // --- ProductAttributeMappingList -------------------------------------------------------------
+    // HasAccess applied uniformly on every action in this region. Store's original checked ownership
+    // (CanAccessProduct) on List/PopupGET/PopupPOST/Delete/ValidationRulesPopupGET but not on
+    // ValidationRulesPopup(POST). Vendor's original checked (CheckAccessToProduct/HasAccessToProduct) on
+    // List/PopupGET/Delete/ValidationRulesPopupGET, but NOT on ProductAttributeMappingPopup(POST) or
+    // ValidationRulesPopup(POST) - letting a vendor edit an attribute mapping (or its validation rules) on
+    // any product, not just their own, by posting a known productId.
+
+    [TestMethod]
+    public async Task ProductAttributeMappingList_ScopeDeniesAccess_ReturnsErrorJson()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.ProductAttributeMappingList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(
+            s => s.PrepareProductAttributeMappingModels(It.IsAny<Product>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeMappingList_ScopeDeniesAccess_UsesScopeResourceKeyPrefix()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
+
+        var result = await _controller.ProductAttributeMappingList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Vendor.Catalog.Products.Permissions"), Times.Once);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeMappingList_ScopeGrantsAccess_ReturnsGrid()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var attributes = new List<ProductModel.ProductAttributeMappingModel> { new() { Id = "pam1" } };
+        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModels(product))
+            .ReturnsAsync(attributes);
+
+        var result = await _controller.ProductAttributeMappingList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = json.Value as Grand.Web.Common.DataSource.DataSourceResult;
+        Assert.IsNotNull(gridModel);
+        Assert.AreEqual(1, gridModel.Total);
+    }
+
+    // --- ProductAttributeMappingPopup (GET) ------------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductAttributeMappingPopup_Get_ScopeDeniesAccess_ReturnsPermissionsContent()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.ProductAttributeMappingPopup("p1", null);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(
+            s => s.PrepareProductAttributeMappingModel(It.IsAny<Product>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeMappingPopup_Get_ScopeGrantsAccess_NoMappingId_PreparesNewModel()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(product))
+            .ReturnsAsync(new ProductModel.ProductAttributeMappingModel());
+
+        var result = await _controller.ProductAttributeMappingPopup("p1", null);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeMappingModel(product), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeMappingPopup_Get_ScopeGrantsAccess_MappingId_PreparesEditModel()
+    {
+        var mapping = new ProductAttributeMapping { Id = "pam1" };
+        var product = new Product { Id = "p1" };
+        product.ProductAttributeMappings.Add(mapping);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(product, mapping))
+            .ReturnsAsync(new ProductModel.ProductAttributeMappingModel());
+
+        var result = await _controller.ProductAttributeMappingPopup("p1", "pam1");
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeMappingModel(product, mapping), Times.Once);
+    }
+
+    // --- ProductAttributeMappingPopup (POST) -----------------------------------------------------
+    // HasAccess added here: Vendor's original had no ownership check on this POST at all.
+
+    [TestMethod]
+    public async Task ProductAttributeMappingPopup_Post_ScopeDeniesAccess_DoesNotInsertOrUpdate()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.ProductAttributeMappingModel { ProductId = "p1" };
+
+        var result = await _controller.ProductAttributeMappingPopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(
+            s => s.InsertProductAttributeMappingModel(It.IsAny<ProductModel.ProductAttributeMappingModel>()),
+            Times.Never);
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateProductAttributeMappingModel(It.IsAny<ProductModel.ProductAttributeMappingModel>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeMappingPopup_Post_ScopeGrantsAccess_NoId_Inserts()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.ProductAttributeMappingModel { ProductId = "p1" };
+
+        var result = await _controller.ProductAttributeMappingPopup(model);
+
+        Assert.IsInstanceOfType<ContentResult>(result);
+        _productViewModelServiceMock.Verify(s => s.InsertProductAttributeMappingModel(model), Times.Once);
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateProductAttributeMappingModel(It.IsAny<ProductModel.ProductAttributeMappingModel>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeMappingPopup_Post_ScopeGrantsAccess_WithId_Updates()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.ProductAttributeMappingModel { Id = "pam1", ProductId = "p1" };
+
+        var result = await _controller.ProductAttributeMappingPopup(model);
+
+        Assert.IsInstanceOfType<ContentResult>(result);
+        _productViewModelServiceMock.Verify(s => s.UpdateProductAttributeMappingModel(model), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeMappingPopup_Post_MissingProduct_Throws()
+    {
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        var model = new ProductModel.ProductAttributeMappingModel { ProductId = "missing" };
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.ProductAttributeMappingPopup(model));
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeMappingPopup_Post_InvalidModelState_ReturnsView_DoesNotCheckAccess()
+    {
+        _controller.ModelState.AddModelError("x", "err");
+        var model = new ProductModel.ProductAttributeMappingModel { ProductId = "p1" };
+        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(model)).ReturnsAsync(model);
+
+        var result = await _controller.ProductAttributeMappingPopup(model);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _productServiceMock.Verify(p => p.GetProductById(It.IsAny<string>(), It.IsAny<bool>()), Times.Never);
+        _scopeMock.Verify(s => s.HasAccess(It.IsAny<Product>()), Times.Never);
+    }
+
+    // --- ProductAttributeMappingDelete -----------------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductAttributeMappingDelete_MissingProduct_Throws()
+    {
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        var attrServiceMock = new Mock<IProductAttributeService>();
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(
+            () => _controller.ProductAttributeMappingDelete("pam1", "missing", attrServiceMock.Object));
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeMappingDelete_MappingNotFound_Throws()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        var attrServiceMock = new Mock<IProductAttributeService>();
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(
+            () => _controller.ProductAttributeMappingDelete("missing-pam", "p1", attrServiceMock.Object));
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeMappingDelete_ScopeDeniesAccess_ReturnsErrorJson_DoesNotDelete()
+    {
+        var mapping = new ProductAttributeMapping { Id = "pam1" };
+        var product = new Product { Id = "p1" };
+        product.ProductAttributeMappings.Add(mapping);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var attrServiceMock = new Mock<IProductAttributeService>();
+
+        var result = await _controller.ProductAttributeMappingDelete("pam1", "p1", attrServiceMock.Object);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        attrServiceMock.Verify(
+            s => s.DeleteProductAttributeMapping(It.IsAny<ProductAttributeMapping>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeMappingDelete_ScopeGrantsAccess_Deletes()
+    {
+        var mapping = new ProductAttributeMapping { Id = "pam1" };
+        var product = new Product { Id = "p1" };
+        product.ProductAttributeMappings.Add(mapping);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var attrServiceMock = new Mock<IProductAttributeService>();
+
+        var result = await _controller.ProductAttributeMappingDelete("pam1", "p1", attrServiceMock.Object);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        attrServiceMock.Verify(s => s.DeleteProductAttributeMapping(mapping, "p1"), Times.Once);
+    }
+
+    // --- ProductAttributeValidationRulesPopup (GET) -----------------------------------------------
+
+    [TestMethod]
+    public async Task ProductAttributeValidationRulesPopup_Get_ScopeDeniesAccess_ReturnsPermissionsContent()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.ProductAttributeValidationRulesPopup("pam1", "p1");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeValidationRulesPopup_Get_ScopeGrantsAccess_MappingMissing_ReturnsContent()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+
+        var result = await _controller.ProductAttributeValidationRulesPopup("missing-pam", "p1");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("No attribute value found with the specified id", content.Content);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeValidationRulesPopup_Get_ScopeGrantsAccess_PreparesModel()
+    {
+        var mapping = new ProductAttributeMapping { Id = "pam1" };
+        var product = new Product { Id = "p1" };
+        product.ProductAttributeMappings.Add(mapping);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(mapping))
+            .ReturnsAsync(new ProductModel.ProductAttributeMappingModel());
+
+        var result = await _controller.ProductAttributeValidationRulesPopup("pam1", "p1");
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _productViewModelServiceMock.Verify(s => s.PrepareProductAttributeMappingModel(mapping), Times.Once);
+    }
+
+    // --- ProductAttributeValidationRulesPopup (POST) ----------------------------------------------
+    // HasAccess added here: none of the three original hosts checked ownership on this POST at all - a
+    // store/vendor user could update an attribute mapping's validation rules on any product by posting a
+    // known productId/model.Id.
+
+    [TestMethod]
+    public async Task ProductAttributeValidationRulesPopup_Post_MissingProduct_Throws()
+    {
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+        var model = new ProductModel.ProductAttributeMappingModel { ProductId = "missing" };
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(
+            () => _controller.ProductAttributeValidationRulesPopup(model));
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeValidationRulesPopup_Post_MappingNotFound_Throws()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        var model = new ProductModel.ProductAttributeMappingModel { Id = "missing-pam", ProductId = "p1" };
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(
+            () => _controller.ProductAttributeValidationRulesPopup(model));
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeValidationRulesPopup_Post_ScopeDeniesAccess_ReturnsPermissionsContent_DoesNotUpdate()
+    {
+        var mapping = new ProductAttributeMapping { Id = "pam1" };
+        var product = new Product { Id = "p1" };
+        product.ProductAttributeMappings.Add(mapping);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.ProductAttributeMappingModel { Id = "pam1", ProductId = "p1" };
+
+        var result = await _controller.ProductAttributeValidationRulesPopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateProductAttributeValidationRulesModel(It.IsAny<ProductAttributeMapping>(),
+                It.IsAny<ProductModel.ProductAttributeMappingModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeValidationRulesPopup_Post_ScopeGrantsAccess_ValidModel_Updates()
+    {
+        var mapping = new ProductAttributeMapping { Id = "pam1" };
+        var product = new Product { Id = "p1" };
+        product.ProductAttributeMappings.Add(mapping);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.ProductAttributeMappingModel { Id = "pam1", ProductId = "p1" };
+
+        var result = await _controller.ProductAttributeValidationRulesPopup(model);
+
+        Assert.IsInstanceOfType<ContentResult>(result);
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateProductAttributeValidationRulesModel(mapping, model), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeValidationRulesPopup_Post_ScopeGrantsAccess_InvalidModelState_ReturnsView()
+    {
+        var mapping = new ProductAttributeMapping { Id = "pam1" };
+        var product = new Product { Id = "p1" };
+        product.ProductAttributeMappings.Add(mapping);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _controller.ModelState.AddModelError("x", "err");
+        var model = new ProductModel.ProductAttributeMappingModel { Id = "pam1", ProductId = "p1" };
+        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(mapping)).ReturnsAsync(model);
+
+        var result = await _controller.ProductAttributeValidationRulesPopup(model);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateProductAttributeValidationRulesModel(It.IsAny<ProductAttributeMapping>(),
+                It.IsAny<ProductModel.ProductAttributeMappingModel>()), Times.Never);
+    }
 }
