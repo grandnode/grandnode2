@@ -37,9 +37,11 @@
 Run:
 ```
 dotnet test src/Tests/Grand.Web.Admin.Tests --filter "FullyQualifiedName~ProductController|FullyQualifiedName~ProductViewModelService"
-dotnet test src/Tests/Grand.Web.Store.Tests --filter "FullyQualifiedName~ProductController"
+dotnet test src/Tests/Grand.Web.Store.Tests
 dotnet test src/Tests/Grand.Web.Vendor.Tests --filter "FullyQualifiedName~ProductController|FullyQualifiedName~ProductViewModelService"
 ```
+Note: run `Grand.Web.Store.Tests` **unfiltered**, not with a `~ProductController` filter. `AutoMapperConfig` is a static singleton initialized in `PaymentControllerTests.TestInitialize` (`src/Tests/Grand.Web.Store.Tests/Controllers/PaymentControllerTests.cs:48`); filtering it out of the run leaves the mapper uninitialized and fails `ProductControllerTests.EditGet_ProductSharedAcrossMultipleStoresIncludingStaffStore_ShowsFormWithWarning` with a `NullReferenceException` that has nothing to do with Product code (confirmed 2026-08-16: 102/102 pass unfiltered, 93/94 pass with the narrow filter). Same applies anywhere else in this plan that filters `Grand.Web.Store.Tests` by `~Product*` — run that project unfiltered instead.
+
 Expected: all PASS. If anything fails here, stop and fix or report it before starting Task 1 — this plan's safety net depends on a green baseline.
 
 - [ ] **Step 2: Note the test project namespaces/base classes used**
@@ -1326,9 +1328,11 @@ git rm src/Tests/Grand.Web.Vendor.Tests/Services/ProductViewModelServiceTests.cs
 Run:
 ```
 dotnet test src/Tests/Grand.Web.Admin.Tests --filter "FullyQualifiedName~Product"
-dotnet test src/Tests/Grand.Web.Store.Tests --filter "FullyQualifiedName~Product"
+dotnet test src/Tests/Grand.Web.Store.Tests
 dotnet test src/Tests/Grand.Web.Vendor.Tests --filter "FullyQualifiedName~Product"
 ```
+Run `Grand.Web.Store.Tests` unfiltered — see the note in Task 0 about `AutoMapperConfig`'s static init living in `PaymentControllerTests`; a `~Product` filter on this project produces a false failure unrelated to this plan's changes.
+
 Expected: all PASS.
 
 - [ ] **Step 5: Commit**
