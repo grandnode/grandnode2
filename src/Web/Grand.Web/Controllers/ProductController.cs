@@ -379,8 +379,6 @@ public class ProductController : BasePublicController
     }
 
     [HttpPost]
-    //rejected by ASP.NET Core before the body is buffered into memory, regardless of the attribute's configured limit
-    [RequestSizeLimit(FileExtensions.MaxAttributeUploadRequestBytes)]
     public virtual async Task<IActionResult> UploadFileProductAttribute(string attributeId, string productId, IFormFile file,
         [FromServices] IDownloadService downloadService)
     {

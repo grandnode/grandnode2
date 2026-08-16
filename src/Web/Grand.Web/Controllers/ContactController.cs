@@ -113,8 +113,6 @@ public class ContactController : BasePublicController
 
     [HttpPost]
     [DenySystemAccount]
-    //rejected by ASP.NET Core before the body is buffered into memory, regardless of the attribute's configured limit
-    [RequestSizeLimit(FileExtensions.MaxAttributeUploadRequestBytes)]
     public virtual async Task<IActionResult> UploadFileContactAttribute(string attributeId, IFormFile file,
         [FromServices] IDownloadService downloadService,
         [FromServices] IContactAttributeService contactAttributeService)
