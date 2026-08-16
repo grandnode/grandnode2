@@ -3,8 +3,10 @@ using Grand.Domain.Tasks;
 using Grand.Infrastructure;
 using Grand.Web.Common.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using static Grand.Web.Common.Infrastructure.BackgroundServiceTask;
 
 namespace Grand.Web.Common.Tests.Infrastructure;
 
@@ -132,6 +134,39 @@ public class BackgroundServiceTaskTests
         _scheduleTaskMock.Verify(t => t.Execute(), Times.Never);
     }
 
+    [TestMethod]
+    public async Task ExecuteAsync_UnexpectedExceptionInLoop_LogsError()
+    {
+        _scheduleTaskServiceMock.Setup(s => s.GetTaskByName(TaskName))
+            .ThrowsAsync(new InvalidOperationException("transient failure"));
+
+        var loggerMock = new Mock<ILogger<BackgroundServiceTask>>();
+        var services = new ServiceCollection();
+        services.AddSingleton(_scheduleTaskServiceMock.Object);
+        services.AddKeyedSingleton(TaskName, _scheduleTaskMock.Object);
+        services.AddSingleton(Mock.Of<IContextAccessor>());
+        services.AddSingleton(Mock.Of<IStoreContextSetter>());
+        services.AddSingleton(Mock.Of<IWorkContextSetter>());
+        services.AddSingleton(loggerMock.Object);
+        var serviceProvider = services.BuildServiceProvider();
+
+        var service = new BackgroundServiceTask(TaskName, serviceProvider);
+        using var cts = new CancellationTokenSource();
+        await service.StartAsync(cts.Token);
+
+        await WaitFor(() => loggerMock.Invocations.Any(i => i.Method.Name == "Log"));
+        cts.Cancel();
+
+        //the failure must be logged, not swallowed silently
+        loggerMock.Verify(l => l.Log(
+            LogLevel.Error,
+            It.IsAny<EventId>(),
+            It.IsAny<It.IsAnyType>(),
+            It.Is<Exception>(e => e is InvalidOperationException),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.AtLeastOnce);
+    }
+
     private static async Task WaitFor(Func<bool> condition)
     {
         for (var i = 0; i < 300; i++)
@@ -141,5 +176,104 @@ public class BackgroundServiceTaskTests
         }
 
         Assert.Fail("Condition was not met within the timeout");
+    }
+}
+
+/// <summary>
+/// Pure unit tests for the scheduling decision - no timers, no DI, no BackgroundService
+/// lifecycle. This is what actually proves REL-001 is fixed: every branch resolves to a
+/// delay-and-retry, none of them can signal "stop the loop".
+/// </summary>
+[TestClass]
+public class BackgroundServiceTaskDecideTests
+{
+    private static readonly DateTime UtcNow = new(2026, 8, 16, 12, 0, 0, DateTimeKind.Utc);
+    private const string MachineName = "this-machine";
+
+    private static ScheduleTask NewTask(bool enabled = true, string leasedBy = null,
+        int timeInterval = 60, DateTime? lastStartUtc = null)
+    {
+        return new ScheduleTask {
+            Id = "1",
+            Enabled = enabled,
+            LeasedByMachineName = leasedBy,
+            TimeInterval = timeInterval,
+            LastStartUtc = lastStartUtc
+        };
+    }
+
+    [TestMethod]
+    public void Decide_TaskNotSeededYet_ReturnsRetryInOneMinute()
+    {
+        var decision = Decide(null, MachineName, UtcNow);
+
+        Assert.AreEqual(ScheduleAction.Retry, decision.Action);
+        Assert.AreEqual(1, decision.DelayMinutes);
+    }
+
+    [TestMethod]
+    public void Decide_TaskDisabled_ReturnsRetryAfterOwnInterval()
+    {
+        var task = NewTask(enabled: false, timeInterval: 15);
+
+        var decision = Decide(task, MachineName, UtcNow);
+
+        Assert.AreEqual(ScheduleAction.Retry, decision.Action);
+        Assert.AreEqual(15, decision.DelayMinutes);
+    }
+
+    [TestMethod]
+    public void Decide_TaskLeasedByAnotherMachine_ReturnsRetryAfterOwnInterval()
+    {
+        var task = NewTask(leasedBy: "other-machine", timeInterval: 15);
+
+        var decision = Decide(task, MachineName, UtcNow);
+
+        Assert.AreEqual(ScheduleAction.Retry, decision.Action);
+        Assert.AreEqual(15, decision.DelayMinutes);
+    }
+
+    [TestMethod]
+    public void Decide_TaskLeasedByOwnMachine_IsEligible()
+    {
+        var task = NewTask(leasedBy: MachineName);
+
+        var decision = Decide(task, MachineName, UtcNow);
+
+        Assert.AreEqual(ScheduleAction.RunNow, decision.Action);
+    }
+
+    [TestMethod]
+    public void Decide_EnabledAndNeverRunBefore_ReturnsRunNow()
+    {
+        var task = NewTask(timeInterval: 30);
+
+        var decision = Decide(task, MachineName, UtcNow);
+
+        Assert.AreEqual(ScheduleAction.RunNow, decision.Action);
+        Assert.AreEqual(30, decision.DelayMinutes);
+    }
+
+    [TestMethod]
+    public void Decide_EnabledAndIntervalElapsed_ReturnsRunNow()
+    {
+        var task = NewTask(timeInterval: 30, lastStartUtc: UtcNow.AddMinutes(-31));
+
+        var decision = Decide(task, MachineName, UtcNow);
+
+        Assert.AreEqual(ScheduleAction.RunNow, decision.Action);
+        Assert.AreEqual(30, decision.DelayMinutes);
+    }
+
+    [TestMethod]
+    public void Decide_EnabledButNotDueYet_ReturnsWaitForRemainingTimeTruncatedToWholeMinutes()
+    {
+        //10.5 minutes elapsed of a 30-minute interval -> 19.5 minutes remain
+        var task = NewTask(timeInterval: 30, lastStartUtc: UtcNow.AddSeconds(-(10 * 60 + 30)));
+
+        var decision = Decide(task, MachineName, UtcNow);
+
+        Assert.AreEqual(ScheduleAction.WaitForNextRun, decision.Action);
+        Assert.AreEqual(19, decision.DelayMinutes); //truncated, same as the original code
     }
 }
