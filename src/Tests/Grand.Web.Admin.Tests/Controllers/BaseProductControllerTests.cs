@@ -2758,4 +2758,81 @@ public class BaseProductControllerTests
         Assert.IsNotNull(gridModel);
         Assert.AreEqual(1, gridModel.Total);
     }
+
+    // --- Reviews ---------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task Reviews_ScopeDeniesAccess_ReturnsErrorJson_DoesNotLoadReviews()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var productReviewServiceMock = new Mock<IProductReviewService>();
+
+        var result = await _controller.Reviews(
+            new Grand.Web.Common.DataSource.DataSourceRequest(), "p1", productReviewServiceMock.Object);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        productReviewServiceMock.Verify(
+            s => s.GetAllProductReviews(It.IsAny<string>(), It.IsAny<bool?>(), It.IsAny<DateTime?>(),
+                It.IsAny<DateTime?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Reviews_ScopeGrantsAccess_WithDefaultStoreId_FiltersReviewsByStore()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        // DefaultStoreId stands in for Store's original storeId argument (the staff member's
+        // StaffStoreId, used to filter reviews to that store).
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var review = new ProductReview { Id = "r1", ProductId = "p1" };
+        var reviews = new PagedList<ProductReview>(new List<ProductReview> { review }, 0, int.MaxValue);
+        var productReviewServiceMock = new Mock<IProductReviewService>();
+        productReviewServiceMock
+            .Setup(s => s.GetAllProductReviews("", null, null, null, "", "store-1", "p1", 0, int.MaxValue))
+            .ReturnsAsync(reviews);
+
+        var result = await _controller.Reviews(
+            new Grand.Web.Common.DataSource.DataSourceRequest(), "p1", productReviewServiceMock.Object);
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = json.Value as Grand.Web.Common.DataSource.DataSourceResult;
+        Assert.IsNotNull(gridModel);
+        Assert.AreEqual(1, gridModel.Total);
+        _productViewModelServiceMock.Verify(
+            s => s.PrepareProductReviewModel(It.IsAny<ProductReviewModel>(), review, false, true), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Reviews_ScopeGrantsAccess_NullDefaultStoreId_PassesEmptyStoreId()
+    {
+        // Matches both Admin's and Vendor's originals, which both passed "" literally (Vendor scopes by
+        // VendorId via the HasAccess check above, not by store - VendorProductDataScope.DefaultStoreId
+        // is null).
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        var reviews = new PagedList<ProductReview>(new List<ProductReview>(), 0, int.MaxValue);
+        var productReviewServiceMock = new Mock<IProductReviewService>();
+        productReviewServiceMock
+            .Setup(s => s.GetAllProductReviews("", null, null, null, "", "", "p1", 0, int.MaxValue))
+            .ReturnsAsync(reviews);
+
+        var result = await _controller.Reviews(
+            new Grand.Web.Common.DataSource.DataSourceRequest(), "p1", productReviewServiceMock.Object);
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = json.Value as Grand.Web.Common.DataSource.DataSourceResult;
+        Assert.IsNotNull(gridModel);
+        Assert.AreEqual(0, gridModel.Total);
+        productReviewServiceMock.Verify(
+            s => s.GetAllProductReviews("", null, null, null, "", "", "p1", 0, int.MaxValue), Times.Once);
+    }
 }

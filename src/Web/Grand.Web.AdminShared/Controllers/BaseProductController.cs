@@ -1794,4 +1794,47 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Reviews
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> Reviews(DataSourceRequest command, string productId,
+        [FromServices] IProductReviewService productReviewService)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating
+        // this action on both hosts. Admin's original had no check at all - GlobalAdminDataScope.HasAccess
+        // is a no-op there, so this closes that gap the same way as every other row in this task.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        // DefaultStoreId is the staff member's store for Store (matches its original storeId argument,
+        // which filtered reviews to the staff member's store) and null - normalized to "" here, matching
+        // GetAllProductReviews's expected "no filter" value - for both Admin and Vendor (matches their
+        // originals, which both passed "" literally; Vendor scopes by VendorId via the HasAccess check
+        // above, not by store, since VendorProductDataScope.DefaultStoreId is null).
+        var storeId = scope.DefaultStoreId ?? "";
+
+        var productReviews = await productReviewService.GetAllProductReviews("", null,
+            null, null, "", storeId, productId);
+
+        var items = new List<ProductReviewModel>();
+        foreach (var item in productReviews.PagedForCommand(command))
+        {
+            var m = new ProductReviewModel();
+            await productViewModelService.PrepareProductReviewModel(m, item, false, true);
+            items.Add(m);
+        }
+
+        var gridModel = new DataSourceResult {
+            Data = items,
+            Total = productReviews.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    #endregion
 }
