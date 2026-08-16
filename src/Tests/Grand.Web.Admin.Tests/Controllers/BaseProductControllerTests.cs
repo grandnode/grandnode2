@@ -433,4 +433,122 @@ public class BaseProductControllerTests
         Assert.IsNotNull(model);
         Assert.AreEqual("store-1", model.StoreId);
     }
+
+    // --- LoadProductFriendlyNames --------------------------------------------------------------------
+    // Filters the display list rather than denying the whole request: matches Store's CanAccessProduct
+    // loop and Vendor's HasAccessToProduct loop, both of which skip inaccessible products silently.
+
+    [TestMethod]
+    public async Task LoadProductFriendlyNames_EmptyInput_ReturnsEmptyText()
+    {
+        var result = await _controller.LoadProductFriendlyNames("");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        Assert.AreEqual("", GetTextProperty(json.Value));
+        _productServiceMock.Verify(s => s.GetProductsByIds(It.IsAny<string[]>(), It.IsAny<bool>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task LoadProductFriendlyNames_ScopeDeniesAccess_SkipsProduct()
+    {
+        var allowed = new Product { Id = "p1", Name = "Allowed" };
+        var denied = new Product { Id = "p2", Name = "Denied" };
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "p1", "p2" }, true))
+            .ReturnsAsync(new List<Product> { allowed, denied });
+        _scopeMock.Setup(s => s.HasAccess(allowed)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.HasAccess(denied)).ReturnsAsync(false);
+
+        var result = await _controller.LoadProductFriendlyNames("p1,p2");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        // Faithful port of Store/Vendor's original index-based comma logic: it decides whether to
+        // append ", " from the loop index (i != products.Count - 1), not from whether a name was
+        // actually appended, so skipping the last product still leaves a trailing ", ". Pre-existing
+        // quirk in both original hosts, not introduced by this migration - characterized, not fixed.
+        Assert.AreEqual("Allowed, ", GetTextProperty(json.Value));
+    }
+
+    [TestMethod]
+    public async Task LoadProductFriendlyNames_ScopeGrantsAccess_IncludesAllProducts()
+    {
+        var p1 = new Product { Id = "p1", Name = "First" };
+        var p2 = new Product { Id = "p2", Name = "Second" };
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "p1", "p2" }, true))
+            .ReturnsAsync(new List<Product> { p1, p2 });
+        _scopeMock.Setup(s => s.HasAccess(It.IsAny<Product>())).ReturnsAsync(true);
+
+        var result = await _controller.LoadProductFriendlyNames("p1,p2");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        Assert.AreEqual("First, Second", GetTextProperty(json.Value));
+    }
+
+    private static string GetTextProperty(object value) =>
+        (string)value.GetType().GetProperty("Text")!.GetValue(value);
+
+    // --- RequiredProductAddPopup ----------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task RequiredProductAddPopup_UsesScopeDefaultStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _productViewModelServiceMock.Setup(s => s.PrepareAddRequiredProductModel("store-1"))
+            .ReturnsAsync(new ProductModel.AddRequiredProductModel());
+
+        var result = await _controller.RequiredProductAddPopup("input1") as ViewResult;
+
+        Assert.IsNotNull(result);
+        _productViewModelServiceMock.Verify(s => s.PrepareAddRequiredProductModel("store-1"), Times.Once);
+        Assert.AreEqual("input1", _controller.ViewBag.productIdsInput);
+    }
+
+    [TestMethod]
+    public async Task RequiredProductAddPopup_NoDefaultStoreId_PassesEmptyString()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _productViewModelServiceMock.Setup(s => s.PrepareAddRequiredProductModel(""))
+            .ReturnsAsync(new ProductModel.AddRequiredProductModel());
+
+        var result = await _controller.RequiredProductAddPopup("input1") as ViewResult;
+
+        Assert.IsNotNull(result);
+        _productViewModelServiceMock.Verify(s => s.PrepareAddRequiredProductModel(""), Times.Once);
+    }
+
+    // --- RequiredProductAddPopupList -------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task RequiredProductAddPopupList_UsesScopeDefaultStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _productViewModelServiceMock
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRequiredProductModel>(), 0, 10))
+            .ReturnsAsync((new List<ProductModel>(), 0));
+
+        var model = new ProductModel.AddRequiredProductModel();
+        var result = await _controller.RequiredProductAddPopupList(
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        Assert.AreEqual("store-1", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task RequiredProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _productViewModelServiceMock
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRequiredProductModel>(), 0, 10))
+            .ReturnsAsync((new List<ProductModel>(), 0));
+
+        var model = new ProductModel.AddRequiredProductModel { SearchStoreId = "explicit" };
+        var result = await _controller.RequiredProductAddPopupList(
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        Assert.AreEqual("explicit", model.SearchStoreId);
+    }
 }

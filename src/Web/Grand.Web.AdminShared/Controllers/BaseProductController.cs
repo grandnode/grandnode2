@@ -322,4 +322,70 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Required products
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> LoadProductFriendlyNames(string productIds)
+    {
+        var result = "";
+
+        if (!string.IsNullOrWhiteSpace(productIds))
+        {
+            var ids = productIds
+                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .ToList();
+
+            var products = await productService.GetProductsByIds(ids.ToArray(), true);
+            for (var i = 0; i <= products.Count - 1; i++)
+            {
+                // Filters the friendly-name list, not a hard deny of the whole action: matches Store's
+                // CanAccessProduct loop and Vendor's HasAccessToProduct loop, both of which skip
+                // inaccessible products silently rather than erroring the whole request. Both are the
+                // strict rule (AccessToEntityByStore / VendorId equality), so HasAccess (not CanView) is
+                // correct here - this is filtering a display list, not opening/copying a single entity.
+                if (!await scope.HasAccess(products[i])) continue;
+
+                result += products[i].Name;
+                if (i != products.Count - 1)
+                    result += ", ";
+            }
+        }
+
+        return Json(new { Text = result });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> RequiredProductAddPopup(string productIdsInput)
+    {
+        // scope.DefaultStoreId already encodes the per-host default exactly: null for Admin (global) and
+        // Vendor (not store-scoped), StaffStoreId for Store - matching Store's original
+        // PrepareAddRequiredProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
+        var model = await productViewModelService.PrepareAddRequiredProductModel(scope.DefaultStoreId ?? "");
+        // Unused by any of the three views (all three read productIdsInput straight off the query string
+        // via Context.Request.Query, not ViewBag), but Admin and Vendor both set it and Store silently
+        // drops its own parameter - kept here for parity; it is inert either way.
+        ViewBag.productIdsInput = productIdsInput;
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> RequiredProductAddPopupList(DataSourceRequest command,
+        ProductModel.AddRequiredProductModel model)
+    {
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+
+        var (products, totalCount) =
+            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = products.ToList(),
+            Total = totalCount
+        };
+        return Json(gridModel);
+    }
+
+    #endregion
 }
