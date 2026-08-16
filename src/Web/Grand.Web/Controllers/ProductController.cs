@@ -405,32 +405,30 @@ public class ProductController : BasePublicController
         var contentType = file.ContentType;
         var fileExtension = Path.GetExtension(fileName);
 
-        if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
-        {
-            var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.Split([','], StringSplitOptions.RemoveEmptyEntries);
-            if (!allowedFileExtensions.IsAllowedMediaFileType(fileExtension))
-                return Json(new {
-                    success = false,
-                    message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
-                    downloadGuid = Guid.Empty
-                });
-        }
-        var fileBinary = file.GetDownloadBits();
+        //empty configuration must not mean "any extension allowed" - fall back to the safe default allow-list
+        var allowedFileExtensions = FileExtensions.GetAllowedMediaFileTypes(attribute.ValidationFileAllowedExtensions);
+        if (!allowedFileExtensions.IsAllowedMediaFileType(fileExtension))
+            return Json(new {
+                success = false,
+                message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
+                downloadGuid = Guid.Empty
+            });
 
-        if (attribute.ValidationFileMaximumSize.HasValue)
-        {
-            //compare in bytes
-            var maxFileSizeBytes = attribute.ValidationFileMaximumSize.Value * 1024;
-            if (fileBinary.Length > maxFileSizeBytes)
-                //when returning JSON the mime-type must be set to text/plain
-                //otherwise some browsers will pop-up a "Save As" dialog.
-                return Json(new {
-                    success = false,
-                    message = string.Format(_translationService.GetResource("ShoppingCart.MaximumUploadedFileSize"),
-                        attribute.ValidationFileMaximumSize.Value),
-                    downloadGuid = Guid.Empty
-                });
-        }
+        //enforce a hard cap regardless of attribute configuration, and check it against the size reported by the
+        //multipart headers before buffering the file into memory
+        var maxFileSizeKb = attribute.ValidationFileMaximumSize.HasValue
+            ? Math.Min(attribute.ValidationFileMaximumSize.Value, FileExtensions.MaxAttributeUploadFileSizeKb)
+            : FileExtensions.MaxAttributeUploadFileSizeKb;
+        if (file.Length > maxFileSizeKb * 1024L)
+            //when returning JSON the mime-type must be set to text/plain
+            //otherwise some browsers will pop-up a "Save As" dialog.
+            return Json(new {
+                success = false,
+                message = string.Format(_translationService.GetResource("ShoppingCart.MaximumUploadedFileSize"), maxFileSizeKb),
+                downloadGuid = Guid.Empty
+            });
+
+        var fileBinary = file.GetDownloadBits();
 
         var download = new Download {
             DownloadGuid = Guid.NewGuid(),
