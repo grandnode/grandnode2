@@ -714,4 +714,137 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Similar products
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> SimilarProductList(DataSourceRequest command, string productId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess (strict), not CanView: same shape as "Related products" above - mirrors Store's
+        // CanAccessProduct check on this action. Applying it uniformly also closes a real gap: Vendor's
+        // original SimilarProductUpdate/Delete/AddPopup(GET/POST) (below) had no ownership check at all -
+        // only List checked (via CheckAccessToProduct) - letting any vendor mutate another vendor's
+        // similar-product mappings by id.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var similarProducts = product.SimilarProducts.OrderBy(x => x.DisplayOrder);
+        var similarProductsModel = new List<ProductModel.SimilarProductModel>();
+        foreach (var x in similarProducts)
+            similarProductsModel.Add(new ProductModel.SimilarProductModel {
+                Id = x.Id,
+                ProductId1 = productId,
+                ProductId2 = x.ProductId2,
+                Product2Name = (await productService.GetProductById(x.ProductId2))?.Name,
+                DisplayOrder = x.DisplayOrder
+            });
+
+        var gridModel = new DataSourceResult {
+            Data = similarProductsModel,
+            Total = similarProductsModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SimilarProductUpdate(ProductModel.SimilarProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId1);
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+        {
+            await productViewModelService.UpdateSimilarProductModel(model);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SimilarProductDelete(ProductModel.SimilarProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId1);
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+        {
+            await productViewModelService.DeleteSimilarProductModel(model);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> SimilarProductAddPopup(string productId)
+    {
+        // No access check here in any of the three original hosts (Admin/Store/Vendor all open this
+        // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
+        // ties access to a specific product. scope.DefaultStoreId ?? "" matches Store's
+        // PrepareSimilarProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
+        var model = await productViewModelService.PrepareSimilarProductModel(scope.DefaultStoreId ?? "");
+        model.ProductId = productId;
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SimilarProductAddPopupList(DataSourceRequest command,
+        ProductModel.AddSimilarProductModel model)
+    {
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+
+        var (products, totalCount) =
+            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = products.ToList(),
+            Total = totalCount
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SimilarProductAddPopup(ProductModel.AddSimilarProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Vendor's original
+        // SimilarProductAddPopup(POST) had no check at all, letting any vendor add similar-product
+        // mappings onto another vendor's product by posting its id - closed here the same way as the
+        // List/Update/Delete gap above.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+        {
+            if (model.SelectedProductIds != null) await productViewModelService.InsertSimilarProductModel(model);
+            return Content("");
+        }
+
+        return await InvalidSimilarProductAddPopupResult(model);
+    }
+
+    /// <summary>Hook for the host-specific invalid-model-state response of the AddPopup(POST) action
+    /// above. Admin and Store both re-prepare the popup model and return the View; Vendor instead
+    /// returns Content(ModelState.GetErrors()) - a Vendor-only extension method that AdminShared cannot
+    /// reference. Default here matches Admin/Store; a future Vendor subclass overrides it once hosts are
+    /// subclassed onto BaseProductController (Task 11).</summary>
+    protected virtual async Task<IActionResult> InvalidSimilarProductAddPopupResult(ProductModel.AddSimilarProductModel model)
+    {
+        Error(ModelState);
+        model = await productViewModelService.PrepareSimilarProductModel(scope.DefaultStoreId ?? "");
+        return View(model);
+    }
+
+    #endregion
 }

@@ -1069,4 +1069,221 @@ public class BaseProductControllerTests
         Assert.AreSame(reprepared, view.Model);
         _productViewModelServiceMock.Verify(s => s.InsertRelatedProductModel(It.IsAny<ProductModel.AddRelatedProductModel>()), Times.Never);
     }
+
+    // --- SimilarProductList ------------------------------------------------------------------------
+    // HasAccess (strict), not CanView: same shape as RelatedProductList above.
+
+    [TestMethod]
+    public async Task SimilarProductList_ScopeDeniesAccess_ReturnsErrorJson()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.SimilarProductList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SimilarProductList_ScopeGrantsAccess_ReturnsGrid()
+    {
+        var product = new Product { Id = "p1" };
+        product.SimilarProducts.Add(new SimilarProduct { Id = "r1", ProductId2 = "p2", DisplayOrder = 0 });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _productServiceMock.Setup(p => p.GetProductById("p2", false)).ReturnsAsync(new Product { Id = "p2", Name = "Second" });
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+
+        var result = await _controller.SimilarProductList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = json.Value as Grand.Web.Common.DataSource.DataSourceResult;
+        Assert.IsNotNull(gridModel);
+        Assert.AreEqual(1, gridModel.Total);
+    }
+
+    // --- SimilarProductUpdate ----------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task SimilarProductUpdate_ScopeDeniesAccess_ReturnsErrorJson_DoesNotUpdate()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.SimilarProductModel { ProductId1 = "p1" };
+
+        var result = await _controller.SimilarProductUpdate(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.UpdateSimilarProductModel(It.IsAny<ProductModel.SimilarProductModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SimilarProductUpdate_ScopeGrantsAccess_ValidModel_Updates()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.SimilarProductModel { ProductId1 = "p1" };
+
+        var result = await _controller.SimilarProductUpdate(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(s => s.UpdateSimilarProductModel(model), Times.Once);
+    }
+
+    // --- SimilarProductDelete ----------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task SimilarProductDelete_ScopeDeniesAccess_ReturnsErrorJson_DoesNotDelete()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.SimilarProductModel { ProductId1 = "p1" };
+
+        var result = await _controller.SimilarProductDelete(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.DeleteSimilarProductModel(It.IsAny<ProductModel.SimilarProductModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SimilarProductDelete_ScopeGrantsAccess_ValidModel_Deletes()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.SimilarProductModel { ProductId1 = "p1" };
+
+        var result = await _controller.SimilarProductDelete(model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(s => s.DeleteSimilarProductModel(model), Times.Once);
+    }
+
+    // --- SimilarProductAddPopup (GET) --------------------------------------------------------------
+
+    [TestMethod]
+    public async Task SimilarProductAddPopupGet_UsesScopeDefaultStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _productViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel("store-1"))
+            .ReturnsAsync(new ProductModel.AddSimilarProductModel());
+
+        var result = await _controller.SimilarProductAddPopup("p1") as ViewResult;
+
+        Assert.IsNotNull(result);
+        var model = result.Model as ProductModel.AddSimilarProductModel;
+        Assert.IsNotNull(model);
+        Assert.AreEqual("p1", model.ProductId);
+        _productViewModelServiceMock.Verify(s => s.PrepareSimilarProductModel("store-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SimilarProductAddPopupGet_NoDefaultStoreId_PassesEmptyString()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _productViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel(""))
+            .ReturnsAsync(new ProductModel.AddSimilarProductModel());
+
+        var result = await _controller.SimilarProductAddPopup("p1") as ViewResult;
+
+        Assert.IsNotNull(result);
+        _productViewModelServiceMock.Verify(s => s.PrepareSimilarProductModel(""), Times.Once);
+    }
+
+    // --- SimilarProductAddPopupList -----------------------------------------------------------------
+
+    [TestMethod]
+    public async Task SimilarProductAddPopupList_UsesScopeDefaultStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _productViewModelServiceMock
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddSimilarProductModel>(), 0, 10))
+            .ReturnsAsync((new List<ProductModel>(), 0));
+
+        var model = new ProductModel.AddSimilarProductModel();
+        var result = await _controller.SimilarProductAddPopupList(
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        Assert.AreEqual("store-1", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task SimilarProductAddPopupList_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _productViewModelServiceMock
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddSimilarProductModel>(), 0, 10))
+            .ReturnsAsync((new List<ProductModel>(), 0));
+
+        var model = new ProductModel.AddSimilarProductModel { SearchStoreId = "explicit" };
+        var result = await _controller.SimilarProductAddPopupList(
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        Assert.AreEqual("explicit", model.SearchStoreId);
+    }
+
+    // --- SimilarProductAddPopup (POST) --------------------------------------------------------------
+    // HasAccess (strict): closes a real gap - Vendor's original SimilarProductAddPopup(POST) had no
+    // ownership check at all, letting any vendor attach similar-product mappings onto another vendor's
+    // product by posting its id.
+
+    [TestMethod]
+    public async Task SimilarProductAddPopupPost_ScopeDeniesAccess_ReturnsContentMessage_DoesNotInsert()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        var model = new ProductModel.AddSimilarProductModel { ProductId = "p1", SelectedProductIds = ["p2"] };
+
+        var result = await _controller.SimilarProductAddPopup(model);
+
+        Assert.IsInstanceOfType<ContentResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.InsertSimilarProductModel(It.IsAny<ProductModel.AddSimilarProductModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SimilarProductAddPopupPost_ScopeGrantsAccess_ValidModel_Inserts()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.AddSimilarProductModel { ProductId = "p1", SelectedProductIds = ["p2"] };
+
+        var result = await _controller.SimilarProductAddPopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("", content.Content);
+        _productViewModelServiceMock.Verify(s => s.InsertSimilarProductModel(model), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SimilarProductAddPopupPost_ScopeGrantsAccess_InvalidModel_ReturnsViewWithRepreparedModel()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var reprepared = new ProductModel.AddSimilarProductModel();
+        _productViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel("store-1")).ReturnsAsync(reprepared);
+        var model = new ProductModel.AddSimilarProductModel { ProductId = "p1" };
+        _controller.ModelState.AddModelError("x", "error");
+
+        var result = await _controller.SimilarProductAddPopup(model);
+
+        var view = result as ViewResult;
+        Assert.IsNotNull(view);
+        Assert.AreSame(reprepared, view.Model);
+        _productViewModelServiceMock.Verify(s => s.InsertSimilarProductModel(It.IsAny<ProductModel.AddSimilarProductModel>()), Times.Never);
+    }
 }
