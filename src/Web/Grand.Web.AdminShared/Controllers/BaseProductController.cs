@@ -1955,18 +1955,20 @@ public abstract class BaseProductController(
     {
         if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
 
-        // Known gap, not fixed here (out of this region's file scope): Vendor's original
-        // PrepareBulkEditProductModel additionally passed vendorId: CurrentVendor.Id into
-        // productService.SearchProducts, so the grid only ever listed the vendor's own products. The
-        // shared IProductViewModelService.PrepareBulkEditProductModel used here has no vendorId parameter
-        // (unlike PrepareProductModel(AddProductModel), which supports SearchVendorId - see
-        // AssociatedProductVendorId above) - BulkEditListModel carries no SearchVendorId field either.
+        // BLOCKING PREREQUISITE for Task 11 (see plan's Task 10 PrepareBulkEditProductModel row and
+        // Task 11's blocking-prerequisite note, added in commit a8def835a after this gap was flagged and
+        // verified during review): Vendor's original bulk-edit grid was vendor-scoped -
+        // PrepareBulkEditProductModel passed vendorId: CurrentVendor.Id into productService.SearchProducts,
+        // so the grid only ever listed the vendor's own products. AdminShared's version isn't -
+        // IProductViewModelService.PrepareBulkEditProductModel used here has no vendorId parameter (unlike
+        // PrepareProductModel(AddProductModel), which supports SearchVendorId - see
+        // AssociatedProductVendorId above) - and BulkEditListModel carries no SearchVendorId field either.
         // Closing this requires a ProductViewModelService/BulkEditListModel change, which this task's
         // per-row scope (BaseProductController.cs + tests only) does not permit. Not a security gap by
-        // itself (a wider listing, not a mutation), but it does mean a vendor could currently see other
-        // vendors' products in this grid once Vendor is subclassed onto this controller (Task 11) unless
-        // that follow-up also adds vendor filtering here. The mutate endpoints below (BulkEditUpdate/
-        // BulkEditDelete) are scope-checked per item regardless and never leak another party's product.
+        // itself (a wider listing, not a mutation) - the mutate endpoints below (BulkEditUpdate/
+        // BulkEditDelete) are scope-checked per item regardless and never leak another party's product -
+        // but Task 11 must NOT subclass Vendor onto this base controller until Task 10 adds vendor-scoped
+        // filtering here, or a vendor would see every vendor's products in this grid.
         var (bulkEditProductModels, totalCount) =
             await productViewModelService.PrepareBulkEditProductModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
