@@ -1,7 +1,9 @@
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -17,7 +19,9 @@ using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -95,6 +99,22 @@ public class BaseProductControllerTests
             _scopeMock.Object);
 
         var httpContext = new DefaultHttpContext();
+        // Needed for actions whose catch (Exception) block calls Error(exc), which logs via
+        // HttpContext.RequestServices.GetRequiredService<ILoggerFactory>() (see Export / Import below).
+        // Once RequestServices is non-null, ControllerBase.Url's own
+        // HttpContext.RequestServices.GetRequiredService<IUrlHelperFactory>() call (used by every
+        // RedirectToAction(action, controller) - e.g. GoToSku above) stops being short-circuited by the
+        // null-conditional it uses when RequestServices itself is null, so IUrlHelperFactory must resolve
+        // too or those pre-existing tests start throwing.
+        var loggerFactoryMock = new Mock<ILoggerFactory>();
+        loggerFactoryMock.Setup(l => l.CreateLogger(It.IsAny<string>())).Returns(new Mock<ILogger>().Object);
+        var urlHelperFactoryMock = new Mock<IUrlHelperFactory>();
+        urlHelperFactoryMock.Setup(f => f.GetUrlHelper(It.IsAny<ActionContext>()))
+            .Returns(new Mock<IUrlHelper>().Object);
+        var requestServicesMock = new Mock<IServiceProvider>();
+        requestServicesMock.Setup(s => s.GetService(typeof(ILoggerFactory))).Returns(loggerFactoryMock.Object);
+        requestServicesMock.Setup(s => s.GetService(typeof(IUrlHelperFactory))).Returns(urlHelperFactoryMock.Object);
+        httpContext.RequestServices = requestServicesMock.Object;
         _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
         _controller.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
     }
@@ -2834,5 +2854,147 @@ public class BaseProductControllerTests
         Assert.AreEqual(0, gridModel.Total);
         productReviewServiceMock.Verify(
             s => s.GetAllProductReviews("", null, null, null, "", "", "p1", 0, int.MaxValue), Times.Once);
+    }
+
+    // --- Export / Import ---------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task ExportExcelAll_Success_ReturnsXlsxFile()
+    {
+        var model = new ProductListModel();
+        var products = new List<Product> { new() { Id = "p1" } };
+        // No scope filtering here: productViewModelService.PrepareProducts is host-specific and already
+        // returns only the caller's products (Vendor's implementation constrains by CurrentVendor.Id
+        // internally) - the controller trusts it, same as ProductList trusts PrepareProductsModel.
+        _productViewModelServiceMock.Setup(s => s.PrepareProducts(model)).ReturnsAsync(products);
+        var exportManagerMock = new Mock<IExportManager<Product>>();
+        exportManagerMock.Setup(e => e.Export(products)).ReturnsAsync([1, 2, 3]);
+
+        var result = await _controller.ExportExcelAll(model, exportManagerMock.Object);
+
+        var file = result as FileContentResult;
+        Assert.IsNotNull(file);
+        Assert.AreEqual("text/xls", file.ContentType);
+        Assert.AreEqual("products.xlsx", file.FileDownloadName);
+        CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, file.FileContents);
+    }
+
+    [TestMethod]
+    public async Task ExportExcelAll_ExportThrows_ReturnsRedirectToList()
+    {
+        var model = new ProductListModel();
+        _productViewModelServiceMock.Setup(s => s.PrepareProducts(model)).ReturnsAsync([]);
+        var exportManagerMock = new Mock<IExportManager<Product>>();
+        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Product>>()))
+            .ThrowsAsync(new Exception("boom"));
+
+        var result = await _controller.ExportExcelAll(model, exportManagerMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task ExportExcelSelected_NullSelectedIds_ExportsEmptyList()
+    {
+        var exportManagerMock = new Mock<IExportManager<Product>>();
+        exportManagerMock.Setup(e => e.Export(It.Is<IEnumerable<Product>>(p => !p.Any())))
+            .ReturnsAsync([9]);
+
+        var result = await _controller.ExportExcelSelected(null, exportManagerMock.Object);
+
+        var file = result as FileContentResult;
+        Assert.IsNotNull(file);
+        _productServiceMock.Verify(p => p.GetProductsByIds(It.IsAny<string[]>(), true), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ExportExcelSelected_FiltersOutProductsScopeDenies()
+    {
+        // Mirrors Vendor's original explicit HasAccessToProduct re-check on selectedIds (caller-supplied,
+        // not derived from a scoped search, unlike ExportExcelAll) - applied unconditionally here so
+        // Admin (where the original had no check at all) gets the same protection.
+        var owned = new Product { Id = "owned" };
+        var foreign = new Product { Id = "foreign" };
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" }, true))
+            .ReturnsAsync([owned, foreign]);
+        _scopeMock.Setup(s => s.HasAccess(owned)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
+        var exportManagerMock = new Mock<IExportManager<Product>>();
+        exportManagerMock
+            .Setup(e => e.Export(It.Is<IEnumerable<Product>>(p => p.Single() == owned)))
+            .ReturnsAsync([7]);
+
+        var result = await _controller.ExportExcelSelected("owned,foreign", exportManagerMock.Object);
+
+        var file = result as FileContentResult;
+        Assert.IsNotNull(file);
+        exportManagerMock.Verify(e => e.Export(It.Is<IEnumerable<Product>>(p => p.Single() == owned)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ImportExcel_EmptyFile_DoesNotImport_RedirectsToListWithError()
+    {
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.Length).Returns(0);
+        var importManagerMock = new Mock<IImportManager<ProductDto>>();
+
+        var result = await _controller.ImportExcel(fileMock.Object, importManagerMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Common.UploadFile"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ImportExcel_NullFile_DoesNotImport_RedirectsToListWithError()
+    {
+        var importManagerMock = new Mock<IImportManager<ProductDto>>();
+
+        var result = await _controller.ImportExcel(null, importManagerMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ImportExcel_ValidFile_ImportsAndRedirectsToListWithSuccess()
+    {
+        using var stream = new MemoryStream([1, 2, 3]);
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.Length).Returns(3);
+        fileMock.Setup(f => f.OpenReadStream()).Returns(stream);
+        var importManagerMock = new Mock<IImportManager<ProductDto>>();
+        importManagerMock.Setup(i => i.Import(stream)).Returns(Task.CompletedTask);
+
+        var result = await _controller.ImportExcel(fileMock.Object, importManagerMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        importManagerMock.Verify(i => i.Import(stream), Times.Once);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Imported"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ImportExcel_ImportThrows_RedirectsToListWithError()
+    {
+        using var stream = new MemoryStream([1]);
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.Length).Returns(1);
+        fileMock.Setup(f => f.OpenReadStream()).Returns(stream);
+        var importManagerMock = new Mock<IImportManager<ProductDto>>();
+        importManagerMock.Setup(i => i.Import(stream)).ThrowsAsync(new Exception("bad file"));
+
+        var result = await _controller.ImportExcel(fileMock.Object, importManagerMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
     }
 }

@@ -1837,4 +1837,102 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Export / Import
+
+    [PermissionAuthorizeAction(PermissionActionName.Export)]
+    [HttpPost]
+    public async Task<IActionResult> ExportExcelAll(ProductListModel model,
+        [FromServices] IExportManager<Product> exportManager)
+    {
+        // No explicit scope filter needed here: productViewModelService is host-specific (Admin's
+        // implementation returns all products matching the search model; Vendor's PrepareProducts always
+        // constrains the SearchProducts call to WorkContext.CurrentVendor.Id regardless of what's in
+        // model), so scoping is already enforced inside the polymorphic call, same as ProductList above.
+        var products = await productViewModelService.PrepareProducts(model);
+        try
+        {
+            var bytes = await exportManager.Export(products);
+            return File(bytes, "text/xls", "products.xlsx");
+        }
+        catch (Exception exc)
+        {
+            Error(exc);
+            return RedirectToAction("List");
+        }
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Export)]
+    [HttpPost]
+    public async Task<IActionResult> ExportExcelSelected(string selectedIds,
+        [FromServices] IExportManager<Product> exportManager)
+    {
+        var products = new List<Product>();
+        if (selectedIds != null)
+        {
+            var ids = selectedIds
+                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x)
+                .ToArray();
+            products.AddRange(await productService.GetProductsByIds(ids, true));
+        }
+
+        // Unlike ExportExcelAll, selectedIds is caller-supplied and not derived from a scoped search -
+        // Vendor's original explicitly re-checked HasAccessToProduct per id for exactly this reason
+        // (a vendor could otherwise pass another vendor's product id and export it). Admin's original had
+        // no check at all (GlobalAdminDataScope.HasAccess is a no-op there), so applying the filter
+        // unconditionally closes that gap the same way as every other row in this task, without changing
+        // Admin's or Store's observable behavior.
+        var scoped = new List<Product>();
+        foreach (var product in products)
+            if (await scope.HasAccess(product))
+                scoped.Add(product);
+
+        var bytes = await exportManager.Export(scoped);
+        return File(bytes, "text/xls", "products.xlsx");
+    }
+
+    // Not virtual: Vendor's original ProductController has no ImportExcel action at all, and Vendor is
+    // never granted the "Products" permission's Import action (grep across src/Web/Grand.Web.Vendor found
+    // no PermissionActionName.Import usage anywhere) - vendors are deliberately not allowed to bulk-import
+    // products. [PermissionAuthorizeAction(PermissionActionName.Import)] below already 403s for any host
+    // whose role has no Import grant for Products, so this is safe to expose unconditionally on the base
+    // class; Vendor's (future) subclass simply never routes a view to it, same as any other
+    // permission-gated action already in this file.
+    //
+    // Concern (flagged, not fixed - out of scope for this row): ImportExcel only checks
+    // `importexcelfile.Length > 0` before handing the raw stream to IImportManager<ProductDto>.Import.
+    // There is no file-extension allowlist and no upper bound on Length before the stream is read into
+    // memory by the importer. Commit a153496a6 hardened exactly this shape of gap (memory DoS + extension
+    // bypass) for attribute file uploads; this action has the same shape and was not touched by that fix.
+    // This is pre-existing behavior being ported verbatim, not something introduced by this migration -
+    // worth a follow-up ticket, not a silent fix here.
+    [PermissionAuthorizeAction(PermissionActionName.Import)]
+    [HttpPost]
+    public async Task<IActionResult> ImportExcel(IFormFile importexcelfile,
+        [FromServices] IImportManager<ProductDto> importManager)
+    {
+        try
+        {
+            if (importexcelfile is { Length: > 0 })
+            {
+                await importManager.Import(importexcelfile.OpenReadStream());
+            }
+            else
+            {
+                Error(translationService.GetResource("Admin.Common.UploadFile"));
+                return RedirectToAction("List");
+            }
+
+            Success(translationService.GetResource("Admin.Catalog.Products.Imported"));
+            return RedirectToAction("List");
+        }
+        catch (Exception exc)
+        {
+            Error(exc);
+            return RedirectToAction("List");
+        }
+    }
+
+    #endregion
 }
