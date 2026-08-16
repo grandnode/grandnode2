@@ -1,4 +1,5 @@
 using Grand.Data;
+using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Vendor.Interfaces;
 using Grand.Web.Vendor.Services;
@@ -12,6 +13,7 @@ public class StartupApplication : IStartupApplication
         if (!DataSettingsManager.DatabaseIsInstalled())
             return;
 
+        services.AddScoped<Grand.Web.AdminShared.Interfaces.IAdminDataScope<Product>, Grand.Web.AdminShared.Services.VendorProductDataScope>();
         services.AddScoped<IProductViewModelService, ProductViewModelService>();
         services.AddScoped<IOrderViewModelService, OrderViewModelService>();
         services.AddScoped<IShipmentViewModelService, ShipmentViewModelService>();
