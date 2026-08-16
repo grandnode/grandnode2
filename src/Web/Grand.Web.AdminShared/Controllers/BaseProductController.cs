@@ -22,6 +22,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
@@ -1399,6 +1400,191 @@ public abstract class BaseProductController(
     /// product on the parent). Empty here, matching Admin/Store; a future Vendor subclass overrides it
     /// once hosts are subclassed onto BaseProductController (Task 11).</summary>
     protected virtual string AssociatedProductVendorId => "";
+
+    #endregion
+
+    #region Product pictures
+
+    [HttpPost]
+    public async Task<IActionResult> ProductPictureAdd(
+        IFormFileCollection files,
+        Reference reference, string objectId,
+        [FromServices] IPictureService pictureService,
+        [FromServices] MediaSettings mediaSettings)
+    {
+        if (!await permissionService.Authorize(PermissionSystemName.Pictures))
+            return Json(new {
+                success = false,
+                message = "Access denied - picture permissions"
+            });
+
+        if (reference != Reference.Product || string.IsNullOrEmpty(objectId))
+            return Json(new {
+                success = false,
+                message = "Please save form before upload new pictures"
+            });
+
+        if (!files.Any())
+            return Json(new {
+                success = false,
+                message = "No files uploaded"
+            });
+
+        var product = await productService.GetProductById(objectId);
+
+        // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's inline
+        // WorkContext.HasAccessToProduct check gating this action on both hosts. Admin's original had no
+        // check at all - GlobalAdminDataScope.HasAccess is a no-op there, so this closes that gap the same
+        // way as every other row in this task. Message text kept generic rather than reusing either host's
+        // wording ("Access denied - staff permissions" / "Access denied - vendor permissions") since this
+        // is a shared, host-neutral action now.
+        if (!await scope.HasAccess(product))
+            return Json(new {
+                success = false,
+                message = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions")
+            });
+
+        // File-upload validation note (ARCH-001 Phase 1 Task 8 row "Product pictures", 2026-08-16):
+        // extension checking here already goes through FileExtensions.GetAllowedMediaFileTypes, which -
+        // per commit a153496a6's fix - falls back to a safe image-only allow-list when
+        // mediaSettings.AllowedFileTypes is empty, so the "empty config = any extension" bypass that
+        // commit fixed for attribute uploads does not apply here. However, unlike the attribute-upload
+        // paths that commit hardened (Contact/ShoppingCart/Product's ValidationFileMaximumSize check
+        // against file.Length before buffering), this action has NO file-size limit at all in any of the
+        // three original hosts - file.GetDownloadBits() buffers the full upload into memory unconditionally
+        // for every file that passes the extension check. This is pre-existing, identical behavior across
+        // all three hosts (not introduced by this consolidation), so it is ported as-is rather than
+        // "fixed" here per this row's instructions - flagging as a concern: the admin/vendor/store picture
+        // upload endpoints may be exposed to the same memory-DoS pattern a153496a6 fixed elsewhere, and
+        // would need an explicit size check (and a decision on what setting should carry the limit, since
+        // MediaSettings has no equivalent of ValidationFileMaximumSize) before that gap is closed.
+        var values = new List<(string pictureUrl, string pictureId)>();
+        foreach (var file in files)
+        {
+            var fileName = Path.GetFileName(file.FileName);
+            var contentType = file.ContentType;
+            var fileExtension = Path.GetExtension(fileName);
+            if (string.IsNullOrEmpty(contentType))
+                _ = new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
+
+            if (FileExtensions.GetAllowedMediaFileTypes(mediaSettings.AllowedFileTypes).IsAllowedMediaFileType(fileExtension))
+            {
+                var fileBinary = file.GetDownloadBits();
+                //insert picture
+                var picture = await pictureService.InsertPicture(fileBinary, contentType, null, reference: reference,
+                    objectId: objectId);
+                var pictureUrl = await pictureService.GetPictureUrl(picture);
+
+                values.Add((pictureUrl, picture.Id));
+                //assign picture to the product
+                await productViewModelService.InsertProductPicture(product, picture, 0);
+            }
+        }
+
+        return Json(new { success = values.Any(), data = values });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> ProductPictureList(DataSourceRequest command, string productId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating
+        // this action on both hosts. Admin's original had no check at all. Vendor's original signature
+        // also lacked the unused `DataSourceRequest command` parameter that Admin/Store both bind (Kendo
+        // posts it, but no host ever reads it) - kept here to match the two-of-three shape; harmless for
+        // Vendor since an unused extra bound parameter changes nothing about the response.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var productPicturesModel = await productViewModelService.PrepareProductPicturesModel(product);
+        var gridModel = new DataSourceResult {
+            Data = productPicturesModel,
+            Total = productPicturesModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> ProductPicturePopup(string productId, string id)
+    {
+        var product = await productService.GetProductById(productId);
+        if (product == null)
+            return Content("Product not exist");
+
+        // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating
+        // this action on both hosts. Admin's original had no check at all.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var pp = product.ProductPictures.FirstOrDefault(x => x.Id == id);
+        if (pp == null)
+            return Content("Product picture not exist");
+
+        var (model, picture) = await productViewModelService.PrepareProductPictureModel(product, pp);
+        //locales
+        await AddLocales(languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.AltAttribute = picture?.GetTranslation(x => x.AltAttribute, languageId, false);
+            locale.TitleAttribute = picture?.GetTranslation(x => x.TitleAttribute, languageId, false);
+        });
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductPicturePopup(ProductModel.ProductPictureModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var product = await productService.GetProductById(model.ProductId);
+            if (product == null)
+                throw new ArgumentException("No product found with the specified id");
+
+            // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Vendor's original
+            // ProductPicturePopup(POST) had no check at all, letting any vendor rename/re-alt-text another
+            // vendor's product picture by posting its productId/model.Id - closed here the same way as the
+            // other rows in this task.
+            if (!await scope.HasAccess(product))
+                throw new ArgumentException(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+            if (product.ProductPictures.FirstOrDefault(x => x.Id == model.Id) == null)
+                throw new ArgumentException("No product picture found with the specified id");
+
+            await productViewModelService.UpdateProductPicture(model);
+
+            return Content("");
+        }
+
+        Error(ModelState);
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductPictureDelete(ProductModel.ProductPictureModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+
+        // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Vendor's original
+        // ProductPictureDelete had no check at all, letting any vendor delete another vendor's product
+        // picture by posting its productId/model.Id - closed here the same way as ProductPicturePopup(POST)
+        // above.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+        {
+            await productViewModelService.DeleteProductPicture(model);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
 
     #endregion
 }
