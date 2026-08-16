@@ -580,4 +580,138 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Related products
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> RelatedProductList(DataSourceRequest command, string productId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess (strict), not CanView: same shape as "Product categories"/"Product collections" -
+        // mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct gating this action on both
+        // hosts. Applying it uniformly also closes the same kind of gap found in those two regions:
+        // Vendor's original RelatedProductUpdate/Delete/AddPopup(POST) (below) had no ownership check at
+        // all - only List checked - letting any vendor mutate another vendor's related-product mappings
+        // by id.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var relatedProducts = product.RelatedProducts.OrderBy(x => x.DisplayOrder);
+        var relatedProductsModel = new List<ProductModel.RelatedProductModel>();
+        foreach (var x in relatedProducts)
+            relatedProductsModel.Add(new ProductModel.RelatedProductModel {
+                Id = x.Id,
+                ProductId1 = productId,
+                ProductId2 = x.ProductId2,
+                Product2Name = (await productService.GetProductById(x.ProductId2))?.Name,
+                DisplayOrder = x.DisplayOrder
+            });
+
+        var gridModel = new DataSourceResult {
+            Data = relatedProductsModel,
+            Total = relatedProductsModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> RelatedProductUpdate(ProductModel.RelatedProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId1);
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+        {
+            await productViewModelService.UpdateRelatedProductModel(model);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> RelatedProductDelete(ProductModel.RelatedProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId1);
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+        {
+            await productViewModelService.DeleteRelatedProductModel(model);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> RelatedProductAddPopup(string productId)
+    {
+        // No access check here in any of the three original hosts (Admin/Store/Vendor all open this
+        // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
+        // ties access to a specific product. scope.DefaultStoreId ?? "" matches Store's
+        // PrepareRelatedProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
+        var model = await productViewModelService.PrepareRelatedProductModel(scope.DefaultStoreId ?? "");
+        model.ProductId = productId;
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> RelatedProductAddPopupList(DataSourceRequest command,
+        ProductModel.AddRelatedProductModel model)
+    {
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+
+        var (products, totalCount) =
+            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = products.ToList(),
+            Total = totalCount
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> RelatedProductAddPopup(ProductModel.AddRelatedProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Vendor's original
+        // RelatedProductAddPopup(POST) had no check at all, letting any vendor add related-product
+        // mappings onto another vendor's product by posting its id - closed here the same way as the
+        // List/Update/Delete gap above.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        if (ModelState.IsValid)
+        {
+            if (model.SelectedProductIds != null) await productViewModelService.InsertRelatedProductModel(model);
+            return Content("");
+        }
+
+        return await InvalidRelatedProductAddPopupResult(model);
+    }
+
+    /// <summary>Hook for the host-specific invalid-model-state response of the AddPopup(POST) action
+    /// above. Admin and Store both re-prepare the popup model and return the View; Vendor instead
+    /// returns Content(ModelState.GetErrors()) - a Vendor-only extension method that AdminShared cannot
+    /// reference. Default here matches Admin/Store; a future Vendor subclass overrides it once hosts are
+    /// subclassed onto BaseProductController (Task 11).</summary>
+    protected virtual async Task<IActionResult> InvalidRelatedProductAddPopupResult(ProductModel.AddRelatedProductModel model)
+    {
+        Error(ModelState);
+        model = await productViewModelService.PrepareRelatedProductModel(scope.DefaultStoreId ?? "");
+        return View(model);
+    }
+
+    #endregion
 }
