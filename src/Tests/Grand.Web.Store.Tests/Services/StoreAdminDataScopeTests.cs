@@ -82,4 +82,32 @@ public class StoreAdminDataScopeTests
         var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
         Assert.AreEqual("Admin", scope.ResourceKeyPrefix);
     }
+
+    // CanView is deliberately looser than HasAccess: it mirrors Store's original Edit(GET)/CopyProduct
+    // rule (a global or multi-store product including the staff member's store may be viewed/copied;
+    // only a product limited to stores that exclude the staff member's store is denied). See the
+    // existing test comment in ProductControllerTests.EditGet_ProductSharedAcrossMultipleStoresIncludingStaffStore_ShowsFormWithWarning:
+    // "This is the one path that must stay outside any shared 'authorize or redirect' helper."
+    [TestMethod]
+    public async Task CanView_ProductNotLimitedToStores_ReturnsTrue()
+    {
+        var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
+        Assert.IsTrue(await scope.CanView(new Product { LimitedToStores = false }));
+    }
+
+    [TestMethod]
+    public async Task CanView_ProductInMultipleStoresIncludingStaffStore_ReturnsTrue()
+    {
+        var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
+        var product = new Product { LimitedToStores = true, Stores = [StaffStoreId, "store-3"] };
+        Assert.IsTrue(await scope.CanView(product));
+    }
+
+    [TestMethod]
+    public async Task CanView_ProductLimitedToOtherStore_ReturnsFalse()
+    {
+        var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
+        var product = new Product { LimitedToStores = true, Stores = ["store-2"] };
+        Assert.IsFalse(await scope.CanView(product));
+    }
 }

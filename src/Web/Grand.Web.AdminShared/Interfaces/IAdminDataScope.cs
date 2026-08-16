@@ -9,8 +9,17 @@ namespace Grand.Web.AdminShared.Interfaces;
 /// </summary>
 public interface IAdminDataScope<TEntity>
 {
-    /// <summary>Whether the current user may access this specific, already-loaded entity.</summary>
+    /// <summary>Whether the current user may mutate (edit/delete) this specific, already-loaded entity.
+    /// This is the strict check — for Store, matches AclMappingExtension.AccessToEntityByStore exactly
+    /// (denies global and multi-store entities, only the entity's exclusive single store passes).</summary>
     Task<bool> HasAccess(TEntity entity);
+
+    /// <summary>Whether the current user may view/reference this entity (open its edit form, copy it) —
+    /// looser than <see cref="HasAccess"/> for hosts where viewing a shared/global entity is allowed but
+    /// mutating it isn't. Defaults to <see cref="HasAccess"/> for hosts with no such split (Admin: always
+    /// true either way; Vendor: the two are identical, verified against the existing, unsplit
+    /// `CheckAccessToProduct`). Only Store overrides this.</summary>
+    Task<bool> CanView(TEntity entity) => HasAccess(entity);
 
     /// <summary>Narrows a query to the entities the current user may see. No-op for global (Admin) scope.</summary>
     IQueryable<TEntity> ApplyScope(IQueryable<TEntity> query);

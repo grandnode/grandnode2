@@ -28,27 +28,37 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-// Resource-key-prefix audit (2026-08-16, ARCH-001 Phase 1 Task 6, corrected after review):
-// 28 unique "Admin.<suffix>"/"Vendor.<suffix>" GetResource(...) suffixes were found across
-// Grand.Web.Admin/Controllers/ProductController.cs, Grand.Web.Store/Controllers/ProductController.cs,
-// Grand.Web.Vendor/Controllers/ProductController.cs, Grand.Web.AdminShared/Services/ProductViewModelService.cs
-// and Grand.Web.Vendor/Services/ProductViewModelService.cs (multi-line-aware extraction; the brief's
-// original line-bound grep undercounted this at 23). Of the 28:
-//   - 22 are Templated: both an "Admin.<suffix>" and a "Vendor.<suffix>" call site exist, so these are
-//     safe to write as $"{scope.ResourceKeyPrefix}.<suffix>" - e.g. Catalog.Products.Added/Updated/Deleted,
-//     Catalog.Products.Fields.ChangedWarning, Catalog.Products.List.SkuNotFound, Common.All, Customers.Guest,
-//     and 15 more (see task-6-resource-prefix-table.md for the full list).
-//   - 6 are Admin-only literals with no Vendor call site (keep as literal "Admin.<suffix>", do not
-//     template): Catalog.Products.Permissions, Catalog.Products.Imported,
-//     Catalog.Products.List.SearchPublished.ShowOnHomePage, Catalog.Products.TierPrices.Fields.CustomerGroup.All,
-//     Catalog.Products.TierPrices.Fields.Store.All, Common.UploadFile.
-//   - 0 are host-specific-not-templated (every "Vendor.<suffix>" call site has a matching "Admin.<suffix>"
-//     one, so none needed a scope.ResourceKeyPrefix == "Vendor" special case).
+// Resource-key-prefix audit (2026-08-16, ARCH-001 Phase 1 Task 6, corrected after review — see Task 6's
+// ledger entry). Inlined in full here (not just referenced) since planning artifacts under .superpowers/
+// are untracked and do not survive in the repo once this branch merges.
+//
+// Templated via {scope.ResourceKeyPrefix} (Admin.<suffix> and Vendor.<suffix> both exist) — 22:
+//   Common.All, Customers.Guest, Configuration.Tax.Settings.TaxCategories.None,
+//   Catalog.Products.Added, Catalog.Products.Updated, Catalog.Products.Deleted,
+//   Catalog.Products.Fields.ChangedWarning, Catalog.Products.Fields.DeliveryDate.None,
+//   Catalog.Products.Fields.Warehouse.None, Catalog.Products.Bids.CantDeleteWithOrder,
+//   Catalog.Products.List.SkuNotFound, Catalog.Products.List.SearchPublished.All,
+//   Catalog.Products.List.SearchPublished.PublishedOnly, Catalog.Products.List.SearchPublished.UnpublishedOnly,
+//   Catalog.Products.List.SearchPublished.MarkAsNew, Catalog.ProductReservations.CantDeleteWithOrder,
+//   Catalog.Products.Calendar.CannotChangeInterval,
+//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.MinLength,
+//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.MaxLength,
+//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileAllowedExtensions,
+//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.FileMaximumSize,
+//   Catalog.Products.ProductAttributes.Attributes.ValidationRules.DefaultValue.
+//
+// Admin-only literal (no Vendor equivalent call site; keep as literal "Admin.<suffix>") — 6:
+//   Catalog.Products.Permissions (Vendor has no Permissions-suffixed resource lookup anywhere - its
+//     permission-denied paths don't emit this message), Catalog.Products.List.SearchPublished.ShowOnHomePage,
+//   Catalog.Products.Imported, Catalog.Products.TierPrices.Fields.CustomerGroup.All,
+//   Catalog.Products.TierPrices.Fields.Store.All, Common.UploadFile.
+//
+// Host-specific, not templated — 0: none found; every "Vendor.<suffix>" call site has a matching
+//   "Admin.<suffix>" one, so nothing needs a scope.ResourceKeyPrefix == "Vendor" guard instead of templating.
+//
 // Store makes no separate resource lookups at all - every Store call site uses the literal "Admin.*" key
-// directly, which is what scope.ResourceKeyPrefix == "Admin" (StoreAdminDataScope) already produces.
-// Within this region (list/create/edit/delete/CopyProduct), every suffix used
-// (Catalog.Products.List.SkuNotFound, Catalog.Products.Added, Catalog.Products.Updated,
-// Catalog.Products.Deleted, Catalog.Products.Fields.ChangedWarning) is in the Templated set above.
+// directly (Store has no distinct resource set), consistent with StoreAdminDataScope.ResourceKeyPrefix
+// returning "Admin".
 
 [PermissionAuthorize(PermissionSystemName.Products)]
 public abstract class BaseProductController(
@@ -153,7 +163,10 @@ public abstract class BaseProductController(
         if (product == null) return RedirectToAction("List");
 
         EditWarningCheck(product);
-        if (!await scope.HasAccess(product)) return RedirectToAction("List");
+        // CanView, not HasAccess: viewing a shared/global product is allowed on Store (with a warning
+        // from EditWarningCheck above); only mutating one is restricted to the exclusive single-store
+        // owner. See IAdminDataScope<TEntity>.CanView's doc comment and StoreAdminDataScope.CanView.
+        if (!await scope.CanView(product)) return RedirectToAction("List");
 
         var model = product.ToModel(dateTimeService);
         if (scope.DefaultStoreId is not null) model.StoreId = scope.DefaultStoreId;
@@ -234,7 +247,20 @@ public abstract class BaseProductController(
     [HttpPost]
     public async Task<IActionResult> DeleteSelected(ICollection<string> selectedIds)
     {
-        if (selectedIds != null) await productViewModelService.DeleteSelected(selectedIds.ToList());
+        if (selectedIds == null || selectedIds.Count == 0) return Json(new { Result = true });
+
+        // This is a mutation (bulk delete), so it uses the strict HasAccess, matching Edit(POST)/Delete
+        // above — not a no-op pass-through to the service. Without this filter, Store gains an
+        // unscoped bulk-delete endpoint (any store staff could delete any product id in the system,
+        // bypassing AccessToEntityByStore entirely) purely because MVC routes actions regardless of
+        // whether a host's views ever link to them.
+        var products = await productService.GetProductsByIds(selectedIds.ToArray(), true);
+        var allowedIds = new List<string>();
+        foreach (var product in products)
+            if (await scope.HasAccess(product))
+                allowedIds.Add(product.Id);
+
+        if (allowedIds.Count > 0) await productViewModelService.DeleteSelected(allowedIds);
         return Json(new { Result = true });
     }
 
@@ -247,7 +273,10 @@ public abstract class BaseProductController(
         try
         {
             var originalProduct = await productService.GetProductById(copyModel.Id, true);
-            if (!await scope.HasAccess(originalProduct)) return RedirectToAction("List");
+            // CanView, not HasAccess: Store's original CopyProduct denies only when LimitedToStores is
+            // true AND the staff member's store isn't among them — the same looser rule as Edit(GET)
+            // above, not the strict mutation rule. See IAdminDataScope<TEntity>.CanView.
+            if (!await scope.CanView(originalProduct)) return RedirectToAction("List");
 
             if (scope.DefaultStoreId is not null)
             {

@@ -99,15 +99,15 @@ public class BaseProductControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
-        _scopeMock.Verify(s => s.HasAccess(It.IsAny<Product>()), Times.Never);
+        _scopeMock.Verify(s => s.CanView(It.IsAny<Product>()), Times.Never);
     }
 
     [TestMethod]
-    public async Task EditGet_ScopeDeniesAccess_RedirectsToList()
+    public async Task EditGet_ScopeDeniesView_RedirectsToList()
     {
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
-        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(false);
 
         var result = await _controller.Edit("p1");
 
@@ -120,17 +120,34 @@ public class BaseProductControllerTests
     }
 
     [TestMethod]
-    public async Task EditGet_ScopeGrantsAccess_ShowsForm()
+    public async Task EditGet_ScopeGrantsView_ShowsForm()
     {
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
-        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
 
         var result = await _controller.Edit("p1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
         _productViewModelServiceMock.Verify(
             s => s.PrepareProductModel(It.IsAny<ProductModel>(), product, false, false), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task EditGet_UsesCanViewNotHasAccess_LooserRuleWins()
+    {
+        // Regression guard for the review fix: Edit(GET) must gate on the looser CanView, not the
+        // strict mutation-only HasAccess. A product HasAccess would deny (e.g. Store's multi-store
+        // rule) but CanView allows must still show the form.
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
+
+        var result = await _controller.Edit("p1");
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _scopeMock.Verify(s => s.HasAccess(It.IsAny<Product>()), Times.Never);
     }
 
     // --- Edit (POST) -------------------------------------------------------------------------------
@@ -232,11 +249,11 @@ public class BaseProductControllerTests
     // --- CopyProduct -----------------------------------------------------------------------------------
 
     [TestMethod]
-    public async Task CopyProduct_ScopeDeniesAccess_RedirectsToListWithoutCopying()
+    public async Task CopyProduct_ScopeDeniesView_RedirectsToListWithoutCopying()
     {
         var originalProduct = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(originalProduct);
-        _scopeMock.Setup(s => s.HasAccess(originalProduct)).ReturnsAsync(false);
+        _scopeMock.Setup(s => s.CanView(originalProduct)).ReturnsAsync(false);
         var copyProductServiceMock = new Mock<ICopyProductService>();
 
         var model = new ProductModel {
@@ -253,12 +270,12 @@ public class BaseProductControllerTests
     }
 
     [TestMethod]
-    public async Task CopyProduct_ScopeGrantsAccess_Copies()
+    public async Task CopyProduct_ScopeGrantsView_Copies()
     {
         var originalProduct = new Product { Id = "p1" };
         var newProduct = new Product { Id = "p2" };
         _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(originalProduct);
-        _scopeMock.Setup(s => s.HasAccess(originalProduct)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.CanView(originalProduct)).ReturnsAsync(true);
         var copyProductServiceMock = new Mock<ICopyProductService>();
         copyProductServiceMock.Setup(s => s.CopyProduct(originalProduct, "copy", false)).ReturnsAsync(newProduct);
 
@@ -272,6 +289,75 @@ public class BaseProductControllerTests
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
         Assert.AreEqual("p2", redirect.RouteValues["id"]);
+    }
+
+    [TestMethod]
+    public async Task CopyProduct_UsesCanViewNotHasAccess_LooserRuleWins()
+    {
+        // Regression guard: CopyProduct must gate on CanView (Store's original rule: denies only
+        // when LimitedToStores excludes the staff store), not the strict HasAccess.
+        var originalProduct = new Product { Id = "p1" };
+        var newProduct = new Product { Id = "p2" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(originalProduct);
+        _scopeMock.Setup(s => s.HasAccess(originalProduct)).ReturnsAsync(false);
+        _scopeMock.Setup(s => s.CanView(originalProduct)).ReturnsAsync(true);
+        var copyProductServiceMock = new Mock<ICopyProductService>();
+        copyProductServiceMock.Setup(s => s.CopyProduct(originalProduct, "copy", false)).ReturnsAsync(newProduct);
+
+        var model = new ProductModel {
+            CopyProductModel = new CopyProductModel { Id = "p1", Name = "copy", Published = false, CopyImages = false }
+        };
+
+        var result = await _controller.CopyProduct(model, copyProductServiceMock.Object, new Mock<IPictureService>().Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.AreEqual("p2", redirect.RouteValues["id"]);
+    }
+
+    // --- DeleteSelected ------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task DeleteSelected_NoIds_DoesNotCallService()
+    {
+        var result = await _controller.DeleteSelected(new List<string>());
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        _productViewModelServiceMock.Verify(s => s.DeleteSelected(It.IsAny<List<string>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DeleteSelected_FiltersOutProductsScopeDenies()
+    {
+        // Regression guard for the review fix: DeleteSelected is a mutation, so it must filter through
+        // the strict HasAccess before delegating - without this, Store would gain an unscoped
+        // bulk-delete endpoint (any staff could delete any product id in the system).
+        var owned = new Product { Id = "owned" };
+        var foreign = new Product { Id = "foreign" };
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "owned", "foreign" }, true))
+            .ReturnsAsync(new List<Product> { owned, foreign });
+        _scopeMock.Setup(s => s.HasAccess(owned)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
+
+        await _controller.DeleteSelected(new List<string> { "owned", "foreign" });
+
+        _productViewModelServiceMock.Verify(
+            s => s.DeleteSelected(It.Is<List<string>>(ids => ids.Count == 1 && ids[0] == "owned")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteSelected_AllProductsScopeDenies_DoesNotCallDeleteSelected()
+    {
+        var foreign = new Product { Id = "foreign" };
+        _productServiceMock.Setup(p => p.GetProductsByIds(new[] { "foreign" }, true))
+            .ReturnsAsync(new List<Product> { foreign });
+        _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
+
+        await _controller.DeleteSelected(new List<string> { "foreign" });
+
+        _productViewModelServiceMock.Verify(s => s.DeleteSelected(It.IsAny<List<string>>()), Times.Never);
     }
 
     // --- GoToSku -----------------------------------------------------------------------------------------
