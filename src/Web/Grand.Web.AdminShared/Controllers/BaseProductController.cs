@@ -2537,4 +2537,274 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Product attribute values
+
+    //list
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> EditAttributeValues(string productAttributeMappingId, string productId,
+        [FromServices] IProductAttributeService productAttributeService)
+    {
+        var product = await productService.GetProductById(productId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        // HasAccess applied uniformly across this region (Admin's Global scope is a no-op). Admin's
+        // original had no ownership check on this action at all.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var productAttributeMapping =
+            product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
+        if (productAttributeMapping == null)
+            throw new ArgumentException("No product attribute mapping found with the specified id");
+
+        var productAttribute =
+            await productAttributeService.GetProductAttributeById(productAttributeMapping.ProductAttributeId);
+        var model = new ProductModel.ProductAttributeValueListModel {
+            ProductName = product.Name,
+            ProductId = product.Id,
+            ProductAttributeName = productAttribute.Name,
+            ProductAttributeMappingId = productAttributeMappingId
+        };
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeValueList(string productAttributeMappingId, string productId,
+        DataSourceRequest command)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // See the EditAttributeValues comment above.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(
+                translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var productAttributeMapping =
+            product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
+        if (productAttributeMapping == null)
+            throw new ArgumentException("No product attribute mapping found with the specified id");
+
+        var values =
+            await productViewModelService.PrepareProductAttributeValueModels(product, productAttributeMapping);
+        var gridModel = new DataSourceResult {
+            Data = values,
+            Total = values.Count
+        };
+        return Json(gridModel);
+    }
+
+    //create
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductAttributeValueCreatePopup(string productAttributeMappingId,
+        string productId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // Content(...), not ErrorForKendoGridJson: Store's original used ErrorForKendoGridJson here even
+        // though this action returns a View (not a grid), which would have rendered raw JSON as page
+        // content on denial - using Content(...) instead, consistent with the sibling GET popup actions
+        // in this region and elsewhere in this file.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var productAttributeMapping =
+            product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
+        if (productAttributeMapping == null)
+            throw new ArgumentException("No product attribute mapping found with the specified id");
+
+        var model =
+            await productViewModelService.PrepareProductAttributeValueModel(product, productAttributeMapping);
+        //locales
+        await AddLocales(languageService, model.Locales);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductAttributeValueCreatePopup(ProductModel.ProductAttributeValueModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        // HasAccess added explicitly rather than relying on validation-layer side effects: Admin's and
+        // Store's shared ProductAttributeValueModelValidator (BaseStoreAccessValidator<...>) only enforces
+        // ownership when StaffStoreId is set - i.e. it's active for Store, a no-op for Admin. Vendor's
+        // model implements IProductValidVendor, so the global ValidationFilter resolves
+        // IValidator<IProductValidVendor> (ProductValidVendor) and adds a ModelState error when
+        // product.VendorId doesn't match the current vendor - a real check, not a no-op - but
+        // ValidationFilter never short-circuits a non-JSON POST (see ValidationFilter.OnActionExecutionAsync),
+        // so that protection only actually held because Vendor's original action gated the insert behind
+        // `if (ModelState.IsValid)`. Admin's original had neither an explicit check nor that validator
+        // wired up, so this was a real, unguarded IDOR: any caller reaching this shared action without the
+        // Vendor marker-interface model could insert an attribute value onto a product they don't own.
+        // scope.HasAccess makes the check explicit and uniform across all three hosts instead of leaning on
+        // ModelState side effects that only covered one of them.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var productAttributeMapping =
+            product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId);
+        if (productAttributeMapping == null)
+            //No product attribute found with the specified id
+            return RedirectToAction("List", "Product");
+
+        if (ModelState.IsValid)
+        {
+            await productViewModelService.InsertProductAttributeValueModel(model);
+            return Content("");
+        }
+
+        //If we got this far, something failed, redisplay form
+        await productViewModelService.PrepareProductAttributeValueModel(product, model);
+        return View(model);
+    }
+
+    //edit
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductAttributeValueEditPopup(string id, string productId,
+        string productAttributeMappingId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // See the EditAttributeValues comment above.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var pa = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
+        if (pa == null)
+            return RedirectToAction("List", "Product");
+
+        var pav = pa.ProductAttributeValues.FirstOrDefault(x => x.Id == id);
+        if (pav == null)
+            //No attribute value found with the specified id
+            return RedirectToAction("List", "Product");
+
+        var model = await productViewModelService.PrepareProductAttributeValueModel(pa, pav);
+        //locales
+        await AddLocales(languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.Name = pav.GetTranslation(x => x.Name, languageId, false);
+        });
+        //pictures
+        await productViewModelService.PrepareProductAttributeValueModel(product, model);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeValueEditPopup(string productId,
+        ProductModel.ProductAttributeValueModel model)
+    {
+        var product = await productService.GetProductById(productId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        // See the ProductAttributeValueCreatePopup(POST) comment above re: the validator's coverage gap -
+        // the same applies here (this action shares the same model type). Vendor's original never checked
+        // ownership on this POST at all (only its GET sibling did, via CheckAccessToProduct/HasAccessToProduct);
+        // Admin's original had no check on either action.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var pav = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId)
+            ?.ProductAttributeValues.FirstOrDefault(x => x.Id == model.Id);
+        if (pav == null)
+            //No attribute value found with the specified id
+            return RedirectToAction("List", "Product");
+
+        if (ModelState.IsValid)
+        {
+            await productViewModelService.UpdateProductAttributeValueModel(pav, model);
+            return Content("");
+        }
+
+        //If we got this far, something failed, redisplay form
+        await productViewModelService.PrepareProductAttributeValueModel(product, model);
+        return View(model);
+    }
+
+    //delete
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeValueDelete(string id, string pam, string productId,
+        [FromServices] IProductAttributeService productAttributeService)
+    {
+        var product = await productService.GetProductById(productId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        // HasAccess added here: this action takes only simple string parameters (no complex-typed POST
+        // body), so none of the model-level validators discussed above ever run for it. Admin's original
+        // had no ownership check at all; Vendor's/Store's explicit inline checks are what scope.HasAccess
+        // now replaces uniformly.
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(
+                translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var pav = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == pam)?.ProductAttributeValues
+            .FirstOrDefault(x => x.Id == id);
+        if (pav == null)
+            throw new ArgumentException("No product attribute value found with the specified id");
+
+        if (ModelState.IsValid)
+        {
+            await productAttributeService.DeleteProductAttributeValue(pav, productId, pam);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    public async Task<IActionResult> AssociateProductToAttributeValuePopup()
+    {
+        // scope.DefaultStoreId ?? "": matches Store's original (passed StaffStoreId to scope the search to
+        // the staff member's store); null for Admin/Vendor (no store concept), matching their originals
+        // (no argument, defaulting to "").
+        var model =
+            await productViewModelService.PrepareAssociateProductToAttributeValueModel(scope.DefaultStoreId ?? "");
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> AssociateProductToAttributeValuePopupList(DataSourceRequest command,
+        ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel model)
+    {
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+
+        var (products, totalCount) =
+            await productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = products.ToList(),
+            Total = totalCount
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> AssociateProductToAttributeValuePopup(
+        ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel model)
+    {
+        var associatedProduct = await productService.GetProductById(model.AssociatedToProductId);
+        if (associatedProduct == null)
+            return Content("Cannot load a product");
+
+        // HasAccess on the associated product: Admin's original had no check here. Vendor's/Store's
+        // originals checked ownership of the *associated* product (the one about to be referenced as an
+        // AssociatedToProductId value) - there is no separate "owning" product in scope for this action, so
+        // the associated product is the only entity available to check.
+        if (!await scope.HasAccess(associatedProduct))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        return Content("");
+    }
+
+    #endregion
 }
