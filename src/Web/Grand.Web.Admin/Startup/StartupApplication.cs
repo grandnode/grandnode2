@@ -1,10 +1,7 @@
 using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.Drivers.FileSystem.Extensions;
-using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Infrastructure;
-using Grand.Web.AdminShared.Interfaces;
-using Grand.Web.AdminShared.Services;
 using Grand.Web.Common.View;
 
 namespace Grand.Web.Admin.Startup;
@@ -14,7 +11,9 @@ public class StartupApplication : IStartupApplication
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IAreaViewFactory, AdminAreaViewFactory>();
-        services.AddScoped<IAdminDataScope<Product>, GlobalAdminDataScope<Product>>();
+        // IAdminDataScope<Product> is registered once, centrally, by Grand.Web.AdminShared's own
+        // StartupApplication via RoutedProductDataScope - see its doc comment. Registering it here
+        // too would race with Store's/Vendor's registrations under the combined Grand.Web host.
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

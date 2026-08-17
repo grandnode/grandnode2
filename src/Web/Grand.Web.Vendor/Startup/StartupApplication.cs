@@ -1,5 +1,4 @@
 using Grand.Data;
-using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Vendor.Interfaces;
 using Grand.Web.Vendor.Services;
@@ -13,7 +12,13 @@ public class StartupApplication : IStartupApplication
         if (!DataSettingsManager.DatabaseIsInstalled())
             return;
 
-        services.AddScoped<Grand.Web.AdminShared.Interfaces.IAdminDataScope<Product>, Grand.Web.AdminShared.Services.VendorProductDataScope>();
+        // IAdminDataScope<Product> is registered once, centrally, by Grand.Web.AdminShared's own
+        // StartupApplication via RoutedProductDataScope - see its doc comment. A plain
+        // AddScoped<IAdminDataScope<Product>, VendorProductDataScope>() here used to win for every
+        // area under the combined Grand.Web host (Vendor's StartupApplication has the highest
+        // Priority, so its registration ran last and silently overrode Admin's/Store's), causing a
+        // NullReferenceException in VendorProductDataScope.DefaultVendorId whenever an Admin/Store
+        // user opened the product list under that host.
         // IProductViewModelService is registered by Grand.Web.AdminShared's own StartupApplication
         // (Grand.Web.AdminShared/Startup/StartupApplication.cs), which is discovered and run for this
         // host too via the IStartupApplication assembly scan in StartupBase, since Vendor references
