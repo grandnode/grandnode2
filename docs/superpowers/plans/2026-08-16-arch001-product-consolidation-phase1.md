@@ -1429,9 +1429,19 @@ git commit -m "Delete Vendor's duplicate ProductViewModelService/interface, use 
 
 ## Task 13: Consolidate characterization tests, delete superseded per-host duplicates
 
+**Status update (added after Task 11/12's reviews):** Admin's and Store's per-host
+`ProductControllerTests.cs` were already fully deleted during Task 11 (they no longer compiled against
+the new thin-subclass constructor) and replaced with routing/attribute-only coverage
+(`ProductControllerAttributesTests.cs` in each of `Grand.Web.Admin.Tests`/`Grand.Web.Store.Tests`, plus
+`Grand.Web.Store.Tests/Controllers/ProductControllerTests.cs` for the `EditWarningCheck` hook) — Steps
+1-2 below are already done for those two hosts; only Vendor's equivalent remains.
+
+**Additional files, added after Task 12's review (opus) found them:**
+- Delete: `src/Web/Grand.Web.Vendor/Models/Catalog/*.cs` (ProductModel.cs, ProductAttributeCombinationModel.cs, ProductAttributeConditionModel.cs, ProductSpecificationAttributeModel.cs, IProductValidVendor.cs, BulkEditListModel.cs, BulkEditProductModel.cs, CopyProductModel.cs, ProductAttributeModel.cs, ProductListModel.cs, ProductReviewModel.cs) — orphaned since Task 12 repointed `_ViewImports.cshtml` to AdminShared's models; confirmed nothing in `src/Web` still binds them except the files below.
+- Delete: `src/Web/Grand.Web.Vendor/Mapper/ProductProfile.cs`, `src/Web/Grand.Web.Vendor/Extensions/ProductsMappingExtensions.cs` — also orphaned; the latter defines `ToModel`/`ToEntity` extension methods returning the dead Vendor models, which would silently shadow if anything ever called them again, so delete rather than leave as inert.
+- Modify: `src/Tests/Grand.Mapping.Tests/Vendor/VendorMappingTests.cs` — also binds `Grand.Web.Vendor.Models.Catalog`; will fail to compile once the above are deleted. Trim/delete its Product-related cases the same way as the controller test files, or delete the file outright if nothing else in it survives.
+
 **Files:**
-- Modify/trim: `src/Tests/Grand.Web.Admin.Tests/Controllers/ProductControllerTests.cs`
-- Modify/trim: `src/Tests/Grand.Web.Store.Tests/Controllers/ProductControllerTests.cs`
 - Modify/trim: `src/Tests/Grand.Web.Vendor.Tests/Controllers/ProductControllerTests.cs`
 - Delete: `src/Tests/Grand.Web.Vendor.Tests/Services/ProductViewModelServiceTests.cs` (superseded by `Grand.Web.Admin.Tests/Services/ProductViewModelServiceTests.cs`, which now covers all scope variants per Tasks 9-10)
 

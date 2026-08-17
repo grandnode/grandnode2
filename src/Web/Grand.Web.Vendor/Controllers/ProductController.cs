@@ -23,12 +23,10 @@ namespace Grand.Web.Vendor.Controllers;
 // so each subclass restates its own host's attribute set explicitly. No EditWarningCheck override
 // needed - Vendor's original had no equivalent branch.
 //
-// NOT wired into DI yet: this file compiles fine (it references AdminShared's IProductViewModelService
-// directly), but Vendor's DI container still only registers its own old, duplicate
-// Grand.Web.Vendor.Interfaces.IProductViewModelService/ProductViewModelService - nothing registers
-// AdminShared's IProductViewModelService for Vendor yet, so this constructor cannot be resolved at
-// runtime until Task 12 deletes Vendor's duplicate and rewires DI to AdminShared's implementation (see
-// Task 11's plan Step 4). Left as an uncommitted working-tree change per plan Step 5 until Task 12.
+// DI wiring: resolves via AdminShared's own IStartupApplication (Priority 101), which registers
+// IProductViewModelService for any host referencing the AdminShared assembly - including Vendor.
+// Vendor's own duplicate registration was removed in Task 12, alongside the duplicate service/interface
+// it pointed at.
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaVendor)]
 [AuthorizeVendor]
