@@ -23,4 +23,6 @@ public class VendorProductDataScope(IContextAccessor contextAccessor) : IAdminDa
     public string? DefaultStoreId => null;
 
     public string ResourceKeyPrefix => "Vendor";
+
+    public bool ShowStoreSelector => false;
 }

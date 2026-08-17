@@ -19,9 +19,9 @@ public interface IProductViewModelService
 
     Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model, Product product);
     Task SaveProductWarehouseInventory(Product product, IList<ProductModel.ProductWarehouseInventoryModel> model);
-    Task PrepareTierPriceModel(ProductModel.TierPriceModel model, string storeId = "");
+    Task PrepareTierPriceModel(ProductModel.TierPriceModel model);
     Task PrepareProductAttributeValueModel(Product product, ProductModel.ProductAttributeValueModel model);
-    Task<ProductListModel> PrepareProductListModel(string storeId = "");
+    Task<ProductListModel> PrepareProductListModel();
 
     Task<(IEnumerable<ProductModel> productModels, int totalCount)> PrepareProductsModel(ProductListModel model,
         int pageIndex, int pageSize);
@@ -31,7 +31,7 @@ public interface IProductViewModelService
     Task<Product> UpdateProductModel(Product product, ProductModel model);
     Task DeleteProduct(Product product);
     Task DeleteSelected(IEnumerable<string> selectedIds);
-    Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel(string storeId = "");
+    Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel();
 
     Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddProductModel model,
         int pageIndex, int pageSize);
@@ -59,13 +59,13 @@ public interface IProductViewModelService
     Task DeleteRecommendedProduct(string productId, string recommendedProductId);
     Task InsertAssociatedProductModel(ProductModel.AddAssociatedProductModel model);
     Task DeleteAssociatedProduct(Product product);
-    Task<ProductModel.AddRelatedProductModel> PrepareRelatedProductModel(string storeId = "");
-    Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel(string storeId = "");
-    Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel(string storeId = "");
-    Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel(string storeId = "");
-    Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel(string storeId = "");
-    Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel(string storeId = "");
-    Task<BulkEditListModel> PrepareBulkEditListModel(string storeId = "");
+    Task<ProductModel.AddRelatedProductModel> PrepareRelatedProductModel();
+    Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel();
+    Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel();
+    Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel();
+    Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel();
+    Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel();
+    Task<BulkEditListModel> PrepareBulkEditListModel();
 
     Task<(IEnumerable<BulkEditProductModel> bulkEditProductModels, int totalCount)> PrepareBulkEditProductModel(
         BulkEditListModel model, int pageIndex, int pageSize);
@@ -75,7 +75,7 @@ public interface IProductViewModelService
     Task DeleteBulkEdit(IEnumerable<BulkEditProductModel> products);
 
     //tierprices
-    Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product, string storeId = "");
+    Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product);
 
     Task<(IEnumerable<ProductModel.BidModel> bidModels, int totalCount)> PrepareBidMode(string productId, int pageIndex,
         int pageSize);
@@ -117,7 +117,7 @@ public interface IProductViewModelService
     Task UpdateProductAttributeValueModel(ProductAttributeValue pav, ProductModel.ProductAttributeValueModel model);
 
     Task<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>
-        PrepareAssociateProductToAttributeValueModel(string storeId = "");
+        PrepareAssociateProductToAttributeValueModel();
 
     Task<IList<ProductModel.ProductAttributeCombinationModel>> PrepareProductAttributeCombinationModel(Product product);
 

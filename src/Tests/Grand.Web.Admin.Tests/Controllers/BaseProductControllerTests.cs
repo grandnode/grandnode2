@@ -449,15 +449,16 @@ public class BaseProductControllerTests
     // --- List / Create default store-scoping -----------------------------------------------------------
 
     [TestMethod]
-    public async Task List_UsesScopeDefaultStoreId()
+    public async Task List_CallsPrepareProductListModel()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock.Setup(s => s.PrepareProductListModel("store-1")).ReturnsAsync(new ProductListModel());
+        // PrepareProductListModel() now reads scope.DefaultStoreId internally (Task 9) - the controller
+        // no longer threads it through as an argument.
+        _productViewModelServiceMock.Setup(s => s.PrepareProductListModel()).ReturnsAsync(new ProductListModel());
 
         var result = await _controller.List();
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareProductListModel("store-1"), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.PrepareProductListModel(), Times.Once);
     }
 
     [TestMethod]
@@ -531,30 +532,17 @@ public class BaseProductControllerTests
     // --- RequiredProductAddPopup ----------------------------------------------------------------------
 
     [TestMethod]
-    public async Task RequiredProductAddPopup_UsesScopeDefaultStoreId()
+    public async Task RequiredProductAddPopup_CallsPrepareAddRequiredProductModel()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock.Setup(s => s.PrepareAddRequiredProductModel("store-1"))
+        // PrepareAddRequiredProductModel() now reads scope internally (Task 9).
+        _productViewModelServiceMock.Setup(s => s.PrepareAddRequiredProductModel())
             .ReturnsAsync(new ProductModel.AddRequiredProductModel());
 
         var result = await _controller.RequiredProductAddPopup("input1") as ViewResult;
 
         Assert.IsNotNull(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareAddRequiredProductModel("store-1"), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.PrepareAddRequiredProductModel(), Times.Once);
         Assert.AreEqual("input1", _controller.ViewBag.productIdsInput);
-    }
-
-    [TestMethod]
-    public async Task RequiredProductAddPopup_NoDefaultStoreId_PassesEmptyString()
-    {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock.Setup(s => s.PrepareAddRequiredProductModel(""))
-            .ReturnsAsync(new ProductModel.AddRequiredProductModel());
-
-        var result = await _controller.RequiredProductAddPopup("input1") as ViewResult;
-
-        Assert.IsNotNull(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareAddRequiredProductModel(""), Times.Once);
     }
 
     // --- RequiredProductAddPopupList -------------------------------------------------------------------
@@ -991,10 +979,10 @@ public class BaseProductControllerTests
     // --- RelatedProductAddPopup (GET) --------------------------------------------------------------
 
     [TestMethod]
-    public async Task RelatedProductAddPopupGet_UsesScopeDefaultStoreId()
+    public async Task RelatedProductAddPopupGet_CallsPrepareRelatedProductModel()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock.Setup(s => s.PrepareRelatedProductModel("store-1"))
+        // PrepareRelatedProductModel() now reads scope internally (Task 9).
+        _productViewModelServiceMock.Setup(s => s.PrepareRelatedProductModel())
             .ReturnsAsync(new ProductModel.AddRelatedProductModel());
 
         var result = await _controller.RelatedProductAddPopup("p1") as ViewResult;
@@ -1003,20 +991,7 @@ public class BaseProductControllerTests
         var model = result.Model as ProductModel.AddRelatedProductModel;
         Assert.IsNotNull(model);
         Assert.AreEqual("p1", model.ProductId);
-        _productViewModelServiceMock.Verify(s => s.PrepareRelatedProductModel("store-1"), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task RelatedProductAddPopupGet_NoDefaultStoreId_PassesEmptyString()
-    {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock.Setup(s => s.PrepareRelatedProductModel(""))
-            .ReturnsAsync(new ProductModel.AddRelatedProductModel());
-
-        var result = await _controller.RelatedProductAddPopup("p1") as ViewResult;
-
-        Assert.IsNotNull(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareRelatedProductModel(""), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.PrepareRelatedProductModel(), Times.Once);
     }
 
     // --- RelatedProductAddPopupList -----------------------------------------------------------------
@@ -1095,9 +1070,8 @@ public class BaseProductControllerTests
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         var reprepared = new ProductModel.AddRelatedProductModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareRelatedProductModel("store-1")).ReturnsAsync(reprepared);
+        _productViewModelServiceMock.Setup(s => s.PrepareRelatedProductModel()).ReturnsAsync(reprepared);
         var model = new ProductModel.AddRelatedProductModel { ProductId = "p1" };
         _controller.ModelState.AddModelError("x", "error");
 
@@ -1208,10 +1182,10 @@ public class BaseProductControllerTests
     // --- SimilarProductAddPopup (GET) --------------------------------------------------------------
 
     [TestMethod]
-    public async Task SimilarProductAddPopupGet_UsesScopeDefaultStoreId()
+    public async Task SimilarProductAddPopupGet_CallsPrepareSimilarProductModel()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel("store-1"))
+        // PrepareSimilarProductModel() now reads scope internally (Task 9).
+        _productViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel())
             .ReturnsAsync(new ProductModel.AddSimilarProductModel());
 
         var result = await _controller.SimilarProductAddPopup("p1") as ViewResult;
@@ -1220,20 +1194,7 @@ public class BaseProductControllerTests
         var model = result.Model as ProductModel.AddSimilarProductModel;
         Assert.IsNotNull(model);
         Assert.AreEqual("p1", model.ProductId);
-        _productViewModelServiceMock.Verify(s => s.PrepareSimilarProductModel("store-1"), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task SimilarProductAddPopupGet_NoDefaultStoreId_PassesEmptyString()
-    {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel(""))
-            .ReturnsAsync(new ProductModel.AddSimilarProductModel());
-
-        var result = await _controller.SimilarProductAddPopup("p1") as ViewResult;
-
-        Assert.IsNotNull(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareSimilarProductModel(""), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.PrepareSimilarProductModel(), Times.Once);
     }
 
     // --- SimilarProductAddPopupList -----------------------------------------------------------------
@@ -1312,9 +1273,8 @@ public class BaseProductControllerTests
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         var reprepared = new ProductModel.AddSimilarProductModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel("store-1")).ReturnsAsync(reprepared);
+        _productViewModelServiceMock.Setup(s => s.PrepareSimilarProductModel()).ReturnsAsync(reprepared);
         var model = new ProductModel.AddSimilarProductModel { ProductId = "p1" };
         _controller.ModelState.AddModelError("x", "error");
 
@@ -1425,10 +1385,10 @@ public class BaseProductControllerTests
     // --- BundleProductAddPopup (GET) --------------------------------------------------------------
 
     [TestMethod]
-    public async Task BundleProductAddPopupGet_UsesScopeDefaultStoreId()
+    public async Task BundleProductAddPopupGet_CallsPrepareBundleProductModel()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock.Setup(s => s.PrepareBundleProductModel("store-1"))
+        // PrepareBundleProductModel() now reads scope internally (Task 9).
+        _productViewModelServiceMock.Setup(s => s.PrepareBundleProductModel())
             .ReturnsAsync(new ProductModel.AddBundleProductModel());
 
         var result = await _controller.BundleProductAddPopup("p1") as ViewResult;
@@ -1437,20 +1397,7 @@ public class BaseProductControllerTests
         var model = result.Model as ProductModel.AddBundleProductModel;
         Assert.IsNotNull(model);
         Assert.AreEqual("p1", model.ProductId);
-        _productViewModelServiceMock.Verify(s => s.PrepareBundleProductModel("store-1"), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task BundleProductAddPopupGet_NoDefaultStoreId_PassesEmptyString()
-    {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock.Setup(s => s.PrepareBundleProductModel(""))
-            .ReturnsAsync(new ProductModel.AddBundleProductModel());
-
-        var result = await _controller.BundleProductAddPopup("p1") as ViewResult;
-
-        Assert.IsNotNull(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareBundleProductModel(""), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.PrepareBundleProductModel(), Times.Once);
     }
 
     // --- BundleProductAddPopupList -----------------------------------------------------------------
@@ -1529,9 +1476,8 @@ public class BaseProductControllerTests
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         var reprepared = new ProductModel.AddBundleProductModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareBundleProductModel("store-1")).ReturnsAsync(reprepared);
+        _productViewModelServiceMock.Setup(s => s.PrepareBundleProductModel()).ReturnsAsync(reprepared);
         var model = new ProductModel.AddBundleProductModel { ProductId = "p1" };
         _controller.ModelState.AddModelError("x", "error");
 
@@ -1636,10 +1582,10 @@ public class BaseProductControllerTests
     // --- CrossSellProductAddPopup (GET) -------------------------------------------------------------
 
     [TestMethod]
-    public async Task CrossSellProductAddPopupGet_UsesScopeDefaultStoreId()
+    public async Task CrossSellProductAddPopupGet_CallsPrepareCrossSellProductModel()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock.Setup(s => s.PrepareCrossSellProductModel("store-1"))
+        // PrepareCrossSellProductModel() now reads scope internally (Task 9).
+        _productViewModelServiceMock.Setup(s => s.PrepareCrossSellProductModel())
             .ReturnsAsync(new ProductModel.AddCrossSellProductModel());
 
         var result = await _controller.CrossSellProductAddPopup("p1") as ViewResult;
@@ -1648,20 +1594,7 @@ public class BaseProductControllerTests
         var model = result.Model as ProductModel.AddCrossSellProductModel;
         Assert.IsNotNull(model);
         Assert.AreEqual("p1", model.ProductId);
-        _productViewModelServiceMock.Verify(s => s.PrepareCrossSellProductModel("store-1"), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task CrossSellProductAddPopupGet_NoDefaultStoreId_PassesEmptyString()
-    {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock.Setup(s => s.PrepareCrossSellProductModel(""))
-            .ReturnsAsync(new ProductModel.AddCrossSellProductModel());
-
-        var result = await _controller.CrossSellProductAddPopup("p1") as ViewResult;
-
-        Assert.IsNotNull(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareCrossSellProductModel(""), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.PrepareCrossSellProductModel(), Times.Once);
     }
 
     // --- CrossSellProductAddPopupList ---------------------------------------------------------------
@@ -1740,9 +1673,8 @@ public class BaseProductControllerTests
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         var reprepared = new ProductModel.AddCrossSellProductModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareCrossSellProductModel("store-1")).ReturnsAsync(reprepared);
+        _productViewModelServiceMock.Setup(s => s.PrepareCrossSellProductModel()).ReturnsAsync(reprepared);
         var model = new ProductModel.AddCrossSellProductModel { ProductId = "p1" };
         _controller.ModelState.AddModelError("x", "error");
 
@@ -1848,10 +1780,10 @@ public class BaseProductControllerTests
     // --- RecommendedProductAddPopup (GET) -------------------------------------------------------------
 
     [TestMethod]
-    public async Task RecommendedProductAddPopupGet_UsesScopeDefaultStoreId()
+    public async Task RecommendedProductAddPopupGet_CallsPrepareRecommendedProductModel()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel("store-1"))
+        // PrepareRecommendedProductModel() now reads scope internally (Task 9).
+        _productViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel())
             .ReturnsAsync(new ProductModel.AddRecommendedProductModel());
 
         var result = await _controller.RecommendedProductAddPopup("p1") as ViewResult;
@@ -1860,20 +1792,7 @@ public class BaseProductControllerTests
         var model = result.Model as ProductModel.AddRecommendedProductModel;
         Assert.IsNotNull(model);
         Assert.AreEqual("p1", model.ProductId);
-        _productViewModelServiceMock.Verify(s => s.PrepareRecommendedProductModel("store-1"), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task RecommendedProductAddPopupGet_NoDefaultStoreId_PassesEmptyString()
-    {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel(""))
-            .ReturnsAsync(new ProductModel.AddRecommendedProductModel());
-
-        var result = await _controller.RecommendedProductAddPopup("p1") as ViewResult;
-
-        Assert.IsNotNull(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareRecommendedProductModel(""), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.PrepareRecommendedProductModel(), Times.Once);
     }
 
     // --- RecommendedProductAddPopupList ---------------------------------------------------------------
@@ -1952,9 +1871,8 @@ public class BaseProductControllerTests
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         var reprepared = new ProductModel.AddRecommendedProductModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel("store-1")).ReturnsAsync(reprepared);
+        _productViewModelServiceMock.Setup(s => s.PrepareRecommendedProductModel()).ReturnsAsync(reprepared);
         var model = new ProductModel.AddRecommendedProductModel { ProductId = "p1" };
         _controller.ModelState.AddModelError("x", "error");
 
@@ -2085,10 +2003,10 @@ public class BaseProductControllerTests
     // --- AssociatedProductAddPopup (GET) -------------------------------------------------------------
 
     [TestMethod]
-    public async Task AssociatedProductAddPopupGet_UsesScopeDefaultStoreId()
+    public async Task AssociatedProductAddPopupGet_CallsPrepareAssociatedProductModel()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _productViewModelServiceMock.Setup(s => s.PrepareAssociatedProductModel("store-1"))
+        // PrepareAssociatedProductModel() now reads scope internally (Task 9).
+        _productViewModelServiceMock.Setup(s => s.PrepareAssociatedProductModel())
             .ReturnsAsync(new ProductModel.AddAssociatedProductModel());
 
         var result = await _controller.AssociatedProductAddPopup("p1") as ViewResult;
@@ -2097,20 +2015,7 @@ public class BaseProductControllerTests
         var model = result.Model as ProductModel.AddAssociatedProductModel;
         Assert.IsNotNull(model);
         Assert.AreEqual("p1", model.ProductId);
-        _productViewModelServiceMock.Verify(s => s.PrepareAssociatedProductModel("store-1"), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task AssociatedProductAddPopupGet_NoDefaultStoreId_PassesEmptyString()
-    {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _productViewModelServiceMock.Setup(s => s.PrepareAssociatedProductModel(""))
-            .ReturnsAsync(new ProductModel.AddAssociatedProductModel());
-
-        var result = await _controller.AssociatedProductAddPopup("p1") as ViewResult;
-
-        Assert.IsNotNull(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareAssociatedProductModel(""), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.PrepareAssociatedProductModel(), Times.Once);
     }
 
     // --- AssociatedProductAddPopupList ---------------------------------------------------------------
@@ -2238,9 +2143,8 @@ public class BaseProductControllerTests
         var parent = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(parent);
         _scopeMock.Setup(s => s.HasAccess(parent)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         var reprepared = new ProductModel.AddAssociatedProductModel();
-        _productViewModelServiceMock.Setup(s => s.PrepareAssociatedProductModel("store-1")).ReturnsAsync(reprepared);
+        _productViewModelServiceMock.Setup(s => s.PrepareAssociatedProductModel()).ReturnsAsync(reprepared);
         var model = new ProductModel.AddAssociatedProductModel { ProductId = "p1" };
         _controller.ModelState.AddModelError("x", "error");
 
@@ -3008,29 +2912,16 @@ public class BaseProductControllerTests
     // --- Bulk editing --------------------------------------------------------------------------------
 
     [TestMethod]
-    public async Task BulkEdit_UsesScopeDefaultStoreId()
+    public async Task BulkEdit_CallsPrepareBulkEditListModel()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
-        _productViewModelServiceMock.Setup(s => s.PrepareBulkEditListModel("store1"))
+        // PrepareBulkEditListModel() now reads scope internally (Task 9).
+        _productViewModelServiceMock.Setup(s => s.PrepareBulkEditListModel())
             .ReturnsAsync(new BulkEditListModel());
 
         var result = await _controller.BulkEdit();
 
         Assert.IsInstanceOfType(result, typeof(ViewResult));
-        _productViewModelServiceMock.Verify(s => s.PrepareBulkEditListModel("store1"), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task BulkEdit_NullDefaultStoreId_PassesEmptyString()
-    {
-        // Admin/Vendor: scope.DefaultStoreId is null (Admin is global; Vendor is not store-scoped) -
-        // matches Admin's original parameterless call and Vendor's own service's parameterless method.
-        _productViewModelServiceMock.Setup(s => s.PrepareBulkEditListModel(""))
-            .ReturnsAsync(new BulkEditListModel());
-
-        await _controller.BulkEdit();
-
-        _productViewModelServiceMock.Verify(s => s.PrepareBulkEditListModel(""), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.PrepareBulkEditListModel(), Times.Once);
     }
 
     [TestMethod]
@@ -3335,7 +3226,7 @@ public class BaseProductControllerTests
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
         _productViewModelServiceMock.Verify(
-            s => s.PrepareTierPriceModel(It.IsAny<Product>(), It.IsAny<string>()), Times.Never);
+            s => s.PrepareTierPriceModel(It.IsAny<Product>()), Times.Never);
     }
 
     [TestMethod]
@@ -3354,14 +3245,14 @@ public class BaseProductControllerTests
     }
 
     [TestMethod]
-    public async Task TierPriceList_ScopeGrantsAccess_UsesScopeDefaultStoreId_ReturnsGrid()
+    public async Task TierPriceList_ScopeGrantsAccess_ReturnsGrid()
     {
+        // PrepareTierPriceModel(product) now reads scope internally (Task 9).
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
         var tierPrices = new List<ProductModel.TierPriceModel> { new() { Id = "tp1" } };
-        _productViewModelServiceMock.Setup(s => s.PrepareTierPriceModel(product, "store1")).ReturnsAsync(tierPrices);
+        _productViewModelServiceMock.Setup(s => s.PrepareTierPriceModel(product)).ReturnsAsync(tierPrices);
 
         var result = await _controller.TierPriceList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
 
@@ -3372,33 +3263,17 @@ public class BaseProductControllerTests
         Assert.AreEqual(1, gridModel.Total);
     }
 
-    [TestMethod]
-    public async Task TierPriceList_ScopeGrantsAccess_NullDefaultStoreId_PassesEmptyString()
-    {
-        var product = new Product { Id = "p1" };
-        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
-        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _productViewModelServiceMock.Setup(s => s.PrepareTierPriceModel(product, ""))
-            .ReturnsAsync(new List<ProductModel.TierPriceModel>());
-
-        var result = await _controller.TierPriceList(new Grand.Web.Common.DataSource.DataSourceRequest(), "p1");
-
-        Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareTierPriceModel(product, ""), Times.Once);
-    }
-
     // --- TierPriceCreatePopup (GET) ----------------------------------------------------------------
 
     [TestMethod]
-    public async Task TierPriceCreatePopup_Get_PreparesModelWithScopeDefaultStoreId()
+    public async Task TierPriceCreatePopup_Get_PreparesModel()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
-
+        // PrepareTierPriceModel(model) now reads scope internally (Task 9).
         var result = await _controller.TierPriceCreatePopup("p1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
         _productViewModelServiceMock.Verify(
-            s => s.PrepareTierPriceModel(It.Is<ProductModel.TierPriceModel>(m => m.ProductId == "p1"), "store1"),
+            s => s.PrepareTierPriceModel(It.Is<ProductModel.TierPriceModel>(m => m.ProductId == "p1")),
             Times.Once);
     }
 
@@ -3459,7 +3334,7 @@ public class BaseProductControllerTests
         Assert.IsNotNull(content);
         Assert.AreEqual("This is not your product", content.Content);
         _productViewModelServiceMock.Verify(
-            s => s.PrepareTierPriceModel(It.IsAny<ProductModel.TierPriceModel>(), It.IsAny<string>()), Times.Never);
+            s => s.PrepareTierPriceModel(It.IsAny<ProductModel.TierPriceModel>()), Times.Never);
     }
 
     [TestMethod]
@@ -3477,19 +3352,19 @@ public class BaseProductControllerTests
     }
 
     [TestMethod]
-    public async Task TierPriceEditPopup_Get_ScopeGrantsAccess_PreparesModelWithScopeDefaultStoreId()
+    public async Task TierPriceEditPopup_Get_ScopeGrantsAccess_PreparesModel()
     {
+        // PrepareTierPriceModel(model) now reads scope internally (Task 9).
         var product = new Product { Id = "p1" };
         product.TierPrices.Add(new TierPrice { Id = "tp1" });
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
 
         var result = await _controller.TierPriceEditPopup("tp1", "p1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
         _productViewModelServiceMock.Verify(
-            s => s.PrepareTierPriceModel(It.Is<ProductModel.TierPriceModel>(m => m.ProductId == "p1"), "store1"),
+            s => s.PrepareTierPriceModel(It.Is<ProductModel.TierPriceModel>(m => m.ProductId == "p1")),
             Times.Once);
     }
 
@@ -4598,29 +4473,17 @@ public class BaseProductControllerTests
     // --- AssociateProductToAttributeValuePopup (GET) ------------------------------------------------
 
     [TestMethod]
-    public async Task AssociateProductToAttributeValuePopup_Get_PassesScopeDefaultStoreId()
+    public async Task AssociateProductToAttributeValuePopup_Get_CallsPrepareAssociateProductToAttributeValueModel()
     {
-        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
-        _productViewModelServiceMock.Setup(s => s.PrepareAssociateProductToAttributeValueModel("store1"))
+        // PrepareAssociateProductToAttributeValueModel() now reads scope internally (Task 9).
+        _productViewModelServiceMock.Setup(s => s.PrepareAssociateProductToAttributeValueModel())
             .ReturnsAsync(new ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel());
 
         var result = await _controller.AssociateProductToAttributeValuePopup();
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareAssociateProductToAttributeValueModel("store1"),
+        _productViewModelServiceMock.Verify(s => s.PrepareAssociateProductToAttributeValueModel(),
             Times.Once);
-    }
-
-    [TestMethod]
-    public async Task AssociateProductToAttributeValuePopup_Get_NullDefaultStoreId_PassesEmptyString()
-    {
-        _productViewModelServiceMock.Setup(s => s.PrepareAssociateProductToAttributeValueModel(""))
-            .ReturnsAsync(new ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel());
-
-        var result = await _controller.AssociateProductToAttributeValuePopup();
-
-        Assert.IsInstanceOfType<ViewResult>(result);
-        _productViewModelServiceMock.Verify(s => s.PrepareAssociateProductToAttributeValueModel(""), Times.Once);
     }
 
     // --- AssociateProductToAttributeValuePopupList (POST) -------------------------------------------

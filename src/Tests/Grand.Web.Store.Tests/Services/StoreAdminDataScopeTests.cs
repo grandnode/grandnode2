@@ -83,6 +83,13 @@ public class StoreAdminDataScopeTests
         Assert.AreEqual("Admin", scope.ResourceKeyPrefix);
     }
 
+    [TestMethod]
+    public void ShowStoreSelector_IsTrue()
+    {
+        var scope = new StoreAdminDataScope<Product>(_contextAccessor.Object);
+        Assert.IsTrue(scope.ShowStoreSelector);
+    }
+
     // CanView is deliberately looser than HasAccess: it mirrors Store's original Edit(GET)/CopyProduct
     // rule (a global or multi-store product including the staff member's store may be viewed/copied;
     // only a product limited to stores that exclude the staff member's store is denied). See the

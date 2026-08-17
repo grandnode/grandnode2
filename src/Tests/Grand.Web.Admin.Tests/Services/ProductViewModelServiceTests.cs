@@ -23,6 +23,7 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.AdminShared.Services;
 using Grand.Web.Common.Localization;
@@ -42,6 +43,7 @@ public class ProductViewModelServiceTests
     private Mock<IEnumTranslationService> _enumTranslationServiceMock;
     private Mock<IMeasureService> _measureServiceMock;
     private ProductViewModelService _productViewModelService;
+    private Mock<IAdminDataScope<Product>> _scopeMock;
     private Mock<IStoreService> _storeServiceMock;
     private Mock<ITaxCategoryService> _taxCategoryServiceMock;
     private Mock<ITranslationService> _translationServiceMock;
@@ -98,6 +100,12 @@ public class ProductViewModelServiceTests
             .Setup(e => e.ToSelectList(It.IsAny<ProductType>(), It.IsAny<bool>(), It.IsAny<int[]>()))
             .Returns(new SelectList(Enumerable.Empty<SelectListItem>()));
 
+        // Default: Admin's Global scope - no default store, homepage option and store dropdown both show.
+        _scopeMock = new Mock<IAdminDataScope<Product>>();
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
+        _scopeMock.Setup(s => s.ShowStoreSelector).Returns(true);
+
         _productViewModelService = new ProductViewModelService(
             new Mock<IProductService>().Object,
             new Mock<IInventoryManageService>().Object,
@@ -135,7 +143,8 @@ public class ProductViewModelServiceTests
             new Mock<IAuctionService>().Object,
             new Mock<IPriceFormatter>().Object,
             new Mock<ISeNameService>().Object,
-            _enumTranslationServiceMock.Object);
+            _enumTranslationServiceMock.Object,
+            _scopeMock.Object);
     }
 
     [TestMethod]
@@ -179,11 +188,12 @@ public class ProductViewModelServiceTests
     [TestMethod]
     public async Task PrepareProductListModel_UseStoreIdForWarehouses()
     {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns(StaffStoreId);
         _warehouseServiceMock
             .Setup(w => w.GetAllWarehouses(StaffStoreId, It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(new PagedList<Warehouse> { new() { Id = "warehouseId", Name = "Main" } });
 
-        var model = await _productViewModelService.PrepareProductListModel(StaffStoreId);
+        var model = await _productViewModelService.PrepareProductListModel();
 
         _warehouseServiceMock.Verify(w => w.GetAllWarehouses(StaffStoreId, It.IsAny<int>(), It.IsAny<int>()),
             Times.Once);
@@ -193,14 +203,49 @@ public class ProductViewModelServiceTests
     [TestMethod]
     public async Task PrepareProductListModel_FilterStoresByStoreId()
     {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> {
             new() { Id = "store1", Shortcut = "Store 1" },
             new() { Id = "store2", Shortcut = "Store 2" }
         });
 
-        var model = await _productViewModelService.PrepareProductListModel("store1");
+        var model = await _productViewModelService.PrepareProductListModel();
 
         Assert.IsTrue(model.AvailableStores.Any(x => x.Value == "store1"));
         Assert.IsFalse(model.AvailableStores.Any(x => x.Value == "store2"));
+    }
+
+    [TestMethod]
+    public async Task PrepareProductListModel_GlobalScope_IncludesHomepageOptionAndStoreDropdown()
+    {
+        // Default Setup() scope: Admin's Global scope (DefaultStoreId null, ShowStoreSelector true).
+        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> {
+            new() { Id = "store1", Shortcut = "Store 1" }
+        });
+
+        var model = await _productViewModelService.PrepareProductListModel();
+
+        Assert.IsTrue(model.AvailablePublishedOptions.Any(x => x.Value == "3"),
+            "Admin should offer the 'Show on homepage' option.");
+        Assert.IsTrue(model.AvailableStores.Any(x => x.Value == "store1"),
+            "Admin should offer a store dropdown.");
+    }
+
+    [TestMethod]
+    public async Task PrepareProductListModel_VendorScope_HidesHomepageOptionAndStoreDropdown()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
+        _scopeMock.Setup(s => s.ShowStoreSelector).Returns(false);
+        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> {
+            new() { Id = "store1", Shortcut = "Store 1" }
+        });
+
+        var model = await _productViewModelService.PrepareProductListModel();
+
+        Assert.IsFalse(model.AvailablePublishedOptions.Any(x => x.Value == "3"),
+            "Vendor can't feature products on the homepage.");
+        Assert.IsFalse(model.AvailableStores.Any(),
+            "Vendor doesn't pick stores - no dropdown should be populated at all.");
     }
 }

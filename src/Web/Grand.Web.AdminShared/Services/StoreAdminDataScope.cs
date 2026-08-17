@@ -39,4 +39,6 @@ public class StoreAdminDataScope<TEntity>(IContextAccessor contextAccessor) : IA
     public string? DefaultStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
     public string ResourceKeyPrefix => "Admin";
+
+    public bool ShowStoreSelector => true;
 }

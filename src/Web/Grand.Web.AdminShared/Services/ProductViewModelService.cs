@@ -71,7 +71,8 @@ public class ProductViewModelService(
     IAuctionService auctionService,
     IPriceFormatter priceFormatter,
     ISeNameService seNameService,
-    IEnumTranslationService enumTranslationService)
+    IEnumTranslationService enumTranslationService,
+    IAdminDataScope<Product> scope)
     : IProductViewModelService
 {
     public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
@@ -139,8 +140,9 @@ public class ProductViewModelService(
             (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
     }
 
-    public virtual async Task PrepareTierPriceModel(ProductModel.TierPriceModel model, string storeId = "")
+    public virtual async Task PrepareTierPriceModel(ProductModel.TierPriceModel model)
     {
+        var storeId = scope.DefaultStoreId ?? "";
         if (string.IsNullOrEmpty(storeId))
             model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
 
@@ -518,24 +520,30 @@ public class ProductViewModelService(
         }
     }
 
-    public virtual async Task<ProductListModel> PrepareProductListModel(string storeId = "")
+    public virtual async Task<ProductListModel> PrepareProductListModel()
     {
         var model = new ProductListModel();
+        var storeId = scope.DefaultStoreId ?? "";
 
-        //stores
-        model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var s in (await storeService.GetAllStores()).Where(x =>
-                     x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        //stores - Vendor has no store concept at all (ShowStoreSelector is false), so the dropdown
+        //is left empty entirely rather than populated off storeId, which is "" for Vendor same as Admin.
+        if (scope.ShowStoreSelector)
+        {
+            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Common.All"), Value = " " });
+            foreach (var s in (await storeService.GetAllStores()).Where(x =>
+                         x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        }
+
         //warehouses
-        model.AvailableWarehouses.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableWarehouses.Add(new SelectListItem { Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Common.All"), Value = " " });
         foreach (var wh in await warehouseService.GetAllWarehouses(storeId))
             model.AvailableWarehouses.Add(new SelectListItem { Text = wh.Name, Value = wh.Id });
 
         //product types
         model.AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
         model.AvailableProductTypes.Insert(0,
-            new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "0" });
+            new SelectListItem { Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Common.All"), Value = "0" });
 
         //"published" property
         //0 - all (according to "ShowHidden" parameter)
@@ -543,21 +551,30 @@ public class ProductViewModelService(
         //2 - unpublished only
         //3 - Show on homepage
         //4 - mark as new
-        model.AvailablePublishedOptions.Add(new SelectListItem { Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.All"), Value = " " });
+        model.AvailablePublishedOptions.Add(new SelectListItem { Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.List.SearchPublished.All"), Value = " " });
         model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.PublishedOnly"),
+            Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.List.SearchPublished.PublishedOnly"),
             Value = "1"
         });
         model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.UnpublishedOnly"),
+            Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.List.SearchPublished.UnpublishedOnly"),
             Value = "2"
         });
+
+        // Admin/Store show "Show on homepage" (value 3); Vendor's original copy omits it entirely - vendors
+        // can't feature products on the homepage, a real capability difference, not a naming difference.
+        // Using ResourceKeyPrefix as the gate works today (only Vendor differs) but is semantically about
+        // capability, not localization - if a fourth host is ever added, replace this with a proper
+        // bool CanFeatureOnHomepage on IAdminDataScope<TEntity> rather than continuing to overload
+        // ResourceKeyPrefix for behavior gating.
+        if (scope.ResourceKeyPrefix != "Vendor")
+            model.AvailablePublishedOptions.Add(new SelectListItem {
+                Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.List.SearchPublished.ShowOnHomePage"),
+                Value = "3"
+            });
+
         model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.ShowOnHomePage"),
-            Value = "3"
-        });
-        model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.MarkAsNew"),
+            Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.List.SearchPublished.MarkAsNew"),
             Value = "4"
         });
 
@@ -807,9 +824,9 @@ public class ProductViewModelService(
         }
     }
 
-    public virtual async Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddRequiredProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddRequiredProductModel>();
         return model;
     }
 
@@ -1155,44 +1172,45 @@ public class ProductViewModelService(
         await productService.UpdateAssociatedProduct(product);
     }
 
-    public virtual async Task<ProductModel.AddRelatedProductModel> PrepareRelatedProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddRelatedProductModel> PrepareRelatedProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddRelatedProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddRelatedProductModel>();
         return model;
     }
 
-    public virtual async Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddSimilarProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddSimilarProductModel>();
         return model;
     }
 
-    public virtual async Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddBundleProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddBundleProductModel>();
         return model;
     }
 
-    public virtual async Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddCrossSellProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddCrossSellProductModel>();
         return model;
     }
 
-    public virtual async Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddRecommendedProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddRecommendedProductModel>();
         return model;
     }
 
-    public virtual async Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddAssociatedProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddAssociatedProductModel>();
         return model;
     }
 
-    public virtual async Task<BulkEditListModel> PrepareBulkEditListModel(string storeId = "")
+    public virtual async Task<BulkEditListModel> PrepareBulkEditListModel()
     {
+        var storeId = scope.DefaultStoreId ?? "";
         var model = new BulkEditListModel();
 
         //product types
@@ -1200,19 +1218,24 @@ public class ProductViewModelService(
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "0" });
 
-        // avaible stores
-        if (!string.IsNullOrEmpty(storeId))
+        // avaible stores - same capability gate as PrepareProductListModel: Vendor's original never
+        // populated a stores dropdown here at all (vendors don't pick stores), so this must not run for
+        // Vendor even though its storeId also resolves to "".
+        if (scope.ShowStoreSelector)
         {
-            var store = (await storeService.GetAllStores()).FirstOrDefault(x => x.Id == storeId);
-            if (store != null)
-                model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
-        }
-        else
-        {
-            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "" });
+            if (!string.IsNullOrEmpty(storeId))
+            {
+                var store = (await storeService.GetAllStores()).FirstOrDefault(x => x.Id == storeId);
+                if (store != null)
+                    model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
+            }
+            else
+            {
+                model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "" });
 
-            foreach (var s in await storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+                foreach (var s in await storeService.GetAllStores())
+                    model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+            }
         }
 
         return model;
@@ -1296,8 +1319,9 @@ public class ProductViewModelService(
         }
     }
 
-    public virtual async Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product, string storeId = "")
+    public virtual async Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product)
     {
+        var storeId = scope.DefaultStoreId ?? "";
         var items = new List<ProductModel.TierPriceModel>();
         foreach (var x in product.TierPrices
                      .Where(x => x.StoreId == storeId || string.IsNullOrWhiteSpace(storeId) ||
@@ -1868,9 +1892,9 @@ public class ProductViewModelService(
             model.ProductAttributeMappingId);
     }
 
-    public virtual async Task<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel> PrepareAssociateProductToAttributeValueModel(string storeId = "")
+    public virtual async Task<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel> PrepareAssociateProductToAttributeValueModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>();
         return model;
     }
 
@@ -2547,15 +2571,21 @@ public class ProductViewModelService(
         }
     }
 
-    protected virtual async Task<T> PrepareAddProductModel<T>(string storeId = "") where T : ProductModel.AddProductModel, new()
+    protected virtual async Task<T> PrepareAddProductModel<T>() where T : ProductModel.AddProductModel, new()
     {
+        var storeId = scope.DefaultStoreId ?? "";
         var model = new T();
 
-        //stores
-        model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var s in (await storeService.GetAllStores()).Where(x =>
-                     x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        //stores - same capability gate as PrepareProductListModel: Vendor's original PrepareAddProductModel<T>
+        //never populated a stores dropdown at all (vendors don't pick stores), so this must not run for
+        //Vendor even though its storeId also resolves to "".
+        if (scope.ShowStoreSelector)
+        {
+            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+            foreach (var s in (await storeService.GetAllStores()).Where(x =>
+                         x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        }
 
         //vendors
         model.AvailableVendors.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });

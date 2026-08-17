@@ -101,7 +101,7 @@ public class ProductController : BaseStoreController
 
     public async Task<IActionResult> List()
     {
-        var model = await _productViewModelService.PrepareProductListModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var model = await _productViewModelService.PrepareProductListModel();
         return View(model);
     }
 
@@ -368,7 +368,7 @@ public class ProductController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> RequiredProductAddPopup(string productIdsInput)
     {
-        var model = await _productViewModelService.PrepareAddRequiredProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var model = await _productViewModelService.PrepareAddRequiredProductModel();
         return View(model);
     }
 
@@ -621,7 +621,7 @@ public class ProductController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> RelatedProductAddPopup(string productId)
     {
-        var model = await _productViewModelService.PrepareRelatedProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var model = await _productViewModelService.PrepareRelatedProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -656,7 +656,7 @@ public class ProductController : BaseStoreController
         }
 
         Error(ModelState);
-        model = await _productViewModelService.PrepareRelatedProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        model = await _productViewModelService.PrepareRelatedProductModel();
         return View(model);
     }
 
@@ -729,7 +729,7 @@ public class ProductController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> SimilarProductAddPopup(string productId)
     {
-        var model = await _productViewModelService.PrepareSimilarProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var model = await _productViewModelService.PrepareSimilarProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -764,7 +764,7 @@ public class ProductController : BaseStoreController
         }
 
         Error(ModelState);
-        model = await _productViewModelService.PrepareSimilarProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        model = await _productViewModelService.PrepareSimilarProductModel();
         return View(model);
     }
 
@@ -837,7 +837,7 @@ public class ProductController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> BundleProductAddPopup(string productId)
     {
-        var model = await _productViewModelService.PrepareBundleProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var model = await _productViewModelService.PrepareBundleProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -872,7 +872,7 @@ public class ProductController : BaseStoreController
         }
 
         Error(ModelState);
-        model = await _productViewModelService.PrepareBundleProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        model = await _productViewModelService.PrepareBundleProductModel();
         return View(model);
     }
 
@@ -931,7 +931,7 @@ public class ProductController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> CrossSellProductAddPopup(string productId)
     {
-        var model = await _productViewModelService.PrepareCrossSellProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var model = await _productViewModelService.PrepareCrossSellProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -966,7 +966,7 @@ public class ProductController : BaseStoreController
         }
 
         Error(ModelState);
-        model = await _productViewModelService.PrepareCrossSellProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        model = await _productViewModelService.PrepareCrossSellProductModel();
         return View(model);
     }
 
@@ -1024,7 +1024,7 @@ public class ProductController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> RecommendedProductAddPopup(string productId)
     {
-        var model = await _productViewModelService.PrepareRecommendedProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var model = await _productViewModelService.PrepareRecommendedProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -1059,7 +1059,7 @@ public class ProductController : BaseStoreController
         }
 
         Error(ModelState);
-        model = await _productViewModelService.PrepareRecommendedProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        model = await _productViewModelService.PrepareRecommendedProductModel();
         return View(model);
     }
 
@@ -1140,7 +1140,7 @@ public class ProductController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> AssociatedProductAddPopup(string productId)
     {
-        var model = await _productViewModelService.PrepareAssociatedProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var model = await _productViewModelService.PrepareAssociatedProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -1187,7 +1187,7 @@ public class ProductController : BaseStoreController
         }
 
         Error(ModelState);
-        model = await _productViewModelService.PrepareAssociatedProductModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        model = await _productViewModelService.PrepareAssociatedProductModel();
         return View(model);
     }
 
@@ -1545,7 +1545,7 @@ public class ProductController : BaseStoreController
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> BulkEdit()
     {
-        var model = await _productViewModelService.PrepareBulkEditListModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var model = await _productViewModelService.PrepareBulkEditListModel();
         return View(model);
     }
 
@@ -1752,7 +1752,7 @@ public class ProductController : BaseStoreController
         if (!CanAccessProduct(product))
             return ErrorForKendoGridJson(_translationService.GetResource("Admin.Catalog.Products.Permissions"));
 
-        var tierPricesModel = await _productViewModelService.PrepareTierPriceModel(product, _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var tierPricesModel = await _productViewModelService.PrepareTierPriceModel(product);
         var gridModel = new DataSourceResult {
             Data = tierPricesModel,
             Total = tierPricesModel.Count
@@ -1766,7 +1766,7 @@ public class ProductController : BaseStoreController
         var model = new ProductModel.TierPriceModel {
             ProductId = productId
         };
-        await _productViewModelService.PrepareTierPriceModel(model, _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        await _productViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 
@@ -1791,7 +1791,7 @@ public class ProductController : BaseStoreController
 
         Error(ModelState);
         //If we got this far, something failed, redisplay form
-        await _productViewModelService.PrepareTierPriceModel(model, _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        await _productViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 
@@ -1808,7 +1808,7 @@ public class ProductController : BaseStoreController
 
         var model = tierPrice.ToModel(_dateTimeService);
         model.ProductId = productId;
-        await _productViewModelService.PrepareTierPriceModel(model, _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        await _productViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 
@@ -1837,7 +1837,7 @@ public class ProductController : BaseStoreController
 
         Error(ModelState);
         //stores
-        await _productViewModelService.PrepareTierPriceModel(model, _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        await _productViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 
@@ -2236,7 +2236,7 @@ public class ProductController : BaseStoreController
 
     public async Task<IActionResult> AssociateProductToAttributeValuePopup()
     {
-        var model = await _productViewModelService.PrepareAssociateProductToAttributeValueModel(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
+        var model = await _productViewModelService.PrepareAssociateProductToAttributeValueModel();
         return View(model);
     }
 

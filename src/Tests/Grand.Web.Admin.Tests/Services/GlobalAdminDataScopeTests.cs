@@ -39,4 +39,11 @@ public class GlobalAdminDataScopeTests
         var scope = new GlobalAdminDataScope<Product>();
         Assert.AreEqual("Admin", scope.ResourceKeyPrefix);
     }
+
+    [TestMethod]
+    public void ShowStoreSelector_IsTrue()
+    {
+        var scope = new GlobalAdminDataScope<Product>();
+        Assert.IsTrue(scope.ShowStoreSelector);
+    }
 }

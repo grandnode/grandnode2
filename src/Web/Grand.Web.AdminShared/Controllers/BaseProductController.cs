@@ -94,7 +94,7 @@ public abstract class BaseProductController(
 
     public async Task<IActionResult> List()
     {
-        var model = await productViewModelService.PrepareProductListModel(scope.DefaultStoreId ?? "");
+        var model = await productViewModelService.PrepareProductListModel();
         return View(model);
     }
 
@@ -369,10 +369,10 @@ public abstract class BaseProductController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> RequiredProductAddPopup(string productIdsInput)
     {
-        // scope.DefaultStoreId already encodes the per-host default exactly: null for Admin (global) and
-        // Vendor (not store-scoped), StaffStoreId for Store - matching Store's original
-        // PrepareAddRequiredProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
-        var model = await productViewModelService.PrepareAddRequiredProductModel(scope.DefaultStoreId ?? "");
+        // PrepareAddRequiredProductModel() now reads scope internally (Task 9) - the injected
+        // IAdminDataScope<Product> already encodes the per-host default exactly: null for Admin
+        // (global) and Vendor (not store-scoped), StaffStoreId for Store.
+        var model = await productViewModelService.PrepareAddRequiredProductModel();
         // Unused by any of the three views (all three read productIdsInput straight off the query string
         // via Context.Request.Query, not ViewBag), but Admin and Vendor both set it and Store silently
         // drops its own parameter - kept here for parity; it is inert either way.
@@ -657,9 +657,9 @@ public abstract class BaseProductController(
     {
         // No access check here in any of the three original hosts (Admin/Store/Vendor all open this
         // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
-        // ties access to a specific product. scope.DefaultStoreId ?? "" matches Store's
-        // PrepareRelatedProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
-        var model = await productViewModelService.PrepareRelatedProductModel(scope.DefaultStoreId ?? "");
+        // ties access to a specific product. PrepareRelatedProductModel() now reads scope
+        // internally (Task 9).
+        var model = await productViewModelService.PrepareRelatedProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -710,7 +710,7 @@ public abstract class BaseProductController(
     protected virtual async Task<IActionResult> InvalidRelatedProductAddPopupResult(ProductModel.AddRelatedProductModel model)
     {
         Error(ModelState);
-        model = await productViewModelService.PrepareRelatedProductModel(scope.DefaultStoreId ?? "");
+        model = await productViewModelService.PrepareRelatedProductModel();
         return View(model);
     }
 
@@ -790,9 +790,9 @@ public abstract class BaseProductController(
     {
         // No access check here in any of the three original hosts (Admin/Store/Vendor all open this
         // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
-        // ties access to a specific product. scope.DefaultStoreId ?? "" matches Store's
-        // PrepareSimilarProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
-        var model = await productViewModelService.PrepareSimilarProductModel(scope.DefaultStoreId ?? "");
+        // ties access to a specific product. PrepareSimilarProductModel() now reads scope
+        // internally (Task 9).
+        var model = await productViewModelService.PrepareSimilarProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -843,7 +843,7 @@ public abstract class BaseProductController(
     protected virtual async Task<IActionResult> InvalidSimilarProductAddPopupResult(ProductModel.AddSimilarProductModel model)
     {
         Error(ModelState);
-        model = await productViewModelService.PrepareSimilarProductModel(scope.DefaultStoreId ?? "");
+        model = await productViewModelService.PrepareSimilarProductModel();
         return View(model);
     }
 
@@ -923,9 +923,9 @@ public abstract class BaseProductController(
     {
         // No access check here in any of the three original hosts (Admin/Store/Vendor all open this
         // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
-        // ties access to a specific product. scope.DefaultStoreId ?? "" matches Store's
-        // PrepareBundleProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
-        var model = await productViewModelService.PrepareBundleProductModel(scope.DefaultStoreId ?? "");
+        // ties access to a specific product. PrepareBundleProductModel() now reads scope
+        // internally (Task 9).
+        var model = await productViewModelService.PrepareBundleProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -976,7 +976,7 @@ public abstract class BaseProductController(
     protected virtual async Task<IActionResult> InvalidBundleProductAddPopupResult(ProductModel.AddBundleProductModel model)
     {
         Error(ModelState);
-        model = await productViewModelService.PrepareBundleProductModel(scope.DefaultStoreId ?? "");
+        model = await productViewModelService.PrepareBundleProductModel();
         return View(model);
     }
 
@@ -1045,9 +1045,9 @@ public abstract class BaseProductController(
     {
         // No access check here in any of the three original hosts (Admin/Store/Vendor all open this
         // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
-        // ties access to a specific product. scope.DefaultStoreId ?? "" matches Store's
-        // PrepareCrossSellProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
-        var model = await productViewModelService.PrepareCrossSellProductModel(scope.DefaultStoreId ?? "");
+        // ties access to a specific product. PrepareCrossSellProductModel() now reads scope
+        // internally (Task 9).
+        var model = await productViewModelService.PrepareCrossSellProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -1098,7 +1098,7 @@ public abstract class BaseProductController(
     protected virtual async Task<IActionResult> InvalidCrossSellProductAddPopupResult(ProductModel.AddCrossSellProductModel model)
     {
         Error(ModelState);
-        model = await productViewModelService.PrepareCrossSellProductModel(scope.DefaultStoreId ?? "");
+        model = await productViewModelService.PrepareCrossSellProductModel();
         return View(model);
     }
 
@@ -1167,9 +1167,9 @@ public abstract class BaseProductController(
     {
         // No access check here in any of the three original hosts (Admin/Store/Vendor all open this
         // popup unconditionally once the Edit permission is satisfied) - only the mutating POST below
-        // ties access to a specific product. scope.DefaultStoreId ?? "" matches Store's
-        // PrepareRecommendedProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
-        var model = await productViewModelService.PrepareRecommendedProductModel(scope.DefaultStoreId ?? "");
+        // ties access to a specific product. PrepareRecommendedProductModel() now reads scope
+        // internally (Task 9).
+        var model = await productViewModelService.PrepareRecommendedProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -1220,7 +1220,7 @@ public abstract class BaseProductController(
     protected virtual async Task<IActionResult> InvalidRecommendedProductAddPopupResult(ProductModel.AddRecommendedProductModel model)
     {
         Error(ModelState);
-        model = await productViewModelService.PrepareRecommendedProductModel(scope.DefaultStoreId ?? "");
+        model = await productViewModelService.PrepareRecommendedProductModel();
         return View(model);
     }
 
@@ -1315,9 +1315,8 @@ public abstract class BaseProductController(
     {
         // No access check here in any of the three original hosts (all open this popup unconditionally
         // once the Edit permission is satisfied) - only the mutating actions below tie access to a
-        // specific product. scope.DefaultStoreId ?? "" matches Store's
-        // PrepareAssociatedProductModel(StaffStoreId) call and Admin/Vendor's parameterless call.
-        var model = await productViewModelService.PrepareAssociatedProductModel(scope.DefaultStoreId ?? "");
+        // specific product. PrepareAssociatedProductModel() now reads scope internally (Task 9).
+        var model = await productViewModelService.PrepareAssociatedProductModel();
         model.ProductId = productId;
         return View(model);
     }
@@ -1389,7 +1388,7 @@ public abstract class BaseProductController(
         // AssociatedProductAddPopup(POST) does not use the Content(ModelState.GetErrors()) shortcut it
         // uses in those other regions, so no host-specific hook is needed for this action.
         Error(ModelState);
-        model = await productViewModelService.PrepareAssociatedProductModel(scope.DefaultStoreId ?? "");
+        model = await productViewModelService.PrepareAssociatedProductModel();
         return View(model);
     }
 
@@ -1941,11 +1940,9 @@ public abstract class BaseProductController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> BulkEdit()
     {
-        // scope.DefaultStoreId already encodes the per-host default: null for Admin/Vendor (Admin's
-        // original called PrepareBulkEditListModel() with no storeId; Vendor's own separate service
-        // (Grand.Web.Vendor.Interfaces.IProductViewModelService.PrepareBulkEditListModel) takes no
-        // storeId parameter at all - not store-scoped), StaffStoreId for Store.
-        var model = await productViewModelService.PrepareBulkEditListModel(scope.DefaultStoreId ?? "");
+        // PrepareBulkEditListModel() now reads scope internally (Task 9): null for Admin/Vendor
+        // (not store-scoped), StaffStoreId for Store.
+        var model = await productViewModelService.PrepareBulkEditListModel();
         return View(model);
     }
 
@@ -2199,10 +2196,9 @@ public abstract class BaseProductController(
         if (!await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
-        // Old storeId-parameter overload (still present pending Task 9/10); scope.DefaultStoreId is null for
-        // Admin/Vendor (Global/VendorProduct scopes) and the staff store for Store, same as the other rows
-        // still on this signature.
-        var tierPricesModel = await productViewModelService.PrepareTierPriceModel(product, scope.DefaultStoreId ?? "");
+        // PrepareTierPriceModel(product) now reads scope internally (Task 9); scope.DefaultStoreId
+        // is null for Admin/Vendor (Global/VendorProduct scopes) and the staff store for Store.
+        var tierPricesModel = await productViewModelService.PrepareTierPriceModel(product);
         var gridModel = new DataSourceResult {
             Data = tierPricesModel,
             Total = tierPricesModel.Count
@@ -2216,7 +2212,7 @@ public abstract class BaseProductController(
         var model = new ProductModel.TierPriceModel {
             ProductId = productId
         };
-        await productViewModelService.PrepareTierPriceModel(model, scope.DefaultStoreId ?? "");
+        await productViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 
@@ -2243,7 +2239,7 @@ public abstract class BaseProductController(
 
         Error(ModelState);
         //If we got this far, something failed, redisplay form
-        await productViewModelService.PrepareTierPriceModel(model, scope.DefaultStoreId ?? "");
+        await productViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 
@@ -2267,7 +2263,7 @@ public abstract class BaseProductController(
 
         var model = tierPrice.ToModel(dateTimeService);
         model.ProductId = productId;
-        await productViewModelService.PrepareTierPriceModel(model, scope.DefaultStoreId ?? "");
+        await productViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 
@@ -2297,7 +2293,7 @@ public abstract class BaseProductController(
 
         Error(ModelState);
         //stores
-        await productViewModelService.PrepareTierPriceModel(model, scope.DefaultStoreId ?? "");
+        await productViewModelService.PrepareTierPriceModel(model);
         return View(model);
     }
 
@@ -2767,11 +2763,10 @@ public abstract class BaseProductController(
 
     public async Task<IActionResult> AssociateProductToAttributeValuePopup()
     {
-        // scope.DefaultStoreId ?? "": matches Store's original (passed StaffStoreId to scope the search to
-        // the staff member's store); null for Admin/Vendor (no store concept), matching their originals
-        // (no argument, defaulting to "").
+        // PrepareAssociateProductToAttributeValueModel() now reads scope internally (Task 9):
+        // StaffStoreId for Store; null for Admin/Vendor (no store concept).
         var model =
-            await productViewModelService.PrepareAssociateProductToAttributeValueModel(scope.DefaultStoreId ?? "");
+            await productViewModelService.PrepareAssociateProductToAttributeValueModel();
         return View(model);
     }
 

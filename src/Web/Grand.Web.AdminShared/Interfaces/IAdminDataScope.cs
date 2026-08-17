@@ -31,4 +31,11 @@ public interface IAdminDataScope<TEntity>
     /// <summary>Prefix used to build host-specific localization keys, e.g. "Admin", "Vendor". Store
     /// currently has no distinct resource set and uses "Admin" (see Task 6).</summary>
     string ResourceKeyPrefix { get; }
+
+    /// <summary>Whether the host's product list/search screens should offer a store picker at all.
+    /// True for Admin and Store (both operate within a store concept); false for Vendor (vendors don't
+    /// pick stores - the whole point of vendor scope is that it isn't a store id). This is a capability
+    /// flag, deliberately distinct from <see cref="DefaultStoreId"/> being null: DefaultStoreId is also
+    /// null for Admin (global, no default store), where the selector should still show.</summary>
+    bool ShowStoreSelector { get; }
 }

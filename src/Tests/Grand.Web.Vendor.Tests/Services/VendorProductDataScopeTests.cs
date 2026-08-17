@@ -73,4 +73,11 @@ public class VendorProductDataScopeTests
         var scope = new VendorProductDataScope(_contextAccessor.Object);
         Assert.AreEqual("Vendor", scope.ResourceKeyPrefix);
     }
+
+    [TestMethod]
+    public void ShowStoreSelector_IsFalse()
+    {
+        var scope = new VendorProductDataScope(_contextAccessor.Object);
+        Assert.IsFalse(scope.ShowStoreSelector);
+    }
 }
