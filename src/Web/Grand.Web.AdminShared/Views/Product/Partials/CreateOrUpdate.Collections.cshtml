@@ -1,15 +1,32 @@
-﻿@model ProductModel
+@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
-        <vc:admin-widget widget-zone="product_details_collections_top" additional-data="Model"/>
+        @if (Scope.ResourceKeyPrefix == "Vendor")
+        {
+            <vc:vendor-widget widget-zone="vendor_product_details_collections_top" additional-data="Model"/>
+        }
+        else
+        {
+            <vc:admin-widget widget-zone="product_details_collections_top" additional-data="Model"/>
+        }
         <div class="panel-heading">
-            @Loc["Admin.Catalog.Products.Collections.Fields.Collection"]
+            @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Collections.Fields.Collection"]
         </div>
         <div class="panel-body">
             <div id="productcollections-grid"></div>
         </div>
-        <vc:admin-widget widget-zone="product_details_collections_bottom" additional-data="Model"/>
+        @if (Scope.ResourceKeyPrefix == "Vendor")
+        {
+            <vc:vendor-widget widget-zone="vendor_product_details_collections_bottom" additional-data="Model"/>
+        }
+        else
+        {
+            <vc:admin-widget widget-zone="product_details_collections_bottom" additional-data="Model"/>
+        }
     </div>
 
 
@@ -19,25 +36,25 @@
                         dataSource: {
                             transport: {
                                 read: {
-                                    url: "@Html.Raw(Url.Action("ProductCollectionList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                                    url: "@Html.Raw(Url.Action("ProductCollectionList", "Product", new { productId = Model.Id, area = area }))",
                                     type: "POST",
                                     dataType: "json",
                                     data: addAntiForgeryToken
                                 },
                                 create: {
-                                    url: "@Html.Raw(Url.Action("ProductCollectionInsert", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                                    url: "@Html.Raw(Url.Action("ProductCollectionInsert", "Product", new { productId = Model.Id, area = area }))",
                                     type: "POST",
                                     dataType: "json",
                                     data: addAntiForgeryToken
                                 },
                                 update: {
-                                    url:"@Html.Raw(Url.Action("ProductCollectionUpdate", "Product", new { area = Constants.AreaAdmin }))",
+                                    url:"@Html.Raw(Url.Action("ProductCollectionUpdate", "Product", new { area = area }))",
                                     type: "POST",
                                     dataType: "json",
                                     data: addAntiForgeryToken
                                 },
                                 destroy: {
-                                    url: "@Html.Raw(Url.Action("ProductCollectionDelete", "Product", new { area = Constants.AreaAdmin }))",
+                                    url: "@Html.Raw(Url.Action("ProductCollectionDelete", "Product", new { area = area }))",
                                     type: "POST",
                                     dataType: "json",
                                     data: addAntiForgeryToken
@@ -79,7 +96,7 @@
                             previousNext: false,
                             info: false
                         },
-                        toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
+                        toolbar: [{ name: "create", text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.AddNewRecord"]" }],
                         edit: function(e) {
                             if (e.model.isNew()) {
                                 e.model.CollectionId = "";
@@ -92,22 +109,34 @@
                         scrollable: false,
                         columns: [{
                             field: "CollectionId",
-                                title: "@Loc["Admin.Catalog.Products.Collections.Fields.Collection"]",
+                                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Collections.Fields.Collection"]",
                                 width: 200,
                                 editor: collectionDropDownEditor,
-                                template: '<a class="k-link" href="@Url.Action("Edit", "Collection", new { area = Constants.AreaAdmin })/#=CollectionId#">#:Collection#</a>'
+                                @if (Scope.ResourceKeyPrefix == "Vendor")
+                                {
+                                    <text>template: '#:Collection#'</text>
+                                }
+                                else
+                                {
+                                    <text>template: '<a class="k-link" href="@Url.Action("Edit", "Collection", new { area = area })/#=CollectionId#">#:Collection#</a>'</text>
+                                }
                             },
+                            @if (Scope.ResourceKeyPrefix != "Vendor")
                             {
-                                field: "IsFeaturedProduct",
-                                title: "@Loc["Admin.Catalog.Products.Collections.Fields.IsFeaturedProduct"]",
-                                width: 100,
-                                headerAttributes: { style: "text-align:center" },
-                                attributes: { style: "text-align:center" },
-                                template: '# if(IsFeaturedProduct) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                            },
+                                <text>
+                                {
+                                    field: "IsFeaturedProduct",
+                                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Collections.Fields.IsFeaturedProduct"]",
+                                    width: 100,
+                                    headerAttributes: { style: "text-align:center" },
+                                    attributes: { style: "text-align:center" },
+                                    template: '# if(IsFeaturedProduct) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                                },
+                                </text>
+                            }
                             {
                                 field: "DisplayOrder",
-                                title: "@Loc["Admin.Catalog.Products.Collections.Fields.DisplayOrder"]",
+                                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Collections.Fields.DisplayOrder"]",
                                 width: 100,
                                 minScreenWidth: 500,
                                 headerAttributes: { style: "text-align:center" },
@@ -118,13 +147,13 @@
                             command: [{
                                 name: "edit",
                                 text: {
-                                    edit: "@Loc["Admin.Common.Edit"]",
-                                    update: "@Loc["Admin.Common.Update"]",
-                                    cancel: "@Loc["Admin.Common.Cancel"]"
+                                    edit: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Edit"]",
+                                    update: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Update"]",
+                                    cancel: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Cancel"]"
                                 }
                             }, {
                                 name: "destroy",
-                                text: "@Loc["Admin.Common.Delete"]"
+                                text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"
                             }],
                             width: 200
                         }]
@@ -148,7 +177,7 @@
                             dataSource: {
                                 transport: {
                                     read: {
-                                        url: "@Html.Raw(Url.Action("Collection", "Search", new { area = Constants.AreaAdmin }))"
+                                        url: "@Html.Raw(Url.Action("Collection", "Search", new { area = area }))"
                                     }
                                 },
                                 schema: {
@@ -165,6 +194,6 @@
 else
 {
     <div class="note note-info">
-        @Loc["Admin.Catalog.Products.Collections.SaveBeforeEdit"]
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Collections.SaveBeforeEdit"]
     </div>
 }
