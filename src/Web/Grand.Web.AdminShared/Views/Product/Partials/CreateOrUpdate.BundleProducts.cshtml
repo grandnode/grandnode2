@@ -1,20 +1,36 @@
-﻿@model ProductModel
-
+@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
-        <vc:vendor-widget widget-zone="vendor_product_details_bundle_products_top" additional-data="Model"/>
+        @if (Scope.ResourceKeyPrefix == "Vendor")
+        {
+            <vc:vendor-widget widget-zone="vendor_product_details_bundle_products_top" additional-data="Model"/>
+        }
+        else
+        {
+            <vc:admin-widget widget-zone="product_details_bundle_products_top" additional-data="Model"/>
+        }
         <div class="panel-body">
             <div id="bundleproducts-grid"></div>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewBundleProduct" href="@(Url.Action("BundleProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshBundleProducts", formId = "product-form", area = Constants.AreaVendor }))" class="k-button">
-                @Loc["Vendor.Catalog.Products.BundleProducts.AddNew"]
+            <a id="btnAddNewBundleProduct" href="@(Url.Action("BundleProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshBundleProducts", formId = "product-form", area = area }))" class="k-button">
+                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.AddNew"]
             </a>
             <input type="submit" id="btnRefreshBundleProducts" style="display: none"/>
         </div>
-        <vc:vendor-widget widget-zone="vendor_product_details_bundle_products_bottom" additional-data="Model"/>
+        @if (Scope.ResourceKeyPrefix == "Vendor")
+        {
+            <vc:vendor-widget widget-zone="vendor_product_details_bundle_products_bottom" additional-data="Model"/>
+        }
+        else
+        {
+            <vc:admin-widget widget-zone="product_details_bundle_products_bottom" additional-data="Model"/>
+        }
     </div>
 
     <script>
@@ -36,19 +52,19 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("BundleProductList", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("BundleProductList", "Product", new { productId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         update: {
-                            url:"@Html.Raw(Url.Action("BundleProductUpdate", "Product", new { area = Constants.AreaVendor }))",
+                            url:"@Html.Raw(Url.Action("BundleProductUpdate", "Product", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("BundleProductDelete", "Product", new { area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("BundleProductDelete", "Product", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -96,15 +112,15 @@
                 scrollable: false,
                 columns: [{
                     field: "ProductName",
-                    title: "@Loc["Vendor.Catalog.Products.BundleProducts.Fields.Product"]",
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = Constants.AreaVendor })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>',
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.Fields.Product"]",
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = area })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>',
                 },{
                     field: "Quantity",
-                    title: "@Loc["Vendor.Catalog.Products.BundleProducts.Fields.Quantity"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.Fields.Quantity"]",
                     format: "{0:0}",
                 },{
                     field: "DisplayOrder",
-                    title: "@Loc["Vendor.Catalog.Products.BundleProducts.Fields.DisplayOrder"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.Fields.DisplayOrder"]",
                     format: "{0:0}",
                     width: 120,
                     headerAttributes: { style: "text-align:center" },
@@ -115,13 +131,13 @@
                     command: [{
                         name: "edit",
                         text: {
-                            edit: "@Loc["Vendor.Common.Edit"]",
-                            update: "@Loc["Vendor.Common.Update"]",
-                            cancel: "@Loc["Vendor.Common.Cancel"]"
+                            edit: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Edit"]",
+                            update: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Update"]",
+                            cancel: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Cancel"]"
                         }
                     }, {
                         name: "destroy",
-                        text: "@Loc["Vendor.Common.Delete"]"
+                        text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"
                     }]
                 }]
             });
@@ -144,6 +160,6 @@
 else
 {
     <div class="note note-info">
-        @Loc["Vendor.Catalog.Products.BundleProducts.SaveBeforeEdit"]
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BundleProducts.SaveBeforeEdit"]
     </div>
 }
