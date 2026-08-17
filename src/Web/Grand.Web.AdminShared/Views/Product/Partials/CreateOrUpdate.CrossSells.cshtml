@@ -1,20 +1,36 @@
-﻿@model ProductModel
-
+@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
-        <vc:vendor-widget widget-zone="vendor_product_details_cross_sells_top" additional-data="Model"/>
+        @if (Scope.ResourceKeyPrefix == "Vendor")
+        {
+            <vc:vendor-widget widget-zone="vendor_product_details_cross_sells_top" additional-data="Model"/>
+        }
+        else
+        {
+            <vc:admin-widget widget-zone="product_details_cross_sells_top" additional-data="Model"/>
+        }
         <div class="panel-heading">
-            @Loc["Vendor.Catalog.Products.CrossSells"]
+            @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells"]
         </div>
         <div class="panel-body">
             <div id="crosssellproducts-grid"></div>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = Constants.AreaVendor }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Vendor.Catalog.Products.CrossSells.AddNew"]</a>
+            <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.AddNew"]</a>
             <input type="submit" id="btnRefreshCrossSellProducts" style="display: none"/>
         </div>
-        <vc:vendor-widget widget-zone="vendor_product_details_cross_sells_bottom" additional-data="Model"/>
+        @if (Scope.ResourceKeyPrefix == "Vendor")
+        {
+            <vc:vendor-widget widget-zone="vendor_product_details_cross_sells_bottom" additional-data="Model"/>
+        }
+        else
+        {
+            <vc:admin-widget widget-zone="product_details_cross_sells_bottom" additional-data="Model"/>
+        }
     </div>
 
     <script>
@@ -36,13 +52,13 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("CrossSellProductList", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("CrossSellProductList", "Product", new { productId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("CrossSellProductDelete", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("CrossSellProductDelete", "Product", new { productId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -84,11 +100,11 @@
                 columns: [
                     {
                         field: "Product2Name",
-                        title: "@Loc["Vendor.Catalog.Products.CrossSells.Fields.Product"]",
-                        template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = Constants.AreaVendor })/#=Id#">#=kendo.htmlEncode(Product2Name)#</a>',
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.Fields.Product"]",
+                        template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = area })/#=Id#">#=kendo.htmlEncode(Product2Name)#</a>',
                     }, {
-                        command: { name: "destroy", text: "@Loc["Vendor.Common.Delete"]" },
-                        title: "@Loc["Vendor.Common.Delete"]",
+                        command: { name: "destroy", text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]" },
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]",
                     }
                 ]
             });
@@ -111,6 +127,6 @@
 else
 {
     <div class="note note-info">
-        @Loc["Vendor.Catalog.Products.CrossSells.SaveBeforeEdit"]
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.CrossSells.SaveBeforeEdit"]
     </div>
 }
