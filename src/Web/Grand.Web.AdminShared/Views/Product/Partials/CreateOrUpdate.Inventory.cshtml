@@ -1,5 +1,12 @@
-﻿@model ProductModel
-<vc:vendor-widget widget-zone="vendor_product_details_inventory_top" additional-data="Model"/>
+@model ProductModel
+@if (Scope.ResourceKeyPrefix == "Vendor")
+{
+    <vc:vendor-widget widget-zone="vendor_product_details_inventory_top" additional-data="Model"/>
+}
+else
+{
+    <vc:admin-widget widget-zone="product_details_inventory_top" additional-data="Model"/>
+}
 <div class="form-horizontal portlet bg-inverse form-fit" id="group-inventory">
     <div class="form-body">
         <div class="form-group">
@@ -35,16 +42,16 @@
                         <thead>
                         <tr>
                             <th>
-                                @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse"]
                             </th>
                             <th align="center">
-                                @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.WarehouseUsed"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.WarehouseUsed"]
                             </th>
                             <th align="center">
-                                @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.StockQuantity"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.StockQuantity"]
                             </th>
                             <th align="center">
-                                @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity"]
                             </th>
                         </tr>
                         </thead>
@@ -76,18 +83,18 @@
                         </tbody>
                     </table>
                     <p>
-                        <em>@Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Description1"]</em>
+                        <em>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Description1"]</em>
                     </p>
                     <p>
-                        <em>@Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Description2"]</em>
+                        <em>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Description2"]</em>
                     </p>
                     <p>
-                        <em>@Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Description3"]</em>
+                        <em>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Description3"]</em>
                     </p>
                 }
                 else
                 {
-                    @Loc["Vendor.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse.NotDefined"]
+                    @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductWarehouseInventory.Fields.Warehouse.NotDefined"]
                 }
             </div>
         </div>
@@ -275,4 +282,11 @@
         </div>
     </div>
 </div>
-<vc:vendor-widget widget-zone="vendor_product_details_inventory_bottom" additional-data="Model"/>
+@if (Scope.ResourceKeyPrefix == "Vendor")
+{
+    <vc:vendor-widget widget-zone="vendor_product_details_inventory_bottom" additional-data="Model"/>
+}
+else
+{
+    <vc:admin-widget widget-zone="product_details_inventory_bottom" additional-data="Model"/>
+}
