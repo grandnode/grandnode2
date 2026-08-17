@@ -1,25 +1,42 @@
 ﻿@model ProductModel
 @inject AdminAreaSettings adminAreaSettings
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 <div class="note note-info">
     <p>
-        <strong>@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Description"]</strong>
+        <strong>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Description"]</strong>
     </p>
     <p>
-        @Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Description2"]
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Description2"]
     </p>
 </div>
 <div class="panel panel-default">
-    <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_combinations_top" additional-data="Model"/>
+    @if (Scope.ResourceKeyPrefix == "Vendor")
+    {
+        <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_combinations_top" additional-data="Model"/>
+    }
+    else
+    {
+        <vc:admin-widget widget-zone="product_details_product_attributes_combinations_top" additional-data="Model"/>
+    }
     <div class="panel-body">
         <div id="attributecombinations-grid"></div>
     </div>
     <div class="panel-footer">
-        <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = Constants.AreaVendor }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
-        <button type="submit" id="btnGenerateAllCombinations" class="k-button"><span class="k-icon k-i-style-builder"></span>&nbsp;@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
-        <button type="submit" id="btnClearAllCombinations" class="k-button"><span class="k-icon k-i-cut"></span>&nbsp;@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
+        <a id="btnAddNewCombination" href="@(Url.Action("AttributeCombinationPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCombinations", formId = "product-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.AddNew"]</a>
+        <button type="submit" id="btnGenerateAllCombinations" class="k-button"><span class="k-icon k-i-style-builder"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.GenerateAll"]</button>
+        <button type="submit" id="btnClearAllCombinations" class="k-button"><span class="k-icon k-i-cut"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
         <input type="submit" id="btnRefreshCombinations" style="display: none"/>
     </div>
-    <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_combinations_bottom" additional-data="Model"/>
+    @if (Scope.ResourceKeyPrefix == "Vendor")
+    {
+        <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_combinations_bottom" additional-data="Model"/>
+    }
+    else
+    {
+        <vc:admin-widget widget-zone="product_details_product_attributes_combinations_bottom" additional-data="Model"/>
+    }
 </div>
 
 <script>
@@ -56,13 +73,13 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("ProductAttributeCombinationList", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                        url: "@Html.Raw(Url.Action("ProductAttributeCombinationList", "Product", new { productId = Model.Id, area = area }))",
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
                     },                    
                     destroy: {
-                        url: "@Html.Raw(Url.Action("ProductAttributeCombinationDelete", "Product", new { area = Constants.AreaVendor }))",
+                        url: "@Html.Raw(Url.Action("ProductAttributeCombinationDelete", "Product", new { area = area }))",
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
@@ -113,28 +130,28 @@
             columns: [
                 {
                     field: "Attributes",
-                    title: "@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes"]",
                     encoded: false,
-                    template: "<a class='k-link editcombinationlink' href=\"@Url.Action("AttributeCombinationPopup", "Product", new { area = Constants.AreaVendor })/?productId=@(Model.Id)&Id=#=Id#&btnId=btnRefreshCombinations&formId=product-form\">#=Attributes#</a>"
+                    template: "<a class='k-link editcombinationlink' href=\"@Url.Action("AttributeCombinationPopup", "Product", new { area = area })/?productId=@(Model.Id)&Id=#=Id#&btnId=btnRefreshCombinations&formId=product-form\">#=Attributes#<br /> # if(Warnings !== null) {# <span style=\"color: red\">#=Warnings#</span> #}  #</a>"
                 }, {
                     field: "StockQuantity",
-                    title: "@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.StockQuantity"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.StockQuantity"]",
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
                     //integer format
                     format: "{0:0}"
                 }, {
                     field: "AllowOutOfStockOrders",
-                    title: "@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.AllowOutOfStockOrders"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.AllowOutOfStockOrders"]",
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
                     template: '# if(AllowOutOfStockOrders) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
                 }, {
                     field: "Sku",
-                    title: "@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Sku"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Sku"]",
                 }, {
                     field: "OverriddenPrice",
-                    title: "@Loc["Vendor.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.OverriddenPrice"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.OverriddenPrice"]",
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
                     editor: function (container, options) {
@@ -150,7 +167,7 @@
                     command: [
                         {
                             name: "destroy",
-                            text: "@Loc["Vendor.Common.Delete"]"
+                            text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"
                         }
                     ],
                     width: 50
@@ -175,7 +192,7 @@
 
         //generate combinations
         $('#btnGenerateAllCombinations').click(function () {
-            if (confirm('@Loc["Vendor.Common.AreYouSure"]')) {
+            if (confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]')) {
 
                 var postData = {
                 };
@@ -184,7 +201,7 @@
                 $.ajax({
                     cache: false,
                     type: 'POST',
-                    url: '@Url.Action("GenerateAllAttributeCombinations", "Product", new { productId = Model.Id, area = Constants.AreaVendor })',
+                    url: '@Url.Action("GenerateAllAttributeCombinations", "Product", new { productId = Model.Id, area = area })',
                     data: postData,
                     dataType: 'json',
                     success: function(data) {
@@ -202,7 +219,7 @@
 
         //clear combinations
         $('#btnClearAllCombinations').click(function () {
-            if (confirm('@Loc["Vendor.Common.AreYouSure"]')) {
+            if (confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]')) {
 
                 var postData = {
                 };
@@ -211,7 +228,7 @@
                 $.ajax({
                     cache: false,
                     type: 'POST',
-                    url: '@Url.Action("ClearAllAttributeCombinations", "Product", new { productId = Model.Id, area = Constants.AreaVendor })',
+                    url: '@Url.Action("ClearAllAttributeCombinations", "Product", new { productId = Model.Id, area = area })',
                     data: postData,
                     dataType: 'json',
                     success: function(data) {
