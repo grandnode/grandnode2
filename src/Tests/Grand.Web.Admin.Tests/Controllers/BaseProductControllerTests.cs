@@ -4990,4 +4990,216 @@ public class BaseProductControllerTests
         Assert.IsInstanceOfType<JsonResult>(result);
         _productViewModelServiceMock.Verify(s => s.ClearAllAttributeCombinations(It.IsAny<Product>()), Times.Never);
     }
+
+    // --- ProductAttributeCombinationTierPriceList (POST) -----------------------------------------------
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceList_ScopeDeniesAccess_ReturnsErrorJson()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.ProductAttributeCombinationTierPriceList(new DataSourceRequest(), "p1", "c1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(
+            s => s.PrepareProductAttributeCombinationTierPricesModel(It.IsAny<Product>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceList_ScopeGrantsAccess_ReturnsGrid()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _productViewModelServiceMock.Setup(s => s.PrepareProductAttributeCombinationTierPricesModel(product, "c1"))
+            .ReturnsAsync(new List<ProductModel.ProductAttributeCombinationTierPricesModel> { new() });
+
+        var result = await _controller.ProductAttributeCombinationTierPriceList(new DataSourceRequest(), "p1", "c1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = json.Value as DataSourceResult;
+        Assert.AreEqual(1, gridModel.Total);
+    }
+
+    // --- ProductAttributeCombinationTierPriceInsert -----------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceInsert_MissingProduct_Throws()
+    {
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(
+            () => _controller.ProductAttributeCombinationTierPriceInsert("missing", "c1",
+                new ProductModel.ProductAttributeCombinationTierPricesModel()));
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceInsert_ScopeDeniesAccess_ReturnsContent_DoesNotInsert()
+    {
+        var product = new Product { Id = "p1" };
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination { Id = "c1" });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.ProductAttributeCombinationTierPriceInsert("p1", "c1",
+            new ProductModel.ProductAttributeCombinationTierPricesModel());
+
+        Assert.IsInstanceOfType<ContentResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(
+            s => s.InsertProductAttributeCombinationTierPricesModel(It.IsAny<Product>(),
+                It.IsAny<ProductAttributeCombination>(),
+                It.IsAny<ProductModel.ProductAttributeCombinationTierPricesModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceInsert_ScopeGrantsAccess_CombinationMissing_DoesNotInsert()
+    {
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+
+        var result = await _controller.ProductAttributeCombinationTierPriceInsert("p1", "missing-c",
+            new ProductModel.ProductAttributeCombinationTierPricesModel());
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(
+            s => s.InsertProductAttributeCombinationTierPricesModel(It.IsAny<Product>(),
+                It.IsAny<ProductAttributeCombination>(),
+                It.IsAny<ProductModel.ProductAttributeCombinationTierPricesModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceInsert_ScopeGrantsAccess_Inserts()
+    {
+        var product = new Product { Id = "p1" };
+        var combination = new ProductAttributeCombination { Id = "c1" };
+        product.ProductAttributeCombinations.Add(combination);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.ProductAttributeCombinationTierPricesModel();
+
+        var result = await _controller.ProductAttributeCombinationTierPriceInsert("p1", "c1", model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(
+            s => s.InsertProductAttributeCombinationTierPricesModel(product, combination, model), Times.Once);
+    }
+
+    // --- ProductAttributeCombinationTierPriceUpdate -----------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceUpdate_MissingProduct_Throws()
+    {
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(
+            () => _controller.ProductAttributeCombinationTierPriceUpdate("missing", "c1",
+                new ProductModel.ProductAttributeCombinationTierPricesModel()));
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceUpdate_ScopeDeniesAccess_ReturnsContent_DoesNotUpdate()
+    {
+        var product = new Product { Id = "p1" };
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination { Id = "c1" });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.ProductAttributeCombinationTierPriceUpdate("p1", "c1",
+            new ProductModel.ProductAttributeCombinationTierPricesModel());
+
+        Assert.IsInstanceOfType<ContentResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateProductAttributeCombinationTierPricesModel(It.IsAny<Product>(),
+                It.IsAny<ProductAttributeCombination>(),
+                It.IsAny<ProductModel.ProductAttributeCombinationTierPricesModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceUpdate_ScopeGrantsAccess_Updates()
+    {
+        var product = new Product { Id = "p1" };
+        var combination = new ProductAttributeCombination { Id = "c1" };
+        product.ProductAttributeCombinations.Add(combination);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        var model = new ProductModel.ProductAttributeCombinationTierPricesModel();
+
+        var result = await _controller.ProductAttributeCombinationTierPriceUpdate("p1", "c1", model);
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateProductAttributeCombinationTierPricesModel(product, combination, model), Times.Once);
+    }
+
+    // --- ProductAttributeCombinationTierPriceDelete -----------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceDelete_MissingProduct_Throws()
+    {
+        _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(
+            () => _controller.ProductAttributeCombinationTierPriceDelete("missing", "c1", "tp1"));
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceDelete_ScopeDeniesAccess_ReturnsContent_DoesNotDelete()
+    {
+        var product = new Product { Id = "p1" };
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination { Id = "c1" });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+
+        var result = await _controller.ProductAttributeCombinationTierPriceDelete("p1", "c1", "tp1");
+
+        Assert.IsInstanceOfType<ContentResult>(result);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(
+            s => s.DeleteProductAttributeCombinationTierPrices(It.IsAny<Product>(),
+                It.IsAny<ProductAttributeCombination>(),
+                It.IsAny<ProductCombinationTierPrices>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceDelete_ScopeGrantsAccess_TierPriceMissing_DoesNotDelete()
+    {
+        var product = new Product { Id = "p1" };
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination { Id = "c1" });
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+
+        var result = await _controller.ProductAttributeCombinationTierPriceDelete("p1", "c1", "missing-tp");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(
+            s => s.DeleteProductAttributeCombinationTierPrices(It.IsAny<Product>(),
+                It.IsAny<ProductAttributeCombination>(),
+                It.IsAny<ProductCombinationTierPrices>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationTierPriceDelete_ScopeGrantsAccess_Deletes()
+    {
+        var product = new Product { Id = "p1" };
+        var combination = new ProductAttributeCombination { Id = "c1" };
+        var tierPrice = new ProductCombinationTierPrices { Id = "tp1" };
+        combination.TierPrices.Add(tierPrice);
+        product.ProductAttributeCombinations.Add(combination);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+
+        var result = await _controller.ProductAttributeCombinationTierPriceDelete("p1", "c1", "tp1");
+
+        Assert.IsInstanceOfType<JsonResult>(result);
+        _productViewModelServiceMock.Verify(
+            s => s.DeleteProductAttributeCombinationTierPrices(product, combination, tierPrice), Times.Once);
+    }
 }

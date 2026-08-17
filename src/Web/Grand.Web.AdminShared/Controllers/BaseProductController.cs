@@ -2978,4 +2978,110 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Product Attribute combination - tier prices
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeCombinationTierPriceList(DataSourceRequest command,
+        string productId, string productAttributeCombinationId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess added here: Admin's original had no ownership check at all on this region (any of its
+        // four actions). Store checked CanAccessProduct on every action. Vendor's List/Delete used explicit
+        // checks (CheckAccessToProduct / HasAccessToProduct); Vendor's Insert/Update relied entirely on
+        // ProductAttributeCombinationTierPricesModel implementing IProductValidVendor (the global
+        // ValidationFilter resolves ProductValidVendor, a FluentValidation rule comparing
+        // product.VendorId to CurrentVendor.Id, and the action only proceeded inside `if
+        // (ModelState.IsValid)`) - a real check, not a no-op, but the shared AdminShared model used here
+        // does not implement that marker interface, so merging Vendor's Insert/Update as-is would silently
+        // drop vendor ownership enforcement. scope.HasAccess replaces it uniformly across all four actions
+        // (no-op for Admin, equivalent-or-stronger for Store/Vendor).
+        if (!await scope.HasAccess(product))
+            return ErrorForKendoGridJson(
+                translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var tierPriceModel =
+            await productViewModelService.PrepareProductAttributeCombinationTierPricesModel(product,
+                productAttributeCombinationId);
+        var gridModel = new DataSourceResult {
+            Data = tierPriceModel,
+            Total = tierPriceModel.Count
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeCombinationTierPriceInsert(string productId,
+        string productAttributeCombinationId, ProductModel.ProductAttributeCombinationTierPricesModel model)
+    {
+        var product = await productService.GetProductById(productId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        // See the List comment above - this is the action where Vendor's IProductValidVendor-driven check
+        // would have silently disappeared without an explicit scope.HasAccess call.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var combination =
+            product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == productAttributeCombinationId);
+        if (combination != null)
+            await productViewModelService.InsertProductAttributeCombinationTierPricesModel(product, combination,
+                model);
+
+        return new JsonResult("");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeCombinationTierPriceUpdate(string productId,
+        string productAttributeCombinationId, ProductModel.ProductAttributeCombinationTierPricesModel model)
+    {
+        var product = await productService.GetProductById(productId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        // See the List comment above.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == productAttributeCombinationId);
+        if (combination != null)
+            await productViewModelService.UpdateProductAttributeCombinationTierPricesModel(product, combination,
+                model);
+
+        return new JsonResult("");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeCombinationTierPriceDelete(string productId,
+        string productAttributeCombinationId, string id)
+    {
+        var product = await productService.GetProductById(productId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        // HasAccess here matches Store's CanAccessProduct and Vendor's HasAccessToProduct checks (both
+        // already present on Delete in the originals); normalized to scope.HasAccess for Admin too.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == productAttributeCombinationId);
+        if (combination != null)
+        {
+            var tierPrice = combination.TierPrices.FirstOrDefault(x => x.Id == id);
+            if (tierPrice != null)
+                await productViewModelService.DeleteProductAttributeCombinationTierPrices(product, combination,
+                    tierPrice);
+        }
+
+        return new JsonResult("");
+    }
+
+    #endregion
 }
