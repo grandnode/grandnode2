@@ -26,7 +26,10 @@
 @using Grand.Web.Common.Localization
 @using Grand.Web.Vendor.Extensions;
 @using Grand.Web.Vendor.Models.Common;
-@using Grand.Web.Vendor.Models.Catalog;
+@* Product views bind to Grand.Web.AdminShared's ProductModel family (ARCH-001 Phase 1 Task 12) -
+   Grand.Web.Vendor.Models.Catalog's own ProductModel etc. are no longer used by any controller/view
+   and importing both would make bare "ProductModel" ambiguous. *@
+@using Grand.Web.AdminShared.Models.Catalog;
 @using Grand.Web.Vendor.Models.Orders;
 @using Grand.Web.Vendor.Models.Shipment;
 @using Grand.Web.Vendor.Models.MerchandiseReturn;
