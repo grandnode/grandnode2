@@ -1,13 +1,29 @@
 @model ProductModel
-
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 <div class="panel panel-default">
-    <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_top" additional-data="Model"/>
+    @if (Scope.ResourceKeyPrefix == "Vendor")
+    {
+        <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_top" additional-data="Model"/>
+    }
+    else
+    {
+        <vc:admin-widget widget-zone="product_details_product_attributes_top" additional-data="Model"/>
+    }
     <div class="panel-body">
         <div id="productattributemappings-grid"></div>
     </div>
-    <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_bottom" additional-data="Model"/>
+    @if (Scope.ResourceKeyPrefix == "Vendor")
+    {
+        <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_bottom" additional-data="Model"/>
+    }
+    else
+    {
+        <vc:admin-widget widget-zone="product_details_product_attributes_bottom" additional-data="Model"/>
+    }
     <div class="panel-footer">
-        <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Vendor.Catalog.Products.ProductAttributes.AddNew"]</a>
+        <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
     </div>
 </div>
 
@@ -30,13 +46,13 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ProductAttributeMappingList", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("ProductAttributeMappingList", "Product", new { productId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },                        
                         destroy: {
-                            url: "@Html.Raw(Url.Action("ProductAttributeMappingDelete", "Product", new { area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("ProductAttributeMappingDelete", "Product", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -117,16 +133,16 @@
                 columns: [
                     {
                         field: "ProductAttributeId",
-                        title: "@Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute"]",
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute"]",
                         width: 190,
-                        template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductAttributeMappingPopup", "Product", new { area = Constants.AreaVendor })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#'>#=kendo.htmlEncode(ProductAttribute)#<br /></a>"
+                        template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductAttributeMappingPopup", "Product", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#'>#=kendo.htmlEncode(ProductAttribute)#<br /></a>"
                     }, {
                         field: "TextPrompt",
-                        title: "@Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.Fields.TextPrompt"]",
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Fields.TextPrompt"]",
                         width: 120
                     }, {
                         field: "IsRequired",
-                        title: "@Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.Fields.IsRequired"]",
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Fields.IsRequired"]",
                         width: 50,
                         headerAttributes: { style: "text-align:center" },
                         attributes: { style: "text-align:center" },
@@ -134,21 +150,21 @@
                     },
                     {
                         field: "AttributeControlTypeId",
-                        title: "@Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.Fields.AttributeControlType"]",
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Fields.AttributeControlType"]",
                         width: 140,
-                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaVendor })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form'>@Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.ValidationRules.Link"]</a><br />#=ValidationRulesString# #}  #"
+                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = area })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form'>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.ValidationRules.Link"]</a><br />#=ValidationRulesString# #}  #"
                     },
                     {
                         field: "ConditionAllowed",
-                        title: "@Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.Condition"]",
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Condition"]",
                         width: 80,
-                        template: "# if(ConditionAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeConditionPopup", "Product", new { area = Constants.AreaVendor })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\'>@Loc["Vendor.Common.Edit"]</a><br /> #}  #"
+                        template: "# if(ConditionAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeConditionPopup", "Product", new { area = area })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\'>@Loc[$"{Scope.ResourceKeyPrefix}.Common.Edit"]</a><br /> #}  #"
                     },
                     {
                         command: [
                             {
                                 name: "destroy",
-                                text: "@Loc["Vendor.Common.Delete"]"
+                                text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"
                             }
                         ],
                         width: 50
@@ -161,13 +177,13 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ProductAttributeValueList", "Product", new { area = Constants.AreaVendor }))?productAttributeMappingId=" + e.data.Id + "&productId=@Model.Id",
+                            url: "@Html.Raw(Url.Action("ProductAttributeValueList", "Product", new { area = area }))?productAttributeMappingId=" + e.data.Id + "&productId=@Model.Id",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("ProductAttributeValueDelete", "Product", new { area = Constants.AreaVendor }))?pam=" + e.data.Id + "&productId=@Model.Id",
+                            url: "@Html.Raw(Url.Action("ProductAttributeValueDelete", "Product", new { area = area }))?pam=" + e.data.Id + "&productId=@Model.Id",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -222,7 +238,7 @@
                 },
                 toolbar: [
                     {
-                        template: "<a class='k-button btnProductAttributeValueEditPopup' data-id='" + e.data.Id + "' onclick=\"this.classList.add('active')\" href='@Url.Action("ProductAttributeValueCreatePopup", "Product", new { area = Constants.AreaVendor })/?productAttributeMappingId=" + e.data.Id + "&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues'>@Loc["Vendor.Common.AddNew"]</a>"
+                        template: "<a class='k-button btnProductAttributeValueEditPopup' data-id='" + e.data.Id + "' onclick=\"this.classList.add('active')\" href='@Url.Action("ProductAttributeValueCreatePopup", "Product", new { area = area })/?productAttributeMappingId=" + e.data.Id + "&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues'>@Loc[$"{Scope.ResourceKeyPrefix}.Common.AddNew"]</a>"
                     }
                 ],
                 scrollable: false,
@@ -240,11 +256,11 @@
                 columns: [
                     {
                         field: "Name",
-                        title: "@Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Name"]",
-                        template: "<a class='k-link btnProductAttributeValueEditPopup' data-id='#=Id#' onclick=\"this.classList.add('active')\" href='@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = Constants.AreaVendor })/#=Id#?productId=@(Model.Id)&productAttributeMappingId=" + e.data.Id + "&btnId=btnRefreshProductAttributesValues&formId=product-form'>#=Name#</a>"
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Name"]",
+                        template: "<a class='k-link btnProductAttributeValueEditPopup' data-id='#=Id#' onclick=\"this.classList.add('active')\" href='@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = area })/#=Id#?productId=@(Model.Id)&productAttributeMappingId=" + e.data.Id + "&btnId=btnRefreshProductAttributesValues&formId=product-form'>#=Name#</a>"
                     }, {
-                        command: { name: "destroy", text: "@Loc["Vendor.Common.Delete"]" },
-                        title: "@Loc["Vendor.Common.Delete"]"
+                        command: { name: "destroy", text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]" },
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"
                     }
                 ]
             });
