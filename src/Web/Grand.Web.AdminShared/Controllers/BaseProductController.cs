@@ -88,6 +88,12 @@ public abstract class BaseProductController(
     /// Overridden by the Store subclass; no-op everywhere else.</summary>
     protected virtual void EditWarningCheck(Product product) { }
 
+    // Exposed for host subclasses (ARCH-001 Phase 1 Task 11): primary-constructor parameters are not
+    // visible to derived classes by name in C#, but Store's EditWarningCheck override and any other
+    // host-specific override needs to reference these.
+    protected ITranslationService TranslationService => translationService;
+    protected IAdminDataScope<Product> Scope => scope;
+
     #region Product list / create / edit / delete
 
     public IActionResult Index() => RedirectToAction("List");
