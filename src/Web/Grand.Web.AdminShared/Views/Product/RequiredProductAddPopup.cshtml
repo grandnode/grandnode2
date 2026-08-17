@@ -1,9 +1,10 @@
-﻿@model ProductModel.AddRequiredProductModel
+@model ProductModel.AddRequiredProductModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "";
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     //page title
-    ViewBag.Title = Loc["Vendor.Catalog.Products.Fields.RequiredProductIds.Choose"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.RequiredProductIds.Choose"];
 }
 
 <div class="row">
@@ -12,7 +13,7 @@
             <div class="x_title">
                 <div class="caption">
                     <i class="fa fa-cubes"></i>
-                    @Loc["Vendor.Catalog.Products.Fields.RequiredProductIds.Choose"]
+                    @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.RequiredProductIds.Choose"]
                 </div>
             </div>
             <div class="x_content form">
@@ -30,13 +31,13 @@
                                     <div class="form-actions">
                                         <div class="btn-group btn-group-devided">
                                             <button class="btn btn-success filter-submit" id="search-products">
-                                                <i class="fa fa-search"></i>&nbsp; @Loc["Vendor.Common.Search"]
+                                                <i class="fa fa-search"></i>&nbsp; @Loc[$"{Scope.ResourceKeyPrefix}.Common.Search"]
                                             </button>
                                             <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                <i class="fa fa-filter"></i>&nbsp; @Loc["Vendor.Common.Filters"]
+                                                <i class="fa fa-filter"></i>&nbsp; @Loc[$"{Scope.ResourceKeyPrefix}.Common.Filters"]
                                             </button>
                                         </div>
-                                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> &nbsp; @Loc["Vendor.Common.Save"] </button>
+                                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> &nbsp; @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"] </button>
                                     </div>
                                 </div>
                             </div>
@@ -61,6 +62,21 @@
                                         <admin-input asp-for="SearchCollectionId"/>
                                     </div>
                                 </div>
+                                @if (area == "Admin")
+                                {
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label"/>
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchVendorId" class="col-sm-3 control-label"/>
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-select asp-for="SearchVendorId" asp-items="Model.AvailableVendors"/>
+                                        </div>
+                                    </div>
+                                }
                                 <div class="form-group">
                                     <admin-label asp-for="SearchProductTypeId" class="col-sm-3 control-label"/>
                                     <div class="col-md-9 col-sm-9">
@@ -77,15 +93,20 @@
     </div>
     <script>
              function additionalData() {
-                var data = {
-                    SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
-                    SearchCategoryId: $('#SearchCategoryId').val(),
-                    SearchBrandId: $('#SearchBrandId').val(),
-                    SearchCollectionId: $('#SearchCollectionId').val(),
-                    SearchProductTypeId: $('#SearchProductTypeId').val()
-                };
-                addAntiForgeryToken(data);
-                return data;
+            var data = {
+                SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
+                SearchCategoryId: $('#SearchCategoryId').val(),
+                SearchBrandId: $('#SearchBrandId').val(),
+                SearchCollectionId: $('#SearchCollectionId').val(),
+                @if (area == "Admin")
+                {
+                    <text>SearchStoreId: $('#SearchStoreId').val(),
+                SearchVendorId: $('#SearchVendorId').val(),</text>
+                }
+                SearchProductTypeId: $('#SearchProductTypeId').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
         }
 
         function selectRequiredProduct(productid) {
@@ -106,7 +127,7 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("RequiredProductAddPopupList", "Product", new { area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("RequiredProductAddPopupList", "Product", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: additionalData
@@ -138,15 +159,15 @@
                 scrollable: false,
                 columns: [{
                     field: "Name",
-                    title: "@Loc["Vendor.Common.Select"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Select"]",
                     width: 50,
-                    template: '<input type="button" value="@Loc["Vendor.Common.Select"]" onclick="selectRequiredProduct(\'#=Id#\')" class="k-button" />'
+                    template: '<input type="button" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Select"]" onclick="selectRequiredProduct(\'#=Id#\')" class="k-button" />'
                 },{
                     field: "Name",
-                    title: "@Loc["Vendor.Catalog.Products.Fields.Name"]"
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Name"]"
                 }, {
                     field: "Published",
-                    title: "@Loc["Vendor.Catalog.Products.Fields.Published"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Published"]",
                     width: 100,
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
