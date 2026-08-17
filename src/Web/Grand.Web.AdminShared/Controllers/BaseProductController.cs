@@ -2517,9 +2517,13 @@ public abstract class BaseProductController(
 
         // ModelState.IsValid: Vendor's original wrapped this action in a ModelState.IsValid check and
         // returned ModelState.GetErrors() on failure; Admin's and Store's originals had no such check.
-        // ProductAttributeConditionModel carries no [Required]/validation attributes, so ModelState is
-        // always valid in practice - dropping the check matches the majority (Admin/Store) with no
-        // observable behavior change.
+        // That check was not inert: Vendor's ProductAttributeConditionModel implements the
+        // IProductValidVendor marker interface, which the global ValidationFilter resolves to
+        // ProductValidVendor (a FluentValidation rule checking product.VendorId == CurrentVendor.Id) -
+        // real ownership enforcement, not a no-op. Dropping it here is safe because the scope.HasAccess
+        // (product) call below now performs the equivalent check directly against the loaded entity,
+        // which HasAccess.cs's own doc comment argues is more robust than re-deriving ownership from a
+        // request field.
         //
         // HasAccess here too: Vendor's original never checked ownership on this POST at all (only its GET
         // sibling did, via CheckAccessToProduct), letting a vendor update an attribute condition on any
