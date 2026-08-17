@@ -24,7 +24,10 @@ using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Mapper;
+using Grand.Mapping;
 using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.AdminShared.Services;
 using Grand.Web.Common.Localization;
@@ -56,6 +59,9 @@ public class ProductViewModelServiceTests
     [TestInitialize]
     public void Setup()
     {
+        var mapperConfig = new MapperConfiguration(cfg => { cfg.AddProfile<ProductProfile>(); });
+        AutoMapperConfig.Init(mapperConfig);
+
         _discountServiceMock = new Mock<IDiscountService>();
         _enumTranslationServiceMock = new Mock<IEnumTranslationService>();
         _groupServiceMock = new Mock<IGroupService>();
@@ -412,5 +418,59 @@ public class ProductViewModelServiceTests
 
         Assert.IsTrue(model.AvailableVendors.Any(x => x.Value == "vendor1"),
             "Admin/Store should keep offering a vendor picker.");
+    }
+
+    [TestMethod]
+    public async Task InsertProductModel_VendorScope_ForcesVendorId()
+    {
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
+        var model = new ProductModel { Name = "Test product" };
+
+        var product = await _productViewModelService.InsertProductModel(model);
+
+        Assert.AreEqual("vendor1", product.VendorId,
+            "Vendor's original InsertProductModel always set product.VendorId = CurrentVendor.Id - without " +
+            "this, a vendor-created product would map whatever (usually blank) VendorId the model carries " +
+            "and end up orphaned, inaccessible to the vendor who just created it.");
+    }
+
+    [TestMethod]
+    public async Task InsertProductModel_GlobalScope_DoesNotForceVendorId()
+    {
+        // Default Setup() scope: Admin's Global scope (DefaultVendorId null).
+        var model = new ProductModel { Name = "Test product", VendorId = "vendor2" };
+
+        var product = await _productViewModelService.InsertProductModel(model);
+
+        Assert.AreEqual("vendor2", product.VendorId,
+            "Admin/Store should keep whatever vendor ownership the create form assigns.");
+    }
+
+    [TestMethod]
+    public async Task UpdateProductModel_VendorScope_ForcesVendorId_PreventsCrossVendorReassignment()
+    {
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
+        var product = new Product { Id = "p1", VendorId = "vendor1" };
+        var model = new ProductModel { Id = "p1", VendorId = "vendor-attacker-supplied" };
+
+        var result = await _productViewModelService.UpdateProductModel(product, model);
+
+        Assert.AreEqual("vendor1", result.VendorId,
+            "AdminShared's shared ProductProfile does not ignore ProductModel.VendorId -> Product.VendorId " +
+            "(Admin's edit form legitimately reassigns vendor ownership); without re-forcing it after mapping, " +
+            "a vendor could reassign their own product to a different vendor id via a tampered VendorId field.");
+    }
+
+    [TestMethod]
+    public async Task UpdateProductModel_GlobalScope_UsesModelVendorId()
+    {
+        // Default Setup() scope: Admin's Global scope (DefaultVendorId null).
+        var product = new Product { Id = "p1", VendorId = "vendor1" };
+        var model = new ProductModel { Id = "p1", VendorId = "vendor2" };
+
+        var result = await _productViewModelService.UpdateProductModel(product, model);
+
+        Assert.AreEqual("vendor2", result.VendorId,
+            "Admin should keep being able to reassign a product's vendor ownership via the edit form.");
     }
 }

@@ -712,6 +712,16 @@ public class ProductViewModelService(
         //product
         var product = model.ToEntity(dateTimeService);
 
+        // VendorId: forced onto new products when scope.DefaultVendorId is set - mirrors Vendor's original
+        // InsertProductModel, which always set product.VendorId = CurrentVendor?.Id explicitly and ignored
+        // VendorId in its AutoMapper profile for exactly this reason. AdminShared's shared ProductProfile
+        // does *not* ignore ProductModel.VendorId -> Product.VendorId (Admin's create form legitimately
+        // assigns vendor ownership), so without this, a vendor host would map whatever (usually blank)
+        // VendorId the model carries, leaving newly-created products belonging to no vendor at all -
+        // orphaned and inaccessible to the vendor who just created them once VendorProductDataScope.HasAccess
+        // gates on VendorId equality.
+        if (scope.DefaultVendorId is not null) product.VendorId = scope.DefaultVendorId;
+
         //discounts
         var allDiscounts = await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus, model.StoreId);
         foreach (Discount discount in allDiscounts)
@@ -751,6 +761,16 @@ public class ProductViewModelService(
         //product
         product = model.ToEntity(product, dateTimeService);
         product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
+
+        // VendorId: re-forced to scope.DefaultVendorId (when set) after mapping, not merely left alone -
+        // AdminShared's shared ProductProfile does not ignore ProductModel.VendorId -> Product.VendorId, so
+        // without this, mapping a caller-supplied model onto the existing entity would let a vendor
+        // reassign their own product to a different vendor id via a tampered/mass-assigned VendorId field.
+        // Vendor's original UpdateProductModel never touched VendorId at all (its own AutoMapper profile
+        // ignores it), relying on the pre-loaded entity's existing value - forcing it here is strictly
+        // equivalent for legitimately-owned products (already gated by scope.HasAccess before reaching this
+        // method) while also closing that mass-assignment gap for Admin/Store's shared profile.
+        if (scope.DefaultVendorId is not null) product.VendorId = scope.DefaultVendorId;
         product.Locales = await seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
         product.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
         //discounts
