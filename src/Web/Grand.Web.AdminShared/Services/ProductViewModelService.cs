@@ -143,12 +143,19 @@ public class ProductViewModelService(
     public virtual async Task PrepareTierPriceModel(ProductModel.TierPriceModel model)
     {
         var storeId = scope.DefaultStoreId ?? "";
-        if (string.IsNullOrEmpty(storeId))
-            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
 
-        foreach (var store in (await storeService.GetAllStores()).Where(x =>
-                     x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-            model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
+        //stores - same capability gate as PrepareProductListModel: Vendor's original PrepareTierPriceModel
+        //never populated a stores dropdown at all (vendors don't pick stores), so this must not run for
+        //Vendor even though its storeId also resolves to "".
+        if (scope.ShowStoreSelector)
+        {
+            if (string.IsNullOrEmpty(storeId))
+                model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+
+            foreach (var store in (await storeService.GetAllStores()).Where(x =>
+                         x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
+                model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
+        }
 
         //customer groups
         model.AvailableCustomerGroups.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });

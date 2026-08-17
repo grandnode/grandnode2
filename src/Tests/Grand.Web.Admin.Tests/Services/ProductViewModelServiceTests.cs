@@ -41,6 +41,7 @@ public class ProductViewModelServiceTests
 
     private Mock<IDiscountService> _discountServiceMock;
     private Mock<IEnumTranslationService> _enumTranslationServiceMock;
+    private Mock<IGroupService> _groupServiceMock;
     private Mock<IMeasureService> _measureServiceMock;
     private ProductViewModelService _productViewModelService;
     private Mock<IAdminDataScope<Product>> _scopeMock;
@@ -54,6 +55,7 @@ public class ProductViewModelServiceTests
     {
         _discountServiceMock = new Mock<IDiscountService>();
         _enumTranslationServiceMock = new Mock<IEnumTranslationService>();
+        _groupServiceMock = new Mock<IGroupService>();
         _measureServiceMock = new Mock<IMeasureService>();
         _storeServiceMock = new Mock<IStoreService>();
         _taxCategoryServiceMock = new Mock<ITaxCategoryService>();
@@ -69,6 +71,7 @@ public class ProductViewModelServiceTests
 
         var currencyServiceMock = new Mock<ICurrencyService>();
         currencyServiceMock.Setup(c => c.GetCurrencyById(It.IsAny<string>())).ReturnsAsync((Currency)null);
+        currencyServiceMock.Setup(c => c.GetAllCurrencies(It.IsAny<bool>(), It.IsAny<string>())).ReturnsAsync(new List<Currency>());
         _measureServiceMock.Setup(m => m.GetMeasureWeightById(It.IsAny<string>())).ReturnsAsync((MeasureWeight)null);
         _measureServiceMock.Setup(m => m.GetMeasureDimensionById(It.IsAny<string>()))
             .ReturnsAsync((MeasureDimension)null);
@@ -95,6 +98,9 @@ public class ProductViewModelServiceTests
             .ReturnsAsync(new List<Discount>());
 
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
+
+        _groupServiceMock.Setup(g => g.GetAllCustomerGroups(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
+            .ReturnsAsync(new PagedList<CustomerGroup>());
 
         _enumTranslationServiceMock
             .Setup(e => e.ToSelectList(It.IsAny<ProductType>(), It.IsAny<bool>(), It.IsAny<int[]>()))
@@ -124,7 +130,7 @@ public class ProductViewModelServiceTests
             productLayoutServiceMock.Object,
             new Mock<ISpecificationAttributeService>().Object,
             contextAccessorMock.Object,
-            new Mock<IGroupService>().Object,
+            _groupServiceMock.Object,
             _warehouseServiceMock.Object,
             deliveryDateServiceMock.Object,
             _taxCategoryServiceMock.Object,
@@ -247,5 +253,37 @@ public class ProductViewModelServiceTests
             "Vendor can't feature products on the homepage.");
         Assert.IsFalse(model.AvailableStores.Any(),
             "Vendor doesn't pick stores - no dropdown should be populated at all.");
+    }
+
+    [TestMethod]
+    public async Task PrepareTierPriceModel_VendorScope_HidesStoreDropdown()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
+        _scopeMock.Setup(s => s.ShowStoreSelector).Returns(false);
+        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> {
+            new() { Id = "store1", Shortcut = "Store 1" }
+        });
+
+        var model = new ProductModel.TierPriceModel();
+        await _productViewModelService.PrepareTierPriceModel(model);
+
+        Assert.IsFalse(model.AvailableStores.Any(),
+            "Vendor doesn't pick stores - no dropdown should be populated at all, matching the original Vendor service's PrepareTierPriceModel.");
+    }
+
+    [TestMethod]
+    public async Task PrepareTierPriceModel_GlobalScope_IncludesStoreDropdown()
+    {
+        // Default Setup() scope: Admin's Global scope (DefaultStoreId null, ShowStoreSelector true).
+        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> {
+            new() { Id = "store1", Shortcut = "Store 1" }
+        });
+
+        var model = new ProductModel.TierPriceModel();
+        await _productViewModelService.PrepareTierPriceModel(model);
+
+        Assert.IsTrue(model.AvailableStores.Any(x => x.Value == "store1"),
+            "Admin should offer a store dropdown for tier prices.");
     }
 }
