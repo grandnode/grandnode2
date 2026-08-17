@@ -136,6 +136,7 @@ git commit -m "Convert Grand.Web.AdminShared to a Razor Class Library (ARCH-001 
 **Files:**
 - Modify: `src/Web/Grand.Web.Common/View/ViewLocationExpander.cs`
 - Test: `src/Tests/Grand.Web.Common.Tests/View/ViewLocationExpanderTests.cs` (new file)
+- Test: `src/Tests/Grand.Web.Common.Tests/View/AdminSharedControllersNamespaceFakes.cs` (new file)
 
 **Interfaces:**
 - Produces: `ViewLocationExpander.ExpandViewLocations` gains a second,
@@ -152,6 +153,34 @@ create it alongside the test file in Step 2.
 
 - [ ] **Step 2: Write the failing tests**
 
+C# allows only one namespace per file when using the file-scoped
+`namespace X;` form — the fake types standing in for a real
+`Grand.Web.AdminShared.Controllers`-namespaced base controller (this test
+project has no reference to `Grand.Web.AdminShared`, so a real
+`BaseProductController` isn't available; only the namespace string matters
+for `IsAdminSharedController`) go in their own file, block-scoped:
+
+Create `src/Tests/Grand.Web.Common.Tests/View/AdminSharedControllersNamespaceFakes.cs`:
+
+```csharp
+// Stands in for a real Base*Controller living in Grand.Web.AdminShared.Controllers
+// (this test project has no reference to Grand.Web.AdminShared) — only the
+// namespace string matters to ViewLocationExpander.IsAdminSharedController.
+namespace Grand.Web.AdminShared.Controllers
+{
+    public abstract class FakeBaseController { }
+}
+
+namespace Grand.Web.Common.Tests.View
+{
+    public class FakeAdminSharedSubclass : Grand.Web.AdminShared.Controllers.FakeBaseController { }
+
+    public class FakeUnrelatedController { }
+}
+```
+
+Create `src/Tests/Grand.Web.Common.Tests/View/ViewLocationExpanderTests.cs`:
+
 ```csharp
 using Grand.Web.Common.View;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -159,19 +188,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Web.Common.Tests.View;
-
-// Dummy hierarchy standing in for BaseProductController living in
-// Grand.Web.AdminShared.Controllers — this test project doesn't reference
-// AdminShared, so the namespace string itself is what's under test, not a
-// real base type.
-namespace Grand.Web.AdminShared.Controllers
-{
-    public abstract class FakeBaseController { }
-}
-
-public class FakeAdminSharedSubclass : Grand.Web.AdminShared.Controllers.FakeBaseController { }
-
-public class FakeUnrelatedController { }
 
 [TestClass]
 public class ViewLocationExpanderTests
@@ -304,7 +320,7 @@ only confirms the expander itself compiles and doesn't regress the existing
 - [ ] **Step 8: Commit**
 
 ```bash
-git add src/Web/Grand.Web.Common/View/ViewLocationExpander.cs src/Web/Grand.Web.Common/Grand.Web.Common.csproj src/Tests/Grand.Web.Common.Tests/View/ViewLocationExpanderTests.cs
+git add src/Web/Grand.Web.Common/View/ViewLocationExpander.cs src/Web/Grand.Web.Common/Grand.Web.Common.csproj src/Tests/Grand.Web.Common.Tests/View/ViewLocationExpanderTests.cs src/Tests/Grand.Web.Common.Tests/View/AdminSharedControllersNamespaceFakes.cs
 git commit -m "Add AdminShared view fallback branch to ViewLocationExpander (ARCH-001 Phase 2)"
 ```
 
