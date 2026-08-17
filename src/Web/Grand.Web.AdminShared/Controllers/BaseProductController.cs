@@ -2477,4 +2477,60 @@ public abstract class BaseProductController(
     }
 
     #endregion
+
+    #region Product attributes. Condition
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductAttributeConditionPopup(string productId, string productAttributeMappingId)
+    {
+        var product = await productService.GetProductById(productId);
+
+        // HasAccess applied uniformly across this region (Admin's Global scope is a no-op). Admin's original
+        // had no ownership check on either action of this region. See the "Product attributes" region above
+        // for the same pattern.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        var productAttributeMapping =
+            product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
+        if (productAttributeMapping == null)
+            //No attribute value found with the specified id
+            return Content("No attribute value found with the specified id");
+
+        var model = await productViewModelService.PrepareProductAttributeConditionModel(product,
+            productAttributeMapping);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAttributeConditionPopup(ProductAttributeConditionModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null)
+            throw new ArgumentException("No product found with the specified id");
+
+        var productAttributeMapping =
+            product.ProductAttributeMappings.FirstOrDefault(x => x.Id == model.ProductAttributeMappingId);
+        if (productAttributeMapping == null)
+            return Content("No attribute value found with the specified id");
+
+        // ModelState.IsValid: Vendor's original wrapped this action in a ModelState.IsValid check and
+        // returned ModelState.GetErrors() on failure; Admin's and Store's originals had no such check.
+        // ProductAttributeConditionModel carries no [Required]/validation attributes, so ModelState is
+        // always valid in practice - dropping the check matches the majority (Admin/Store) with no
+        // observable behavior change.
+        //
+        // HasAccess here too: Vendor's original never checked ownership on this POST at all (only its GET
+        // sibling did, via CheckAccessToProduct), letting a vendor update an attribute condition on any
+        // product by posting a known productId/productAttributeMappingId. Admin's original had no check on
+        // either action.
+        if (!await scope.HasAccess(product))
+            return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
+
+        await productViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping, model);
+        return Content("");
+    }
+
+    #endregion
 }
