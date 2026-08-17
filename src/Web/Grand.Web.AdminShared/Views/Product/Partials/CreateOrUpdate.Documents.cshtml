@@ -1,12 +1,15 @@
-﻿@model ProductModel
+@model ProductModel
 @inject AdminAreaSettings adminAreaSettings
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 <div class="panel panel-default">
     <vc:admin-widget widget-zone="product_details_documents_top" additional-data="Model"/>
     <div class="panel-body">
         <div id="product-documents-grid"></div>
     </div>
     <div class="panel-footer">
-        <button type="button" class="k-button" onclick="location.href='@Url.Action("CreateDocument", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, area = Constants.AreaAdmin })'"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Marketing.Document.Add"]</button>
+        <button type="button" class="k-button" onclick="location.href='@Url.Action("CreateDocument", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, area = area })'"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Marketing.Document.Add"]</button>
     </div>
     <vc:admin-widget widget-zone="product_details_documents_bottom" additional-data="Model"/>
 </div>
@@ -17,7 +20,7 @@ $(document).ready(function () {
         dataSource: {
             transport: {
                 read: {
-                    url: "@Html.Raw(Url.Action("ListDocuments", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, StatusId = -1, area = Constants.AreaAdmin }))",
+                    url: "@Html.Raw(Url.Action("ListDocuments", "Document", new { reference = (int)Reference.Product, ObjectId = Model.Id, StatusId = -1, area = area }))",
                     type: "POST",
                     dataType: "json",
                     data: addAntiForgeryToken
@@ -51,12 +54,12 @@ $(document).ready(function () {
         columns: [{
                 field: "Number",
                 title: "@Loc["Admin.Documents.Document.Fields.Number"]",
-                template: '<a class="k-link" href="@Url.Action("EditDocument", "Document", new { area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(Number)#</a>',
+                template: '<a class="k-link" href="@Url.Action("EditDocument", "Document", new { area = area })/#=Id#">#=kendo.htmlEncode(Number)#</a>',
             },
             {
                 field: "Name",
                 title: "@Loc["Admin.Documents.Document.Fields.Name"]",
-                template: '<a class="k-link" href="@Url.Action("EditDocument", "Document", new { area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(Name)#</a>',
+                template: '<a class="k-link" href="@Url.Action("EditDocument", "Document", new { area = area })/#=Id#">#=kendo.htmlEncode(Name)#</a>',
             }, {
                 field: "Published",
                 title: "@Loc["Admin.Documents.Document.Fields.Published"]",
