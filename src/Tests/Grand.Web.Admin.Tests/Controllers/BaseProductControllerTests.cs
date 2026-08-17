@@ -4242,9 +4242,12 @@ public class BaseProductControllerTests
     }
 
     // --- ProductAttributeValueCreatePopup (POST) ----------------------------------------------------
-    // HasAccess added explicitly: Admin's original had no ownership check on this action at all (neither
-    // explicit nor via validator). Vendor's original relied solely on IProductValidVendor + ModelState -
-    // no explicit action-level check.
+    // HasAccess added explicitly. Admin has no ownership concept at all (GlobalAdminDataScope.HasAccess is
+    // always true), so Admin was never at risk here. The real risk is to VENDOR: Vendor's original relied
+    // solely on ProductAttributeValueModel : IProductValidVendor triggering ValidationFilter's
+    // ProductValidVendor check + Vendor's own `if (ModelState.IsValid)` gate - no explicit action-level
+    // check. Moving to the shared AdminShared model (no IProductValidVendor) would have silently dropped
+    // that guard for Vendor; scope.HasAccess replaces it explicitly and uniformly.
 
     [TestMethod]
     public async Task ProductAttributeValueCreatePopup_Post_MissingProduct_Throws()
@@ -4269,6 +4272,29 @@ public class BaseProductControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
+        _productViewModelServiceMock.Verify(
+            s => s.InsertProductAttributeValueModel(It.IsAny<ProductModel.ProductAttributeValueModel>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeValueCreatePopup_Post_ScopeDeniesAccess_UsesVendorResourceKeyPrefix()
+    {
+        // The host/action combination this row's fix actually protects: Vendor losing its
+        // IProductValidVendor-driven guard in the merge. See the comment above the HasAccess check in
+        // BaseProductController.ProductAttributeValueCreatePopup(POST).
+        var product = new Product { Id = "p1" };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
+        var model = new ProductModel.ProductAttributeValueModel { ProductId = "p1" };
+
+        var result = await _controller.ProductAttributeValueCreatePopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        _translationServiceMock.Verify(t => t.GetResource("Vendor.Catalog.Products.Permissions"), Times.Once);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Never);
         _productViewModelServiceMock.Verify(
             s => s.InsertProductAttributeValueModel(It.IsAny<ProductModel.ProductAttributeValueModel>()),
             Times.Never);

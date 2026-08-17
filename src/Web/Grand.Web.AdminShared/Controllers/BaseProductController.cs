@@ -2632,19 +2632,21 @@ public abstract class BaseProductController(
         if (product == null)
             throw new ArgumentException("No product found with the specified id");
 
-        // HasAccess added explicitly rather than relying on validation-layer side effects: Admin's and
-        // Store's shared ProductAttributeValueModelValidator (BaseStoreAccessValidator<...>) only enforces
-        // ownership when StaffStoreId is set - i.e. it's active for Store, a no-op for Admin. Vendor's
-        // model implements IProductValidVendor, so the global ValidationFilter resolves
-        // IValidator<IProductValidVendor> (ProductValidVendor) and adds a ModelState error when
-        // product.VendorId doesn't match the current vendor - a real check, not a no-op - but
-        // ValidationFilter never short-circuits a non-JSON POST (see ValidationFilter.OnActionExecutionAsync),
-        // so that protection only actually held because Vendor's original action gated the insert behind
-        // `if (ModelState.IsValid)`. Admin's original had neither an explicit check nor that validator
-        // wired up, so this was a real, unguarded IDOR: any caller reaching this shared action without the
-        // Vendor marker-interface model could insert an attribute value onto a product they don't own.
-        // scope.HasAccess makes the check explicit and uniform across all three hosts instead of leaning on
-        // ModelState side effects that only covered one of them.
+        // HasAccess added explicitly rather than relying on validation-layer side effects. Admin has no
+        // ownership concept at all (GlobalAdminDataScope.HasAccess is always true), so Admin was never at
+        // risk here despite having neither an explicit check nor a validator. Store's shared
+        // ProductAttributeValueModelValidator (BaseStoreAccessValidator<...>) enforces ownership whenever
+        // StaffStoreId is set, so Store's original had validator-layer coverage. The actual risk this
+        // guards against is to VENDOR: Vendor's original model implements IProductValidVendor, so the
+        // global ValidationFilter resolves IValidator<IProductValidVendor> (ProductValidVendor) and adds a
+        // ModelState error when product.VendorId doesn't match the current vendor - a real check, not a
+        // no-op - but ValidationFilter never short-circuits a non-JSON POST (see
+        // ValidationFilter.OnActionExecutionAsync), so that protection only actually held because Vendor's
+        // original action gated the insert behind `if (ModelState.IsValid)`. Once this action moves to the
+        // shared AdminShared model (which does not implement IProductValidVendor), Vendor would silently
+        // lose that guard in the merge unless replaced - scope.HasAccess is that replacement, and now
+        // applies uniformly (a no-op for Admin, equivalent-or-stronger for Store/Vendor) instead of leaning
+        // on a marker-interface side effect that only one host had.
         if (!await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
@@ -2706,9 +2708,11 @@ public abstract class BaseProductController(
             throw new ArgumentException("No product found with the specified id");
 
         // See the ProductAttributeValueCreatePopup(POST) comment above re: the validator's coverage gap -
-        // the same applies here (this action shares the same model type). Vendor's original never checked
-        // ownership on this POST at all (only its GET sibling did, via CheckAccessToProduct/HasAccessToProduct);
-        // Admin's original had no check on either action.
+        // the same reasoning applies here (this action shares the same model type). Unlike CreatePopup(POST),
+        // Vendor's original for THIS action already had an explicit inline check
+        // (`if (product == null || !_contextAccessor.WorkContext.HasAccessToProduct(product)) throw ...`),
+        // so scope.HasAccess is a mechanical substitution there, not a fix. Admin's original had no check
+        // on either action of this pair.
         if (!await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
