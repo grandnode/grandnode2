@@ -1,8 +1,0 @@
-﻿{
-  Id: pac-v-1,
-  StockQuantity: 5,
-  AllowOutOfStockOrders: false,
-  Sku: COMB-SKU,
-  NotifyAdminForQuantityBelow: 1,
-  UseMultipleWarehouses: false
-}
