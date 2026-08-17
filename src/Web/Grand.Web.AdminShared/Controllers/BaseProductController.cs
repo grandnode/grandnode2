@@ -1672,10 +1672,8 @@ public abstract class BaseProductController(
             // HasAccess (strict): mirrors Store's CanAccessProduct check on this action. Vendor's original
             // ProductSpecAttrPopup(POST) had no check at all, letting any vendor add/edit specification
             // attributes on another vendor's product by posting its id - closed here the same way as the
-            // GET popup above. Vendor's original call also used a two-arg
-            // UpdateProductSpecificationAttributeModel(psa, model) overload that does not exist on the
-            // shared IProductViewModelService; the shared three-arg (product, psa, model) overload -
-            // already used by Admin/Store - is used here instead.
+            // GET popup above. UpdateProductSpecificationAttributeModel's unused `product` parameter was
+            // dropped in ARCH-001 Phase 1 Task 10 to match Vendor's original two-arg (psa, model) shape.
             if (!await scope.HasAccess(product))
                 return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
@@ -1683,7 +1681,7 @@ public abstract class BaseProductController(
             if (psa == null)
                 await productViewModelService.InsertProductSpecificationAttributeModel(model, product);
             else
-                await productViewModelService.UpdateProductSpecificationAttributeModel(product, psa, model);
+                await productViewModelService.UpdateProductSpecificationAttributeModel(psa, model);
 
             return new JsonResult("");
         }

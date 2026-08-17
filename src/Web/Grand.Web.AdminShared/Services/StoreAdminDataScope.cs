@@ -41,4 +41,6 @@ public class StoreAdminDataScope<TEntity>(IContextAccessor contextAccessor) : IA
     public string ResourceKeyPrefix => "Admin";
 
     public bool ShowStoreSelector => true;
+
+    public string? DefaultVendorId => null;
 }

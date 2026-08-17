@@ -1421,7 +1421,7 @@ public class ProductController : BaseStoreController
             if (psa == null)
                 await _productViewModelService.InsertProductSpecificationAttributeModel(model, product);
             else
-                await _productViewModelService.UpdateProductSpecificationAttributeModel(product, psa, model);
+                await _productViewModelService.UpdateProductSpecificationAttributeModel(psa, model);
 
             return new JsonResult("");
         }

@@ -184,7 +184,7 @@ public class ProductViewModelService(
         model.AssociatedProductName = associatedProduct != null ? associatedProduct.Name : "";
     }
 
-    public virtual async Task OutOfStockNotifications(Product product, ProductModel model, int prevStockQuantity,
+    public virtual async Task OutOfStockNotifications(Product product, int prevStockQuantity,
         List<ProductWarehouseInventory> prevMultiWarehouseStock
     )
     {
@@ -620,12 +620,16 @@ public class ProductViewModelService(
 
         var markedAsNewOnly = model.SearchPublishedId == 4;
 
+        // vendorId: scope.DefaultVendorId (when set) overrides whatever the search model asks for - mirrors
+        // Vendor's original PrepareProductsModel, which always passed vendorId: CurrentVendor.Id regardless
+        // of any vendor filter on the model. Admin/Store have no DefaultVendorId, so this falls back to
+        // model.SearchVendorId unchanged for them.
         var products = (await productService.SearchProducts(
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             storeId: model.SearchStoreId,
-            vendorId: model.SearchVendorId,
+            vendorId: scope.DefaultVendorId ?? model.SearchVendorId,
             warehouseId: model.SearchWarehouseId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
@@ -685,12 +689,14 @@ public class ProductViewModelService(
                 break;
         }
 
+        // vendorId: same override as PrepareProductsModel above - mirrors Vendor's original PrepareProducts,
+        // which always passed vendorId: CurrentVendor.Id regardless of the search model.
         var products = (await productService.SearchProducts(
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             storeId: model.SearchStoreId,
-            vendorId: model.SearchVendorId,
+            vendorId: scope.DefaultVendorId ?? model.SearchVendorId,
             warehouseId: model.SearchWarehouseId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
@@ -780,7 +786,7 @@ public class ProductViewModelService(
         await UpdatePictureSeoNames(product);
 
         //out of stock notifications
-        await OutOfStockNotifications(product, model, prevStockQuantity, prevMultiWarehouseStock);
+        await OutOfStockNotifications(product, prevStockQuantity, prevMultiWarehouseStock);
 
         //delete an old "download" file (if deleted or updated)
         if (!string.IsNullOrEmpty(prevDownloadId) && prevDownloadId != product.DownloadId)
@@ -840,8 +846,12 @@ public class ProductViewModelService(
     public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(
         ProductModel.AddProductModel model, int pageIndex, int pageSize)
     {
+        // vendorId: scope.DefaultVendorId (when set) overrides the search model - mirrors Vendor's original
+        // PrepareProductModel(AddProductModel,...), which always passed vendorId: CurrentVendor.Id (and
+        // storeId: string.Empty) regardless of the model, so the "add related/similar/bundle/etc. product"
+        // popups can never surface another vendor's products.
         var products = await productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
-            model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
+            model.SearchCollectionId, model.SearchStoreId, scope.DefaultVendorId ?? model.SearchVendorId, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);
         return (products.Select(x => x.ToModel(dateTimeService)).ToList(), products.TotalCount);
     }
@@ -1255,10 +1265,17 @@ public class ProductViewModelService(
         if (!string.IsNullOrEmpty(model.SearchCategoryId))
             searchCategoryIds.Add(model.SearchCategoryId);
 
+        // vendorId: scope.DefaultVendorId forces the bulk-edit grid to the current vendor's own products.
+        // Vendor's original PrepareBulkEditProductModel always passed vendorId: CurrentVendor.Id; this
+        // shared version previously had no vendor filtering at all - a real gap, since BulkEditListModel
+        // has no SearchVendorId field for a caller to (mis)supply in the first place, so there is nothing
+        // to fall back to for Admin/Store, whose scope.DefaultVendorId is null and who intentionally see
+        // every vendor's products in bulk-edit.
         var products = (await productService.SearchProducts(categoryIds: searchCategoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             storeId: model.SearchStoreId,
+            vendorId: scope.DefaultVendorId ?? "",
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
             pageIndex: pageIndex - 1,
@@ -2476,8 +2493,8 @@ public class ProductViewModelService(
         product.ProductSpecificationAttributes.Add(psa);
     }
 
-    public virtual async Task UpdateProductSpecificationAttributeModel(Product product,
-        ProductSpecificationAttribute psa, ProductModel.AddProductSpecificationAttributeModel model)
+    public virtual async Task UpdateProductSpecificationAttributeModel(ProductSpecificationAttribute psa,
+        ProductModel.AddProductSpecificationAttributeModel model)
     {
         psa = model.ToEntity(psa);
         await specificationAttributeService.UpdateProductSpecificationAttribute(psa, model.ProductId);
@@ -2594,10 +2611,16 @@ public class ProductViewModelService(
                 model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
         }
 
-        //vendors
-        model.AvailableVendors.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var v in await vendorService.GetAllVendors(showHidden: true))
-            model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
+        //vendors - only when the host isn't already forced onto a single vendor (scope.DefaultVendorId):
+        //Vendor's original PrepareAddProductModel<T> never populated a vendor picker at all (matches the
+        //ShowStoreSelector gate above for the same reason - there's nothing to pick, the search is always
+        //forced to the current vendor).
+        if (scope.DefaultVendorId is null)
+        {
+            model.AvailableVendors.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+            foreach (var v in await vendorService.GetAllVendors(showHidden: true))
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
+        }
 
         //product types
         model.AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();

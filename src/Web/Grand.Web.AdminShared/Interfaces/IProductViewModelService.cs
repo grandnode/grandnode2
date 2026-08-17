@@ -11,7 +11,7 @@ public interface IProductViewModelService
     Task PrepareProductReviewModel(ProductReviewModel model, ProductReview productReview, bool excludeProperties,
         bool formatReviewText);
 
-    Task OutOfStockNotifications(Product product, ProductModel model, int prevStockQuantity,
+    Task OutOfStockNotifications(Product product, int prevStockQuantity,
         List<ProductWarehouseInventory> prevMultiWarehouseStock);
 
     Task OutOfStockNotifications(Product product, ProductAttributeCombination combination,
@@ -161,7 +161,7 @@ public interface IProductViewModelService
     Task InsertProductSpecificationAttributeModel(ProductModel.AddProductSpecificationAttributeModel model,
         Product product);
 
-    Task UpdateProductSpecificationAttributeModel(Product product, ProductSpecificationAttribute psa,
+    Task UpdateProductSpecificationAttributeModel(ProductSpecificationAttribute psa,
         ProductModel.AddProductSpecificationAttributeModel model);
 
     Task DeleteProductSpecificationAttribute(Product product, ProductSpecificationAttribute psa);

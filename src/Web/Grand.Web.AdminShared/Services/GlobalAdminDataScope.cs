@@ -15,4 +15,6 @@ public class GlobalAdminDataScope<TEntity> : IAdminDataScope<TEntity>
     public string ResourceKeyPrefix => "Admin";
 
     public bool ShowStoreSelector => true;
+
+    public string? DefaultVendorId => null;
 }

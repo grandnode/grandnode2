@@ -38,4 +38,12 @@ public interface IAdminDataScope<TEntity>
     /// flag, deliberately distinct from <see cref="DefaultStoreId"/> being null: DefaultStoreId is also
     /// null for Admin (global, no default store), where the selector should still show.</summary>
     bool ShowStoreSelector { get; }
+
+    /// <summary>Vendor id to force onto product search/listing queries, overriding whatever a caller-
+    /// supplied search model asks for. Null when the host has no vendor concept (Admin: global; Store:
+    /// store-scoped, not vendor-scoped). Vendor: the current vendor's id - mirrors Vendor's original
+    /// service always passing <c>vendorId: CurrentVendor.Id</c> into <c>IProductService.SearchProducts</c>/
+    /// <c>PrepareProductList</c> regardless of any vendor filter a client-supplied model field might carry,
+    /// so a vendor can never search or bulk-list another vendor's products.</summary>
+    string? DefaultVendorId { get; }
 }
