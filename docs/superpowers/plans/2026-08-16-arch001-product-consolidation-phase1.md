@@ -1388,6 +1388,8 @@ Vendor's rewritten controller from Step 3 stays as an uncommitted working-tree c
 **Interfaces:**
 - Consumes: `Grand.Web.AdminShared.Interfaces.IProductViewModelService` / `.Services.ProductViewModelService` (Tasks 9-10, now fully reconciled).
 
+**Addendum — Vendor's field-level FluentValidation validators (added after Task 8 row 20's review):** once Vendor's controllers bind to AdminShared's model types instead of its own (this task), Vendor-specific validators registered against the old Vendor model types — e.g. `Grand.Web.Vendor/Validators/Catalog/ProductAttributeValueModelValidator.cs`, which validates `Grand.Web.Vendor.Models.Catalog.ProductModel.ProductAttributeValueModel`'s Name/Quantity/ColorSquares/ImageSquares fields — become dead code: nothing binds the type they validate anymore. This is a field-level validation gap, not an ownership one (ownership is already covered by `scope.HasAccess`, added in Task 8). Before this task is done, grep `src/Web/Grand.Web.Vendor/Validators/` for every validator targeting a type this task's model-unification retires, and confirm AdminShared's equivalent validator (if one exists) is registered for the Vendor host too — check `AdminShared/Startup/StartupApplication.cs`'s FluentValidation registration for whether it already scans all consuming assemblies or needs an explicit add.
+
 - [ ] **Step 1: Find every remaining reference to the old Vendor-local types**
 
 Run:
