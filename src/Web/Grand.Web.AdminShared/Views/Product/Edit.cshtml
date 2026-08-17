@@ -1,9 +1,10 @@
-﻿@model ProductModel
+@model ProductModel
 @{
     //page title
-    ViewBag.Title = Loc["Admin.Catalog.Products.EditProductDetails"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="Edit" method="post" id="product-form">
+<form asp-area="@area" asp-controller="Product" asp-action="Edit" method="post" id="product-form">
 
     <div class="row">
         <div class="col-md-12">
@@ -11,31 +12,38 @@
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-cube"></i>
-                        @Loc["Admin.Catalog.Products.EditProductDetails"] - @Model.Name
+                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"] - @Model.Name
                         <small>
-                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Catalog.Products.BackToList"], "List")
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
                             <button type="button" onclick="window.open('@Url.RouteUrl("Product", new { Model.SeName })','_blank');" class="btn purple">
                                 <i class="fa fa-eye"></i>
-                                @Loc["Admin.Common.Preview"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Common.Preview"]
                             </button>
                             <button class="btn btn-success" type="submit" name="save">
-                                <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
                             </button>
                             <button class="btn btn-success" type="submit" name="save-continue">
-                                <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                                <i class="fa fa-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
                             </button>
                             <button type="button" name="copyproduct" class="btn blue" id="copyproduct">
                                 <i class="fa fa-clone"></i>
-                                @Loc["Admin.Catalog.Products.Copy"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Copy"]
                             </button>
                             <span id="product-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                <i class="fa fa-trash-o"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]
                             </span>
-                            <vc:admin-widget widget-zone="product_details_buttons" additional-data="Model"/>
+                            @if (Scope.ResourceKeyPrefix == "Vendor")
+                            {
+                                <vc:vendor-widget widget-zone="vendor_product_details_buttons" additional-data="Model"/>
+                            }
+                            else
+                            {
+                                <vc:admin-widget widget-zone="product_details_buttons" additional-data="Model"/>
+                            }
                         </div>
                     </div>
                 </div>
@@ -49,7 +57,7 @@
 
 <admin-delete-confirmation button-id="product-delete"/>
 <div id="copyproduct-window" style="display:none;">
-    <form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="CopyProduct" method="post">
+    <form asp-area="@area" asp-controller="Product" asp-action="CopyProduct" method="post">
 
         <input asp-for="CopyProductModel.Id" type="hidden"/>
         <div class="form-horizontal">
@@ -75,7 +83,7 @@
             </div>
             <div class="form-actions">
                 <div class="offset-md-3 offset-sm-3 col-md-6 col-sm-6">
-                    <input type="submit" class="btn green" value="@Loc["Admin.Catalog.Products.Copy"]"/>
+                    <input type="submit" class="btn green" value="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Copy"]"/>
                 </div>
             </div>
         </div>
@@ -90,7 +98,7 @@
                 window.kendoWindow({
                     modal: true,
                     width: "400px",
-                    title: "@Loc["Admin.Catalog.Products.Copy"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Copy"]",
                     actions: ["Close"]
                 });
             }
