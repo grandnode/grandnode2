@@ -22,6 +22,7 @@ using Grand.Domain.Seo;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
+using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
@@ -43,11 +44,13 @@ public class ProductViewModelServiceTests
     private Mock<IEnumTranslationService> _enumTranslationServiceMock;
     private Mock<IGroupService> _groupServiceMock;
     private Mock<IMeasureService> _measureServiceMock;
+    private Mock<IProductService> _productServiceMock;
     private ProductViewModelService _productViewModelService;
     private Mock<IAdminDataScope<Product>> _scopeMock;
     private Mock<IStoreService> _storeServiceMock;
     private Mock<ITaxCategoryService> _taxCategoryServiceMock;
     private Mock<ITranslationService> _translationServiceMock;
+    private Mock<IVendorService> _vendorServiceMock;
     private Mock<IWarehouseService> _warehouseServiceMock;
 
     [TestInitialize]
@@ -57,9 +60,11 @@ public class ProductViewModelServiceTests
         _enumTranslationServiceMock = new Mock<IEnumTranslationService>();
         _groupServiceMock = new Mock<IGroupService>();
         _measureServiceMock = new Mock<IMeasureService>();
+        _productServiceMock = new Mock<IProductService>();
         _storeServiceMock = new Mock<IStoreService>();
         _taxCategoryServiceMock = new Mock<ITaxCategoryService>();
         _translationServiceMock = new Mock<ITranslationService>();
+        _vendorServiceMock = new Mock<IVendorService>();
         _warehouseServiceMock = new Mock<IWarehouseService>();
 
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
@@ -106,14 +111,15 @@ public class ProductViewModelServiceTests
             .Setup(e => e.ToSelectList(It.IsAny<ProductType>(), It.IsAny<bool>(), It.IsAny<int[]>()))
             .Returns(new SelectList(Enumerable.Empty<SelectListItem>()));
 
-        // Default: Admin's Global scope - no default store, homepage option and store dropdown both show.
+        // Default: Admin's Global scope - no default store/vendor, homepage option and store dropdown both show.
         _scopeMock = new Mock<IAdminDataScope<Product>>();
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
         _scopeMock.Setup(s => s.ShowStoreSelector).Returns(true);
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
 
         _productViewModelService = new ProductViewModelService(
-            new Mock<IProductService>().Object,
+            _productServiceMock.Object,
             new Mock<IInventoryManageService>().Object,
             new Mock<IPictureService>().Object,
             new Mock<IProductAttributeService>().Object,
@@ -125,7 +131,7 @@ public class ProductViewModelServiceTests
             new Mock<IProductCollectionService>().Object,
             new Mock<ICategoryService>().Object,
             new Mock<IProductCategoryService>().Object,
-            new Mock<IVendorService>().Object,
+            _vendorServiceMock.Object,
             _translationServiceMock.Object,
             productLayoutServiceMock.Object,
             new Mock<ISpecificationAttributeService>().Object,
@@ -285,5 +291,126 @@ public class ProductViewModelServiceTests
 
         Assert.IsTrue(model.AvailableStores.Any(x => x.Value == "store1"),
             "Admin should offer a store dropdown for tier prices.");
+    }
+
+    // --- Vendor-scoped product search (ARCH-001 Phase 1 Task 10) ------------------------------------
+
+    private void SetupSearchProducts()
+    {
+        _productServiceMock.Setup(p => p.SearchProducts(
+                It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IList<string>>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<ProductType?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(),
+                It.IsAny<double?>(), It.IsAny<double?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
+                It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<IList<string>>(), It.IsAny<IList<string>>(),
+                It.IsAny<ProductSortingEnum>(), It.IsAny<bool>(), It.IsAny<bool?>()))
+            .ReturnsAsync((new PagedList<Product>(), new List<string>()));
+    }
+
+    private void VerifySearchProductsCalledWithVendorId(string expectedVendorId)
+    {
+        _productServiceMock.Verify(p => p.SearchProducts(
+            It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IList<string>>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), expectedVendorId, It.IsAny<string>(),
+            It.IsAny<ProductType?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(),
+            It.IsAny<double?>(), It.IsAny<double?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
+            It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<IList<string>>(), It.IsAny<IList<string>>(),
+            It.IsAny<ProductSortingEnum>(), It.IsAny<bool>(), It.IsAny<bool?>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PrepareBulkEditProductModel_VendorScope_ForcesVendorFilter()
+    {
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
+        SetupSearchProducts();
+
+        await _productViewModelService.PrepareBulkEditProductModel(new BulkEditListModel(), 1, 10);
+
+        VerifySearchProductsCalledWithVendorId("vendor1");
+    }
+
+    [TestMethod]
+    public async Task PrepareBulkEditProductModel_GlobalScope_DoesNotFilterByVendor()
+    {
+        // Default Setup() scope: Admin's Global scope (DefaultVendorId null).
+        SetupSearchProducts();
+
+        await _productViewModelService.PrepareBulkEditProductModel(new BulkEditListModel(), 1, 10);
+
+        VerifySearchProductsCalledWithVendorId("");
+    }
+
+    [TestMethod]
+    public async Task PrepareProductsModel_VendorScope_OverridesModelVendorId()
+    {
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
+        SetupSearchProducts();
+
+        var model = new ProductListModel { SearchVendorId = "vendor2" };
+        await _productViewModelService.PrepareProductsModel(model, 1, 10);
+
+        VerifySearchProductsCalledWithVendorId("vendor1");
+    }
+
+    [TestMethod]
+    public async Task PrepareProductsModel_GlobalScope_UsesModelVendorId()
+    {
+        // Default Setup() scope: Admin's Global scope (DefaultVendorId null).
+        SetupSearchProducts();
+
+        var model = new ProductListModel { SearchVendorId = "vendor2" };
+        await _productViewModelService.PrepareProductsModel(model, 1, 10);
+
+        VerifySearchProductsCalledWithVendorId("vendor2");
+    }
+
+    [TestMethod]
+    public async Task PrepareProducts_VendorScope_OverridesModelVendorId()
+    {
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
+        SetupSearchProducts();
+
+        var model = new ProductListModel { SearchVendorId = "vendor2" };
+        await _productViewModelService.PrepareProducts(model);
+
+        VerifySearchProductsCalledWithVendorId("vendor1");
+    }
+
+    [TestMethod]
+    public async Task PrepareProductModel_AddProductModel_VendorScope_OverridesModelVendorId()
+    {
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
+        SetupSearchProducts();
+
+        var model = new ProductModel.AddRelatedProductModel { SearchVendorId = "vendor2" };
+        await _productViewModelService.PrepareProductModel(model, 1, 10);
+
+        VerifySearchProductsCalledWithVendorId("vendor1");
+    }
+
+    [TestMethod]
+    public async Task PrepareRelatedProductModel_VendorScope_HidesVendorDropdown()
+    {
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor1");
+
+        var model = await _productViewModelService.PrepareRelatedProductModel();
+
+        Assert.IsFalse(model.AvailableVendors.Any(),
+            "Vendor's original PrepareAddProductModel<T> never populated a vendor picker - the search is always forced to the current vendor.");
+        _vendorServiceMock.Verify(v => v.GetAllVendors(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PrepareRelatedProductModel_GlobalScope_IncludesVendorDropdown()
+    {
+        // Default Setup() scope: Admin's Global scope (DefaultVendorId null).
+        _vendorServiceMock.Setup(v => v.GetAllVendors(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), true))
+            .ReturnsAsync(new PagedList<Vendor> { new() { Id = "vendor1", Name = "Vendor 1" } });
+
+        var model = await _productViewModelService.PrepareRelatedProductModel();
+
+        Assert.IsTrue(model.AvailableVendors.Any(x => x.Value == "vendor1"),
+            "Admin/Store should keep offering a vendor picker.");
     }
 }

@@ -2478,7 +2478,7 @@ public class BaseProductControllerTests
 
         Assert.IsInstanceOfType<ContentResult>(result);
         _productViewModelServiceMock.Verify(
-            s => s.UpdateProductSpecificationAttributeModel(It.IsAny<Product>(), It.IsAny<ProductSpecificationAttribute>(),
+            s => s.UpdateProductSpecificationAttributeModel(It.IsAny<ProductSpecificationAttribute>(),
                 It.IsAny<ProductModel.AddProductSpecificationAttributeModel>()), Times.Never);
     }
 
@@ -2500,7 +2500,7 @@ public class BaseProductControllerTests
             s => s.InsertProductSpecificationAttributeModel(It.IsAny<ProductModel.AddProductSpecificationAttributeModel>(),
                 It.IsAny<Product>()), Times.Never);
         _productViewModelServiceMock.Verify(
-            s => s.UpdateProductSpecificationAttributeModel(It.IsAny<Product>(), It.IsAny<ProductSpecificationAttribute>(),
+            s => s.UpdateProductSpecificationAttributeModel(It.IsAny<ProductSpecificationAttribute>(),
                 It.IsAny<ProductModel.AddProductSpecificationAttributeModel>()), Times.Never);
     }
 
@@ -2531,7 +2531,7 @@ public class BaseProductControllerTests
         var result = await _controller.ProductSpecAttrPopup(new Mock<ISpecificationAttributeService>().Object, model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
-        _productViewModelServiceMock.Verify(s => s.UpdateProductSpecificationAttributeModel(product, psa, model), Times.Once);
+        _productViewModelServiceMock.Verify(s => s.UpdateProductSpecificationAttributeModel(psa, model), Times.Once);
     }
 
     [TestMethod]
