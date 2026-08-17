@@ -1,13 +1,14 @@
-﻿@model ProductModel.TierPriceModel
+@model ProductModel.TierPriceModel
 
 @{
     Layout = "";
 
     //page title
-    ViewBag.Title = Loc["Admin.Catalog.Products.TierPrices.AddNew"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.TierPrices.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<form id="TierPriceCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="TierPriceCreatePopup"
+<form id="TierPriceCreatePopup" asp-area="@area" asp-controller="Product" asp-action="TierPriceCreatePopup"
       asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
@@ -18,7 +19,7 @@
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-cube"></i>
-                        @Loc["Admin.Catalog.Products.TierPrices.AddNew"]
+                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.TierPrices.AddNew"]
                     </div>
                 </div>
                 <div class="x_content form">

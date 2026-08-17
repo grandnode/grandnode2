@@ -147,6 +147,82 @@ Grand.Web (storefront) has no `Grand.Web.AdminShared.Controllers`-derived
 controllers, and Admin/Store/Vendor have no theme context, so in practice at
 most one branch ever fires per request.
 
+### 3a. Layout resolution (addendum, found while drafting the pilot task)
+
+`List.cshtml`/`Create.cshtml`/`Edit.cshtml` (and most other Product views) set
+no `Layout` themselves — they inherit it from each host's own
+`Areas/{Area}/Views/_ViewStart.cshtml` (e.g.
+`src/Web/Grand.Web.Admin/Areas/Admin/Views/_ViewStart.cshtml` sets
+`Layout = Constants.Layout_Admin`). Razor's `_ViewStart.cshtml` discovery walks
+up from the **resolved logical path the view was found under**, not from the
+requesting controller's area. A view resolved through the new fallback
+location (`/Views/Product/List.cshtml`, inside `Grand.Web.AdminShared`) walks
+up `/Views/Product/` → `/Views/` → `/` looking for `_ViewStart.cshtml` there —
+it never sees `/Areas/Admin/Views/_ViewStart.cshtml`, so `Layout` would be left
+unset and the page would render with no host chrome.
+
+Fix: add `src/Web/Grand.Web.AdminShared/Views/_ViewStart.cshtml`:
+
+```cshtml
+@{
+    var area = Context.GetRouteValue("area")?.ToString();
+    Layout = $"~/Areas/{area}/Views/Shared/_{area}Layout.cshtml";
+}
+```
+
+The three hosts' layout files already follow this exact naming convention
+(`_AdminLayout.cshtml`, `_StoreLayout.cshtml`, `_VendorLayout.cshtml`, confirmed
+via `Constants.Layout_Admin`/`LayoutStore`/`LayoutVendor` in each host's own
+`Extensions/Constants.cs`) and stay put in each host — only `Views/Product/*`
+moves. The `~/`-rooted path resolves against the full merged view-location
+provider (all `ApplicationPart`s, including the executing host's own compiled
+views), so it finds the host's own layout correctly regardless of which
+assembly the `_ViewStart.cshtml` itself lives in.
+
+### 3b. `_ViewImports.cshtml` for the shared view folder (addendum)
+
+Each host's `Areas/{Area}/Views/_ViewImports.cshtml` brings in the tag helpers
+and `@inject`s a migrated view needs (`Loc` for resource lookups,
+`EnumTranslationService`). The tag helpers Product views actually use
+(`admin-input`, `admin-select`, `admin-label`, etc.) come from
+`@addTagHelper *, Grand.Web.Common` — already common to all three hosts'
+`_ViewImports.cshtml`, not from any host-specific tag helper assembly — so a
+single shared import file covers them. Add
+`src/Web/Grand.Web.AdminShared/Views/_ViewImports.cshtml`:
+
+```cshtml
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Grand.Web.Common
+
+@using System.Globalization
+@using Microsoft.AspNetCore.Http.Extensions
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@using System.Text
+@using Grand.SharedKernel.Extensions
+@using Grand.Infrastructure
+@using Grand.Domain.Common
+@using Grand.Domain.Catalog
+@using Grand.Domain.Directory
+@using Grand.Web.Common
+@using Grand.Web.Common.Extensions
+@using Grand.Web.Common.Localization
+@using Grand.Web.AdminShared.Models.Catalog
+@using Grand.Web.AdminShared.Interfaces
+
+@inject LocService Loc
+@inject IEnumTranslationService EnumTranslationService
+@inject IAdminDataScope<Product> Scope
+```
+
+Injecting `Scope` at the `_ViewImports` level (not per-file) means every
+migrated view gets `Scope.ResourceKeyPrefix` (for the `Admin.*`/`Vendor.*`
+resource-key split, same as `BaseProductController`'s Phase 1 pattern) and
+`ViewContext.RouteData.Values["area"]` (read per-file where an
+`asp-area="@Constants.AreaAdmin"` literal needs replacing) without repeating
+the `@inject` line in all ~50 files. If a per-file migration needs a tag
+helper or using not in this list, add it here rather than to the individual
+file, unless it's genuinely single-file-specific.
+
 ### 4. Per-file migration classification
 
 For each of the ~53 distinct Product view filenames (union of the three
