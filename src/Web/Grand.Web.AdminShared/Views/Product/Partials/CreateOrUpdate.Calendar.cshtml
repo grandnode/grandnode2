@@ -1,12 +1,22 @@
-﻿@model ProductModel
+@model ProductModel
 @inject AdminAreaSettings adminAreaSettings
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <input type="hidden" asp-for="CalendarModel.ProductId"/>
 
-    <vc:vendor-widget widget-zone="vendor_product_details_calendar_top" additional-data="Model"/>
+    @if (Scope.ResourceKeyPrefix == "Vendor")
+    {
+        <vc:vendor-widget widget-zone="vendor_product_details_calendar_top" additional-data="Model"/>
+    }
+    else
+    {
+        <vc:admin-widget widget-zone="product_details_calendar_top" additional-data="Model"/>
+    }
     <div class="form-horizontal">
-        <h2>@Loc["Vendor.Catalog.Products.Calendar.Calendarconfiguration"]</h2>
+        <h2>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Calendarconfiguration"]</h2>
         <div class="form-body">
             <div class="form-group">
                 <div class="form-group">
@@ -15,7 +25,7 @@
                         <admin-input asp-for="CalendarModel.StartDate"/>
                     </div>
                     <div class="col-md-6" id="pnlStartTime">
-                        <label class="col-md-3 control-label">@Loc["Vendor.Catalog.Products.Fields.Calendar.StartTime"]</label>
+                        <label class="col-md-3 control-label">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.StartTime"]</label>
                         <div class="col-md-3 col-sm-3">
                             <admin-input asp-for="CalendarModel.StartTime"/>
                         </div>
@@ -28,7 +38,7 @@
                         <admin-input asp-for="CalendarModel.EndDate"/>
                     </div>
                     <div class="col-md-6" id="pnlEndTime">
-                        <label class="col-md-3 control-label">@Loc["Vendor.Catalog.Products.Fields.Calendar.EndTime"]</label>
+                        <label class="col-md-3 control-label">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.EndTime"]</label>
                         <div class="col-md-3 col-sm-3">
                             <admin-input asp-for="CalendarModel.EndTime"/>
                         </div>
@@ -75,44 +85,44 @@
             </div>
             <div class="portlet">
                 <div class="x_title">
-                    <div class="caption">@Loc["Vendor.Catalog.Products.Calendar.WeekDay"]</div>
+                    <div class="caption">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.WeekDay"]</div>
                 </div>
                 <div class="x_content">
                     <div class="form-group">
                         <div class="mt-checkbox-inline ">
                             <label class="mt-checkbox control control-checkbox">
                                 <admin-input asp-for="CalendarModel.Monday"/>
-                                @Loc["Vendor.Catalog.Products.Fields.Calendar.Monday"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Monday"]
                                 <div class="control__indicator"></div>
                             </label>
                             <label class="mt-checkbox control control-checkbox">
                                 <admin-input asp-for="CalendarModel.Tuesday"/>
-                                @Loc["Vendor.Catalog.Products.Fields.Calendar.Tuesday"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Tuesday"]
                                 <div class="control__indicator"></div>
                             </label>
                             <label class="mt-checkbox control control-checkbox">
                                 <admin-input asp-for="CalendarModel.Wednesday"/>
-                                @Loc["Vendor.Catalog.Products.Fields.Calendar.Wednesday"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Wednesday"]
                                 <div class="control__indicator"></div>
                             </label>
                             <label class="mt-checkbox control control-checkbox">
                                 <admin-input asp-for="CalendarModel.Thursday"/>
-                                @Loc["Vendor.Catalog.Products.Fields.Calendar.Thursday"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Thursday"]
                                 <div class="control__indicator"></div>
                             </label>
                             <label class="mt-checkbox control control-checkbox">
                                 <admin-input asp-for="CalendarModel.Friday"/>
-                                @Loc["Vendor.Catalog.Products.Fields.Calendar.Friday"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Friday"]
                                 <div class="control__indicator"></div>
                             </label>
                             <label class="mt-checkbox control control-checkbox">
                                 <admin-input asp-for="CalendarModel.Saturday"/>
-                                @Loc["Vendor.Catalog.Products.Fields.Calendar.Saturday"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Saturday"]
                                 <div class="control__indicator"></div>
                             </label>
                             <label class="mt-checkbox control control-checkbox">
                                 <admin-input asp-for="CalendarModel.Sunday"/>
-                                @Loc["Vendor.Catalog.Products.Fields.Calendar.Sunday"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Calendar.Sunday"]
                                 <div class="control__indicator"></div>
                             </label>
                         </div>
@@ -123,15 +133,22 @@
     </div>
     <div class="panel panel-default">
         <div class="panel-footer">
-            <button id="generateCalendar" type="button" class="btn btn-primary">@Loc["Vendor.Catalog.Products.Calendar.Generatecalendar"]</button>
-            <button id="clearOld" type="button" class="btn btn-secondary" style="margin-left:10px">@Loc["Vendor.Catalog.Products.Calendar.Clearold"]</button>
-            <button id="clearCalendar" type="button" class="btn btn-danger" style="margin-left:10px">@Loc["Vendor.Catalog.Products.Calendar.Clearcalendar"]</button>
+            <button id="generateCalendar" type="button" class="btn btn-primary">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Generatecalendar"]</button>
+            <button id="clearOld" type="button" class="btn btn-secondary" style="margin-left:10px">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearold"]</button>
+            <button id="clearCalendar" type="button" class="btn btn-danger" style="margin-left:10px">@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Clearcalendar"]</button>
         </div>
         <div class="panel-body">
             <div id="reservations-grid"></div>
         </div>
     </div>
-    <vc:vendor-widget widget-zone="vendor_product_details_calendar_bottom" additional-data="Model"/>
+    @if (Scope.ResourceKeyPrefix == "Vendor")
+    {
+        <vc:vendor-widget widget-zone="vendor_product_details_calendar_bottom" additional-data="Model"/>
+    }
+    else
+    {
+        <vc:admin-widget widget-zone="product_details_calendar_bottom" additional-data="Model"/>
+    }
 
     <script>
         $(document).ready(function () {
@@ -220,7 +237,7 @@
                 $.ajax({
                     cache: false,
                     type: "POST",
-                    url: "@(Url.Action("GenerateCalendar", "Product", new { area = Constants.AreaVendor }))",
+                    url: "@(Url.Action("GenerateCalendar", "Product", new { area = area }))",
                     dataType: 'json',
                     data: postData,
                     success: function (data) {
@@ -239,7 +256,7 @@
             });
 
             $("#clearCalendar").click(function () {
-                if (confirm('@Loc["Vendor.Common.AreYouSure"]')) {
+                if (confirm('@Loc[$"{Scope.ResourceKeyPrefix}.Common.AreYouSure"]')) {
                     var postData = {
                         productId: '@(Model.Id)'
                     };
@@ -249,7 +266,7 @@
                     $.ajax({
                         cache: false,
                         type: "POST",
-                        url: "@(Url.Action("ClearCalendar", "Product", new { area = Constants.AreaVendor }))",
+                        url: "@(Url.Action("ClearCalendar", "Product", new { area = area }))",
                         dataType: 'json',
                         data: postData,
                         success: function (data) {
@@ -273,7 +290,7 @@
                 $.ajax({
                     cache: false,
                     type: "POST",
-                    url: "@(Url.Action("ClearOld", "Product", new { area = Constants.AreaVendor }))",
+                    url: "@(Url.Action("ClearOld", "Product", new { area = area }))",
                     dataType: 'json',
                     data: postData,
                     success: function (data) {
@@ -294,12 +311,12 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ListReservations", "Product", new { productId = Model.Id, area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("ListReservations", "Product", new { productId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken,
                         }, destroy: {
-                            url: "@Html.Raw(Url.Action("ProductReservationDelete", "Product", new { area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("ProductReservationDelete", "Product", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -336,31 +353,31 @@
             scrollable: false,
             columns: [{
                 field: "Date",
-                title: "@Loc["Vendor.Catalog.Products.Calendar.Date"]",
+                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Date"]",
                 width: 200,
                 type: "date",
                 format: "{0:G}"
             }, {
                 field: "Resource",
-                title: "@Loc["Vendor.Catalog.Products.Calendar.Resource"]",
+                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Resource"]",
                 width: 200
             }, {
                 field: "Parameter",
-                title: "@Loc["Vendor.Catalog.Products.Calendar.Parameter"]",
+                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Parameter"]",
                 width: 200
             }, {
                 field: "Duration",
-                title: "@Loc["Vendor.Catalog.Products.Calendar.Duration"]",
+                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.Duration"]",
                 width: 200
             }, {
                 field: "OrderId",
-                title: "@Loc["Vendor.Catalog.Products.Calendar.OrderId"]",
+                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.OrderId"]",
                 width: 200,
-                template: '# if(OrderId) {# <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = Constants.AreaVendor })/#=OrderId#"><i class="fa fa-search"></i> @Loc["Vendor.Common.View"]</a>  #} #'
+                template: '# if(OrderId) {# <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = area })/#=OrderId#"><i class="fa fa-search"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]</a>  #} #'
             }, {
                 command: [{
                     name: "destroy",
-                    text: "@Loc["Vendor.Common.Delete"]"
+                    text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"
                 }],
                 width: 100
             }]
@@ -371,6 +388,6 @@
 else
 {
     <div class="note note-info">
-        @Loc["Vendor.Catalog.Products.Calendar.SaveBeforeEdit"]
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Calendar.SaveBeforeEdit"]
     </div>
 }
