@@ -1,11 +1,12 @@
-﻿@using System.Text.Encodings.Web
+@using System.Text.Encodings.Web
 @model BulkEditListModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     //page title
-    ViewBag.Title = Loc["Admin.Catalog.BulkEdit"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="BulkEdit" method="post">
+<form asp-area="@area" asp-controller="Product" asp-action="BulkEdit" method="post">
 
     <div class="row">
         <div class="col-md-12">
@@ -13,9 +14,16 @@
                 <div class="x_title">
                     <div class="caption level-caption">
                         <i class="fa fa-cubes"></i>
-                        @Loc["Admin.Catalog.BulkEdit"]
+                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit"]
                     </div>
-                    <vc:admin-widget widget-zone="product_bulk_edit_buttons" additional-data="null"/>
+                    @if (Scope.ResourceKeyPrefix == "Vendor")
+                    {
+                        <vc:vendor-widget widget-zone="vendor_product_bulk_edit_buttons" additional-data="null"/>
+                    }
+                    else
+                    {
+                        <vc:admin-widget widget-zone="product_bulk_edit_buttons" additional-data="null"/>
+                    }
                 </div>
                 <div class="x_content form">
                     <div class="form-horizontal">
@@ -32,10 +40,10 @@
                                         <div class="form-actions">
                                             <div class="btn-group">
                                                 <button class="btn btn-success filter-submit" id="search-products">
-                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                    <i class="fa fa-search"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Search"]
                                                 </button>
                                                 <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
+                                                    <i class="fa fa-filter"></i>&nbsp; @Loc[$"{Scope.ResourceKeyPrefix}.Common.Filters"]
                                                 </button>
                                             </div>
                                         </div>
@@ -68,12 +76,15 @@
                                             <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes"/>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label"/>
-                                        <div class="col-md-9 col-sm-9">
-                                            <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+                                    @if (area == "Admin")
+                                    {
+                                        <div class="form-group">
+                                            <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label"/>
+                                            <div class="col-md-9 col-sm-9">
+                                                <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </div>
                             </div>
                             <div class="x_content">
@@ -107,18 +118,18 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("BulkEditSelect", "Product", new { area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("BulkEditSelect", "Product", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: additionalData
                         },
                         update: {
-                            url: "@Html.Raw(Url.Action("BulkEditUpdate", "Product", new { area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("BulkEditUpdate", "Product", new { area = area }))",
                             type: "POST",
                             dataType: "json"
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("BulkEditDelete", "Product", new { area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("BulkEditDelete", "Product", new { area = area }))",
                             type: "POST",
                             dataType: "json"
                         },
@@ -198,20 +209,20 @@
                 scrollable: true,
                 columns: [ {
                     field: "Name",
-                    title: "@Loc["Admin.Catalog.BulkEdit.Fields.Name"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Name"]",
                     width: 200
                 }, {
                     field: "ProductId",
-                    title: "@Loc["Admin.Common.View"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]",
                     width: 80,
-                    template: '<a href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=Id#">@Loc["Admin.Common.View"]</a>'
+                    template: '<a href="@Url.Action("Edit", "Product", new { area = area })/#=Id#">@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]</a>'
                 },{
                     field: "Sku",
-                    title: "@Loc["Admin.Catalog.BulkEdit.Fields.Sku"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Sku"]",
                     width: 100
                 }, {
                     field: "Price",
-                    title: "@Loc["Admin.Catalog.BulkEdit.Fields.Price"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Price"]",
                     width: 100,
                     editor: function (container, options) {
                         $('<input name="' + options.field + '"/>')
@@ -223,7 +234,7 @@
                     }
                 }, {
                     field: "OldPrice",
-                    title: "@Loc["Admin.Catalog.BulkEdit.Fields.OldPrice"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.OldPrice"]",
                     width: 100,
                     editor: function (container, options) {
                         $('<input name="' + options.field + '"/>')
@@ -235,13 +246,13 @@
                     }
                 }, {
                     field: "StockQuantity",
-                    title: "@Loc["Admin.Catalog.BulkEdit.Fields.StockQuantity"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.StockQuantity"]",
                     //integer format
                     format: "{0:0}",
                     width: 100
                 }, {
                     field: "ManageInventoryMethod",
-                    title: "@Loc["Admin.Catalog.BulkEdit.Fields.ManageInventoryMethod"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.ManageInventoryMethod"]",
                     width: 150,
                     editor: function (container, options) {
                         $("<input data-bind='value:ManageInventoryMethod' />")
@@ -260,11 +271,11 @@
                     }
                 },{
                     field: "Published",
-                    title: "@Loc["Admin.Catalog.BulkEdit.Fields.Published"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Published"]",
                     width: 90
                 }, {
-                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
-                    title: "@Loc["Admin.Common.Delete"]",
+                    command: { name: "destroy", text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]" },
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]",
                     width: 100
                 }
                 ]
@@ -297,7 +308,10 @@
                 SearchBrandId: $('#SearchBrandId').val(),
                 SearchCollectionId: $('#SearchCollectionId').val(),
                 SearchProductTypeId: $('#SearchProductTypeId').val(),
-                SearchStoreId: $('#SearchStoreId').val(),
+                @if (area == "Admin")
+                {
+                    <text>SearchStoreId: $('#SearchStoreId').val(),</text>
+                }
             };
             addAntiForgeryToken(data);
             return data;
