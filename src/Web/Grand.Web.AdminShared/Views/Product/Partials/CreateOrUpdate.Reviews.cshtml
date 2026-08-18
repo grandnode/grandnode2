@@ -1,12 +1,15 @@
-﻿@model ProductModel
+@model ProductModel
 @inject AdminAreaSettings adminAreaSettings
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 
 <div class="panel panel-default">
-    <vc:admin-widget widget-zone="product_details_reviews_top" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.Reviews.Top" model="Model"/>
     <div class="panel-body">
         <div id="reviews-grid"></div>
     </div>
-    <vc:admin-widget widget-zone="product_details_reviews_bottom" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.Reviews.Bottom" model="Model"/>
 </div>
 <script>
         $(document).ready(function () {
@@ -14,7 +17,7 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("Reviews", "Product", new { productId = Model.Id, area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("Reviews", "Product", new { productId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -47,26 +50,40 @@
                 scrollable: false,
                 columns: [{
                     field: "CustomerId",
-                    title: "@Loc["Admin.Catalog.ProductReviews.Fields.Customer"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.Customer"]",
                     width: 200,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/#=CustomerId#">#:CustomerInfo#</a>',
+                    @if (Scope.ResourceKeyPrefix == "Vendor")
+                    {
+                        <text>template: '#:CustomerInfo#',</text>
+                    }
+                    else
+                    {
+                        <text>template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/#=CustomerId#">#:CustomerInfo#</a>',</text>
+                    }
                     minScreenWidth: 750,
                 },
                 {
                     field: "Title",
-                    title: "@Loc["Admin.Catalog.ProductReviews.Fields.Title"]",
-                    template: '<a class="k-link" href="@Url.Action("Edit", "ProductReview", new { area = Constants.AreaStore })/#=Id#">#:Title#</a>',
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.Title"]",
+                    @if (Scope.ResourceKeyPrefix == "Vendor")
+                    {
+                        <text>template: '#:Title#',</text>
+                    }
+                    else
+                    {
+                        <text>template: '<a class="k-link" href="@Url.Action("Edit", "ProductReview", new { area = area })/#=Id#">#:Title#</a>',</text>
+                    }
                     width: 280,
                 },
                 {
                     field: "Rating",
-                    title: "@Loc["Admin.Catalog.ProductReviews.Fields.Rating"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.Rating"]",
                     width: 60,
                     minScreenWidth: 500,
                 },
                 {
                     field: "IsApproved",
-                    title: "@Loc["Admin.Catalog.ProductReviews.Fields.IsApproved"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.IsApproved"]",
                     width: 80,
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
@@ -75,7 +92,7 @@
                 },
                 {
                     field: "CreatedOn",
-                    title: "@Loc["Admin.Orders.Fields.CreatedOn"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Orders.Fields.CreatedOn"]",
                     width: 150,
                     type: "date",
                     format: "{0:G}",
