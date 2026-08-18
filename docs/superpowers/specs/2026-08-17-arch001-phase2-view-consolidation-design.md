@@ -511,3 +511,59 @@ Same override-wins mechanism as section 4a, applied to three shapes of content d
 - `Grand.Web.Admin.Tests` / `Grand.Web.Store.Tests` / `Grand.Web.Vendor.Tests` stay green — the new
   `CanFeatureOnHomepage` flag is a small, direct addition to the existing
   `GlobalAdminDataScopeTests`/`StoreAdminDataScopeTests`/`VendorProductDataScopeTests` fixtures.
+
+## 7. Wire up Store's own `vc:store-widget` for Product widget zones (addendum, 2026-08-18)
+
+### Problem
+
+Section 5.2 placed an empty AdminShared placeholder at every one of the 44
+`WidgetZone.<Name>.cshtml` files with the comment "Store has no equivalent widget zone." That claim
+was checked against Store's *original* (pre-Phase-2) Product views, which is where it went wrong:
+those original files called `<vc:admin-widget widget-zone="product_...".../>` — copy-pasted from
+Admin without adapting it — and Store's `_ViewImports.cshtml` never added `@addTagHelper *,
+Grand.Web.Admin`, so that tag helper was already dead literal markup in Store's own pre-migration
+code (confirmed via `git show` on the pre-migration commit). Section 5.2's placeholder therefore
+preserved a genuine pre-existing bug rather than the intended behavior: `Grand.Web.Store` has its
+own `StoreWidgetViewComponent` (`Grand.Web.Store/Components/StoreWidget.cs`), registered as
+`vc:store-widget`, actively used elsewhere in Store's own views
+(`Areas/Store/Views/Home/Index.cshtml`, `Statistics.cshtml`, `Shared/_StoreLayout.cshtml`) with a
+`store_`-prefixed zone-name convention (`store_dashboard_top`, `store_header_before`, ...) — it was
+simply never wired into Product's widget zones, likely since the Store panel's Product screens were
+first added.
+
+### Resolution
+
+Same three-tier table as section 5.2, extended with Store's own row - Store gets the same treatment
+Vendor already has, using its own established `store_` prefix (mirrors `vendor_product_X`):
+
+| File | Content |
+|---|---|
+| `Grand.Web.Admin/Areas/Admin/Views/Product/Partials/WidgetZone.<Name>.cshtml` | `<vc:admin-widget widget-zone="product_X" .../>` (unchanged) |
+| `Grand.Web.Store/Areas/Store/Views/Product/Partials/WidgetZone.<Name>.cshtml` | **new:** `<vc:store-widget widget-zone="store_product_X" .../>` |
+| `Grand.Web.Vendor/Areas/Vendor/Views/Product/Partials/WidgetZone.<Name>.cshtml` | `<vc:vendor-widget widget-zone="vendor_product_X" .../>` (unchanged, 40 of 44 - Vendor has no Discounts/Documents tabs) |
+| `Grand.Web.AdminShared/Views/AdminShared/Product/Partials/WidgetZone.<Name>.cshtml` | empty placeholder (unchanged content, comment corrected - now genuinely unreachable except as the Discounts/Documents fallback for Vendor) |
+
+All 44 zones apply to Store (Store shows the same tabs as Admin; only Vendor's 4 gaps differ), so
+Store gets all 44, generated mechanically from Admin's 44 real files by substituting
+`vc:admin-widget` → `vc:store-widget` and prefixing each `widget-zone` value with `store_` - the
+same transform already proven correct by Vendor's `vendor_` prefix. New zone names
+(`store_product_...`) are brand new; no widget plugin currently targets them, so this changes no
+visible behavior today - it makes the extension point reachable for future (or existing,
+not-yet-Product-scoped) Store widget plugins, exactly like Vendor's equivalent zones were reachable
+but likely unpopulated when they were added.
+
+The three pre-existing Store-specific whole-file overrides kept outside AdminShared per section 4
+(`CreateOrUpdate.{Info,Prices,PurchasedWithOrders}.cshtml`, kept because each has a real grid/column
+difference from Admin) carried the same dead `vc:admin-widget` copy-paste and got the same fix in
+the same pass, since they're Store's own files either way.
+
+`Grand.Web.AdminShared.dll` keeps zero literal `<vc:` strings (unaffected - this section only adds
+real widget calls in `Grand.Web.Store`, never in AdminShared). `Grand.Web.Store.dll` gains real
+`StoreWidgetViewComponent` references in place of what would otherwise have been dead literal
+`<vc:store-widget>` markup, checked the same way section 5.2 checked Admin/Vendor.
+
+**Rule for Phase 3:** when checking "does host X have an equivalent mechanism" during a
+consolidation, check host X's *own* codebase for the real answer (does it have a widget component,
+is it used elsewhere, what does `_ViewImports.cshtml` actually import) - don't infer it from what
+the entity's *original*, pre-consolidation views for that host happened to contain. A copy-pasted,
+never-adapted call is evidence of a pre-existing bug, not evidence the host lacks the capability.
