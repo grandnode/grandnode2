@@ -1,12 +1,15 @@
 ﻿@model ProductModel.ProductAttributeMappingModel
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@{
     Layout = "";
     //page title
-    ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.ValidationRules"];
 
     var attributeControlType = Model.AttributeControlTypeId;
 }
-<form id="ProductAttributeValidationRulesPopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeValidationRulesPopup" enctype="multipart/form-data" method="post"
+<form id="ProductAttributeValidationRulesPopup" asp-area="@area" asp-controller="Product" asp-action="ProductAttributeValidationRulesPopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
@@ -17,7 +20,7 @@
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-cubes"></i>
-                        @Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules"]
+                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.ValidationRules"]
                     </div>
                 </div>
                 <div class="x_content form">
@@ -62,7 +65,7 @@
                                 <div class="row">
                                     <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                                         <button class="btn btn-success" type="submit" name="save">
-                                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                            <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
                                         </button>
                                     </div>
                                 </div>
