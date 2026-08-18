@@ -258,6 +258,63 @@ subagent per row.
   incidentally (e.g. if a `.cshtml` move breaks a `[ViewComponent]` or model
   binding), not a substitute for the manual pass above.
 
+### 4a. Widget-zone selection: per-area partial files, not an inline `@if` (addendum, 2026-08-18)
+
+Early Task 4 batches unified views containing a widget-zone tag-helper call
+(`<vc:admin-widget widget-zone="X" .../>` vs `<vc:vendor-widget
+widget-zone="vendor_X" .../>`) using an inline conditional:
+
+```cshtml
+@if (Scope.ResourceKeyPrefix == "Vendor")
+{
+    <vc:vendor-widget widget-zone="vendor_product_bulk_edit_buttons" additional-data="null"/>
+}
+else
+{
+    <vc:admin-widget widget-zone="product_bulk_edit_buttons" additional-data="null"/>
+}
+```
+
+Superseded. Widget-zone selection now uses a small, per-occurrence partial
+resolved through the same host-override-wins mechanism section 3 already
+established, instead of a C# branch inside the unified file:
+
+- `src/Web/Grand.Web.AdminShared/Views/Product/Partials/WidgetZone.<Name>.cshtml`
+  holds the Admin/Store-shared default: `<vc:admin-widget widget-zone="X"
+  additional-data="..."/>`.
+- `src/Web/Grand.Web.Vendor/Areas/Vendor/Views/Product/Partials/WidgetZone.<Name>.cshtml`
+  holds Vendor's override: `<vc:vendor-widget widget-zone="vendor_X"
+  additional-data="..."/>`.
+- The parent unified view calls `<partial name="Partials/WidgetZone.<Name>"
+  model="..."/>` in place of the old `@if` block. Admin and Store naturally
+  fall through to the AdminShared default (no host-specific file needed for
+  them, since they share it); Vendor's own `Areas/Vendor/...` copy is found
+  first by `RazorViewEngine` and wins, exactly like any other host override
+  under section 3 — no new expander logic needed.
+- `<Name>` is a short, occurrence-specific PascalCase name derived from the
+  zone-name pair with the common `product_`/`vendor_product_` prefix and any
+  `vendor_` prefix stripped (e.g. `product_bulk_edit_buttons` /
+  `vendor_product_bulk_edit_buttons` → `WidgetZone.BulkEditButtons.cshtml`;
+  `product_details_bids_top` / `vendor_product_details_bids_top` →
+  `WidgetZone.Bids.Top.cshtml`). Pick a name that reads clearly next to its
+  sibling occurrences in the same parent file (e.g. `Bids.Top`/`Bids.Bottom`
+  for the two zones inside `CreateOrUpdate.Bids.cshtml`).
+
+Rationale: `Scope.ResourceKeyPrefix`-branching was already established for
+genuinely mixed content (a whole tab present in some hosts, per section 3's
+`CreateOrUpdate.cshtml` case) where no other mechanism fits cleanly. For
+widget-zone selection specifically — a single self-contained tag-helper call
+repeated at ~20+ sites — a per-area file keeps each host's markup physically
+separate and lets the existing view-resolution precedence do the selection,
+rather than growing every unified file's branch count. This also means a
+future widget-zone-only change to one host never touches the shared parent
+file at all.
+
+All files already unified under the old inline-`@if` pattern get retrofitted
+to this one in the same implementation pass that introduces it (tracked in
+the plan's Task 4 as a one-time batch), so the codebase never carries both
+patterns side by side once that pass lands.
+
 ## Out of scope
 
 - Automated view-rendering tests (`WebApplicationFactory`, Testcontainers-backed
