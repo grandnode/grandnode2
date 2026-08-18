@@ -1,15 +1,18 @@
 ﻿@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
-        <vc:admin-widget widget-zone="product_details_specification_attribute_details_top" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.SpecificationAttributes.Top" model="Model"/>
         <div class="panel-body">
             <div id="specificationattributes-grid"></div>
         </div>
-        <vc:admin-widget widget-zone="product_details_specification_attribute_details_bottom" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.SpecificationAttributes.Bottom" model="Model"/>
         <div class="panel-footer">
-            <a id="btnAddNewSpecification" href="@(Url.Action("ProductSpecAttrPopup", "Product", new { productId = Model.Id, area = Constants.AreaStore }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.SpecificationAttributes.AddButton"]</a>
+            <a id="btnAddNewSpecification" href="@(Url.Action("ProductSpecAttrPopup", "Product", new { productId = Model.Id, area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.AddButton"]</a>
         </div>
     </div>
 
@@ -34,13 +37,13 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ProductSpecAttrList", "Product", new { productId = Model.Id, area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("ProductSpecAttrList", "Product", new { productId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("ProductSpecAttrDelete", "Product", new { area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("ProductSpecAttrDelete", "Product", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -108,22 +111,22 @@
                 scrollable: false,
                 columns: [{
                         field: "AttributeTypeName",
-                        title: "@Loc["Admin.Catalog.Products.SpecificationAttributes.Fields.AttributeType"]",
-                        template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "Product", new { area = Constants.AreaStore })/?productId=@(Model.Id)&id=#=Id#'>#=kendo.htmlEncode(AttributeTypeName)#</a>"
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.Fields.AttributeType"]",
+                        template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "Product", new { area = area })/?productId=@(Model.Id)&id=#=Id#'>#=kendo.htmlEncode(AttributeTypeName)#</a>"
                     }, {
                         field: "ValueRaw",
                         encoded: false,
-                        title: "@Loc["Admin.Catalog.Products.SpecificationAttributes.Fields.Value"]",
-                    template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "Product", new { area = Constants.AreaStore })/?productId=@(Model.Id)&id=#=Id#'>#=kendo.htmlEncode(AttributeName)# : #=ValueRaw# </a>"
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.Fields.Value"]",
+                    template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "Product", new { area = area })/?productId=@(Model.Id)&id=#=Id#'>#=kendo.htmlEncode(AttributeName)# : #=ValueRaw# </a>"
                     }, {
                         field: "AllowFiltering",
-                        title: "@Loc["Admin.Catalog.Products.SpecificationAttributes.Fields.AllowFiltering"]",
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.Fields.AllowFiltering"]",
                         headerAttributes: { style: "text-align:center" },
                         attributes: { style: "text-align:center" },
                         template: '# if(AllowFiltering) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
                     }, {
                         field: "ShowOnProductPage",
-                        title: "@Loc["Admin.Catalog.Products.SpecificationAttributes.Fields.ShowOnProductPage"]",
+                        title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.Fields.ShowOnProductPage"]",
                         headerAttributes: { style: "text-align:center" },
                         attributes: { style: "text-align:center" },
                         template: '# if(ShowOnProductPage) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
@@ -131,7 +134,7 @@
                         command: [
                             {
                                 name: "destroy",
-                                text: "@Loc["Admin.Common.Delete"]"
+                                text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"
                             }
                         ]
                     }]
@@ -154,6 +157,6 @@
 else
 {
     <div class="note note-info">
-        @Loc["Admin.Catalog.Products.SpecificationAttributes.SaveBeforeEdit"]
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.SaveBeforeEdit"]
     </div>
 }
