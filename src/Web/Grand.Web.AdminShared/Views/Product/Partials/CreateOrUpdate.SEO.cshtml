@@ -1,6 +1,6 @@
-﻿@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Mvc.Razor
 @model ProductModel
-<vc:vendor-widget widget-zone="vendor_product_details_seo_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.SEO.Top" model="Model"/>
 
 @{
     Func<int, HelperResult>
@@ -71,4 +71,4 @@
         </div>
     </localized-editor>
 </div>
-<vc:vendor-widget widget-zone="vendor_product_details_seo_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.SEO.Bottom" model="Model"/>
