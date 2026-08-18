@@ -6,14 +6,7 @@
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
-        @if (Scope.ResourceKeyPrefix == "Vendor")
-        {
-            <vc:vendor-widget widget-zone="vendor_product_details_bundle_products_top" additional-data="Model"/>
-        }
-        else
-        {
-            <vc:admin-widget widget-zone="product_details_bundle_products_top" additional-data="Model"/>
-        }
+        <partial name="Partials/WidgetZone.BundleProducts.Top" model="Model"/>
         <div class="panel-body">
             <div id="bundleproducts-grid"></div>
         </div>
@@ -23,14 +16,7 @@
             </a>
             <input type="submit" id="btnRefreshBundleProducts" style="display: none"/>
         </div>
-        @if (Scope.ResourceKeyPrefix == "Vendor")
-        {
-            <vc:vendor-widget widget-zone="vendor_product_details_bundle_products_bottom" additional-data="Model"/>
-        }
-        else
-        {
-            <vc:admin-widget widget-zone="product_details_bundle_products_bottom" additional-data="Model"/>
-        }
+        <partial name="Partials/WidgetZone.BundleProducts.Bottom" model="Model"/>
     </div>
 
     <script>
