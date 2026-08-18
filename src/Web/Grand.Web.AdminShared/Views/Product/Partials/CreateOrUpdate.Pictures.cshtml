@@ -5,25 +5,11 @@
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
-        @if (Scope.ResourceKeyPrefix == "Vendor")
-        {
-            <vc:vendor-widget widget-zone="vendor_product_details_pictures_top" additional-data="Model"/>
-        }
-        else
-        {
-            <vc:admin-widget widget-zone="product_details_pictures_top" additional-data="Model"/>
-        }
+        <partial name="Partials/WidgetZone.Pictures.Top" model="Model"/>
         <div class="panel-body">
             <div id="productpictures-grid"></div>
         </div>
-        @if (Scope.ResourceKeyPrefix == "Vendor")
-        {
-            <vc:vendor-widget widget-zone="vendor_product_details_pictures_bottom" additional-data="Model"/>
-        }
-        else
-        {
-            <vc:admin-widget widget-zone="product_details_pictures_bottom" additional-data="Model"/>
-        }
+        <partial name="Partials/WidgetZone.Pictures.Bottom" model="Model"/>
     </div>
     <script>
             $(document).ready(function () {
