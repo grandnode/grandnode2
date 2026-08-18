@@ -5,14 +5,7 @@
     ViewData["ReferenceId"] = Model.Id;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-@if (Scope.ResourceKeyPrefix == "Vendor")
-{
-    <vc:vendor-widget widget-zone="vendor_product_details_additional_top" additional-data="Model"/>
-}
-else
-{
-    <vc:admin-widget widget-zone="product_details_additional_top" additional-data="Model"/>
-}
+<partial name="Partials/WidgetZone.Additional.Top" model="Model"/>
 <div class="form-horizontal" id="group-order">
     <div class="form-body">
         <div class="form-group">
@@ -260,11 +253,4 @@ else
         </div>
     </div>
 </div>
-@if (Scope.ResourceKeyPrefix == "Vendor")
-{
-    <vc:vendor-widget widget-zone="vendor_product_details_additional_bottom" additional-data="Model"/>
-}
-else
-{
-    <vc:admin-widget widget-zone="product_details_additional_bottom" additional-data="Model"/>
-}
+<partial name="Partials/WidgetZone.Additional.Bottom" model="Model"/>
