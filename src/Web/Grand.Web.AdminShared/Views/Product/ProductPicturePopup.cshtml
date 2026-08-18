@@ -2,8 +2,9 @@
 @model ProductModel.ProductPictureModel
 @{
     Layout = "";
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form id="ProductPicturePopup" asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="ProductPicturePopup" enctype="multipart/form-data" method="post"
+<form id="ProductPicturePopup" asp-area="@area" asp-controller="Product" asp-action="ProductPicturePopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
       asp-route-Id="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["Id"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
@@ -42,7 +43,7 @@
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-cubes"></i>
-                        <text> @Loc["Vendor.Catalog.Products.Pictures.Details"]</text>
+                        <text> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Pictures.Details"]</text>
                     </div>
                 </div>
                 <div class="x_content form">
@@ -90,7 +91,7 @@
                                     </label>
                                     <span asp-validation-for="IsDefault"></span>
                                 </div>
-                            </div>                            
+                            </div>
                             <div class="form-group">
                                 <admin-label asp-for="Style"/>
                                 <div class="col-md-9 col-sm-9">
@@ -108,7 +109,7 @@
                             <div class="form-group">
                                 <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                                     <button class="btn btn-success" type="submit" name="save">
-                                        <i class="fa fa-check"></i> @Loc["Vendor.Common.Save"]
+                                        <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
                                     </button>
                                 </div>
                             </div>
