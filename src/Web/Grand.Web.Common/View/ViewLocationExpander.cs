@@ -9,7 +9,12 @@ namespace Grand.Web.Common.View;
 public class ViewLocationExpander : IViewLocationExpander
 {
     private const string ThemeKey = "Theme";
-    private const string AdminSharedFallbackLocation = "/Views/{1}/{0}.cshtml";
+    // Nested under /Views/AdminShared/ deliberately: a Razor view's compiled path is a global lookup
+    // key across every ApplicationPart, and the shallow /Views/{1}/{0}.cshtml form collided with the
+    // combined Grand.Web host's own storefront views (/Views/_ViewStart.cshtml,
+    // /Views/Product/Partials/ProductAttributes.cshtml). The AdminShared segment is unowned by any
+    // other project, so shared entity folders added in later phases cannot collide.
+    private const string AdminSharedFallbackLocation = "/Views/AdminShared/{1}/{0}.cshtml";
     private const string AdminSharedControllersNamespace = "Grand.Web.AdminShared.Controllers";
 
     public void PopulateValues(ViewLocationExpanderContext context)
