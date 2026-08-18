@@ -25,14 +25,7 @@
                             <button class="btn btn-success" type="submit" name="save-continue">
                                 <i class="fa fa-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
                             </button>
-                            @if (Scope.ResourceKeyPrefix == "Vendor")
-                            {
-                                <vc:vendor-widget widget-zone="vendor_product_details_buttons" additional-data="null"/>
-                            }
-                            else
-                            {
-                                <vc:admin-widget widget-zone="product_details_buttons" additional-data="null"/>
-                            }
+                            <partial name="Partials/WidgetZone.DetailsButtons"/>
                         </div>
                     </div>
                 </div>
