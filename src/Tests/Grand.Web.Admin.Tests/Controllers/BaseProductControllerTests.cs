@@ -2774,9 +2774,8 @@ public class BaseProductControllerTests
     {
         var model = new ProductListModel();
         var products = new List<Product> { new() { Id = "p1" } };
-        // No scope filtering here: productViewModelService.PrepareProducts is host-specific and already
-        // returns only the caller's products (Vendor's implementation constrains by CurrentVendor.Id
-        // internally) - the controller trusts it, same as ProductList trusts PrepareProductsModel.
+        // vendorId is forced inside PrepareProducts itself; storeId is forced at the call site below,
+        // same as every other PrepareProductsModel/PrepareProducts caller in this controller.
         _productViewModelServiceMock.Setup(s => s.PrepareProducts(model)).ReturnsAsync(products);
         var exportManagerMock = new Mock<IExportManager<Product>>();
         exportManagerMock.Setup(e => e.Export(products)).ReturnsAsync([1, 2, 3]);
@@ -2788,6 +2787,38 @@ public class BaseProductControllerTests
         Assert.AreEqual("text/xls", file.ContentType);
         Assert.AreEqual("products.xlsx", file.FileDownloadName);
         CollectionAssert.AreEqual(new byte[] { 1, 2, 3 }, file.FileContents);
+    }
+
+    [TestMethod]
+    public async Task ExportExcelAll_UsesScopeDefaultStoreId()
+    {
+        // Regression test: found during a post-Phase-2 tenant-isolation audit that this action was the
+        // one PrepareProducts/PrepareProductsModel caller in the controller NOT forcing
+        // model.SearchStoreId = scope.DefaultStoreId, letting a Store-scoped user export other stores'
+        // products by posting an arbitrary SearchStoreId.
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var model = new ProductListModel();
+        _productViewModelServiceMock.Setup(s => s.PrepareProducts(model)).ReturnsAsync([]);
+        var exportManagerMock = new Mock<IExportManager<Product>>();
+        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Product>>())).ReturnsAsync([1, 2, 3]);
+
+        await _controller.ExportExcelAll(model, exportManagerMock.Object);
+
+        Assert.AreEqual("store-1", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task ExportExcelAll_NoDefaultStoreId_DoesNotOverrideModelSearchStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        var model = new ProductListModel { SearchStoreId = "explicit" };
+        _productViewModelServiceMock.Setup(s => s.PrepareProducts(model)).ReturnsAsync([]);
+        var exportManagerMock = new Mock<IExportManager<Product>>();
+        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Product>>())).ReturnsAsync([1, 2, 3]);
+
+        await _controller.ExportExcelAll(model, exportManagerMock.Object);
+
+        Assert.AreEqual("explicit", model.SearchStoreId);
     }
 
     [TestMethod]

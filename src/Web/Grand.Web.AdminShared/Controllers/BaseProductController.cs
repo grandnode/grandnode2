@@ -1848,10 +1848,13 @@ public abstract class BaseProductController(
     public async Task<IActionResult> ExportExcelAll(ProductListModel model,
         [FromServices] IExportManager<Product> exportManager)
     {
-        // No explicit scope filter needed here: productViewModelService is host-specific (Admin's
-        // implementation returns all products matching the search model; Vendor's PrepareProducts always
-        // constrains the SearchProducts call to WorkContext.CurrentVendor.Id regardless of what's in
-        // model), so scoping is already enforced inside the polymorphic call, same as ProductList above.
+        // vendorId is forced inside PrepareProducts itself (scope.DefaultVendorId ?? model.SearchVendorId),
+        // but storeId is not - every other caller of PrepareProductsModel/PrepareProducts in this file
+        // forces it here, at the call site, the same way ProductList does above. This one was missing it:
+        // a Store-scoped user could POST an arbitrary (or blank) SearchStoreId and export every store's
+        // products, not just their own. Found during a post-Phase-2 tenant-isolation audit.
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+
         var products = await productViewModelService.PrepareProducts(model);
         try
         {
