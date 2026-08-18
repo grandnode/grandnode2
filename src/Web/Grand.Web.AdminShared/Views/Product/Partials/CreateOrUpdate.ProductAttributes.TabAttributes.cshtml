@@ -3,25 +3,11 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 <div class="panel panel-default">
-    @if (Scope.ResourceKeyPrefix == "Vendor")
-    {
-        <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_top" additional-data="Model"/>
-    }
-    else
-    {
-        <vc:admin-widget widget-zone="product_details_product_attributes_top" additional-data="Model"/>
-    }
+    <partial name="Partials/WidgetZone.ProductAttributes.Top" model="Model"/>
     <div class="panel-body">
         <div id="productattributemappings-grid"></div>
     </div>
-    @if (Scope.ResourceKeyPrefix == "Vendor")
-    {
-        <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_bottom" additional-data="Model"/>
-    }
-    else
-    {
-        <vc:admin-widget widget-zone="product_details_product_attributes_bottom" additional-data="Model"/>
-    }
+    <partial name="Partials/WidgetZone.ProductAttributes.Bottom" model="Model"/>
     <div class="panel-footer">
         <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</a>
     </div>
