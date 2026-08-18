@@ -323,3 +323,100 @@ patterns side by side once that pass lands.
 - Any entity other than Product.
 - Merging the three hosts into one deployable app (same standing rejection as
   Phase 1).
+
+## 5. Post-review corrections (2026-08-18)
+
+A final whole-branch review inspected the *compiled* assemblies and the combined
+`Grand.Web` host, and found two render-time regressions that neither the diff nor
+`dotnet build` could show. Both are fixed on this branch. **Sections 2, 3a, 3b and
+4a above are superseded on the two points below** — read this section as the
+current truth.
+
+### 5.1 Shared views live under `/Views/AdminShared/…`, not `/Views/…` (supersedes section 2)
+
+Section 2 asserted that a view's compiled path "becomes its lookup key
+application-wide" without checking that key against existing occupancy. A Razor
+view path is global across *every* `ApplicationPart`, and `Grand.Web` — the
+combined host — references `Grand.Web.{Admin,Store,Vendor}` and therefore
+transitively loads AdminShared's views alongside its own storefront views. Two
+real collisions existed: `/Views/_ViewStart.cshtml` (AdminShared's admin-layout
+resolver vs. the storefront's `Layout = "_Layout"`) and
+`/Views/Product/Partials/ProductAttributes.cshtml` (admin `ProductModel` partial
+vs. the storefront product-details partial). One silently shadows the other and
+the loser fails at render time; which one wins depends on application-part order.
+
+Corrected layout:
+
+- `src/Web/Grand.Web.AdminShared/Views/AdminShared/{Controller}/*.cshtml`
+- `src/Web/Grand.Web.AdminShared/Views/AdminShared/_ViewImports.cshtml`
+- `src/Web/Grand.Web.AdminShared/Views/AdminShared/_ViewStart.cshtml`
+- `ViewLocationExpander.AdminSharedFallbackLocation` = `/Views/AdminShared/{1}/{0}.cshtml`
+
+The `_ViewStart` ancestor walk still resolves
+(`/Views/AdminShared/Product/X.cshtml` → `/Views/AdminShared/_ViewStart.cshtml`)
+and host-override precedence is unchanged.
+
+**Rule for Phase 3 and later:** every shared entity folder goes under
+`Views/AdminShared/`. The `AdminShared` segment is owned by no other project, so
+`Order/`, `Vendor/`, `Page/`, `Blog/`, `News/` and `Catalog/` — all of which
+already exist under `src/Web/Grand.Web/Views/` — cannot collide.
+
+### 5.2 Widget-zone defaults live in `Grand.Web.Admin`, not AdminShared (amends section 4a)
+
+Section 4a placed the Admin/Store-shared widget-zone default in
+`AdminShared/Views/Product/Partials/WidgetZone.<Name>.cshtml`. That does not
+work: `<vc:admin-widget>` binds to `AdminWidgetViewComponent` in
+`Grand.Web.Admin`, and Razor binds tag helpers **at compile time** from the
+compiling project's `@addTagHelper` set. `Grand.Web.AdminShared` only adds
+`Grand.Web.Common`, so all 44 widget-zone calls in the moved views compiled to
+literal `<vc:admin-widget …/>` markup — no compile error, no warning, no runtime
+exception, just dead zones and a stray custom element per site. Verified in the
+built assembly: 44 literal `<vc:` strings in `Grand.Web.AdminShared.dll` and zero
+`AdminWidgetViewComponent` references.
+
+Corrected placement, per widget zone:
+
+| File | Content |
+|---|---|
+| `Grand.Web.Admin/Areas/Admin/Views/Product/Partials/WidgetZone.<Name>.cshtml` | the real `<vc:admin-widget widget-zone="X" …/>` |
+| `Grand.Web.Vendor/Areas/Vendor/Views/Product/Partials/WidgetZone.<Name>.cshtml` | the real `<vc:vendor-widget widget-zone="vendor_X" …/>` (unchanged) |
+| `Grand.Web.AdminShared/Views/AdminShared/Product/Partials/WidgetZone.<Name>.cshtml` | an empty `@* … *@` placeholder, which Store falls through to |
+
+The parent shared view still calls `<partial name="Partials/WidgetZone.<Name>"
+model="…"/>`; selection still happens purely through the section-3 override
+precedence. The empty AdminShared placeholder preserves Store's exact
+pre-existing behaviour (Store has no widget component and never rendered these
+zones) while making it deliberate instead of accidental.
+
+**Rule:** a Razor construct that binds to a *host's* tag helper or view component
+cannot live in `Grand.Web.AdminShared`. Only markup whose tag helpers come from
+`Grand.Web.Common` is shareable. The cheap mechanical check is that
+`Grand.Web.AdminShared.dll` must contain zero literal `<vc:` strings.
+
+The two files that carried inline widget calls
+(`CreateOrUpdate.Discounts.cshtml`, `CreateOrUpdate.Documents.cshtml`) stay in
+AdminShared — Store needs both tabs — with the calls extracted into
+`WidgetZone.{Discounts,Documents}.{Top,Bottom}` pairs. Their previously deferred
+hardcoded `Loc["Admin.…"]` keys were templated to
+`Loc[$"{Scope.ResourceKeyPrefix}.…"]` in the same pass.
+
+### 5.3 Other corrections in the same wave
+
+- `RoutedProductDataScope` now fails **closed**: `"Admin"` is an explicit arm and
+  an unrecognized or missing `area` throws `InvalidOperationException` instead of
+  resolving to the unscoped `GlobalAdminDataScope`. Covered by new
+  `RoutedProductDataScopeTests` in `Grand.Web.Admin.Tests`.
+- `AdminShared/Views/AdminShared/_ViewImports.cshtml` documents the two
+  host-detection idioms (`Scope.ResourceKeyPrefix` for Admin+Store vs. Vendor;
+  the `area` route value when Admin must be told apart from Store) so later
+  phases do not add a third.
+- `_ViewStart.cshtml` guards a null/empty `area` instead of composing
+  `~/Areas//Views/Shared/_Layout.cshtml`.
+
+### 5.4 Still outstanding
+
+The manual per-host smoke pass from the Design section's "5. Verification" has **not** been run. It must cover
+all three standalone hosts *and* the combined `grand-web` host, and must be run
+against a non-`Development` environment — `AddRazorRuntimeCompilation()` is
+enabled only when `ASPNETCORE_ENVIRONMENT == Development`, so a Development run
+resolves views differently from a production build.
