@@ -1,8 +1,9 @@
 ﻿@model ProductModel.AddProductSpecificationAttributeModel
 @{
     Layout = "";
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form id="ProductSpecificationPopup" asp-area="@Constants.AreaStore"
+<form id="ProductSpecificationPopup" asp-area="@area"
       asp-controller="Product" asp-action="ProductSpecAttrPopup"
       enctype="multipart/form-data" method="post"
       asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
@@ -20,11 +21,11 @@
                         <i class="fa fa-cubes"></i>
                         @if (string.IsNullOrEmpty(Model.Id))
                         {
-                            <text> @Loc["Admin.Catalog.Products.SpecificationAttributes.AddNew"]</text>
+                            <text> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.AddNew"]</text>
                         }
                         else
                         {
-                            <text>@Loc["Admin.Catalog.Products.SpecificationAttributes.Edit"]</text>
+                            <text>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SpecificationAttributes.Edit"]</text>
                         }
                     </div>
                 </div>
@@ -96,7 +97,7 @@
                             <div class="form-group">
                                 <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                                     <button class="btn btn-success" type="submit" name="save">
-                                        <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                        <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
                                     </button>
                                 </div>
                             </div>
@@ -143,7 +144,7 @@
                 $.ajax({
                     cache: false,
                     type: "GET",
-                    url: "@(Url.Action("GetOptionsByAttributeId", "Product", new { area = Constants.AreaStore }))",
+                    url: "@(Url.Action("GetOptionsByAttributeId", "Product", new { area = area }))",
                     data: { "attributeId": selectedAttributeId },
                     success: function (data) {
                         var ddlSpecOptions = $("#@Html.IdFor(model => model.SpecificationAttributeOptionId)");
