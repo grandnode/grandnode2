@@ -1,0 +1,4 @@
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+template: '<a class="k-link" href="@Url.Action("Edit", "Collection", new { area = area })/#=CollectionId#">#:Collection#</a>'

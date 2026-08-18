@@ -56,6 +56,7 @@ public class RoutedProductDataScopeTests
         Assert.AreEqual("Admin", resolver.ResourceKeyPrefix);
         Assert.IsNull(resolver.DefaultStoreId);
         Assert.IsNull(resolver.DefaultVendorId);
+        Assert.IsTrue(resolver.CanFeatureOnHomepage);
     }
 
     [TestMethod]
@@ -65,6 +66,7 @@ public class RoutedProductDataScopeTests
         Assert.AreEqual("Admin", resolver.ResourceKeyPrefix);
         Assert.AreEqual(StaffStoreId, resolver.DefaultStoreId);
         Assert.IsNull(resolver.DefaultVendorId);
+        Assert.IsTrue(resolver.CanFeatureOnHomepage);
     }
 
     [TestMethod]
@@ -74,6 +76,7 @@ public class RoutedProductDataScopeTests
         Assert.AreEqual("Vendor", resolver.ResourceKeyPrefix);
         Assert.AreEqual(VendorId, resolver.DefaultVendorId);
         Assert.IsFalse(resolver.ShowStoreSelector);
+        Assert.IsFalse(resolver.CanFeatureOnHomepage);
     }
 
     [TestMethod]

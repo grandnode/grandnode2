@@ -43,4 +43,6 @@ public class StoreAdminDataScope<TEntity>(IContextAccessor contextAccessor) : IA
     public bool ShowStoreSelector => true;
 
     public string? DefaultVendorId => null;
+
+    public bool CanFeatureOnHomepage => true;
 }

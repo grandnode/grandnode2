@@ -485,6 +485,10 @@ Same override-wins mechanism as section 4a, applied to three shapes of content d
      `template: '<a class="k-link" href="...">#:Category#</a>'`; Vendor:
      `template: '#:Category#'`).
    - `CreateOrUpdate.Collections.cshtml` → `Partials/Collections.LinkTemplate.cshtml`, same shape.
+   - `CreateOrUpdate.Reviews.cshtml` (found during implementation - not in the original six-site
+     audit, which only searched for `!= "Vendor"` and missed this file's `== "Vendor"` phrasing of
+     the same idiom) → `Partials/Reviews.CustomerLinkTemplate.cshtml` and
+     `Partials/Reviews.TitleLinkTemplate.cshtml`, same shape, two occurrences in one file.
 3. **C# capability gate** (no partial mechanism applies outside Razor): add a named boolean to
    `IAdminDataScope<TEntity>` instead of comparing `ResourceKeyPrefix`, matching the pattern
    `ShowStoreSelector`/`DefaultVendorId` already establish for capability flags.

@@ -46,4 +46,11 @@ public class GlobalAdminDataScopeTests
         var scope = new GlobalAdminDataScope<Product>();
         Assert.IsTrue(scope.ShowStoreSelector);
     }
+
+    [TestMethod]
+    public void CanFeatureOnHomepage_IsTrue()
+    {
+        var scope = new GlobalAdminDataScope<Product>();
+        Assert.IsTrue(scope.CanFeatureOnHomepage);
+    }
 }

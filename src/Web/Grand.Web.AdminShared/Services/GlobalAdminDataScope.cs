@@ -17,4 +17,6 @@ public class GlobalAdminDataScope<TEntity> : IAdminDataScope<TEntity>
     public bool ShowStoreSelector => true;
 
     public string? DefaultVendorId => null;
+
+    public bool CanFeatureOnHomepage => true;
 }

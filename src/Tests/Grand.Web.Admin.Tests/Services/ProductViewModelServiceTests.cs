@@ -123,6 +123,7 @@ public class ProductViewModelServiceTests
         _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
         _scopeMock.Setup(s => s.ShowStoreSelector).Returns(true);
         _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        _scopeMock.Setup(s => s.CanFeatureOnHomepage).Returns(true);
 
         _productViewModelService = new ProductViewModelService(
             _productServiceMock.Object,
@@ -255,6 +256,7 @@ public class ProductViewModelServiceTests
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
         _scopeMock.Setup(s => s.ShowStoreSelector).Returns(false);
+        _scopeMock.Setup(s => s.CanFeatureOnHomepage).Returns(false);
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store> {
             new() { Id = "store1", Shortcut = "Store 1" }
         });

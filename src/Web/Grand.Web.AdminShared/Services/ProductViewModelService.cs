@@ -570,11 +570,7 @@ public class ProductViewModelService(
 
         // Admin/Store show "Show on homepage" (value 3); Vendor's original copy omits it entirely - vendors
         // can't feature products on the homepage, a real capability difference, not a naming difference.
-        // Using ResourceKeyPrefix as the gate works today (only Vendor differs) but is semantically about
-        // capability, not localization - if a fourth host is ever added, replace this with a proper
-        // bool CanFeatureOnHomepage on IAdminDataScope<TEntity> rather than continuing to overload
-        // ResourceKeyPrefix for behavior gating.
-        if (scope.ResourceKeyPrefix != "Vendor")
+        if (scope.CanFeatureOnHomepage)
             model.AvailablePublishedOptions.Add(new SelectListItem {
                 Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.List.SearchPublished.ShowOnHomePage"),
                 Value = "3"

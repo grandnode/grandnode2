@@ -27,4 +27,6 @@ public class VendorProductDataScope(IContextAccessor contextAccessor) : IAdminDa
     public bool ShowStoreSelector => false;
 
     public string? DefaultVendorId => contextAccessor.WorkContext.CurrentVendor.Id;
+
+    public bool CanFeatureOnHomepage => false;
 }

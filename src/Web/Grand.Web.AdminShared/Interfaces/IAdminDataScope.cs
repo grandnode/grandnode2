@@ -46,4 +46,11 @@ public interface IAdminDataScope<TEntity>
     /// <c>PrepareProductList</c> regardless of any vendor filter a client-supplied model field might carry,
     /// so a vendor can never search or bulk-list another vendor's products.</summary>
     string? DefaultVendorId { get; }
+
+    /// <summary>Whether the host's product list/search screens should offer the "Show on homepage"
+    /// filter option. True for Global and Store; false for Vendor - vendors can't feature products
+    /// on the homepage, a real capability difference, not a naming difference. Replaces the earlier
+    /// `ResourceKeyPrefix != "Vendor"` check in ProductViewModelService, which overloaded a
+    /// localization-key property for behavior gating.</summary>
+    bool CanFeatureOnHomepage { get; }
 }

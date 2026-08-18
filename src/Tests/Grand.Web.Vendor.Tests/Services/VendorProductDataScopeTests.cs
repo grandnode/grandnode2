@@ -80,4 +80,11 @@ public class VendorProductDataScopeTests
         var scope = new VendorProductDataScope(_contextAccessor.Object);
         Assert.IsFalse(scope.ShowStoreSelector);
     }
+
+    [TestMethod]
+    public void CanFeatureOnHomepage_IsFalse()
+    {
+        var scope = new VendorProductDataScope(_contextAccessor.Object);
+        Assert.IsFalse(scope.CanFeatureOnHomepage);
+    }
 }

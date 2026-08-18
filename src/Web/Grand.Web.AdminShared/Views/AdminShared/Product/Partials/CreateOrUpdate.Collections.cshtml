@@ -98,28 +98,9 @@
                                 title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Collections.Fields.Collection"]",
                                 width: 200,
                                 editor: collectionDropDownEditor,
-                                @if (Scope.ResourceKeyPrefix == "Vendor")
-                                {
-                                    <text>template: '#:Collection#'</text>
-                                }
-                                else
-                                {
-                                    <text>template: '<a class="k-link" href="@Url.Action("Edit", "Collection", new { area = area })/#=CollectionId#">#:Collection#</a>'</text>
-                                }
+                                <partial name="Partials/Collections.LinkTemplate"/>
                             },
-                            @if (Scope.ResourceKeyPrefix != "Vendor")
-                            {
-                                <text>
-                                {
-                                    field: "IsFeaturedProduct",
-                                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Collections.Fields.IsFeaturedProduct"]",
-                                    width: 100,
-                                    headerAttributes: { style: "text-align:center" },
-                                    attributes: { style: "text-align:center" },
-                                    template: '# if(IsFeaturedProduct) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                                },
-                                </text>
-                            }
+                            <partial name="Partials/Collections.FeaturedColumn"/>
                             {
                                 field: "DisplayOrder",
                                 title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Collections.Fields.DisplayOrder"]",

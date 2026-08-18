@@ -62,4 +62,6 @@ public class RoutedProductDataScope(
     public bool ShowStoreSelector => Resolved.ShowStoreSelector;
 
     public string? DefaultVendorId => Resolved.DefaultVendorId;
+
+    public bool CanFeatureOnHomepage => Resolved.CanFeatureOnHomepage;
 }

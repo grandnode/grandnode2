@@ -52,27 +52,13 @@
                     field: "CustomerId",
                     title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.Customer"]",
                     width: 200,
-                    @if (Scope.ResourceKeyPrefix == "Vendor")
-                    {
-                        <text>template: '#:CustomerInfo#',</text>
-                    }
-                    else
-                    {
-                        <text>template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/#=CustomerId#">#:CustomerInfo#</a>',</text>
-                    }
+                    <partial name="Partials/Reviews.CustomerLinkTemplate"/>
                     minScreenWidth: 750,
                 },
                 {
                     field: "Title",
                     title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.Title"]",
-                    @if (Scope.ResourceKeyPrefix == "Vendor")
-                    {
-                        <text>template: '#:Title#',</text>
-                    }
-                    else
-                    {
-                        <text>template: '<a class="k-link" href="@Url.Action("Edit", "ProductReview", new { area = area })/#=Id#">#:Title#</a>',</text>
-                    }
+                    <partial name="Partials/Reviews.TitleLinkTemplate"/>
                     width: 280,
                 },
                 {

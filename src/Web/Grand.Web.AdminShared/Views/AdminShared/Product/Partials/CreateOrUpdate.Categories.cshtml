@@ -97,28 +97,9 @@
                             title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Categories.Fields.Category"]",
                             width: 200,
                             editor: categoryDropDownEditor,
-                            @if (Scope.ResourceKeyPrefix == "Vendor")
-                            {
-                                <text>template: '#:Category#'</text>
-                            }
-                            else
-                            {
-                                <text>template: '<a class="k-link" href="@Url.Action("Edit", "Category", new { area = area })/#=CategoryId#">#:Category#</a>'</text>
-                            }
+                            <partial name="Partials/Categories.LinkTemplate"/>
                         },
-                        @if (Scope.ResourceKeyPrefix != "Vendor")
-                        {
-                            <text>
-                            {
-                                field: "IsFeaturedProduct",
-                                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Categories.Fields.IsFeaturedProduct"]",
-                                width: 100,
-                                headerAttributes: { style: "text-align:center" },
-                                attributes: { style: "text-align:center" },
-                                template: '# if(IsFeaturedProduct) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                            },
-                            </text>
-                        }
+                        <partial name="Partials/Categories.FeaturedColumn"/>
                         {
                             field: "DisplayOrder",
                             title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Categories.Fields.DisplayOrder"]",
