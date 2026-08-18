@@ -1,10 +1,13 @@
 ﻿@model ProductModel.ProductAttributeMappingModel
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@{
     Layout = "";
     //page title
-    ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Details"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Details"];
 }
-<form id="ProductAttributeMappingPopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeMappingPopup" enctype="multipart/form-data" method="post"
+<form id="ProductAttributeMappingPopup" asp-area="@area" asp-controller="Product" asp-action="ProductAttributeMappingPopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
       asp-route-productAttributeMappingId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductAttributeMappingId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
@@ -23,11 +26,11 @@
                         <i class="fa fa-cubes"></i>
                         @if (string.IsNullOrEmpty(Model.Id))
                         {
-                            <text> @Loc["Admin.Catalog.Products.ProductAttributes.AddNew"]</text>
+                            <text> @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AddNew"]</text>
                         }
                         else
                         {
-                            <text>@Loc["Admin.Catalog.Products.ProductAttributes.Edit"]</text>
+                            <text>@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Edit"]</text>
                         }
                     </div>
                 </div>
@@ -95,7 +98,7 @@
                             <div class="form-group">
                                 <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                                     <button class="btn btn-success" type="submit" name="save">
-                                        <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                        <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
                                     </button>
                                 </div>
                             </div>
