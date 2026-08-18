@@ -420,3 +420,90 @@ all three standalone hosts *and* the combined `grand-web` host, and must be run
 against a non-`Development` environment — `AddRazorRuntimeCompilation()` is
 enabled only when `ASPNETCORE_ENVIRONMENT == Development`, so a Development run
 resolves views differently from a production build.
+
+## 6. Retire `Scope.ResourceKeyPrefix != "Vendor"` as a content-gating idiom (addendum, 2026-08-18)
+
+### Problem
+
+Section 4a/5.2 replaced widget-zone `@if (Scope.ResourceKeyPrefix == "Vendor")` branches with
+per-host partial files. Six sites doing the same string comparison for a different purpose —
+hiding or altering a block of markup for Vendor, not selecting a widget component — were left
+behind:
+
+- `Views/AdminShared/Product/Partials/CreateOrUpdate.cshtml:7,132` — gates the Documents tab
+  (combined with a permission check) and the UserFields tab.
+- `Views/AdminShared/Product/Partials/CreateOrUpdateTierPrice.cshtml:31` — gates the
+  Store/CustomerGroup form-group pair.
+- `Views/AdminShared/Product/Partials/CreateOrUpdate.Additional.cshtml:71` — gates the whole
+  `group-downloads` section.
+- `Views/AdminShared/Product/Partials/CreateOrUpdate.Categories.cshtml:100-107,109-122` and the
+  equivalent lines in `CreateOrUpdate.Collections.cshtml` — one branch swaps a Kendo Grid
+  `template:` between a clickable link (Admin/Store) and plain text (Vendor); a second branch
+  adds/omits the whole `IsFeaturedProduct` column definition.
+- `Grand.Web.AdminShared/Services/ProductViewModelService.cs:577` — C#, not Razor; gates the
+  "Show on homepage" search-filter option. Already flagged by a comment left on that line in the
+  prior pass recommending exactly the fix below.
+
+`ResourceKeyPrefix` is documented (Interfaces/IAdminDataScope.cs) as a localization-key-building
+string ("Admin" for Global and Store, "Vendor" for Vendor) — using it as a two-way behavior switch
+overloads a property with one declared purpose to also do another, undeclared one. It works only
+by accident (today there are exactly two distinct prefix values, and they happen to line up with
+the Vendor/non-Vendor split every one of these six sites needs).
+
+A companion check confirmed `Admin.*`/`Vendor.*` resource values under `catalog.products.*` are
+byte-identical wherever both exist (0 of ~230 shared keys differ; the only 7 differing pairs in the
+whole resource file are under `reports.*`, outside this design's scope). No change to the resource
+files follows from this — deleting or merging `Vendor.*` entries would need an upgrade migration
+(they're seeded to Mongo, not read live from XML) and would silently drop any store owner's custom
+translations of those keys. Out of scope here. `ResourceKeyPrefix` keeps its one declared job:
+building `Loc[$"{Scope.ResourceKeyPrefix}...."]` keys. Nothing branches on it anymore after this
+section.
+
+### Resolution, per site
+
+Same override-wins mechanism as section 4a, applied to three shapes of content difference:
+
+1. **Presence/absence of a self-contained block** (a `<tabstrip-item>`, a `<div class="form-group">`
+   pair, a whole `<div id="group-...">` section, a Kendo column-definition object): extract the
+   block into `Partials/<Name>.cshtml`, called unconditionally from the parent. AdminShared's copy
+   holds the real content (Admin+Store); a same-named file under
+   `Grand.Web.Vendor/Areas/Vendor/Views/Product/Partials/<Name>.cshtml` is empty (an `@* ... *@`
+   comment, mirroring the empty-placeholder precedent from section 5.2) and wins for Vendor through
+   ordinary view-location precedence. No C# conditional remains in the parent file.
+   - `CreateOrUpdate.cshtml` → `Partials/Tab.Documents.cshtml`, `Partials/Tab.UserFields.cshtml`
+     (Documents additionally still needs the `ManageDocuments` permission check — that check moves
+     into the AdminShared partial itself, since it's an authorization concern, not a host-shape
+     one; Vendor's empty override doesn't need it, it never had the tab).
+   - `CreateOrUpdateTierPrice.cshtml` → `Partials/TierPrice.StoreScope.cshtml`.
+   - `CreateOrUpdate.Additional.cshtml` → `Partials/Additional.Downloads.cshtml`.
+   - `CreateOrUpdate.Categories.cshtml` / `CreateOrUpdate.Collections.cshtml` (the
+     `IsFeaturedProduct` column) → `Partials/Categories.FeaturedColumn.cshtml` /
+     `Partials/Collections.FeaturedColumn.cshtml`.
+2. **Content that differs rather than disappears** (the Kendo `template:` link-vs-plain-text
+   swap): extract just the differing fragment into its own partial, both hosts get a real file.
+   - `CreateOrUpdate.Categories.cshtml` → `Partials/Categories.LinkTemplate.cshtml` (AdminShared:
+     `template: '<a class="k-link" href="...">#:Category#</a>'`; Vendor:
+     `template: '#:Category#'`).
+   - `CreateOrUpdate.Collections.cshtml` → `Partials/Collections.LinkTemplate.cshtml`, same shape.
+3. **C# capability gate** (no partial mechanism applies outside Razor): add a named boolean to
+   `IAdminDataScope<TEntity>` instead of comparing `ResourceKeyPrefix`, matching the pattern
+   `ShowStoreSelector`/`DefaultVendorId` already establish for capability flags.
+   - Add `bool CanFeatureOnHomepage { get; }` — `true` on `GlobalAdminDataScope<TEntity>` and
+     `StoreAdminDataScope<TEntity>`, `false` on `VendorProductDataScope`.
+   - `ProductViewModelService.cs:577` becomes `if (scope.CanFeatureOnHomepage)`, and the comment
+     explaining the old string-comparison workaround is deleted (the workaround it warned about is
+     gone).
+
+### Verification
+
+- `dotnet build GrandNode.sln`.
+- `Grand.Web.AdminShared.dll` still contains zero literal `<vc:` strings (section 5.2's check) —
+  unaffected by this section, listed here only as a standing regression guard for the same class of
+  compile-time tag-helper-binding mistake.
+- Manual pass: open a product's Edit page as Admin, Store owner, and Vendor. Confirm Vendor sees no
+  Documents/UserFields tabs, no Store/CustomerGroup tier-price fields, no downloads section, no
+  "Show on homepage" filter option, and Category/Collection grids show plain text instead of links;
+  confirm Admin and Store are pixel-identical to their pre-change rendering.
+- `Grand.Web.Admin.Tests` / `Grand.Web.Store.Tests` / `Grand.Web.Vendor.Tests` stay green — the new
+  `CanFeatureOnHomepage` flag is a small, direct addition to the existing
+  `GlobalAdminDataScopeTests`/`StoreAdminDataScopeTests`/`VendorProductDataScopeTests` fixtures.
