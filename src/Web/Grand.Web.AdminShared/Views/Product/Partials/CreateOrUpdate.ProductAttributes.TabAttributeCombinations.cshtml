@@ -12,14 +12,7 @@
     </p>
 </div>
 <div class="panel panel-default">
-    @if (Scope.ResourceKeyPrefix == "Vendor")
-    {
-        <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_combinations_top" additional-data="Model"/>
-    }
-    else
-    {
-        <vc:admin-widget widget-zone="product_details_product_attributes_combinations_top" additional-data="Model"/>
-    }
+    <partial name="Partials/WidgetZone.ProductAttributes.Combinations.Top" model="Model"/>
     <div class="panel-body">
         <div id="attributecombinations-grid"></div>
     </div>
@@ -29,14 +22,7 @@
         <button type="submit" id="btnClearAllCombinations" class="k-button"><span class="k-icon k-i-cut"></span>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.AttributeCombinations.ClearAll"]</button>
         <input type="submit" id="btnRefreshCombinations" style="display: none"/>
     </div>
-    @if (Scope.ResourceKeyPrefix == "Vendor")
-    {
-        <vc:vendor-widget widget-zone="vendor_product_details_product_attributes_combinations_bottom" additional-data="Model"/>
-    }
-    else
-    {
-        <vc:admin-widget widget-zone="product_details_product_attributes_combinations_bottom" additional-data="Model"/>
-    }
+    <partial name="Partials/WidgetZone.ProductAttributes.Combinations.Bottom" model="Model"/>
 </div>
 
 <script>
