@@ -1,10 +1,13 @@
 ﻿@model ProductModel.ProductAttributeValueModel
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@{
     Layout = "";
     //page title
-    ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.AddNew"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.AddNew"];
 }
-<form id="ProductAttributeValueCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeValueCreatePopup" method="post"
+<form id="ProductAttributeValueCreatePopup" asp-area="@area" asp-controller="Product" asp-action="ProductAttributeValueCreatePopup" method="post"
       asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
       asp-route-productAttributeMappingId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductAttributeMappingId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
@@ -16,7 +19,7 @@
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-cube"></i>
-                        @Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.AddNew"]
+                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.AddNew"]
                     </div>
                 </div>
                 <div class="x_content form">
