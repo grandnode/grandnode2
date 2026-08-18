@@ -19,3 +19,10 @@
 @inject LocService Loc
 @inject IEnumTranslationService EnumTranslationService
 @inject IAdminDataScope<Product> Scope
+
+@* Two host-detection idioms in these shared views; do not invent a third.
+   Scope.ResourceKeyPrefix — "Admin" or "Vendor". Use for anything the same in Admin and Store but
+     different in Vendor: resource keys, and capability differences Vendor doesn't have.
+   ViewContext.RouteData.Values["area"] — "Admin", "Store" or "Vendor". Use ONLY when Admin must be
+     told apart from Store; both report ResourceKeyPrefix == "Admin", so it cannot distinguish them.
+   The same "area" route value drives RoutedProductDataScope, so the two cannot drift apart. *@

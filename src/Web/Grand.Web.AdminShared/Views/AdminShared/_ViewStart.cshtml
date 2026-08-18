@@ -1,5 +1,8 @@
 @using Microsoft.AspNetCore.Routing
 @{
     var area = Context.GetRouteValue("area")?.ToString();
-    Layout = $"~/Areas/{area}/Views/Shared/_{area}Layout.cshtml";
+    if (!string.IsNullOrEmpty(area))
+    {
+        Layout = $"~/Areas/{area}/Views/Shared/_{area}Layout.cshtml";
+    }
 }
