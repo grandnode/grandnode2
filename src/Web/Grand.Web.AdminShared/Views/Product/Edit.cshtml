@@ -36,14 +36,7 @@
                             <span id="product-delete" class="btn red">
                                 <i class="fa fa-trash-o"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]
                             </span>
-                            @if (Scope.ResourceKeyPrefix == "Vendor")
-                            {
-                                <vc:vendor-widget widget-zone="vendor_product_details_buttons" additional-data="Model"/>
-                            }
-                            else
-                            {
-                                <vc:admin-widget widget-zone="product_details_buttons" additional-data="Model"/>
-                            }
+                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>
                     </div>
                 </div>
