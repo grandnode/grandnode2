@@ -1,12 +1,5 @@
 @model ProductModel
-@if (Scope.ResourceKeyPrefix == "Vendor")
-{
-    <vc:vendor-widget widget-zone="vendor_product_details_inventory_top" additional-data="Model"/>
-}
-else
-{
-    <vc:admin-widget widget-zone="product_details_inventory_top" additional-data="Model"/>
-}
+<partial name="Partials/WidgetZone.Inventory.Top" model="Model"/>
 <div class="form-horizontal portlet bg-inverse form-fit" id="group-inventory">
     <div class="form-body">
         <div class="form-group">
@@ -282,11 +275,4 @@ else
         </div>
     </div>
 </div>
-@if (Scope.ResourceKeyPrefix == "Vendor")
-{
-    <vc:vendor-widget widget-zone="vendor_product_details_inventory_bottom" additional-data="Model"/>
-}
-else
-{
-    <vc:admin-widget widget-zone="product_details_inventory_bottom" additional-data="Model"/>
-}
+<partial name="Partials/WidgetZone.Inventory.Bottom" model="Model"/>
