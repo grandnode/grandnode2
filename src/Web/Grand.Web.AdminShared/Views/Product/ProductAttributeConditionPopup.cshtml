@@ -1,9 +1,12 @@
 ﻿@model ProductAttributeConditionModel
 @{
-    Layout = "";
-    ViewBag.Title = Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.Condition"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form id="ProductAttributeConditionPopup" asp-area="@Constants.AreaVendor" asp-controller="Product" asp-action="ProductAttributeConditionPopup" enctype="multipart/form-data" method="post"
+@{
+    Layout = "";
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Condition"];
+}
+<form id="ProductAttributeConditionPopup" asp-area="@area" asp-controller="Product" asp-action="ProductAttributeConditionPopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])"
       asp-route-productAttributeMappingId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductAttributeMappingId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
@@ -19,11 +22,11 @@
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-cubes"></i>
-                        @Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.Condition"]
+                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Condition"]
                     </div>
                 </div>
                 <div class="note note-info">
-                    @Loc["Vendor.Catalog.Products.ProductAttributes.Attributes.Condition.Description"]
+                    @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Condition.Description"]
                 </div>
                 <div class="x_content form">
                     <div class="form-horizontal">
@@ -41,7 +44,12 @@
                             <div class="form-group" id="pnlAttributes">
                                 @if (Model.ProductAttributes.Count > 0)
                                 {
-                                    var attributesList = Model.ProductAttributes.Select(attribute => new SelectListItem { Text = attribute.Name, Value = attribute.Id }).ToList();
+                                    var attributesList = new List<SelectListItem>();
+                                    foreach (var attribute in Model.ProductAttributes)
+                                    {
+                                        attributesList.Add(new SelectListItem { Text = attribute.Name, Value = attribute.Id });
+                                    }
+
                                     <div class="form-horizontal">
                                         <div class="form-body">
                                             <div class="form-group" id="pnlBasepriceUnit">
@@ -140,7 +148,7 @@
                                 <div class="row">
                                     <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
                                         <button class="btn btn-success" type="submit" name="save">
-                                            <i class="fa fa-check"></i> @Loc["Vendor.Common.Save"]
+                                            <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
                                         </button>
                                     </div>
                                 </div>
