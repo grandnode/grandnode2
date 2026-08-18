@@ -1,17 +1,20 @@
 ﻿@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 
 
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
         <div class="panel-heading">
-            @Loc["Admin.Catalog.Products.SimilarProducts"]
+            @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts"]
         </div>
         <div class="panel-body">
             <div id="similarproducts-grid"></div>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewSimilarProduct" href="@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = Constants.AreaStore }))    " class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.SimilarProducts.AddNew"]</a>
+            <a id="btnAddNewSimilarProduct" href="@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = area }))    " class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.AddNew"]</a>
             <input type="submit" id="btnRefreshSimilarProducts" style="display: none"/>
         </div>
     </div>
@@ -35,19 +38,19 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("SimilarProductList", "Product", new { productId = Model.Id, area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("SimilarProductList", "Product", new { productId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         update: {
-                            url:"@Html.Raw(Url.Action("SimilarProductUpdate", "Product", new { area = Constants.AreaStore }))",
+                            url:"@Html.Raw(Url.Action("SimilarProductUpdate", "Product", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("SimilarProductDelete", "Product", new { area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("SimilarProductDelete", "Product", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -94,11 +97,11 @@
                 scrollable: false,
                 columns: [{
                     field: "Product2Name",
-                    title: "@Loc["Admin.Catalog.Products.SimilarProducts.Fields.Product"]",
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = Constants.AreaStore })/#=ProductId2#">#=kendo.htmlEncode(Product2Name)#</a>',
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.Fields.Product"]",
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = area })/#=ProductId2#">#=kendo.htmlEncode(Product2Name)#</a>',
                 }, {
                     field: "DisplayOrder",
-                    title: "@Loc["Admin.Catalog.Products.SimilarProducts.Fields.DisplayOrder"]",
+                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.Fields.DisplayOrder"]",
                     //integer format
                     format: "{0:0}",
                     width: 120,
@@ -108,13 +111,13 @@
                     command: [{
                         name: "edit",
                         text: {
-                            edit: "@Loc["Admin.Common.Edit"]",
-                            update: "@Loc["Admin.Common.Update"]",
-                            cancel: "@Loc["Admin.Common.Cancel"]"
+                            edit: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Edit"]",
+                            update: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Update"]",
+                            cancel: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Cancel"]"
                         }
                     }, {
                         name: "destroy",
-                        text: "@Loc["Admin.Common.Delete"]"
+                        text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"
                     }]
                 }]
             });
@@ -137,6 +140,6 @@
 else
 {
     <div class="note note-info">
-        @Loc["Admin.Catalog.Products.SimilarProducts.SaveBeforeEdit"]
+        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.SimilarProducts.SaveBeforeEdit"]
     </div>
 }
