@@ -38,11 +38,13 @@ public class RoutedProductDataScope(
         {
             var area = httpContextAccessor.HttpContext?.Request.RouteValues["area"] as string;
             return area switch {
-                "Vendor" => vendorScope,
+                "Admin" => globalScope,
                 "Store" => storeScope,
-                //covers "Admin" and the (unexpected) case of no area route value at all - same
-                //fallback GlobalAdminDataScope always represented before this resolver existed
-                _ => globalScope
+                "Vendor" => vendorScope,
+                //fail closed: this object fronts vendor/store tenant isolation, so an unrecognized
+                //or missing area must never silently resolve to the unscoped global scope
+                _ => throw new InvalidOperationException(
+                    $"RoutedProductDataScope: unrecognized or missing area '{area}'.")
             };
         }
     }
