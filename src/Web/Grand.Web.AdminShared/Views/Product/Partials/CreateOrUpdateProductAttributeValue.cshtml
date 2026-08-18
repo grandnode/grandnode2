@@ -1,5 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Razor
 @model ProductModel.ProductAttributeValueModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
@@ -76,8 +79,8 @@
                 <input asp-for="AssociatedProductId" type="hidden"/>
                 <span id="associate-product-name">@Model.AssociatedProductName</span>
                 <span asp-validation-for="AssociatedProductId"></span>
-                <a id="btnAssociateProductToAttributeValuePopup" href="@(Url.Action("AssociateProductToAttributeValuePopup", "Product", new { productIdInput = Html.IdFor(model => model.AssociatedProductId), productNameInput = "associate-product-name", area = Constants.AreaAdmin }))" class="k-button">
-                    @Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"]
+                <a id="btnAssociateProductToAttributeValuePopup" href="@(Url.Action("AssociateProductToAttributeValuePopup", "Product", new { productIdInput = Html.IdFor(model => model.AssociatedProductId), productNameInput = "associate-product-name", area = area }))" class="k-button">
+                    @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"]
                 </a>
             </div>
         </div>
@@ -185,7 +188,7 @@
                         </p>
                         <p style="float: left; padding-top: 20px;">
                             <label for="id_image_0">
-                                @Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Picture.NoPicture"]
+                                @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Picture.NoPicture"]
                             </label>
                         </p>
                     </li>
@@ -213,9 +216,9 @@
         <div class="form-group">
             <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                 <button class="btn btn-success" type="submit" name="save">
-                    <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                    <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
                 </button>
-                <vc:admin-widget widget-zone="product_details_attribute_value_buttons" additional-data="null"/>
+                <partial name="Partials/WidgetZone.AttributeValueButtons"/>
             </div>
         </div>
     </div>
