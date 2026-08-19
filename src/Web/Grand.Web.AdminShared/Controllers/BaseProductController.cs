@@ -69,7 +69,17 @@ namespace Grand.Web.AdminShared.Controllers;
 // directly (Store has no distinct resource set), consistent with StoreAdminDataScope.ResourceKeyPrefix
 // returning "Admin".
 
+// [AutoValidateAntiforgeryToken] is also restated on each of the three concrete host subclasses
+// (Admin/Store/Vendor ProductController) - ASP.NET Core resolves filters from the full type hierarchy
+// of the concrete controller at runtime, so those subclass-level attributes already protect every
+// [HttpPost] action defined here. It's added here too so CodeQL's static analysis (which flagged this
+// file directly - it doesn't follow the attribute from a derived class in a different project back
+// onto the base class where the actions are textually defined) has something to see in the same file
+// as the actions, and so a future host subclass that forgets to restate the attribute doesn't silently
+// lose CSRF protection - BaseProductController itself is abstract and never directly routable, so this
+// changes no runtime behavior today.
 [PermissionAuthorize(PermissionSystemName.Products)]
+[AutoValidateAntiforgeryToken]
 public abstract class BaseProductController(
     IProductViewModelService productViewModelService,
     IProductService productService,

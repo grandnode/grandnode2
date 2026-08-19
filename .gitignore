@@ -381,3 +381,4 @@ src/Web/Grand.Web.Store/Plugins/*
 src/Web/Grand.Web.Store/Modules/*
 src/Web/Grand.Web.Store/App_Data/DataProtectionKeys/*
 src/Web/Grand.Web.Store/wwwroot/assets/images/thumbs/*.**.worktrees/
+docs/superpowers/

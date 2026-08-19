@@ -600,3 +600,35 @@ speculatively ahead of a caller, which is what happened here.
 
 `dotnet build GrandNode.sln` clean. `Grand.Web.Admin.Tests`/`Grand.Web.Store.Tests`/
 `Grand.Web.Vendor.Tests`: 419/33/8 (down 2 from the removed `ApplyScope` tests), all green.
+
+## 9. CodeQL: "missing CSRF token validation" on `BaseProductController.cs` (addendum, 2026-08-19)
+
+### Investigation
+
+CodeQL flagged `BaseProductController.cs`'s `[HttpPost]` actions as missing antiforgery validation.
+Checked: `BaseProductController` is `abstract` (never directly routable) and extends
+`Grand.Web.Common.Controllers.BaseController`, which carries no antiforgery attribute. Its three
+concrete subclasses (`Grand.Web.Admin`/`Grand.Web.Store`/`Grand.Web.Vendor`'s `ProductController`)
+each already declare `[AutoValidateAntiforgeryToken]` at the class level - restated there since Phase
+1 Task 11 explicitly because `BaseProductController` "can't inherit any single host's base controller"
+(each host's own `BaseAdminController`/`BaseStoreController`/`BaseVendorController`, which normally
+supplies it, differs by `[Area]`/`[Authorize*]`). ASP.NET Core resolves MVC filters from the full type
+hierarchy of the concrete controller at request time, so every actual runtime endpoint (there are only
+these three concrete subclasses - grep confirmed) is already protected. This is a static-analysis
+false positive in the sense that no exploitable gap exists today - CodeQL's query doesn't follow an
+attribute from a derived class in a different project back onto the base class where the actions are
+textually defined.
+
+### Fix
+
+Added `[AutoValidateAntiforgeryToken]` directly to `BaseProductController` too. This changes no
+runtime behavior (redundant with the three subclasses' own copies, and the base class was never
+routable anyway), but removes a real fragility the false-positive investigation surfaced: protection
+depended entirely on every current *and future* host subclass remembering to restate the attribute,
+with nothing enforcing it at the point where the actions actually live. Also gives CodeQL's static
+analysis something to see in the same file it flagged.
+
+### Verification
+
+`dotnet build GrandNode.sln` clean. `Grand.Web.Admin.Tests`/`Grand.Web.Store.Tests`/
+`Grand.Web.Vendor.Tests`: 419/33/8, unchanged, all green.
