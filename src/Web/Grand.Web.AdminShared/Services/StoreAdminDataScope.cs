@@ -29,13 +29,6 @@ public class StoreAdminDataScope<TEntity>(IContextAccessor contextAccessor) : IA
         return Task.FromResult(allowed);
     }
 
-    public IQueryable<TEntity> ApplyScope(IQueryable<TEntity> query)
-    {
-        var staffStoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-        if (string.IsNullOrEmpty(staffStoreId)) return query;
-        return query.Where(x => x.LimitedToStores && x.Stores.Contains(staffStoreId) && x.Stores.Count == 1);
-    }
-
     public string? DefaultStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
     public string ResourceKeyPrefix => "Admin";

@@ -53,8 +53,6 @@ public class RoutedProductDataScope(
 
     public Task<bool> CanView(Product entity) => Resolved.CanView(entity);
 
-    public IQueryable<Product> ApplyScope(IQueryable<Product> query) => Resolved.ApplyScope(query);
-
     public string? DefaultStoreId => Resolved.DefaultStoreId;
 
     public string ResourceKeyPrefix => Resolved.ResourceKeyPrefix;

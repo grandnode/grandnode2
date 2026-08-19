@@ -567,3 +567,36 @@ consolidation, check host X's *own* codebase for the real answer (does it have a
 is it used elsewhere, what does `_ViewImports.cshtml` actually import) - don't infer it from what
 the entity's *original*, pre-consolidation views for that host happened to contain. A copy-pasted,
 never-adapted call is evidence of a pre-existing bug, not evidence the host lacks the capability.
+
+## 8. Remove `IAdminDataScope<TEntity>.ApplyScope` (addendum, 2026-08-19)
+
+### Problem
+
+`ApplyScope(IQueryable<TEntity> query)` was part of the original Phase 1 interface design but never
+became load-bearing: `BaseProductController` and `ProductViewModelService` scope every read
+(`SearchProducts`) and write path through the `storeId`/`vendorId` parameters and `HasAccess`/
+`CanView` checks instead, never through an `IQueryable` filter. Confirmed by grep across `src/Web`
+and `src/Tests`: the only callers of `ApplyScope` were its own unit tests
+(`GlobalAdminDataScopeTests.ApplyScope_ReturnsQueryUnchanged`,
+`VendorProductDataScopeTests.ApplyScope_FiltersToOwnVendorId`) - dead production code advertising a
+scoping mechanism nothing uses, flagged during the tenant-isolation audit in section 6/7's session
+and removed on request rather than left to accumulate.
+
+### Resolution
+
+Removed the member from `IAdminDataScope<TEntity>` and its four implementations
+(`GlobalAdminDataScope<TEntity>`, `StoreAdminDataScope<TEntity>`, `VendorProductDataScope`,
+`RoutedProductDataScope`'s pass-through), plus the two tests that only existed to exercise it. No
+other code referenced it (grep clean after removal). `IStoreLinkEntity`/`Stores`/`LimitedToStores`
+filtering logic that lived inside `StoreAdminDataScope.ApplyScope` is not reproduced elsewhere - it
+was never called, so there is nothing to preserve.
+
+**If Phase 3 needs query-level scoping** (e.g. a list endpoint that filters via `IQueryable` instead
+of passing a `storeId`/`vendorId` parameter into a service method, the way Product does), add the
+member back on the entity/host where it is actually wired to a caller in the same change - not
+speculatively ahead of a caller, which is what happened here.
+
+### Verification
+
+`dotnet build GrandNode.sln` clean. `Grand.Web.Admin.Tests`/`Grand.Web.Store.Tests`/
+`Grand.Web.Vendor.Tests`: 419/33/8 (down 2 from the removed `ApplyScope` tests), all green.

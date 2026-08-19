@@ -45,22 +45,6 @@ public class VendorProductDataScopeTests
     }
 
     [TestMethod]
-    public void ApplyScope_FiltersToOwnVendorId()
-    {
-        var scope = new VendorProductDataScope(_contextAccessor.Object);
-        var query = new[]
-        {
-            new Product { Id = "1", VendorId = VendorId },
-            new Product { Id = "2", VendorId = "vendor-2" }
-        }.AsQueryable();
-
-        var result = scope.ApplyScope(query).ToList();
-
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("1", result[0].Id);
-    }
-
-    [TestMethod]
     public void DefaultStoreId_IsNull()
     {
         var scope = new VendorProductDataScope(_contextAccessor.Object);

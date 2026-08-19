@@ -21,9 +21,6 @@ public interface IAdminDataScope<TEntity>
     /// `CheckAccessToProduct`). Only Store overrides this.</summary>
     Task<bool> CanView(TEntity entity) => HasAccess(entity);
 
-    /// <summary>Narrows a query to the entities the current user may see. No-op for global (Admin) scope.</summary>
-    IQueryable<TEntity> ApplyScope(IQueryable<TEntity> query);
-
     /// <summary>Store id to default onto new/edited entities. Null when the host has no store concept
     /// (Admin: global, no default; Vendor: not store-scoped at all).</summary>
     string? DefaultStoreId { get; }

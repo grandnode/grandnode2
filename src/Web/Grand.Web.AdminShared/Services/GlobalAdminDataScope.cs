@@ -8,8 +8,6 @@ public class GlobalAdminDataScope<TEntity> : IAdminDataScope<TEntity>
 {
     public Task<bool> HasAccess(TEntity entity) => Task.FromResult(true);
 
-    public IQueryable<TEntity> ApplyScope(IQueryable<TEntity> query) => query;
-
     public string? DefaultStoreId => null;
 
     public string ResourceKeyPrefix => "Admin";

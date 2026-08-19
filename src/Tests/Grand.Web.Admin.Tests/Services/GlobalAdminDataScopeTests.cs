@@ -16,17 +16,6 @@ public class GlobalAdminDataScopeTests
     }
 
     [TestMethod]
-    public void ApplyScope_ReturnsQueryUnchanged()
-    {
-        var scope = new GlobalAdminDataScope<Product>();
-        var query = new[] { new Product { Id = "1" }, new Product { Id = "2" } }.AsQueryable();
-
-        var result = scope.ApplyScope(query);
-
-        CollectionAssert.AreEqual(query.ToList(), result.ToList());
-    }
-
-    [TestMethod]
     public void DefaultStoreId_IsNull()
     {
         var scope = new GlobalAdminDataScope<Product>();

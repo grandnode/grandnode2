@@ -14,12 +14,6 @@ public class VendorProductDataScope(IContextAccessor contextAccessor) : IAdminDa
         return Task.FromResult(entity.VendorId == contextAccessor.WorkContext.CurrentVendor.Id);
     }
 
-    public IQueryable<Product> ApplyScope(IQueryable<Product> query)
-    {
-        var vendorId = contextAccessor.WorkContext.CurrentVendor.Id;
-        return query.Where(x => x.VendorId == vendorId);
-    }
-
     public string? DefaultStoreId => null;
 
     public string ResourceKeyPrefix => "Vendor";
