@@ -52,13 +52,13 @@
                     field: "CustomerId",
                     title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.Customer"]",
                     width: 200,
-                    <partial name="Partials/Reviews.CustomerLinkTemplate"/>
+                    @await Html.PartialAsync("Partials/Reviews.CustomerLinkTemplate")
                     minScreenWidth: 750,
                 },
                 {
                     field: "Title",
                     title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.ProductReviews.Fields.Title"]",
-                    <partial name="Partials/Reviews.TitleLinkTemplate"/>
+                    @await Html.PartialAsync("Partials/Reviews.TitleLinkTemplate")
                     width: 280,
                 },
                 {

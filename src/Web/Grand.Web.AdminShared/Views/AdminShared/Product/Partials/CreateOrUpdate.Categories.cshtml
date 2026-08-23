@@ -97,9 +97,9 @@
                             title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Categories.Fields.Category"]",
                             width: 200,
                             editor: categoryDropDownEditor,
-                            <partial name="Partials/Categories.LinkTemplate"/>
+                            @await Html.PartialAsync("Partials/Categories.LinkTemplate")
                         },
-                        <partial name="Partials/Categories.FeaturedColumn"/>
+                        @await Html.PartialAsync("Partials/Categories.FeaturedColumn")
                         {
                             field: "DisplayOrder",
                             title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Categories.Fields.DisplayOrder"]",
