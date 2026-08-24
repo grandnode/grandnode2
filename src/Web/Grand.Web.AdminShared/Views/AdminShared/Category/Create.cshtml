@@ -1,9 +1,10 @@
-﻿@model CategoryModel
+@model CategoryModel
 @{
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Categories.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Category" asp-action="Create" method="post" id="category-form">
+<form asp-area="@area" asp-controller="Category" asp-action="Create" method="post" id="category-form">
 
     <div class="row">
         <div class="col-md-12">
@@ -27,7 +28,7 @@
                         </div>
                     </div>
                 </div>
-                <vc:admin-widget widget-zone="category_details_buttons" additional-data="null"/>
+                <partial name="Partials/WidgetZone.DetailsButtons"/>
                 <div class="x_content form">
                     <partial name="Partials/CreateOrUpdate" model="Model"/>
                 </div>

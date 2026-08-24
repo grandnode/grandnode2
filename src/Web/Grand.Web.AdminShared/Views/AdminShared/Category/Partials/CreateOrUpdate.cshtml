@@ -1,4 +1,4 @@
-﻿@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Business.Core.Interfaces.Common.Security
 @using Grand.Domain.Permissions
 @model CategoryModel
 @inject IPermissionService permissionService
@@ -56,6 +56,6 @@
                 </div>
             </content>
         </tabstrip-item>
-        <vc:admin-widget widget-zone="category_details_tabs" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.Tabs" model="Model"/>
     </items>
 </admin-tabstrip>

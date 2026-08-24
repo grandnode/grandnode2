@@ -1,6 +1,9 @@
-﻿@model CategoryModel
+@model CategoryModel
 @inject AdminAreaSettings adminAreaSettings
-<vc:admin-widget widget-zone="category_details_products_top" additional-data="Model"/>
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<partial name="Partials/WidgetZone.Products.Top" model="Model"/>
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
@@ -8,7 +11,7 @@
             <div id="products-grid"></div>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Category", new { categoryId = Model.Id, btnId = "btnRefreshProducts", formId = "category-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Categories.Products.AddNew"]</a>
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Category", new { categoryId = Model.Id, btnId = "btnRefreshProducts", formId = "category-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Categories.Products.AddNew"]</a>
             <input type="submit" id="btnRefreshProducts" style="display: none"/>
         </div>
     </div>
@@ -31,19 +34,19 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ProductList", "Category", new { categoryId = Model.Id, area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("ProductList", "Category", new { categoryId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         update: {
-                            url:"@Html.Raw(Url.Action("ProductUpdate", "Category", new { area = Constants.AreaAdmin }))",
+                            url:"@Html.Raw(Url.Action("ProductUpdate", "Category", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("ProductDelete", "Category", new { area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("ProductDelete", "Category", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -91,7 +94,7 @@
                 columns: [{
                     field: "ProductName",
                     title: "@Loc["Admin.Catalog.Categories.Products.Fields.Product"]",
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>',
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = area })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>',
                 }, {
                     field: "IsFeaturedProduct",
                     title: "@Loc["Admin.Catalog.Categories.Products.Fields.IsFeaturedProduct"]",
@@ -143,4 +146,4 @@ else
         @Loc["Admin.Catalog.Categories.Products.SaveBeforeEdit"]
     </div>
 }
-<vc:admin-widget widget-zone="category_details_products_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Products.Bottom" model="Model"/>

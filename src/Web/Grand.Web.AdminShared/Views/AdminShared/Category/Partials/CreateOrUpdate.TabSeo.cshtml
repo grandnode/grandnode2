@@ -1,7 +1,7 @@
-﻿@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Mvc.Razor
 @model CategoryModel
 
-<vc:admin-widget widget-zone="category_details_seo_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.SEO.Top" model="Model"/>
 
 @{
     Func<int, HelperResult> template = @<div class="form-horizontal">
@@ -74,4 +74,4 @@
     </div>
 </localized-editor>
 
-<vc:admin-widget widget-zone="category_details_seo_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.SEO.Bottom" model="Model"/>

@@ -1,5 +1,5 @@
-﻿@model CategoryModel
-<vc:admin-widget widget-zone="category_details_discounts_top" additional-data="Model"/>
+@model CategoryModel
+<partial name="Partials/WidgetZone.Discounts.Top" model="Model"/>
 @if (Model.AvailableDiscounts is { Count: > 0 })
 {
     <div class="mt-checkbox-list">
@@ -22,4 +22,4 @@ else
         @Html.Raw(Loc["Admin.Catalog.Categories.Discounts.NoDiscounts"])
     </div>
 }
-<vc:admin-widget widget-zone="category_details_discounts_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Discounts.Bottom" model="Model"/>
