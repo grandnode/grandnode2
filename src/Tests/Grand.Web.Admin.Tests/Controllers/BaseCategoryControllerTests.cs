@@ -352,4 +352,61 @@ public class BaseCategoryControllerTests
         Assert.AreEqual("", content.Content);
         pictureViewModelServiceMock.Verify(p => p.UpdatePicture(model), Times.Once);
     }
+
+    // --- Products tab ---------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductList_ScopeDeniesAccess_ReturnsKendoError()
+    {
+        var category = new Category { Id = "c1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(false);
+
+        var result = await _controller.ProductList(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+    }
+
+    [TestMethod]
+    public async Task ProductUpdate_ProductNotOwnedByScopeStore_ReturnsKendoError()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var product = new Product { Id = "p1", LimitedToStores = true, Stores = ["other-store"] };
+        new Mock<IProductService>().Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
+        var productServiceMock = new Mock<IProductService>();
+        productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
+
+        var controller = new TestCategoryController(
+            _categoryServiceMock.Object, _categoryViewModelServiceMock.Object,
+            new Mock<ILanguageService>().Object, _translationServiceMock.Object,
+            new Mock<IPictureViewModelService>().Object, productServiceMock.Object, _scopeMock.Object);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+
+        var result = await controller.ProductUpdate(new CategoryModel.CategoryProductModel { Id = "pc1", ProductId = "p1" });
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _categoryViewModelServiceMock.Verify(v => v.UpdateProductCategoryModel(It.IsAny<CategoryModel.CategoryProductModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupInsert_GlobalScope_SkipsPerProductFiltering()
+    {
+        var category = new Category { Id = "c1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        var model = new CategoryModel.AddCategoryProductModel { CategoryId = "c1", SelectedProductIds = ["p1", "p2"] };
+
+        await _controller.ProductAddPopup(model);
+
+        _categoryViewModelServiceMock.Verify(v => v.InsertCategoryProductModel(
+            It.Is<CategoryModel.AddCategoryProductModel>(m => m.SelectedProductIds.Length == 2)), Times.Once);
+    }
 }

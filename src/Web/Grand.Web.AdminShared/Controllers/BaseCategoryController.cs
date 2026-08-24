@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
@@ -253,6 +254,119 @@ public abstract class BaseCategoryController(
             Error(exc);
             return RedirectToAction("List");
         }
+    }
+
+    #endregion
+
+    #region Products
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> ProductList(DataSourceRequest command, string categoryId)
+    {
+        var category = await categoryService.GetCategoryById(categoryId);
+        if (!await scope.HasAccess(category)) return ErrorForKendoGridJson("This is not your category");
+
+        var productCategories = await categoryViewModelService.PrepareCategoryProductModel(categoryId, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = productCategories.categoryProductModels,
+            Total = productCategories.totalCount
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductUpdate(CategoryModel.CategoryProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null || !product.AccessToEntityByStore(scope.DefaultStoreId))
+            return ErrorForKendoGridJson("This is not your product");
+
+        if (ModelState.IsValid)
+        {
+            await categoryViewModelService.UpdateProductCategoryModel(model);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductDelete(CategoryModel.CategoryProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null || !product.AccessToEntityByStore(scope.DefaultStoreId))
+            return ErrorForKendoGridJson("This is not your product");
+
+        if (ModelState.IsValid)
+        {
+            await categoryViewModelService.DeleteProductCategoryModel(model.Id, model.ProductId);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductAddPopup(string categoryId)
+    {
+        var model = await categoryViewModelService.PrepareAddCategoryProductModel(scope.DefaultStoreId);
+        model.CategoryId = categoryId;
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command, CategoryModel.AddCategoryProductModel model)
+    {
+        var gridModel = new DataSourceResult();
+        model.SearchStoreId = scope.DefaultStoreId;
+        var products = await categoryViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        gridModel.Data = products.products.ToList();
+        gridModel.Total = products.totalCount;
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAddPopup(CategoryModel.AddCategoryProductModel model)
+    {
+        var category = await categoryService.GetCategoryById(model.CategoryId);
+        if (category == null || !await scope.HasAccess(category))
+            return Content("This is not your category");
+
+        if (ModelState.IsValid)
+        {
+            if (model.SelectedProductIds != null)
+            {
+                if (scope.DefaultStoreId is null)
+                {
+                    // Global scope (Admin): no per-product ownership concept, insert as submitted -
+                    // matches Admin's original, unfiltered behavior exactly.
+                    await categoryViewModelService.InsertCategoryProductModel(model);
+                }
+                else
+                {
+                    // Store scope: InsertCategoryProductModel mutates each selected product's
+                    // ProductCategories collection, so every selected id must also belong to the
+                    // current store - matches Store's original filtering loop exactly.
+                    var validIds = new List<string>();
+                    foreach (var id in model.SelectedProductIds)
+                    {
+                        var selected = await productService.GetProductById(id);
+                        if (selected != null && selected.AccessToEntityByStore(scope.DefaultStoreId))
+                            validIds.Add(id);
+                    }
+                    model.SelectedProductIds = validIds.ToArray();
+                    if (validIds.Count > 0) await categoryViewModelService.InsertCategoryProductModel(model);
+                }
+            }
+
+            return Content("");
+        }
+
+        Error(ModelState);
+        return View(model);
     }
 
     #endregion
