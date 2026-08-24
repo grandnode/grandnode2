@@ -8,6 +8,7 @@ using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -197,6 +198,45 @@ public abstract class BaseCollectionController(
 
         Error(ModelState);
         return RedirectToAction("Edit", new { id = collection.Id });
+    }
+
+    #endregion
+
+    #region Picture
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> PicturePopup(string collectionId)
+    {
+        var collection = await collectionService.GetCollectionById(collectionId);
+        if (collection == null) return Content("Collection not exist");
+        if (!await scope.HasAccess(collection)) return Content("This is not your collection");
+        if (string.IsNullOrEmpty(collection.PictureId)) return Content("Picture not exist");
+
+        return View("Partials/PicturePopup",
+            await pictureViewModelService.PreparePictureModel(collection.PictureId, collection.Id));
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> PicturePopup(PictureModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var collection = await collectionService.GetCollectionById(model.ObjectId);
+            if (collection == null)
+                throw new ArgumentException("No collection found with the specified id");
+            if (!await scope.HasAccess(collection)) return Content("This is not your collection");
+            if (string.IsNullOrEmpty(collection.PictureId))
+                throw new ArgumentException("No picture found with the specified id");
+            if (collection.PictureId != model.Id)
+                throw new ArgumentException("Picture ident doesn't fit with collection");
+
+            await pictureViewModelService.UpdatePicture(model);
+            return Content("");
+        }
+
+        Error(ModelState);
+        return View("Partials/PicturePopup", model);
     }
 
     #endregion

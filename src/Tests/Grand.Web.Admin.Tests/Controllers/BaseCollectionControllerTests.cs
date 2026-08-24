@@ -259,4 +259,116 @@ public class BaseCollectionControllerTests
 
         _collectionViewModelServiceMock.Verify(v => v.InsertCollectionModel(It.IsAny<CollectionModel>()), Times.Once);
     }
+
+    // --- PicturePopup --------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task PicturePopupGet_ScopeDeniesAccess_ReturnsDeniedContent()
+    {
+        var collection = new Collection { Id = "c1", PictureId = "pic-1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(false);
+
+        var result = await _controller.PicturePopup("c1");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("This is not your collection", content.Content);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupGet_CollectionHasNoPicture_ReturnsNotExistContent()
+    {
+        var collection = new Collection { Id = "c1", PictureId = null };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
+
+        var result = await _controller.PicturePopup("c1");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("Picture not exist", content.Content);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupGet_CollectionNotFound_ReturnsNotExistContent()
+    {
+        _collectionServiceMock.Setup(c => c.GetCollectionById("missing")).ReturnsAsync((Collection)null);
+
+        var result = await _controller.PicturePopup("missing");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("Collection not exist", content.Content);
+        _scopeMock.Verify(s => s.HasAccess(It.IsAny<Collection>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_ScopeDeniesAccess_ReturnsDeniedContent()
+    {
+        var collection = new Collection { Id = "c1", PictureId = "pic-1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(false);
+
+        var model = new Grand.Web.AdminShared.Models.Common.PictureModel { ObjectId = "c1", Id = "pic-1" };
+        var result = await _controller.PicturePopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("This is not your collection", content.Content);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_CollectionNotFound_ThrowsArgumentException()
+    {
+        _collectionServiceMock.Setup(c => c.GetCollectionById("missing")).ReturnsAsync((Collection)null);
+
+        var model = new Grand.Web.AdminShared.Models.Common.PictureModel { ObjectId = "missing", Id = "pic-1" };
+
+        var exception = await Assert.ThrowsExactlyAsync<ArgumentException>(
+            async () => await _controller.PicturePopup(model));
+
+        Assert.AreEqual("No collection found with the specified id", exception.Message);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_PictureIdMismatch_ThrowsArgumentException()
+    {
+        var collection = new Collection { Id = "c1", PictureId = "pic-1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
+
+        var model = new Grand.Web.AdminShared.Models.Common.PictureModel { ObjectId = "c1", Id = "pic-2" };
+
+        var exception = await Assert.ThrowsExactlyAsync<ArgumentException>(
+            async () => await _controller.PicturePopup(model));
+
+        Assert.AreEqual("Picture ident doesn't fit with collection", exception.Message);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_ValidRequest_CallsUpdatePicture()
+    {
+        var pictureViewModelServiceMock = new Mock<IPictureViewModelService>();
+        var collection = new Collection { Id = "c1", PictureId = "pic-1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
+        pictureViewModelServiceMock.Setup(p => p.UpdatePicture(It.IsAny<Grand.Web.AdminShared.Models.Common.PictureModel>())).Returns(Task.CompletedTask);
+
+        var controller = new TestCollectionController(
+            _collectionViewModelServiceMock.Object, _collectionServiceMock.Object, _storeServiceMock.Object,
+            new Mock<ILanguageService>().Object, _translationServiceMock.Object,
+            pictureViewModelServiceMock.Object, new Mock<IProductService>().Object, _scopeMock.Object);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+
+        var model = new Grand.Web.AdminShared.Models.Common.PictureModel { ObjectId = "c1", Id = "pic-1" };
+
+        var result = await controller.PicturePopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("", content.Content);
+        pictureViewModelServiceMock.Verify(p => p.UpdatePicture(model), Times.Once);
+    }
 }
