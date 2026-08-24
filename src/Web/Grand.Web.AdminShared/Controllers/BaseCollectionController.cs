@@ -1,3 +1,4 @@
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -9,6 +10,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -76,6 +78,125 @@ public abstract class BaseCollectionController(
         };
 
         return Json(gridModel);
+    }
+
+    #endregion
+
+    #region Create / Edit / Delete
+
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public async Task<IActionResult> Create([FromServices] CatalogSettings catalogSettings)
+    {
+        var model = new CollectionModel();
+        await AddLocales(languageService, model.Locales);
+        await collectionViewModelService.PrepareLayoutsModel(model);
+        await collectionViewModelService.PrepareDiscountModel(model, null, true);
+        model.PageSize = catalogSettings.DefaultPageSize;
+        model.PageSizeOptions = catalogSettings.DefaultPageSizeOptions;
+        model.Published = true;
+        model.AllowCustomersToSelectPageSize = true;
+        collectionViewModelService.PrepareSortOptionsModel(model);
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Create(CollectionModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
+        {
+            if (scope.DefaultStoreId is not null) model.Stores = [scope.DefaultStoreId];
+            var collection = await collectionViewModelService.InsertCollectionModel(model);
+            Success(translationService.GetResource("Admin.Catalog.Collections.Added"));
+            return continueEditing ? RedirectToAction("Edit", new { id = collection.Id }) : RedirectToAction("List");
+        }
+
+        await collectionViewModelService.PrepareLayoutsModel(model);
+        await collectionViewModelService.PrepareDiscountModel(model, null, true);
+        collectionViewModelService.PrepareSortOptionsModel(model);
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var collection = await collectionService.GetCollectionById(id);
+        if (collection == null) return RedirectToAction("List");
+
+        EditWarningCheck(collection);
+        // CanView, not HasAccess: viewing a shared/global collection is allowed on Store (with a
+        // warning from EditWarningCheck above); only mutating one is restricted to the exclusive
+        // single-store owner. See IAdminDataScope<TEntity>.CanView's doc comment.
+        if (!await scope.CanView(collection)) return RedirectToAction("List");
+
+        var model = collection.ToModel();
+        await AddLocales(languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.Name = collection.GetTranslation(x => x.Name, languageId, false);
+            locale.Description = collection.GetTranslation(x => x.Description, languageId, false);
+            locale.BottomDescription = collection.GetTranslation(x => x.BottomDescription, languageId, false);
+            locale.MetaKeywords = collection.GetTranslation(x => x.MetaKeywords, languageId, false);
+            locale.MetaDescription = collection.GetTranslation(x => x.MetaDescription, languageId, false);
+            locale.MetaTitle = collection.GetTranslation(x => x.MetaTitle, languageId, false);
+            locale.SeName = collection.GetSeName(languageId, false);
+        });
+        await collectionViewModelService.PrepareLayoutsModel(model);
+        await collectionViewModelService.PrepareDiscountModel(model, collection, false);
+        collectionViewModelService.PrepareSortOptionsModel(model);
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Edit(CollectionModel model, bool continueEditing)
+    {
+        var collection = await collectionService.GetCollectionById(model.Id);
+        if (collection == null) return RedirectToAction("List");
+        if (!await scope.HasAccess(collection)) return RedirectToAction("Edit", new { id = collection.Id });
+
+        if (ModelState.IsValid)
+        {
+            if (scope.DefaultStoreId is not null) model.Stores = [scope.DefaultStoreId];
+            collection = await collectionViewModelService.UpdateCollectionModel(collection, model);
+            Success(translationService.GetResource("Admin.Catalog.Collections.Updated"));
+
+            if (continueEditing)
+            {
+                await SaveSelectedTabIndex();
+                return RedirectToAction("Edit", new { id = collection.Id });
+            }
+            return RedirectToAction("List");
+        }
+
+        await collectionViewModelService.PrepareLayoutsModel(model);
+        await collectionViewModelService.PrepareDiscountModel(model, collection, true);
+        collectionViewModelService.PrepareSortOptionsModel(model);
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var collection = await collectionService.GetCollectionById(id);
+        if (collection == null) return RedirectToAction("List");
+        if (!await scope.HasAccess(collection)) return RedirectToAction("Edit", new { id = collection.Id });
+
+        if (ModelState.IsValid)
+        {
+            await collectionViewModelService.DeleteCollection(collection);
+            Success(translationService.GetResource("Admin.Catalog.Collections.Deleted"));
+            return RedirectToAction("List");
+        }
+
+        Error(ModelState);
+        return RedirectToAction("Edit", new { id = collection.Id });
     }
 
     #endregion

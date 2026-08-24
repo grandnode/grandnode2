@@ -148,4 +148,115 @@ public class BaseCollectionControllerTests
 
         Assert.AreEqual("admin-submitted-store", model.SearchStoreId);
     }
+
+    // --- Edit (GET) --------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task EditGet_CollectionNotFound_RedirectsToList()
+    {
+        _collectionServiceMock.Setup(c => c.GetCollectionById("missing")).ReturnsAsync((Collection)null);
+
+        var result = await _controller.Edit("missing");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _scopeMock.Verify(s => s.CanView(It.IsAny<Collection>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EditGet_ScopeDeniesView_RedirectsToList()
+    {
+        var collection = new Collection { Id = "c1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.CanView(collection)).ReturnsAsync(false);
+
+        var result = await _controller.Edit("c1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task EditGet_ScopeAllowsView_ReturnsViewWithModel()
+    {
+        var collection = new Collection { Id = "c1", Name = "Widgets" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.CanView(collection)).ReturnsAsync(true);
+
+        var result = await _controller.Edit("c1");
+
+        var view = result as ViewResult;
+        Assert.IsNotNull(view);
+        Assert.AreEqual("Widgets", ((CollectionModel)view.Model).Name);
+    }
+
+    // --- Edit (POST) -------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task EditPost_ScopeDeniesAccess_RedirectsToEdit()
+    {
+        var collection = new Collection { Id = "c1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(false);
+
+        var result = await _controller.Edit(new CollectionModel { Id = "c1" }, false);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        _collectionViewModelServiceMock.Verify(v => v.UpdateCollectionModel(It.IsAny<Collection>(), It.IsAny<CollectionModel>()), Times.Never);
+    }
+
+    // --- Delete --------------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task Delete_ScopeDeniesAccess_RedirectsToEditWithoutDeleting()
+    {
+        var collection = new Collection { Id = "c1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(false);
+
+        var result = await _controller.Delete("c1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.AreEqual("c1", redirect.RouteValues["id"]);
+        _collectionViewModelServiceMock.Verify(v => v.DeleteCollection(It.IsAny<Collection>()), Times.Never);
+    }
+
+    // --- Create (POST) ------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task CreatePost_StoreScoped_ForcesModelStores()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var inserted = new Collection { Id = "new-1" };
+        _collectionViewModelServiceMock
+            .Setup(v => v.InsertCollectionModel(It.IsAny<CollectionModel>()))
+            .ReturnsAsync(inserted)
+            .Callback<CollectionModel>(m => Assert.AreSequenceEqual(new[] { "store-1" }, m.Stores));
+
+        await _controller.Create(new CollectionModel { Name = "N" }, false);
+
+        _collectionViewModelServiceMock.Verify(v => v.InsertCollectionModel(It.IsAny<CollectionModel>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CreatePost_GlobalScoped_LeavesModelStoresUntouched()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        var inserted = new Collection { Id = "new-1" };
+        var submitted = new CollectionModel { Name = "N", Stores = ["explicit-store"] };
+        _collectionViewModelServiceMock
+            .Setup(v => v.InsertCollectionModel(It.IsAny<CollectionModel>()))
+            .ReturnsAsync(inserted)
+            .Callback<CollectionModel>(m => Assert.AreSequenceEqual(new[] { "explicit-store" }, m.Stores));
+
+        await _controller.Create(submitted, false);
+
+        _collectionViewModelServiceMock.Verify(v => v.InsertCollectionModel(It.IsAny<CollectionModel>()), Times.Once);
+    }
 }
