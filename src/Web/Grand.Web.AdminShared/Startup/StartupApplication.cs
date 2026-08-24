@@ -70,6 +70,12 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreAdminDataScope<Product>>();
         services.AddScoped<VendorProductDataScope>();
         services.AddScoped<IAdminDataScope<Product>, RoutedProductDataScope>();
+
+        // IAdminDataScope<Category>: registered once here for the same reason as Product above — see
+        // RoutedCategoryDataScope's doc comment. No Vendor scope: Category has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<Category>>();
+        services.AddScoped<StoreAdminDataScope<Category>>();
+        services.AddScoped<IAdminDataScope<Category>, RoutedCategoryDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
