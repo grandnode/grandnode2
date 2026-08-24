@@ -9,6 +9,7 @@ using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -254,5 +255,101 @@ public class BaseCategoryControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("Picture not exist", content.Content);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupGet_CategoryNotFound_ReturnsNotExistContent()
+    {
+        _categoryServiceMock.Setup(c => c.GetCategoryById("missing")).ReturnsAsync((Category)null);
+
+        var result = await _controller.PicturePopup("missing");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("Category not exist", content.Content);
+        _scopeMock.Verify(s => s.HasAccess(It.IsAny<Category>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_ScopeDeniesAccess_ReturnsDeniedContent()
+    {
+        var category = new Category { Id = "c1", PictureId = "pic-1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(false);
+
+        var model = new PictureModel { ObjectId = "c1", Id = "pic-1" };
+        var result = await _controller.PicturePopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("This is not your category", content.Content);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_CategoryNotFound_ThrowsArgumentException()
+    {
+        _categoryServiceMock.Setup(c => c.GetCategoryById("missing")).ReturnsAsync((Category)null);
+
+        var model = new PictureModel { ObjectId = "missing", Id = "pic-1" };
+
+        var exception = await Assert.ThrowsExactlyAsync<ArgumentException>(
+            async () => await _controller.PicturePopup(model));
+
+        Assert.AreEqual("No category found with the specified id", exception.Message);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_PictureIdMismatch_ThrowsArgumentException()
+    {
+        var category = new Category { Id = "c1", PictureId = "pic-1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
+
+        var model = new PictureModel { ObjectId = "c1", Id = "pic-2" };
+
+        var exception = await Assert.ThrowsExactlyAsync<ArgumentException>(
+            async () => await _controller.PicturePopup(model));
+
+        Assert.AreEqual("Picture ident doesn't fit with category", exception.Message);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_ValidRequest_CallsUpdatePicture()
+    {
+        var pictureViewModelServiceMock = new Mock<IPictureViewModelService>();
+        var category = new Category { Id = "c1", PictureId = "pic-1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
+        pictureViewModelServiceMock.Setup(p => p.UpdatePicture(It.IsAny<PictureModel>())).Returns(Task.CompletedTask);
+
+        var controller = new TestCategoryController(
+            _categoryServiceMock.Object,
+            _categoryViewModelServiceMock.Object,
+            new Mock<ILanguageService>().Object,
+            _translationServiceMock.Object,
+            pictureViewModelServiceMock.Object,
+            new Mock<IProductService>().Object,
+            _scopeMock.Object);
+
+        var httpContext = new DefaultHttpContext();
+        var loggerFactoryMock = new Mock<ILoggerFactory>();
+        loggerFactoryMock.Setup(l => l.CreateLogger(It.IsAny<string>())).Returns(new Mock<ILogger>().Object);
+        var urlHelperFactoryMock = new Mock<IUrlHelperFactory>();
+        urlHelperFactoryMock.Setup(f => f.GetUrlHelper(It.IsAny<ActionContext>())).Returns(new Mock<IUrlHelper>().Object);
+        var requestServicesMock = new Mock<IServiceProvider>();
+        requestServicesMock.Setup(s => s.GetService(typeof(ILoggerFactory))).Returns(loggerFactoryMock.Object);
+        requestServicesMock.Setup(s => s.GetService(typeof(IUrlHelperFactory))).Returns(urlHelperFactoryMock.Object);
+        httpContext.RequestServices = requestServicesMock.Object;
+        controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+        controller.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
+
+        var model = new PictureModel { ObjectId = "c1", Id = "pic-1" };
+
+        var result = await controller.PicturePopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("", content.Content);
+        pictureViewModelServiceMock.Verify(p => p.UpdatePicture(model), Times.Once);
     }
 }
