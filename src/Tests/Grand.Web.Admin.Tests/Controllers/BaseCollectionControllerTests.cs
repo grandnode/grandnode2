@@ -371,4 +371,237 @@ public class BaseCollectionControllerTests
         Assert.AreEqual("", content.Content);
         pictureViewModelServiceMock.Verify(p => p.UpdatePicture(model), Times.Once);
     }
+
+    // --- Products tab ---------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductList_ScopeDeniesAccess_ReturnsKendoError()
+    {
+        var collection = new Collection { Id = "c1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(false);
+
+        var result = await _controller.ProductList(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsFalse(string.IsNullOrEmpty(gridModel.Errors as string));
+    }
+
+    [TestMethod]
+    public async Task ProductList_ScopeGrantsAccess_PassesScopeDefaultStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var collection = new Collection { Id = "c1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
+        _collectionViewModelServiceMock
+            .Setup(v => v.PrepareCollectionProductModel("c1", "store-1", 1, 10))
+            .ReturnsAsync((Enumerable.Empty<CollectionModel.CollectionProductModel>(), 0));
+
+        var result = await _controller.ProductList(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        _collectionViewModelServiceMock.Verify(v => v.PrepareCollectionProductModel("c1", "store-1", 1, 10), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductList_GlobalScope_PassesEmptyStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        var collection = new Collection { Id = "c1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
+        _collectionViewModelServiceMock
+            .Setup(v => v.PrepareCollectionProductModel("c1", string.Empty, 1, 10))
+            .ReturnsAsync((Enumerable.Empty<CollectionModel.CollectionProductModel>(), 0));
+
+        await _controller.ProductList(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
+
+        _collectionViewModelServiceMock.Verify(v => v.PrepareCollectionProductModel("c1", string.Empty, 1, 10), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductUpdate_ProductNotOwnedByScopeStore_ReturnsKendoError()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var product = new Product { Id = "p1", LimitedToStores = true, Stores = ["other-store"] };
+        var productServiceMock = new Mock<IProductService>();
+        productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
+
+        var controller = new TestCollectionController(
+            _collectionViewModelServiceMock.Object, _collectionServiceMock.Object, _storeServiceMock.Object,
+            new Mock<ILanguageService>().Object, _translationServiceMock.Object,
+            new Mock<IPictureViewModelService>().Object, productServiceMock.Object, _scopeMock.Object);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+
+        var result = await controller.ProductUpdate(new CollectionModel.CollectionProductModel { Id = "pc1", ProductId = "p1" });
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsFalse(string.IsNullOrEmpty(gridModel.Errors as string));
+        _collectionViewModelServiceMock.Verify(v => v.ProductUpdate(It.IsAny<CollectionModel.CollectionProductModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductDelete_ProductNotOwnedByScopeStore_ReturnsKendoError()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var product = new Product { Id = "p1", LimitedToStores = true, Stores = ["other-store"] };
+        var productServiceMock = new Mock<IProductService>();
+        productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
+
+        var controller = new TestCollectionController(
+            _collectionViewModelServiceMock.Object, _collectionServiceMock.Object, _storeServiceMock.Object,
+            new Mock<ILanguageService>().Object, _translationServiceMock.Object,
+            new Mock<IPictureViewModelService>().Object, productServiceMock.Object, _scopeMock.Object);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+
+        var result = await controller.ProductDelete(new CollectionModel.CollectionProductModel { Id = "pc1", ProductId = "p1" });
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsFalse(string.IsNullOrEmpty(gridModel.Errors as string));
+        _collectionViewModelServiceMock.Verify(v => v.ProductDelete(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupGet_PassesScopeDefaultStoreIdOrEmpty()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _collectionViewModelServiceMock
+            .Setup(v => v.PrepareAddCollectionProductModel(string.Empty))
+            .ReturnsAsync(new CollectionModel.AddCollectionProductModel());
+
+        var result = await _controller.ProductAddPopup("c1");
+
+        var view = result as ViewResult;
+        Assert.IsNotNull(view);
+        Assert.AreEqual("c1", ((CollectionModel.AddCollectionProductModel)view.Model).CollectionId);
+        _collectionViewModelServiceMock.Verify(v => v.PrepareAddCollectionProductModel(string.Empty), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupList_ForcesScopeDefaultStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _collectionViewModelServiceMock
+            .Setup(v => v.PrepareProductModel(It.IsAny<CollectionModel.AddCollectionProductModel>(), 1, 10))
+            .ReturnsAsync((new List<ProductModel>(), 0));
+
+        var model = new CollectionModel.AddCollectionProductModel { SearchStoreId = "attacker-supplied-store" };
+        await _controller.ProductAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 }, model);
+
+        Assert.AreEqual("store-1", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupList_GlobalScope_LeavesSubmittedSearchStoreIdUntouched()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _collectionViewModelServiceMock
+            .Setup(v => v.PrepareProductModel(It.IsAny<CollectionModel.AddCollectionProductModel>(), 1, 10))
+            .ReturnsAsync((new List<ProductModel>(), 0));
+
+        var model = new CollectionModel.AddCollectionProductModel { SearchStoreId = "admin-submitted-store" };
+        await _controller.ProductAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 }, model);
+
+        Assert.AreEqual("admin-submitted-store", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupInsert_ScopeDeniesCollectionAccess_ReturnsDeniedContent()
+    {
+        var collection = new Collection { Id = "c1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(false);
+
+        var model = new CollectionModel.AddCollectionProductModel { CollectionId = "c1", SelectedProductIds = ["p1"] };
+        var result = await _controller.ProductAddPopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("This is not your collection", content.Content);
+        _collectionViewModelServiceMock.Verify(v => v.InsertCollectionProductModel(It.IsAny<CollectionModel.AddCollectionProductModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupInsert_GlobalScope_InsertsWithoutFiltering()
+    {
+        var collection = new Collection { Id = "c1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        var model = new CollectionModel.AddCollectionProductModel { CollectionId = "c1", SelectedProductIds = ["p1", "p2"] };
+
+        await _controller.ProductAddPopup(model);
+
+        _collectionViewModelServiceMock.Verify(v => v.InsertCollectionProductModel(
+            It.Is<CollectionModel.AddCollectionProductModel>(m => m.SelectedProductIds.Length == 2)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupInsert_StoreScope_FiltersOutForeignProducts()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var collection = new Collection { Id = "c1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
+
+        var ownedProduct = new Product { Id = "owned-1", LimitedToStores = true, Stores = ["store-1"] };
+        var foreignProduct = new Product { Id = "foreign-1", LimitedToStores = true, Stores = ["other-store"] };
+
+        var productServiceMock = new Mock<IProductService>();
+        productServiceMock.Setup(p => p.GetProductById("owned-1")).ReturnsAsync(ownedProduct);
+        productServiceMock.Setup(p => p.GetProductById("foreign-1")).ReturnsAsync(foreignProduct);
+
+        var controller = new TestCollectionController(
+            _collectionViewModelServiceMock.Object, _collectionServiceMock.Object, _storeServiceMock.Object,
+            new Mock<ILanguageService>().Object, _translationServiceMock.Object,
+            new Mock<IPictureViewModelService>().Object, productServiceMock.Object, _scopeMock.Object);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+
+        var model = new CollectionModel.AddCollectionProductModel { CollectionId = "c1", SelectedProductIds = ["owned-1", "foreign-1"] };
+
+        await controller.ProductAddPopup(model);
+
+        _collectionViewModelServiceMock.Verify(v => v.InsertCollectionProductModel(
+            It.Is<CollectionModel.AddCollectionProductModel>(m => m.SelectedProductIds.Length == 1 && m.SelectedProductIds[0] == "owned-1")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupInsert_StoreScope_AllProductsForeign_SkipsInsertEntirely()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var collection = new Collection { Id = "c1" };
+        _collectionServiceMock.Setup(c => c.GetCollectionById("c1")).ReturnsAsync(collection);
+        _scopeMock.Setup(s => s.HasAccess(collection)).ReturnsAsync(true);
+
+        var foreignProduct1 = new Product { Id = "foreign-1", LimitedToStores = true, Stores = ["other-store"] };
+        var foreignProduct2 = new Product { Id = "foreign-2", LimitedToStores = true, Stores = ["another-store"] };
+
+        var productServiceMock = new Mock<IProductService>();
+        productServiceMock.Setup(p => p.GetProductById("foreign-1")).ReturnsAsync(foreignProduct1);
+        productServiceMock.Setup(p => p.GetProductById("foreign-2")).ReturnsAsync(foreignProduct2);
+
+        var controller = new TestCollectionController(
+            _collectionViewModelServiceMock.Object, _collectionServiceMock.Object, _storeServiceMock.Object,
+            new Mock<ILanguageService>().Object, _translationServiceMock.Object,
+            new Mock<IPictureViewModelService>().Object, productServiceMock.Object, _scopeMock.Object);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+
+        var model = new CollectionModel.AddCollectionProductModel { CollectionId = "c1", SelectedProductIds = ["foreign-1", "foreign-2"] };
+
+        await controller.ProductAddPopup(model);
+
+        _collectionViewModelServiceMock.Verify(v => v.InsertCollectionProductModel(It.IsAny<CollectionModel.AddCollectionProductModel>()), Times.Never);
+    }
 }

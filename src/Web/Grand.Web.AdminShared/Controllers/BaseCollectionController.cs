@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
@@ -286,6 +287,127 @@ public abstract class BaseCollectionController(
             Error(exc);
             return RedirectToAction("List");
         }
+    }
+
+    #endregion
+
+    #region Products
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> ProductList(DataSourceRequest command, string collectionId)
+    {
+        var collection = await collectionService.GetCollectionById(collectionId);
+        if (!await scope.HasAccess(collection)) return ErrorForKendoGridJson("This is not your collection");
+
+        var (collectionProductModels, totalCount) = await collectionViewModelService.PrepareCollectionProductModel(
+            collectionId, scope.DefaultStoreId ?? string.Empty, command.Page, command.PageSize);
+
+        var gridModel = new DataSourceResult {
+            Data = collectionProductModels.ToList(),
+            Total = totalCount
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductUpdate(CollectionModel.CollectionProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null || !product.AccessToEntityByStore(scope.DefaultStoreId))
+            return ErrorForKendoGridJson("This is not your product");
+
+        if (ModelState.IsValid)
+        {
+            await collectionViewModelService.ProductUpdate(model);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductDelete(CollectionModel.CollectionProductModel model)
+    {
+        var product = await productService.GetProductById(model.ProductId);
+        if (product == null || !product.AccessToEntityByStore(scope.DefaultStoreId))
+            return ErrorForKendoGridJson("This is not your product");
+
+        if (ModelState.IsValid)
+        {
+            await collectionViewModelService.ProductDelete(model.Id, model.ProductId);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductAddPopup(string collectionId)
+    {
+        var model = await collectionViewModelService.PrepareAddCollectionProductModel(scope.DefaultStoreId ?? string.Empty);
+        model.CollectionId = collectionId;
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command,
+        CollectionModel.AddCollectionProductModel model)
+    {
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+        var products = await collectionViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = products.products.ToList(),
+            Total = products.totalCount
+        };
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAddPopup(CollectionModel.AddCollectionProductModel model)
+    {
+        var collection = await collectionService.GetCollectionById(model.CollectionId);
+        if (collection == null || !await scope.HasAccess(collection))
+            return Content("This is not your collection");
+
+        if (ModelState.IsValid)
+        {
+            if (model.SelectedProductIds != null)
+            {
+                if (scope.DefaultStoreId is null)
+                {
+                    // Global scope (Admin): no per-product ownership concept, insert as submitted -
+                    // matches Admin's original, unfiltered behavior exactly.
+                    await collectionViewModelService.InsertCollectionProductModel(model);
+                }
+                else
+                {
+                    // Store scope: InsertCollectionProductModel mutates each selected product's
+                    // ProductCollections collection, so every selected id must also belong to the
+                    // current store - matches Store's original filtering loop exactly, including
+                    // its validIds.Count > 0 guard (a fully-filtered-out selection no-ops instead
+                    // of calling the service with an empty array).
+                    var validIds = new List<string>();
+                    foreach (var id in model.SelectedProductIds)
+                    {
+                        var selected = await productService.GetProductById(id);
+                        if (selected != null && selected.AccessToEntityByStore(scope.DefaultStoreId))
+                            validIds.Add(id);
+                    }
+                    model.SelectedProductIds = validIds.ToArray();
+                    if (validIds.Count > 0) await collectionViewModelService.InsertCollectionProductModel(model);
+                }
+            }
+            return Content("");
+        }
+
+        Error(ModelState);
+        return View(model);
     }
 
     #endregion
