@@ -7,6 +7,7 @@ using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -164,6 +165,45 @@ public abstract class BaseCategoryController(
         }
 
         return RedirectToAction("List");
+    }
+
+    #endregion
+
+    #region Picture
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> PicturePopup(string categoryId)
+    {
+        var category = await categoryService.GetCategoryById(categoryId);
+        if (category == null) return Content("Category not exist");
+        if (!await scope.HasAccess(category)) return Content("This is not your category");
+        if (string.IsNullOrEmpty(category.PictureId)) return Content("Picture not exist");
+
+        return View("Partials/PicturePopup",
+            await pictureViewModelService.PreparePictureModel(category.PictureId, category.Id));
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> PicturePopup(PictureModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var category = await categoryService.GetCategoryById(model.ObjectId);
+            if (category == null)
+                throw new ArgumentException("No category found with the specified id");
+            if (!await scope.HasAccess(category)) return Content("This is not your category");
+            if (string.IsNullOrEmpty(category.PictureId))
+                throw new ArgumentException("No picture found with the specified id");
+            if (category.PictureId != model.Id)
+                throw new ArgumentException("Picture ident doesn't fit with category");
+
+            await pictureViewModelService.UpdatePicture(model);
+            return Content("");
+        }
+
+        Error(ModelState);
+        return View("Partials/PicturePopup", model);
     }
 
     #endregion

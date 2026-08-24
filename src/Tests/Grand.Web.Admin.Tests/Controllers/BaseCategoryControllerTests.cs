@@ -225,4 +225,34 @@ public class BaseCategoryControllerTests
 
         _categoryViewModelServiceMock.Verify(v => v.InsertCategoryModel(It.IsAny<CategoryModel>()), Times.Once);
     }
+
+    // --- PicturePopup --------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task PicturePopupGet_ScopeDeniesAccess_ReturnsDeniedContent()
+    {
+        var category = new Category { Id = "c1", PictureId = "pic-1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(false);
+
+        var result = await _controller.PicturePopup("c1");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("This is not your category", content.Content);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupGet_CategoryHasNoPicture_ReturnsNotExistContent()
+    {
+        var category = new Category { Id = "c1", PictureId = null };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
+
+        var result = await _controller.PicturePopup("c1");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("Picture not exist", content.Content);
+    }
 }
