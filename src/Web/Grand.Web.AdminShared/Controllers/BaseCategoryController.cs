@@ -1,7 +1,9 @@
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions.Mapping;
@@ -12,6 +14,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
@@ -204,6 +207,52 @@ public abstract class BaseCategoryController(
 
         Error(ModelState);
         return View("Partials/PicturePopup", model);
+    }
+
+    #endregion
+
+    #region Export / Import
+
+    [PermissionAuthorizeAction(PermissionActionName.Export)]
+    public async Task<IActionResult> ExportXlsx([FromServices] IExportManager<Category> exportManager)
+    {
+        try
+        {
+            var bytes = await exportManager.Export(await categoryService.GetAllCategories(parentId: null, categoryName: "", storeId: scope.DefaultStoreId ?? "", showHidden: true));
+            return File(bytes, "text/xls", "categories.xlsx");
+        }
+        catch (Exception exc)
+        {
+            Error(exc);
+            return RedirectToAction("List");
+        }
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Import)]
+    [HttpPost]
+    public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile,
+        [FromServices] IImportManager<CategoryDto> importManager)
+    {
+        try
+        {
+            if (importexcelfile is { Length: > 0 })
+            {
+                await importManager.Import(importexcelfile.OpenReadStream());
+            }
+            else
+            {
+                Error(translationService.GetResource("Admin.Common.UploadFile"));
+                return RedirectToAction("List");
+            }
+
+            Success(translationService.GetResource("Admin.Catalog.Category.Imported"));
+            return RedirectToAction("List");
+        }
+        catch (Exception exc)
+        {
+            Error(exc);
+            return RedirectToAction("List");
+        }
     }
 
     #endregion
