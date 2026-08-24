@@ -375,7 +375,6 @@ public class BaseCategoryControllerTests
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         var product = new Product { Id = "p1", LimitedToStores = true, Stores = ["other-store"] };
-        new Mock<IProductService>().Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
         var productServiceMock = new Mock<IProductService>();
         productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
 
@@ -408,5 +407,113 @@ public class BaseCategoryControllerTests
 
         _categoryViewModelServiceMock.Verify(v => v.InsertCategoryProductModel(
             It.Is<CategoryModel.AddCategoryProductModel>(m => m.SelectedProductIds.Length == 2)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupInsert_StoreScope_FiltersOutForeignProducts()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var category = new Category { Id = "c1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
+
+        // owned-1 belongs to store-1
+        var ownedProduct = new Product { Id = "owned-1", LimitedToStores = true, Stores = ["store-1"] };
+        // foreign-1 belongs to other-store
+        var foreignProduct = new Product { Id = "foreign-1", LimitedToStores = true, Stores = ["other-store"] };
+
+        var productServiceMock = new Mock<IProductService>();
+        productServiceMock.Setup(p => p.GetProductById("owned-1")).ReturnsAsync(ownedProduct);
+        productServiceMock.Setup(p => p.GetProductById("foreign-1")).ReturnsAsync(foreignProduct);
+
+        var controller = new TestCategoryController(
+            _categoryServiceMock.Object, _categoryViewModelServiceMock.Object,
+            new Mock<ILanguageService>().Object, _translationServiceMock.Object,
+            new Mock<IPictureViewModelService>().Object, productServiceMock.Object, _scopeMock.Object);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+
+        var model = new CategoryModel.AddCategoryProductModel { CategoryId = "c1", SelectedProductIds = ["owned-1", "foreign-1"] };
+
+        await controller.ProductAddPopup(model);
+
+        _categoryViewModelServiceMock.Verify(v => v.InsertCategoryProductModel(
+            It.Is<CategoryModel.AddCategoryProductModel>(m => m.SelectedProductIds.Length == 1 && m.SelectedProductIds[0] == "owned-1")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupInsert_StoreScope_AllProductsForeign_SkipsInsertEntirely()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var category = new Category { Id = "c1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
+
+        // both products belong to other stores
+        var foreignProduct1 = new Product { Id = "foreign-1", LimitedToStores = true, Stores = ["other-store"] };
+        var foreignProduct2 = new Product { Id = "foreign-2", LimitedToStores = true, Stores = ["another-store"] };
+
+        var productServiceMock = new Mock<IProductService>();
+        productServiceMock.Setup(p => p.GetProductById("foreign-1")).ReturnsAsync(foreignProduct1);
+        productServiceMock.Setup(p => p.GetProductById("foreign-2")).ReturnsAsync(foreignProduct2);
+
+        var controller = new TestCategoryController(
+            _categoryServiceMock.Object, _categoryViewModelServiceMock.Object,
+            new Mock<ILanguageService>().Object, _translationServiceMock.Object,
+            new Mock<IPictureViewModelService>().Object, productServiceMock.Object, _scopeMock.Object);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+
+        var model = new CategoryModel.AddCategoryProductModel { CategoryId = "c1", SelectedProductIds = ["foreign-1", "foreign-2"] };
+
+        await controller.ProductAddPopup(model);
+
+        _categoryViewModelServiceMock.Verify(v => v.InsertCategoryProductModel(It.IsAny<CategoryModel.AddCategoryProductModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductDelete_ProductNotOwnedByScopeStore_ReturnsKendoError()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var product = new Product { Id = "p1", LimitedToStores = true, Stores = ["other-store"] };
+        var productServiceMock = new Mock<IProductService>();
+        productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(product);
+
+        var controller = new TestCategoryController(
+            _categoryServiceMock.Object, _categoryViewModelServiceMock.Object,
+            new Mock<ILanguageService>().Object, _translationServiceMock.Object,
+            new Mock<IPictureViewModelService>().Object, productServiceMock.Object, _scopeMock.Object);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+
+        var result = await controller.ProductDelete(new CategoryModel.CategoryProductModel { Id = "pc1", ProductId = "p1" });
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _categoryViewModelServiceMock.Verify(v => v.DeleteProductCategoryModel(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductList_ScopeGrantsAccess_ReturnsData()
+    {
+        var category = new Category { Id = "c1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
+
+        var productModel = new CategoryModel.CategoryProductModel { Id = "cp1", ProductId = "p1", ProductName = "Product 1" };
+        _categoryViewModelServiceMock
+            .Setup(v => v.PrepareCategoryProductModel("c1", 1, 10))
+            .ReturnsAsync((new[] { productModel }, 1));
+
+        var result = await _controller.ProductList(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNull(gridModel.Errors);
+        Assert.AreEqual(1, gridModel.Total);
+        Assert.IsNotNull(gridModel.Data);
     }
 }
