@@ -110,4 +110,119 @@ public class BaseCategoryControllerTests
 
         Assert.AreEqual("store-1", model.SearchStoreId);
     }
+
+    // --- Edit (GET) --------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task EditGet_CategoryNotFound_RedirectsToList()
+    {
+        _categoryServiceMock.Setup(c => c.GetCategoryById("missing")).ReturnsAsync((Category)null);
+
+        var result = await _controller.Edit("missing");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _scopeMock.Verify(s => s.CanView(It.IsAny<Category>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EditGet_ScopeDeniesView_RedirectsToList()
+    {
+        var category = new Category { Id = "c1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.CanView(category)).ReturnsAsync(false);
+
+        var result = await _controller.Edit("c1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task EditGet_ScopeAllowsView_ReturnsViewWithModel()
+    {
+        var category = new Category { Id = "c1", Name = "Widgets" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.CanView(category)).ReturnsAsync(true);
+        var languageServiceMock = new Mock<ILanguageService>();
+        _categoryViewModelServiceMock
+            .Setup(v => v.PrepareCategoryModel(It.IsAny<CategoryModel>(), category, null))
+            .ReturnsAsync((CategoryModel m, Category c, string s) => m);
+
+        var result = await _controller.Edit("c1");
+
+        var view = result as ViewResult;
+        Assert.IsNotNull(view);
+        Assert.AreEqual("Widgets", ((CategoryModel)view.Model).Name);
+    }
+
+    // --- Edit (POST) -------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task EditPost_ScopeDeniesAccess_RedirectsToEdit()
+    {
+        var category = new Category { Id = "c1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(false);
+
+        var result = await _controller.Edit(new CategoryModel { Id = "c1" }, false);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        _categoryViewModelServiceMock.Verify(v => v.UpdateCategoryModel(It.IsAny<Category>(), It.IsAny<CategoryModel>()), Times.Never);
+    }
+
+    // --- Delete --------------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task Delete_ScopeDeniesAccess_RedirectsToEditWithoutDeleting()
+    {
+        var category = new Category { Id = "c1" };
+        _categoryServiceMock.Setup(c => c.GetCategoryById("c1")).ReturnsAsync(category);
+        _scopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(false);
+
+        var result = await _controller.Delete("c1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.AreEqual("c1", redirect.RouteValues["id"]);
+        _categoryViewModelServiceMock.Verify(v => v.DeleteCategory(It.IsAny<Category>()), Times.Never);
+    }
+
+    // --- Create (POST) ------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task CreatePost_StoreScoped_ForcesModelStores()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var inserted = new Category { Id = "new-1" };
+        _categoryViewModelServiceMock
+            .Setup(v => v.InsertCategoryModel(It.IsAny<CategoryModel>()))
+            .ReturnsAsync(inserted)
+            .Callback<CategoryModel>(m => Assert.AreSequenceEqual(new[] { "store-1" }, m.Stores));
+
+        await _controller.Create(new CategoryModel { Name = "N" }, false);
+
+        _categoryViewModelServiceMock.Verify(v => v.InsertCategoryModel(It.IsAny<CategoryModel>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CreatePost_GlobalScoped_LeavesModelStoresUntouched()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        var inserted = new Category { Id = "new-1" };
+        var submitted = new CategoryModel { Name = "N", Stores = ["explicit-store"] };
+        _categoryViewModelServiceMock
+            .Setup(v => v.InsertCategoryModel(It.IsAny<CategoryModel>()))
+            .ReturnsAsync(inserted)
+            .Callback<CategoryModel>(m => Assert.AreSequenceEqual(new[] { "explicit-store" }, m.Stores));
+
+        await _controller.Create(submitted, false);
+
+        _categoryViewModelServiceMock.Verify(v => v.InsertCategoryModel(It.IsAny<CategoryModel>()), Times.Once);
+    }
 }
