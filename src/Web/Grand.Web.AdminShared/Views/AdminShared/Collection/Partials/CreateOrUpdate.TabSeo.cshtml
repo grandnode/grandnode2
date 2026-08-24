@@ -37,7 +37,7 @@
 }
 
 <div class="form-horizontal">
-    <vc:admin-widget widget-zone="collection_details_seo_top" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.SEO.Top" model="Model"/>
     <localized-editor localized-template="@template" name="collection-seo-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
         <div class="form-body">
             <div class="form-group">

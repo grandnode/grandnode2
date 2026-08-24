@@ -2,8 +2,9 @@
 @{
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Collections.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaStore" asp-controller="Collection" asp-action="Create" method="post" id="collection-form">
+<form asp-area="@area" asp-controller="Collection" asp-action="Create" method="post" id="collection-form">
 
     <div class="row">
         <div class="col-md-12">
@@ -24,7 +25,7 @@
                             <button class="btn btn-success" type="submit" name="save-continue">
                                 <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                             </button>
-                            <vc:admin-widget widget-zone="collection_details_buttons" additional-data="null"/>
+                            <partial name="Partials/WidgetZone.DetailsButtons"/>
                         </div>
                     </div>
                 </div>
