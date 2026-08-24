@@ -61,7 +61,7 @@ public abstract class BaseCategoryController(
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, CategoryListModel model)
     {
-        model.SearchStoreId = scope.DefaultStoreId;
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
         var categories = await categoryViewModelService.PrepareCategoryListModel(model, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = categories.categoryListModel,
@@ -320,7 +320,7 @@ public abstract class BaseCategoryController(
     public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command, CategoryModel.AddCategoryProductModel model)
     {
         var gridModel = new DataSourceResult();
-        model.SearchStoreId = scope.DefaultStoreId;
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
         var products = await categoryViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         gridModel.Data = products.products.ToList();
         gridModel.Total = products.totalCount;

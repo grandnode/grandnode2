@@ -112,6 +112,20 @@ public class BaseCategoryControllerTests
         Assert.AreEqual("store-1", model.SearchStoreId);
     }
 
+    [TestMethod]
+    public async Task ListPost_GlobalScope_LeavesSubmittedSearchStoreIdUntouched()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _categoryViewModelServiceMock
+            .Setup(v => v.PrepareCategoryListModel(It.IsAny<CategoryListModel>(), 1, 10))
+            .ReturnsAsync((Enumerable.Empty<CategoryModel>(), 0));
+
+        var model = new CategoryListModel { SearchStoreId = "admin-submitted-store" };
+        await _controller.List(new DataSourceRequest { Page = 1, PageSize = 10 }, model);
+
+        Assert.AreEqual("admin-submitted-store", model.SearchStoreId);
+    }
+
     // --- Edit (GET) --------------------------------------------------------------------------------
 
     [TestMethod]
@@ -469,6 +483,20 @@ public class BaseCategoryControllerTests
         await controller.ProductAddPopup(model);
 
         _categoryViewModelServiceMock.Verify(v => v.InsertCategoryProductModel(It.IsAny<CategoryModel.AddCategoryProductModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupList_GlobalScope_LeavesSubmittedSearchStoreIdUntouched()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _categoryViewModelServiceMock
+            .Setup(v => v.PrepareProductModel(It.IsAny<CategoryModel.AddCategoryProductModel>(), 1, 10))
+            .ReturnsAsync((new List<ProductModel>(), 0));
+
+        var model = new CategoryModel.AddCategoryProductModel { SearchStoreId = "admin-submitted-store" };
+        await _controller.ProductAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 }, model);
+
+        Assert.AreEqual("admin-submitted-store", model.SearchStoreId);
     }
 
     [TestMethod]
