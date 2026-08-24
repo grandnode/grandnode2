@@ -1,0 +1,25 @@
+@model ProductModel
+<partial name="Partials/WidgetZone.Discounts.Top" model="Model"/>
+@if (Model.AvailableDiscounts is { Count: > 0 })
+{
+    <div class="mt-checkbox-list">
+        @foreach (var discount in Model.AvailableDiscounts)
+        {
+            <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                <input type="checkbox" name="SelectedDiscountIds" value="@discount.Id"
+                       @if (Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id))
+                       {
+                           <text> checked="checked" </text>
+                       }/>@discount.Name
+                <div class="control__indicator"></div>
+            </label>
+        }
+    </div>
+}
+else
+{
+    <div class="note note-info">
+        @Html.Raw(Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Collections.Discounts.NoDiscounts"])
+    </div>
+}
+<partial name="Partials/WidgetZone.Discounts.Bottom" model="Model"/>

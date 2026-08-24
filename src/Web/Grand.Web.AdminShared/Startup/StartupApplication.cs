@@ -1,5 +1,6 @@
 using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.Drivers.FileSystem.Extensions;
+using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Services;
@@ -58,6 +59,17 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IElFinderViewModelService, ElFinderViewModelService>();
         services.AddScoped<IMenuViewModelService, MenuViewModelService>();
 
+        // IAdminDataScope<Product>: registered once here (not per-host) via a route-driven resolver.
+        // Grand.Web (the combined host) references Admin, Store, and Vendor together in one DI
+        // container, so three competing AddScoped<IAdminDataScope<Product>, X>() calls (one per host's
+        // own StartupApplication) would just have the last-registered host silently win for every
+        // area - see RoutedProductDataScope's doc comment for the NullReferenceException this caused.
+        // The three concrete scopes are registered as themselves so the resolver can pick between them
+        // per-request based on the "area" route value.
+        services.AddScoped<GlobalAdminDataScope<Product>>();
+        services.AddScoped<StoreAdminDataScope<Product>>();
+        services.AddScoped<VendorProductDataScope>();
+        services.AddScoped<IAdminDataScope<Product>, RoutedProductDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

@@ -1,0 +1,38 @@
+@model ProductModel
+@{
+    //page title
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="Product" asp-action="Create" method="post" id="product-form">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cube"></i>
+                        @Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AddNew"]
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BackToList"], "List")
+                        </small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
+                            </button>
+                            <partial name="Partials/WidgetZone.DetailsButtons"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,4 +1,6 @@
-﻿using Grand.Web.Common.Themes;
+using Grand.Web.Common.Themes;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -7,6 +9,13 @@ namespace Grand.Web.Common.View;
 public class ViewLocationExpander : IViewLocationExpander
 {
     private const string ThemeKey = "Theme";
+    // Nested under /Views/AdminShared/ deliberately: a Razor view's compiled path is a global lookup
+    // key across every ApplicationPart, and the shallow /Views/{1}/{0}.cshtml form collided with the
+    // combined Grand.Web host's own storefront views (/Views/_ViewStart.cshtml,
+    // /Views/Product/Partials/ProductAttributes.cshtml). The AdminShared segment is unowned by any
+    // other project, so shared entity folders added in later phases cannot collide.
+    private const string AdminSharedFallbackLocation = "/Views/AdminShared/{1}/{0}.cshtml";
+    private const string AdminSharedControllersNamespace = "Grand.Web.AdminShared.Controllers";
 
     public void PopulateValues(ViewLocationExpanderContext context)
     {
@@ -21,11 +30,28 @@ public class ViewLocationExpander : IViewLocationExpander
     public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context,
         IEnumerable<string> viewLocations)
     {
-        if (!context.Values.TryGetValue(ThemeKey, out var _)) return viewLocations;
+        if (context.Values.TryGetValue(ThemeKey, out _))
+        {
+            var viewFactory = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IViewFactory>();
+            viewFactory.GetViewPath(context.AreaName ?? "", ref viewLocations);
+        }
 
-        var viewFactory = context.ActionContext.HttpContext.RequestServices.GetRequiredService<IViewFactory>();
-        viewFactory.GetViewPath(context.AreaName ?? "", ref viewLocations);
+        if (IsAdminSharedController(context.ActionContext.ActionDescriptor))
+            viewLocations = viewLocations.Append(AdminSharedFallbackLocation);
 
         return viewLocations;
+    }
+
+    /// <summary>Whether the executing action's controller type (or any base type) lives in
+    /// Grand.Web.AdminShared.Controllers. Generic by design — no per-entity base-controller
+    /// list to maintain: the moment a future Base*Controller (Order, Category, ...) lands in
+    /// that namespace, its host subclasses get the AdminShared view fallback automatically.</summary>
+    internal static bool IsAdminSharedController(ActionDescriptor descriptor)
+    {
+        if (descriptor is not ControllerActionDescriptor cad) return false;
+        for (var t = cad.ControllerTypeInfo.AsType(); t is not null; t = t.BaseType)
+            if (t.Namespace == AdminSharedControllersNamespace)
+                return true;
+        return false;
     }
 }

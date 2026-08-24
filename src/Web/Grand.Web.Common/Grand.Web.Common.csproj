@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\..\Build\Grand.Common.props" />
 	<ItemGroup>
+		<InternalsVisibleTo Include="Grand.Web.Common.Tests" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" />
 		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" />
 		<PackageReference Include="Azure.Identity" />
