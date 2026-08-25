@@ -202,4 +202,133 @@ public abstract class BaseOrderManagementController(
     }
 
     #endregion
+
+    #region Order items
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SaveOrderItem(string id, OrderItemsModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(id);
+        if (denied != null) return denied;
+
+        if (order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
+        {
+            Error("You can't edit position when order is canceled");
+            return RedirectToAction("Edit", "Order", new { id });
+        }
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId)
+            ?? throw new ArgumentException("No order item found with the specified id");
+        var itemModel = model.Items.FirstOrDefault(x => x.Id == model.OrderItemId)
+            ?? throw new ArgumentException("No order item model found with the specified id");
+
+        if (itemModel.Quantity == 0 || (orderItem.OpenQty != orderItem.Quantity && orderItem.IsShipEnabled))
+        {
+            Error("You can't change quantity");
+            return RedirectToAction("Edit", "Order", new { id });
+        }
+
+        if (orderItem.Quantity == itemModel.Quantity && orderItem.UnitPriceExclTax == itemModel.UnitPriceExclTaxValue)
+        {
+            Error("Nothing has been changed");
+            return RedirectToAction("Edit", "Order", new { id });
+        }
+
+        orderItem.Quantity = itemModel.Quantity;
+        orderItem.OpenQty = itemModel.Quantity;
+
+        if (orderItem.UnitPriceExclTax != itemModel.UnitPriceExclTaxValue)
+        {
+            orderItem.UnitPriceExclTax = itemModel.UnitPriceExclTaxValue;
+            orderItem.UnitPriceInclTax =
+                Math.Round(orderItem.UnitPriceExclTax * orderItem.TaxRate / 100 + orderItem.UnitPriceExclTax, 2);
+            orderItem.PriceInclTax = Math.Round(orderItem.UnitPriceInclTax * orderItem.Quantity, 2);
+            orderItem.PriceExclTax = Math.Round(orderItem.UnitPriceExclTax * orderItem.Quantity, 2);
+            orderItem.DiscountAmountInclTax = 0;
+            orderItem.DiscountAmountExclTax = 0;
+        }
+        else
+        {
+            orderItem.PriceInclTax = Math.Round(orderItem.UnitPriceInclTax * orderItem.Quantity, 2);
+            orderItem.PriceExclTax = Math.Round(orderItem.UnitPriceExclTax * orderItem.Quantity, 2);
+            orderItem.DiscountAmountInclTax = 0;
+            orderItem.DiscountAmountExclTax = 0;
+        }
+
+        await mediator.Send(new UpdateOrderItemCommand { Order = order, OrderItem = orderItem });
+        await SaveSelectedTabIndex(persistForTheNextRequest: true);
+        return RedirectToAction("Edit", "Order", new { id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> DeleteOrderItem(string id, string orderItemId)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(id);
+        if (denied != null) return denied;
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
+            ?? throw new ArgumentException("No order item found with the specified id");
+        var result = await mediator.Send(new DeleteOrderItemCommand { Order = order, OrderItem = orderItem });
+        if (result.error) Error(result.message);
+
+        await SaveSelectedTabIndex(persistForTheNextRequest: true);
+        return RedirectToAction("Edit", "Order", new { id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> CancelOrderItem(string id, string orderItemId)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(id);
+        if (denied != null) return denied;
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
+            ?? throw new ArgumentException("No order item found with the specified id");
+        var result = await mediator.Send(new CancelOrderItemCommand { Order = order, OrderItem = orderItem });
+        if (result.error) Error(result.message);
+        else Success("The order item was successfully canceled");
+
+        await SaveSelectedTabIndex(persistForTheNextRequest: true);
+        return RedirectToAction("Edit", "Order", new { id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ResetDownloadCount(string id, string orderItemId)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(id);
+        if (denied != null) return denied;
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
+            ?? throw new ArgumentException("No order item found with the specified id");
+        orderItem.DownloadCount = 0;
+        await orderService.UpdateOrder(order);
+        var model = new OrderModel();
+        await orderViewModelService.PrepareOrderDetailsModel(model, order);
+
+        await SaveSelectedTabIndex(persistForTheNextRequest: true);
+        return RedirectToAction("Edit", "Order", new { id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ActivateDownloadItem(string id, string orderItemId)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(id);
+        if (denied != null) return denied;
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
+            ?? throw new ArgumentException("No order item found with the specified id");
+        orderItem.IsDownloadActivated = !orderItem.IsDownloadActivated;
+        await orderService.UpdateOrder(order);
+        var model = new OrderModel();
+        await orderViewModelService.PrepareOrderDetailsModel(model, order);
+
+        await SaveSelectedTabIndex(persistForTheNextRequest: true);
+        return RedirectToAction("Edit", "Order", new { id });
+    }
+
+    #endregion
 }

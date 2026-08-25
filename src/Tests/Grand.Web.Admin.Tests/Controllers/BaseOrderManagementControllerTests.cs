@@ -164,4 +164,43 @@ public class BaseOrderManagementControllerTests
         Assert.AreEqual(99.0, order.OrderTotal);
         _orderServiceMock.Verify(s => s.InsertOrderNote(It.Is<OrderNote>(n => n.Note == "Order totals have been edited")), Times.Once);
     }
+
+    [TestMethod]
+    public async Task SaveOrderItem_ScopeDenies_RedirectsToList_NoCommandSent()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.SaveOrderItem("o1", new OrderItemsModel(new List<OrderItemModel>(), "i1"));
+
+        Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
+        _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateOrderItemCommand>(), default), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SaveOrderItem_OrderCancelled_ErrorsWithoutSendingCommand()
+    {
+        var order = new Order { Id = "o1", OrderStatusId = (int)OrderStatusSystem.Cancelled };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var result = await _controller.SaveOrderItem("o1", new OrderItemsModel(new List<OrderItemModel>(), "i1"));
+
+        Assert.AreEqual("Edit", (result as RedirectToActionResult)?.ActionName);
+        _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateOrderItemCommand>(), default), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DeleteOrderItem_ScopeDenies_RedirectsToList_NoCommandSent()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.DeleteOrderItem("o1", "i1");
+
+        Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
+        _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteOrderItemCommand>(), default), Times.Never);
+    }
 }
