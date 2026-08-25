@@ -111,4 +111,25 @@ public abstract class BaseOrderManagementController(
     }
 
     #endregion
+
+    #region Edit, delete
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> Delete(OrderDeleteModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(model.Id);
+        if (denied != null) return denied;
+
+        if (ModelState.IsValid)
+        {
+            await mediator.Send(new DeleteOrderCommand { Order = order });
+            return RedirectToAction("List");
+        }
+
+        Error(ModelState);
+        return RedirectToAction("Edit", "Order", new { model.Id });
+    }
+
+    #endregion
 }

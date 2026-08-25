@@ -109,4 +109,31 @@ public class BaseOrderManagementControllerTests
         Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
         _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
     }
+
+    [TestMethod]
+    public async Task Delete_ScopeDenies_RedirectsToList_NoDeleteCommand()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.Delete(new OrderDeleteModel("o1"));
+
+        Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
+        _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteOrderCommand>(), default), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Delete_Authorized_ValidModel_SendsDeleteCommand()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var result = await _controller.Delete(new OrderDeleteModel("o1"));
+
+        Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
+        _mediatorMock.Verify(m => m.Send(
+            It.Is<DeleteOrderCommand>(c => c.Order == order), default), Times.Once);
+    }
 }
