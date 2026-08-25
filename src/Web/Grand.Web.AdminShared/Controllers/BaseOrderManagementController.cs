@@ -112,6 +112,76 @@ public abstract class BaseOrderManagementController(
 
     #endregion
 
+    #region Order totals / shipping / user fields
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> EditOrderTotals(string id, OrderModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(id);
+        if (denied != null) return denied;
+
+        order.OrderSubtotalInclTax = model.OrderSubtotalInclTaxValue;
+        order.OrderSubtotalExclTax = model.OrderSubtotalExclTaxValue;
+        order.OrderSubTotalDiscountInclTax = model.OrderSubTotalDiscountInclTaxValue;
+        order.OrderSubTotalDiscountExclTax = model.OrderSubTotalDiscountExclTaxValue;
+        order.OrderShippingInclTax = model.OrderShippingInclTaxValue;
+        order.OrderShippingExclTax = model.OrderShippingExclTaxValue;
+        order.PaymentMethodAdditionalFeeInclTax = model.PaymentMethodAdditionalFeeInclTaxValue;
+        order.PaymentMethodAdditionalFeeExclTax = model.PaymentMethodAdditionalFeeExclTaxValue;
+        order.OrderTax = model.TaxValue;
+        order.OrderDiscount = model.OrderTotalDiscountValue;
+        order.OrderTotal = model.OrderTotalValue;
+        order.CurrencyRate = model.CurrencyRate;
+        await orderService.UpdateOrder(order);
+
+        await orderService.InsertOrderNote(new OrderNote {
+            Note = "Order totals have been edited",
+            DisplayToCustomer = false,
+            OrderId = order.Id
+        });
+
+        await orderViewModelService.PrepareOrderDetailsModel(model, order);
+        return RedirectToAction("Edit", "Order", new { id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> EditShippingMethod(string id, OrderModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(id);
+        if (denied != null) return denied;
+
+        order.ShippingMethod = model.ShippingMethod;
+        await orderService.UpdateOrder(order);
+
+        await orderService.InsertOrderNote(new OrderNote {
+            Note = "Shipping method has been edited",
+            DisplayToCustomer = false,
+            OrderId = order.Id
+        });
+        await orderViewModelService.PrepareOrderDetailsModel(model, order);
+
+        await SaveSelectedTabIndex(persistForTheNextRequest: true);
+        return RedirectToAction("Edit", "Order", new { id });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditUserFields(string id, OrderModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(id);
+        if (denied != null) return denied;
+
+        order.UserFields = model.UserFields;
+        await orderService.UpdateOrder(order);
+        await orderViewModelService.PrepareOrderDetailsModel(model, order);
+
+        await SaveSelectedTabIndex(persistForTheNextRequest: true);
+        return RedirectToAction("Edit", "Order", new { id });
+    }
+
+    #endregion
+
     #region Edit, delete
 
     [PermissionAuthorizeAction(PermissionActionName.Delete)]

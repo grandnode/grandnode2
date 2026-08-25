@@ -136,4 +136,32 @@ public class BaseOrderManagementControllerTests
         _mediatorMock.Verify(m => m.Send(
             It.Is<DeleteOrderCommand>(c => c.Order == order), default), Times.Once);
     }
+
+    [TestMethod]
+    public async Task EditOrderTotals_ScopeDenies_RedirectsToList_NoUpdate()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.EditOrderTotals("o1", new OrderModel());
+
+        Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
+        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EditOrderTotals_Authorized_UpdatesOrderAndInsertsNote()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var model = new OrderModel { OrderTotalValue = 99.0, CurrencyRate = 1.0 };
+        var result = await _controller.EditOrderTotals("o1", model);
+
+        Assert.AreEqual("o1", (result as RedirectToActionResult)?.RouteValues["id"]);
+        Assert.AreEqual(99.0, order.OrderTotal);
+        _orderServiceMock.Verify(s => s.InsertOrderNote(It.Is<OrderNote>(n => n.Note == "Order totals have been edited")), Times.Once);
+    }
 }
