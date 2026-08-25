@@ -331,4 +331,59 @@ public abstract class BaseOrderManagementController(
     }
 
     #endregion
+
+    #region License popup
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> UploadLicenseFilePopup(string id, string orderItemId,
+        [FromServices] Grand.Business.Core.Interfaces.Catalog.Products.IProductService productService)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(id);
+        if (denied != null) return denied;
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
+            ?? throw new ArgumentException("No order item found with the specified id");
+        var product = await productService.GetProductByIdIncludeArch(orderItem.ProductId);
+        if (!product.IsDownload) throw new ArgumentException("Product is not downloadable");
+
+        var model = new OrderModel.UploadLicenseModel {
+            LicenseDownloadId = !string.IsNullOrEmpty(orderItem.LicenseDownloadId) ? orderItem.LicenseDownloadId : "",
+            OrderId = order.Id,
+            OrderItemId = orderItem.Id
+        };
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> UploadLicenseFilePopup(OrderModel.UploadLicenseModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
+        if (denied != null) return denied;
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId)
+            ?? throw new ArgumentException("No order item found with the specified id");
+        orderItem.LicenseDownloadId = !string.IsNullOrEmpty(model.LicenseDownloadId) ? model.LicenseDownloadId : null;
+        await orderService.UpdateOrder(order);
+
+        model.RefreshPage = true;
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> DeleteLicenseFilePopup(OrderModel.UploadLicenseModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
+        if (denied != null) return denied;
+
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId)
+            ?? throw new ArgumentException("No order item found with the specified id");
+        orderItem.LicenseDownloadId = null;
+        await orderService.UpdateOrder(order);
+
+        return RedirectToAction("Edit", "Order", new { id = model.OrderId });
+    }
+
+    #endregion
 }

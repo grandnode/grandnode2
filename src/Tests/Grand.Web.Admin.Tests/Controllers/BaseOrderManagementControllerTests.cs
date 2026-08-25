@@ -203,4 +203,33 @@ public class BaseOrderManagementControllerTests
         Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
         _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteOrderItemCommand>(), default), Times.Never);
     }
+
+    [TestMethod]
+    public async Task UploadLicenseFilePopupGet_ScopeDenies_RedirectsToList()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+        var productServiceMock = new Mock<Grand.Business.Core.Interfaces.Catalog.Products.IProductService>();
+
+        var result = await _controller.UploadLicenseFilePopup("o1", "i1", productServiceMock.Object);
+
+        Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
+    }
+
+    [TestMethod]
+    public async Task DeleteLicenseFilePopup_Authorized_ClearsLicenseAndRedirectsToEdit()
+    {
+        var orderItem = new OrderItem { Id = "i1", LicenseDownloadId = "dl-1" };
+        var order = new Order { Id = "o1" };
+        order.OrderItems.Add(orderItem);
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var result = await _controller.DeleteLicenseFilePopup(
+            new OrderModel.UploadLicenseModel { OrderId = "o1", OrderItemId = "i1" });
+
+        Assert.IsNull(orderItem.LicenseDownloadId);
+        Assert.AreEqual("Edit", (result as RedirectToActionResult)?.ActionName);
+    }
 }
