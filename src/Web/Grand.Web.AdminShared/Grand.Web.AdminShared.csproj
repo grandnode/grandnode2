@@ -9,6 +9,7 @@
     <ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj" />
     <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
     <ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
+    <ProjectReference Include="..\Grand.SharedUIResources\Grand.SharedUIResources.csproj" />
   </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="elFinder.Net.AspNetCore" />
