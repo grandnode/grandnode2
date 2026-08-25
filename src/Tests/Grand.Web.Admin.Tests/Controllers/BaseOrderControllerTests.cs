@@ -184,4 +184,96 @@ public class BaseOrderControllerTests
         Assert.AreSame(order, resultOrder);
         Assert.IsNull(denied);
     }
+
+    [TestMethod]
+    public async Task EditGet_NotFound_RedirectsToList()
+    {
+        _orderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Order)null);
+
+        var result = await _controller.Edit("missing");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task EditGet_Deleted_RedirectsToList()
+    {
+        var order = new Order { Id = "o1", Deleted = true };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var result = await _controller.Edit("o1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task EditGet_ScopeDenies_RedirectsToList()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.Edit("o1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task EditGet_Authorized_ReturnsViewAndCallsPrepareOrderDetailsModel()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var result = await _controller.Edit("o1");
+
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        _orderViewModelServiceMock.Verify(v => v.PrepareOrderDetailsModel(It.IsAny<OrderModel>(), order), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductSearchAutoComplete_VendorScope_ForcesVendorIdIntoSearch()
+    {
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor-A");
+        // NOTE: brief's test used named-argument Setup/Verify calls (storeId:/vendorId:/keywords:/
+        // pageSize:/showHidden:), which don't compile: (1) named arguments inside a Moq Setup
+        // expression tree must appear in the same relative order as the method's declared parameter
+        // list - the brief's order (storeId, vendorId, keywords, pageSize, showHidden) puts pageSize
+        // (declared 3rd) after storeId/vendorId/keywords (declared 7th/8th/18th), which the compiler
+        // rejects as CS9307 "named argument specification out of position"; and (2) IProductService.
+        // SearchProducts actually returns Task<(IPagedList<Product>, IList<string>)>, not
+        // Task<(List<Product>, int)> as the brief's ReturnsAsync assumed. Rewritten below as a fully
+        // positional call (all 27 parameters, It.IsAny<T>() for the ones this test doesn't care
+        // about) to test the same behavior: the controller forces scope.DefaultVendorId into the
+        // vendorId slot alongside the caller-supplied term/pageSize/showHidden.
+        var productServiceMock = new Mock<Grand.Business.Core.Interfaces.Catalog.Products.IProductService>();
+        var pagedProducts = (Grand.Domain.IPagedList<Grand.Domain.Catalog.Product>)
+            new Grand.Domain.PagedList<Grand.Domain.Catalog.Product>(new List<Grand.Domain.Catalog.Product>(), 0, 15);
+        productServiceMock
+            .Setup(p => p.SearchProducts(
+                It.IsAny<bool>(), It.IsAny<int>(), 15, It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<string>(),
+                null, "vendor-A", It.IsAny<string>(), It.IsAny<Grand.Domain.Catalog.ProductType?>(), It.IsAny<bool>(),
+                It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(), It.IsAny<double?>(), It.IsAny<double?>(),
+                It.IsAny<string>(), "abc", It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(),
+                It.IsAny<IList<string>>(), It.IsAny<IList<string>>(), It.IsAny<Grand.Domain.Catalog.ProductSortingEnum>(),
+                true, It.IsAny<bool?>()))
+            .ReturnsAsync((pagedProducts, (IList<string>)new List<string>()));
+
+        await _controller.ProductSearchAutoComplete("abc", productServiceMock.Object);
+
+        productServiceMock.Verify(p => p.SearchProducts(
+            It.IsAny<bool>(), It.IsAny<int>(), 15, It.IsAny<IList<string>>(), It.IsAny<string>(), It.IsAny<string>(),
+            null, "vendor-A", It.IsAny<string>(), It.IsAny<Grand.Domain.Catalog.ProductType?>(), It.IsAny<bool>(),
+            It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(), It.IsAny<double?>(), It.IsAny<double?>(),
+            It.IsAny<string>(), "abc", It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(),
+            It.IsAny<IList<string>>(), It.IsAny<IList<string>>(), It.IsAny<Grand.Domain.Catalog.ProductSortingEnum>(),
+            true, It.IsAny<bool?>()), Times.Once);
+    }
 }

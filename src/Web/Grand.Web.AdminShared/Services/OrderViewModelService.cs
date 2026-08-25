@@ -77,6 +77,7 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IOrderStatusService _orderStatusService;
     private readonly IMediator _mediator;
     private readonly IEnumTranslationService _enumTranslationService;
+    private readonly IAdminDataScope<Order> _scope;
 
     #endregion
 
@@ -116,7 +117,8 @@ public class OrderViewModelService : IOrderViewModelService
         IOrderTagService orderTagService,
         IOrderStatusService orderStatusService,
         IMediator mediator,
-        IProductAttributeFormatter productAttributeFormatter, IEnumTranslationService enumTranslationService)
+        IProductAttributeFormatter productAttributeFormatter, IEnumTranslationService enumTranslationService,
+        IAdminDataScope<Order> scope)
     {
         _orderService = orderService;
         _pricingService = priceCalculationService;
@@ -154,6 +156,7 @@ public class OrderViewModelService : IOrderViewModelService
         _mediator = mediator;
         _productAttributeFormatter = productAttributeFormatter;
         _enumTranslationService = enumTranslationService;
+        _scope = scope;
     }
 
     #endregion
@@ -345,58 +348,70 @@ public class OrderViewModelService : IOrderViewModelService
         model.OrderGuid = order.OrderGuid;
 
         var status = await _orderStatusService.GetAll();
-        model.OrderStatuses =
-            status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
+        if (_scope.DefaultVendorId is null)
+            model.OrderStatuses =
+                status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
         model.OrderStatus = status.FirstOrDefault(x => x.StatusId == order.OrderStatusId)?.Name;
 
         var store = await _storeService.GetStoreById(order.StoreId);
         model.StoreName = store != null ? store.Shortcut : "Unknown";
-        model.CustomerId = order.CustomerId;
+        if (_scope.DefaultVendorId is null)
+            model.CustomerId = order.CustomerId;
         model.UserFields = order.UserFields;
 
         var customer = await _customerService.GetCustomerById(order.CustomerId);
         if (customer != null)
             model.CustomerInfo = !string.IsNullOrEmpty(customer.Email)
                 ? customer.Email
-                : _translationService.GetResource("Admin.Customers.Guest");
+                : _translationService.GetResource($"{_scope.ResourceKeyPrefix}.Customers.Guest");
 
-        model.CustomerIp = order.CustomerIp;
+        if (_scope.DefaultVendorId is null)
+            model.CustomerIp = order.CustomerIp;
         model.VatNumber = order.VatNumber;
         model.CreatedOn = _dateTimeService.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
         model.TaxDisplayType = _taxSettings.TaxDisplayType;
 
-        if (!string.IsNullOrEmpty(order.AffiliateId))
+        if (_scope.DefaultVendorId is null)
         {
-            var affiliate = await _affiliateService.GetAffiliateById(order.AffiliateId);
-            if (affiliate != null)
+            if (!string.IsNullOrEmpty(order.AffiliateId))
             {
-                model.AffiliateId = affiliate.Id;
-                model.AffiliateName = affiliate.GetFullName();
+                var affiliate = await _affiliateService.GetAffiliateById(order.AffiliateId);
+                if (affiliate != null)
+                {
+                    model.AffiliateId = affiliate.Id;
+                    model.AffiliateName = affiliate.GetFullName();
+                }
             }
         }
 
-        if (!string.IsNullOrEmpty(order.SeId))
+        if (_scope.DefaultVendorId is null)
         {
-            var salesEmployee = await _salesEmployeeService.GetSalesEmployeeById(order.SeId);
-            if (salesEmployee != null)
+            if (!string.IsNullOrEmpty(order.SeId))
             {
-                model.SalesEmployeeId = salesEmployee.Id;
-                model.SalesEmployeeName = salesEmployee.Name;
+                var salesEmployee = await _salesEmployeeService.GetSalesEmployeeById(order.SeId);
+                if (salesEmployee != null)
+                {
+                    model.SalesEmployeeId = salesEmployee.Id;
+                    model.SalesEmployeeName = salesEmployee.Name;
+                }
             }
         }
 
         //order's tags
-        if (order.OrderTags.Any())
+        if (_scope.DefaultVendorId is null)
         {
-            var tagsName = new List<string>();
-            foreach (var item in order.OrderTags)
+            if (order.OrderTags.Any())
             {
-                var tag = await _orderTagService.GetOrderTagById(item);
-                if (tag != null)
-                    tagsName.Add(tag.Name);
-            }
+                var tagsName = new List<string>();
+                foreach (var item in order.OrderTags)
+                {
+                    var tag = await _orderTagService.GetOrderTagById(item);
+                    if (tag != null)
+                        tagsName.Add(tag.Name);
+                }
 
-            model.OrderTags = string.Join(",", tagsName);
+                model.OrderTags = string.Join(",", tagsName);
+            }
         }
 
         #region Order totals
@@ -693,7 +708,7 @@ public class OrderViewModelService : IOrderViewModelService
 
         model.CheckoutAttributeInfo = order.CheckoutAttributeDescription;
         var hasDownloadableItems = false;
-        var products = order.OrderItems;
+        var products = _scope.FilterOrderItems(order.OrderItems);
         foreach (var orderItem in products)
         {
             var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
