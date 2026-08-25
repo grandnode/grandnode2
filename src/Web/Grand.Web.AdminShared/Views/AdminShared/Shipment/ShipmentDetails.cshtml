@@ -1,4 +1,4 @@
-﻿@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Business.Core.Interfaces.Common.Security
 @using Grand.Domain.Permissions
 @model ShipmentModel
 @inject IPermissionService permissionService
@@ -6,8 +6,9 @@
     //page title
     ViewBag.Title = Loc["Admin.Orders.Shipments.ViewDetails"];
     var canManageDocuments = await permissionService.Authorize(StandardPermission.ManageDocuments);
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Shipment" asp-action="ShipmentDetails" method="post">
+<form asp-area="@area" asp-controller="Shipment" asp-action="ShipmentDetails" method="post">
     <input type="hidden" asp-for="Id"/>
     <script>
         $(document).ready(function () {
@@ -64,13 +65,13 @@
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <a href="@Url.Action("PdfPackagingSlip", new { shipmentId = Model.Id, area = Constants.AreaAdmin })" class="btn purple">
+                            <a href="@Url.Action("PdfPackagingSlip", new { shipmentId = Model.Id, area = area })" class="btn purple">
                                 <i class="fa fa-file-pdf-o"></i> @Loc["Admin.Orders.Shipments.PrintPackagingSlip"]
                             </a>
                             <span id="shipment-delete" class="btn red">
                                 <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
                             </span>
-                            <vc:admin-widget widget-zone="order_shipment_details_buttons" additional-data="Model"/>
+                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>
                     </div>
                 </div>
@@ -113,7 +114,7 @@
                                     </div>
                                 </content>
                             </tabstrip-item>
-                            <vc:admin-widget widget-zone="order_shipment_details_tabs" additional-data="Model"/>
+                            <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
                         </items>
                     </admin-tabstrip>
                 </div>

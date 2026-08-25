@@ -1,15 +1,16 @@
-﻿@using Grand.Domain.Media
+@using Grand.Domain.Media
 @model ShipmentModel
 @{
     ViewData["DownloadType"] = DownloadType.Shipment;
     ViewData["ReferenceId"] = Model.Id;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 <div class="panel panel-default">
-    <vc:admin-widget widget-zone="order_shipment_details_notes_top" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.Notes.Top" model="Model"/>
     <div class="panel-body">
         <div id="shipmentnotes-grid"></div>
     </div>
-    <vc:admin-widget widget-zone="order_shipment_details_notes_bottom" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.Notes.Bottom" model="Model"/>
 </div>
 <script>
         $(document).ready(function () {
@@ -17,13 +18,13 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ShipmentNotesSelect", "Shipment", new { shipmentId = Model.Id, area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("ShipmentNotesSelect", "Shipment", new { shipmentId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("ShipmentNoteDelete", "Shipment", new { shipmentId = Model.Id, area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("ShipmentNoteDelete", "Shipment", new { shipmentId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -78,7 +79,7 @@
                     field: "DownloadId",
                     title: "@Loc["Admin.Orders.Shipments.ShipmentNotes.Download"]",
                     width: 100,
-                    template: '# if(DownloadId != "") {# <a href="@Url.Action("DownloadFile", "Download", new { area = Constants.AreaAdmin })/?downloadGuid=#=DownloadGuid#">@Loc["Admin.Orders.OrderNotes.Fields.Download.Link"]</a> #} else {# @Loc["Admin.Orders.OrderNotes.Fields.Download.Link.No"] #} #'
+                    template: '# if(DownloadId != "") {# <a href="@Url.Action("DownloadFile", "Download", new { area = area })/?downloadGuid=#=DownloadGuid#">@Loc["Admin.Orders.OrderNotes.Fields.Download.Link"]</a> #} else {# @Loc["Admin.Orders.OrderNotes.Fields.Download.Link.No"] #} #'
                 }, {
                     field: "CreatedByCustomer",
                     title: "@Loc["Admin.Orders.Shipments.ShipmentNotes.CreatedByCustomer"]",
@@ -187,7 +188,7 @@
             $.ajax({
                 cache:false,
                 type: "POST",
-                url: "@(Url.Action("ShipmentNoteAdd", "Shipment", new { area = Constants.AreaAdmin }))",
+                url: "@(Url.Action("ShipmentNoteAdd", "Shipment", new { area = area }))",
                 data: postData,
                 success: function (data) {
                     var grid = $("#shipmentnotes-grid").data('kendoGrid');

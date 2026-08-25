@@ -1,4 +1,7 @@
-﻿@model ShipmentModel
+@model ShipmentModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 <div>
     <div class="form-horizontal">
         <div class="form-body">
@@ -6,7 +9,7 @@
                 <admin-label asp-for="OrderId"/>
                 <div class="col-md-9 col-sm-9">
                     <label class="control-label">
-                        <a href="@Url.Action("Edit", "Order", new { Id = Model.OrderId, area = Constants.AreaStore })">@Model.OrderNumber - @Loc["Admin.Common.View"]</a>
+                        <a href="@Url.Action("Edit", "Order", new { Id = Model.OrderId, area = area })">@Model.OrderNumber - @Loc["Admin.Common.View"]</a>
                     </label>
                 </div>
             </div>
@@ -140,7 +143,7 @@
                         <td>
                             <div style="padding-left: 10px; padding-right: 10px;">
                                 <em>
-                                        <a href="@Url.Action("Edit", "Product", new { id = item.ProductId, area = Constants.AreaStore })">@item.ProductName</a>
+                                    <a href="@Url.Action("Edit", "Product", new { id = item.ProductId, area = area })">@item.ProductName</a>
                                 </em>
                                 @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                 {

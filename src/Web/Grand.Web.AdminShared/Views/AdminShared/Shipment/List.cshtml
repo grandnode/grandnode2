@@ -1,10 +1,11 @@
-﻿@model ShipmentListModel
+@model ShipmentListModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     ViewBag.Title = Loc["Admin.Orders.Shipments.List"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<form asp-area="@Constants.AreaStore" asp-controller="Shipment" asp-action="List" method="post">
+<form asp-area="@area" asp-controller="Shipment" asp-action="List" method="post">
 
     <div class="row">
         <div class="col-md-12">
@@ -30,7 +31,7 @@
                             <button class="btn btn-success" type="submit" id="deliver-selected">
                                 <i class="fa fa-check-circle"></i> @Loc["Admin.Orders.Shipments.DeliverySelected"]
                             </button>
-                            <vc:admin-widget widget-zone="order_shipment_list_buttons" additional-data="null"/>
+                            <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
                         </div>
                     </div>
                 </div>
@@ -99,7 +100,7 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ShipmentListSelect", "Shipment", new { area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("ShipmentListSelect", "Shipment", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: additionalData
@@ -137,17 +138,17 @@
                     field: "ShipmentNumber",
                     title: "@Loc["Admin.Orders.Shipments.ID"]",
                     width: 100,
-                    template: '<a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaStore })/#=Id#">#=ShipmentNumber#</a>'
+                    template: '<a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/#=Id#">#=ShipmentNumber#</a>'
                 }, {
                     field: "OrderNumber",
                     title: "@Loc["Admin.Orders.Shipments.OrderID"]",
                     width: 100,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaStore })/#=OrderId#">#=OrderNumber#</a>'
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/#=OrderId#">#=OrderNumber#</a>'
                 }, {
                     field: "TrackingNumber",
                     title: "@Loc["Admin.Orders.Shipments.TrackingNumber"]",
                     width: 100,
-                    template: '<a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaStore })/#=Id#">#=kendo.htmlEncode(TrackingNumber)#</a>'
+                    template: '<a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/#=Id#">#=kendo.htmlEncode(TrackingNumber)#</a>'
                 }, {
                     field: "TotalWeight",
                     title: "@Loc["Admin.Orders.Shipments.TotalWeight"]",
@@ -174,7 +175,7 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ShipmentsItemsByShipmentId", "Shipment", new { area = Constants.AreaStore }))?shipmentId="+e.data.Id,
+                            url: "@Html.Raw(Url.Action("ShipmentsItemsByShipmentId", "Shipment", new { area = area }))?shipmentId="+e.data.Id,
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -241,7 +242,7 @@
                 $.ajax({
                     cache: false,
                     type: "GET",
-                    url: "@(Url.Action("GetStatesByCountryId", "Home", new { area = Constants.AreaStore }))",
+                    url: "@(Url.Action("GetStatesByCountryId", "Home", new { area = area }))",
                     data: { "countryId": selectedItem, "addAsterisk": "true" },
                     success: function (data) {
                         ddlStates.html('');
@@ -287,7 +288,7 @@
                 $.ajax({
                     cache: false,
                     type: "POST",
-                    url: "@(Url.Action("SetAsShippedSelected", "Shipment", new { area = Constants.AreaStore }))",
+                    url: "@(Url.Action("SetAsShippedSelected", "Shipment", new { area = area }))",
                     data: postData,
                     complete: function(data) {
                         var grid = $('#shipments-grid').data('kendoGrid');
@@ -312,7 +313,7 @@
                 $.ajax({
                     cache: false,
                     type: "POST",
-                    url: "@(Url.Action("SetAsDeliveredSelected", "Shipment", new { area = Constants.AreaStore }))",
+                    url: "@(Url.Action("SetAsDeliveredSelected", "Shipment", new { area = area }))",
                     data: postData,
                     complete: function(data) {
                         var grid = $('#shipments-grid').data('kendoGrid');
@@ -384,7 +385,7 @@
     </script>
 
 </form>
-<form asp-area="@Constants.AreaStore" asp-controller="Shipment" asp-action="PdfPackagingSlipSelected" method="post" id="pdf-packaging-slip-selected-form">
+<form asp-area="@area" asp-controller="Shipment" asp-action="PdfPackagingSlipSelected" method="post" id="pdf-packaging-slip-selected-form">
 
     <input type="hidden" id="selectedIds" name="selectedIds" value=""/>
 </form>

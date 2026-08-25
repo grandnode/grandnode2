@@ -1,9 +1,13 @@
-﻿@model ShipmentModel
+@using Grand.Domain.Shipping
+@model ShipmentModel
+@inject IAdminDataScope<Shipment> Scope
 @{
     //page title
-    ViewBag.Title = string.Format(Loc["Vendor.Orders.Shipments.AddNew.Title"], Model.OrderId);
+    var prefix = Scope.ResourceKeyPrefix;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    ViewBag.Title = string.Format(Loc[$"{prefix}.Orders.Shipments.AddNew.Title"], Model.OrderId);
 }
-<form asp-area="@Constants.AreaVendor" asp-controller="Shipment" asp-action="AddShipment" method="post"
+<form asp-area="@area" asp-controller="Shipment" asp-action="AddShipment" method="post"
       asp-route-orderId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["orderId"])">
 
     <div asp-validation-summary="All"></div>
@@ -13,21 +17,21 @@
             <div class="x_title">
                 <div class="caption">
                     <i class="fa fa-truck"></i>
-                    @string.Format(Loc["Vendor.Orders.Shipments.AddNew.Title"], Model.OrderNumber)
+                    @string.Format(Loc[$"{prefix}.Orders.Shipments.AddNew.Title"], Model.OrderNumber)
                     <small>
                         <i class="fa fa-arrow-circle-left"></i>
-                        @Html.ActionLink(Loc["Vendor.Orders.Shipments.BackToOrder"], "Edit", "Order", new { Id = Model.OrderId })
+                        @Html.ActionLink(Loc[$"{prefix}.Orders.Shipments.BackToOrder"], "Edit", "Order", new { Id = Model.OrderId })
                     </small>
                 </div>
                 <div class="actions">
                     <div class="btn-group btn-group-devided">
                         <button class="btn btn-success" type="submit" id="shipment-save" name="save">
-                            <i class="fa fa-check"></i> @Loc["Vendor.Common.Save"]
+                            <i class="fa fa-check"></i> @Loc[$"{prefix}.Common.Save"]
                         </button>
                         <button class="btn btn-success" type="submit" id="shipment-save-continue" name="save-continue">
-                            <i class="fa fa-check-circle"></i> @Loc["Vendor.Common.SaveContinue"]
+                            <i class="fa fa-check-circle"></i> @Loc[$"{prefix}.Common.SaveContinue"]
                         </button>
-                        <vc:vendor-widget widget-zone="vendor_order_shipment_add_buttons" additional-data="null"/>
+                        <partial name="Partials/WidgetZone.AddButtons" model="Model"/>
                     </div>
                 </div>
             </div>
@@ -54,7 +58,7 @@
 
 
     <h4>
-        <strong>@Loc["Vendor.Orders.Shipments.Products"]</strong>
+        <strong>@Loc[$"{prefix}.Orders.Shipments.Products"]</strong>
     </h4>
 
     <div class="table-responsive visible-xs-block visible-sm-block visible-md-block visible-lg-block">
@@ -62,28 +66,28 @@
             <thead>
             <tr>
                 <th>
-                    @Loc["Vendor.Orders.Shipments.Products.ProductName"]
+                    @Loc[$"{prefix}.Orders.Shipments.Products.ProductName"]
                 </th>
                 <th>
-                    @Loc["Vendor.Orders.Shipments.Products.SKU"]
+                    @Loc[$"{prefix}.Orders.Shipments.Products.SKU"]
                 </th>
                 <th>
-                    @Loc["Vendor.Orders.Shipments.Products.Warehouse"]
+                    @Loc[$"{prefix}.Orders.Shipments.Products.Warehouse"]
                 </th>
                 <th>
-                    @Loc["Vendor.Orders.Shipments.Products.ItemWeight"]
+                    @Loc[$"{prefix}.Orders.Shipments.Products.ItemWeight"]
                 </th>
                 <th>
-                    @Loc["Vendor.Orders.Shipments.Products.ItemDimensions"]
+                    @Loc[$"{prefix}.Orders.Shipments.Products.ItemDimensions"]
                 </th>
                 <th>
-                    @Loc["Vendor.Orders.Shipments.Products.QtyOrdered"]
+                    @Loc[$"{prefix}.Orders.Shipments.Products.QtyOrdered"]
                 </th>
                 <th>
-                    @Loc["Vendor.Orders.Shipments.Products.QtyShipped"]
+                    @Loc[$"{prefix}.Orders.Shipments.Products.QtyShipped"]
                 </th>
                 <th>
-                    @Loc["Vendor.Orders.Shipments.Products.QtyToShip"]
+                    @Loc[$"{prefix}.Orders.Shipments.Products.QtyToShip"]
                 </th>
             </tr>
             </thead>
@@ -96,7 +100,7 @@
                     <td>
                         <div style="padding-left:10px;padding-right:10px;">
                             <em>
-                                <a href="@Url.Action("Edit", "Product", new { id = item.ProductId, area = Constants.AreaVendor })">@item.ProductName</a>
+                                <a href="@Url.Action("Edit", "Product", new { id = item.ProductId, area = area })">@item.ProductName</a>
                             </em>
                             @if (!string.IsNullOrEmpty(item.AttributeInfo))
                             {
@@ -107,8 +111,8 @@
                             @if (item.ShipSeparately)
                             {
                                 <p>
-                                    <strong>@Loc["Vendor.Orders.Shipments.Products.ShipSeparately.Warning"]</strong>
-                                    @Loc["Vendor.Orders.Shipments.Products.ShipSeparately"]
+                                    <strong>@Loc[$"{prefix}.Orders.Shipments.Products.ShipSeparately.Warning"]</strong>
+                                    @Loc[$"{prefix}.Orders.Shipments.Products.ShipSeparately"]
                                 </p>
                             }
                         </div>
@@ -131,14 +135,14 @@
                                             <option value="@(warehouse.WarehouseId)" data-stock-qty="@(warehouse.StockQuantity)"
                                                     data-reserved-qty="@(warehouse.ReservedQuantity)"
                                                     selected="@selected">
-                                                @Loc["Vendor.Orders.Shipments.Products.Warehouse.ChooseQty", warehouse.WarehouseName, warehouse.StockQuantity, warehouse.ReservedQuantity]
+                                                @Loc[$"{prefix}.Orders.Shipments.Products.Warehouse.ChooseQty", warehouse.WarehouseName, warehouse.StockQuantity, warehouse.ReservedQuantity]
                                             </option>
                                         }
                                     </select>
                                 }
                                 else
                                 {
-                                    <div>@Loc["Vendor.Orders.Shipments.Products.Warehouse.NotAvailable"]</div>
+                                    <div>@Loc["Admin.Orders.Shipments.Products.Warehouse.NotAvailabe"]</div>
                                 }
                             }
                             else
