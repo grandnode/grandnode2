@@ -274,4 +274,42 @@ public class BaseOrderManagementControllerTests
 
         Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
     }
+
+    [TestMethod]
+    public async Task OrderNotesSelect_NotFound_ThrowsArgumentException()
+    {
+        _orderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Order)null);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(
+            () => _controller.OrderNotesSelect("missing", new Grand.Web.Common.DataSource.DataSourceRequest()));
+    }
+
+    [TestMethod]
+    public async Task OrderNotesSelect_ScopeDenies_ReturnsEmptyContent_NoThrow()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.OrderNotesSelect("o1", new Grand.Web.Common.DataSource.DataSourceRequest());
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("", content.Content);
+    }
+
+    [TestMethod]
+    public async Task OrderNoteAdd_ScopeDenies_ReturnsJsonResultFalse()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.OrderNoteAdd("o1", null, false, "msg");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        _orderViewModelServiceMock.Verify(v => v.InsertOrderNote(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
+    }
 }

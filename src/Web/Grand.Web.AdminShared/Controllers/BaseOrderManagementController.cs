@@ -515,4 +515,50 @@ public abstract class BaseOrderManagementController(
     }
 
     #endregion
+
+    #region Order notes
+
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    [HttpPost]
+    public async Task<IActionResult> OrderNotesSelect(string orderId, Grand.Web.Common.DataSource.DataSourceRequest command)
+    {
+        var order = await orderService.GetOrderById(orderId)
+            ?? throw new ArgumentException("No order found with the specified id");
+        // Preserved host divergence: Admin's original throws for both not-found and Sales-Manager
+        // denial; Store's original throws only for not-found and soft-denies (empty content) for
+        // store-mismatch. Unifying these into one behavior would be a real change for one host -
+        // deliberately not done here. See plan's Global Constraints.
+        if (!await scope.HasAccess(order)) return Content("");
+
+        var orderNoteModels = await orderViewModelService.PrepareOrderNotes(order);
+        var gridModel = new Grand.Web.Common.DataSource.DataSourceResult {
+            Data = orderNoteModels,
+            Total = orderNoteModels.Count
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> OrderNoteAdd(string orderId, string downloadId, bool displayToCustomer, string message)
+    {
+        var order = await orderService.GetOrderById(orderId);
+        if (order == null || !await scope.HasAccess(order)) return Json(new { Result = false });
+
+        await orderViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message);
+        return Json(new { Result = true });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> OrderNoteDelete(string id, string orderId)
+    {
+        var order = await orderService.GetOrderById(orderId)
+            ?? throw new ArgumentException("No order found with the specified id");
+        if (!await scope.HasAccess(order)) return Json(new { Result = false });
+
+        await orderViewModelService.DeleteOrderNote(order, id);
+        return new JsonResult("");
+    }
+
+    #endregion
 }
