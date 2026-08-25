@@ -232,4 +232,34 @@ public class BaseOrderManagementControllerTests
         Assert.IsNull(orderItem.LicenseDownloadId);
         Assert.AreEqual("Edit", (result as RedirectToActionResult)?.ActionName);
     }
+
+    [TestMethod]
+    public async Task AddProductToOrder_ScopeDenies_RedirectsToList()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.AddProductToOrder("o1");
+
+        Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
+    }
+
+    [TestMethod]
+    public async Task AddProductToOrderDetailsPost_NoWarnings_RedirectsToEdit()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _orderViewModelServiceMock
+            .Setup(v => v.AddProductToOrderDetails(It.IsAny<AddProductToOrderModel>()))
+            .ReturnsAsync(new List<string>());
+
+        var result = await _controller.AddProductToOrderDetails(
+            new AddProductToOrderModel("o1", "p1", 0, 0, 1, 0));
+
+        var redirect = result as RedirectToActionResult;
+        Assert.AreEqual("Edit", redirect?.ActionName);
+        Assert.AreEqual("o1", redirect?.RouteValues["id"]);
+    }
 }

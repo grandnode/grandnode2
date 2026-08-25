@@ -386,4 +386,71 @@ public abstract class BaseOrderManagementController(
     }
 
     #endregion
+
+    #region Add product to order
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> AddProductToOrder(string orderId)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(orderId);
+        if (denied != null) return denied;
+
+        var model = await orderViewModelService.PrepareAddOrderProductModel(order);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> AddProductToOrder(
+        Grand.Web.Common.DataSource.DataSourceRequest command, OrderModel.AddOrderProductModel model,
+        [FromServices] Grand.Business.Core.Interfaces.Catalog.Products.IProductService productService)
+    {
+        var categoryIds = new List<string>();
+        if (!string.IsNullOrEmpty(model.SearchCategoryId)) categoryIds.Add(model.SearchCategoryId);
+
+        var gridModel = new Grand.Web.Common.DataSource.DataSourceResult();
+        var products = (await productService.SearchProducts(categoryIds: categoryIds,
+            storeId: scope.DefaultStoreId,
+            brandId: model.SearchBrandId,
+            collectionId: model.SearchCollectionId,
+            productType: model.SearchProductTypeId > 0 ? (Grand.Domain.Catalog.ProductType?)model.SearchProductTypeId : null,
+            keywords: model.SearchProductName,
+            pageIndex: command.Page - 1,
+            pageSize: command.PageSize,
+            showHidden: true)).products;
+
+        gridModel.Data = products.Select(x => new OrderModel.AddOrderProductModel.ProductModel {
+            Id = x.Id, Name = x.Name, Sku = x.Sku
+        });
+        gridModel.Total = products.TotalCount;
+
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> AddProductToOrderDetails(string orderId, string productId)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(orderId);
+        if (denied != null) return denied;
+
+        var model = await orderViewModelService.PrepareAddProductToOrderModel(order, productId);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> AddProductToOrderDetails(AddProductToOrderModel model)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
+        if (denied != null) return denied;
+
+        var warnings = await orderViewModelService.AddProductToOrderDetails(model);
+        if (!warnings.Any()) return RedirectToAction("Edit", "Order", new { id = model.OrderId });
+
+        var result = await orderViewModelService.PrepareAddProductToOrderModel(order, model.ProductId);
+        result.Warnings.AddRange(warnings);
+        return View(result);
+    }
+
+    #endregion
 }
