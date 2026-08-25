@@ -208,4 +208,157 @@ public abstract class BaseShipmentController(
     }
 
     #endregion
+
+    #region Shipment details
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> ShipmentDetails(string id)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(id);
+        if (denied != null) return denied;
+
+        var order = await orderService.GetOrderById(shipment.OrderId);
+        if (order == null)
+            //No order found with the specified id
+            return RedirectToAction("List");
+
+        var model = await shipmentViewModelService.PrepareShipmentModel(shipment, true, true);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> DeleteShipment(string id)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(id);
+        if (denied != null) return denied;
+
+        var order = await orderService.GetOrderById(shipment.OrderId);
+        if (order == null)
+            //No order found with the specified id
+            return RedirectToAction("List");
+
+        await shipmentService.DeleteShipment(shipment);
+
+        //add a note
+        await orderService.InsertOrderNote(new OrderNote {
+            Note = $"A shipment #{shipment.ShipmentNumber} has been deleted",
+            DisplayToCustomer = false,
+            OrderId = order.Id
+        });
+
+        Success(translationService.GetResource("Admin.Orders.Shipments.Deleted"));
+
+        return RedirectToAction("Edit", "Order", new { order.Id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SetTrackingNumber(ShipmentTrackingModel model)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
+        if (denied != null) return denied;
+
+        shipment.TrackingNumber = model.TrackingNumber;
+        await shipmentService.UpdateShipment(shipment);
+
+        return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SetShipmentAdminComment(ShipmentAdminCommentModel model)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
+        if (denied != null) return denied;
+
+        shipment.AdminComment = model.AdminComment;
+        await shipmentService.UpdateShipment(shipment);
+
+        return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SetAsShipped(string id)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(id);
+        if (denied != null) return denied;
+
+        try
+        {
+            await mediator.Send(new ShipCommand { Shipment = shipment, NotifyCustomer = true });
+            return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+        }
+        catch (Exception exc)
+        {
+            Error(exc);
+            return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+        }
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> EditShippedDate(ShipmentShippedDateModel model)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
+        if (denied != null) return denied;
+
+        try
+        {
+            if (!model.ShippedDate.HasValue) throw new Exception("Enter shipped date");
+
+            shipment.ShippedDateUtc = model.ShippedDate.ConvertToUtcTime(dateTimeService);
+            await shipmentService.UpdateShipment(shipment);
+            return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+        }
+        catch (Exception exc)
+        {
+            Error(exc);
+            return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+        }
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SetAsDelivered(string id)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(id);
+        if (denied != null) return denied;
+
+        try
+        {
+            await mediator.Send(new DeliveryCommand { Shipment = shipment, NotifyCustomer = true });
+            return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+        }
+        catch (Exception exc)
+        {
+            Error(exc);
+            return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+        }
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> EditDeliveryDate(ShipmentDeliveryDateModel model)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
+        if (denied != null) return denied;
+
+        try
+        {
+            if (!model.DeliveryDate.HasValue) throw new Exception("Enter delivery date");
+
+            shipment.DeliveryDateUtc = model.DeliveryDate.ConvertToUtcTime(dateTimeService);
+            await shipmentService.UpdateShipment(shipment);
+            return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+        }
+        catch (Exception exc)
+        {
+            Error(exc);
+            return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+        }
+    }
+
+    #endregion
 }

@@ -1,3 +1,4 @@
+using Grand.Business.Core.Commands.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -49,6 +50,7 @@ public class BaseShipmentControllerTests
     private Mock<IShipmentService> _shipmentServiceMock;
     private Mock<IAdminDataScope<Shipment>> _scopeMock;
     private Mock<IAdminDataScope<Order>> _orderScopeMock;
+    private Mock<IMediator> _mediatorMock;
 
     [TestInitialize]
     public void Setup()
@@ -67,7 +69,7 @@ public class BaseShipmentControllerTests
         var contextAccessorMock = new Mock<IContextAccessor>();
         var pdfServiceMock = new Mock<IPdfService>();
         var dateTimeServiceMock = new Mock<IDateTimeService>();
-        var mediatorMock = new Mock<IMediator>();
+        _mediatorMock = new Mock<IMediator>();
 
         _controller = new TestShipmentController(
             _shipmentViewModelServiceMock.Object,
@@ -77,7 +79,7 @@ public class BaseShipmentControllerTests
             pdfServiceMock.Object,
             _shipmentServiceMock.Object,
             dateTimeServiceMock.Object,
-            mediatorMock.Object,
+            _mediatorMock.Object,
             _scopeMock.Object,
             _orderScopeMock.Object);
 
@@ -360,5 +362,210 @@ public class BaseShipmentControllerTests
         _scopeMock.Verify(s => s.FilterOrderItems(order.OrderItems), Times.Once);
         _shipmentViewModelServiceMock.Verify(
             v => v.PrepareShipment(order, filtered, It.IsAny<AddShipmentModel>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ShipmentDetails_Denied_RedirectsToList()
+    {
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+
+        var result = await _controller.ShipmentDetails("s1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task ShipmentDetails_Authorized_ReturnsViewWithModel()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+
+        var model = new ShipmentModel { Id = "s1" };
+        _shipmentViewModelServiceMock.Setup(v => v.PrepareShipmentModel(shipment, true, true)).ReturnsAsync(model);
+
+        var result = await _controller.ShipmentDetails("s1");
+
+        var viewResult = result as ViewResult;
+        Assert.IsNotNull(viewResult);
+        Assert.AreSame(model, viewResult.Model);
+    }
+
+    [TestMethod]
+    public async Task DeleteShipment_Authorized_DeletesAndAddsOrderNote()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1", ShipmentNumber = 5 };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+
+        var result = await _controller.DeleteShipment("s1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.AreEqual("Order", redirect.ControllerName);
+        Assert.AreEqual("o1", redirect.RouteValues["Id"]);
+        _shipmentServiceMock.Verify(s => s.DeleteShipment(shipment), Times.Once);
+        _orderServiceMock.Verify(s => s.InsertOrderNote(It.Is<OrderNote>(n => n.OrderId == "o1")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SetTrackingNumber_Denied_RedirectsToList()
+    {
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+
+        var result = await _controller.SetTrackingNumber(new ShipmentTrackingModel("s1", "TRACK1"));
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _shipmentServiceMock.Verify(s => s.UpdateShipment(It.IsAny<Shipment>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SetTrackingNumber_Authorized_UpdatesShipment()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        var result = await _controller.SetTrackingNumber(new ShipmentTrackingModel("s1", "TRACK1"));
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.AreEqual("s1", redirect.RouteValues["id"]);
+        Assert.AreEqual("TRACK1", shipment.TrackingNumber);
+        _shipmentServiceMock.Verify(s => s.UpdateShipment(shipment), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SetShipmentAdminComment_Authorized_UpdatesShipment()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        var result = await _controller.SetShipmentAdminComment(new ShipmentAdminCommentModel("s1", "a comment"));
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.AreEqual("s1", redirect.RouteValues["id"]);
+        Assert.AreEqual("a comment", shipment.AdminComment);
+        _shipmentServiceMock.Verify(s => s.UpdateShipment(shipment), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SetAsShipped_MediatorThrows_ShowsErrorAndRedirects()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        _mediatorMock.Setup(m => m.Send(It.IsAny<ShipCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("boom"));
+
+        var result = await _controller.SetAsShipped("s1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.AreEqual("s1", redirect.RouteValues["id"]);
+    }
+
+    [TestMethod]
+    public async Task SetAsShipped_Success_RedirectsToShipmentDetails()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        _mediatorMock.Setup(m => m.Send(It.IsAny<ShipCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+        var result = await _controller.SetAsShipped("s1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.AreEqual("s1", redirect.RouteValues["id"]);
+        _mediatorMock.Verify(m => m.Send(It.Is<ShipCommand>(c => c.Shipment == shipment && c.NotifyCustomer), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task EditShippedDate_MissingDate_ShowsErrorAndRedirects()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        var result = await _controller.EditShippedDate(new ShipmentShippedDateModel("s1", null));
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.AreEqual("s1", redirect.RouteValues["id"]);
+        _shipmentServiceMock.Verify(s => s.UpdateShipment(It.IsAny<Shipment>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EditShippedDate_ValidDate_UpdatesAndRedirects()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        var shippedDate = DateTime.UtcNow;
+        var result = await _controller.EditShippedDate(new ShipmentShippedDateModel("s1", shippedDate));
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.AreEqual("s1", redirect.RouteValues["id"]);
+        Assert.AreEqual(shippedDate, shipment.ShippedDateUtc);
+        _shipmentServiceMock.Verify(s => s.UpdateShipment(shipment), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SetAsDelivered_Success_RedirectsToShipmentDetails()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        _mediatorMock.Setup(m => m.Send(It.IsAny<DeliveryCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+        var result = await _controller.SetAsDelivered("s1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.AreEqual("s1", redirect.RouteValues["id"]);
+        _mediatorMock.Verify(m => m.Send(It.Is<DeliveryCommand>(c => c.Shipment == shipment && c.NotifyCustomer), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task EditDeliveryDate_ValidDate_UpdatesAndRedirects()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        var deliveryDate = DateTime.UtcNow;
+        var result = await _controller.EditDeliveryDate(new ShipmentDeliveryDateModel("s1", deliveryDate));
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.AreEqual("s1", redirect.RouteValues["id"]);
+        Assert.AreEqual(deliveryDate, shipment.DeliveryDateUtc);
+        _shipmentServiceMock.Verify(s => s.UpdateShipment(shipment), Times.Once);
     }
 }
