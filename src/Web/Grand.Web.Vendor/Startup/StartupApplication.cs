@@ -24,7 +24,7 @@ public class StartupApplication : IStartupApplication
         // host too via the IStartupApplication assembly scan in StartupBase, since Vendor references
         // AdminShared. Registering it again here would just be a redundant duplicate of that line.
         // IOrderViewModelService is likewise registered by Grand.Web.AdminShared's StartupApplication.
-        services.AddScoped<IShipmentViewModelService, ShipmentViewModelService>();
+        // IShipmentViewModelService is likewise registered by Grand.Web.AdminShared's StartupApplication.
         services.AddScoped<IMerchandiseReturnViewModelService, MerchandiseReturnViewModelService>();
         services.AddScoped<IVendorReviewViewModelService, VendorReviewViewModelService>();
     }
