@@ -687,4 +687,94 @@ public class BaseShipmentControllerTests
         _mediatorMock.Verify(m => m.Send(It.Is<DeliveryCommand>(c => c.Shipment == accessibleShipment), It.IsAny<CancellationToken>()), Times.Once);
         _mediatorMock.Verify(m => m.Send(It.Is<DeliveryCommand>(c => c.Shipment == deniedShipment), It.IsAny<CancellationToken>()), Times.Never);
     }
+
+    [TestMethod]
+    public async Task ShipmentNotesSelect_Denied_Throws()
+    {
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
+            _controller.ShipmentNotesSelect("s1", new DataSourceRequest()));
+    }
+
+    [TestMethod]
+    public async Task ShipmentNotesSelect_Authorized_ReturnsNotes()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        var notes = new List<ShipmentModel.ShipmentNote> { new() { Id = "n1" } };
+        _shipmentViewModelServiceMock.Setup(v => v.PrepareShipmentNotes(shipment)).ReturnsAsync(notes);
+
+        var result = await _controller.ShipmentNotesSelect("s1", new DataSourceRequest());
+
+        var jsonResult = result as JsonResult;
+        Assert.IsNotNull(jsonResult);
+        var gridModel = jsonResult.Value as DataSourceResult;
+        Assert.IsNotNull(gridModel);
+        Assert.AreEqual(1, gridModel.Total);
+        Assert.AreSame(notes, gridModel.Data);
+    }
+
+    [TestMethod]
+    public async Task ShipmentNoteAdd_Denied_ReturnsResultFalse()
+    {
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+
+        var result = await _controller.ShipmentNoteAdd("s1", "download-1", true, "hello");
+
+        var jsonResult = result as JsonResult;
+        Assert.IsNotNull(jsonResult);
+        var value = jsonResult.Value;
+        var resultProperty = value.GetType().GetProperty("Result");
+        Assert.IsNotNull(resultProperty);
+        Assert.AreEqual(false, resultProperty.GetValue(value));
+        _shipmentViewModelServiceMock.Verify(
+            v => v.InsertShipmentNote(It.IsAny<Shipment>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ShipmentNoteAdd_Authorized_PassesDownloadIdThrough()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        var result = await _controller.ShipmentNoteAdd("s1", "download-1", true, "hello");
+
+        var jsonResult = result as JsonResult;
+        Assert.IsNotNull(jsonResult);
+        var value = jsonResult.Value;
+        var resultProperty = value.GetType().GetProperty("Result");
+        Assert.IsNotNull(resultProperty);
+        Assert.AreEqual(true, resultProperty.GetValue(value));
+        _shipmentViewModelServiceMock.Verify(
+            v => v.InsertShipmentNote(shipment, "download-1", true, "hello"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ShipmentNoteDelete_Denied_Throws()
+    {
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
+            _controller.ShipmentNoteDelete("n1", "s1"));
+    }
+
+    [TestMethod]
+    public async Task ShipmentNoteDelete_Authorized_DeletesNote()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        var result = await _controller.ShipmentNoteDelete("n1", "s1");
+
+        var jsonResult = result as JsonResult;
+        Assert.IsNotNull(jsonResult);
+        Assert.AreEqual("", jsonResult.Value);
+        _shipmentViewModelServiceMock.Verify(v => v.DeleteShipmentNote(shipment, "n1"), Times.Once);
+    }
 }

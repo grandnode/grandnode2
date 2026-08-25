@@ -504,4 +504,51 @@ public abstract class BaseShipmentController(
     }
 
     #endregion
+
+    #region Shipment notes
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> ShipmentNotesSelect(string shipmentId, DataSourceRequest command)
+    {
+        var shipment = await shipmentService.GetShipmentById(shipmentId);
+        if (shipment == null || !await scope.HasAccess(shipment))
+            throw new ArgumentException("No shipment found with the specified id");
+
+        //shipment notes
+        var shipmentNoteModels = await shipmentViewModelService.PrepareShipmentNotes(shipment);
+        var gridModel = new DataSourceResult {
+            Data = shipmentNoteModels,
+            Total = shipmentNoteModels.Count
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ShipmentNoteAdd(string shipmentId, string downloadId, bool displayToCustomer,
+        string message)
+    {
+        var shipment = await shipmentService.GetShipmentById(shipmentId);
+        if (shipment == null || !await scope.HasAccess(shipment))
+            return Json(new { Result = false });
+
+        await shipmentViewModelService.InsertShipmentNote(shipment, downloadId, displayToCustomer, message);
+
+        return Json(new { Result = true });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> ShipmentNoteDelete(string id, string shipmentId)
+    {
+        var shipment = await shipmentService.GetShipmentById(shipmentId);
+        if (shipment == null || !await scope.HasAccess(shipment))
+            throw new ArgumentException("No shipment found with the specified id");
+
+        await shipmentViewModelService.DeleteShipmentNote(shipment, id);
+
+        return new JsonResult("");
+    }
+
+    #endregion
 }
