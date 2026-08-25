@@ -2,8 +2,9 @@
 @{
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Collections.EditCollectionDetails"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Collection" asp-action="Edit" method="post" id="collection-form">
+<form asp-area="@area" asp-controller="Collection" asp-action="Edit" method="post" id="collection-form">
 
     <div class="row">
         <div class="col-md-12">
@@ -31,7 +32,7 @@
                             <span id="collection-delete" class="btn red">
                                 <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
                             </span>
-                            <vc:admin-widget widget-zone="collection_details_buttons" additional-data="Model"/>
+                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>
                     </div>
                 </div>

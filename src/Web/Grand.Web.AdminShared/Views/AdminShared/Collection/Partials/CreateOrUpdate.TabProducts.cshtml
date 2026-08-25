@@ -1,17 +1,20 @@
 ﻿@model CollectionModel
 @inject AdminAreaSettings adminAreaSettings
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
-        <vc:admin-widget widget-zone="collection_details_products_top" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.Products.Top" model="Model"/>
         <div class="panel-body">
             <div id="products-grid"></div>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Collection", new { collectionId = Model.Id, btnId = "btnRefreshProducts", formId = "collection-form", area = Constants.AreaStore }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Collections.Products.AddNew"]</a>
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Collection", new { collectionId = Model.Id, btnId = "btnRefreshProducts", formId = "collection-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Collections.Products.AddNew"]</a>
             <input type="submit" id="btnRefreshProducts" style="display: none"/>
         </div>
-        <vc:admin-widget widget-zone="collection_details_products_bottom" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.Products.Bottom" model="Model"/>
     </div>
     <script>
         $(document).ready(function () {
@@ -32,19 +35,19 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ProductList", "Collection", new { collectionId = Model.Id, area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("ProductList", "Collection", new { collectionId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         update: {
-                            url:"@Html.Raw(Url.Action("ProductUpdate", "Collection", new { area = Constants.AreaStore }))",
+                            url:"@Html.Raw(Url.Action("ProductUpdate", "Collection", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("ProductDelete", "Collection", new { area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("ProductDelete", "Collection", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -94,7 +97,7 @@
                     editable: false,
                     type: "string",
                     title: "@Loc["Admin.Catalog.Collections.Products.Fields.Product"]",
-                    template: '<a href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
+                    template: '<a href="@Url.Action("Edit", "Product", new { area = area })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
                 }, {
                     field: "IsFeaturedProduct",
                     title: "@Loc["Admin.Catalog.Collections.Products.Fields.IsFeaturedProduct"]",

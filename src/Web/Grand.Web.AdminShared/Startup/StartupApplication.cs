@@ -76,6 +76,12 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<GlobalAdminDataScope<Category>>();
         services.AddScoped<StoreAdminDataScope<Category>>();
         services.AddScoped<IAdminDataScope<Category>, RoutedCategoryDataScope>();
+
+        // IAdminDataScope<Collection>: registered once here for the same reason as Category above — see
+        // RoutedCollectionDataScope's doc comment. No Vendor scope: Collection has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<Collection>>();
+        services.AddScoped<StoreAdminDataScope<Collection>>();
+        services.AddScoped<IAdminDataScope<Collection>, RoutedCollectionDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
