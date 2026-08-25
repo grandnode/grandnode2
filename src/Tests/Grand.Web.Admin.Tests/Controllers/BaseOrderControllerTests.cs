@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
@@ -39,6 +40,7 @@ public class BaseOrderControllerTests
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IOrderViewModelService> _orderViewModelServiceMock;
     private Mock<IAdminDataScope<Order>> _scopeMock;
+    private Mock<IPdfService> _pdfServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -47,17 +49,21 @@ public class BaseOrderControllerTests
         _orderViewModelServiceMock = new Mock<IOrderViewModelService>();
         _scopeMock = new Mock<IAdminDataScope<Order>>();
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _pdfServiceMock = new Mock<IPdfService>();
 
         var translationServiceMock = new Mock<ITranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
         var contextAccessorMock = new Mock<IContextAccessor>();
+        var workContextMock = new Mock<IWorkContext>();
+        workContextMock.Setup(w => w.WorkingLanguage).Returns(new Language { Id = "lang-1" });
+        contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
 
         _controller = new TestOrderController(
             _orderViewModelServiceMock.Object,
             _orderServiceMock.Object,
             translationServiceMock.Object,
             contextAccessorMock.Object,
-            new Mock<IPdfService>().Object,
+            _pdfServiceMock.Object,
             _scopeMock.Object);
 
         var httpContext = new DefaultHttpContext();
@@ -275,5 +281,88 @@ public class BaseOrderControllerTests
             It.IsAny<string>(), "abc", It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<string>(),
             It.IsAny<IList<string>>(), It.IsAny<IList<string>>(), It.IsAny<Grand.Domain.Catalog.ProductSortingEnum>(),
             true, It.IsAny<bool?>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PdfInvoice_ThreadsScopeDefaultVendorId()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor-A");
+
+        var result = await _controller.PdfInvoice("o1");
+
+        Assert.IsInstanceOfType(result, typeof(FileContentResult));
+        _pdfServiceMock.Verify(
+            p => p.PrintOrdersToPdf(It.IsAny<Stream>(), It.Is<IList<Order>>(l => l.Count == 1 && l[0] == order),
+                "lang-1", "vendor-A"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PdfInvoiceAll_ThreadsScopeDefaultVendorId()
+    {
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor-A");
+        var orders = new List<Order> { new() { Id = "o1" } };
+        _orderViewModelServiceMock.Setup(v => v.PrepareOrders(It.IsAny<OrderListModel>()))
+            .ReturnsAsync((IList<Order>)orders);
+
+        var result = await _controller.PdfInvoiceAll(new OrderListModel());
+
+        Assert.IsInstanceOfType(result, typeof(FileContentResult));
+        _pdfServiceMock.Verify(
+            p => p.PrintOrdersToPdf(It.IsAny<Stream>(), It.IsAny<IList<Order>>(), "lang-1", "vendor-A"),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PdfInvoiceSelected_ThreadsScopeDefaultVendorId()
+    {
+        // Direct regression guard for the final review C2 fix: PdfInvoiceSelected must pass
+        // scope.DefaultVendorId to IPdfService.PrintOrdersToPdf, matching PdfInvoice/PdfInvoiceAll.
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor-A");
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrdersByIds(It.Is<string[]>(ids => ids.Length == 1 && ids[0] == "o1")))
+            .ReturnsAsync((IList<Order>)new List<Order> { order });
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var result = await _controller.PdfInvoiceSelected("o1");
+
+        Assert.IsInstanceOfType(result, typeof(FileContentResult));
+        _pdfServiceMock.Verify(
+            p => p.PrintOrdersToPdf(It.IsAny<Stream>(), It.Is<IList<Order>>(l => l.Count == 1 && l[0] == order),
+                "lang-1", "vendor-A"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PdfInvoiceSelected_ScopeDenies_ExcludesOrderFromPdf()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrdersByIds(It.IsAny<string[]>()))
+            .ReturnsAsync((IList<Order>)new List<Order> { order });
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.PdfInvoiceSelected("o1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _pdfServiceMock.Verify(
+            p => p.PrintOrdersToPdf(It.IsAny<Stream>(), It.IsAny<IList<Order>>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task GoToOrderId_ScopeDenies_RedirectsToList()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderByNumber(7)).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.GoToOrderId(new OrderListModel { GoDirectlyToNumber = "7" });
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
     }
 }

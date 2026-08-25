@@ -144,9 +144,11 @@ public abstract class BaseOrderController(
 
         // Store filters by StoreId; Vendor's original filtered by HasAccessToOrder (any-item
         // vendor match); Admin's original has no filter here at all. scope.HasAccess already
-        // expresses all three checks per-host - safe to apply unconditionally, it's a true no-op
-        // for Admin (AdminOrderDataScope.HasAccess is the Sales-Manager check, which Admin's
-        // *original* PdfInvoiceSelected never applied - see plan risk note below).
+        // expresses all three checks per-host, so applying it unconditionally is a deliberate,
+        // disclosed, security-positive behavior change for Admin: it closes a pre-existing gap
+        // where a Sales Manager could previously export any order id via a crafted selectedIds
+        // list, bypassing the Sales-Manager scoping that AdminOrderDataScope.HasAccess enforces
+        // everywhere else in this controller.
         var accessible = new List<Order>();
         foreach (var order in orders)
             if (await scope.HasAccess(order))
@@ -162,7 +164,8 @@ public abstract class BaseOrderController(
         byte[] bytes;
         using (var stream = new MemoryStream())
         {
-            await pdfService.PrintOrdersToPdf(stream, orders, contextAccessor.WorkContext.WorkingLanguage.Id);
+            await pdfService.PrintOrdersToPdf(stream, orders, contextAccessor.WorkContext.WorkingLanguage.Id,
+                scope.DefaultVendorId);
             bytes = stream.ToArray();
         }
 

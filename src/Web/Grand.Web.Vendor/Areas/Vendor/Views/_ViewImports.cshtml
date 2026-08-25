@@ -30,7 +30,16 @@
    Grand.Web.Vendor.Models.Catalog's own ProductModel etc. are no longer used by any controller/view
    and importing both would make bare "ProductModel" ambiguous. *@
 @using Grand.Web.AdminShared.Models.Catalog;
-@using Grand.Web.Vendor.Models.Orders;
+@* Order views bind to Grand.Web.AdminShared's OrderModel/OrderListModel (ARCH-001 Phase 5 Order
+   consolidation) - Grand.Web.Vendor.Models.Orders's own OrderModel/OrderListModel are no longer
+   used by any controller/view. Unlike the ProductModel case above, this can't be a blanket
+   "@using Grand.Web.AdminShared.Models.Orders" - that namespace also holds ShipmentModel,
+   MerchandiseReturnModel, *ReportModel etc., which Vendor's Shipment/MerchandiseReturn/Reports
+   views still bind to their own Grand.Web.Vendor.Models.* equivalents (not yet consolidated), so
+   a wildcard import here would make those bare names ambiguous instead. Alias just the two types
+   that are actually consolidated. *@
+@using OrderModel = Grand.Web.AdminShared.Models.Orders.OrderModel;
+@using OrderListModel = Grand.Web.AdminShared.Models.Orders.OrderListModel;
 @using Grand.Web.Vendor.Models.Shipment;
 @using Grand.Web.Vendor.Models.MerchandiseReturn;
 @using Grand.Web.Vendor.Models.Vendor;

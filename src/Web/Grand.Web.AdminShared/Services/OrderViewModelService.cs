@@ -414,8 +414,14 @@ public class OrderViewModelService : IOrderViewModelService
             }
         }
 
+        model.CurrencyRate = order.CurrencyRate;
+        model.CurrencyCode = order.CustomerCurrencyCode;
+
         #region Order totals
 
+        // primaryStoreCurrency/orderCurrency stay ungated: they're needed below (outside this
+        // gate) to format each OrderItemModel's unit price/discount/subtotal/commission, which
+        // Vendor's own OrderDetails.Products partial does render.
         var primaryStoreCurrency = await _currencyService.GetCurrencyByCode(order.PrimaryCurrencyCode) ??
                                    await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
 
@@ -426,6 +432,15 @@ public class OrderViewModelService : IOrderViewModelService
         if (orderCurrency == null)
             throw new Exception("Cannot load order currency");
 
+        // Vendor's original service never populated the rest of this block (subtotal, discount,
+        // shipping, tax, payment fee, order total, refund, loyalty points, gift vouchers,
+        // discount usage, profit) - matches the gating already applied above for CustomerId,
+        // CustomerIp, Affiliate, SalesEmployee, OrderTags and OrderStatuses (final review I2).
+        // None of Vendor's own Order partials render these fields today, so this has no visible
+        // behavior change for Vendor - it closes a latent exposure risk (e.g. a future shared
+        // view rendering merchant Profit to a vendor).
+        if (_scope.DefaultVendorId is null)
+        {
         //subtotal
         model.OrderSubtotalInclTax = _priceFormatter.FormatPrice(order.OrderSubtotalInclTax, orderCurrency);
         model.OrderSubtotalExclTax = _priceFormatter.FormatPrice(order.OrderSubtotalExclTax, orderCurrency);
@@ -503,8 +518,6 @@ public class OrderViewModelService : IOrderViewModelService
         //total
         model.OrderTotal = _priceFormatter.FormatPrice(order.OrderTotal, orderCurrency);
         model.OrderTotalValue = order.OrderTotal;
-        model.CurrencyRate = order.CurrencyRate;
-        model.CurrencyCode = order.CustomerCurrencyCode;
 
         //refunded amount
         if (order.RefundedAmount > 0)
@@ -579,6 +592,7 @@ public class OrderViewModelService : IOrderViewModelService
         }
 
         #endregion
+        }
 
         #region Payment info
 
@@ -587,12 +601,18 @@ public class OrderViewModelService : IOrderViewModelService
         model.PaymentMethod = pm != null ? pm.FriendlyName : order.PaymentMethodSystemName;
         model.PaymentStatus = _enumTranslationService.GetTranslationEnum(order.PaymentStatusId);
         model.PaymentStatusEnum = order.PaymentStatusId;
-        var pt = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
-        if (pt != null)
-            model.PaymentTransactionId = pt.Id;
 
-        model.PrimaryStoreCurrencyCode = order.PrimaryCurrencyCode;
-        model.MaxAmountToRefund = order.OrderTotal - order.RefundedAmount;
+        // Vendor's original service never populated PaymentTransactionId, PrimaryStoreCurrencyCode
+        // or MaxAmountToRefund either - same gate as the totals block above (final review I2).
+        if (_scope.DefaultVendorId is null)
+        {
+            var pt = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
+            if (pt != null)
+                model.PaymentTransactionId = pt.Id;
+
+            model.PrimaryStoreCurrencyCode = order.PrimaryCurrencyCode;
+            model.MaxAmountToRefund = order.OrderTotal - order.RefundedAmount;
+        }
 
         #endregion
 
@@ -629,7 +649,10 @@ public class OrderViewModelService : IOrderViewModelService
         model.BillingAddress.FaxRequired = _addressSettings.FaxRequired;
         model.BillingAddress.NoteEnabled = _addressSettings.NoteEnabled;
 
-        model.ShippingStatus = _enumTranslationService.GetTranslationEnum(order.ShippingStatusId);
+        // Vendor's original service never populated ShippingStatus - same gate as the totals
+        // block above (final review I2).
+        if (_scope.DefaultVendorId is null)
+            model.ShippingStatus = _enumTranslationService.GetTranslationEnum(order.ShippingStatusId);
         if (order.ShippingStatusId != ShippingStatus.ShippingNotRequired)
         {
             model.IsShippable = true;

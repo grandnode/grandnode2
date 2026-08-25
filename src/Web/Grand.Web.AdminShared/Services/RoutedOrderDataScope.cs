@@ -42,6 +42,7 @@ public class RoutedOrderDataScope(
     }
 
     public Task<bool> HasAccess(Order entity) => Resolved.HasAccess(entity);
+    public Task<bool> CanView(Order entity) => Resolved.CanView(entity);
     public IEnumerable<OrderItem> FilterOrderItems(IEnumerable<OrderItem> orderItems) =>
         Resolved.FilterOrderItems(orderItems);
     public string? DefaultStoreId => Resolved.DefaultStoreId;
