@@ -34,9 +34,10 @@ public class BaseShipmentControllerTests
         IShipmentService shipmentService,
         IDateTimeService dateTimeService,
         IMediator mediator,
-        IAdminDataScope<Shipment> scope)
+        IAdminDataScope<Shipment> scope,
+        IAdminDataScope<Order> orderScope)
         : BaseShipmentController(shipmentViewModelService, orderService, translationService,
-            contextAccessor, pdfService, shipmentService, dateTimeService, mediator, scope)
+            contextAccessor, pdfService, shipmentService, dateTimeService, mediator, scope, orderScope)
     {
         public Task<(Shipment shipment, IActionResult denied)> LoadAuthorizedShipmentPublic(string id) =>
             LoadAuthorizedShipment(id);
@@ -47,6 +48,7 @@ public class BaseShipmentControllerTests
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IShipmentService> _shipmentServiceMock;
     private Mock<IAdminDataScope<Shipment>> _scopeMock;
+    private Mock<IAdminDataScope<Order>> _orderScopeMock;
 
     [TestInitialize]
     public void Setup()
@@ -57,6 +59,8 @@ public class BaseShipmentControllerTests
         _scopeMock = new Mock<IAdminDataScope<Shipment>>();
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _scopeMock.Setup(s => s.DefaultVendorId).Returns((string)null);
+        _orderScopeMock = new Mock<IAdminDataScope<Order>>();
+        _orderScopeMock.Setup(s => s.HasAccess(It.IsAny<Order>())).ReturnsAsync(true);
 
         var translationServiceMock = new Mock<ITranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
@@ -74,7 +78,8 @@ public class BaseShipmentControllerTests
             _shipmentServiceMock.Object,
             dateTimeServiceMock.Object,
             mediatorMock.Object,
-            _scopeMock.Object);
+            _scopeMock.Object,
+            _orderScopeMock.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();
@@ -190,5 +195,170 @@ public class BaseShipmentControllerTests
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
             _controller.ShipmentsItemsByShipmentId("s1", new DataSourceRequest()));
+    }
+
+    [TestMethod]
+    public async Task AddShipmentGet_OrderNotFound_RedirectsToList()
+    {
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync((Order)null);
+
+        var result = await _controller.AddShipment("o1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _shipmentViewModelServiceMock.Verify(v => v.PrepareShipmentModel(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddShipmentGet_OrderDenied_RedirectsToList()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _orderScopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.AddShipment("o1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _shipmentViewModelServiceMock.Verify(v => v.PrepareShipmentModel(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddShipmentPost_NoItemsSelected_ShowsErrorAndRedirects()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _orderScopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.FilterOrderItems(It.IsAny<IEnumerable<OrderItem>>()))
+            .Returns((IEnumerable<OrderItem> items) => items);
+
+        var emptyShipment = new Shipment { Id = "s1" };
+        _shipmentViewModelServiceMock
+            .Setup(v => v.PrepareShipment(order, It.IsAny<IEnumerable<OrderItem>>(), It.IsAny<AddShipmentModel>()))
+            .ReturnsAsync((emptyShipment, (double?)null));
+
+        var model = new AddShipmentModel { OrderId = "o1" };
+        var result = await _controller.AddShipment(model, false);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("AddShipment", redirect.ActionName);
+        Assert.AreEqual("o1", redirect.RouteValues["orderId"]);
+        _shipmentServiceMock.Verify(s => s.InsertShipment(It.IsAny<Shipment>()), Times.Never);
+        _shipmentViewModelServiceMock.Verify(v => v.ValidStockShipment(It.IsAny<Shipment>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddShipmentPost_OutOfStock_ShowsErrorAndRedirects()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _orderScopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.FilterOrderItems(It.IsAny<IEnumerable<OrderItem>>()))
+            .Returns((IEnumerable<OrderItem> items) => items);
+
+        var shipment = new Shipment { Id = "s1" };
+        shipment.ShipmentItems.Add(new ShipmentItem { OrderItemId = "oi1" });
+        _shipmentViewModelServiceMock
+            .Setup(v => v.PrepareShipment(order, It.IsAny<IEnumerable<OrderItem>>(), It.IsAny<AddShipmentModel>()))
+            .ReturnsAsync((shipment, (double?)10));
+        _shipmentViewModelServiceMock
+            .Setup(v => v.ValidStockShipment(shipment))
+            .ReturnsAsync((false, "Out of stock"));
+
+        var model = new AddShipmentModel { OrderId = "o1" };
+        var result = await _controller.AddShipment(model, false);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("AddShipment", redirect.ActionName);
+        Assert.AreEqual("o1", redirect.RouteValues["orderId"]);
+        _shipmentServiceMock.Verify(s => s.InsertShipment(It.IsAny<Shipment>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddShipmentPost_Success_ContinueEditing_RedirectsToShipmentDetails()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _orderScopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.FilterOrderItems(It.IsAny<IEnumerable<OrderItem>>()))
+            .Returns((IEnumerable<OrderItem> items) => items);
+
+        var shipment = new Shipment { Id = "s1" };
+        shipment.ShipmentItems.Add(new ShipmentItem { OrderItemId = "oi1" });
+        _shipmentViewModelServiceMock
+            .Setup(v => v.PrepareShipment(order, It.IsAny<IEnumerable<OrderItem>>(), It.IsAny<AddShipmentModel>()))
+            .ReturnsAsync((shipment, (double?)10));
+        _shipmentViewModelServiceMock
+            .Setup(v => v.ValidStockShipment(shipment))
+            .ReturnsAsync((true, (string)null));
+
+        var model = new AddShipmentModel { OrderId = "o1" };
+        var result = await _controller.AddShipment(model, true);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.AreEqual("s1", redirect.RouteValues["id"]);
+        Assert.AreEqual(10, shipment.TotalWeight);
+        _shipmentServiceMock.Verify(s => s.InsertShipment(shipment), Times.Once);
+        _orderServiceMock.Verify(s => s.InsertOrderNote(It.Is<OrderNote>(n => n.OrderId == "o1")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task AddShipmentPost_Success_NotContinueEditing_RedirectsToList()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _orderScopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.FilterOrderItems(It.IsAny<IEnumerable<OrderItem>>()))
+            .Returns((IEnumerable<OrderItem> items) => items);
+
+        var shipment = new Shipment { Id = "s1" };
+        shipment.ShipmentItems.Add(new ShipmentItem { OrderItemId = "oi1" });
+        _shipmentViewModelServiceMock
+            .Setup(v => v.PrepareShipment(order, It.IsAny<IEnumerable<OrderItem>>(), It.IsAny<AddShipmentModel>()))
+            .ReturnsAsync((shipment, (double?)10));
+        _shipmentViewModelServiceMock
+            .Setup(v => v.ValidStockShipment(shipment))
+            .ReturnsAsync((true, (string)null));
+
+        var model = new AddShipmentModel { OrderId = "o1" };
+        var result = await _controller.AddShipment(model, false);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _shipmentServiceMock.Verify(s => s.InsertShipment(shipment), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task AddShipmentPost_FiltersOrderItemsThroughScope()
+    {
+        var itemKept = new OrderItem { Id = "oi1" };
+        var itemFiltered = new OrderItem { Id = "oi2" };
+        var order = new Order { Id = "o1" };
+        order.OrderItems.Add(itemKept);
+        order.OrderItems.Add(itemFiltered);
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _orderScopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var filtered = new List<OrderItem> { itemKept };
+        _scopeMock.Setup(s => s.FilterOrderItems(order.OrderItems)).Returns(filtered);
+
+        var shipment = new Shipment { Id = "s1" };
+        _shipmentViewModelServiceMock
+            .Setup(v => v.PrepareShipment(order, filtered, It.IsAny<AddShipmentModel>()))
+            .ReturnsAsync((shipment, (double?)null));
+
+        var model = new AddShipmentModel { OrderId = "o1" };
+        await _controller.AddShipment(model, false);
+
+        _scopeMock.Verify(s => s.FilterOrderItems(order.OrderItems), Times.Once);
+        _shipmentViewModelServiceMock.Verify(
+            v => v.PrepareShipment(order, filtered, It.IsAny<AddShipmentModel>()), Times.Once);
     }
 }

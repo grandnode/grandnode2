@@ -31,7 +31,8 @@ public abstract class BaseShipmentController(
     IShipmentService shipmentService,
     IDateTimeService dateTimeService,
     IMediator mediator,
-    IAdminDataScope<Shipment> scope)
+    IAdminDataScope<Shipment> scope,
+    IAdminDataScope<Order> orderScope)
     : BaseController
 {
     // Exposed for host-specific concrete subclasses (Admin's EditUserFields action needs these
@@ -46,6 +47,7 @@ public abstract class BaseShipmentController(
     protected IDateTimeService DateTimeService => dateTimeService;
     protected IMediator Mediator => mediator;
     protected IAdminDataScope<Shipment> Scope => scope;
+    protected IAdminDataScope<Order> OrderScope => orderScope;
 
     /// <summary>DRY replacement for the repeated "load shipment, redirect to List if not found or
     /// not authorized" pattern found in all 3 original controllers. Not a behavior change — every
@@ -144,6 +146,65 @@ public abstract class BaseShipmentController(
         };
 
         return Json(gridModel);
+    }
+
+    #endregion
+
+    #region AddShipment
+
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public async Task<IActionResult> AddShipment(string orderId)
+    {
+        var order = await orderService.GetOrderById(orderId);
+        if (order == null || order.Deleted || !await orderScope.HasAccess(order))
+            //No order found with the specified id
+            return RedirectToAction("List");
+
+        var model = await shipmentViewModelService.PrepareShipmentModel(order);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> AddShipment(AddShipmentModel model, bool continueEditing)
+    {
+        var order = await orderService.GetOrderById(model.OrderId);
+        if (order == null || order.Deleted || !await orderScope.HasAccess(order))
+            //No order found with the specified id
+            return RedirectToAction("List");
+
+        var orderItems = scope.FilterOrderItems(order.OrderItems).ToList();
+
+        var (shipment, totalWeight) = await shipmentViewModelService.PrepareShipment(order, orderItems, model);
+        if (shipment == null || !shipment.ShipmentItems.Any())
+        {
+            Error(translationService.GetResource("Admin.Orders.Shipments.NoProductsSelected"));
+            return RedirectToAction("AddShipment", new { orderId = model.OrderId });
+        }
+
+        //check stock
+        var (valid, message) = await shipmentViewModelService.ValidStockShipment(shipment);
+        if (!valid)
+        {
+            Error(message);
+            return RedirectToAction("AddShipment", new { orderId = model.OrderId });
+        }
+
+        shipment.TotalWeight = totalWeight;
+        await shipmentService.InsertShipment(shipment);
+
+        //add a note
+        await orderService.InsertOrderNote(new OrderNote {
+            Note = $"A shipment #{shipment.ShipmentNumber} has been added",
+            DisplayToCustomer = false,
+            OrderId = order.Id
+        });
+
+        Success(translationService.GetResource("Admin.Orders.Shipments.Added"));
+        return continueEditing
+            ? RedirectToAction("ShipmentDetails", new { id = shipment.Id })
+            : RedirectToAction("List", new { id = shipment.Id });
     }
 
     #endregion
