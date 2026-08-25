@@ -6,6 +6,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Mediator;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Security.Authorization;
@@ -450,6 +451,67 @@ public abstract class BaseOrderManagementController(
         var result = await orderViewModelService.PrepareAddProductToOrderModel(order, model.ProductId);
         result.Warnings.AddRange(warnings);
         return View(result);
+    }
+
+    #endregion
+
+    #region Addresses
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> AddressEdit(string addressId, string orderId, bool billingAddress)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(orderId);
+        if (denied != null) return denied;
+
+        var address = new Grand.Domain.Common.Address();
+        switch (billingAddress)
+        {
+            case true when order.BillingAddress != null:
+                if (order.BillingAddress.Id == addressId) address = order.BillingAddress;
+                break;
+            case false when order.ShippingAddress != null:
+                if (order.ShippingAddress.Id == addressId) address = order.ShippingAddress;
+                break;
+        }
+
+        if (address == null)
+            throw new ArgumentException("No address found with the specified id", nameof(addressId));
+
+        var model = await orderViewModelService.PrepareOrderAddressModel(order, address);
+        model.BillingAddress = billingAddress;
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> AddressEdit(OrderAddressModel model,
+        [FromServices] Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService addressAttributeService,
+        [FromServices] Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser addressAttributeParser)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
+        if (denied != null) return denied;
+
+        var address = new Grand.Domain.Common.Address();
+        switch (model.BillingAddress)
+        {
+            case true when order.BillingAddress != null:
+                if (order.BillingAddress.Id == model.Address.Id) address = order.BillingAddress;
+                break;
+            case false when order.ShippingAddress != null:
+                if (order.ShippingAddress.Id == model.Address.Id) address = order.ShippingAddress;
+                break;
+        }
+
+        if (ModelState.IsValid)
+        {
+            var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
+            await orderViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
+            return RedirectToAction("AddressEdit",
+                new { addressId = model.Address.Id, orderId = model.OrderId, model.BillingAddress });
+        }
+
+        model = await orderViewModelService.PrepareOrderAddressModel(order, address);
+        return View(model);
     }
 
     #endregion

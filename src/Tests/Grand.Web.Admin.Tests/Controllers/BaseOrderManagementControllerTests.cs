@@ -262,4 +262,16 @@ public class BaseOrderManagementControllerTests
         Assert.AreEqual("Edit", redirect?.ActionName);
         Assert.AreEqual("o1", redirect?.RouteValues["id"]);
     }
+
+    [TestMethod]
+    public async Task AddressEditGet_ScopeDenies_RedirectsToList()
+    {
+        var order = new Order { Id = "o1", BillingAddress = new Grand.Domain.Common.Address { Id = "a1" } };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.AddressEdit("a1", "o1", true);
+
+        Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
+    }
 }
