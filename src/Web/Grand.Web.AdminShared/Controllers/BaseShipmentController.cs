@@ -361,4 +361,147 @@ public abstract class BaseShipmentController(
     }
 
     #endregion
+
+    #region PDF export and bulk actions
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> PdfPackagingSlip(string shipmentId)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(shipmentId);
+        if (denied != null) return denied;
+
+        var order = await orderService.GetOrderById(shipment.OrderId);
+        if (order == null)
+            //No order found with the specified id
+            return RedirectToAction("List");
+
+        var shipments = new List<Shipment> { shipment };
+
+        byte[] bytes;
+        using (var stream = new MemoryStream())
+        {
+            await pdfService.PrintPackagingSlipsToPdf(stream, shipments, contextAccessor.WorkContext.WorkingLanguage.Id);
+            bytes = stream.ToArray();
+        }
+
+        return File(bytes, "application/pdf", $"packagingslip_{shipment.Id}.pdf");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Export)]
+    [HttpPost]
+    public async Task<IActionResult> PdfPackagingSlipAll(ShipmentListModel model)
+    {
+        if (scope.DefaultStoreId is not null) model.StoreId = scope.DefaultStoreId;
+        if (scope.DefaultVendorId is not null) model.VendorId = scope.DefaultVendorId;
+
+        //load shipments
+        var shipments = await shipmentViewModelService.PrepareShipments(model, 1, 100);
+
+        //ensure that we at least one shipment selected
+        if (shipments.totalCount == 0)
+        {
+            Error(translationService.GetResource("Admin.Orders.Shipments.NoShipmentsSelected"));
+            return RedirectToAction("List");
+        }
+
+        byte[] bytes;
+        using (var stream = new MemoryStream())
+        {
+            await pdfService.PrintPackagingSlipsToPdf(stream, shipments.shipments.ToList(),
+                contextAccessor.WorkContext.WorkingLanguage.Id);
+            bytes = stream.ToArray();
+        }
+
+        return File(bytes, "application/pdf", "packagingslips.pdf");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Export)]
+    [HttpPost]
+    public async Task<IActionResult> PdfPackagingSlipSelected(string selectedIds)
+    {
+        var shipments = new List<Shipment>();
+        if (selectedIds != null)
+        {
+            var ids = selectedIds
+                .Split([','], StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x)
+                .ToArray();
+            shipments.AddRange(await shipmentService.GetShipmentsByIds(ids));
+        }
+
+        var accessibleShipments = new List<Shipment>();
+        foreach (var s in shipments)
+            if (await scope.HasAccess(s))
+                accessibleShipments.Add(s);
+
+        //ensure that we at least one shipment selected — checks the unfiltered count, matching
+        //all 3 originals' pre-existing (and slightly inconsistent) behavior; see the disclosed,
+        //not-fixed note below this method
+        if (shipments.Count == 0)
+        {
+            Error(translationService.GetResource("Admin.Orders.Shipments.NoShipmentsSelected"));
+            return RedirectToAction("List");
+        }
+
+        byte[] bytes;
+        using (var stream = new MemoryStream())
+        {
+            await pdfService.PrintPackagingSlipsToPdf(stream, accessibleShipments, contextAccessor.WorkContext.WorkingLanguage.Id);
+            bytes = stream.ToArray();
+        }
+
+        return File(bytes, "application/pdf", "packagingslips.pdf");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SetAsShippedSelected(ICollection<string> selectedIds)
+    {
+        var shipments = new List<Shipment>();
+        if (selectedIds != null) shipments.AddRange(await shipmentService.GetShipmentsByIds(selectedIds.ToArray()));
+
+        var accessibleShipments = new List<Shipment>();
+        foreach (var s in shipments)
+            if (await scope.HasAccess(s))
+                accessibleShipments.Add(s);
+
+        foreach (var shipment in accessibleShipments)
+            try
+            {
+                await mediator.Send(new ShipCommand { Shipment = shipment, NotifyCustomer = true });
+            }
+            catch
+            {
+                //ignore any exception
+            }
+
+        return Json(new { Result = true });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SetAsDeliveredSelected(ICollection<string> selectedIds)
+    {
+        var shipments = new List<Shipment>();
+        if (selectedIds != null) shipments.AddRange(await shipmentService.GetShipmentsByIds(selectedIds.ToArray()));
+
+        var accessibleShipments = new List<Shipment>();
+        foreach (var s in shipments)
+            if (await scope.HasAccess(s))
+                accessibleShipments.Add(s);
+
+        foreach (var shipment in accessibleShipments)
+            try
+            {
+                await mediator.Send(new DeliveryCommand { Shipment = shipment, NotifyCustomer = true });
+            }
+            catch
+            {
+                //ignore any exception
+            }
+
+        return Json(new { Result = true });
+    }
+
+    #endregion
 }

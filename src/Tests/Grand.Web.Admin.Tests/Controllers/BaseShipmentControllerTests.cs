@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
@@ -67,6 +68,9 @@ public class BaseShipmentControllerTests
         var translationServiceMock = new Mock<ITranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
         var contextAccessorMock = new Mock<IContextAccessor>();
+        var workContextMock = new Mock<IWorkContext>();
+        workContextMock.Setup(w => w.WorkingLanguage).Returns(new Language { Id = "lang-1" });
+        contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
         var pdfServiceMock = new Mock<IPdfService>();
         var dateTimeServiceMock = new Mock<IDateTimeService>();
         _mediatorMock = new Mock<IMediator>();
@@ -567,5 +571,120 @@ public class BaseShipmentControllerTests
         Assert.AreEqual("s1", redirect.RouteValues["id"]);
         Assert.AreEqual(deliveryDate, shipment.DeliveryDateUtc);
         _shipmentServiceMock.Verify(s => s.UpdateShipment(shipment), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PdfPackagingSlip_Denied_RedirectsToList()
+    {
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+
+        var result = await _controller.PdfPackagingSlip("s1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _orderServiceMock.Verify(s => s.GetOrderById(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PdfPackagingSlipAll_NoShipments_ShowsErrorAndRedirects()
+    {
+        _shipmentViewModelServiceMock
+            .Setup(v => v.PrepareShipments(It.IsAny<ShipmentListModel>(), 1, 100))
+            .ReturnsAsync((Enumerable.Empty<Shipment>(), 0));
+
+        var result = await _controller.PdfPackagingSlipAll(new ShipmentListModel());
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task PdfPackagingSlipAll_ForcesStoreAndVendorIdConditionally()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor-1");
+        _shipmentViewModelServiceMock
+            .Setup(v => v.PrepareShipments(It.IsAny<ShipmentListModel>(), 1, 100))
+            .ReturnsAsync((Enumerable.Empty<Shipment>(), 0));
+
+        var model = new ShipmentListModel { StoreId = "attacker-store", VendorId = "attacker-vendor" };
+        await _controller.PdfPackagingSlipAll(model);
+
+        Assert.AreEqual("store-1", model.StoreId);
+        Assert.AreEqual("vendor-1", model.VendorId);
+    }
+
+    [TestMethod]
+    public async Task PdfPackagingSlipSelected_FiltersToAccessibleShipments()
+    {
+        var accessibleShipment = new Shipment { Id = "s1" };
+        var deniedShipment = new Shipment { Id = "s2" };
+        _shipmentServiceMock
+            .Setup(s => s.GetShipmentsByIds(new[] { "s1", "s2" }))
+            .ReturnsAsync((IList<Shipment>)new List<Shipment> { accessibleShipment, deniedShipment });
+        _scopeMock.Setup(s => s.HasAccess(accessibleShipment)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.HasAccess(deniedShipment)).ReturnsAsync(false);
+
+        var result = await _controller.PdfPackagingSlipSelected("s1,s2");
+
+        var fileResult = result as FileContentResult;
+        Assert.IsNotNull(fileResult);
+        Assert.AreEqual("packagingslips.pdf", fileResult.FileDownloadName);
+        _scopeMock.Verify(s => s.HasAccess(accessibleShipment), Times.Once);
+        _scopeMock.Verify(s => s.HasAccess(deniedShipment), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SetAsShippedSelected_FiltersToAccessibleShipments_IgnoresPerItemExceptions()
+    {
+        var accessibleShipment1 = new Shipment { Id = "s1" };
+        var accessibleShipment2 = new Shipment { Id = "s2" };
+        var deniedShipment = new Shipment { Id = "s3" };
+        _shipmentServiceMock
+            .Setup(s => s.GetShipmentsByIds(new[] { "s1", "s2", "s3" }))
+            .ReturnsAsync((IList<Shipment>)new List<Shipment> { accessibleShipment1, accessibleShipment2, deniedShipment });
+        _scopeMock.Setup(s => s.HasAccess(accessibleShipment1)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.HasAccess(accessibleShipment2)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.HasAccess(deniedShipment)).ReturnsAsync(false);
+
+        _mediatorMock
+            .Setup(m => m.Send(It.Is<ShipCommand>(c => c.Shipment == accessibleShipment1), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("boom"));
+        _mediatorMock
+            .Setup(m => m.Send(It.Is<ShipCommand>(c => c.Shipment == accessibleShipment2), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var result = await _controller.SetAsShippedSelected(new List<string> { "s1", "s2", "s3" });
+
+        var jsonResult = result as JsonResult;
+        Assert.IsNotNull(jsonResult);
+        _mediatorMock.Verify(m => m.Send(It.Is<ShipCommand>(c => c.Shipment == accessibleShipment1), It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(m => m.Send(It.Is<ShipCommand>(c => c.Shipment == accessibleShipment2), It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(m => m.Send(It.Is<ShipCommand>(c => c.Shipment == deniedShipment), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SetAsDeliveredSelected_FiltersToAccessibleShipments()
+    {
+        var accessibleShipment = new Shipment { Id = "s1" };
+        var deniedShipment = new Shipment { Id = "s2" };
+        _shipmentServiceMock
+            .Setup(s => s.GetShipmentsByIds(new[] { "s1", "s2" }))
+            .ReturnsAsync((IList<Shipment>)new List<Shipment> { accessibleShipment, deniedShipment });
+        _scopeMock.Setup(s => s.HasAccess(accessibleShipment)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.HasAccess(deniedShipment)).ReturnsAsync(false);
+
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<DeliveryCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var result = await _controller.SetAsDeliveredSelected(new List<string> { "s1", "s2" });
+
+        var jsonResult = result as JsonResult;
+        Assert.IsNotNull(jsonResult);
+        _mediatorMock.Verify(m => m.Send(It.Is<DeliveryCommand>(c => c.Shipment == accessibleShipment), It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(m => m.Send(It.Is<DeliveryCommand>(c => c.Shipment == deniedShipment), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
