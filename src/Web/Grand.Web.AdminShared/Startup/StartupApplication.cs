@@ -1,6 +1,7 @@
 using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.Drivers.FileSystem.Extensions;
 using Grand.Domain.Catalog;
+using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Services;
@@ -82,6 +83,13 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<GlobalAdminDataScope<Collection>>();
         services.AddScoped<StoreAdminDataScope<Collection>>();
         services.AddScoped<IAdminDataScope<Collection>, RoutedCollectionDataScope>();
+
+        // IAdminDataScope<Order>: three bespoke implementations, none reusing the generic Global/Store
+        // scopes — see AdminOrderDataScope/StoreOrderDataScope/VendorOrderDataScope doc comments.
+        services.AddScoped<AdminOrderDataScope>();
+        services.AddScoped<StoreOrderDataScope>();
+        services.AddScoped<VendorOrderDataScope>();
+        services.AddScoped<IAdminDataScope<Order>, RoutedOrderDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
