@@ -1,10 +1,11 @@
-﻿@model PaymentTransactionListModel
+@model PaymentTransactionListModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Orders.PaymentTransaction"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaStore" asp-controller="PaymentTransaction" asp-action="List" method="post">
+<form asp-area="@area" asp-controller="PaymentTransaction" asp-action="List" method="post">
 
     <div class="row">
         <div class="col-md-12">
@@ -14,7 +15,7 @@
                         <i class="fa fa-truck"></i>
                         @Loc["Admin.Orders.PaymentTransaction"]
                     </div>
-                    <vc:admin-widget widget-zone="payment_transaction_list_buttons" additional-data="null"/>
+                    <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
                 </div>
                 <div class="x_content form">
                     <div class="form-horizontal">
@@ -92,7 +93,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("List", "PaymentTransaction", new { area = Constants.AreaStore }))",
+                        url: "@Html.Raw(Url.Action("List", "PaymentTransaction", new { area = area }))",
                         type: "POST",
                         dataType: "json",
                         data: additionalData
@@ -142,12 +143,12 @@
                     field: "CustomerId",
                     title: "@Loc["Admin.Orders.PaymentTransaction.Fields.Customer"]",
                     width: 200,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/#=CustomerId#">#:kendo.htmlEncode(CustomerEmail)#</a>'
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/#=CustomerId#">#:kendo.htmlEncode(CustomerEmail)#</a>'
                 }, {
                     field: "OrderNumber",
                     title: "@Loc["Admin.Orders.PaymentTransaction.Fields.OrderNumber"]",
                     width: 80,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaStore })/#=OrderId#">#:OrderNumber#</a>'
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/#=OrderId#">#:OrderNumber#</a>'
                 }, {
                     field: "Status",
                     title: "@Loc["Admin.Orders.PaymentTransaction.Fields.Status"]",
