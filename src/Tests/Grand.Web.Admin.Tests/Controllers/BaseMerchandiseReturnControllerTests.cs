@@ -239,4 +239,107 @@ public class BaseMerchandiseReturnControllerTests
         var gridModel = (DataSourceResult)json.Value;
         Assert.AreEqual(1, gridModel.Total);
     }
+
+    // --- Edit (GET) ------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task EditGet_NotFound_RedirectsToList()
+    {
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+
+        var result = await _controller.Edit("missing");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _scopeMock.Verify(s => s.CanView(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EditGet_ScopeDeniesView_RedirectsToList()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.CanView(entity)).ReturnsAsync(false);
+
+        var result = await _controller.Edit("mr1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task EditGet_Authorized_ReturnsViewAndPreparesModel()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.CanView(entity)).ReturnsAsync(true);
+
+        var result = await _controller.Edit("mr1");
+
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        _merchandiseReturnViewModelServiceMock.Verify(
+            v => v.PrepareMerchandiseReturnModel(It.IsAny<MerchandiseReturnModel>(), entity, false), Times.Once);
+    }
+
+    // --- Edit (POST) -----------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task EditPost_NotFound_RedirectsToList()
+    {
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+        var orderSettings = new Grand.Domain.Orders.OrderSettings();
+
+        var result = await _controller.Edit(new MerchandiseReturnModel { Id = "missing" }, false,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
+            orderSettings);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task EditPost_ScopeDenies_RedirectsToList()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(false);
+        var orderSettings = new Grand.Domain.Orders.OrderSettings();
+
+        var result = await _controller.Edit(new MerchandiseReturnModel { Id = "mr1" }, false,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
+            orderSettings);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _merchandiseReturnViewModelServiceMock.Verify(
+            v => v.UpdateMerchandiseReturnModel(It.IsAny<MerchandiseReturn>(), It.IsAny<MerchandiseReturnModel>(),
+                It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EditPost_ValidAndAuthorized_UpdatesAndRedirectsToList()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        _merchandiseReturnViewModelServiceMock
+            .Setup(v => v.UpdateMerchandiseReturnModel(entity, It.IsAny<MerchandiseReturnModel>(), It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()))
+            .ReturnsAsync(entity);
+        var orderSettings = new Grand.Domain.Orders.OrderSettings { MerchandiseReturns_AllowToSpecifyPickupAddress = false };
+
+        var result = await _controller.Edit(new MerchandiseReturnModel { Id = "mr1" }, false,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
+            orderSettings);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
 }

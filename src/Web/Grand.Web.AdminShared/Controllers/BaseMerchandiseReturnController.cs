@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Controllers;
@@ -91,6 +92,54 @@ public abstract class BaseMerchandiseReturnController(
             Total = items.Count
         };
         return Json(gridModel);
+    }
+
+    #endregion
+
+    #region Edit
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var merchandiseReturn = await MerchandiseReturnService.GetMerchandiseReturnById(id);
+        if (merchandiseReturn == null) return RedirectToAction("List");
+        if (!await Scope.CanView(merchandiseReturn)) return RedirectToAction("List");
+
+        var model = new MerchandiseReturnModel();
+        await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Edit(MerchandiseReturnModel model, bool continueEditing,
+        [FromServices] Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService addressAttributeService,
+        [FromServices] Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser addressAttributeParser,
+        [FromServices] Grand.Domain.Orders.OrderSettings orderSettings)
+    {
+        var merchandiseReturn = await MerchandiseReturnService.GetMerchandiseReturnById(model.Id);
+        if (merchandiseReturn == null) return RedirectToAction("List");
+        if (!await Scope.HasAccess(merchandiseReturn)) return RedirectToAction("List");
+
+        if (ModelState.IsValid)
+        {
+            var customAddressAttributes = new List<Grand.Domain.Common.CustomAttribute>();
+            if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
+                customAddressAttributes = await model.PickupAddress.ParseCustomAddressAttributes(
+                    addressAttributeParser, addressAttributeService);
+
+            merchandiseReturn = await MerchandiseReturnViewModelService.UpdateMerchandiseReturnModel(
+                merchandiseReturn, model, customAddressAttributes);
+
+            Success(TranslationService.GetResource($"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.Updated"));
+            return continueEditing
+                ? RedirectToAction("Edit", new { id = merchandiseReturn.Id })
+                : RedirectToAction("List");
+        }
+
+        await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
+        return View(model);
     }
 
     #endregion
