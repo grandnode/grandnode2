@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.AdminShared.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.PaymentTransactions)]
+[AutoValidateAntiforgeryToken]
 public abstract class BasePaymentTransactionController(
     IPaymentTransactionService paymentTransactionService,
     IOrderService orderService,

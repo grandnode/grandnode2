@@ -96,7 +96,7 @@ public class BasePaymentTransactionControllerTests
         var result = _controller.List() as ViewResult;
 
         Assert.IsNotNull(result);
-        Assert.IsInstanceOfType(result.Model, typeof(PaymentTransactionListModel));
+        Assert.IsInstanceOfType(result!.Model, typeof(PaymentTransactionListModel));
     }
 
     [TestMethod]
@@ -138,7 +138,7 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.GoToOrderNumber(new PaymentTransactionListModel { OrderNumber = "123" }) as RedirectToActionResult;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("List", result.ActionName);
+        Assert.AreEqual("List", result!.ActionName);
     }
 
     [TestMethod]
@@ -151,8 +151,8 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.GoToOrderNumber(new PaymentTransactionListModel { OrderNumber = "123" }) as RedirectToActionResult;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("Edit", result.ActionName);
-        Assert.AreEqual("pt-1", result.RouteValues["id"]);
+        Assert.AreEqual("Edit", result!.ActionName);
+        Assert.AreEqual("pt-1", result!.RouteValues["id"]);
     }
 
     [TestMethod]
@@ -164,7 +164,7 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.Edit("pt-1") as RedirectToActionResult;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("List", result.ActionName);
+        Assert.AreEqual("List", result!.ActionName);
     }
 
     [TestMethod]
@@ -177,9 +177,9 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.Edit("pt-1") as ViewResult;
 
         Assert.IsNotNull(result);
-        var model = result.Model as PaymentTransactionModel;
+        var model = result!.Model as PaymentTransactionModel;
         Assert.IsNotNull(model);
-        Assert.AreEqual("pt-1", model.Id);
+        Assert.AreEqual("pt-1", model!.Id);
         Assert.AreEqual(80, model.MaxAmountToRefund);
     }
 
@@ -192,7 +192,7 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.CapturePaymentTransaction("pt-1") as RedirectToActionResult;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("List", result.ActionName);
+        Assert.AreEqual("List", result!.ActionName);
     }
 
     [TestMethod]
@@ -205,8 +205,8 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.CapturePaymentTransaction("pt-1") as RedirectToActionResult;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("Edit", result.ActionName);
-        Assert.AreEqual("pt-1", result.RouteValues["id"]);
+        Assert.AreEqual("Edit", result!.ActionName);
+        Assert.AreEqual("pt-1", result!.RouteValues["id"]);
     }
 
     [TestMethod]
@@ -220,8 +220,8 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.PartiallyRefundPopup("pt-1", false, model) as ViewResult;
 
         Assert.IsNotNull(result);
-        var resultModel = result.Model as PaymentTransactionModel;
-        Assert.IsTrue(resultModel.RefreshPage);
+        var resultModel = result!.Model as PaymentTransactionModel;
+        Assert.IsTrue(resultModel!.RefreshPage);
     }
 
     [TestMethod]
@@ -234,8 +234,8 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.PartiallyRefundPopup("pt-1", false, model) as ViewResult;
 
         Assert.IsNotNull(result);
-        var resultModel = result.Model as PaymentTransactionModel;
-        Assert.IsFalse(resultModel.RefreshPage);
+        var resultModel = result!.Model as PaymentTransactionModel;
+        Assert.IsFalse(resultModel!.RefreshPage);
     }
 
     [TestMethod]
@@ -248,7 +248,7 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.PartiallyRefundPopup("pt-1", false, model) as RedirectToActionResult;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("List", result.ActionName);
+        Assert.AreEqual("List", result!.ActionName);
         _mediatorMock.Verify(m => m.Send(It.IsAny<PartiallyRefundOfflineCommand>(), default), Times.Never);
     }
 
@@ -263,8 +263,8 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.PartiallyPaidPopup("pt-1", false, model) as ViewResult;
 
         Assert.IsNotNull(result);
-        var resultModel = result.Model as PaymentTransactionModel;
-        Assert.IsTrue(resultModel.RefreshPage);
+        var resultModel = result!.Model as PaymentTransactionModel;
+        Assert.IsTrue(resultModel!.RefreshPage);
     }
 
     [TestMethod]
@@ -277,7 +277,7 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.PartiallyPaidPopup("pt-1", false, model) as RedirectToActionResult;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("List", result.ActionName);
+        Assert.AreEqual("List", result!.ActionName);
         _mediatorMock.Verify(m => m.Send(It.IsAny<PartiallyPaidOfflineCommand>(), default), Times.Never);
     }
 
@@ -290,7 +290,7 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.Delete("pt-1") as RedirectToActionResult;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("List", result.ActionName);
+        Assert.AreEqual("List", result!.ActionName);
     }
 
     [TestMethod]
@@ -302,7 +302,7 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.Delete("pt-1") as RedirectToActionResult;
 
         Assert.IsNotNull(result);
-        Assert.AreEqual("List", result.ActionName);
+        Assert.AreEqual("List", result!.ActionName);
         _paymentTransactionServiceMock.Verify(s => s.DeletePaymentTransaction(transaction), Times.Once);
     }
 }
