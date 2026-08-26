@@ -125,4 +125,118 @@ public class BaseMerchandiseReturnControllerTests
 
         Assert.IsNull(model.StoreId);
     }
+
+    // --- GoToId --------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task GoToId_NullGoDirectlyToId_RedirectsToList()
+    {
+        var result = await _controller.GoToId(new MerchandiseReturnListModel { GoDirectlyToId = null });
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _merchandiseReturnServiceMock.Verify(s => s.GetMerchandiseReturnById(It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task GoToId_NotFound_RedirectsToList()
+    {
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById(42)).ReturnsAsync((MerchandiseReturn)null);
+
+        var result = await _controller.GoToId(new MerchandiseReturnListModel { GoDirectlyToId = "42" });
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task GoToId_ScopeDenies_RedirectsToList()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById(42)).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(false);
+
+        var result = await _controller.GoToId(new MerchandiseReturnListModel { GoDirectlyToId = "42" });
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task GoToId_NonNumericString_TreatedAsNotFound()
+    {
+        // int.TryParse("abc", out var id) leaves id = 0; GetMerchandiseReturnById(0) returning null
+        // reproduces "not found" the same way it did before this phase (spec §2.6 - no regression).
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById(0)).ReturnsAsync((MerchandiseReturn)null);
+
+        var result = await _controller.GoToId(new MerchandiseReturnListModel { GoDirectlyToId = "abc" });
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task GoToId_Authorized_RedirectsToEdit()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById(42)).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+
+        var result = await _controller.GoToId(new MerchandiseReturnListModel { GoDirectlyToId = "42" });
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.AreEqual("mr1", redirect.RouteValues["id"]);
+    }
+
+    // --- ProductsForMerchandiseReturn ------------------------------------------------------------
+
+    [TestMethod]
+    public async Task ProductsForMerchandiseReturn_NotFound_ReturnsKendoError()
+    {
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync((MerchandiseReturn)null);
+
+        var result = await _controller.ProductsForMerchandiseReturn("mr1", new DataSourceRequest());
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsFalse(string.IsNullOrEmpty((string)gridModel.Errors));
+    }
+
+    [TestMethod]
+    public async Task ProductsForMerchandiseReturn_ScopeDenies_ReturnsKendoError()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(false);
+
+        var result = await _controller.ProductsForMerchandiseReturn("mr1", new DataSourceRequest());
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsFalse(string.IsNullOrEmpty((string)gridModel.Errors));
+    }
+
+    [TestMethod]
+    public async Task ProductsForMerchandiseReturn_Authorized_ReturnsItems()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        var items = new List<MerchandiseReturnModel.MerchandiseReturnItemModel> { new() };
+        _merchandiseReturnViewModelServiceMock.Setup(v => v.PrepareMerchandiseReturnItemModel("mr1")).ReturnsAsync(items);
+
+        var result = await _controller.ProductsForMerchandiseReturn("mr1", new DataSourceRequest());
+
+        var json = result as JsonResult;
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.AreEqual(1, gridModel.Total);
+    }
 }

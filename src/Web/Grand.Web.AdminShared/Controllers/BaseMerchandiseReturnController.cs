@@ -58,4 +58,40 @@ public abstract class BaseMerchandiseReturnController(
     }
 
     #endregion
+
+    #region GoToId / Products
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> GoToId(MerchandiseReturnListModel model)
+    {
+        if (model.GoDirectlyToId == null)
+            return RedirectToAction("List");
+
+        int.TryParse(model.GoDirectlyToId, out var id);
+
+        var merchandiseReturn = await MerchandiseReturnService.GetMerchandiseReturnById(id);
+        if (merchandiseReturn == null || !await Scope.HasAccess(merchandiseReturn))
+            return RedirectToAction("List");
+
+        return RedirectToAction("Edit", new { id = merchandiseReturn.Id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> ProductsForMerchandiseReturn(string merchandiseReturnId, DataSourceRequest command)
+    {
+        var merchandiseReturn = await MerchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
+        if (merchandiseReturn == null || !await Scope.HasAccess(merchandiseReturn))
+            return ErrorForKendoGridJson("Merchandise return not found");
+
+        var items = await MerchandiseReturnViewModelService.PrepareMerchandiseReturnItemModel(merchandiseReturnId);
+        var gridModel = new DataSourceResult {
+            Data = items,
+            Total = items.Count
+        };
+        return Json(gridModel);
+    }
+
+    #endregion
 }
