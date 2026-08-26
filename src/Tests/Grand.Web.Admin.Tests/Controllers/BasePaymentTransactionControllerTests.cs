@@ -239,6 +239,20 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
+    public async Task PartiallyRefundPopup_Post_DeniedByScope_RedirectsToList()
+    {
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(new PaymentTransaction { Id = "pt-1" });
+        _scopeMock.Setup(s => s.HasAccess(It.IsAny<PaymentTransaction>())).ReturnsAsync(false);
+
+        var model = new PaymentTransactionModel { AmountToRefund = 50 };
+        var result = await _controller.PartiallyRefundPopup("pt-1", false, model) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result.ActionName);
+        _mediatorMock.Verify(m => m.Send(It.IsAny<PartiallyRefundOfflineCommand>(), default), Times.Never);
+    }
+
+    [TestMethod]
     public async Task PartiallyPaidPopup_Post_Success_SetsModelRefreshPage()
     {
         var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100, PaidAmount = 0 };
@@ -251,6 +265,20 @@ public class BasePaymentTransactionControllerTests
         Assert.IsNotNull(result);
         var resultModel = result.Model as PaymentTransactionModel;
         Assert.IsTrue(resultModel.RefreshPage);
+    }
+
+    [TestMethod]
+    public async Task PartiallyPaidPopup_Post_DeniedByScope_RedirectsToList()
+    {
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(new PaymentTransaction { Id = "pt-1" });
+        _scopeMock.Setup(s => s.HasAccess(It.IsAny<PaymentTransaction>())).ReturnsAsync(false);
+
+        var model = new PaymentTransactionModel { AmountToPaid = 50 };
+        var result = await _controller.PartiallyPaidPopup("pt-1", false, model) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result.ActionName);
+        _mediatorMock.Verify(m => m.Send(It.IsAny<PartiallyPaidOfflineCommand>(), default), Times.Never);
     }
 
     [TestMethod]

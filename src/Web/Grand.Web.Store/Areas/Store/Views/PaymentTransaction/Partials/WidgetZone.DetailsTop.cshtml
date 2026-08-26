@@ -1,2 +1,5 @@
+@* vc:store-widget, not vc:admin-widget as the pre-consolidation Store views used — that tag helper
+   is not registered in the Store app (no ProjectReference to Grand.Web.Admin); the original markup
+   was inert and never rendered anything. Fixed during ARCH-001 Phase 7 consolidation. *@
 @model PaymentTransactionModel
 <vc:store-widget widget-zone="payment_transaction_details_top" additional-data="Model"/>
