@@ -56,7 +56,7 @@ public class MerchandiseReturnController : BaseStoreController
 
     public IActionResult List()
     {
-        var model = _merchandiseReturnViewModelService.PrepareReturnReqestListModel();
+        var model = _merchandiseReturnViewModelService.PrepareReturnRequestListModel();
         return View(model);
     }
 
