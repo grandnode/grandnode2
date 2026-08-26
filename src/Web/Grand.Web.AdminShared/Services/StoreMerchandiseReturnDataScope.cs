@@ -24,8 +24,6 @@ public class StoreMerchandiseReturnDataScope(IContextAccessor contextAccessor)
         Task.FromResult(entity is not null &&
             entity.StoreId == contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
 
-    public Task<bool> CanView(MerchandiseReturn entity) => HasAccess(entity);
-
     public string? DefaultStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
     public string ResourceKeyPrefix => "Admin";
     public bool ShowStoreSelector => true;

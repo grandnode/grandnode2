@@ -1,6 +1,7 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -58,6 +59,6 @@ public class StoreMerchandiseReturnDataScopeTests
         // the interface default (HasAccess), not be separately implemented.
         var scope = Build("store-1");
         var entity = new MerchandiseReturn { StoreId = "store-2" };
-        Assert.AreEqual(await scope.HasAccess(entity), await scope.CanView(entity));
+        Assert.AreEqual(await scope.HasAccess(entity), await ((IAdminDataScope<MerchandiseReturn>)scope).CanView(entity));
     }
 }
