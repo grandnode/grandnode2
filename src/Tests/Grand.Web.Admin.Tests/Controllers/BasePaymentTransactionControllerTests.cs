@@ -12,8 +12,12 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -69,6 +73,21 @@ public class BasePaymentTransactionControllerTests
         _controller = new TestPaymentTransactionController(
             _paymentTransactionServiceMock.Object, _orderServiceMock.Object, translationServiceMock.Object,
             dateTimeServiceMock.Object, _mediatorMock.Object, enumTranslationServiceMock.Object, _scopeMock.Object);
+
+        // Error()/Success() (used by this task's popup and Delete actions) reach into
+        // HttpContext.RequestServices for ILoggerFactory and into TempData - wire up the same
+        // minimal harness other Base*ControllerTests use (see BaseOrderControllerTests.Setup).
+        var httpContext = new DefaultHttpContext();
+        var loggerFactoryMock = new Mock<ILoggerFactory>();
+        loggerFactoryMock.Setup(l => l.CreateLogger(It.IsAny<string>())).Returns(new Mock<ILogger>().Object);
+        var urlHelperFactoryMock = new Mock<IUrlHelperFactory>();
+        urlHelperFactoryMock.Setup(f => f.GetUrlHelper(It.IsAny<ActionContext>())).Returns(new Mock<IUrlHelper>().Object);
+        var requestServicesMock = new Mock<IServiceProvider>();
+        requestServicesMock.Setup(s => s.GetService(typeof(ILoggerFactory))).Returns(loggerFactoryMock.Object);
+        requestServicesMock.Setup(s => s.GetService(typeof(IUrlHelperFactory))).Returns(urlHelperFactoryMock.Object);
+        httpContext.RequestServices = requestServicesMock.Object;
+        _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+        _controller.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
     }
 
     [TestMethod]
@@ -188,5 +207,74 @@ public class BasePaymentTransactionControllerTests
         Assert.IsNotNull(result);
         Assert.AreEqual("Edit", result.ActionName);
         Assert.AreEqual("pt-1", result.RouteValues["id"]);
+    }
+
+    [TestMethod]
+    public async Task PartiallyRefundPopup_Post_Success_SetsModelRefreshPage()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100, RefundedAmount = 0 };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+        _mediatorMock.Setup(m => m.Send(It.IsAny<PartiallyRefundOfflineCommand>(), default)).ReturnsAsync(true);
+
+        var model = new PaymentTransactionModel { AmountToRefund = 50 };
+        var result = await _controller.PartiallyRefundPopup("pt-1", false, model) as ViewResult;
+
+        Assert.IsNotNull(result);
+        var resultModel = result.Model as PaymentTransactionModel;
+        Assert.IsTrue(resultModel.RefreshPage);
+    }
+
+    [TestMethod]
+    public async Task PartiallyRefundPopup_Post_ZeroAmount_ErrorsAndDoesNotSetRefreshPage()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100, RefundedAmount = 0 };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+
+        var model = new PaymentTransactionModel { AmountToRefund = 0 };
+        var result = await _controller.PartiallyRefundPopup("pt-1", false, model) as ViewResult;
+
+        Assert.IsNotNull(result);
+        var resultModel = result.Model as PaymentTransactionModel;
+        Assert.IsFalse(resultModel.RefreshPage);
+    }
+
+    [TestMethod]
+    public async Task PartiallyPaidPopup_Post_Success_SetsModelRefreshPage()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100, PaidAmount = 0 };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+        _mediatorMock.Setup(m => m.Send(It.IsAny<PartiallyPaidOfflineCommand>(), default)).ReturnsAsync(true);
+
+        var model = new PaymentTransactionModel { AmountToPaid = 50 };
+        var result = await _controller.PartiallyPaidPopup("pt-1", false, model) as ViewResult;
+
+        Assert.IsNotNull(result);
+        var resultModel = result.Model as PaymentTransactionModel;
+        Assert.IsTrue(resultModel.RefreshPage);
+    }
+
+    [TestMethod]
+    public async Task Delete_DeniedByScope_RedirectsToList()
+    {
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(new PaymentTransaction { Id = "pt-1" });
+        _scopeMock.Setup(s => s.HasAccess(It.IsAny<PaymentTransaction>())).ReturnsAsync(false);
+
+        var result = await _controller.Delete("pt-1") as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result.ActionName);
+    }
+
+    [TestMethod]
+    public async Task Delete_Authorized_DeletesAndRedirectsToList()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1" };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+
+        var result = await _controller.Delete("pt-1") as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result.ActionName);
+        _paymentTransactionServiceMock.Verify(s => s.DeletePaymentTransaction(transaction), Times.Once);
     }
 }

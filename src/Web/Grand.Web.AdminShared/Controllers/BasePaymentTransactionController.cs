@@ -7,6 +7,7 @@ using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Permissions;
 using Grand.Mediator;
+using Grand.SharedKernel;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Controllers;
@@ -336,6 +337,138 @@ public abstract class BasePaymentTransactionController(
             Error(exc, false);
             return RedirectToAction("Edit", "PaymentTransaction", new { id });
         }
+    }
+
+    #endregion
+
+    #region Partial refund / paid popups
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> PartiallyRefundPopup(string id, bool online)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        var model = new PaymentTransactionModel {
+            Id = paymentTransaction.Id,
+            MaxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount,
+            CurrencyCode = paymentTransaction.CurrencyCode
+        };
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> PartiallyRefundPopup(string id, bool online, PaymentTransactionModel model)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        try
+        {
+            var amountToRefund = model.AmountToRefund;
+            if (amountToRefund <= 0)
+                throw new GrandException("Enter amount to refund");
+
+            var maxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
+            if (amountToRefund > maxAmountToRefund)
+                amountToRefund = maxAmountToRefund;
+
+            var errors = new List<string>();
+            if (online)
+                errors = (await mediator.Send(new PartiallyRefundCommand { PaymentTransaction = paymentTransaction, AmountToRefund = amountToRefund })).ToList();
+            else
+                await mediator.Send(new PartiallyRefundOfflineCommand { PaymentTransaction = paymentTransaction, AmountToRefund = amountToRefund });
+
+            if (errors.Count == 0)
+            {
+                //success — Model.RefreshPage, read by both hosts' PartiallyRefundPopup.cshtml script
+                //block after this task's view migration (Task 5). Admin's pre-consolidation
+                //controller set ViewBag.RefreshPage here instead, which its own view never read
+                //(a dead write, since the view already checked Model.RefreshPage) — deliberate bug
+                //fix, unifying onto Store's already-correct behavior. See spec §2.
+                model.RefreshPage = true;
+                return View(model);
+            }
+
+            foreach (var error in errors)
+                Error(error);
+
+            return View(model);
+        }
+        catch (Exception exc)
+        {
+            Error(exc, false);
+            return View(model);
+        }
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> PartiallyPaidPopup(string id, bool online)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        var model = new PaymentTransactionModel {
+            Id = paymentTransaction.Id,
+            MaxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount,
+            CurrencyCode = paymentTransaction.CurrencyCode
+        };
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> PartiallyPaidPopup(string id, bool online, PaymentTransactionModel model)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        try
+        {
+            var amountToPaid = model.AmountToPaid;
+            if (amountToPaid <= 0)
+                throw new GrandException("Enter amount to refund");
+
+            var maxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
+            if (amountToPaid > maxAmountToPaid)
+                amountToPaid = maxAmountToPaid;
+
+            await mediator.Send(new PartiallyPaidOfflineCommand { PaymentTransaction = paymentTransaction, AmountToPaid = amountToPaid });
+
+            //same RefreshPage fix as PartiallyRefundPopup above.
+            model.RefreshPage = true;
+            return View(model);
+        }
+        catch (Exception exc)
+        {
+            Error(exc, false);
+            return View(model);
+        }
+    }
+
+    #endregion
+
+    #region Delete
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        if (ModelState.IsValid)
+        {
+            await paymentTransactionService.DeletePaymentTransaction(paymentTransaction);
+            Success(translationService.GetResource("Admin.Orders.PaymentTransaction.Deleted"));
+            return RedirectToAction("List", "PaymentTransaction");
+        }
+
+        Error(ModelState);
+        return RedirectToAction("Edit", new { id = paymentTransaction.Id });
     }
 
     #endregion
