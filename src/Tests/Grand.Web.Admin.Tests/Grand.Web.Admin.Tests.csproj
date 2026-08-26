@@ -24,5 +24,8 @@
         <ProjectReference Include="..\..\Web\Grand.Web.Store\Grand.Web.Store.csproj">
             <Aliases>StoreHost</Aliases>
         </ProjectReference>
+        <ProjectReference Include="..\..\Web\Grand.Web.Vendor\Grand.Web.Vendor.csproj">
+            <Aliases>VendorHost</Aliases>
+        </ProjectReference>
     </ItemGroup>
 </Project>

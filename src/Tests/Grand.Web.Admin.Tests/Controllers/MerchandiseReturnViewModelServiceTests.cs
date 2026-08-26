@@ -80,6 +80,41 @@ public class MerchandiseReturnViewModelServiceTests
         customerServiceMock.Verify(c => c.GetCustomerByEmail("test@example.com", ""), Times.Once);
     }
 
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_ForwardsScopeDefaultStoreIdAndVendorIdToService()
+    {
+        // Regression test for coverage gap noted in Task 4: verify that scope.DefaultStoreId
+        // and scope.DefaultVendorId actually reach IMerchandiseReturnService.SearchMerchandiseReturns
+        // with the exact values (not just It.IsAny).
+        var merchandiseReturnServiceMock = new Mock<IMerchandiseReturnService>();
+        // Method signature: SearchMerchandiseReturns(storeId, customerId, orderItemId, vendorId, ownerId, rs, pageIndex, pageSize, createdFromUtc, createdToUtc)
+        merchandiseReturnServiceMock
+            .Setup(m => m.SearchMerchandiseReturns(
+                "store-42", It.IsAny<string>(), It.IsAny<string>(), "vendor-99", It.IsAny<string>(),
+                It.IsAny<MerchandiseReturnStatus?>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>()))
+            .ReturnsAsync(new PagedList<MerchandiseReturn>());
+
+        var contextAccessorMock = new Mock<IContextAccessor>();
+        var scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
+        scopeMock.Setup(s => s.DefaultStoreId).Returns("store-42");
+        scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor-99");
+
+        var service = BuildWithCustomMocks(
+            merchandiseReturnServiceMock.Object,
+            contextAccessorMock.Object,
+            scopeMock.Object);
+
+        var model = new MerchandiseReturnListModel();
+        await service.PrepareMerchandiseReturnModel(model, 1, 10);
+
+        // Verify exact call with scope values, not It.IsAny
+        merchandiseReturnServiceMock.Verify(m => m.SearchMerchandiseReturns(
+            "store-42", It.IsAny<string>(), It.IsAny<string>(), "vendor-99", It.IsAny<string>(),
+            It.IsAny<MerchandiseReturnStatus?>(), 0, 10,
+            It.IsAny<DateTime?>(), It.IsAny<DateTime?>()), Times.Once);
+    }
+
     private static MerchandiseReturnViewModelService Build(ICustomerService customerService,
         IContextAccessor contextAccessor, CustomerConfig customerConfig)
     {
@@ -129,5 +164,50 @@ public class MerchandiseReturnViewModelServiceTests
             contextAccessor,
             customerConfig,
             scopeMock.Object);
+    }
+
+    private static MerchandiseReturnViewModelService BuildWithCustomMocks(
+        IMerchandiseReturnService merchandiseReturnService,
+        IContextAccessor contextAccessor,
+        IAdminDataScope<MerchandiseReturn> scope)
+    {
+        var orderServiceMock = new Mock<IOrderService>();
+        var productServiceMock = new Mock<IProductService>();
+        var customerServiceMock = new Mock<ICustomerService>();
+        var dateTimeServiceMock = new Mock<IDateTimeService>();
+        dateTimeServiceMock.Setup(d => d.CurrentTimeZone).Returns(TimeZoneInfo.Utc);
+        var translationServiceMock = new Mock<ITranslationService>();
+        var messageProviderServiceMock = new Mock<IMessageProviderService>();
+        var languageSettings = new LanguageSettings();
+        var priceFormatterMock = new Mock<IPriceFormatter>();
+        var addressSettings = new AddressSettings();
+        var countryServiceMock = new Mock<ICountryService>();
+        var addressAttributeServiceMock = new Mock<IAddressAttributeService>();
+        var addressAttributeParserMock = new Mock<IAddressAttributeParser>();
+        var downloadServiceMock = new Mock<IDownloadService>();
+        var orderSettings = new OrderSettings();
+        var enumTranslationServiceMock = new Mock<IEnumTranslationService>();
+        var customerConfig = new CustomerConfig();
+
+        return new MerchandiseReturnViewModelService(
+            orderServiceMock.Object,
+            productServiceMock.Object,
+            customerServiceMock.Object,
+            dateTimeServiceMock.Object,
+            translationServiceMock.Object,
+            messageProviderServiceMock.Object,
+            languageSettings,
+            merchandiseReturnService,
+            priceFormatterMock.Object,
+            addressSettings,
+            countryServiceMock.Object,
+            addressAttributeServiceMock.Object,
+            addressAttributeParserMock.Object,
+            downloadServiceMock.Object,
+            orderSettings,
+            enumTranslationServiceMock.Object,
+            contextAccessor,
+            customerConfig,
+            scope);
     }
 }

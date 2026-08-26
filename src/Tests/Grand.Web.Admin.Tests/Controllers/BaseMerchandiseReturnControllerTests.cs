@@ -1,11 +1,16 @@
 extern alias StoreHost;
+extern alias VendorHost;
 
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Domain.Vendors;
+using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
+using Grand.Web.AdminShared.Services;
 using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -539,5 +544,99 @@ public class BaseMerchandiseReturnControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("", content.Content);
+    }
+
+    [TestMethod]
+    public async Task Delete_RealGlobalAdminScope_AlwaysAllows()
+    {
+        var realScope = new GlobalAdminDataScope<MerchandiseReturn>();
+        var controller = new TestMerchandiseReturnController(_merchandiseReturnViewModelServiceMock.Object,
+            new Mock<ITranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+        var entity = new MerchandiseReturn { Id = "mr1", StoreId = "any-store", VendorId = "any-vendor", SeId = "any-se" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+
+        var result = await controller.Delete("mr1");
+
+        Assert.AreEqual("List", ((RedirectToActionResult)result).ActionName);
+        _merchandiseReturnViewModelServiceMock.Verify(v => v.DeleteMerchandiseReturn(entity), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Delete_RealStoreScope_DeniesCrossStoreEntity()
+    {
+        var workContextMock = new Mock<IWorkContext>();
+        workContextMock.Setup(w => w.CurrentCustomer).Returns(new Customer { StaffStoreId = "store-1" });
+        var contextAccessorMock = new Mock<IContextAccessor>();
+        contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
+        var realScope = new StoreMerchandiseReturnDataScope(contextAccessorMock.Object);
+
+        var controller = new TestMerchandiseReturnController(_merchandiseReturnViewModelServiceMock.Object,
+            new Mock<ITranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+        var entity = new MerchandiseReturn { Id = "mr1", StoreId = "store-2" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+
+        var result = await controller.Delete("mr1");
+
+        Assert.AreEqual("List", ((RedirectToActionResult)result).ActionName);
+        _merchandiseReturnViewModelServiceMock.Verify(v => v.DeleteMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Delete_RealVendorScope_DeniesCrossVendorEntity()
+    {
+        var workContextMock = new Mock<IWorkContext>();
+        workContextMock.Setup(w => w.CurrentVendor).Returns(new Vendor { Id = "vendor-A" });
+        var contextAccessorMock = new Mock<IContextAccessor>();
+        contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
+        var realScope = new VendorMerchandiseReturnDataScope(contextAccessorMock.Object);
+
+        var controller = new TestMerchandiseReturnController(_merchandiseReturnViewModelServiceMock.Object,
+            new Mock<ITranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+        var entity = new MerchandiseReturn { Id = "mr1", VendorId = "vendor-B" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+
+        var result = await controller.Delete("mr1");
+
+        Assert.AreEqual("List", ((RedirectToActionResult)result).ActionName);
+        _merchandiseReturnViewModelServiceMock.Verify(v => v.DeleteMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task GoToId_RealStoreScope_PositiveControl_OwnStoreEntityResolves()
+    {
+        var workContextMock = new Mock<IWorkContext>();
+        workContextMock.Setup(w => w.CurrentCustomer).Returns(new Customer { StaffStoreId = "store-1" });
+        var contextAccessorMock = new Mock<IContextAccessor>();
+        contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
+        var realScope = new StoreMerchandiseReturnDataScope(contextAccessorMock.Object);
+
+        var controller = new TestMerchandiseReturnController(_merchandiseReturnViewModelServiceMock.Object,
+            new Mock<ITranslationService>().Object, _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, realScope);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+        var entity = new MerchandiseReturn { Id = "mr1", StoreId = "store-1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById(7)).ReturnsAsync(entity);
+
+        var result = await controller.GoToId(new MerchandiseReturnListModel { GoDirectlyToId = "7" });
+
+        var redirect = result as RedirectToActionResult;
+        Assert.AreEqual("Edit", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public void HasAccessToMerchandiseReturn_NoLongerDefinedOnVendorHasAccessExtensions()
+    {
+        // Regression guard for the cleanup in Task 10, Step 7 - reflection-based, so it fails loudly
+        // if the extension method is ever reintroduced instead of relying on scope.HasAccess.
+        var hasAccessType = typeof(VendorHost::Grand.Web.Vendor.Extensions.HasAccess);
+        var method = hasAccessType.GetMethod("HasAccessToMerchandiseReturn");
+        Assert.IsNull(method, "HasAccessToMerchandiseReturn should have been deleted once every " +
+            "call site moved onto VendorMerchandiseReturnDataScope.HasAccess (Task 10).");
     }
 }
