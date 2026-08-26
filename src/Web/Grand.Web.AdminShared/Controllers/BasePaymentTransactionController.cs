@@ -1,7 +1,9 @@
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Permissions;
 using Grand.Mediator;
@@ -161,6 +163,179 @@ public abstract class BasePaymentTransactionController(
             return RedirectToAction("List", "PaymentTransaction");
 
         return RedirectToAction("Edit", "PaymentTransaction", new { id = paymentTransaction.Id });
+    }
+
+    #endregion
+
+    #region Edit
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        var order = await orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
+
+        var model = new PaymentTransactionModel {
+            Id = paymentTransaction.Id,
+            OrderCode = paymentTransaction.OrderCode,
+            CustomerEmail = string.IsNullOrEmpty(paymentTransaction.CustomerEmail)
+                ? "(null)"
+                : paymentTransaction.CustomerEmail,
+            CustomerId = paymentTransaction.CustomerId,
+            CurrencyCode = paymentTransaction.CurrencyCode,
+            TransactionAmount = paymentTransaction.TransactionAmount,
+            PaidAmount = paymentTransaction.PaidAmount,
+            PaymentMethodSystemName = paymentTransaction.PaymentMethodSystemName,
+            RefundedAmount = paymentTransaction.RefundedAmount,
+            OrderId = order?.Id,
+            OrderNumber = order?.OrderNumber,
+            CreatedOn = dateTimeService.ConvertToUserTime(paymentTransaction.CreatedOnUtc, DateTimeKind.Utc),
+            TransactionStatus = paymentTransaction.TransactionStatus,
+            Status = enumTranslationService.GetTranslationEnum(paymentTransaction.TransactionStatus),
+            IPAddress = paymentTransaction.IPAddress,
+            Description = paymentTransaction.Description,
+            AdditionalInfo = paymentTransaction.AdditionalInfo,
+            AuthorizationTransactionId = paymentTransaction.AuthorizationTransactionId,
+            CanCapture = await mediator.Send(new CanCaptureQuery { PaymentTransaction = paymentTransaction }),
+            CanMarkAsPaid = await mediator.Send(new CanMarkPaymentTransactionAsPaidQuery { PaymentTransaction = paymentTransaction }),
+            CanRefund = await mediator.Send(new CanRefundQuery { PaymentTransaction = paymentTransaction }),
+            CanRefundOffline = await mediator.Send(new CanRefundOfflineQuery { PaymentTransaction = paymentTransaction }),
+            CanPartiallyRefund = await mediator.Send(new CanPartiallyRefundQuery { PaymentTransaction = paymentTransaction, AmountToRefund = 0 }),
+            CanPartiallyRefundOffline = await mediator.Send(new CanPartiallyRefundOfflineQuery { PaymentTransaction = paymentTransaction, AmountToRefund = 0 }),
+            CanPartiallyPaidOffline = await mediator.Send(new CanPartiallyPaidOfflineQuery { PaymentTransaction = paymentTransaction, AmountToPaid = 0 }),
+            CanVoid = await mediator.Send(new CanVoidQuery { PaymentTransaction = paymentTransaction }),
+            CanVoidOffline = await mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction }),
+            MaxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount,
+            MaxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount
+        };
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> CapturePaymentTransaction(string id)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        try
+        {
+            var errors = await mediator.Send(new CaptureCommand { PaymentTransaction = paymentTransaction });
+
+            foreach (var error in errors)
+                Error(error);
+
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
+        catch (Exception exc)
+        {
+            Error(exc, false);
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> MarkPaymentTransactionAsPaid(string id)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        try
+        {
+            await mediator.Send(new MarkAsPaidCommand { PaymentTransaction = paymentTransaction });
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
+        catch (Exception exc)
+        {
+            Error(exc, false);
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> RefundPaymentTransaction(string id)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        try
+        {
+            var errors = await mediator.Send(new RefundCommand { PaymentTransaction = paymentTransaction });
+            foreach (var error in errors)
+                Error(error);
+
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
+        catch (Exception exc)
+        {
+            Error(exc, false);
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> RefundPaymentTransactionOffline(string id)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        try
+        {
+            await mediator.Send(new RefundOfflineCommand { PaymentTransaction = paymentTransaction });
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
+        catch (Exception exc)
+        {
+            Error(exc, false);
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> VoidPaymentTransaction(string id)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        try
+        {
+            var errors = await mediator.Send(new VoidCommand { PaymentTransaction = paymentTransaction });
+            foreach (var error in errors)
+                Error(error);
+
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
+        catch (Exception exc)
+        {
+            Error(exc, false);
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> VoidPaymentTransactionOffline(string id)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        try
+        {
+            await mediator.Send(new VoidOfflineCommand { PaymentTransaction = paymentTransaction });
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
+        catch (Exception exc)
+        {
+            Error(exc, false);
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+        }
     }
 
     #endregion

@@ -1,3 +1,4 @@
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -129,6 +130,60 @@ public class BasePaymentTransactionControllerTests
             .ReturnsAsync(new PaymentTransaction { Id = "pt-1" });
 
         var result = await _controller.GoToOrderNumber(new PaymentTransactionListModel { OrderNumber = "123" }) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Edit", result.ActionName);
+        Assert.AreEqual("pt-1", result.RouteValues["id"]);
+    }
+
+    [TestMethod]
+    public async Task Edit_DeniedByScope_RedirectsToList()
+    {
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(new PaymentTransaction { Id = "pt-1" });
+        _scopeMock.Setup(s => s.HasAccess(It.IsAny<PaymentTransaction>())).ReturnsAsync(false);
+
+        var result = await _controller.Edit("pt-1") as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result.ActionName);
+    }
+
+    [TestMethod]
+    public async Task Edit_Authorized_ReturnsViewWithModel()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", OrderGuid = Guid.NewGuid(), TransactionAmount = 100, RefundedAmount = 20, PaidAmount = 100 };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+        _orderServiceMock.Setup(s => s.GetOrderByGuid(transaction.OrderGuid)).ReturnsAsync(new Order { Id = "order-1", OrderNumber = 42 });
+
+        var result = await _controller.Edit("pt-1") as ViewResult;
+
+        Assert.IsNotNull(result);
+        var model = result.Model as PaymentTransactionModel;
+        Assert.IsNotNull(model);
+        Assert.AreEqual("pt-1", model.Id);
+        Assert.AreEqual(80, model.MaxAmountToRefund);
+    }
+
+    [TestMethod]
+    public async Task CapturePaymentTransaction_DeniedByScope_RedirectsToList()
+    {
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(new PaymentTransaction { Id = "pt-1" });
+        _scopeMock.Setup(s => s.HasAccess(It.IsAny<PaymentTransaction>())).ReturnsAsync(false);
+
+        var result = await _controller.CapturePaymentTransaction("pt-1") as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result.ActionName);
+    }
+
+    [TestMethod]
+    public async Task CapturePaymentTransaction_Authorized_SendsCaptureCommandAndRedirectsToEdit()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1" };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+        _mediatorMock.Setup(m => m.Send(It.IsAny<CaptureCommand>(), default)).ReturnsAsync(new List<string>());
+
+        var result = await _controller.CapturePaymentTransaction("pt-1") as RedirectToActionResult;
 
         Assert.IsNotNull(result);
         Assert.AreEqual("Edit", result.ActionName);
