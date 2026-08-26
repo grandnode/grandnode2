@@ -108,6 +108,13 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<GlobalAdminDataScope<PaymentTransaction>>();
         services.AddScoped<StorePaymentTransactionDataScope>();
         services.AddScoped<IAdminDataScope<PaymentTransaction>, RoutedPaymentTransactionDataScope>();
+
+        // IAdminDataScope<MerchandiseReturn>: Admin reuses the generic GlobalAdminDataScope directly (no
+        // bespoke Admin scope - confirmed no restriction exists despite the entity's SeId field, spec §2.1).
+        services.AddScoped<GlobalAdminDataScope<MerchandiseReturn>>();
+        services.AddScoped<StoreMerchandiseReturnDataScope>();
+        services.AddScoped<VendorMerchandiseReturnDataScope>();
+        services.AddScoped<IAdminDataScope<MerchandiseReturn>, RoutedMerchandiseReturnDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
