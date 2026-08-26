@@ -1,16 +1,17 @@
-﻿@using Grand.Domain.Media
+@using Grand.Domain.Media
 @model MerchandiseReturnModel
 @{
     ViewData["DownloadType"] = DownloadType.MerchandiseReturn;
     ViewData["ReferenceId"] = Model.Id;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
 <div class="panel panel-default">
-    <vc:admin-widget widget-zone="merchandisereturn_details_notes_top" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.Notes.Top" model="Model"/>
     <div class="panel-body">
         <div id="merchandisereturnnotes-grid"></div>
     </div>
-    <vc:admin-widget widget-zone="merchandisereturn_details_notes_bottom" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.Notes.Bottom" model="Model"/>
 </div>
 <script>
         $(document).ready(function () {
@@ -18,13 +19,13 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("MerchandiseReturnNotesSelect", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("MerchandiseReturnNotesSelect", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("MerchandiseReturnNoteDelete", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("MerchandiseReturnNoteDelete", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -79,7 +80,7 @@
                     field: "DownloadId",
                     title: "@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download"]",
                     width: 100,
-                    template: '# if(DownloadId != "") {# <a href="@Url.Action("DownloadFile", "Download", new { area = Constants.AreaStore })/?downloadGuid=#=DownloadGuid#">@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download.Link"]</a> #} else {# @Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download.Link.No"] #} #'
+                    template: '# if(DownloadId != "") {# <a href="@Url.Action("DownloadFile", "Download", new { area = area })/?downloadGuid=#=DownloadGuid#">@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download.Link"]</a> #} else {# @Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download.Link.No"] #} #'
                 }, {
                     field: "CreatedByCustomer",
                     title: "@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.CreatedByCustomer"]",
@@ -189,7 +190,7 @@
             $.ajax({
                 cache:false,
                 type: "POST",
-                url: "@(Url.Action("MerchandiseReturnNoteAdd", "MerchandiseReturn", new { area = Constants.AreaStore }))",
+                url: "@(Url.Action("MerchandiseReturnNoteAdd", "MerchandiseReturn", new { area = area }))",
                 data: postData,
                 success: function (data) {
                     var grid = $("#merchandisereturnnotes-grid").data('kendoGrid');

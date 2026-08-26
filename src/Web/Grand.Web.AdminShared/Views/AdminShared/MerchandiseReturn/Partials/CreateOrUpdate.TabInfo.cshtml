@@ -1,9 +1,13 @@
-﻿@model MerchandiseReturnModel
+@using Grand.Domain.Orders
+@model MerchandiseReturnModel
 @inject AdminAreaSettings adminAreaSettings
 @inject OrderSettings orderSettings
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 
 <div class="form-horizontal">
-    <vc:admin-widget widget-zone="merchandisereturn_tab_info_top" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.TabInfo.Top" model="Model"/>
     <div class="form-body">
         <div class="form-group">
             <admin-label asp-for="ReturnNumber"/>
@@ -79,7 +83,7 @@
             <div id="products-grid"></div>
         </div>
     </div>
-    <vc:admin-widget widget-zone="merchandisereturn_tab_info_bottom" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.TabInfo.Bottom" model="Model"/>
 </div>
 
 
@@ -92,7 +96,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("ProductsForMerchandiseReturn", "MerchandiseReturn", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("ProductsForMerchandiseReturn", "MerchandiseReturn", new { area = area }))",
                         type: "POST",
                         dataType: "json",
                         data: data
@@ -123,12 +127,12 @@
                     field: "ProductName",
                     title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Item"]",
                     width: 200,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = area })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
                 }, {
                     field: "ProductSku",
                     title: "@Loc["Admin.Catalog.Products.Fields.Sku"]",
                     width: 200,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(ProductSku)#</a>'
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = area })/#=ProductId#">#=kendo.htmlEncode(ProductSku)#</a>'
                 }, {
                     field: "Quantity",
                     title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]",

@@ -1,9 +1,10 @@
-﻿@model MerchandiseReturnModel
+@model MerchandiseReturnModel
 @{
     //page title
     ViewBag.Title = Loc["Admin.Orders.MerchandiseReturns.EditMerchandiseReturnDetails"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaStore" asp-controller="MerchandiseReturn" asp-action="Edit" method="post">
+<form asp-area="@area" asp-controller="MerchandiseReturn" asp-action="Edit" method="post">
 
     <div class="row">
         <div class="col-md-12">
@@ -27,7 +28,7 @@
                             <span id="merchandisereturn-delete" class="btn red">
                                 <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
                             </span>
-                            <vc:admin-widget widget-zone="merchandisereturn_details_buttons" additional-data="Model"/>
+                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>
                     </div>
                 </div>
