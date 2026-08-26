@@ -1,9 +1,10 @@
-﻿@model PaymentTransactionModel
+@model PaymentTransactionModel
 @{
     //page title
     ViewBag.Title = Loc["Admin.Orders.PaymentTransaction.Details"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="PaymentTransaction" asp-action="Edit" method="post">
+<form asp-area="@area" asp-controller="PaymentTransaction" asp-action="Edit" method="post">
 
     <div class="row">
         <div class="col-md-12">
@@ -34,7 +35,7 @@
                             @if (Model.CanPartiallyPaidOffline)
                             {
                                 <a id="partiallypaidpaymenttransactionoffline" name="partiallypaidpaymenttransactionoffline"
-                                   href="@(Url.Action("PartiallyPaidPopup", "PaymentTransaction", new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = Constants.AreaAdmin }))"
+                                   href="@(Url.Action("PartiallyPaidPopup", "PaymentTransaction", new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
                                    class="k-button">
                                     @Loc["Admin.PaymentTransaction.Fields.PartialPaidOffline"]
                                 </a>
@@ -56,7 +57,7 @@
                             {
                                 <a id="partiallyrefundpaymenttransaction" name="partiallyrefundpaymenttransaction"
                                    value="@Loc["Admin.PaymentTransaction.Fields.PartialRefund"]"
-                                   href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction", new { id = Model.Id, online = true, btnId = "btnRefreshPage", formId = "order-form", area = Constants.AreaAdmin }))"
+                                   href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction", new { id = Model.Id, online = true, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
                                    class="k-button">
                                     @Loc["Admin.PaymentTransaction.Fields.PartialRefund"]
                                 </a>
@@ -65,7 +66,7 @@
                             @if (Model.CanPartiallyRefundOffline)
                             {
                                 <a id="partiallyrefundpaymenttransactionoffline" name="partiallyrefundpaymenttransactionoffline"
-                                   href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction", new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = Constants.AreaAdmin }))"
+                                   href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction", new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = area }))"
                                    class="k-button">
                                     @Loc["Admin.PaymentTransaction.Fields.PartialRefundOffline"]
                                 </a>
@@ -88,7 +89,7 @@
                             <span id="paymenttransaction-delete" class="btn red">
                                 <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
                             </span>
-                            <vc:admin-widget widget-zone="payment_transaction_details_buttons" additional-data="Model"/>
+                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>
                     </div>
                 </div>

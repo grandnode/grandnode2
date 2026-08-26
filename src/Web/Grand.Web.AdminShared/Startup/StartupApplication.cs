@@ -2,6 +2,7 @@ using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.Drivers.FileSystem.Extensions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
@@ -100,6 +101,13 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreShipmentDataScope>();
         services.AddScoped<VendorShipmentDataScope>();
         services.AddScoped<IAdminDataScope<Shipment>, RoutedShipmentDataScope>();
+
+        // IAdminDataScope<PaymentTransaction>: registered once here for the same reason as
+        // Product/Category/Collection/Order above — see RoutedPaymentTransactionDataScope's doc
+        // comment. No Vendor scope: PaymentTransaction has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<PaymentTransaction>>();
+        services.AddScoped<StorePaymentTransactionDataScope>();
+        services.AddScoped<IAdminDataScope<PaymentTransaction>, RoutedPaymentTransactionDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
