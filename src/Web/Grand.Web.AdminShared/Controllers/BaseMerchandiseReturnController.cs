@@ -143,4 +143,25 @@ public abstract class BaseMerchandiseReturnController(
     }
 
     #endregion
+
+    #region Delete
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(id);
+        if (merchandiseReturn == null) return RedirectToAction("List");
+        if (!await scope.HasAccess(merchandiseReturn)) return RedirectToAction("List");
+
+        if (ModelState.IsValid)
+        {
+            await merchandiseReturnViewModelService.DeleteMerchandiseReturn(merchandiseReturn);
+            Success(translationService.GetResource($"{scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.Deleted"));
+        }
+
+        return RedirectToAction("List");
+    }
+
+    #endregion
 }

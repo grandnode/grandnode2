@@ -342,4 +342,48 @@ public class BaseMerchandiseReturnControllerTests
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
     }
+
+    // --- Delete (POST) ---------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task Delete_NotFound_RedirectsToList()
+    {
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+
+        var result = await _controller.Delete("missing");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task Delete_ScopeDenies_RedirectsToListWithoutDeleting()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(false);
+
+        var result = await _controller.Delete("mr1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _merchandiseReturnViewModelServiceMock.Verify(v => v.DeleteMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Delete_Authorized_DeletesAndRedirectsToList()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+
+        var result = await _controller.Delete("mr1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _merchandiseReturnViewModelServiceMock.Verify(v => v.DeleteMerchandiseReturn(entity), Times.Once);
+    }
 }
