@@ -34,6 +34,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
     private readonly ITranslationService _translationService;
     private readonly IWarehouseService _warehouseService;
     private readonly IContextAccessor _contextAccessor;
+    private readonly IAdminDataScope<Shipment> _scope;
 
     public ShipmentViewModelService(
         IOrderService orderService,
@@ -50,7 +51,8 @@ public class ShipmentViewModelService : IShipmentViewModelService
         IStockQuantityService stockQuantityService,
         MeasureSettings measureSettings,
         ShippingSettings shippingSettings,
-        ShippingProviderSettings shippingProviderSettings)
+        ShippingProviderSettings shippingProviderSettings,
+        IAdminDataScope<Shipment> scope)
     {
         _orderService = orderService;
         _contextAccessor = contextAccessor;
@@ -67,6 +69,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
         _measureSettings = measureSettings;
         _shippingSettings = shippingSettings;
         _shippingProviderSettings = shippingProviderSettings;
+        _scope = scope;
     }
 
     public virtual async Task<ShipmentModel> PrepareShipmentModel(Shipment shipment, bool prepareProducts,
@@ -102,9 +105,13 @@ public class ShipmentViewModelService : IShipmentViewModelService
         };
 
         if (prepareProducts)
+        {
+            var visibleOrderItems = order != null
+                ? _scope.FilterOrderItems(order.OrderItems).ToList()
+                : [];
             foreach (var shipmentItem in shipment.ShipmentItems)
             {
-                var orderItem = order?.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);
+                var orderItem = visibleOrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);
                 if (orderItem == null)
                     continue;
 
@@ -140,6 +147,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
                     model.Items.Add(shipmentItemModel);
                 }
             }
+        }
 
         if (prepareShipmentEvent && !string.IsNullOrEmpty(shipment.TrackingNumber))
         {
@@ -331,7 +339,9 @@ public class ShipmentViewModelService : IShipmentViewModelService
         var baseDimension = await _measureService.GetMeasureDimensionById(_measureSettings.BaseDimensionId);
         var baseDimensionIn = baseDimension != null ? baseDimension.Name : "";
 
-        foreach (var orderItem in order.OrderItems)
+        var orderItems = _scope.FilterOrderItems(order.OrderItems);
+
+        foreach (var orderItem in orderItems)
         {
             var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
             //we can ship only shippable products
@@ -571,7 +581,8 @@ public class ShipmentViewModelService : IShipmentViewModelService
                     ShippedDateUtc = null,
                     DeliveryDateUtc = null,
                     AdminComment = adminComment,
-                    StoreId = order.StoreId
+                    StoreId = order.StoreId,
+                    VendorId = _scope.DefaultVendorId
                 };
             }
 

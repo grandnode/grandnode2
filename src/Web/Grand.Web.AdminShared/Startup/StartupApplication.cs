@@ -3,6 +3,7 @@ using elFinder.Net.Drivers.FileSystem.Extensions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
+using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Services;
@@ -91,6 +92,15 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreOrderDataScope>();
         services.AddScoped<VendorOrderDataScope>();
         services.AddScoped<IAdminDataScope<Order>, RoutedOrderDataScope>();
+
+        // IAdminDataScope<Shipment>: registered once here for the same reason as Order above — see
+        // RoutedShipmentDataScope's doc comment. Admin reuses the generic GlobalAdminDataScope<T>
+        // unmodified (no Sales-Manager restriction on Shipment); Store/Vendor are bespoke because
+        // Shipment isn't IStoreLinkEntity and Vendor ownership is a flat VendorId field.
+        services.AddScoped<GlobalAdminDataScope<Shipment>>();
+        services.AddScoped<StoreShipmentDataScope>();
+        services.AddScoped<VendorShipmentDataScope>();
+        services.AddScoped<IAdminDataScope<Shipment>, RoutedShipmentDataScope>();
 
         // IAdminDataScope<PaymentTransaction>: registered once here for the same reason as
         // Product/Category/Collection/Order above — see RoutedPaymentTransactionDataScope's doc
