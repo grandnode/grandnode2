@@ -24,6 +24,7 @@ public class VendorShipmentDataScope(IContextAccessor contextAccessor) : IAdminD
 {
     public Task<bool> HasAccess(Shipment entity) =>
         Task.FromResult(entity is not null &&
+            !string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentVendor.Id) &&
             entity.VendorId == contextAccessor.WorkContext.CurrentVendor.Id);
 
     public IEnumerable<OrderItem> FilterOrderItems(IEnumerable<OrderItem> orderItems) =>

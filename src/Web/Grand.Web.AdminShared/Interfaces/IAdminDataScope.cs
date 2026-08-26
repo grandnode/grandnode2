@@ -54,7 +54,8 @@ public interface IAdminDataScope<TEntity>
     /// <summary>Order line items visible to the current host — e.g. Vendor sees only its own
     /// items within a mixed-vendor order. Identity (no filtering) for hosts with no such
     /// restriction (Admin, Store, and every non-Order entity). Only
-    /// <see cref="Grand.Web.AdminShared.Services.VendorOrderDataScope"/> overrides this. Lives on
+    /// <see cref="Grand.Web.AdminShared.Services.VendorOrderDataScope"/> and
+    /// <see cref="Grand.Web.AdminShared.Services.VendorShipmentDataScope"/> override this. Lives on
     /// the shared interface rather than a separate Order-only interface because
     /// IAdminDataScope&lt;TEntity&gt; is already the single per-host strategy object injected
     /// into BaseOrderController/OrderViewModelService — see ARCH-001 Order consolidation spec

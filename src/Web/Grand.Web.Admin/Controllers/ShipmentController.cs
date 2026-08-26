@@ -4,14 +4,12 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Domain.Orders;
-using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
-using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,22 +37,4 @@ public class ShipmentController(
     IAdminDataScope<Shipment> scope,
     IAdminDataScope<Order> orderScope)
     : BaseShipmentController(shipmentViewModelService, orderService, translationService,
-        contextAccessor, pdfService, shipmentService, dateTimeService, mediator, scope, orderScope)
-{
-    // Admin-exclusive action - not shared via BaseShipmentController per the consolidation spec.
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> EditUserFields(string id, ShipmentModel model)
-    {
-        var (shipment, denied) = await LoadAuthorizedShipment(id);
-        if (denied != null) return denied;
-
-        shipment.UserFields = model.UserFields;
-        await ShipmentService.UpdateShipment(shipment);
-
-        //selected tab
-        await SaveSelectedTabIndex();
-
-        return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
-    }
-}
+        contextAccessor, pdfService, shipmentService, dateTimeService, mediator, scope, orderScope);

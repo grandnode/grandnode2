@@ -13,13 +13,16 @@ namespace Grand.Web.AdminShared.Services;
 ///     <c>LimitedToStores</c> list), so the generic class's <c>where TEntity : BaseEntity,
 ///     IStoreLinkEntity</c> constraint doesn't apply. Mirrors Store's original controller's
 ///     <c>shipment.StoreId != StaffStoreId</c> check, repeated at every action site in that file.
-///     No <see cref="CanView" /> override: Store's original code has one uniform check for both
-///     viewing and mutating, unlike Category/Product's loose/strict split.
+///     No <see cref="IAdminDataScope{TEntity}.CanView" /> override: Store's original code has one
+///     uniform check for both viewing and mutating, unlike Category/Product's loose/strict split —
+///     <see cref="IAdminDataScope{TEntity}.CanView" /> is simply inherited from the interface
+///     default, which delegates to <see cref="HasAccess" />.
 /// </summary>
 public class StoreShipmentDataScope(IContextAccessor contextAccessor) : IAdminDataScope<Shipment>
 {
     public Task<bool> HasAccess(Shipment entity) =>
         Task.FromResult(entity is not null &&
+            !string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
             entity.StoreId == contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
 
     public string? DefaultStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;

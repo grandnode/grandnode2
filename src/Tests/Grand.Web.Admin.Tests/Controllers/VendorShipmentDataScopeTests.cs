@@ -42,6 +42,20 @@ public class VendorShipmentDataScopeTests
     }
 
     [TestMethod]
+    public async Task HasAccess_EmptyCurrentVendorIdAndEmptyEntityVendorId_False()
+    {
+        var scope = Build(string.Empty);
+        Assert.IsFalse(await scope.HasAccess(new Shipment { VendorId = string.Empty }));
+    }
+
+    [TestMethod]
+    public async Task HasAccess_NullCurrentVendorIdAndNullEntityVendorId_False()
+    {
+        var scope = Build(null);
+        Assert.IsFalse(await scope.HasAccess(new Shipment { VendorId = null }));
+    }
+
+    [TestMethod]
     public void FilterOrderItems_MixedVendorOrder_ReturnsOnlyOwnItems()
     {
         var scope = Build("vendor-A");

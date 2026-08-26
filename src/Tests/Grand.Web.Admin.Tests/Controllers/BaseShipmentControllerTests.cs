@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Domain.Common;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
@@ -52,6 +53,7 @@ public class BaseShipmentControllerTests
     private Mock<IAdminDataScope<Shipment>> _scopeMock;
     private Mock<IAdminDataScope<Order>> _orderScopeMock;
     private Mock<IMediator> _mediatorMock;
+    private Mock<IPdfService> _pdfServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -71,7 +73,7 @@ public class BaseShipmentControllerTests
         var workContextMock = new Mock<IWorkContext>();
         workContextMock.Setup(w => w.WorkingLanguage).Returns(new Language { Id = "lang-1" });
         contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
-        var pdfServiceMock = new Mock<IPdfService>();
+        _pdfServiceMock = new Mock<IPdfService>();
         var dateTimeServiceMock = new Mock<IDateTimeService>();
         _mediatorMock = new Mock<IMediator>();
 
@@ -80,7 +82,7 @@ public class BaseShipmentControllerTests
             _orderServiceMock.Object,
             translationServiceMock.Object,
             contextAccessorMock.Object,
-            pdfServiceMock.Object,
+            _pdfServiceMock.Object,
             _shipmentServiceMock.Object,
             dateTimeServiceMock.Object,
             _mediatorMock.Object,
@@ -634,6 +636,12 @@ public class BaseShipmentControllerTests
         Assert.AreEqual("packagingslips.pdf", fileResult.FileDownloadName);
         _scopeMock.Verify(s => s.HasAccess(accessibleShipment), Times.Once);
         _scopeMock.Verify(s => s.HasAccess(deniedShipment), Times.Once);
+        _pdfServiceMock.Verify(
+            p => p.PrintPackagingSlipsToPdf(
+                It.IsAny<Stream>(),
+                It.Is<IList<Shipment>>(list => list.Count == 1 && list.Contains(accessibleShipment) && !list.Contains(deniedShipment)),
+                It.IsAny<string>()),
+            Times.Once);
     }
 
     [TestMethod]
@@ -776,5 +784,41 @@ public class BaseShipmentControllerTests
         Assert.IsNotNull(jsonResult);
         Assert.AreEqual("", jsonResult.Value);
         _shipmentViewModelServiceMock.Verify(v => v.DeleteShipmentNote(shipment, "n1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task EditUserFields_Denied_RedirectsToList_UpdateShipmentNeverCalled()
+    {
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync((Shipment)null);
+
+        var result = await _controller.EditUserFields("s1", new ShipmentModel { Id = "s1" });
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _shipmentServiceMock.Verify(s => s.UpdateShipment(It.IsAny<Shipment>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EditUserFields_Authorized_UpdatesUserFieldsAndRedirectsToShipmentDetails()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        var userFields = new List<UserField> { new() { Key = "k1", Value = "v1" } };
+        var model = new ShipmentModel { Id = "s1", UserFields = userFields };
+
+        // SaveSelectedTabIndex() reads Request.Form; give it a well-formed empty form body.
+        _controller.ControllerContext.HttpContext.Request.ContentType = "application/x-www-form-urlencoded";
+
+        var result = await _controller.EditUserFields("s1", model);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("ShipmentDetails", redirect.ActionName);
+        Assert.AreEqual("s1", redirect.RouteValues["id"]);
+        Assert.AreSame(userFields, shipment.UserFields);
+        _shipmentServiceMock.Verify(s => s.UpdateShipment(shipment), Times.Once);
     }
 }

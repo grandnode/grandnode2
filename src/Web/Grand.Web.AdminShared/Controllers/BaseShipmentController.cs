@@ -91,11 +91,11 @@ public abstract class BaseShipmentController(
     /// <summary>Filters per-shipment via scope.HasAccess rather than gating on the parent order.
     /// Admin: GlobalAdminDataScope.HasAccess is always true, so this is a no-op filter — matches
     /// Admin's original, which had no check at all. Store: every shipment under a given order
-    /// always shares that order's StoreId (PrepareShipment always sets StoreId = order.StoreId,
-    /// see Task 3 Step 5), so per-shipment filtering produces the same user-visible result as
-    /// Store's original whole-order Content("") denial, with no possible mixed-store shipment set
-    /// under one order. Vendor: this is the literal mechanical equivalent of Vendor's original
-    /// per-shipment HasAccessToShipment loop.</summary>
+    /// always shares that order's StoreId (PrepareShipment always sets StoreId = order.StoreId),
+    /// so per-shipment filtering produces the same user-visible result as Store's original
+    /// whole-order Content("") denial, with no possible mixed-store shipment set under one order.
+    /// Vendor: this is the literal mechanical equivalent of Vendor's original per-shipment
+    /// HasAccessToShipment loop.</summary>
     [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpPost]
     public async Task<IActionResult> ShipmentsByOrder(string orderId, DataSourceRequest command)
@@ -124,11 +124,11 @@ public abstract class BaseShipmentController(
         return Json(gridModel);
     }
 
-    /// <summary>Deliberate, disclosed behavior change for Store only: Store's original returned a
-    /// soft Content("") on a store mismatch; Admin/Vendor's originals both threw
-    /// ArgumentException. Unified on the throwing form (2 of 3 hosts' original shape) rather than
-    /// using LoadAuthorizedShipment (which redirects — wrong fit for a JSON-grid endpoint). Flag
-    /// this explicitly in this task's commit message and for the final review.</summary>
+    /// <summary>Deliberate behavior change for Store only: Store's original returned a soft
+    /// Content("") on a store mismatch; Admin/Vendor's originals both threw ArgumentException.
+    /// Unified on the throwing form (2 of 3 hosts' original shape) rather than using
+    /// LoadAuthorizedShipment (which redirects — wrong fit for a JSON-grid endpoint, since a
+    /// redirect response is meaningless to the AJAX grid caller expecting JSON).</summary>
     [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpPost]
     public async Task<IActionResult> ShipmentsItemsByShipmentId(string shipmentId, DataSourceRequest command)
@@ -360,6 +360,24 @@ public abstract class BaseShipmentController(
         }
     }
 
+    /// <summary>Shared across all 3 hosts: the "User fields" tab on ShipmentDetails.cshtml posts
+    /// here with no host gating, so Store and Vendor need this action too, not just Admin.</summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> EditUserFields(string id, ShipmentModel model)
+    {
+        var (shipment, denied) = await LoadAuthorizedShipment(id);
+        if (denied != null) return denied;
+
+        shipment.UserFields = model.UserFields;
+        await shipmentService.UpdateShipment(shipment);
+
+        //selected tab
+        await SaveSelectedTabIndex();
+
+        return RedirectToAction("ShipmentDetails", new { id = shipment.Id });
+    }
+
     #endregion
 
     #region PDF export and bulk actions
@@ -400,7 +418,7 @@ public abstract class BaseShipmentController(
         //ensure that we at least one shipment selected
         if (shipments.totalCount == 0)
         {
-            Error(translationService.GetResource("Admin.Orders.Shipments.NoShipmentsSelected"));
+            Error(translationService.GetResource($"{scope.ResourceKeyPrefix}.Orders.Shipments.NoShipmentsSelected"));
             return RedirectToAction("List");
         }
 
@@ -434,12 +452,13 @@ public abstract class BaseShipmentController(
             if (await scope.HasAccess(s))
                 accessibleShipments.Add(s);
 
-        //ensure that we at least one shipment selected — checks the unfiltered count, matching
-        //all 3 originals' pre-existing (and slightly inconsistent) behavior; see the disclosed,
-        //not-fixed note below this method
+        //ensure that we at least one shipment selected — checks the unfiltered count (not
+        //accessibleShipments.Count) so a request that only names shipments the caller can't
+        //access reports "no shipments selected" rather than silently producing an empty PDF,
+        //matching all 3 originals' pre-existing (and slightly inconsistent) behavior
         if (shipments.Count == 0)
         {
-            Error(translationService.GetResource("Admin.Orders.Shipments.NoShipmentsSelected"));
+            Error(translationService.GetResource($"{scope.ResourceKeyPrefix}.Orders.Shipments.NoShipmentsSelected"));
             return RedirectToAction("List");
         }
 

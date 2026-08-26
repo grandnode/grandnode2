@@ -42,6 +42,20 @@ public class StoreShipmentDataScopeTests
     }
 
     [TestMethod]
+    public async Task HasAccess_EmptyStaffStoreIdAndEmptyEntityStoreId_False()
+    {
+        var scope = Build(string.Empty);
+        Assert.IsFalse(await scope.HasAccess(new Shipment { StoreId = string.Empty }));
+    }
+
+    [TestMethod]
+    public async Task HasAccess_NullStaffStoreIdAndNullEntityStoreId_False()
+    {
+        var scope = Build(null);
+        Assert.IsFalse(await scope.HasAccess(new Shipment { StoreId = null }));
+    }
+
+    [TestMethod]
     public void DefaultStoreId_ReturnsStaffStoreId()
     {
         var scope = Build("store-1");
