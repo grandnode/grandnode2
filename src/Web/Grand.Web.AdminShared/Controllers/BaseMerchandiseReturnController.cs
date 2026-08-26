@@ -164,4 +164,69 @@ public abstract class BaseMerchandiseReturnController(
     }
 
     #endregion
+
+    #region Merchandise return notes
+
+    /// <summary>Deliberately preserved host divergence (spec §5/§11, DECIDED — not unified): Admin's
+    /// and Vendor's original controllers both throw ArgumentException for a not-found-or-denied
+    /// merchandise return; Store's soft-denies with an empty Content("") response instead, because
+    /// Store's Kendo grid error path expects a 200 with an empty body, not a 500. This seam is
+    /// written from scratch for this phase - it is NOT copied from BaseOrderManagementController's
+    /// OrderNotesSelect, which (as shipped) has no host-differentiated response at all (see this
+    /// plan's Global Constraints for the full explanation). Default here matches Admin/Vendor; only
+    /// Grand.Web.Store's concrete MerchandiseReturnController overrides this (Task 10).</summary>
+    protected virtual IActionResult NotFoundOrDeniedForNotesSelect() =>
+        throw new ArgumentException("No merchandise return found with the specified id");
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> MerchandiseReturnNotesSelect(string merchandiseReturnId, DataSourceRequest command)
+    {
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
+        if (merchandiseReturn == null || !await scope.HasAccess(merchandiseReturn))
+            return NotFoundOrDeniedForNotesSelect();
+
+        var merchandiseReturnNoteModels = await merchandiseReturnViewModelService.PrepareMerchandiseReturnNotes(merchandiseReturn);
+        var gridModel = new DataSourceResult {
+            Data = merchandiseReturnNoteModels,
+            Total = merchandiseReturnNoteModels.Count
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> MerchandiseReturnNoteAdd(string merchandiseReturnId, string downloadId,
+        bool displayToCustomer, string message)
+    {
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
+        if (merchandiseReturn == null || !await scope.HasAccess(merchandiseReturn))
+            return Json(new { Result = false });
+
+        // Spec §2.5/§11 (approved): no caller-supplied orderId - always resolve the entity's own
+        // order server-side. Closes Admin's original gap (never validated a caller-supplied orderId
+        // matched the merchandise return), makes Store's now-redundant equality check unnecessary,
+        // and needs no new parameter on Vendor's side.
+        var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
+        await merchandiseReturnViewModelService.InsertMerchandiseReturnNote(merchandiseReturn, order, downloadId,
+            displayToCustomer, message);
+
+        return Json(new { Result = true });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> MerchandiseReturnNoteDelete(string id, string merchandiseReturnId)
+    {
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
+        if (merchandiseReturn == null)
+            throw new ArgumentException("No merchandise return found with the specified id");
+        if (!await scope.HasAccess(merchandiseReturn))
+            return Json(new { Result = false });
+
+        await merchandiseReturnViewModelService.DeleteMerchandiseReturnNote(merchandiseReturn, id);
+
+        return new JsonResult("");
+    }
+
+    #endregion
 }

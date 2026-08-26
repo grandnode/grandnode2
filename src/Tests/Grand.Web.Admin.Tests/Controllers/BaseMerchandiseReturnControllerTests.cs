@@ -386,4 +386,135 @@ public class BaseMerchandiseReturnControllerTests
         Assert.AreEqual("List", redirect.ActionName);
         _merchandiseReturnViewModelServiceMock.Verify(v => v.DeleteMerchandiseReturn(entity), Times.Once);
     }
+
+    // --- MerchandiseReturnNotesSelect --------------------------------------------------------------
+
+    [TestMethod]
+    public async Task NotesSelect_NotFound_BaseDefault_ThrowsArgumentException()
+    {
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(
+            async () => await _controller.MerchandiseReturnNotesSelect("missing", new DataSourceRequest()));
+    }
+
+    [TestMethod]
+    public async Task NotesSelect_ScopeDenies_BaseDefault_ThrowsArgumentException()
+    {
+        // Base default is the Admin/Vendor shape (throw) - Store's subclass override is tested in
+        // Task 10's thin-subclass tests, not here.
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(false);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(
+            async () => await _controller.MerchandiseReturnNotesSelect("mr1", new DataSourceRequest()));
+    }
+
+    [TestMethod]
+    public async Task NotesSelect_Authorized_ReturnsNotes()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        var notes = new List<MerchandiseReturnModel.MerchandiseReturnNote> { new() };
+        _merchandiseReturnViewModelServiceMock.Setup(v => v.PrepareMerchandiseReturnNotes(entity)).ReturnsAsync(notes);
+
+        var result = await _controller.MerchandiseReturnNotesSelect("mr1", new DataSourceRequest());
+
+        var json = result as JsonResult;
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.AreEqual(1, gridModel.Total);
+    }
+
+    // --- MerchandiseReturnNoteAdd ------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task NoteAdd_NotFound_ReturnsJsonResultFalse()
+    {
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+
+        var result = await _controller.MerchandiseReturnNoteAdd("missing", null, false, "msg");
+
+        var json = result as JsonResult;
+        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        _orderServiceMock.Verify(o => o.GetOrderById(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task NoteAdd_ScopeDenies_ReturnsJsonResultFalse()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1", OrderId = "o1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(false);
+
+        var result = await _controller.MerchandiseReturnNoteAdd("mr1", null, false, "msg");
+
+        var json = result as JsonResult;
+        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        _merchandiseReturnViewModelServiceMock.Verify(
+            v => v.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task NoteAdd_Authorized_ResolvesOrderFromEntity_NotFromAParameter()
+    {
+        // Spec §2.5/§11 (approved): no orderId request parameter exists on this action at all -
+        // order is always resolved server-side from merchandiseReturn.OrderId.
+        var entity = new MerchandiseReturn { Id = "mr1", OrderId = "o1" };
+        var order = new Order { Id = "o1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        _orderServiceMock.Setup(o => o.GetOrderById("o1")).ReturnsAsync(order);
+
+        var result = await _controller.MerchandiseReturnNoteAdd("mr1", "download-1", true, "msg");
+
+        var json = result as JsonResult;
+        Assert.IsTrue((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        _orderServiceMock.Verify(o => o.GetOrderById("o1"), Times.Once);
+        _merchandiseReturnViewModelServiceMock.Verify(
+            v => v.InsertMerchandiseReturnNote(entity, order, "download-1", true, "msg"), Times.Once);
+    }
+
+    // --- MerchandiseReturnNoteDelete ---------------------------------------------------------------
+
+    [TestMethod]
+    public async Task NoteDelete_NotFound_ThrowsArgumentException()
+    {
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(
+            async () => await _controller.MerchandiseReturnNoteDelete("note1", "missing"));
+    }
+
+    [TestMethod]
+    public async Task NoteDelete_ScopeDenies_ReturnsJsonResultFalse_ForEveryHost()
+    {
+        // Store's existing check moves here uniformly; Admin/Vendor gain it for free
+        // (GlobalAdminDataScope's always-true HasAccess keeps Admin unaffected) - spec §5.
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(false);
+
+        var result = await _controller.MerchandiseReturnNoteDelete("note1", "mr1");
+
+        var json = result as JsonResult;
+        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        _merchandiseReturnViewModelServiceMock.Verify(
+            v => v.DeleteMerchandiseReturnNote(It.IsAny<MerchandiseReturn>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task NoteDelete_Authorized_Deletes()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+
+        var result = await _controller.MerchandiseReturnNoteDelete("note1", "mr1");
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        _merchandiseReturnViewModelServiceMock.Verify(v => v.DeleteMerchandiseReturnNote(entity, "note1"), Times.Once);
+    }
 }
