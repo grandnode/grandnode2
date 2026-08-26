@@ -1,3 +1,5 @@
+extern alias StoreHost;
+
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
@@ -516,5 +518,26 @@ public class BaseMerchandiseReturnControllerTests
 
         Assert.IsInstanceOfType(result, typeof(JsonResult));
         _merchandiseReturnViewModelServiceMock.Verify(v => v.DeleteMerchandiseReturnNote(entity, "note1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task NotesSelect_NotFoundOrDenied_StoreSubclass_ReturnsEmptyContent_NoThrow()
+    {
+        var storeController = new StoreHost::Grand.Web.Store.Controllers.MerchandiseReturnController(
+            _merchandiseReturnViewModelServiceMock.Object,
+            new Mock<ITranslationService>().Object,
+            _merchandiseReturnServiceMock.Object,
+            _orderServiceMock.Object,
+            _scopeMock.Object);
+        storeController.ControllerContext = _controller.ControllerContext;
+        storeController.TempData = _controller.TempData;
+
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("missing")).ReturnsAsync((MerchandiseReturn)null);
+
+        var result = await storeController.MerchandiseReturnNotesSelect("missing", new DataSourceRequest());
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("", content.Content);
     }
 }

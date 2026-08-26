@@ -30,14 +30,13 @@
    Grand.Web.Vendor.Models.Catalog's own ProductModel etc. are no longer used by any controller/view
    and importing both would make bare "ProductModel" ambiguous. *@
 @using Grand.Web.AdminShared.Models.Catalog;
-@* Order and Shipment views bind to Grand.Web.AdminShared's Order/Shipment model families
-   (ARCH-001 Phase 5 Order, Phase 6 Shipment consolidation) - Grand.Web.Vendor.Models.Orders's own
-   OrderModel/OrderListModel and Grand.Web.Vendor.Models.Shipment (the whole namespace) are no
-   longer used by any controller/view. This can't be a blanket
-   "@using Grand.Web.AdminShared.Models.Orders" - that namespace also holds MerchandiseReturnModel/
-   *ReportModel etc., which Vendor's MerchandiseReturn/Reports views still bind to their own
-   Grand.Web.Vendor.Models.* equivalents (not yet consolidated), so a wildcard import here would
-   make those bare names ambiguous instead. Alias just the types that are actually consolidated. *@
+@* Order/Shipment/MerchandiseReturn views bind to Grand.Web.AdminShared's model families (ARCH-001
+   Order, Shipment, and MerchandiseReturn consolidation) - Grand.Web.Vendor.Models.Orders/Shipment/
+   MerchandiseReturn's own equivalents are no longer used by any controller/view. This can't be a
+   blanket "@using Grand.Web.AdminShared.Models.Orders" - that namespace also holds *ReportModel etc.,
+   which Vendor's Reports views still bind to their own Grand.Web.Vendor.Models.* equivalents (not yet
+   consolidated), so a wildcard import here would make those bare names ambiguous instead. Alias just
+   the types that are actually consolidated. *@
 @using OrderModel = Grand.Web.AdminShared.Models.Orders.OrderModel;
 @using OrderListModel = Grand.Web.AdminShared.Models.Orders.OrderListModel;
 @using ShipmentModel = Grand.Web.AdminShared.Models.Orders.ShipmentModel;
@@ -47,7 +46,8 @@
 @using ShipmentAdminCommentModel = Grand.Web.AdminShared.Models.Orders.ShipmentAdminCommentModel;
 @using ShipmentDeliveryDateModel = Grand.Web.AdminShared.Models.Orders.ShipmentDeliveryDateModel;
 @using ShipmentShippedDateModel = Grand.Web.AdminShared.Models.Orders.ShipmentShippedDateModel;
-@using Grand.Web.Vendor.Models.MerchandiseReturn;
+@using MerchandiseReturnModel = Grand.Web.AdminShared.Models.Orders.MerchandiseReturnModel;
+@using MerchandiseReturnListModel = Grand.Web.AdminShared.Models.Orders.MerchandiseReturnListModel;
 @using Grand.Web.Vendor.Models.Vendor;
 @using Grand.Web.Vendor.Models.VendorReview;
 @using Grand.Web.Vendor.Models.Report;

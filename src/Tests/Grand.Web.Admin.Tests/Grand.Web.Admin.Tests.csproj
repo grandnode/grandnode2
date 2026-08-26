@@ -21,5 +21,8 @@
         <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
         <ProjectReference Include="..\..\Web\Grand.Web.AdminShared\Grand.Web.AdminShared.csproj" />
         <ProjectReference Include="..\..\Web\Grand.Web.Admin\Grand.Web.Admin.csproj" />
+        <ProjectReference Include="..\..\Web\Grand.Web.Store\Grand.Web.Store.csproj">
+            <Aliases>StoreHost</Aliases>
+        </ProjectReference>
     </ItemGroup>
 </Project>
