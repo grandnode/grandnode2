@@ -1,10 +1,11 @@
-﻿@model ShipmentListModel
+@model ShipmentListModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-    ViewBag.Title = Loc["Vendor.Orders.Shipments.List"];
+    ViewBag.Title = Loc["Admin.Orders.Shipments.List"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<form asp-area="@Constants.AreaVendor" asp-controller="Shipment" asp-action="List" method="post">
+<form asp-area="@area" asp-controller="Shipment" asp-action="List" method="post">
 
     <div class="row">
         <div class="col-md-12">
@@ -12,23 +13,23 @@
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-truck"></i>
-                        @Loc["Vendor.Orders.Shipments.List"]
+                        @Loc["Admin.Orders.Shipments.List"]
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
                             <button type="submit" name="exportpackagingslips-all" asp-action="PdfPackagingSlipAll" class="btn purple">
                                 <i class="fa fa-file-pdf-o"></i>
-                                @Loc["Vendor.Orders.Shipments.PrintPackagingSlip.All"]
+                                @Loc["Admin.Orders.Shipments.PrintPackagingSlip.All"]
                             </button>
                             <button type="submit" id="exportpackagingslips-selected" class="btn blue">
                                 <i class="fa fa-file-pdf-o"></i>
-                                @Loc["Vendor.Orders.Shipments.PrintPackagingSlip.Selected"]
+                                @Loc["Admin.Orders.Shipments.PrintPackagingSlip.Selected"]
                             </button>
                             <button class="btn btn-success" type="submit" id="ship-selected">
-                                <i class="fa fa-check"></i> @Loc["Vendor.Orders.Shipments.ShipSelected"]
+                                <i class="fa fa-check"></i> @Loc["Admin.Orders.Shipments.ShipSelected"]
                             </button>
                             <button class="btn btn-success" type="submit" id="deliver-selected">
-                                <i class="fa fa-check-circle"></i> @Loc["Vendor.Orders.Shipments.DeliverySelected"]
+                                <i class="fa fa-check-circle"></i> @Loc["Admin.Orders.Shipments.DeliverySelected"]
                             </button>
                             <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
                         </div>
@@ -49,10 +50,10 @@
                                         <div class="form-actions">
                                             <div class="btn-group">
                                                 <button class="btn btn-success filter-submit" id="search-shipments">
-                                                    <i class="fa fa-search"></i> @Loc["Vendor.Common.Search"]
+                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
                                                 </button>
                                                 <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
-                                                    <i class="fa fa-filter"></i>&nbsp; @Loc["Vendor.Common.Filters"]
+                                                    <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                                 </button>
                                             </div>
                                         </div>
@@ -99,7 +100,7 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ShipmentListSelect", "Shipment", new { area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("ShipmentListSelect", "Shipment", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: additionalData
@@ -135,33 +136,33 @@
                     width: 40
                 }, {
                     field: "ShipmentNumber",
-                    title: "@Loc["Vendor.Orders.Shipments.ID"]",
+                    title: "@Loc["Admin.Orders.Shipments.ID"]",
                     width: 100,
-                    template: '<a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaVendor })/#=Id#">#=ShipmentNumber#</a>'
+                    template: '<a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/#=Id#">#=ShipmentNumber#</a>'
                 }, {
                     field: "OrderNumber",
-                    title: "@Loc["Vendor.Orders.Shipments.OrderID"]",
+                    title: "@Loc["Admin.Orders.Shipments.OrderID"]",
                     width: 100,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaVendor })/#=OrderId#">#=OrderNumber#</a>'
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/#=OrderId#">#=OrderNumber#</a>'
                 }, {
                     field: "TrackingNumber",
-                    title: "@Loc["Vendor.Orders.Shipments.TrackingNumber"]",
+                    title: "@Loc["Admin.Orders.Shipments.TrackingNumber"]",
                     width: 100,
-                    template: '<a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaVendor })/#=Id#">#=kendo.htmlEncode(TrackingNumber)#</a>'
+                    template: '<a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = area })/#=Id#">#=kendo.htmlEncode(TrackingNumber)#</a>'
                 }, {
                     field: "TotalWeight",
-                    title: "@Loc["Vendor.Orders.Shipments.TotalWeight"]",
+                    title: "@Loc["Admin.Orders.Shipments.TotalWeight"]",
                     width: 80,
                     minScreenWidth: 770,
                 }, {
                     field: "ShippedDate",
-                    title: "@Loc["Vendor.Orders.Shipments.ShippedDate"]",
+                    title: "@Loc["Admin.Orders.Shipments.ShippedDate"]",
                     width: 180,
                     type: "date",
                     format: "{0:G}"
                 }, {
                     field: "DeliveryDate",
-                    title: "@Loc["Vendor.Orders.Shipments.DeliveryDate"]",
+                    title: "@Loc["Admin.Orders.Shipments.DeliveryDate"]",
                     width: 180,
                     type: "date",
                     format: "{0:G}"
@@ -174,7 +175,7 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ShipmentsItemsByShipmentId", "Shipment", new { area = Constants.AreaVendor }))?shipmentId="+e.data.Id,
+                            url: "@Html.Raw(Url.Action("ShipmentsItemsByShipmentId", "Shipment", new { area = area }))?shipmentId="+e.data.Id,
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -204,23 +205,23 @@
                 columns: [
                     {
                         field: "ProductName",
-                        title: "@Loc["Vendor.Orders.Shipments.Products.ProductName"]",
+                        title: "@Loc["Admin.Orders.Shipments.Products.ProductName"]",
                         width: 400
                     },{
                         field: "ShippedFromWarehouse",
-                        title: "@Loc["Vendor.Orders.Shipments.Products.Warehouse"]",
+                        title: "@Loc["Admin.Orders.Shipments.Products.Warehouse"]",
                         width: 150
                     },{
                         field: "QuantityInThisShipment",
-                        title: "@Loc["Vendor.Orders.Shipments.Products.QtyShipped"]",
+                        title: "@Loc["Admin.Orders.Shipments.Products.QtyShipped"]",
                         width: 150
                     },{
                         field: "ItemWeight",
-                        title: "@Loc["Vendor.Orders.Shipments.Products.ItemWeight"]",
+                        title: "@Loc["Admin.Orders.Shipments.Products.ItemWeight"]",
                         width: 150
                     },{
                         field: "ItemDimensions",
-                        title: "@Loc["Vendor.Orders.Shipments.Products.ItemDimensions"]",
+                        title: "@Loc["Admin.Orders.Shipments.Products.ItemDimensions"]",
                         width: 150
                     }
                 ]
@@ -232,7 +233,29 @@
     <script>
 
         var selectedIds = [];
+
         $(document).ready(function () {
+
+            $("#@Html.IdFor(model => model.CountryId)").change(function () {
+                var selectedItem = $(this).val();
+                var ddlStates = $("#@Html.IdFor(model => model.StateProvinceId)");
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.Action("GetStatesByCountryId", "Home", new { area = area }))",
+                    data: { "countryId": selectedItem, "addAsterisk": "true" },
+                    success: function (data) {
+                        ddlStates.html('');
+                        $.each(data, function (id, option) {
+                            ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                        });
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('Failed to retrieve states.');
+                    }
+                });
+            });
+
             $("#@Html.IdFor(model => model.TrackingNumber)").keydown(function (event) {
                 if (event.keyCode == 13) {
                     $("#search-shipments").click();
@@ -265,7 +288,7 @@
                 $.ajax({
                     cache: false,
                     type: "POST",
-                    url: "@(Url.Action("SetAsShippedSelected", "Shipment", new { area = Constants.AreaVendor }))",
+                    url: "@(Url.Action("SetAsShippedSelected", "Shipment", new { area = area }))",
                     data: postData,
                     complete: function(data) {
                         var grid = $('#shipments-grid').data('kendoGrid');
@@ -290,7 +313,7 @@
                 $.ajax({
                     cache: false,
                     type: "POST",
-                    url: "@(Url.Action("SetAsDeliveredSelected", "Shipment", new { area = Constants.AreaVendor }))",
+                    url: "@(Url.Action("SetAsDeliveredSelected", "Shipment", new { area = area }))",
                     data: postData,
                     complete: function(data) {
                         var grid = $('#shipments-grid').data('kendoGrid');
@@ -334,6 +357,8 @@
                 StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
                 EndDate: $('#@Html.IdFor(model => model.EndDate)').val(),
                 TrackingNumber: $('#@Html.IdFor(model => model.TrackingNumber)').val(),
+                CountryId: $('#@Html.IdFor(model => model.CountryId)').val(),
+                StateProvinceId: $('#@Html.IdFor(model => model.StateProvinceId)').val(),
                 City: $('#@Html.IdFor(model => model.City)').val(),
                 WarehouseId: $('#@Html.IdFor(model => model.WarehouseId)').val(),
                 LoadNotShipped: $('#@Html.IdFor(model => model.LoadNotShipped)').is(':checked')
@@ -360,7 +385,7 @@
     </script>
 
 </form>
-<form asp-area="@Constants.AreaVendor" asp-controller="Shipment" asp-action="PdfPackagingSlipSelected" method="post" id="pdf-packaging-slip-selected-form">
+<form asp-area="@area" asp-controller="Shipment" asp-action="PdfPackagingSlipSelected" method="post" id="pdf-packaging-slip-selected-form">
 
     <input type="hidden" id="selectedIds" name="selectedIds" value=""/>
 </form>

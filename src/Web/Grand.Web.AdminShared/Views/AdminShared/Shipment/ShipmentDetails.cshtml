@@ -1,9 +1,14 @@
-﻿@model ShipmentModel
+@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Domain.Permissions
+@model ShipmentModel
+@inject IPermissionService permissionService
 @{
     //page title
-    ViewBag.Title = Loc["Vendor.Orders.Shipments.ViewDetails"];
+    ViewBag.Title = Loc["Admin.Orders.Shipments.ViewDetails"];
+    var canManageDocuments = await permissionService.Authorize(StandardPermission.ManageDocuments);
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaVendor" asp-controller="Shipment" asp-action="ShipmentDetails" method="post">
+<form asp-area="@area" asp-controller="Shipment" asp-action="ShipmentDetails" method="post">
     <input type="hidden" asp-for="Id"/>
     <script>
         $(document).ready(function () {
@@ -52,19 +57,19 @@
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-truck"></i>
-                        @Loc["Vendor.Orders.Shipments.ViewDetails"] - @Model.ShipmentNumber
+                        @Loc["Admin.Orders.Shipments.ViewDetails"] - @Model.ShipmentNumber
                         <small>
                             <i class="fa fa-arrow-circle-left"></i>
-                            @Html.ActionLink(Loc["Vendor.Orders.Shipments.BackToList"], "List")
+                            @Html.ActionLink(Loc["Admin.Orders.Shipments.BackToList"], "List")
                         </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <a href="@Url.Action("PdfPackagingSlip", new { shipmentId = Model.Id, area = Constants.AreaVendor })" class="btn purple">
-                                <i class="fa fa-file-pdf-o"></i> @Loc["Vendor.Orders.Shipments.PrintPackagingSlip"]
+                            <a href="@Url.Action("PdfPackagingSlip", new { shipmentId = Model.Id, area = area })" class="btn purple">
+                                <i class="fa fa-file-pdf-o"></i> @Loc["Admin.Orders.Shipments.PrintPackagingSlip"]
                             </a>
                             <span id="shipment-delete" class="btn red">
-                                <i class="fa fa-trash-o"></i> @Loc["Vendor.Common.Delete"]
+                                <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
                             </span>
                             <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>
@@ -73,17 +78,39 @@
                 <div class="x_content form">
                     <admin-tabstrip name="shipment-edit" SetTabPos="true">
                         <items>
-                            <tabstrip-item text="@Loc["Vendor.Orders.Shipments.ViewDetails.Info"]" tab-index="0">
+                            <tabstrip-item text="@Loc["Admin.Orders.Shipments.ViewDetails.Info"]" tab-index="0">
                                 <content>
                                     <div>
                                         <partial name="Partials/Info" model="Model"/>
                                     </div>
                                 </content>
                             </tabstrip-item>
-                            <tabstrip-item text="@Loc["Vendor.Orders.Shipments.ShipmentNotes"]" tab-index="1">
+                            @if (canManageDocuments)
+                            {
+                                <tabstrip-item text="@Loc["Admin.Orders.Shipments.Documents"]" tab-index="1">
+                                    <content>
+                                        <div>
+                                            <partial name="Partials/Documents" model="Model"/>
+                                        </div>
+                                    </content>
+                                </tabstrip-item>
+                            }
+                            <tabstrip-item text="@Loc["Admin.Orders.Shipments.ShipmentNotes"]" tab-index="2">
                                 <content>
                                     <div>
                                         <partial name="Partials/ShipmentNotes" model="Model"/>
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="3">
+                                <content>
+                                    <div>
+                                        <div class="form-actions">
+                                            <input type="submit" asp-action="EditUserFields" value="@Loc["Admin.Common.Save"]" id="btnSaveUserFields" name="save-generic-attributes" class="k-button"/>
+                                        </div>
+                                        <div class="form-horizontal">
+                                            <partial name="Partials/UserFields" model="Model"/>
+                                        </div>
                                     </div>
                                 </content>
                             </tabstrip-item>

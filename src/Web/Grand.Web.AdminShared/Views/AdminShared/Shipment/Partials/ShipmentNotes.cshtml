@@ -1,5 +1,10 @@
-﻿@model ShipmentModel
-
+@using Grand.Domain.Media
+@model ShipmentModel
+@{
+    ViewData["DownloadType"] = DownloadType.Shipment;
+    ViewData["ReferenceId"] = Model.Id;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 <div class="panel panel-default">
     <partial name="Partials/WidgetZone.Notes.Top" model="Model"/>
     <div class="panel-body">
@@ -13,13 +18,13 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("ShipmentNotesSelect", "Shipment", new { shipmentId = Model.Id, area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("ShipmentNotesSelect", "Shipment", new { shipmentId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("ShipmentNoteDelete", "Shipment", new { shipmentId = Model.Id, area = Constants.AreaVendor }))",
+                            url: "@Html.Raw(Url.Action("ShipmentNoteDelete", "Shipment", new { shipmentId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -61,32 +66,37 @@
                 scrollable: false,
                 columns: [{
                     field: "CreatedOn",
-                    title: "@Loc["Vendor.Orders.Shipments.ShipmentNotes.CreatedOn"]",
+                    title: "@Loc["Admin.Orders.Shipments.ShipmentNotes.CreatedOn"]",
                     width: 180,
                     type: "date",
                     format: "{0:G}"
                 }, {
                     field: "Note",
-                    title: "@Loc["Vendor.Orders.Shipments.ShipmentNotes.Note"]",
+                    title: "@Loc["Admin.Orders.Shipments.ShipmentNotes.Note"]",
                     width: 350,
                     encoded: false
-                },{
+                }, {
+                    field: "DownloadId",
+                    title: "@Loc["Admin.Orders.Shipments.ShipmentNotes.Download"]",
+                    width: 100,
+                    template: '# if(DownloadId != "") {# <a href="@Url.Action("DownloadFile", "Download", new { area = area })/?downloadGuid=#=DownloadGuid#">@Loc["Admin.Orders.OrderNotes.Fields.Download.Link"]</a> #} else {# @Loc["Admin.Orders.OrderNotes.Fields.Download.Link.No"] #} #'
+                }, {
                     field: "CreatedByCustomer",
-                    title: "@Loc["Vendor.Orders.Shipments.ShipmentNotes.CreatedByCustomer"]",
+                    title: "@Loc["Admin.Orders.Shipments.ShipmentNotes.CreatedByCustomer"]",
                     width: 100,
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
                     template: '# if(CreatedByCustomer) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
                 }, {
                     field: "DisplayToCustomer",
-                    title: "@Loc["Vendor.Orders.Shipments.ShipmentNotes.Fields.DisplayToCustomer"]",
+                    title: "@Loc["Admin.Orders.Shipments.ShipmentNotes.Fields.DisplayToCustomer"]",
                     width: 100,
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
                     template: '# if(DisplayToCustomer) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
                 }, {
-                    command: { name: "destroy", text: "@Loc["Vendor.Common.Delete"]" },
-                    title: "@Loc["Vendor.Common.Delete"]",
+                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                    title: "@Loc["Admin.Common.Delete"]",
                     width: 100
                 }]
             });
@@ -94,10 +104,24 @@
 </script>
 <p>
     <strong>
-        @Loc["Vendor.Orders.Shipments.ShipmentNotes.AddTitle"]
+        @Loc["Admin.Orders.Shipments.ShipmentNotes.AddTitle"]
     </strong>
 </p>
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.AddShipmentNoteHasDownload)").change(toggleAddShipmentNoteHasDownload);
+        toggleAddShipmentNoteHasDownload();
+    });
+    function toggleAddShipmentNoteHasDownload() {
+        if ($('#@Html.IdFor(model => model.AddShipmentNoteHasDownload)').is(':checked')) {
+            $('#pnlAddShipmentNoteDownloadId').show();
+        }
+        else {
+            $('#pnlAddShipmentNoteDownloadId').hide();
+        }
+    }
 
+</script>
 
 <div class="form-horizontal">
     <div class="form-body">
@@ -106,6 +130,19 @@
             <div class="col-md-9 col-sm-9">
                 <admin-textarea asp-for="AddShipmentNoteMessage"></admin-textarea>
                 <span asp-validation-for="AddShipmentNoteMessage"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AddShipmentNoteDownloadId"/>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AddShipmentNoteHasDownload"/>
+                    <div class="control__indicator"></div>
+                </label>
+                <div id="pnlAddShipmentNoteDownloadId">
+                    <admin-input asp-for="AddShipmentNoteDownloadId"/>
+                    <span asp-validation-for="AddShipmentNoteDownloadId"></span>
+                </div>
             </div>
         </div>
         <div class="form-group">
@@ -120,7 +157,7 @@
         </div>
         <div class="form-actions">
             <div class="offset-md-3 col-md-9 col-sm-9">
-                <button type="button" id="addShipmentNote" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Vendor.Orders.Shipments.ShipmentNotes.AddButton"]</button>
+                <button type="button" id="addShipmentNote" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Orders.Shipments.ShipmentNotes.AddButton"]</button>
             </div>
         </div>
     </div>
@@ -134,12 +171,16 @@
                 alert('Message text is required');
                 return;
             }
-            
+            var shipmentNoteDownloadId = '';
+            if ($('#@Html.IdFor(model => model.AddShipmentNoteHasDownload)').is(':checked')) {
+                shipmentNoteDownloadId = $("#@Html.IdFor(model => model.AddShipmentNoteDownloadId)").val();
+            }
             var shipmentNoteDisplayToCustomer = $("#@Html.IdFor(model => model.AddShipmentNoteDisplayToCustomer)").is(':checked');
             $('#addShipmentNote').attr('disabled', true);
             var postData = {
                 DisplayToCustomer: shipmentNoteDisplayToCustomer,
-                message: shipmentNoteMessage,                
+                message: shipmentNoteMessage,
+                downloadId: shipmentNoteDownloadId,
                 shipmentId: '@Model.Id'
             };
             addAntiForgeryToken(postData);
@@ -147,7 +188,7 @@
             $.ajax({
                 cache:false,
                 type: "POST",
-                url: "@(Url.Action("ShipmentNoteAdd", "Shipment", new { area = Constants.AreaVendor }))",
+                url: "@(Url.Action("ShipmentNoteAdd", "Shipment", new { area = area }))",
                 data: postData,
                 success: function (data) {
                     var grid = $("#shipmentnotes-grid").data('kendoGrid');
