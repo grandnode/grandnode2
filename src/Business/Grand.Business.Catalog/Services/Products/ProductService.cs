@@ -126,17 +126,32 @@ public class ProductService : IProductService
         if (productIds == null || productIds.Length == 0)
             return new List<Product>();
 
-        var products = new List<Product>();
-        foreach (var id in productIds)
-        {
-            var product = await GetProductById(id);
-            if (product != null && (showHidden || (_aclService.Authorize(product, _contextAccessor.WorkContext.CurrentCustomer) &&
-                                                   _aclService.Authorize(product, _contextAccessor.StoreContext.CurrentStore.Id) &&
-                                                   product.IsAvailable())))
-                products.Add(product);
-        }
+        //One query serves every identifier that is not cached yet, and the identifiers that are cached
+        //never reach it - so a warm call still costs nothing, and a cold one costs a single round trip
+        //instead of one per identifier. The lazy is what ties the misses together: the first of them
+        //starts the query, the rest await the same task.
+        var batch = new Lazy<Task<ILookup<string, Product>>>(() => GetProductsFromDb(productIds));
 
-        return products;
+        var found = await Task.WhenAll(productIds.Select(id =>
+            _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, id),
+                async () => (await batch.Value)[id].FirstOrDefault())));
+
+        return found.Where(product =>
+                product != null && (showHidden ||
+                                    (_aclService.Authorize(product, _contextAccessor.WorkContext.CurrentCustomer) &&
+                                     _aclService.Authorize(product, _contextAccessor.StoreContext.CurrentStore.Id) &&
+                                     product.IsAvailable())))
+            .ToList();
+    }
+
+    /// <summary>
+    ///     Reads the given products in one go. A lookup rather than a dictionary because the caller may
+    ///     repeat an identifier and because an identifier may match nothing.
+    /// </summary>
+    private Task<ILookup<string, Product>> GetProductsFromDb(string[] productIds)
+    {
+        var products = _productRepository.Table.Where(product => productIds.Contains(product.Id)).ToList();
+        return Task.FromResult(products.ToLookup(product => product.Id));
     }
 
     /// <summary>
