@@ -484,6 +484,26 @@ public class BaseMerchandiseReturnControllerTests
             v => v.InsertMerchandiseReturnNote(entity, order, "download-1", true, "msg"), Times.Once);
     }
 
+    [TestMethod]
+    public async Task NoteAdd_OrderNotFound_ReturnsJsonResultFalse()
+    {
+        // Restores Admin/Store's original null-check on the server-resolved order: without it, a note
+        // would persist for a merchandise return whose order no longer exists, and (when
+        // displayToCustomer is true) InsertMerchandiseReturnNote would NRE dereferencing order.StoreId.
+        var entity = new MerchandiseReturn { Id = "mr1", OrderId = "o1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        _orderServiceMock.Setup(o => o.GetOrderById("o1")).ReturnsAsync((Order)null);
+
+        var result = await _controller.MerchandiseReturnNoteAdd("mr1", null, false, "msg");
+
+        var json = result as JsonResult;
+        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
+        _merchandiseReturnViewModelServiceMock.Verify(
+            v => v.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
     // --- MerchandiseReturnNoteDelete ---------------------------------------------------------------
 
     [TestMethod]

@@ -72,6 +72,11 @@ public class MerchandiseReturnControllerAttributeTests
             "Missing [AuthorizeAdmin].");
 
     [TestMethod]
+    public void AdminController_HasAuthorizeMenuAttribute() =>
+        Assert.IsTrue(typeof(Grand.Web.Admin.Controllers.MerchandiseReturnController).IsDefined(typeof(AuthorizeMenuAttribute), false),
+            "Missing [AuthorizeMenu].");
+
+    [TestMethod]
     public void StoreController_HasAreaAttributeWithStoreArea()
     {
         var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(
@@ -86,6 +91,11 @@ public class MerchandiseReturnControllerAttributeTests
             "Missing [AuthorizeStore].");
 
     [TestMethod]
+    public void StoreController_HasAuthorizeMenuAttribute() =>
+        Assert.IsTrue(typeof(StoreHost::Grand.Web.Store.Controllers.MerchandiseReturnController).IsDefined(typeof(AuthorizeMenuAttribute), false),
+            "Missing [AuthorizeMenu].");
+
+    [TestMethod]
     public void VendorController_HasAreaAttributeWithVendorArea()
     {
         var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(
@@ -98,4 +108,9 @@ public class MerchandiseReturnControllerAttributeTests
     public void VendorController_HasAuthorizeVendorAttribute() =>
         Assert.IsTrue(typeof(VendorHost::Grand.Web.Vendor.Controllers.MerchandiseReturnController).IsDefined(typeof(AuthorizeVendorAttribute), false),
             "Missing [AuthorizeVendor].");
+
+    [TestMethod]
+    public void VendorController_HasAuthorizeMenuAttribute() =>
+        Assert.IsTrue(typeof(VendorHost::Grand.Web.Vendor.Controllers.MerchandiseReturnController).IsDefined(typeof(AuthorizeMenuAttribute), false),
+            "Missing [AuthorizeMenu].");
 }

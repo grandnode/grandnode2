@@ -207,6 +207,8 @@ public abstract class BaseMerchandiseReturnController(
         // matched the merchandise return), makes Store's now-redundant equality check unnecessary,
         // and needs no new parameter on Vendor's side.
         var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
+        if (order == null) return Json(new { Result = false });
+
         await merchandiseReturnViewModelService.InsertMerchandiseReturnNote(merchandiseReturn, order, downloadId,
             displayToCustomer, message);
 
