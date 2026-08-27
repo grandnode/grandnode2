@@ -1,0 +1,41 @@
+<Project>
+
+    <!--
+        The business layer implementations, referenced by the hosts - and only by the hosts.
+
+        Nothing in the web layer links a type from these assemblies: the whole solution compiles
+        against the contracts in Grand.Business.Core. What these references are for is presence.
+        Each of the nine projects carries a Startup/StartupApplication.cs, and TypeSearcher finds
+        IStartupApplication by walking the assemblies loaded in the AppDomain
+        (Grand.Infrastructure/TypeSearch/TypeSearcher.cs). An implementation that is not referenced
+        by the host never reaches the host's output, is never loaded, and its services are never
+        registered.
+
+        So this list looks removable and is not. Dropping an entry costs an entire business area's
+        DI registration, and nothing fails at build time - the first sign is a resolution failure
+        on a request at runtime.
+
+        These belong to the host because the host is the composition root. They used to sit in
+        Grand.Web.Common, which meant the shared web layer - and through it every plugin, since
+        Grand.Plugin.props references it - compiled against the entire business layer for no
+        reason at all.
+
+        Private is left at its default: unlike a plugin, the host is exactly where these
+        assemblies are supposed to be copied.
+
+        Paths are anchored to this file so a host can sit at any depth.
+    -->
+
+    <ItemGroup>
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Catalog\Grand.Business.Catalog.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Checkout\Grand.Business.Checkout.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Common\Grand.Business.Common.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Customers\Grand.Business.Customers.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Marketing\Grand.Business.Marketing.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Messages\Grand.Business.Messages.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\Business\Grand.Business.Storage\Grand.Business.Storage.csproj" />
+    </ItemGroup>
+
+</Project>
