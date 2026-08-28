@@ -13,9 +13,12 @@ using Grand.Business.Core.Utilities.System;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -309,6 +312,81 @@ public abstract class BaseReportsController(
         }
 
         var gridModel = new DataSourceResult { Data = result, Total = items.Count };
+        return Json(gridModel);
+    }
+
+    #endregion
+
+    #region Low stock reports
+
+    public virtual IActionResult LowStockReport() => View();
+
+    [HttpPost]
+    public virtual async Task<IActionResult> LowStockReportList(DataSourceRequest command)
+    {
+        var lowStockProducts = await productsReportService.LowStockProducts(scope.VendorId, scope.StoreId);
+
+        var models = new List<LowStockProductModel>();
+        foreach (var product in lowStockProducts.products)
+            models.Add(new LowStockProductModel {
+                Id = product.Id,
+                Name = product.Name,
+                ManageInventoryMethod = enumTranslationService.GetTranslationEnum(product.ManageInventoryMethodId),
+                StockQuantity = stockQuantityService.GetTotalStockQuantity(product, total: true),
+                Published = product.Published
+            });
+
+        foreach (var combination in lowStockProducts.combinations)
+        {
+            var product = await productService.GetProductById(combination.ProductId);
+            models.Add(new LowStockProductModel {
+                Id = product.Id,
+                Name = product.Name,
+                Attributes = await productAttributeFormatter.FormatAttributes(product, combination.Attributes,
+                    contextAccessor.WorkContext.CurrentCustomer, "<br />", true, true, true, false),
+                ManageInventoryMethod = enumTranslationService.GetTranslationEnum(product.ManageInventoryMethodId),
+                StockQuantity = combination.StockQuantity,
+                Published = product.Published
+            });
+        }
+
+        var gridModel = new DataSourceResult { Data = models.PagedForCommand(command), Total = models.Count };
+        return Json(gridModel);
+    }
+
+    #endregion
+
+    #region Customer reports
+
+    /// <summary>No inline permission check here — matches Store's/Vendor's actual current behavior
+    /// (only Admin gates this GET on ManageCustomers; see Task 5's header note and Global Constraint
+    /// 5, which names CountryReport's twin of this same check explicitly but not this one). `virtual`
+    /// so Admin's thin subclass (Task 12) can override and add the check. Reuses
+    /// PrepareCustomerReportsModel() as-is for all three hosts, including Vendor, accepting the
+    /// unused-select-list over-population documented at spec §5/§2.4 as a disclosed, accepted
+    /// tradeoff rather than adding a Vendor-specific thinner variant.</summary>
+    public virtual async Task<IActionResult> Customer()
+    {
+        var model = await customerReportViewModelService.PrepareCustomerReportsModel();
+        return View(model);
+    }
+
+    /// <summary>`scope.VendorId` is the new 5th argument added to
+    /// `PrepareBestCustomerReportLineModel` by Task 11 (Global Constraint 8) — "" for Admin/Store
+    /// (unchanged behavior), the current vendor's id for Vendor (replaces Vendor's original inline
+    /// `GetBestCustomersReport("", vendorId, ...)` reimplementation entirely; see Task 11).
+    /// model.StoreId is still threaded the same "scope wins when non-empty" way as every other action
+    /// in this file, for the storeId half of the same call.</summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> ReportBestCustomersByOrderTotalList(DataSourceRequest command,
+        BestCustomersReportModel model)
+    {
+        if (!string.IsNullOrEmpty(scope.StoreId)) model.StoreId = scope.StoreId;
+
+        var (bestCustomerReportLineModels, totalCount) = await customerReportViewModelService
+            .PrepareBestCustomerReportLineModel(model, 1, command.Page, command.PageSize, scope.VendorId);
+
+        var gridModel = new DataSourceResult { Data = bestCustomerReportLineModels.ToList(), Total = totalCount };
         return Json(gridModel);
     }
 
