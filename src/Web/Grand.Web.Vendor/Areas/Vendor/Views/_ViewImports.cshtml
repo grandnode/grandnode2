@@ -50,6 +50,14 @@
 @using Grand.Web.Vendor.Models.MerchandiseReturn;
 @using Grand.Web.Vendor.Models.Vendor;
 @using Grand.Web.Vendor.Models.VendorReview;
-@using Grand.Web.Vendor.Models.Report;
+@* Reports views bind to Grand.Web.AdminShared's report model families (ARCH-001 Reports
+   consolidation, Task 11/12) - Grand.Web.Vendor.Models.Report is deleted entirely, so alias just
+   the 4 types Vendor's 5 Reports views actually reference (same alias-not-blanket-import rationale
+   as the Order/Shipment block above - Models.Orders also holds MerchandiseReturnModel, which
+   Vendor's MerchandiseReturn views still bind to their own Vendor.Models.MerchandiseReturn type). *@
+@using BestsellersReportModel = Grand.Web.AdminShared.Models.Orders.BestsellersReportModel;
+@using CountryReportModel = Grand.Web.AdminShared.Models.Orders.CountryReportModel;
+@using NeverSoldReportModel = Grand.Web.AdminShared.Models.Orders.NeverSoldReportModel;
+@using CustomerReportsModel = Grand.Web.AdminShared.Models.Customers.CustomerReportsModel;
 @inject LocService Loc
 @inject IEnumTranslationService EnumTranslationService
