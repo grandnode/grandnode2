@@ -146,6 +146,35 @@ public class BaseFullReportsControllerTests
     }
 
     [TestMethod]
+    public async Task BestsellersBriefReportByAmountList_ScopeValuesThreadedIntoQuery()
+    {
+        _scopeMock.Setup(s => s.StoreId).Returns("store-1");
+        _scopeMock.Setup(s => s.VendorId).Returns("vendor-1");
+        _orderReportServiceMock.Setup(o => o.BestSellersReport("store-1", "vendor-1", null, null, null, null, null,
+                "", 2, 0, 10, true))
+            .ReturnsAsync(new PagedList<BestsellersReportLine>(new List<BestsellersReportLine>(), 0, 0));
+
+        await _controller.BestsellersBriefReportByAmountList(new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        _orderReportServiceMock.Verify(o => o.BestSellersReport("store-1", "vendor-1", null, null, null, null, null,
+            "", 2, 0, 10, true), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task BestsellersBriefReportByAmountList_CanIncludeProductFalse_DropsRow()
+    {
+        var line = new BestsellersReportLine { ProductId = "p1", TotalAmount = 1, TotalQuantity = 1 };
+        _orderReportServiceMock.Setup(o => o.BestSellersReport("", "", null, null, null, null, null, "", 2, 0, 10, true))
+            .ReturnsAsync(new PagedList<BestsellersReportLine>(new List<BestsellersReportLine> { line }, 0, 1));
+        _scopeMock.Setup(s => s.CanIncludeProduct(It.IsAny<Grand.Domain.Catalog.Product>())).Returns(false);
+
+        var result = await _controller.BestsellersBriefReportByAmountList(new DataSourceRequest { Page = 1, PageSize = 10 }) as JsonResult;
+
+        var gridModel = (DataSourceResult)result!.Value!;
+        Assert.AreEqual(0, ((List<BestsellersReportLineModel>)gridModel.Data).Count);
+    }
+
+    [TestMethod]
     public async Task ReportOrderPeriodList_ManageOrdersDenied_ReturnsEmptyContent()
     {
         _permissionServiceMock.Setup(p => p.Authorize(StandardPermission.ManageOrders)).ReturnsAsync(false);
@@ -225,8 +254,12 @@ public class BaseFullReportsControllerTests
             s.PrepareBestCustomerReportLineModel(It.IsAny<BestCustomersReportModel>(), 2, 1, 10, "vendor-1"), Times.Once);
     }
 
+    /// <summary>Verifies both scope values are passed to the service call, not that vendorId changes
+    /// behavior — GetReportRegisteredCustomersModel's vendorId parameter is a documented no-op today
+    /// (see its XML doc / ICustomerReportViewModelService), kept for signature symmetry and
+    /// forward-compatibility. scope.VendorId is always "" for this Full-tier-only action anyway.</summary>
     [TestMethod]
-    public async Task ReportRegisteredCustomersList_PassesScopeStoreIdAndVendorIdToService()
+    public async Task ReportRegisteredCustomersList_ScopeStoreIdAndVendorIdAcceptedByServiceCall()
     {
         _scopeMock.Setup(s => s.StoreId).Returns("store-1");
         _scopeMock.Setup(s => s.VendorId).Returns("vendor-1");

@@ -77,6 +77,13 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
         return model;
     }
 
+    /// <param name="storeId">Store scope applied to <see cref="ICustomerReportService.GetRegisteredCustomersReport" />.</param>
+    /// <param name="vendorId">Intentionally accepted but currently unused: <see cref="ICustomerReportService.GetRegisteredCustomersReport" />
+    /// has no vendor dimension at all (registered customers aren't owned by a vendor), so there is nothing to filter by here.
+    /// The parameter exists for signature symmetry with <see cref="PrepareBestCustomerReportLineModel" /> (which DOES use its
+    /// own <c>vendorId</c>) and for forward-compatibility should a vendor dimension ever be added to the underlying report.
+    /// The only caller (<see cref="Controllers.BaseFullReportsController.ReportRegisteredCustomersList" />) is Full-tier/Admin-Store
+    /// only, where <c>scope.VendorId</c> is always "" anyway, so this is currently a documented no-op, not a bug.</param>
     public virtual async Task<IList<RegisteredCustomerReportLineModel>> GetReportRegisteredCustomersModel(
         string storeId, string vendorId = "")
     {

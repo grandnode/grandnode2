@@ -122,6 +122,51 @@ public class BaseReportsControllerTests
     }
 
     [TestMethod]
+    public async Task BestsellersBriefReportByQuantityList_ScopeValuesThreadedIntoQuery()
+    {
+        _scopeMock.Setup(s => s.StoreId).Returns("store-1");
+        _scopeMock.Setup(s => s.VendorId).Returns("vendor-1");
+        _orderReportServiceMock.Setup(o => o.BestSellersReport("store-1", "vendor-1", null, null, null, null, null,
+                "", 1, 0, 10, true))
+            .ReturnsAsync(new PagedList<BestsellersReportLine>(new List<BestsellersReportLine>(), 0, 0));
+
+        await _controller.BestsellersBriefReportByQuantityList(new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        _orderReportServiceMock.Verify(o => o.BestSellersReport("store-1", "vendor-1", null, null, null, null, null,
+            "", 1, 0, 10, true), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task BestsellersBriefReportByAmountList_ScopeValuesThreadedIntoQuery()
+    {
+        _scopeMock.Setup(s => s.StoreId).Returns("store-1");
+        _scopeMock.Setup(s => s.VendorId).Returns("vendor-1");
+        _orderReportServiceMock.Setup(o => o.BestSellersReport("store-1", "vendor-1", null, null, null, null, null,
+                "", 2, 0, 10, true))
+            .ReturnsAsync(new PagedList<BestsellersReportLine>(new List<BestsellersReportLine>(), 0, 0));
+
+        await _controller.BestsellersBriefReportByAmountList(new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        _orderReportServiceMock.Verify(o => o.BestSellersReport("store-1", "vendor-1", null, null, null, null, null,
+            "", 2, 0, 10, true), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task BestsellersBriefReportByQuantityList_CanIncludeProductFalse_DropsRow()
+    {
+        var line = new BestsellersReportLine { ProductId = "p1", TotalAmount = 1, TotalQuantity = 1 };
+        _orderReportServiceMock.Setup(o => o.BestSellersReport("", "", null, null, null, null, null, "", 1, 0, 10, true))
+            .ReturnsAsync(new PagedList<BestsellersReportLine>(new List<BestsellersReportLine> { line }, 0, 1));
+        _productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(new Product { Id = "p1" });
+        _scopeMock.Setup(s => s.CanIncludeProduct(It.IsAny<Product>())).Returns(false);
+
+        var result = await _controller.BestsellersBriefReportByQuantityList(new DataSourceRequest { Page = 1, PageSize = 10 }) as JsonResult;
+
+        var gridModel = (DataSourceResult)result!.Value!;
+        Assert.AreEqual(0, ((List<BestsellersReportLineModel>)gridModel.Data).Count);
+    }
+
+    [TestMethod]
     public async Task BestsellersReport_ShowStoreSelectorTrue_PopulatesAvailableStores()
     {
         var result = await _controller.BestsellersReport() as ViewResult;

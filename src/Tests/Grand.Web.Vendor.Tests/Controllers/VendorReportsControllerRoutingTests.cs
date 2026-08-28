@@ -1,14 +1,13 @@
-extern alias WebVendor;
-
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Vendor.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using VendorReportsController = WebVendor::Grand.Web.Vendor.Controllers.ReportsController;
+using VendorReportsController = Grand.Web.Vendor.Controllers.ReportsController;
 
-namespace Grand.Web.Admin.Tests.Controllers;
+namespace Grand.Web.Vendor.Tests.Controllers;
 
 [TestClass]
 public class VendorReportsControllerRoutingTests

@@ -78,6 +78,8 @@ public abstract class BaseReportsController(
         int orderBy)
     {
         var items = await orderReportService.BestSellersReport(
+            storeId: scope.StoreId,
+            vendorId: scope.VendorId,
             orderBy: orderBy,
             pageIndex: pageIndex,
             pageSize: pageSize,
@@ -93,7 +95,8 @@ public abstract class BaseReportsController(
             var product = await productService.GetProductById(x.ProductId);
             if (product != null)
                 m.ProductName = product.Name;
-            result.Add(m);
+            if (scope.CanIncludeProduct(product))
+                result.Add(m);
         }
 
         return new DataSourceResult { Data = result, Total = items.TotalCount };

@@ -1,14 +1,13 @@
-extern alias WebStore;
-
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Store.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using StoreReportsController = WebStore::Grand.Web.Store.Controllers.ReportsController;
+using StoreReportsController = Grand.Web.Store.Controllers.ReportsController;
 
-namespace Grand.Web.Admin.Tests.Controllers;
+namespace Grand.Web.Store.Tests.Controllers;
 
 [TestClass]
 public class StoreReportsControllerRoutingTests
