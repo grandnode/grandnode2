@@ -2,6 +2,7 @@ extern alias WebStore;
 
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Controllers;
+using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,14 +26,9 @@ public class StoreReportsControllerRoutingTests
     }
 
     [TestMethod]
-    public void StoreReportsController_HasAuthorizeStoreAttribute()
-    {
-        var commonAssembly = System.Reflection.Assembly.Load("Grand.Web.Common");
-        var authorizeStoreType = commonAssembly.GetType("Grand.Web.Common.Filters.AuthorizeStoreAttribute", false);
-        Assert.IsNotNull(authorizeStoreType, "Could not load AuthorizeStoreAttribute type");
-        Assert.IsTrue(typeof(StoreReportsController).IsDefined(authorizeStoreType, false),
+    public void StoreReportsController_HasAuthorizeStoreAttribute() =>
+        Assert.IsTrue(typeof(StoreReportsController).IsDefined(typeof(AuthorizeStoreAttribute), false),
             "Missing [AuthorizeStore].");
-    }
 
     [TestMethod]
     public void StoreReportsController_HasPermissionAuthorizeReportsAttribute()
