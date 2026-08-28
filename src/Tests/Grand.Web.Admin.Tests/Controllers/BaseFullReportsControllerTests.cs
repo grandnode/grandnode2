@@ -24,6 +24,7 @@ using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -110,7 +111,9 @@ public class BaseFullReportsControllerTests
         var requestServicesMock = new Mock<IServiceProvider>();
         requestServicesMock.Setup(s => s.GetService(typeof(IUrlHelperFactory))).Returns(urlHelperFactoryMock.Object);
         httpContext.RequestServices = requestServicesMock.Object;
-        _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
+        var routeData = new RouteData();
+        routeData.Values["area"] = "Admin";
+        _controller.ControllerContext = new ControllerContext { HttpContext = httpContext, RouteData = routeData };
     }
 
     [TestMethod]

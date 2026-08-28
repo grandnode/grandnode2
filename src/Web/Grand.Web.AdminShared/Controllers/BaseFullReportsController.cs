@@ -209,7 +209,7 @@ public abstract class BaseFullReportsController(
         if (!await permissionService.Authorize(StandardPermission.ManageOrders))
             return Content("");
 
-        var area = ControllerContext.RouteData?.Values["area"]?.ToString();
+        var area = ControllerContext.RouteData.Values["area"]?.ToString();
         var model = new List<OrderIncompleteReportLineModel>();
 
         var psPending = await orderReportService.GetOrderAverageReportLine(scope.StoreId, ps: PaymentStatus.Pending,
