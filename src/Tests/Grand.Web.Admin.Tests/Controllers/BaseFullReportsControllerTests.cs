@@ -18,6 +18,7 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
@@ -65,13 +66,15 @@ public class BaseFullReportsControllerTests
     private Mock<IOrderService> _orderServiceMock = null!;
     private Mock<IPermissionService> _permissionServiceMock = null!;
     private Mock<IReportDataScope> _scopeMock = null!;
+    private Mock<ICustomerReportViewModelService> _customerReportViewModelServiceMock = null!;
+    private Mock<ICustomerReportService> _customerReportServiceMock = null!;
 
     [TestInitialize]
     public void Setup()
     {
         _orderReportServiceMock = new Mock<IOrderReportService>();
         var productsReportServiceMock = new Mock<IProductsReportService>();
-        var customerReportViewModelServiceMock = new Mock<ICustomerReportViewModelService>();
+        _customerReportViewModelServiceMock = new Mock<ICustomerReportViewModelService>();
         var priceFormatterMock = new Mock<IPriceFormatter>();
         priceFormatterMock.Setup(p => p.FormatPrice(It.IsAny<double>(), It.IsAny<Currency>())).Returns("$0.00");
         var currencyServiceMock = new Mock<ICurrencyService>();
@@ -93,17 +96,17 @@ public class BaseFullReportsControllerTests
         _scopeMock.Setup(s => s.StoreId).Returns("");
         _scopeMock.Setup(s => s.VendorId).Returns("");
         _orderServiceMock = new Mock<IOrderService>();
-        var customerReportServiceMock = new Mock<ICustomerReportService>();
+        _customerReportServiceMock = new Mock<ICustomerReportService>();
         _permissionServiceMock = new Mock<IPermissionService>();
         _permissionServiceMock.Setup(p => p.Authorize(StandardPermission.ManageOrders)).ReturnsAsync(true);
 
         _controller = new TestFullReportsController(_orderReportServiceMock.Object, productsReportServiceMock.Object,
-            customerReportViewModelServiceMock.Object, priceFormatterMock.Object, currencyServiceMock.Object,
+            _customerReportViewModelServiceMock.Object, priceFormatterMock.Object, currencyServiceMock.Object,
             productServiceMock.Object, productAttributeFormatterMock.Object, stockQuantityServiceMock.Object,
             translationServiceMock.Object, storeServiceMock.Object, countryServiceMock.Object,
             vendorServiceMock.Object, dateTimeServiceMock.Object, orderStatusServiceMock.Object,
             enumTranslationServiceMock.Object, contextAccessorMock.Object, _scopeMock.Object,
-            _orderServiceMock.Object, customerReportServiceMock.Object, _permissionServiceMock.Object);
+            _orderServiceMock.Object, _customerReportServiceMock.Object, _permissionServiceMock.Object);
 
         var httpContext = new DefaultHttpContext();
         var urlHelperFactoryMock = new Mock<IUrlHelperFactory>();
@@ -205,5 +208,45 @@ public class BaseFullReportsControllerTests
 
         var gridModel = (DataSourceResult)result!.Value!;
         Assert.AreEqual(3, ((List<OrderIncompleteReportLineModel>)gridModel.Data).Count);
+    }
+
+    [TestMethod]
+    public async Task ReportBestCustomersByNumberOfOrdersList_PassesScopeVendorIdToService()
+    {
+        _scopeMock.Setup(s => s.VendorId).Returns("vendor-1");
+        _customerReportViewModelServiceMock.Setup(s =>
+                s.PrepareBestCustomerReportLineModel(It.IsAny<BestCustomersReportModel>(), 2, 1, 10, "vendor-1"))
+            .ReturnsAsync((new List<BestCustomerReportLineModel>(), 0));
+
+        await _controller.ReportBestCustomersByNumberOfOrdersList(new DataSourceRequest { Page = 1, PageSize = 10 },
+            new BestCustomersReportModel());
+
+        _customerReportViewModelServiceMock.Verify(s =>
+            s.PrepareBestCustomerReportLineModel(It.IsAny<BestCustomersReportModel>(), 2, 1, 10, "vendor-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ReportRegisteredCustomersList_PassesScopeStoreIdAndVendorIdToService()
+    {
+        _scopeMock.Setup(s => s.StoreId).Returns("store-1");
+        _scopeMock.Setup(s => s.VendorId).Returns("vendor-1");
+        _customerReportViewModelServiceMock.Setup(s => s.GetReportRegisteredCustomersModel("store-1", "vendor-1"))
+            .ReturnsAsync(new List<RegisteredCustomerReportLineModel>());
+
+        await _controller.ReportRegisteredCustomersList(new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        _customerReportViewModelServiceMock.Verify(s => s.GetReportRegisteredCustomersModel("store-1", "vendor-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ReportCustomerTimeChart_PassesScopeStoreIdToService()
+    {
+        _scopeMock.Setup(s => s.StoreId).Returns("store-1");
+        _customerReportServiceMock.Setup(s => s.GetCustomerByTimeReport("store-1", null, null))
+            .ReturnsAsync(new List<CustomerByTimeReportLine>());
+
+        await _controller.ReportCustomerTimeChart(new DataSourceRequest { Page = 1, PageSize = 10 }, null, null);
+
+        _customerReportServiceMock.Verify(s => s.GetCustomerByTimeReport("store-1", null, null), Times.Once);
     }
 }

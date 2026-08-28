@@ -17,6 +17,7 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
@@ -241,6 +242,39 @@ public abstract class BaseFullReportsController(
 
         var gridModel = new DataSourceResult { Data = model, Total = model.Count };
         return Json(gridModel);
+    }
+
+    #endregion
+
+    #region Customer reports
+
+    [HttpPost]
+    public virtual async Task<IActionResult> ReportBestCustomersByNumberOfOrdersList(DataSourceRequest command,
+        BestCustomersReportModel model)
+    {
+        if (!string.IsNullOrEmpty(scope.StoreId)) model.StoreId = scope.StoreId;
+
+        var (bestCustomerReportLineModels, totalCount) = await customerReportViewModelService
+            .PrepareBestCustomerReportLineModel(model, 2, command.Page, command.PageSize, scope.VendorId);
+
+        var gridModel = new DataSourceResult { Data = bestCustomerReportLineModels.ToList(), Total = totalCount };
+        return Json(gridModel);
+    }
+
+    [HttpPost]
+    public virtual async Task<IActionResult> ReportRegisteredCustomersList(DataSourceRequest command)
+    {
+        var model = await customerReportViewModelService.GetReportRegisteredCustomersModel(scope.StoreId, scope.VendorId);
+        var gridModel = new DataSourceResult { Data = model, Total = model.Count };
+        return Json(gridModel);
+    }
+
+    [HttpPost]
+    public virtual async Task<IActionResult> ReportCustomerTimeChart(DataSourceRequest command, DateTime? startDate,
+        DateTime? endDate)
+    {
+        var model = await customerReportService.GetCustomerByTimeReport(scope.StoreId, startDate, endDate);
+        return Json(new DataSourceResult { Data = model });
     }
 
     #endregion
