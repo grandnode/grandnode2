@@ -173,4 +173,48 @@ public class BaseReportsControllerTests
         var gridModel = (DataSourceResult)result!.Value!;
         Assert.AreEqual(0, ((List<BestsellersReportLineModel>)gridModel.Data).Count);
     }
+
+    [TestMethod]
+    public void NeverSoldReport_ReturnsViewWithModel()
+    {
+        var result = _controller.NeverSoldReport() as ViewResult;
+
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType(result!.Model, typeof(NeverSoldReportModel));
+    }
+
+    [TestMethod]
+    public async Task NeverSoldReportList_ScopeValuesThreadedIntoQuery()
+    {
+        _scopeMock.Setup(s => s.StoreId).Returns("store-1");
+        _scopeMock.Setup(s => s.VendorId).Returns("vendor-1");
+        _orderReportServiceMock.Setup(o => o.ProductsNeverSold("store-1", "vendor-1", null, null, 0, 10, true))
+            .ReturnsAsync(new PagedList<Product>(new List<Product>(), 0, 0));
+
+        await _controller.NeverSoldReportList(new DataSourceRequest { Page = 1, PageSize = 10 }, new NeverSoldReportModel());
+
+        _orderReportServiceMock.Verify(o => o.ProductsNeverSold("store-1", "vendor-1", null, null, 0, 10, true), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CountryReport_NoPermissionCheck_ReturnsViewWithModel()
+    {
+        var result = await _controller.CountryReport() as ViewResult;
+
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType(result!.Model, typeof(CountryReportModel));
+    }
+
+    [TestMethod]
+    public async Task CountryReportList_ScopeValuesThreadedIntoQuery()
+    {
+        _scopeMock.Setup(s => s.StoreId).Returns("store-1");
+        _scopeMock.Setup(s => s.VendorId).Returns("vendor-1");
+        _orderReportServiceMock.Setup(o => o.GetCountryReport("store-1", "vendor-1", null, null, null, null, null))
+            .ReturnsAsync(new List<OrderByCountryReportLine>());
+
+        await _controller.CountryReportList(new DataSourceRequest { Page = 1, PageSize = 10 }, new CountryReportModel());
+
+        _orderReportServiceMock.Verify(o => o.GetCountryReport("store-1", "vendor-1", null, null, null, null, null), Times.Once);
+    }
 }

@@ -221,4 +221,96 @@ public abstract class BaseReportsController(
     }
 
     #endregion
+
+    #region Never sold
+
+    public virtual IActionResult NeverSoldReport() => View(new NeverSoldReportModel());
+
+    /// <summary>storeId/vendorId: same "scope wins when non-empty, else posted model value" rule as
+    /// BestsellersReportList — NeverSoldReportModel has no StoreId/VendorId fields of its own (none of
+    /// the three original controllers ever posted one for this action), so the "posted value" side is
+    /// always "" here; this reduces to "scope value, or '' for Admin", which is exactly each of the
+    /// three originals' literal argument (Admin: "", ""; Store: storeId, ""; Vendor: "", vendorId).</summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> NeverSoldReportList(DataSourceRequest command, NeverSoldReportModel model)
+    {
+        DateTime? startDateValue = model.StartDate == null
+            ? null
+            : dateTimeService.ConvertToUtcTime(model.StartDate.Value, dateTimeService.CurrentTimeZone);
+
+        DateTime? endDateValue = model.EndDate == null
+            ? null
+            : dateTimeService.ConvertToUtcTime(model.EndDate.Value, dateTimeService.CurrentTimeZone).AddDays(1);
+
+        var items = await orderReportService.ProductsNeverSold(scope.StoreId, scope.VendorId,
+            startDateValue, endDateValue, command.Page - 1, command.PageSize, true);
+
+        var gridModel = new DataSourceResult {
+            Data = items.Select(x => new NeverSoldReportLineModel { ProductId = x.Id, ProductName = x.Name }),
+            Total = items.TotalCount
+        };
+        return Json(gridModel);
+    }
+
+    #endregion
+
+    #region Country
+
+    /// <summary>No inline permission check here — matches Store's/Vendor's actual current behavior
+    /// (only Admin gates this GET on ManageCustomers; see this task's header note and Global
+    /// Constraint 5). `virtual` so Admin's thin subclass (Task 12) can override and add the check.</summary>
+    public virtual async Task<IActionResult> CountryReport()
+    {
+        var status = await orderStatusService.GetAll();
+        var model = new CountryReportModel {
+            AvailableOrderStatuses = status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList()
+        };
+        model.AvailableOrderStatuses.Insert(0,
+            new SelectListItem { Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Common.All"), Value = "" });
+
+        model.AvailablePaymentStatuses = enumTranslationService.ToSelectList(PaymentStatus.Pending, false).ToList();
+        model.AvailablePaymentStatuses.Insert(0,
+            new SelectListItem { Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Common.All"), Value = "" });
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public virtual async Task<IActionResult> CountryReportList(DataSourceRequest command, CountryReportModel model)
+    {
+        DateTime? startDateValue = model.StartDate == null
+            ? null
+            : dateTimeService.ConvertToUtcTime(model.StartDate.Value, dateTimeService.CurrentTimeZone);
+
+        DateTime? endDateValue = model.EndDate == null
+            ? null
+            : dateTimeService.ConvertToUtcTime(model.EndDate.Value, dateTimeService.CurrentTimeZone).AddDays(1);
+
+        int? orderStatus = model.OrderStatusId > 0 ? model.OrderStatusId : null;
+        var paymentStatus = model.PaymentStatusId > 0 ? (PaymentStatus?)model.PaymentStatusId : null;
+
+        var items = await orderReportService.GetCountryReport(
+            storeId: scope.StoreId,
+            vendorId: scope.VendorId,
+            os: orderStatus,
+            ps: paymentStatus,
+            startTimeUtc: startDateValue,
+            endTimeUtc: endDateValue);
+
+        var result = new List<CountryReportLineModel>();
+        foreach (var x in items)
+        {
+            var country = await countryService.GetCountryById(!string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "");
+            result.Add(new CountryReportLineModel {
+                CountryName = country != null ? country.Name : "Unknown",
+                SumOrders = priceFormatter.FormatPrice(x.SumOrders, await currencyService.GetPrimaryStoreCurrency()),
+                TotalOrders = x.TotalOrders
+            });
+        }
+
+        var gridModel = new DataSourceResult { Data = result, Total = items.Count };
+        return Json(gridModel);
+    }
+
+    #endregion
 }
