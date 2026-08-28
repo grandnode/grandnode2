@@ -108,6 +108,14 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<GlobalAdminDataScope<PaymentTransaction>>();
         services.AddScoped<StorePaymentTransactionDataScope>();
         services.AddScoped<IAdminDataScope<PaymentTransaction>, RoutedPaymentTransactionDataScope>();
+
+        // IReportDataScope: NOT an IAdminDataScope<TEntity> registration (Reports has no entity —
+        // see IReportDataScope's doc comment and ARCH-001 Reports consolidation spec §3). All three
+        // hosts have a Reports screen, so all three concrete scopes are registered.
+        services.AddScoped<AdminReportDataScope>();
+        services.AddScoped<StoreReportDataScope>();
+        services.AddScoped<VendorReportDataScope>();
+        services.AddScoped<IReportDataScope, RoutedReportDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
