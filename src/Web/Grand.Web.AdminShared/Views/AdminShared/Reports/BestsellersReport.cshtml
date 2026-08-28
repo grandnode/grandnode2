@@ -1,8 +1,10 @@
-﻿@model BestsellersReportModel
+@model BestsellersReportModel
 @inject AdminAreaSettings adminAreaSettings
+@inject IReportDataScope Scope
 @{
     //page title
-    ViewBag.Title = Loc["Admin.Reports.Bestsellers"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Reports.Bestsellers"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
 <div class="row">
@@ -11,12 +13,12 @@
             <div class="x_title">
                 <div class="caption level-caption">
                     <i class="fa fa-list-alt"></i>
-                    @Loc["Admin.Reports.Bestsellers"]
+                    @Loc[$"{Scope.ResourceKeyPrefix}.Reports.Bestsellers"]
                 </div>
 
             </div>
             <div class="x_content form">
-                <vc:admin-widget widget-zone="bestsellers_report" additional-data="Model"/>
+                <partial name="Partials/WidgetZone.Bestsellers" model="Model"/>
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
@@ -24,12 +26,15 @@
                                 <div class="form-body">
                                     <div class="main-header col-12 px-0">
                                         <div class="row align-items-end">
-                                            <div class="col-md-4 col-ms-12 col-12">
-                                                <div class="form-group mb-0">
-                                                    <admin-label asp-for="StoreId" class="control-label"/>
-                                                    <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
+                                            @if (Scope.ShowStoreSelector)
+                                            {
+                                                <div class="col-md-4 col-ms-12 col-12">
+                                                    <div class="form-group mb-0">
+                                                        <admin-label asp-for="StoreId" class="control-label"/>
+                                                        <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            }
                                             <div class="col-md-4 col-ms-12 col-12">
                                                 <div class="form-group mb-0">
                                                     <admin-label asp-for="OrderStatusId" class="control-label"/>
@@ -76,12 +81,15 @@
                                                     <admin-select asp-for="BillingCountryId" asp-items="Model.AvailableCountries"/>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
-                                                <admin-label asp-for="VendorId" class="col-sm-3 control-label"/>
-                                                <div class="col-md-9 col-sm-9">
-                                                    <admin-select asp-for="VendorId" asp-items="Model.AvailableVendors"/>
+                                            @if (Scope.ShowVendorSelector)
+                                            {
+                                                <div class="form-group">
+                                                    <admin-label asp-for="VendorId" class="col-sm-3 control-label"/>
+                                                    <div class="col-md-9 col-sm-9">
+                                                        <admin-select asp-for="VendorId" asp-items="Model.AvailableVendors"/>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -104,7 +112,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("BestsellersReportList", "Reports", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("BestsellersReportList", "Reports", new { area }))",
                         type: "POST",
                         dataType: "json",
                         data: additionalData
@@ -137,7 +145,7 @@
             columns: [{
                 field: "ProductName",
                 title: "@Loc["Admin.Reports.Bestsellers.Fields.Name"]",
-                template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
+                template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
             }, {
                 field: "TotalQuantity",
                 title: "@Loc["Admin.Reports.Bestsellers.Fields.TotalQuantity"]"

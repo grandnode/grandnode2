@@ -1,7 +1,9 @@
-﻿@inject AdminAreaSettings adminAreaSettings
+@inject AdminAreaSettings adminAreaSettings
+@inject IReportDataScope Scope
 @{
     //page title
-    ViewBag.Title = Loc["Admin.Reports.LowStockReport"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Reports.LowStockReport"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
 <div class="row">
@@ -10,7 +12,7 @@
             <div class="x_title">
                 <div class="caption level-caption">
                     <i class="fa fa-cubes"></i>
-                    @Loc["Admin.Reports.LowStockReport"]
+                    @Loc[$"{Scope.ResourceKeyPrefix}.Reports.LowStockReport"]
                 </div>
             </div>
             <div class="x_content form">
@@ -29,7 +31,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("LowStockReportList", "Reports", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("LowStockReportList", "Reports", new { area }))",
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
@@ -64,8 +66,8 @@
                     field: "Name",
                     title: "@Loc["Admin.Catalog.Products.Fields.Name"]",
                     width: 300,
-                    //if not a grouped product, then display                   
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=Id#">#:Name# # if(Attributes !== null) {# <br /><i> #=Attributes# </i> #} #</a>',
+                    //if not a grouped product, then display
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area })/#=Id#">#:Name# # if(Attributes !== null) {# <br /><i> #=Attributes# </i> #} #</a>',
                 }, {
                     field: "ManageInventoryMethod",
                     title: "@Loc["Admin.Catalog.Products.Fields.ManageInventoryMethod"]",

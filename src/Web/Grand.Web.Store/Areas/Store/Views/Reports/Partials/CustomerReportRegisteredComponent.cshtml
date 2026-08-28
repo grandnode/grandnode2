@@ -1,0 +1,8 @@
+@* Store invokes its own StoreCustomerReportRegistered component (Grand.Web.Store/Components), not
+   Admin's CustomerReportRegistered — the Admin component's base class (BaseAdminViewComponent) is
+   not usable from the Store app. Both components are functionally identical (same permission check,
+   same view). Extracted into a per-host satellite following the same pattern as this Reports
+   migration's WidgetZone.*.cshtml partials. *@
+@{
+    @await Component.InvokeAsync("StoreCustomerReportRegistered")
+}

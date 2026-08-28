@@ -1,7 +1,9 @@
-﻿@model CountryReportModel
+@model CountryReportModel
+@inject IReportDataScope Scope
 @{
     //page title
-    ViewBag.Title = Loc["Admin.Reports.Country"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Reports.Country"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
 
@@ -11,12 +13,12 @@
             <div class="x_title">
                 <div class="caption level-caption">
                     <i class="fa fa-list-alt"></i>
-                    @Loc["Admin.Reports.Country"]
+                    @Loc[$"{Scope.ResourceKeyPrefix}.Reports.Country"]
                 </div>
 
             </div>
             <div class="x_content form">
-                <vc:admin-widget widget-zone="country_report" additional-data="Model"/>
+                <partial name="Partials/WidgetZone.Country" model="Model"/>
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
@@ -86,7 +88,7 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("CountryReportList", "Reports", new { area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("CountryReportList", "Reports", new { area }))",
                             type: "POST",
                             dataType: "json",
                             data: additionalData

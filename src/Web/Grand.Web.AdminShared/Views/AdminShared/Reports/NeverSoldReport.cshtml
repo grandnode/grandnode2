@@ -1,8 +1,10 @@
-﻿@model NeverSoldReportModel
+@model NeverSoldReportModel
 @inject AdminAreaSettings adminAreaSettings
+@inject IReportDataScope Scope
 @{
     //page title
-    ViewBag.Title = Loc["Admin.Reports.NeverSold"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Reports.NeverSold"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
 <div class="row">
@@ -11,11 +13,11 @@
             <div class="x_title">
                 <div class="caption level-caption">
                     <i class="fa fa-list-alt"></i>
-                    @Loc["Admin.Reports.NeverSold"]
+                    @Loc[$"{Scope.ResourceKeyPrefix}.Reports.NeverSold"]
                 </div>
             </div>
             <div class="x_content form">
-                <vc:admin-widget widget-zone="never_sold_report" additional-data="Model"/>
+                <partial name="Partials/WidgetZone.NeverSold" model="Model"/>
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
@@ -62,7 +64,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("NeverSoldReportList", "Reports", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("NeverSoldReportList", "Reports", new { area }))",
                         type: "POST",
                         dataType: "json",
                         data: additionalData
@@ -95,7 +97,7 @@
             columns: [{
                 field: "ProductName",
                 title: "@Loc["Admin.Reports.NeverSold.Fields.Name"]",
-                template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
+                template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
             }]
         });
     });

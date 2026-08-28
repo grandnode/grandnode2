@@ -1,8 +1,9 @@
-﻿@model CustomerReportsModel
+@model CustomerReportsModel
+@inject IReportDataScope Scope
 
 @{
     //page title
-    ViewBag.Title = Loc["Admin.Reports.Customers"];
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Reports.Customers"];
 }
 
 <div class="row">
@@ -11,7 +12,7 @@
             <div class="x_title">
                 <div class="caption level-caption">
                     <i class="fa fa-bar-chart-o"></i>
-                    @Loc["Admin.Reports.Customers"]
+                    @Loc[$"{Scope.ResourceKeyPrefix}.Reports.Customers"]
                 </div>
             </div>
             <div class="x_content form">
@@ -41,7 +42,7 @@
                                             </div>
                                         </content>
                                     </tabstrip-item>
-                                    <vc:admin-widget widget-zone="reports_details_tabs" additional-data="Model"/>
+                                    <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
                                 </items>
                             </admin-tabstrip>
                         </div>

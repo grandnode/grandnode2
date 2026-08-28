@@ -1,14 +1,15 @@
-﻿@{
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     var gridPageSize = 5;
 }
-<div id="bestsellers-byquantity-grid"></div>
+<div id="bestsellers-byamount-grid"></div>
 <script>
     $(document).ready(function () {
-        $("#bestsellers-byquantity-grid").kendoGrid({
+        $("#bestsellers-byamount-grid").kendoGrid({
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("BestsellersBriefReportByQuantityList", "Reports", new { area = Constants.AreaStore }))",
+                        url: "@Html.Raw(Url.Action("BestsellersBriefReportByAmountList", "Reports", new { area }))",
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
@@ -50,7 +51,7 @@
                 field: "ProductId",
                 title: "@Loc["Admin.Common.View"]",
                 width: 100,
-                template: '<a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Product", new { area = Constants.AreaStore })/#=ProductId#"><i class="fa fa-search"></i> @Loc["Admin.Common.View"]</a>'
+                template: '<a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Product", new { area })/#=ProductId#"><i class="fa fa-search"></i> @Loc["Admin.Common.View"]</a>'
             }]
         });
     });

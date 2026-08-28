@@ -1,7 +1,10 @@
-﻿@model BestCustomersReportModel
+@model BestCustomersReportModel
 @inject AdminAreaSettings adminAreaSettings
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 
-<vc:admin-widget widget-zone="customer_details_report_by_number_of_orders_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.CustomerByNumberOfOrdersTop" model="Model"/>
 <div class="popup-window">
     <div class="form-horizontal">
         <div class="form-body">
@@ -59,14 +62,14 @@
     </div>
     <div id="best-customers-numberoforders-grid"></div>
 </div>
-<vc:admin-widget widget-zone="customer_details_report_by_number_of_orders_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.CustomerByNumberOfOrdersBottom" model="Model"/>
 <script>
 $(document).ready(function () {
     $("#best-customers-numberoforders-grid").kendoGrid({
         dataSource: {
             transport: {
                 read: {
-                    url: "@Html.Raw(Url.Action("ReportBestCustomersByNumberOfOrdersList", "Reports", new { area = Constants.AreaAdmin }))",
+                    url: "@Html.Raw(Url.Action("ReportBestCustomersByNumberOfOrdersList", "Reports", new { area }))",
                     type: "POST",
                     dataType: "json",
                     data: bestCustomersNumberOfOrdersAdditionalData
@@ -99,7 +102,7 @@ $(document).ready(function () {
         columns: [{
             field: "CustomerName",
             title: "@Loc["Admin.Reports.Customers.BestBy.Fields.Customer"]",
-            template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#:CustomerName#</a>',
+            template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area })/#=CustomerId#">#:CustomerName#</a>',
         }, {
             field: "OrderTotal",
             title: "@Loc["Admin.Reports.Customers.BestBy.Fields.OrderTotal"]"
