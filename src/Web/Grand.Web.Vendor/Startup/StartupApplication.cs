@@ -25,7 +25,10 @@ public class StartupApplication : IStartupApplication
         // AdminShared. Registering it again here would just be a redundant duplicate of that line.
         // IOrderViewModelService is likewise registered by Grand.Web.AdminShared's StartupApplication.
         // IShipmentViewModelService is likewise registered by Grand.Web.AdminShared's StartupApplication.
-        services.AddScoped<IMerchandiseReturnViewModelService, MerchandiseReturnViewModelService>();
+        // IMerchandiseReturnViewModelService is likewise registered by Grand.Web.AdminShared's
+        // StartupApplication (Vendor's own IMerchandiseReturnViewModelService/
+        // MerchandiseReturnViewModelService were deleted as part of ARCH-001 MerchandiseReturn
+        // consolidation - this host now consumes the shared AdminShared service).
         services.AddScoped<IVendorReviewViewModelService, VendorReviewViewModelService>();
     }
 

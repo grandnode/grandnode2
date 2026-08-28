@@ -1,10 +1,11 @@
-﻿@model MerchandiseReturnListModel
+@model MerchandiseReturnListModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Orders.MerchandiseReturns"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaStore" asp-controller="MerchandiseReturn" asp-action="List" method="post">
+<form asp-area="@area" asp-controller="MerchandiseReturn" asp-action="List" method="post">
 
     <div class="row">
         <div class="col-md-12">
@@ -14,7 +15,7 @@
                         <i class="fa fa-truck"></i>
                         @Loc["Admin.Orders.MerchandiseReturns"]
                     </div>
-                    <vc:admin-widget widget-zone="merchandisereturn_list_buttons" additional-data="null"/>
+                    <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
                 </div>
                 <div class="x_content form">
                     <div class="form-horizontal">
@@ -98,7 +99,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("List", "MerchandiseReturn", new { area = Constants.AreaStore }))",
+                        url: "@Html.Raw(Url.Action("List", "MerchandiseReturn", new { area = area }))",
                         type: "POST",
                         dataType: "json",
                         data: additionalData
@@ -148,12 +149,12 @@
                     field: "CustomerId",
                     title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Customer"]",
                     width: 200,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/#=CustomerId#">#:kendo.htmlEncode(CustomerInfo)#</a>'
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/#=CustomerId#">#:kendo.htmlEncode(CustomerInfo)#</a>'
                 }, {
                     field: "OrderId",
                     title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Order"]",
                     width: 80,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaStore })/#=OrderId#">#:OrderNumber#</a>'
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/#=OrderId#">#:OrderNumber#</a>'
                 }, {
                     field: "MerchandiseReturnStatusStr",
                     title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Status"]",

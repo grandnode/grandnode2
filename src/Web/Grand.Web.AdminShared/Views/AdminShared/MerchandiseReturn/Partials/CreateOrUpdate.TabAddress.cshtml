@@ -1,6 +1,6 @@
-﻿@model MerchandiseReturnModel
+@model MerchandiseReturnModel
 <div class="form-horizontal">
-    <vc:admin-widget widget-zone="merchandisereturn_tab_address_top" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.TabAddress.Top" model="Model"/>
     <div class="form-body">
         @if (Model.PickupAddress != null)
         {
@@ -11,5 +11,5 @@
             </div>
         }
     </div>
-    <vc:admin-widget widget-zone="merchandisereturn_tab_address_bottom" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.TabAddress.Bottom" model="Model"/>
 </div>

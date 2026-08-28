@@ -11,6 +11,8 @@ using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
+using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
@@ -36,7 +38,10 @@ public class MerchandiseReturnViewModelService(
     IAddressAttributeParser addressAttributeParser,
     IDownloadService downloadService,
     OrderSettings orderSettings,
-    IEnumTranslationService enumTranslationService)
+    IEnumTranslationService enumTranslationService,
+    IContextAccessor contextAccessor,
+    CustomerConfig customerConfig,
+    IAdminDataScope<MerchandiseReturn> scope)
     : IMerchandiseReturnViewModelService
 {
     public virtual async Task<MerchandiseReturnModel> PrepareMerchandiseReturnModel(MerchandiseReturnModel model,
@@ -94,7 +99,14 @@ public class MerchandiseReturnViewModelService(
         var customerId = string.Empty;
         if (!string.IsNullOrEmpty(model.SearchCustomerEmail))
         {
-            var customer = await customerService.GetCustomerByEmail(model.SearchCustomerEmail.ToLowerInvariant());
+            //with per-store customer identity the same e-mail may exist in several stores - scope
+            //the lookup to the current store so the search matches this store's customer (folded in
+            //from Vendor's original service, spec §2.4/§11 - approved, disclosed behavior change for
+            //Admin/Store when CustomerConfig.RegisterCustomersPerStore is on)
+            var storeId = customerConfig.RegisterCustomersPerStore
+                ? contextAccessor.StoreContext.CurrentStore.Id
+                : "";
+            var customer = await customerService.GetCustomerByEmail(model.SearchCustomerEmail.ToLowerInvariant(), storeId);
             customerId = customer != null ? customer.Id : "00000000-0000-0000-0000-000000000000";
         }
 
@@ -106,18 +118,17 @@ public class MerchandiseReturnViewModelService(
             ? null
             : dateTimeService.ConvertToUtcTime(model.EndDate.Value, dateTimeService.CurrentTimeZone);
 
-        var merchandiseReturns = await merchandiseReturnService.SearchMerchandiseReturns(model.StoreId,
-            customerId,
-            "",
-            "",
-            "",
-            model.SearchMerchandiseReturnStatusId >= 0
+        var merchandiseReturns = await merchandiseReturnService.SearchMerchandiseReturns(
+            storeId: scope.DefaultStoreId ?? "",
+            customerId: customerId,
+            vendorId: scope.DefaultVendorId ?? "",
+            rs: model.SearchMerchandiseReturnStatusId >= 0
                 ? (MerchandiseReturnStatus?)model.SearchMerchandiseReturnStatusId
                 : null,
-            pageIndex - 1,
-            pageSize,
-            startDateValue,
-            endDateValue);
+            pageIndex: pageIndex - 1,
+            pageSize: pageSize,
+            createdFromUtc: startDateValue,
+            createdToUtc: endDateValue);
         var merchandiseReturnModels = new List<MerchandiseReturnModel>();
         foreach (var rr in merchandiseReturns)
         {
@@ -191,7 +202,7 @@ public class MerchandiseReturnViewModelService(
             languageSettings.DefaultAdminLanguageId);
     }
 
-    public virtual MerchandiseReturnListModel PrepareReturnReqestListModel()
+    public virtual MerchandiseReturnListModel PrepareReturnRequestListModel()
     {
         var model = new MerchandiseReturnListModel {
             //Merchandise return status
