@@ -31,6 +31,15 @@ namespace Grand.Web.AdminShared.Controllers;
 ///     unique to Admin/Store; Vendor's concrete controller inherits this class directly so those 8
 ///     never become routable on the Vendor host at all.
 /// </summary>
+/// <remarks>
+///     <see cref="AutoValidateAntiforgeryTokenAttribute" /> is restated here even though this class is
+///     never directly routable (Admin/Store/Vendor's concrete controllers already restate it too, per
+///     Task 12) — static analysis (CodeQL) doesn't follow the attribute across the base/derived,
+///     cross-project boundary and flags every POST action here as missing CSRF validation. Runtime
+///     behavior is unchanged; this closes the same class of false positive already hardened against on
+///     <c>BaseProductController</c> (ARCH-001 Product phase).
+/// </remarks>
+[AutoValidateAntiforgeryToken]
 public abstract class BaseReportsController(
     IOrderReportService orderReportService,
     IProductsReportService productsReportService,

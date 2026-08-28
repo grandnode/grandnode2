@@ -32,6 +32,11 @@ namespace Grand.Web.AdminShared.Controllers;
 ///     class's two <c>ManageOrders</c>-gated overrides of the inherited Bestsellers-brief actions
 ///     (Task 5's header note), become routable on the Vendor host.
 /// </summary>
+/// <remarks>
+///     <see cref="AutoValidateAntiforgeryTokenAttribute" /> is restated here for the same reason as on
+///     <see cref="BaseReportsController" /> — see that class's remarks.
+/// </remarks>
+[AutoValidateAntiforgeryToken]
 public abstract class BaseFullReportsController(
     IOrderReportService orderReportService,
     IProductsReportService productsReportService,
