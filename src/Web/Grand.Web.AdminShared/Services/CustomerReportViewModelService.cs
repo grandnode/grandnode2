@@ -78,7 +78,7 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
     }
 
     public virtual async Task<IList<RegisteredCustomerReportLineModel>> GetReportRegisteredCustomersModel(
-        string storeId)
+        string storeId, string vendorId = "")
     {
         var report = new List<RegisteredCustomerReportLineModel> {
             new() {
@@ -108,7 +108,8 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
     }
 
     public virtual async Task<(IEnumerable<BestCustomerReportLineModel> bestCustomerReportLineModels, int totalCount)>
-        PrepareBestCustomerReportLineModel(BestCustomersReportModel model, int orderBy, int pageIndex, int pageSize)
+        PrepareBestCustomerReportLineModel(BestCustomersReportModel model, int orderBy, int pageIndex, int pageSize,
+            string vendorId = "")
     {
         DateTime? startDateValue = model.StartDate == null
             ? null
@@ -124,6 +125,7 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
 
         var items = await _customerReportService.GetBestCustomersReport(
             model.StoreId,
+            vendorId,
             createdFromUtc: startDateValue,
             createdToUtc: endDateValue,
             os: orderStatus,
