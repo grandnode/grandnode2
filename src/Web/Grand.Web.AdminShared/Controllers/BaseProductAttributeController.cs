@@ -29,6 +29,7 @@ public abstract class BaseProductAttributeController(
     public IActionResult Index() => RedirectToAction("List");
     public IActionResult List() => View();
 
+    [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command)
     {
@@ -40,6 +41,7 @@ public abstract class BaseProductAttributeController(
         });
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> Create()
     {
         var model = new ProductAttributeModel();
@@ -47,6 +49,7 @@ public abstract class BaseProductAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Create(ProductAttributeModel model, bool continueEditing)
@@ -67,6 +70,7 @@ public abstract class BaseProductAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> Edit(string id)
     {
         var productAttribute = await productAttributeService.GetProductAttributeById(id);
@@ -82,6 +86,7 @@ public abstract class BaseProductAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Edit(ProductAttributeModel model, bool continueEditing)
@@ -115,6 +120,7 @@ public abstract class BaseProductAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
     [HttpPost]
     public async Task<IActionResult> Delete(string id)
     {
@@ -138,6 +144,7 @@ public abstract class BaseProductAttributeController(
 
     #region Used by products
 
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
     [HttpPost]
     public async Task<IActionResult> UsedByProducts(DataSourceRequest command, string productAttributeId)
     {
@@ -159,6 +166,7 @@ public abstract class BaseProductAttributeController(
 
     #region Predefined values
 
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
     [HttpPost]
     public async Task<IActionResult> PredefinedProductAttributeValueList(string productAttributeId, DataSourceRequest command)
     {
@@ -170,6 +178,7 @@ public abstract class BaseProductAttributeController(
         return Json(new DataSourceResult { Data = values.Select(x => x.ToModel()), Total = values.Count });
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> PredefinedProductAttributeValueCreatePopup(string productAttributeId)
     {
         var productAttribute = await productAttributeService.GetProductAttributeById(productAttributeId);
@@ -183,6 +192,7 @@ public abstract class BaseProductAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     public async Task<IActionResult> PredefinedProductAttributeValueCreatePopup(PredefinedProductAttributeValueModel model)
     {
@@ -202,6 +212,7 @@ public abstract class BaseProductAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> PredefinedProductAttributeValueEditPopup(string id, string productAttributeId)
     {
         var productAttribute = await productAttributeService.GetProductAttributeById(productAttributeId);
@@ -220,6 +231,7 @@ public abstract class BaseProductAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     public async Task<IActionResult> PredefinedProductAttributeValueEditPopup(PredefinedProductAttributeValueModel model)
     {
@@ -240,6 +252,7 @@ public abstract class BaseProductAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     public async Task<IActionResult> PredefinedProductAttributeValueDelete(string id)
     {
