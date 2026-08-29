@@ -45,13 +45,6 @@ public static class HasAccess
         return shipment.VendorId == workContext.CurrentVendor.Id;
     }
 
-    public static bool HasAccessToVendorReview(this IWorkContext workContext, VendorReview vendorReview)
-    {
-        ArgumentNullException.ThrowIfNull(vendorReview);
-
-        return vendorReview.VendorId == workContext.CurrentVendor.Id;
-    }
-
     public static bool HasAccessToMerchandiseReturn(this IWorkContext workContext, MerchandiseReturn merchandiseReturn)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);

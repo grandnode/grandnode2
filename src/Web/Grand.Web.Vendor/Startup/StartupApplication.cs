@@ -25,8 +25,8 @@ public class StartupApplication : IStartupApplication
         // AdminShared. Registering it again here would just be a redundant duplicate of that line.
         // IOrderViewModelService is likewise registered by Grand.Web.AdminShared's StartupApplication.
         // IShipmentViewModelService is likewise registered by Grand.Web.AdminShared's StartupApplication.
+        // IVendorViewModelService is likewise registered by Grand.Web.AdminShared's StartupApplication.
         services.AddScoped<IMerchandiseReturnViewModelService, MerchandiseReturnViewModelService>();
-        services.AddScoped<IVendorReviewViewModelService, VendorReviewViewModelService>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
