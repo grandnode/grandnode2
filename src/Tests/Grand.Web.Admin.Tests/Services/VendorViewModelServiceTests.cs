@@ -136,4 +136,32 @@ public class VendorViewModelServiceTests
         Assert.IsTrue(review.IsApproved);
         _vendorServiceMock.Verify(v => v.UpdateVendorReview(It.IsAny<VendorReview>()), Times.Never);
     }
+
+    [TestMethod]
+    public async Task ApproveVendorReviews_MismatchedCompositeVendorId_UsesEntityVendorIdNotClientSuppliedId()
+    {
+        var review = new VendorReview { Id = "review-1", VendorId = "vendor-1", IsApproved = false };
+        _vendorServiceMock.Setup(v => v.GetVendorReviewById("review-1")).ReturnsAsync(review);
+        _vendorServiceMock.Setup(v => v.GetVendorById(It.IsAny<string>())).ReturnsAsync(new Vendor { Id = "vendor-1" });
+        var globalScope = new GlobalAdminDataScope<VendorReview>();
+
+        await _service.ApproveVendorReviews(new[] { "review-1:vendor-WRONG" }, globalScope);
+
+        _vendorServiceMock.Verify(v => v.GetVendorById("vendor-1"), Times.Once);
+        _vendorServiceMock.Verify(v => v.GetVendorById("vendor-WRONG"), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DisapproveVendorReviews_MismatchedCompositeVendorId_UsesEntityVendorIdNotClientSuppliedId()
+    {
+        var review = new VendorReview { Id = "review-1", VendorId = "vendor-1", IsApproved = true };
+        _vendorServiceMock.Setup(v => v.GetVendorReviewById("review-1")).ReturnsAsync(review);
+        _vendorServiceMock.Setup(v => v.GetVendorById(It.IsAny<string>())).ReturnsAsync(new Vendor { Id = "vendor-1" });
+        var globalScope = new GlobalAdminDataScope<VendorReview>();
+
+        await _service.DisapproveVendorReviews(new[] { "review-1:vendor-WRONG" }, globalScope);
+
+        _vendorServiceMock.Verify(v => v.GetVendorById("vendor-1"), Times.Once);
+        _vendorServiceMock.Verify(v => v.GetVendorById("vendor-WRONG"), Times.Never);
+    }
 }

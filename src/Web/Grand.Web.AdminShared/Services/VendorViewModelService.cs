@@ -57,7 +57,7 @@ public class VendorViewModelService(
 
         model.Id = vendorReview.Id;
         model.VendorId = vendorReview.VendorId;
-        model.VendorName = vendor.Name;
+        model.VendorName = vendor?.Name;
         model.CustomerId = vendorReview.CustomerId;
         model.CustomerInfo = customer != null
             ? !string.IsNullOrEmpty(customer.Email)
@@ -336,11 +336,10 @@ public class VendorViewModelService(
         foreach (var id in selectedIds)
         {
             var idReview = id.Split(':').First();
-            var idVendor = id.Split(':').Last();
             var vendorReview = await vendorService.GetVendorReviewById(idReview);
             if (vendorReview == null || !await scope.HasAccess(vendorReview)) continue;
 
-            var vendor = await vendorService.GetVendorById(idVendor);
+            var vendor = await vendorService.GetVendorById(vendorReview.VendorId);
             var previousIsApproved = vendorReview.IsApproved;
             vendorReview.IsApproved = true;
             await vendorService.UpdateVendorReview(vendorReview);
@@ -357,11 +356,10 @@ public class VendorViewModelService(
         foreach (var id in selectedIds)
         {
             var idReview = id.Split(':').First();
-            var idVendor = id.Split(':').Last();
             var vendorReview = await vendorService.GetVendorReviewById(idReview);
             if (vendorReview == null || !await scope.HasAccess(vendorReview)) continue;
 
-            var vendor = await vendorService.GetVendorById(idVendor);
+            var vendor = await vendorService.GetVendorById(vendorReview.VendorId);
             vendorReview.IsApproved = false;
             await vendorService.UpdateVendorReview(vendorReview);
             await vendorService.UpdateVendorReviewTotals(vendor);
