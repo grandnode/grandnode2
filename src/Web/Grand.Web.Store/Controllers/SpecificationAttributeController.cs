@@ -12,8 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-[Area("Store")]
-[PermissionAuthorize(PermissionSystemName.SpecificationAttributes)]
+[Area(Constants.AreaStore)]
 [AuthorizeStore]
 [AutoValidateAntiforgeryToken]
 [AuthorizeMenu]

@@ -16,7 +16,6 @@ namespace Grand.Web.Admin.Controllers;
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]
 [AuthorizeMenu]
-[PermissionAuthorize(PermissionSystemName.SpecificationAttributes)]
 public class SpecificationAttributeController(
     ISpecificationAttributeService specificationAttributeService,
     ILanguageService languageService,
