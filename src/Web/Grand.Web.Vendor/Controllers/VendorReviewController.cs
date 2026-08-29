@@ -5,10 +5,15 @@ using Grand.Domain.Vendors;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Common.Filters;
+using Grand.Web.Vendor.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Controllers;
 
+[Area(Constants.AreaVendor)]
+[AuthorizeVendor]
+[AuthorizeMenu]
 [PermissionAuthorize(PermissionSystemName.VendorReviews)]
 [AutoValidateAntiforgeryToken]
 public class VendorReviewController(
