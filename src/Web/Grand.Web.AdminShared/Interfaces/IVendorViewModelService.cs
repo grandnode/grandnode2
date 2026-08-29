@@ -26,6 +26,6 @@ public interface IVendorViewModelService
 
     Task<VendorReview> UpdateVendorReviewModel(VendorReview vendorReview, VendorReviewModel model);
     Task DeleteVendorReview(VendorReview vendorReview);
-    Task ApproveVendorReviews(IEnumerable<string> selectedIds);
-    Task DisapproveVendorReviews(IEnumerable<string> selectedIds);
+    Task ApproveVendorReviews(IEnumerable<string> selectedIds, IAdminDataScope<VendorReview> scope);
+    Task DisapproveVendorReviews(IEnumerable<string> selectedIds, IAdminDataScope<VendorReview> scope);
 }

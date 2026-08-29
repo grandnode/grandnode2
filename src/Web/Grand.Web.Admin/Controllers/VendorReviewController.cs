@@ -18,11 +18,13 @@ public class VendorReviewController : BaseAdminController
     public VendorReviewController(
         IVendorViewModelService vendorViewModelService,
         IVendorService vendorService,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        IAdminDataScope<Grand.Domain.Vendors.VendorReview> scope)
     {
         _vendorViewModelService = vendorViewModelService;
         _vendorService = vendorService;
         _translationService = translationService;
+        _scope = scope;
     }
 
     #endregion
@@ -32,6 +34,7 @@ public class VendorReviewController : BaseAdminController
     private readonly IVendorViewModelService _vendorViewModelService;
     private readonly IVendorService _vendorService;
     private readonly ITranslationService _translationService;
+    private readonly IAdminDataScope<Grand.Domain.Vendors.VendorReview> _scope;
 
     #endregion Fields
 
@@ -128,7 +131,7 @@ public class VendorReviewController : BaseAdminController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> ApproveSelected(ICollection<string> selectedIds)
     {
-        if (selectedIds != null) await _vendorViewModelService.ApproveVendorReviews(selectedIds.ToList());
+        if (selectedIds != null) await _vendorViewModelService.ApproveVendorReviews(selectedIds.ToList(), _scope);
         return Json(new { Result = true });
     }
 
@@ -136,7 +139,7 @@ public class VendorReviewController : BaseAdminController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> DisapproveSelected(ICollection<string> selectedIds)
     {
-        if (selectedIds != null) await _vendorViewModelService.DisapproveVendorReviews(selectedIds.ToList());
+        if (selectedIds != null) await _vendorViewModelService.DisapproveVendorReviews(selectedIds.ToList(), _scope);
 
         return Json(new { Result = true });
     }
