@@ -30,12 +30,13 @@
    Grand.Web.Vendor.Models.Catalog's own ProductModel etc. are no longer used by any controller/view
    and importing both would make bare "ProductModel" ambiguous. *@
 @using Grand.Web.AdminShared.Models.Catalog;
-@* Order/Shipment/MerchandiseReturn views bind to Grand.Web.AdminShared's model families (ARCH-001
-   Order, Shipment, and MerchandiseReturn consolidation) - Grand.Web.Vendor.Models.Orders/Shipment/
-   MerchandiseReturn's own equivalents are no longer used by any controller/view. This can't be a
-   blanket "@using Grand.Web.AdminShared.Models.Orders" - that namespace also holds *ReportModel etc.
-   (see the Reports block below, itself alias-only for the identical reason), so a wildcard import
-   here would make those bare names ambiguous too. Alias just the types that are actually
+@* Order, Shipment, MerchandiseReturn, and VendorReview views bind to Grand.Web.AdminShared's model
+   families (ARCH-001 Phase 5 Order, Phase 6 Shipment, Phase 8 MerchandiseReturn, Phase 10
+   VendorReview consolidation) - Grand.Web.Vendor.Models.Orders/Shipment/VendorReview equivalents are
+   no longer used by any controller/view. This can't be a blanket
+   "@using Grand.Web.AdminShared.Models.Orders" - that namespace also holds *ReportModel etc. (see
+   the Reports block below, itself alias-only for the identical reason), so a wildcard import here
+   would make those bare names ambiguous too. Alias just the types that are actually
    consolidated. *@
 @using OrderModel = Grand.Web.AdminShared.Models.Orders.OrderModel;
 @using OrderListModel = Grand.Web.AdminShared.Models.Orders.OrderListModel;
@@ -49,11 +50,12 @@
 @using MerchandiseReturnModel = Grand.Web.AdminShared.Models.Orders.MerchandiseReturnModel;
 @using MerchandiseReturnListModel = Grand.Web.AdminShared.Models.Orders.MerchandiseReturnListModel;
 @using Grand.Web.Vendor.Models.Vendor;
-@using Grand.Web.Vendor.Models.VendorReview;
+@using VendorReviewModel = Grand.Web.AdminShared.Models.Vendors.VendorReviewModel;
+@using VendorReviewListModel = Grand.Web.AdminShared.Models.Vendors.VendorReviewListModel;
 @* Reports views bind to Grand.Web.AdminShared's report model families (ARCH-001 Reports
    consolidation, Task 11/12) - Grand.Web.Vendor.Models.Report is deleted entirely, so alias just
    the 4 types Vendor's 5 Reports views actually reference (same alias-not-blanket-import rationale
-   as the Order/Shipment/MerchandiseReturn block above - Models.Orders also holds
+   as the Order/Shipment/MerchandiseReturn/VendorReview block above - Models.Orders also holds
    MerchandiseReturnModel, which is itself only aliased above rather than blanket-imported, for the
    same reason: a wildcard "@using Grand.Web.AdminShared.Models.Orders" would make every one of
    these Reports model names ambiguous too). *@

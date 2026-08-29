@@ -1,0 +1,45 @@
+@using Grand.Domain.Vendors
+@using Grand.Web.AdminShared.Models.Vendors
+@model VendorReviewModel
+@inject IAdminDataScope<VendorReview> Scope
+@{
+    //page title
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.VendorReviews.EditVendorReviewDetails"];
+}
+<form asp-area="@area" asp-controller="VendorReview" asp-action="Edit" method="post">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cube"></i>
+                        @Loc[$"{Scope.ResourceKeyPrefix}.VendorReviews.EditVendorReviewDetails"]
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc[$"{Scope.ResourceKeyPrefix}.VendorReviews.BackToList"], "List")
+                        </small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save">
+                                <i class="fa fa-check"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Save"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save-continue">
+                                <i class="fa fa-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
+                            </button>
+                            <span id="vendorreview-delete" class="btn red">
+                                <i class="fa fa-trash-o"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]
+                            </span>
+                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="vendorreview-delete"/>

@@ -4,6 +4,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
+using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Services;
@@ -123,6 +124,15 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreReportDataScope>();
         services.AddScoped<VendorReportDataScope>();
         services.AddScoped<IReportDataScope, RoutedReportDataScope>();
+
+        // IAdminDataScope<VendorReview>: registered once here for the same reason as
+        // Product/Category/Collection/Order/Shipment/PaymentTransaction above — see
+        // RoutedVendorReviewDataScope's doc comment. No Store scope: VendorReview has no Store
+        // screen. Admin reuses the generic GlobalAdminDataScope<T> unmodified (no restriction on
+        // Admin's original controller).
+        services.AddScoped<GlobalAdminDataScope<VendorReview>>();
+        services.AddScoped<VendorVendorReviewDataScope>();
+        services.AddScoped<IAdminDataScope<VendorReview>, RoutedVendorReviewDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
