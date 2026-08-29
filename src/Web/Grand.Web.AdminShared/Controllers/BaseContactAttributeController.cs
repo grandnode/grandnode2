@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
 
+[PermissionAuthorize(PermissionSystemName.ContactAttributes)]
 public abstract class BaseContactAttributeController(
     IContactAttributeViewModelService contactAttributeViewModelService,
     IContactAttributeService contactAttributeService,
@@ -235,7 +236,7 @@ public abstract class BaseContactAttributeController(
     public async Task<IActionResult> ValueDelete(string id, string contactAttributeId)
     {
         var contactAttribute = await contactAttributeService.GetContactAttributeById(contactAttributeId);
-        if (contactAttribute == null || !await scope.CanView(contactAttribute))
+        if (contactAttribute == null || !await scope.HasAccess(contactAttribute))
             return new JsonResult(new DataSourceResult { Errors = "Access denied" });
 
         var cav = contactAttribute.ContactAttributeValues.FirstOrDefault(x => x.Id == id);

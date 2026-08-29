@@ -22,7 +22,6 @@ namespace Grand.Web.Admin.Controllers;
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]
 [AuthorizeMenu]
-[PermissionAuthorize(PermissionSystemName.ContactAttributes)]
 public class ContactAttributeController(
     IContactAttributeViewModelService contactAttributeViewModelService,
     IContactAttributeService contactAttributeService,

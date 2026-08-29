@@ -109,6 +109,25 @@ public class BaseContactAttributeControllerTests
 
         Assert.AreEqual("Edit", result!.ActionName);
     }
+
+    [TestMethod]
+    public async Task ValueDelete_ScopeCanViewButDeniesAccess_ReturnsAccessDenied()
+    {
+        // Regression test for critical IDOR-class bug: ValueDelete (a mutation) must use HasAccess (strict)
+        // not CanView (looser). A Store user viewing a global/multi-store attribute should NOT be able to
+        // delete its values even though they can view the parent. This test proves the gap where CanView
+        // and HasAccess diverge: CanView=true (can view), HasAccess=false (cannot mutate).
+        var entity = new ContactAttribute { Id = "1" };
+        _service.Setup(x => x.GetContactAttributeById("1")).ReturnsAsync(entity);
+        _scope.Setup(x => x.CanView(entity)).ReturnsAsync(true);  // View allowed
+        _scope.Setup(x => x.HasAccess(entity)).ReturnsAsync(false); // Mutation denied
+
+        var result = await _sut.ValueDelete("value-1", "1") as JsonResult;
+
+        Assert.IsNotNull(result);
+        var data = result!.Value as DataSourceResult;
+        Assert.AreEqual("Access denied", data!.Errors);
+    }
 }
 
 /// <summary>

@@ -19,7 +19,6 @@ namespace Grand.Web.Store.Controllers;
 [Area(Constants.AreaStore)]
 [AuthorizeStore]
 [AuthorizeMenu]
-[PermissionAuthorize(PermissionSystemName.ContactAttributes)]
 public class ContactAttributeController(
     IContactAttributeViewModelService contactAttributeViewModelService,
     IContactAttributeService contactAttributeService,
