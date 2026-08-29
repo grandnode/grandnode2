@@ -4,7 +4,9 @@ using Grand.Domain.Common;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
+using Grand.Web.Admin.Controllers;
 using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -105,5 +107,52 @@ public class BaseAddressAttributeControllerTests
         var row = data.Data!.Cast<object>().Single();
         var isGlobal = (bool)row.GetType().GetProperty("IsGlobalAttribute")!.GetValue(row)!;
         Assert.IsFalse(isGlobal);
+    }
+}
+
+/// <summary>
+/// Regression test for ARCH-001 authorization attributes on thin subclasses.
+/// Verifies that both Admin and Store AddressAttributeController subclasses carry
+/// the required [AutoValidateAntiforgeryToken] and [AuthorizeMenu] attributes that
+/// used to arrive transitively from BaseAdminController/BaseStoreController.
+/// See Critical Finding 2 in Task 2 code review.
+/// </summary>
+[TestClass]
+public class AddressAttributeControllerAttributeTests
+{
+    [TestMethod]
+    public void AdminAddressAttributeController_HasAutoValidateAntiforgeryToken()
+    {
+        var controller = Type.GetType("Grand.Web.Admin.Controllers.AddressAttributeController, Grand.Web.Admin");
+        Assert.IsNotNull(controller, "Admin AddressAttributeController type not found");
+        var attr = controller!.GetCustomAttributes(typeof(AutoValidateAntiforgeryTokenAttribute), false);
+        Assert.IsTrue(attr.Length > 0, "Admin AddressAttributeController missing [AutoValidateAntiforgeryToken]");
+    }
+
+    [TestMethod]
+    public void AdminAddressAttributeController_HasAuthorizeMenu()
+    {
+        var controller = Type.GetType("Grand.Web.Admin.Controllers.AddressAttributeController, Grand.Web.Admin");
+        Assert.IsNotNull(controller, "Admin AddressAttributeController type not found");
+        var attr = controller!.GetCustomAttributes(typeof(AuthorizeMenuAttribute), false);
+        Assert.IsTrue(attr.Length > 0, "Admin AddressAttributeController missing [AuthorizeMenu]");
+    }
+
+    [TestMethod]
+    public void StoreAddressAttributeController_HasAutoValidateAntiforgeryToken()
+    {
+        var controller = Type.GetType("Grand.Web.Store.Controllers.AddressAttributeController, Grand.Web.Store");
+        Assert.IsNotNull(controller, "Store AddressAttributeController type not found");
+        var attr = controller!.GetCustomAttributes(typeof(AutoValidateAntiforgeryTokenAttribute), false);
+        Assert.IsTrue(attr.Length > 0, "Store AddressAttributeController missing [AutoValidateAntiforgeryToken]");
+    }
+
+    [TestMethod]
+    public void StoreAddressAttributeController_HasAuthorizeMenu()
+    {
+        var controller = Type.GetType("Grand.Web.Store.Controllers.AddressAttributeController, Grand.Web.Store");
+        Assert.IsNotNull(controller, "Store AddressAttributeController type not found");
+        var attr = controller!.GetCustomAttributes(typeof(AuthorizeMenuAttribute), false);
+        Assert.IsTrue(attr.Length > 0, "Store AddressAttributeController missing [AuthorizeMenu]");
     }
 }

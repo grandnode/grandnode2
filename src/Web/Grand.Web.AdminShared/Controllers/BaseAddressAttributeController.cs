@@ -2,15 +2,18 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
+using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
 
+[PermissionAuthorize(PermissionSystemName.AddressAttributes)]
 public abstract class BaseAddressAttributeController(
     IAddressAttributeService addressAttributeService,
     IAddressAttributeViewModelService addressAttributeViewModelService,
@@ -20,12 +23,13 @@ public abstract class BaseAddressAttributeController(
 {
     #region Address attributes
 
-    public IActionResult Index() => RedirectToAction("List");
+    public virtual IActionResult Index() => RedirectToAction("List");
 
-    public IActionResult List() => View();
+    public virtual IActionResult List() => View();
 
+    [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpPost]
-    public async Task<IActionResult> List(DataSourceRequest command)
+    public virtual async Task<IActionResult> List(DataSourceRequest command)
     {
         var (addressAttributes, _) = await addressAttributeViewModelService.PrepareAddressAttributes();
         var storeId = scope.DefaultStoreId;
@@ -45,16 +49,18 @@ public abstract class BaseAddressAttributeController(
         return Json(gridModel);
     }
 
-    public async Task<IActionResult> Create()
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public virtual async Task<IActionResult> Create()
     {
         var model = addressAttributeViewModelService.PrepareAddressAttributeModel();
         await AddLocales(languageService, model.Locales);
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Create(AddressAttributeModel model, bool continueEditing)
+    public virtual async Task<IActionResult> Create(AddressAttributeModel model, bool continueEditing)
     {
         if (ModelState.IsValid)
         {
@@ -68,7 +74,8 @@ public abstract class BaseAddressAttributeController(
         return View(model);
     }
 
-    public async Task<IActionResult> Edit(string id)
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public virtual async Task<IActionResult> Edit(string id)
     {
         var addressAttribute = await addressAttributeService.GetAddressAttributeById(id);
         if (addressAttribute == null || !await scope.CanView(addressAttribute))
@@ -84,9 +91,10 @@ public abstract class BaseAddressAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Edit(AddressAttributeModel model, bool continueEditing)
+    public virtual async Task<IActionResult> Edit(AddressAttributeModel model, bool continueEditing)
     {
         var addressAttribute = await addressAttributeService.GetAddressAttributeById(model.Id);
         if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
@@ -113,8 +121,9 @@ public abstract class BaseAddressAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
     [HttpPost]
-    public async Task<IActionResult> Delete(string id)
+    public virtual async Task<IActionResult> Delete(string id)
     {
         var addressAttribute = await addressAttributeService.GetAddressAttributeById(id);
         if (addressAttribute == null)
@@ -131,8 +140,9 @@ public abstract class BaseAddressAttributeController(
 
     #region Address attribute values
 
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
     [HttpPost]
-    public async Task<IActionResult> ValueList(string addressAttributeId, DataSourceRequest command)
+    public virtual async Task<IActionResult> ValueList(string addressAttributeId, DataSourceRequest command)
     {
         var addressAttribute = await addressAttributeService.GetAddressAttributeById(addressAttributeId);
         if (addressAttribute == null || !await scope.CanView(addressAttribute))
@@ -142,7 +152,10 @@ public abstract class BaseAddressAttributeController(
         return Json(new DataSourceResult { Data = values.ToList(), Total = total });
     }
 
-    public async Task<IActionResult> ValueCreatePopup(string addressAttributeId)
+    // Note: ValueCreatePopup (both GET and POST) intentionally undecorated here as the permission
+    // action name diverges between Admin (Create) and Store (Edit). Each subclass overrides to apply
+    // its own [PermissionAuthorizeAction] attribute.
+    public virtual async Task<IActionResult> ValueCreatePopup(string addressAttributeId)
     {
         var addressAttribute = await addressAttributeService.GetAddressAttributeById(addressAttributeId);
         if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
@@ -154,7 +167,7 @@ public abstract class BaseAddressAttributeController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> ValueCreatePopup(AddressAttributeValueModel model)
+    public virtual async Task<IActionResult> ValueCreatePopup(AddressAttributeValueModel model)
     {
         var addressAttribute = await addressAttributeService.GetAddressAttributeById(model.AddressAttributeId);
         if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
@@ -168,7 +181,10 @@ public abstract class BaseAddressAttributeController(
         return View(model);
     }
 
-    public async Task<IActionResult> ValueEditPopup(string id, string addressAttributeId)
+    // Note: ValueEditPopup GET intentionally undecorated here as the permission action name diverges
+    // between Admin (Preview) and Store (Edit). Each subclass overrides to apply its own
+    // [PermissionAuthorizeAction] attribute.
+    public virtual async Task<IActionResult> ValueEditPopup(string id, string addressAttributeId)
     {
         var addressAttribute = await addressAttributeService.GetAddressAttributeById(addressAttributeId);
         if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
@@ -186,8 +202,9 @@ public abstract class BaseAddressAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> ValueEditPopup(AddressAttributeValueModel model)
+    public virtual async Task<IActionResult> ValueEditPopup(AddressAttributeValueModel model)
     {
         var addressAttribute = await addressAttributeService.GetAddressAttributeById(model.AddressAttributeId);
         if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
@@ -205,8 +222,9 @@ public abstract class BaseAddressAttributeController(
         return View(model);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> ValueDelete(AddressAttributeValueModel model)
+    public virtual async Task<IActionResult> ValueDelete(AddressAttributeValueModel model)
     {
         var addressAttribute = await addressAttributeService.GetAddressAttributeById(model.AddressAttributeId);
         if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
