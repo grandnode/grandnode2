@@ -1,7 +1,6 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
-using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 
 namespace Grand.Web.Vendor.Extensions;
@@ -43,12 +42,5 @@ public static class HasAccess
         ArgumentNullException.ThrowIfNull(shipment);
 
         return shipment.VendorId == workContext.CurrentVendor.Id;
-    }
-
-    public static bool HasAccessToMerchandiseReturn(this IWorkContext workContext, MerchandiseReturn merchandiseReturn)
-    {
-        ArgumentNullException.ThrowIfNull(merchandiseReturn);
-
-        return merchandiseReturn.VendorId == workContext.CurrentVendor.Id;
     }
 }

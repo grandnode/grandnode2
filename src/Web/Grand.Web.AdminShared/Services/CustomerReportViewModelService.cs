@@ -77,8 +77,15 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
         return model;
     }
 
+    /// <param name="storeId">Store scope applied to <see cref="ICustomerReportService.GetRegisteredCustomersReport" />.</param>
+    /// <param name="vendorId">Intentionally accepted but currently unused: <see cref="ICustomerReportService.GetRegisteredCustomersReport" />
+    /// has no vendor dimension at all (registered customers aren't owned by a vendor), so there is nothing to filter by here.
+    /// The parameter exists for signature symmetry with <see cref="PrepareBestCustomerReportLineModel" /> (which DOES use its
+    /// own <c>vendorId</c>) and for forward-compatibility should a vendor dimension ever be added to the underlying report.
+    /// The only caller (<see cref="Controllers.BaseFullReportsController.ReportRegisteredCustomersList" />) is Full-tier/Admin-Store
+    /// only, where <c>scope.VendorId</c> is always "" anyway, so this is currently a documented no-op, not a bug.</param>
     public virtual async Task<IList<RegisteredCustomerReportLineModel>> GetReportRegisteredCustomersModel(
-        string storeId)
+        string storeId, string vendorId = "")
     {
         var report = new List<RegisteredCustomerReportLineModel> {
             new() {
@@ -108,7 +115,8 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
     }
 
     public virtual async Task<(IEnumerable<BestCustomerReportLineModel> bestCustomerReportLineModels, int totalCount)>
-        PrepareBestCustomerReportLineModel(BestCustomersReportModel model, int orderBy, int pageIndex, int pageSize)
+        PrepareBestCustomerReportLineModel(BestCustomersReportModel model, int orderBy, int pageIndex, int pageSize,
+            string vendorId = "")
     {
         DateTime? startDateValue = model.StartDate == null
             ? null
@@ -124,6 +132,7 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
 
         var items = await _customerReportService.GetBestCustomersReport(
             model.StoreId,
+            vendorId,
             createdFromUtc: startDateValue,
             createdToUtc: endDateValue,
             os: orderStatus,

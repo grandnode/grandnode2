@@ -1,0 +1,5 @@
+@* vc:store-widget, not vc:admin-widget as the pre-consolidation Store views used — that tag helper
+   is not registered in the Store app (no ProjectReference to Grand.Web.Admin); the original markup
+   was inert and never rendered anything. Fixed during ARCH-001 Phase 8 consolidation. *@
+@model MerchandiseReturnModel
+<vc:store-widget widget-zone="store_merchandisereturn_details_notes_bottom" additional-data="Model"/>

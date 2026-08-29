@@ -1,0 +1,15 @@
+@model MerchandiseReturnModel
+<div class="form-horizontal">
+    <partial name="Partials/WidgetZone.TabAddress.Top" model="Model"/>
+    <div class="form-body">
+        @if (Model.PickupAddress != null)
+        {
+            <div class="form-group">
+                <admin-label asp-for="PickupAddress"/>
+                <br/>
+                <admin-input asp-for="PickupAddress" asp-template="Address"/>
+            </div>
+        }
+    </div>
+    <partial name="Partials/WidgetZone.TabAddress.Bottom" model="Model"/>
+</div>

@@ -110,6 +110,21 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StorePaymentTransactionDataScope>();
         services.AddScoped<IAdminDataScope<PaymentTransaction>, RoutedPaymentTransactionDataScope>();
 
+        // IAdminDataScope<MerchandiseReturn>: Admin reuses the generic GlobalAdminDataScope directly (no
+        // bespoke Admin scope - confirmed no restriction exists despite the entity's SeId field, spec §2.1).
+        services.AddScoped<GlobalAdminDataScope<MerchandiseReturn>>();
+        services.AddScoped<StoreMerchandiseReturnDataScope>();
+        services.AddScoped<VendorMerchandiseReturnDataScope>();
+        services.AddScoped<IAdminDataScope<MerchandiseReturn>, RoutedMerchandiseReturnDataScope>();
+
+        // IReportDataScope: NOT an IAdminDataScope<TEntity> registration (Reports has no entity —
+        // see IReportDataScope's doc comment and ARCH-001 Reports consolidation spec §3). All three
+        // hosts have a Reports screen, so all three concrete scopes are registered.
+        services.AddScoped<AdminReportDataScope>();
+        services.AddScoped<StoreReportDataScope>();
+        services.AddScoped<VendorReportDataScope>();
+        services.AddScoped<IReportDataScope, RoutedReportDataScope>();
+
         // IAdminDataScope<VendorReview>: registered once here for the same reason as
         // Product/Category/Collection/Order/Shipment/PaymentTransaction above — see
         // RoutedVendorReviewDataScope's doc comment. No Store scope: VendorReview has no Store

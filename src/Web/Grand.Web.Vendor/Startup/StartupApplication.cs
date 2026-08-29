@@ -1,7 +1,5 @@
 using Grand.Data;
 using Grand.Infrastructure;
-using Grand.Web.Vendor.Interfaces;
-using Grand.Web.Vendor.Services;
 
 namespace Grand.Web.Vendor.Startup;
 
@@ -24,9 +22,14 @@ public class StartupApplication : IStartupApplication
         // host too via the IStartupApplication assembly scan in StartupBase, since Vendor references
         // AdminShared. Registering it again here would just be a redundant duplicate of that line.
         // IOrderViewModelService is likewise registered by Grand.Web.AdminShared's StartupApplication.
-        // IShipmentViewModelService is likewise registered by Grand.Web.AdminShared's StartupApplication.
-        // IVendorViewModelService is likewise registered by Grand.Web.AdminShared's StartupApplication.
-        services.AddScoped<IMerchandiseReturnViewModelService, MerchandiseReturnViewModelService>();
+        // IMerchandiseReturnViewModelService is likewise registered by Grand.Web.AdminShared's
+        // StartupApplication (Vendor's own IMerchandiseReturnViewModelService/
+        // MerchandiseReturnViewModelService were deleted as part of ARCH-001 MerchandiseReturn
+        // consolidation - this host now consumes the shared AdminShared service).
+        // IVendorViewModelService is likewise registered by Grand.Web.AdminShared's StartupApplication
+        // (Vendor's own IVendorReviewViewModelService/VendorReviewViewModelService were deleted as
+        // part of ARCH-001 VendorReview consolidation - this host now consumes the shared AdminShared
+        // service for VendorReview too).
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
