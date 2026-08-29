@@ -1,0 +1,58 @@
+@using Grand.Web.AdminShared.Models.Common
+@model AddressAttributeModel
+@{
+    //page title
+    var isReadOnly = Model.IsGlobalAttribute;
+    ViewBag.Title = Loc["Admin.Address.AddressAttributes.EditAttributeDetails"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="AddressAttribute" asp-action="Edit" method="post" id="addressattribute-form">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-list-ol"></i>
+                        @Loc["Admin.Address.AddressAttributes.EditAttributeDetails"] - @Model.Name
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Address.AddressAttributes.BackToList"], "List")
+                        </small>
+                    </div>
+                    @if (!isReadOnly)
+                    {
+                        <div class="actions">
+                            <div class="btn-group btn-group-devided">
+                                <button class="btn btn-success" type="submit" name="save">
+                                    <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                                </button>
+                                <button class="btn btn-success" type="submit" name="save-continue">
+                                    <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                                </button>
+                                <span id="addressattribute-delete" class="btn red">
+                                    <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
+                                </span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="actions">
+                            <div class="alert alert-info mb-0 py-2">
+                                <i class="fa fa-info-circle"></i> @Loc["Admin.Address.AddressAttributes.GlobalReadOnly"]
+                            </div>
+                        </div>
+                    }
+                    <vc:admin-widget widget-zone="address_attribute_details_buttons" additional-data="Model"/>
+                </div>
+                <div class="x_content form">
+                    <partial name="Partials/CreateOrUpdate" model="Model"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+@if (!isReadOnly)
+{
+    <admin-delete-confirmation button-id="addressattribute-delete"/>
+}
