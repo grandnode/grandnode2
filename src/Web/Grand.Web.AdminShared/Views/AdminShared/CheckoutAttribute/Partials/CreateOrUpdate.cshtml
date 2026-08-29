@@ -1,4 +1,4 @@
-﻿@model CheckoutAttributeModel
+@model CheckoutAttributeModel
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
@@ -29,6 +29,6 @@
                 </content>
             </tabstrip-item>
         }
-        <vc:admin-widget widget-zone="checkout_attribute_details_tabs" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.Tabs" model="Model"/>
     </items>
 </admin-tabstrip>

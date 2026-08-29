@@ -23,7 +23,7 @@
     }
 
 </script>
-<vc:admin-widget widget-zone="address_attribute_details_info_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Info.Top" model="Model"/>
 @{
     Func<int, HelperResult>
         template = @<div class="form-body">
@@ -92,4 +92,4 @@
         </div>
     </div>
 </div>
-<vc:admin-widget widget-zone="address_attribute_details_info_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

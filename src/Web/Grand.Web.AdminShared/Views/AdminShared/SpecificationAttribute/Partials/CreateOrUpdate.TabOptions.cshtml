@@ -1,11 +1,11 @@
-﻿@model SpecificationAttributeModel
+@model SpecificationAttributeModel
 
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     if (!string.IsNullOrEmpty(Model.Id))
     {
         <div class="panel panel-default">
-            <vc:admin-widget widget-zone="specification_attribute_details_options_top" additional-data="null"/>
+            <partial name="Partials/WidgetZone.Options.Top"/>
             <div class="panel-body">
                 <div id="specificationattributeoptions-grid"></div>
             </div>
@@ -13,7 +13,7 @@
                 <a id="btnAddNewOption" href="@(Url.Action("OptionCreatePopup", "SpecificationAttribute", new { specificationAttributeId = Model.Id, area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none"/>
             </div>
-            <vc:admin-widget widget-zone="specification_attribute_details_options_bottom" additional-data="Model"/>
+            <partial name="Partials/WidgetZone.Options.Bottom" model="Model"/>
         </div>
 
         <script>

@@ -1,10 +1,10 @@
-﻿@model ProductAttributeModel
+@model ProductAttributeModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     if (!string.IsNullOrEmpty(Model.Id))
     {
         <div class="panel panel-default">
-            <vc:admin-widget widget-zone="product_attribute_details_predefined_values_top" additional-data="Model"/>
+            <partial name="Partials/WidgetZone.PredefinedValues.Top" model="Model"/>
             <div class="panel-body">
                 <div id="productattributevalues-grid"></div>
             </div>
@@ -12,7 +12,7 @@
                 <a id="btnAddNewValue" href="@(Url.Action("PredefinedProductAttributeValueCreatePopup", "ProductAttribute", new { productAttributeId = Model.Id, area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display:none"/>
             </div>
-            <vc:admin-widget widget-zone="product_attribute_details_predefined_values_bottom" additional-data="Model"/>
+            <partial name="Partials/WidgetZone.PredefinedValues.Bottom" model="Model"/>
         </div>
         <script>
             $(document).ready(function() {

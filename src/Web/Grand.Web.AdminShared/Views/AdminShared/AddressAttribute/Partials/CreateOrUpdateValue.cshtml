@@ -5,7 +5,7 @@
 <input asp-for="Id" type="hidden"/>
 <input asp-for="AddressAttributeId" type="hidden"/>
 
-<vc:admin-widget widget-zone="address_attribute_value_details_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Value.Top" model="Model"/>
 @{
     Func<int, HelperResult>
         template = @<div class="form-body">
@@ -59,4 +59,4 @@
         </div>
     </div>
 </div>
-<vc:admin-widget widget-zone="address_attribute_value_details_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Value.Bottom" model="Model"/>

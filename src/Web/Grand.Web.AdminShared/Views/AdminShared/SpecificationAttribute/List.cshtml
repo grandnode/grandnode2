@@ -1,4 +1,4 @@
-﻿@inject AdminAreaSettings adminAreaSettings
+@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Attributes.SpecificationAttributes"];
@@ -17,7 +17,7 @@
                     <a href="@Url.Action("Create", new { area })" class="btn green">
                         <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
-                    <vc:admin-widget widget-zone="specification_attribute_list_buttons" additional-data="null"/>
+                    <partial name="Partials/WidgetZone.ListButtons"/>
                 </div>
 
             </div>

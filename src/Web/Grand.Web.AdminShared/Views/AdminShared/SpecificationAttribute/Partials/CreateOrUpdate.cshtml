@@ -1,4 +1,4 @@
-﻿@model SpecificationAttributeModel
+@model SpecificationAttributeModel
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
@@ -35,6 +35,6 @@
                 </div>
             </content>
         </tabstrip-item>
-        <vc:admin-widget widget-zone="specification_attribute_details_tabs" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.Tabs" model="Model"/>
     </items>
 </admin-tabstrip>

@@ -1,4 +1,4 @@
-﻿@{
+@{
     //page title
     ViewBag.Title = Loc["Admin.Orders.CheckoutAttributes"];
     var area = ViewContext.RouteData.Values["area"]?.ToString();
@@ -16,7 +16,7 @@
                     <a href="@Url.Action("Create", new { area })" class="btn green">
                         <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
-                    <vc:admin-widget widget-zone="checkout_attribute_list_buttons" additional-data="null"/>
+                    <partial name="Partials/WidgetZone.ListButtons"/>
                 </div>
 
             </div>

@@ -1,4 +1,4 @@
-﻿@model SpecificationAttributeModel
+@model SpecificationAttributeModel
 @{
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Attributes.SpecificationAttributes.EditAttributeDetails"];
@@ -29,7 +29,7 @@
                             <span id="specificationattribute-delete" class="btn red">
                                 <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
                             </span>
-                            <vc:admin-widget widget-zone="specification_attribute_details_buttons" additional-data="Model"/>
+                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>
                     </div>
                 </div>

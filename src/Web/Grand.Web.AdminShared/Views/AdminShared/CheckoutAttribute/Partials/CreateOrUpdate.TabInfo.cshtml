@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Mvc.Razor
 @model CheckoutAttributeModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
@@ -65,7 +65,7 @@
                 }
             }
 </script>
-<vc:admin-widget widget-zone="checkout_attribute_details_info_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Info.Top" model="Model"/>
 
 @{
     Func<int, HelperResult>
@@ -217,4 +217,4 @@
         </div>
     </div>
 </div>
-<vc:admin-widget widget-zone="checkout_attribute_details_info_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

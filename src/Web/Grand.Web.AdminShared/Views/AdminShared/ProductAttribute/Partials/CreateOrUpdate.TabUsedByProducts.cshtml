@@ -1,13 +1,13 @@
-﻿@model ProductAttributeModel
+@model ProductAttributeModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     <div class="panel panel-default">
-        <vc:admin-widget widget-zone="product_attribute_details_used_by_products_top" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.UsedByProducts.Top" model="Model"/>
         <div class="panel-body">
             <div id="used-by-products-grid"></div>
         </div>
-        <vc:admin-widget widget-zone="product_attribute_details_used_by_products_bottom" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.UsedByProducts.Bottom" model="Model"/>
     </div>
     <script>
     $(document).ready(function () {

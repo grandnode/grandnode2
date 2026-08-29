@@ -33,7 +33,7 @@
     }
 
 </script>
-<vc:admin-widget widget-zone="customer_attribute_details_info_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Info.Top" model="Model"/>
 
 @{
     Func<int, HelperResult>
@@ -114,4 +114,4 @@
         </div>
     </div>
 </div>
-<vc:admin-widget widget-zone="customer_attribute_details_info_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

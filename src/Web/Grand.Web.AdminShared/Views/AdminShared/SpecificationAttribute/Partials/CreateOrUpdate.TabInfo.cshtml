@@ -1,9 +1,9 @@
-﻿@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Mvc.Razor
 @model SpecificationAttributeModel
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<vc:admin-widget widget-zone="specification_attribute_details_info_top" additional-data="null"/>
+<partial name="Partials/WidgetZone.Info.Top"/>
 
 @{
     Func<int, HelperResult>
@@ -60,4 +60,4 @@
         </div>
     }
 </div>
-<vc:admin-widget widget-zone="specification_attribute_details_info_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

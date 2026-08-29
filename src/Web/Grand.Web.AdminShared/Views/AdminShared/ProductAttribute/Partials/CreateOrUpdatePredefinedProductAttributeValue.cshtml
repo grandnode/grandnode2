@@ -1,11 +1,11 @@
-﻿@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Mvc.Razor
 @model PredefinedProductAttributeValueModel
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
 <input asp-for="ProductAttributeId" type="hidden"/>
 
-<vc:admin-widget widget-zone="product_attribute_predefined_values_details_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Value.Top" model="Model"/>
 
 @{
     Func<int, HelperResult>
@@ -78,9 +78,9 @@
                 <button class="btn btn-success" type="submit" name="save">
                     <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
                 </button>
-                <vc:admin-widget widget-zone="product_attribute_predefined_values_details_buttons" additional-data="null"/>
+                <partial name="Partials/WidgetZone.ValueButtons"/>
             </div>
         </div>
     </div>
 </div>
-<vc:admin-widget widget-zone="product_attribute_predefined_values_details_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Value.Bottom" model="Model"/>

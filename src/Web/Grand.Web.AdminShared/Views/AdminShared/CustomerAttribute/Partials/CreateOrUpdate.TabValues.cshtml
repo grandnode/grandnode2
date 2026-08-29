@@ -1,5 +1,5 @@
 @model CustomerAttributeModel
-<vc:admin-widget widget-zone="customer_attribute_details_values_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Values.Top" model="Model"/>
 @{
     var isReadOnly = Model.IsGlobalAttribute;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
@@ -182,4 +182,4 @@
         </div>
     }
 }
-<vc:admin-widget widget-zone="customer_attribute_details_values_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Values.Bottom" model="Model"/>
