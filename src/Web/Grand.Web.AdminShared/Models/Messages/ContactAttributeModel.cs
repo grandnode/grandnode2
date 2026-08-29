@@ -66,6 +66,13 @@ public class ContactAttributeModel : BaseEntityModel, ILocalizedModel<ContactAtt
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Fields.LimitedToStores")]
     [UIHint("Stores")]
     public string[] Stores { get; set; }
+
+    /// <summary>
+    /// True when the current host may view but not mutate this attribute (Store viewing a
+    /// multi-store/global attribute). Always false for Admin. Populated by
+    /// BaseContactAttributeController from IAdminDataScope&lt;ContactAttribute&gt;, not persisted.
+    /// </summary>
+    public bool IsReadOnly { get; set; }
 }
 
 public class ConditionModel : BaseEntityModel
