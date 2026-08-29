@@ -30,14 +30,14 @@
    Grand.Web.Vendor.Models.Catalog's own ProductModel etc. are no longer used by any controller/view
    and importing both would make bare "ProductModel" ambiguous. *@
 @using Grand.Web.AdminShared.Models.Catalog;
-@* Order and Shipment views bind to Grand.Web.AdminShared's Order/Shipment model families
-   (ARCH-001 Phase 5 Order, Phase 6 Shipment consolidation) - Grand.Web.Vendor.Models.Orders's own
-   OrderModel/OrderListModel and Grand.Web.Vendor.Models.Shipment (the whole namespace) are no
-   longer used by any controller/view. This can't be a blanket
-   "@using Grand.Web.AdminShared.Models.Orders" - that namespace also holds MerchandiseReturnModel/
-   *ReportModel etc., which Vendor's MerchandiseReturn/Reports views still bind to their own
-   Grand.Web.Vendor.Models.* equivalents (not yet consolidated), so a wildcard import here would
-   make those bare names ambiguous instead. Alias just the types that are actually consolidated. *@
+@* Order, Shipment, and VendorReview views bind to Grand.Web.AdminShared's model families
+   (ARCH-001 Phase 5 Order, Phase 6 Shipment, Phase 10 VendorReview consolidation) -
+   Grand.Web.Vendor.Models.Orders/Shipment/VendorReview equivalents are no longer used.
+   This can't be a blanket "@using Grand.Web.AdminShared.Models.*" because those namespaces
+   also hold MerchandiseReturnModel/*ReportModel etc., which Vendor's MerchandiseReturn/Reports
+   views still bind to their own Grand.Web.Vendor.Models.* equivalents (not yet consolidated),
+   so wildcard imports would make bare names ambiguous. Alias just the types that are actually
+   consolidated. *@
 @using OrderModel = Grand.Web.AdminShared.Models.Orders.OrderModel;
 @using OrderListModel = Grand.Web.AdminShared.Models.Orders.OrderListModel;
 @using ShipmentModel = Grand.Web.AdminShared.Models.Orders.ShipmentModel;
@@ -49,7 +49,8 @@
 @using ShipmentShippedDateModel = Grand.Web.AdminShared.Models.Orders.ShipmentShippedDateModel;
 @using Grand.Web.Vendor.Models.MerchandiseReturn;
 @using Grand.Web.Vendor.Models.Vendor;
-@using Grand.Web.Vendor.Models.VendorReview;
+@using VendorReviewModel = Grand.Web.AdminShared.Models.Vendors.VendorReviewModel;
+@using VendorReviewListModel = Grand.Web.AdminShared.Models.Vendors.VendorReviewListModel;
 @using Grand.Web.Vendor.Models.Report;
 @inject LocService Loc
 @inject IEnumTranslationService EnumTranslationService
