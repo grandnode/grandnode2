@@ -1,0 +1,229 @@
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Addresses;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Common;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Common;
+using Grand.Web.Common.Controllers;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Grand.Web.AdminShared.Controllers;
+
+public abstract class BaseAddressAttributeController(
+    IAddressAttributeService addressAttributeService,
+    IAddressAttributeViewModelService addressAttributeViewModelService,
+    ILanguageService languageService,
+    ITranslationService translationService,
+    IAdminDataScope<AddressAttribute> scope) : BaseController
+{
+    #region Address attributes
+
+    public IActionResult Index() => RedirectToAction("List");
+
+    public IActionResult List() => View();
+
+    [HttpPost]
+    public async Task<IActionResult> List(DataSourceRequest command)
+    {
+        var (addressAttributes, _) = await addressAttributeViewModelService.PrepareAddressAttributes();
+        var storeId = scope.DefaultStoreId;
+        var visible = storeId is null
+            ? addressAttributes.ToList()
+            : addressAttributes
+                .Where(x => x.Stores == null || x.Stores.Length == 0 || x.Stores.Contains(storeId))
+                .ToList();
+        var gridModel = new DataSourceResult {
+            Data = visible.Select(x => new {
+                x.Id, x.Name, x.AttributeControlTypeName, x.IsRequired, x.DisplayOrder,
+                IsGlobalAttribute = storeId is not null &&
+                    !(x.Stores is { Length: 1 } && x.Stores.Contains(storeId))
+            }).ToList(),
+            Total = visible.Count
+        };
+        return Json(gridModel);
+    }
+
+    public async Task<IActionResult> Create()
+    {
+        var model = addressAttributeViewModelService.PrepareAddressAttributeModel();
+        await AddLocales(languageService, model.Locales);
+        return View(model);
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Create(AddressAttributeModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
+        {
+            if (scope.DefaultStoreId is not null) model.Stores = [scope.DefaultStoreId];
+            var addressAttribute = await addressAttributeViewModelService.InsertAddressAttributeModel(model);
+            Success(translationService.GetResource("Admin.Address.AddressAttributes.Added"));
+            return continueEditing
+                ? RedirectToAction("Edit", new { id = addressAttribute.Id })
+                : RedirectToAction("List");
+        }
+        return View(model);
+    }
+
+    public async Task<IActionResult> Edit(string id)
+    {
+        var addressAttribute = await addressAttributeService.GetAddressAttributeById(id);
+        if (addressAttribute == null || !await scope.CanView(addressAttribute))
+            return RedirectToAction("List");
+
+        var model = addressAttributeViewModelService.PrepareAddressAttributeModel(addressAttribute);
+        model.IsGlobalAttribute = scope.DefaultStoreId is not null &&
+            !await scope.HasAccess(addressAttribute);
+        await AddLocales(languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.Name = addressAttribute.GetTranslation(x => x.Name, languageId, false);
+        });
+        return View(model);
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Edit(AddressAttributeModel model, bool continueEditing)
+    {
+        var addressAttribute = await addressAttributeService.GetAddressAttributeById(model.Id);
+        if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
+            return RedirectToAction("List");
+
+        if (ModelState.IsValid)
+        {
+            if (scope.DefaultStoreId is not null) model.Stores = [scope.DefaultStoreId];
+            addressAttribute = await addressAttributeViewModelService.UpdateAddressAttributeModel(model, addressAttribute);
+            Success(translationService.GetResource("Admin.Address.AddressAttributes.Updated"));
+            if (continueEditing)
+            {
+                await SaveSelectedTabIndex();
+                return RedirectToAction("Edit", new { id = addressAttribute.Id });
+            }
+            return RedirectToAction("List");
+        }
+
+        model.IsGlobalAttribute = false;
+        await AddLocales(languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.Name = addressAttribute.GetTranslation(x => x.Name, languageId, false);
+        });
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var addressAttribute = await addressAttributeService.GetAddressAttributeById(id);
+        if (addressAttribute == null)
+            return RedirectToAction("List");
+        if (!await scope.HasAccess(addressAttribute))
+            return RedirectToAction("Edit", new { id });
+
+        await addressAttributeService.DeleteAddressAttribute(addressAttribute);
+        Success(translationService.GetResource("Admin.Address.AddressAttributes.Deleted"));
+        return RedirectToAction("List");
+    }
+
+    #endregion
+
+    #region Address attribute values
+
+    [HttpPost]
+    public async Task<IActionResult> ValueList(string addressAttributeId, DataSourceRequest command)
+    {
+        var addressAttribute = await addressAttributeService.GetAddressAttributeById(addressAttributeId);
+        if (addressAttribute == null || !await scope.CanView(addressAttribute))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var (values, total) = await addressAttributeViewModelService.PrepareAddressAttributeValues(addressAttributeId);
+        return Json(new DataSourceResult { Data = values.ToList(), Total = total });
+    }
+
+    public async Task<IActionResult> ValueCreatePopup(string addressAttributeId)
+    {
+        var addressAttribute = await addressAttributeService.GetAddressAttributeById(addressAttributeId);
+        if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
+            return RedirectToAction("List");
+
+        var model = addressAttributeViewModelService.PrepareAddressAttributeValueModel(addressAttributeId);
+        await AddLocales(languageService, model.Locales);
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ValueCreatePopup(AddressAttributeValueModel model)
+    {
+        var addressAttribute = await addressAttributeService.GetAddressAttributeById(model.AddressAttributeId);
+        if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
+            return RedirectToAction("List");
+
+        if (ModelState.IsValid)
+        {
+            await addressAttributeViewModelService.InsertAddressAttributeValueModel(model);
+            return Content("");
+        }
+        return View(model);
+    }
+
+    public async Task<IActionResult> ValueEditPopup(string id, string addressAttributeId)
+    {
+        var addressAttribute = await addressAttributeService.GetAddressAttributeById(addressAttributeId);
+        if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
+            return RedirectToAction("List");
+
+        var cav = addressAttribute.AddressAttributeValues.FirstOrDefault(x => x.Id == id);
+        if (cav == null)
+            return RedirectToAction("List");
+
+        var model = addressAttributeViewModelService.PrepareAddressAttributeValueModel(cav);
+        await AddLocales(languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.Name = cav.GetTranslation(x => x.Name, languageId, false);
+        });
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ValueEditPopup(AddressAttributeValueModel model)
+    {
+        var addressAttribute = await addressAttributeService.GetAddressAttributeById(model.AddressAttributeId);
+        if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
+            return RedirectToAction("List");
+
+        var cav = addressAttribute.AddressAttributeValues.FirstOrDefault(x => x.Id == model.Id);
+        if (cav == null)
+            return RedirectToAction("List");
+
+        if (ModelState.IsValid)
+        {
+            await addressAttributeViewModelService.UpdateAddressAttributeValueModel(model, cav);
+            return Content("");
+        }
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ValueDelete(AddressAttributeValueModel model)
+    {
+        var addressAttribute = await addressAttributeService.GetAddressAttributeById(model.AddressAttributeId);
+        if (addressAttribute == null || !await scope.HasAccess(addressAttribute))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var cav = addressAttribute.AddressAttributeValues.FirstOrDefault(x => x.Id == model.Id);
+        if (cav == null)
+            return new JsonResult(new DataSourceResult
+                { Errors = "No address attribute value found with the specified id" });
+
+        if (ModelState.IsValid)
+        {
+            await addressAttributeService.DeleteAddressAttributeValue(cav);
+            return new JsonResult("");
+        }
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    #endregion
+}
