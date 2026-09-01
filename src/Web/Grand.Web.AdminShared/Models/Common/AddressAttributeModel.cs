@@ -31,6 +31,14 @@ public class AddressAttributeModel : BaseEntityModel, ILocalizedModel<AddressAtt
     [UIHint("Stores")]
     public string[] Stores { get; set; }
 
+    /// <summary>
+    /// True when this attribute is not exclusively assigned to the current host's single store.
+    /// Always false for Admin (global scope has no notion of "my store"). Populated by
+    /// BaseAddressAttributeController from IAdminDataScope&lt;AddressAttribute&gt;.DefaultStoreId,
+    /// not persisted.
+    /// </summary>
+    public bool IsGlobalAttribute { get; set; }
+
     public IList<AddressAttributeLocalizedModel> Locales { get; set; } = new List<AddressAttributeLocalizedModel>();
 }
 

@@ -1,0 +1,57 @@
+@using Grand.Web.AdminShared.Models.Common
+@model AddressAttributeValueModel
+@{
+    Layout = "";
+    ViewBag.Title = Loc["Admin.Address.AddressAttributes.Values.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form id="ValueCreatePopup" asp-area="@area" asp-controller="AddressAttribute" asp-action="ValueCreatePopup"
+      asp-route-addressAttributeId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["addressAttributeId"])">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-list-alt"></i>
+                        @Loc["Admin.Address.AddressAttributes.Values.AddNew"]
+                    </div>
+                </div>
+                <partial name="Partials/WidgetZone.ValueButtons"/>
+                <div class="x_content form">
+                    <partial name="Partials/CreateOrUpdateValue" model="Model"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#ValueCreatePopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefresh').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</form>

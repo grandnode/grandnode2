@@ -1,6 +1,9 @@
 using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.Drivers.FileSystem.Extensions;
 using Grand.Domain.Catalog;
+using Grand.Domain.Common;
+using Grand.Domain.Customers;
+using Grand.Domain.Messages;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
@@ -133,6 +136,48 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<GlobalAdminDataScope<VendorReview>>();
         services.AddScoped<VendorVendorReviewDataScope>();
         services.AddScoped<IAdminDataScope<VendorReview>, RoutedVendorReviewDataScope>();
+
+        // IAdminDataScope<AddressAttribute>: registered once here for the same reason as
+        // Product/Category/Collection above — see RoutedAddressAttributeDataScope's doc comment.
+        // No Vendor scope: AddressAttribute has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<AddressAttribute>>();
+        services.AddScoped<StoreAdminDataScope<AddressAttribute>>();
+        services.AddScoped<IAdminDataScope<AddressAttribute>, RoutedAddressAttributeDataScope>();
+
+        // IAdminDataScope<ContactAttribute>: registered once here for the same reason as
+        // AddressAttribute above — see RoutedContactAttributeDataScope's doc comment.
+        // No Vendor scope: ContactAttribute has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<ContactAttribute>>();
+        services.AddScoped<StoreAdminDataScope<ContactAttribute>>();
+        services.AddScoped<IAdminDataScope<ContactAttribute>, RoutedContactAttributeDataScope>();
+
+        // IAdminDataScope<CustomerAttribute>: registered once here for the same reason as
+        // AddressAttribute above — see RoutedCustomerAttributeDataScope's doc comment.
+        // No Vendor scope: CustomerAttribute has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<CustomerAttribute>>();
+        services.AddScoped<StoreAdminDataScope<CustomerAttribute>>();
+        services.AddScoped<IAdminDataScope<CustomerAttribute>, RoutedCustomerAttributeDataScope>();
+
+        // IAdminDataScope<CheckoutAttribute>: registered once here for the same reason as
+        // AddressAttribute above — see RoutedCheckoutAttributeDataScope's doc comment.
+        // No Vendor scope: CheckoutAttribute has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<CheckoutAttribute>>();
+        services.AddScoped<StoreAdminDataScope<CheckoutAttribute>>();
+        services.AddScoped<IAdminDataScope<CheckoutAttribute>, RoutedCheckoutAttributeDataScope>();
+
+        // IAdminDataScope<ProductAttribute>: registered once here for the same reason as
+        // AddressAttribute above — see RoutedProductAttributeDataScope's doc comment.
+        // No Vendor scope: ProductAttribute has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<ProductAttribute>>();
+        services.AddScoped<StoreAdminDataScope<ProductAttribute>>();
+        services.AddScoped<IAdminDataScope<ProductAttribute>, RoutedProductAttributeDataScope>();
+
+        // IAdminDataScope<SpecificationAttribute>: registered once here for the same reason as
+        // AddressAttribute above — see RoutedSpecificationAttributeDataScope's doc comment.
+        // No Vendor scope: SpecificationAttribute has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<SpecificationAttribute>>();
+        services.AddScoped<StoreAdminDataScope<SpecificationAttribute>>();
+        services.AddScoped<IAdminDataScope<SpecificationAttribute>, RoutedSpecificationAttributeDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

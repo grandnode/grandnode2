@@ -4,5 +4,6 @@
   IsReadOnly: false,
   AttributeControlTypeId: 2,
   DisplayOrder: 1,
+  IsGlobalAttribute: false,
   Id: ca-001
 }
