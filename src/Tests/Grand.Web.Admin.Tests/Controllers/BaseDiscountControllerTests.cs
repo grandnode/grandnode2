@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain;
 using Grand.Domain.Discounts;
+using Grand.Domain.Permissions;
 using Grand.Infrastructure.Mapper;
 using Grand.Mapping;
 using Grand.Mediator;
@@ -12,6 +13,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Discounts;
 using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -198,5 +200,51 @@ public class BaseDiscountControllerTests
         await _sut.CouponCodeInsert("1", "save10");
 
         _vmService.Verify(x => x.InsertCouponCode("1", "SAVE10"), Times.Once);
+    }
+}
+
+/// <summary>
+/// Regression test for ARCH-001 authorization attributes on Discount coupon-code region methods.
+/// Ensures that CouponCodeList, CouponCodeDelete, and CouponCodeInsert carry the required
+/// [PermissionAuthorizeAction] attributes to prevent authorization bypass (users without Edit
+/// permission should not be able to modify or delete coupon codes).
+/// </summary>
+[TestClass]
+public class BaseDiscountControllerCouponCodeAttributeTests
+{
+    [TestMethod]
+    public void CouponCodeList_HasPermissionAuthorizeActionPreview()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CouponCodeList");
+        Assert.IsNotNull(method, "CouponCodeList method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CouponCodeList missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Preview, attr!.PermissionAction, "CouponCodeList should require Preview permission");
+    }
+
+    [TestMethod]
+    public void CouponCodeDelete_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CouponCodeDelete");
+        Assert.IsNotNull(method, "CouponCodeDelete method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CouponCodeDelete missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CouponCodeDelete should require Edit permission");
+    }
+
+    [TestMethod]
+    public void CouponCodeInsert_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CouponCodeInsert");
+        Assert.IsNotNull(method, "CouponCodeInsert method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CouponCodeInsert missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CouponCodeInsert should require Edit permission");
     }
 }

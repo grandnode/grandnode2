@@ -148,6 +148,7 @@ public abstract class BaseDiscountController(
     #region Discount coupon codes
 
     [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> CouponCodeList(DataSourceRequest command, string discountId)
     {
         var discount = await discountService.GetDiscountById(discountId);
@@ -164,6 +165,7 @@ public abstract class BaseDiscountController(
         });
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> CouponCodeDelete(string discountId, string id)
     {
         var discount = await discountService.GetDiscountById(discountId);
@@ -186,6 +188,7 @@ public abstract class BaseDiscountController(
         return ErrorForKendoGridJson(ModelState);
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> CouponCodeInsert(string discountId, string couponCode)
     {
         if (string.IsNullOrEmpty(couponCode))
