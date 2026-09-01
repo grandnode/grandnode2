@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.AdminShared.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.ProductAttributes)]
+[AutoValidateAntiforgeryToken]
 public abstract class BaseProductAttributeController(
     IProductService productService,
     IProductAttributeService productAttributeService,

@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.AdminShared.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.ContactAttributes)]
+[AutoValidateAntiforgeryToken]
 public abstract class BaseContactAttributeController(
     IContactAttributeViewModelService contactAttributeViewModelService,
     IContactAttributeService contactAttributeService,

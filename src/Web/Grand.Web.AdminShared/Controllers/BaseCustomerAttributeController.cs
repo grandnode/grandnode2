@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
 
+[AutoValidateAntiforgeryToken]
 public abstract class BaseCustomerAttributeController(
     ICustomerAttributeService customerAttributeService,
     ICustomerAttributeViewModelService customerAttributeViewModelService,

@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.AdminShared.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.CheckoutAttributes)]
+[AutoValidateAntiforgeryToken]
 public abstract class BaseCheckoutAttributeController(
     ICheckoutAttributeService checkoutAttributeService,
     ILanguageService languageService,

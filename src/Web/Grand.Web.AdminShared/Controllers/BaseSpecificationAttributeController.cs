@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.AdminShared.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.SpecificationAttributes)]
+[AutoValidateAntiforgeryToken]
 public abstract class BaseSpecificationAttributeController(
     ISpecificationAttributeService specificationAttributeService,
     ILanguageService languageService,

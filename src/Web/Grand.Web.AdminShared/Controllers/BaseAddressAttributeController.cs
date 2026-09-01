@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.AdminShared.Controllers;
 
 [PermissionAuthorize(PermissionSystemName.AddressAttributes)]
+[AutoValidateAntiforgeryToken]
 public abstract class BaseAddressAttributeController(
     IAddressAttributeService addressAttributeService,
     IAddressAttributeViewModelService addressAttributeViewModelService,
