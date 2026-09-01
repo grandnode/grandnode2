@@ -144,4 +144,70 @@ public abstract class BaseDiscountController(
     }
 
     #endregion
+
+    #region Discount coupon codes
+
+    [HttpPost]
+    public async Task<IActionResult> CouponCodeList(DataSourceRequest command, string discountId)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var couponcodes = await discountService.GetAllCouponCodesByDiscountId(discount.Id,
+            command.Page - 1, command.PageSize);
+        return Json(new DataSourceResult {
+            Data = couponcodes.Select(x => new { x.Id, x.CouponCode, x.Used }),
+            Total = couponcodes.TotalCount
+        });
+    }
+
+    public async Task<IActionResult> CouponCodeDelete(string discountId, string id)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var coupon = await discountService.GetDiscountCodeById(id);
+        if (coupon == null)
+            throw new Exception("No coupon code found with the specified id");
+        if (ModelState.IsValid)
+        {
+            if (!coupon.Used)
+                await discountService.DeleteDiscountCoupon(coupon);
+            else
+                return new JsonResult(new DataSourceResult { Errors = "You can't delete coupon code, it was used" });
+            return new JsonResult("");
+        }
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    public async Task<IActionResult> CouponCodeInsert(string discountId, string couponCode)
+    {
+        if (string.IsNullOrEmpty(couponCode))
+            throw new Exception("Coupon code can't be empty");
+
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        couponCode = couponCode.ToUpperInvariant();
+
+        if (await discountService.GetDiscountByCouponCode(couponCode) != null)
+            return new JsonResult(new DataSourceResult { Errors = "Coupon code exists" });
+        if (ModelState.IsValid)
+        {
+            await discountViewModelService.InsertCouponCode(discountId, couponCode);
+            return new JsonResult("");
+        }
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    #endregion
 }

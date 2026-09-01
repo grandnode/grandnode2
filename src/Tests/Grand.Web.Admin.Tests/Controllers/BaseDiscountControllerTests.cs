@@ -11,6 +11,7 @@ using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Discounts;
+using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -171,5 +172,31 @@ public class BaseDiscountControllerTests
         await _sut.Create(model, false);
 
         CollectionAssert.AreEqual(new[] { "store-A" }, model.Stores);
+    }
+
+    [TestMethod]
+    public async Task CouponCodeDelete_ScopeDeniesAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+
+        var result = await _sut.CouponCodeDelete("1", "coupon-1") as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task CouponCodeInsert_ScopeAllowsAccess_InsertsCoupon()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(true);
+        _service.Setup(x => x.GetDiscountByCouponCode("SAVE10")).ReturnsAsync((Discount?)null);
+
+        await _sut.CouponCodeInsert("1", "save10");
+
+        _vmService.Verify(x => x.InsertCouponCode("1", "SAVE10"), Times.Once);
     }
 }
