@@ -24,6 +24,7 @@ public abstract class BaseDiscountController(
     ITranslationService translationService,
     IDateTimeService dateTimeService,
     IMediator mediator,
+    IDiscountProviderLoader discountProviderLoader,
     IAdminDataScope<Discount> scope)
     : BaseController
 {
@@ -141,6 +142,81 @@ public abstract class BaseDiscountController(
 
         Error(ModelState);
         return RedirectToAction("Edit", new { id = discount.Id });
+    }
+
+    #endregion
+
+    #region Discount requirements
+
+    [AcceptVerbs("GET")]
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> GetDiscountRequirementConfigurationUrl(string rulesystemName,
+        string discountId, string discountRequirementId)
+    {
+        ArgumentNullException.ThrowIfNullOrEmpty(rulesystemName);
+
+        var discountPlugin = discountProviderLoader.LoadDiscountProviderByRuleSystemName(rulesystemName);
+        if (discountPlugin == null)
+            throw new ArgumentException("Discount requirement rule could not be loaded");
+
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new ArgumentException("Discount could not be loaded");
+        if (!await scope.HasAccess(discount))
+            throw new ArgumentException("Access denied");
+
+        var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x =>
+            x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase));
+        var url = discountViewModelService.GetRequirementUrlInternal(singleRequirement, discount,
+            discountRequirementId);
+        return Json(new { url });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> GetDiscountRequirementMetaInfo(string discountRequirementId, string discountId)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new ArgumentException("Discount could not be loaded");
+        if (!await scope.HasAccess(discount))
+            throw new ArgumentException("Access denied");
+
+        var discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
+        if (discountRequirement == null)
+            throw new ArgumentException("Discount requirement could not be loaded");
+
+        var discountPlugin = discountProviderLoader.LoadDiscountProviderByRuleSystemName(
+            discountRequirement.DiscountRequirementRuleSystemName);
+        if (discountPlugin == null)
+            throw new ArgumentException("Discount requirement rule could not be loaded");
+
+        var discountRequirementRule = discountPlugin.GetRequirementRules()
+            .First(x => x.SystemName == discountRequirement.DiscountRequirementRuleSystemName);
+        var url = discountViewModelService.GetRequirementUrlInternal(discountRequirementRule, discount,
+            discountRequirementId);
+        return Json(new { url, ruleName = discountRequirementRule.FriendlyName });
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> DeleteDiscountRequirement(string discountRequirementId, string discountId)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new ArgumentException("Discount could not be loaded");
+        if (!await scope.HasAccess(discount))
+            return Json(new { Result = false, Error = "Access denied" });
+
+        var discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
+        if (discountRequirement == null)
+            throw new ArgumentException("Discount requirement could not be loaded");
+
+        if (ModelState.IsValid)
+        {
+            await discountViewModelService.DeleteDiscountRequirement(discountRequirement, discount);
+            return Json(new { Result = true });
+        }
+        return ErrorForKendoGridJson(ModelState);
     }
 
     #endregion

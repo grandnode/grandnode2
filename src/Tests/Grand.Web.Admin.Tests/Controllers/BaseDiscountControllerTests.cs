@@ -34,14 +34,16 @@ public class BaseDiscountControllerTests
         ITranslationService translationService,
         IDateTimeService dateTimeService,
         IMediator mediator,
+        IDiscountProviderLoader discountProviderLoader,
         IAdminDataScope<Discount> scope)
         : BaseDiscountController(discountViewModelService, discountService, translationService, dateTimeService,
-            mediator, scope);
+            mediator, discountProviderLoader, scope);
 
     private Mock<IDiscountViewModelService> _vmService = null!;
     private Mock<IDiscountService> _service = null!;
     private Mock<IAdminDataScope<Discount>> _scope = null!;
     private Mock<IMediator> _mediator = null!;
+    private Mock<IDiscountProviderLoader> _loader = null!;
     private TestDiscountController _sut = null!;
 
     [TestInitialize]
@@ -54,12 +56,14 @@ public class BaseDiscountControllerTests
         _service = new Mock<IDiscountService>();
         _scope = new Mock<IAdminDataScope<Discount>>();
         _mediator = new Mock<IMediator>();
+        _loader = new Mock<IDiscountProviderLoader>();
 
         var translationServiceMock = new Mock<ITranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _sut = new TestDiscountController(_vmService.Object, _service.Object,
-            translationServiceMock.Object, Mock.Of<IDateTimeService>(), _mediator.Object, _scope.Object);
+            translationServiceMock.Object, Mock.Of<IDateTimeService>(), _mediator.Object, _loader.Object,
+            _scope.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();
@@ -200,6 +204,90 @@ public class BaseDiscountControllerTests
         await _sut.CouponCodeInsert("1", "save10");
 
         _vmService.Verify(x => x.InsertCouponCode("1", "SAVE10"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetDiscountRequirementConfigurationUrl_ScopeDeniesAccess_Throws()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+        var provider = Mock.Of<IDiscountProvider>();
+        _loader.Setup(x => x.LoadDiscountProviderByRuleSystemName("rule1")).Returns(provider);
+
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.GetDiscountRequirementConfigurationUrl("rule1", "1", "req1"));
+    }
+
+    [TestMethod]
+    public async Task GetDiscountRequirementMetaInfo_ScopeDeniesAccess_Throws()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.GetDiscountRequirementMetaInfo("req1", "1"));
+    }
+
+    [TestMethod]
+    public async Task DeleteDiscountRequirement_ScopeDeniesAccess_ReturnsGracefulJsonError()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+
+        var result = await _sut.DeleteDiscountRequirement("req1", "1") as JsonResult;
+
+        Assert.IsFalse((bool)result!.Value!.GetType().GetProperty("Result")!.GetValue(result.Value)!);
+    }
+}
+
+/// <summary>
+/// Regression test for ARCH-001 authorization attributes on Discount requirements region methods.
+/// Ensures that GetDiscountRequirementConfigurationUrl, GetDiscountRequirementMetaInfo, and
+/// DeleteDiscountRequirement carry the required [PermissionAuthorizeAction] attributes.
+/// </summary>
+[TestClass]
+public class BaseDiscountControllerRequirementsAttributeTests
+{
+    [TestMethod]
+    public void GetDiscountRequirementConfigurationUrl_HasPermissionAuthorizeActionPreview()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("GetDiscountRequirementConfigurationUrl");
+        Assert.IsNotNull(method, "GetDiscountRequirementConfigurationUrl method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "GetDiscountRequirementConfigurationUrl missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Preview, attr!.PermissionAction,
+            "GetDiscountRequirementConfigurationUrl should require Preview permission");
+    }
+
+    [TestMethod]
+    public void GetDiscountRequirementMetaInfo_HasPermissionAuthorizeActionPreview()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("GetDiscountRequirementMetaInfo");
+        Assert.IsNotNull(method, "GetDiscountRequirementMetaInfo method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "GetDiscountRequirementMetaInfo missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Preview, attr!.PermissionAction,
+            "GetDiscountRequirementMetaInfo should require Preview permission");
+    }
+
+    [TestMethod]
+    public void DeleteDiscountRequirement_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("DeleteDiscountRequirement");
+        Assert.IsNotNull(method, "DeleteDiscountRequirement method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "DeleteDiscountRequirement missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction,
+            "DeleteDiscountRequirement should require Edit permission");
     }
 }
 
