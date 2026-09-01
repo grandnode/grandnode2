@@ -1,8 +1,10 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain;
+using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Mapper;
@@ -11,6 +13,7 @@ using Grand.Mediator;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Mapper;
+using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.AdminShared.Models.Discounts;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
@@ -240,6 +243,213 @@ public class BaseDiscountControllerTests
         var result = await _sut.DeleteDiscountRequirement("req1", "1") as JsonResult;
 
         Assert.IsFalse((bool)result!.Value!.GetType().GetProperty("Result")!.GetValue(result.Value)!);
+    }
+
+    [TestMethod]
+    public async Task ProductList_ScopeDeniesView_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.CanView(discount)).ReturnsAsync(false);
+        var productService = new Mock<IProductService>();
+
+        var result = await _sut.ProductList(new DataSourceRequest(), "1", productService.Object) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task ProductList_ScopeAllowsView_ReturnsProducts()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.CanView(discount)).ReturnsAsync(true);
+        var productService = new Mock<IProductService>();
+        var products = new PagedList<Product>(new List<Product> { new() { Id = "p1", Name = "Product 1" } }, 0, int.MaxValue);
+        productService.Setup(x => x.GetProductsByDiscount("1", 0, 10)).ReturnsAsync(products);
+
+        var result = await _sut.ProductList(new DataSourceRequest { Page = 1, PageSize = 10 }, "1", productService.Object) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual(1, data.Total);
+    }
+
+    [TestMethod]
+    public async Task ProductDelete_ScopeDeniesAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+        var productService = new Mock<IProductService>();
+
+        var result = await _sut.ProductDelete("1", "p1", productService.Object) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task ProductDelete_ScopeAllowsAccess_DeletesProduct()
+    {
+        var discount = new Discount { Id = "1" };
+        var product = new Product { Id = "p1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(true);
+        var productService = new Mock<IProductService>();
+        productService.Setup(x => x.GetProductById("p1", false)).ReturnsAsync(product);
+
+        await _sut.ProductDelete("1", "p1", productService.Object);
+
+        _vmService.Verify(x => x.DeleteProduct(discount, product), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopup_Get_ScopeDeniesAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+
+        var result = await _sut.ProductAddPopup("1") as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopup_Get_ScopeAllowsAccess_ReturnsView()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(true);
+        var model = new DiscountModel.AddProductToDiscountModel();
+        _vmService.Setup(x => x.PrepareProductToDiscountModel()).ReturnsAsync(model);
+
+        var result = await _sut.ProductAddPopup("1") as ViewResult;
+
+        Assert.AreSame(model, result!.Model);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupList_GlobalScope_LeavesSearchStoreIdUntouched()
+    {
+        _scope.Setup(x => x.DefaultStoreId).Returns((string?)null);
+        var model = new DiscountModel.AddProductToDiscountModel { SearchStoreId = "client-supplied" };
+        _vmService.Setup(x => x.PrepareProductModel(model, 1, 10))
+            .ReturnsAsync((new List<ProductModel>(), 0));
+
+        await _sut.ProductAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 }, model);
+
+        Assert.AreEqual("client-supplied", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupList_StoreScope_ForcesSearchStoreId()
+    {
+        _scope.Setup(x => x.DefaultStoreId).Returns("store-a");
+        var model = new DiscountModel.AddProductToDiscountModel { SearchStoreId = "client-supplied" };
+        _vmService.Setup(x => x.PrepareProductModel(model, 1, 10))
+            .ReturnsAsync((new List<ProductModel>(), 0));
+
+        await _sut.ProductAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 }, model);
+
+        Assert.AreEqual("store-a", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopup_Post_ScopeDeniesAccess_ReturnsAccessDeniedContent()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+        var model = new DiscountModel.AddProductToDiscountModel { DiscountId = "1" };
+
+        var result = await _sut.ProductAddPopup(model) as ContentResult;
+
+        Assert.AreEqual("Access denied", result!.Content);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopup_Post_ScopeAllowsAccess_InsertsProduct()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(true);
+        var model = new DiscountModel.AddProductToDiscountModel { DiscountId = "1", SelectedProductIds = ["p1"] };
+
+        await _sut.ProductAddPopup(model);
+
+        _vmService.Verify(x => x.InsertProductToDiscountModel(model), Times.Once);
+    }
+}
+
+/// <summary>
+/// Regression test for ARCH-001 authorization attributes on Discount applied-to-products region methods.
+/// Ensures that ProductList, ProductDelete, and both ProductAddPopup overloads carry the required
+/// [PermissionAuthorizeAction] attributes.
+/// </summary>
+[TestClass]
+public class BaseDiscountControllerProductsAttributeTests
+{
+    [TestMethod]
+    public void ProductList_HasPermissionAuthorizeActionPreview()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("ProductList");
+        Assert.IsNotNull(method, "ProductList method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "ProductList missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Preview, attr!.PermissionAction, "ProductList should require Preview permission");
+    }
+
+    [TestMethod]
+    public void ProductDelete_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("ProductDelete");
+        Assert.IsNotNull(method, "ProductDelete method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "ProductDelete missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "ProductDelete should require Edit permission");
+    }
+
+    [TestMethod]
+    public void ProductAddPopup_Get_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("ProductAddPopup", [typeof(string)]);
+        Assert.IsNotNull(method, "ProductAddPopup(string) method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "ProductAddPopup(string) missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "ProductAddPopup(string) should require Edit permission");
+    }
+
+    [TestMethod]
+    public void ProductAddPopupList_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("ProductAddPopupList");
+        Assert.IsNotNull(method, "ProductAddPopupList method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "ProductAddPopupList missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "ProductAddPopupList should require Edit permission");
+    }
+
+    [TestMethod]
+    public void ProductAddPopup_Post_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("ProductAddPopup", [typeof(DiscountModel.AddProductToDiscountModel)]);
+        Assert.IsNotNull(method, "ProductAddPopup(AddProductToDiscountModel) method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "ProductAddPopup(AddProductToDiscountModel) missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "ProductAddPopup(AddProductToDiscountModel) should require Edit permission");
     }
 }
 

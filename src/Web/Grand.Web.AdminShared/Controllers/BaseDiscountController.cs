@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Queries.Catalog;
@@ -286,6 +287,87 @@ public abstract class BaseDiscountController(
             return new JsonResult("");
         }
         return ErrorForKendoGridJson(ModelState);
+    }
+
+    #endregion
+
+    #region Applied to products
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> ProductList(DataSourceRequest command, string discountId,
+        [FromServices] IProductService productService)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.CanView(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var products = await productService.GetProductsByDiscount(discount.Id, command.Page - 1, command.PageSize);
+        return Json(new DataSourceResult {
+            Data = products.Select(x => new DiscountModel.AppliedToProductModel { ProductId = x.Id, ProductName = x.Name }),
+            Total = products.TotalCount
+        });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductDelete(string discountId, string productId,
+        [FromServices] IProductService productService)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var product = await productService.GetProductById(productId);
+        if (product == null)
+            throw new Exception("No product found with the specified id");
+
+        if (ModelState.IsValid)
+        {
+            await discountViewModelService.DeleteProduct(discount, product);
+            return new JsonResult("");
+        }
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductAddPopup(string discountId)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var model = await discountViewModelService.PrepareProductToDiscountModel();
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command,
+        DiscountModel.AddProductToDiscountModel model)
+    {
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+        var products = await discountViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        return Json(new DataSourceResult { Data = products.products.ToList(), Total = products.totalCount });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAddPopup(DiscountModel.AddProductToDiscountModel model)
+    {
+        var discount = await discountService.GetDiscountById(model.DiscountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return Content("Access denied");
+
+        if (model.SelectedProductIds != null) await discountViewModelService.InsertProductToDiscountModel(model);
+        return Content("");
     }
 
     #endregion
