@@ -92,7 +92,7 @@
                 width: 120,
                 headerAttributes: { style: "text-align:center" },
                 attributes: { style: "text-align:center" },
-                template: '# if(IsGlobalAttribute) {# <span class="badge badge-secondary">@Loc["Admin.Common.View"]</span> #} else {# <span class="badge badge-success">@Loc["Admin.Common.Edit"]</span> #} #'
+                template: '# if(IsGlobalAttribute) {# <a class="k-link" href="Edit/#=Id#"><span class="badge badge-secondary">@Loc["Admin.Common.View"]</span></a> #} else {# <a class="k-link" href="Edit/#=Id#"><span class="badge badge-success">@Loc["Admin.Common.Edit"]</span></a> #} #'
             }]
         });
     });
