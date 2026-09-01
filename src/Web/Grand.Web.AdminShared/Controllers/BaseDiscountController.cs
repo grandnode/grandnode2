@@ -1,3 +1,5 @@
+using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -8,6 +10,7 @@ using Grand.Domain.Permissions;
 using Grand.Mediator;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.AdminShared.Models.Discounts;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
@@ -367,6 +370,186 @@ public abstract class BaseDiscountController(
             return Content("Access denied");
 
         if (model.SelectedProductIds != null) await discountViewModelService.InsertProductToDiscountModel(model);
+        return Content("");
+    }
+
+    #endregion
+
+    #region Applied to categories
+
+    // CategoryList/CategoryDelete/CategoryAddPopup(POST) below preserve Store's original strict
+    // AccessToEntityByStore check (widened here to scope.CanView/HasAccess) and widen Admin's
+    // original, which had no check at all, to match Store. CategoryAddPopup(GET)/CategoryAddPopupList
+    // are the genuine both-hosts gap: neither original guarded them, so applying scope.HasAccess
+    // here is real disclosed security hardening, not behavior preservation.
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> CategoryList(DataSourceRequest command, string discountId,
+        [FromServices] ICategoryService categoryService)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.CanView(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var categories = await categoryService.GetAllCategoriesByDiscount(discount.Id);
+        var items = new List<DiscountModel.AppliedToCategoryModel>();
+        foreach (var item in categories)
+            items.Add(new DiscountModel.AppliedToCategoryModel {
+                CategoryId = item.Id, CategoryName = await categoryService.GetFormattedBreadCrumb(item)
+            });
+        return Json(new DataSourceResult { Data = items, Total = categories.Count });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> CategoryDelete(string discountId, string categoryId,
+        [FromServices] ICategoryService categoryService)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var category = await categoryService.GetCategoryById(categoryId);
+        if (category == null)
+            throw new Exception("No category found with the specified id");
+
+        if (ModelState.IsValid)
+        {
+            await discountViewModelService.DeleteCategory(discount, category);
+            return new JsonResult("");
+        }
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> CategoryAddPopup(string discountId)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        return View(new DiscountModel.AddCategoryToDiscountModel());
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> CategoryAddPopupList(DataSourceRequest command,
+        DiscountModel.AddCategoryToDiscountModel model, [FromServices] ICategoryService categoryService)
+    {
+        var categories = await categoryService.GetAllCategories(parentId: null, categoryName: model.SearchCategoryName,
+            storeId: scope.DefaultStoreId ?? "", pageIndex: command.Page - 1, pageSize: command.PageSize, showHidden: true);
+        var items = new List<CategoryModel>();
+        foreach (var item in categories)
+        {
+            var categoryModel = item.ToModel();
+            categoryModel.Breadcrumb = await categoryService.GetFormattedBreadCrumb(item);
+            items.Add(categoryModel);
+        }
+        return Json(new DataSourceResult { Data = items, Total = categories.TotalCount });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> CategoryAddPopup(DiscountModel.AddCategoryToDiscountModel model)
+    {
+        var discount = await discountService.GetDiscountById(model.DiscountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return Content("Access denied");
+
+        if (model.SelectedCategoryIds != null) await discountViewModelService.InsertCategoryToDiscountModel(model);
+        return Content("");
+    }
+
+    #endregion
+
+    #region Applied to brands
+
+    // BrandList/BrandDelete/BrandAddPopup(POST) below preserve Store's original strict
+    // AccessToEntityByStore check (widened here to scope.CanView/HasAccess) and widen Admin's
+    // original, which had no check at all, to match Store. BrandAddPopup(GET)/BrandAddPopupList
+    // are the genuine both-hosts gap: neither original guarded them, so applying scope.HasAccess
+    // here is real disclosed security hardening, not behavior preservation.
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> BrandList(DataSourceRequest command, string discountId,
+        [FromServices] IBrandService brandService)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.CanView(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var brands = await brandService.GetAllBrandsByDiscount(discount.Id);
+        return Json(new DataSourceResult {
+            Data = brands.Select(x => new DiscountModel.AppliedToBrandModel { BrandId = x.Id, BrandName = x.Name }),
+            Total = brands.Count
+        });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> BrandDelete(string discountId, string brandId,
+        [FromServices] IBrandService brandService)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var brand = await brandService.GetBrandById(brandId);
+        if (brand == null)
+            throw new Exception("No brand found with the specified id");
+        if (ModelState.IsValid)
+        {
+            await discountViewModelService.DeleteBrand(discount, brand);
+            return new JsonResult("");
+        }
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> BrandAddPopup(string discountId)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        return View(new DiscountModel.AddBrandToDiscountModel());
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> BrandAddPopupList(DataSourceRequest command,
+        DiscountModel.AddBrandToDiscountModel model, [FromServices] IBrandService brandService)
+    {
+        var brands = await brandService.GetAllBrands(model.SearchBrandName,
+            scope.DefaultStoreId ?? "", command.Page - 1, command.PageSize, true);
+        return Json(new DataSourceResult { Data = brands.Select(x => x.ToModel()), Total = brands.TotalCount });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> BrandAddPopup(DiscountModel.AddBrandToDiscountModel model)
+    {
+        var discount = await discountService.GetDiscountById(model.DiscountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return Content("Access denied");
+
+        if (model.SelectedBrandIds != null) await discountViewModelService.InsertBrandToDiscountModel(model);
         return Content("");
     }
 

@@ -1,3 +1,5 @@
+using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -382,6 +384,170 @@ public class BaseDiscountControllerTests
 
         _vmService.Verify(x => x.InsertProductToDiscountModel(model), Times.Once);
     }
+
+    [TestMethod]
+    public async Task CategoryList_ScopeDeniesView_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.CanView(discount)).ReturnsAsync(false);
+        var categoryService = new Mock<ICategoryService>();
+
+        var result = await _sut.CategoryList(new DataSourceRequest(), "1", categoryService.Object) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task CategoryDelete_ScopeDeniesAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+        var categoryService = new Mock<ICategoryService>();
+
+        var result = await _sut.CategoryDelete("1", "c1", categoryService.Object) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task CategoryAddPopup_Get_ScopeDeniesAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+
+        var result = await _sut.CategoryAddPopup("1") as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task CategoryAddPopup_Post_ScopeDeniesAccess_ReturnsAccessDeniedContent()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+        var model = new DiscountModel.AddCategoryToDiscountModel { DiscountId = "1" };
+
+        var result = await _sut.CategoryAddPopup(model) as ContentResult;
+
+        Assert.AreEqual("Access denied", result!.Content);
+    }
+
+    [TestMethod]
+    public async Task CategoryAddPopupList_GlobalScope_PassesEmptyStoreId()
+    {
+        _scope.Setup(x => x.DefaultStoreId).Returns((string?)null);
+        var categoryService = new Mock<ICategoryService>();
+        categoryService.Setup(x => x.GetAllCategories(null, null, "", 0, 10, true))
+            .ReturnsAsync(new PagedList<Category>(new List<Category>(), 0, 10, 0));
+
+        await _sut.CategoryAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
+            new DiscountModel.AddCategoryToDiscountModel(), categoryService.Object);
+
+        categoryService.Verify(x => x.GetAllCategories(null, null, "", 0, 10, true), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CategoryAddPopupList_StoreScope_PassesScopedStoreId()
+    {
+        _scope.Setup(x => x.DefaultStoreId).Returns("store-a");
+        var categoryService = new Mock<ICategoryService>();
+        categoryService.Setup(x => x.GetAllCategories(null, null, "store-a", 0, 10, true))
+            .ReturnsAsync(new PagedList<Category>(new List<Category>(), 0, 10, 0));
+
+        await _sut.CategoryAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
+            new DiscountModel.AddCategoryToDiscountModel(), categoryService.Object);
+
+        categoryService.Verify(x => x.GetAllCategories(null, null, "store-a", 0, 10, true), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task BrandList_ScopeDeniesView_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.CanView(discount)).ReturnsAsync(false);
+        var brandService = new Mock<IBrandService>();
+
+        var result = await _sut.BrandList(new DataSourceRequest(), "1", brandService.Object) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task BrandDelete_ScopeDeniesAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+        var brandService = new Mock<IBrandService>();
+
+        var result = await _sut.BrandDelete("1", "b1", brandService.Object) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task BrandAddPopup_Get_ScopeDeniesAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+
+        var result = await _sut.BrandAddPopup("1") as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task BrandAddPopup_Post_ScopeDeniesAccess_ReturnsAccessDeniedContent()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+        var model = new DiscountModel.AddBrandToDiscountModel { DiscountId = "1" };
+
+        var result = await _sut.BrandAddPopup(model) as ContentResult;
+
+        Assert.AreEqual("Access denied", result!.Content);
+    }
+
+    [TestMethod]
+    public async Task BrandAddPopupList_GlobalScope_PassesEmptyStoreId()
+    {
+        _scope.Setup(x => x.DefaultStoreId).Returns((string?)null);
+        var brandService = new Mock<IBrandService>();
+        brandService.Setup(x => x.GetAllBrands(null, "", 0, 10, true))
+            .ReturnsAsync(new PagedList<Brand>(new List<Brand>(), 0, 10, 0));
+
+        await _sut.BrandAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
+            new DiscountModel.AddBrandToDiscountModel(), brandService.Object);
+
+        brandService.Verify(x => x.GetAllBrands(null, "", 0, 10, true), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task BrandAddPopupList_StoreScope_PassesScopedStoreId()
+    {
+        _scope.Setup(x => x.DefaultStoreId).Returns("store-a");
+        var brandService = new Mock<IBrandService>();
+        brandService.Setup(x => x.GetAllBrands(null, "store-a", 0, 10, true))
+            .ReturnsAsync(new PagedList<Brand>(new List<Brand>(), 0, 10, 0));
+
+        await _sut.BrandAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
+            new DiscountModel.AddBrandToDiscountModel(), brandService.Object);
+
+        brandService.Verify(x => x.GetAllBrands(null, "store-a", 0, 10, true), Times.Once);
+    }
 }
 
 /// <summary>
@@ -544,5 +710,135 @@ public class BaseDiscountControllerCouponCodeAttributeTests
             .SingleOrDefault();
         Assert.IsNotNull(attr, "CouponCodeInsert missing [PermissionAuthorizeAction]");
         Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CouponCodeInsert should require Edit permission");
+    }
+}
+
+/// <summary>
+/// Regression test for ARCH-001 authorization attributes on Discount applied-to-categories and
+/// applied-to-brands region methods. Ensures CategoryList, CategoryDelete, both CategoryAddPopup
+/// overloads, CategoryAddPopupList, BrandList, BrandDelete, both BrandAddPopup overloads, and
+/// BrandAddPopupList carry the required [PermissionAuthorizeAction] attributes.
+/// </summary>
+[TestClass]
+public class BaseDiscountControllerCategoriesAndBrandsAttributeTests
+{
+    [TestMethod]
+    public void CategoryList_HasPermissionAuthorizeActionPreview()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CategoryList");
+        Assert.IsNotNull(method, "CategoryList method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CategoryList missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Preview, attr!.PermissionAction, "CategoryList should require Preview permission");
+    }
+
+    [TestMethod]
+    public void CategoryDelete_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CategoryDelete");
+        Assert.IsNotNull(method, "CategoryDelete method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CategoryDelete missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CategoryDelete should require Edit permission");
+    }
+
+    [TestMethod]
+    public void CategoryAddPopup_Get_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CategoryAddPopup", [typeof(string)]);
+        Assert.IsNotNull(method, "CategoryAddPopup(string) method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CategoryAddPopup(string) missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CategoryAddPopup(string) should require Edit permission");
+    }
+
+    [TestMethod]
+    public void CategoryAddPopupList_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CategoryAddPopupList");
+        Assert.IsNotNull(method, "CategoryAddPopupList method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CategoryAddPopupList missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CategoryAddPopupList should require Edit permission");
+    }
+
+    [TestMethod]
+    public void CategoryAddPopup_Post_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CategoryAddPopup", [typeof(DiscountModel.AddCategoryToDiscountModel)]);
+        Assert.IsNotNull(method, "CategoryAddPopup(AddCategoryToDiscountModel) method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CategoryAddPopup(AddCategoryToDiscountModel) missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CategoryAddPopup(AddCategoryToDiscountModel) should require Edit permission");
+    }
+
+    [TestMethod]
+    public void BrandList_HasPermissionAuthorizeActionPreview()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("BrandList");
+        Assert.IsNotNull(method, "BrandList method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "BrandList missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Preview, attr!.PermissionAction, "BrandList should require Preview permission");
+    }
+
+    [TestMethod]
+    public void BrandDelete_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("BrandDelete");
+        Assert.IsNotNull(method, "BrandDelete method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "BrandDelete missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "BrandDelete should require Edit permission");
+    }
+
+    [TestMethod]
+    public void BrandAddPopup_Get_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("BrandAddPopup", [typeof(string)]);
+        Assert.IsNotNull(method, "BrandAddPopup(string) method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "BrandAddPopup(string) missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "BrandAddPopup(string) should require Edit permission");
+    }
+
+    [TestMethod]
+    public void BrandAddPopupList_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("BrandAddPopupList");
+        Assert.IsNotNull(method, "BrandAddPopupList method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "BrandAddPopupList missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "BrandAddPopupList should require Edit permission");
+    }
+
+    [TestMethod]
+    public void BrandAddPopup_Post_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("BrandAddPopup", [typeof(DiscountModel.AddBrandToDiscountModel)]);
+        Assert.IsNotNull(method, "BrandAddPopup(AddBrandToDiscountModel) method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "BrandAddPopup(AddBrandToDiscountModel) missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "BrandAddPopup(AddBrandToDiscountModel) should require Edit permission");
     }
 }
