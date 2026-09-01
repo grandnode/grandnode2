@@ -17,8 +17,10 @@ public interface IAdminDataScope<TEntity>
     /// <summary>Whether the current user may view/reference this entity (open its edit form, copy it) —
     /// looser than <see cref="HasAccess"/> for hosts where viewing a shared/global entity is allowed but
     /// mutating it isn't. Defaults to <see cref="HasAccess"/> for hosts with no such split (Admin: always
-    /// true either way; Vendor: the two are identical, verified against the existing, unsplit
-    /// `CheckAccessToProduct`). Only Store overrides this.</summary>
+    /// true either way for most entities; Vendor: the two are identical, verified against the existing,
+    /// unsplit `CheckAccessToProduct`). Overridden by Store, and by
+    /// <see cref="Grand.Web.AdminShared.Services.AdminDiscountDataScope"/> for its Store-Manager-gated
+    /// Admin case.</summary>
     Task<bool> CanView(TEntity entity) => HasAccess(entity);
 
     /// <summary>Store id to default onto new/edited entities. Null when the host has no store concept
