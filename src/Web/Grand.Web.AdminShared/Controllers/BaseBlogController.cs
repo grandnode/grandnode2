@@ -343,5 +343,107 @@ public abstract class BaseBlogController(
         return RedirectToAction("CategoryEdit", new { id = blogCategory.Id });
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> CategoryPostList(string categoryId)
+    {
+        var blogCategory = await blogService.GetBlogCategoryById(categoryId);
+        if (blogCategory == null) return ErrorForKendoGridJson("blogCategory no exists");
+        if (!await categoryScope.HasAccess(blogCategory)) return ErrorForKendoGridJson(NoAccessToBlogCategoryMessage);
+
+        var blogposts = new List<Models.Blogs.BlogCategoryPost>();
+        foreach (var item in blogCategory.BlogPosts)
+        {
+            var post = new Models.Blogs.BlogCategoryPost { Id = item.Id, BlogPostId = item.BlogPostId };
+            var _post = await blogService.GetBlogPostById(item.BlogPostId);
+            if (_post != null) post.Name = _post.Title;
+            blogposts.Add(post);
+        }
+
+        var gridModel = new DataSourceResult {
+            Data = blogposts,
+            Total = blogCategory.BlogPosts.Count
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    public async Task<IActionResult> CategoryPostDelete(string categoryId, string id)
+    {
+        var blogCategory = await blogService.GetBlogCategoryById(categoryId);
+        if (blogCategory == null) return ErrorForKendoGridJson("blogCategory no exists");
+        if (!await categoryScope.HasAccess(blogCategory)) return ErrorForKendoGridJson(NoAccessToBlogCategoryMessage);
+
+        if (ModelState.IsValid)
+        {
+            var post = blogCategory.BlogPosts.FirstOrDefault(x => x.Id == id);
+            if (post != null)
+            {
+                blogCategory.BlogPosts.Remove(post);
+                await blogService.UpdateBlogCategory(blogCategory);
+            }
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> BlogPostAddPopup(string categoryId)
+    {
+        var model = new AddBlogPostCategoryModel { CategoryId = categoryId };
+        // Admin's original populates AvailableStores here; Store's original never does. Preserved as
+        // a genuine host divergence, gated the same way as every other DefaultStoreId-null check.
+        if (categoryScope.DefaultStoreId is null)
+        {
+            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+            foreach (var s in await storeService.GetAllStores())
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        }
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> BlogPostAddPopup(AddBlogPostCategoryModel model)
+    {
+        if (model.SelectedBlogPostIds == null) return Content("");
+
+        var blogCategory = await blogService.GetBlogCategoryById(model.CategoryId);
+        if (blogCategory == null) return Content("");
+        if (!await categoryScope.HasAccess(blogCategory)) return Content(NoAccessToBlogCategoryMessage);
+
+        foreach (var id in model.SelectedBlogPostIds)
+        {
+            var post = await blogService.GetBlogPostById(id);
+            if (post == null) continue;
+            // Skip (not fail) any individual post the current user can't access - a category owner
+            // can link only the posts they can see. Preserved from Store's original
+            // AddPostToBlogCategoryIfValid; Admin's original had no such check at all (postScope's
+            // GlobalAdminDataScope.HasAccess is always true, so the skip never fires for Admin).
+            if (!await postScope.HasAccess(post)) continue;
+            if (blogCategory.BlogPosts.Any(x => x.BlogPostId == id)) continue;
+
+            blogCategory.BlogPosts.Add(new Domain.Blogs.BlogCategoryPost { BlogPostId = id });
+            await blogService.UpdateBlogCategory(blogCategory);
+        }
+
+        return Content("");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> BlogPostAddPopupList(DataSourceRequest command, AddBlogPostCategoryModel model)
+    {
+        if (categoryScope.DefaultStoreId is not null) model.SearchStoreId = categoryScope.DefaultStoreId;
+
+        var gridModel = new DataSourceResult();
+        var posts = await blogService.GetAllBlogPosts(model.SearchStoreId, blogPostName: model.SearchBlogTitle,
+            pageIndex: command.Page - 1, pageSize: command.PageSize);
+        gridModel.Data = posts.Select(x => new { x.Id, Name = x.Title });
+        gridModel.Total = posts.TotalCount;
+        return Json(gridModel);
+    }
+
     #endregion
 }

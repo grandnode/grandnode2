@@ -291,4 +291,72 @@ public class BaseBlogControllerTests
         Assert.AreEqual("CategoryList", redirect.ActionName);
         _blogServiceMock.Verify(b => b.DeleteBlogCategory(It.IsAny<BlogCategory>()), Times.Never);
     }
+
+    [TestMethod]
+    public async Task CategoryPostList_ScopeDeniesAccess_ReturnsKendoError()
+    {
+        var category = new BlogCategory { Id = "c1" };
+        _blogServiceMock.Setup(b => b.GetBlogCategoryById("c1")).ReturnsAsync(category);
+        _categoryScopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(false);
+
+        var result = await _controller.CategoryPostList("c1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+    }
+
+    [TestMethod]
+    public async Task BlogPostAddPopupInsert_SkipsInaccessiblePostsButLinksAccessibleOnes()
+    {
+        // Store's original AddSelectedPostsToBlogCategory/AddPostToBlogCategoryIfValid skip-not-fail
+        // semantics: an accessible category linking one accessible and one inaccessible post must
+        // link only the accessible one, not fail the whole request.
+        var category = new BlogCategory { Id = "c1", BlogPosts = new List<Grand.Domain.Blogs.BlogCategoryPost>() };
+        _blogServiceMock.Setup(b => b.GetBlogCategoryById("c1")).ReturnsAsync(category);
+        _categoryScopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
+
+        var accessiblePost = new BlogPost { Id = "accessible-1" };
+        var inaccessiblePost = new BlogPost { Id = "inaccessible-1" };
+        _blogServiceMock.Setup(b => b.GetBlogPostById("accessible-1")).ReturnsAsync(accessiblePost);
+        _blogServiceMock.Setup(b => b.GetBlogPostById("inaccessible-1")).ReturnsAsync(inaccessiblePost);
+        _postScopeMock.Setup(s => s.HasAccess(accessiblePost)).ReturnsAsync(true);
+        _postScopeMock.Setup(s => s.HasAccess(inaccessiblePost)).ReturnsAsync(false);
+
+        var model = new AddBlogPostCategoryModel { CategoryId = "c1", SelectedBlogPostIds = ["accessible-1", "inaccessible-1"] };
+        await _controller.BlogPostAddPopup(model);
+
+        Assert.AreEqual(1, category.BlogPosts.Count);
+        Assert.AreEqual("accessible-1", category.BlogPosts[0].BlogPostId);
+        _blogServiceMock.Verify(b => b.UpdateBlogCategory(category), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task BlogPostAddPopupInsert_ScopeDeniesCategoryAccess_LinksNothing()
+    {
+        var category = new BlogCategory { Id = "c1", BlogPosts = new List<Grand.Domain.Blogs.BlogCategoryPost>() };
+        _blogServiceMock.Setup(b => b.GetBlogCategoryById("c1")).ReturnsAsync(category);
+        _categoryScopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(false);
+
+        var model = new AddBlogPostCategoryModel { CategoryId = "c1", SelectedBlogPostIds = ["post-1"] };
+        await _controller.BlogPostAddPopup(model);
+
+        Assert.AreEqual(0, category.BlogPosts.Count);
+        _blogServiceMock.Verify(b => b.UpdateBlogCategory(It.IsAny<BlogCategory>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task BlogPostAddPopupList_ForcesScopeDefaultStoreId()
+    {
+        _categoryScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _blogServiceMock
+            .Setup(b => b.GetAllBlogPosts("store-1", null, null, 0, 10, false, null, null, ""))
+            .ReturnsAsync(new Grand.Domain.PagedList<BlogPost>(new List<BlogPost>(), 0, 10));
+
+        var model = new AddBlogPostCategoryModel { SearchStoreId = "attacker-supplied" };
+        await _controller.BlogPostAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 }, model);
+
+        Assert.AreEqual("store-1", model.SearchStoreId);
+    }
 }
