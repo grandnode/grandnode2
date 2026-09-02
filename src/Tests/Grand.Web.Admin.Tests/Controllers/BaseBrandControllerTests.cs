@@ -387,4 +387,50 @@ public class BaseBrandControllerTests
         Assert.AreEqual("", content.Content);
         pictureViewModelServiceMock.Verify(p => p.UpdatePicture(model), Times.Once);
     }
+
+    // --- Export / Import -----------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task ExportXlsx_Success_ReturnsXlsxFile()
+    {
+        _brandServiceMock
+            .Setup(b => b.GetAllBrands("", "", 0, int.MaxValue, true))
+            .ReturnsAsync(new PagedList<Brand>(new List<Brand> { new() { Id = "b1" } }, 0, int.MaxValue));
+        var exportManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IExportManager<Brand>>();
+        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Brand>>())).ReturnsAsync([1, 2, 3]);
+
+        var result = await _controller.ExportXlsx(exportManagerMock.Object);
+
+        var file = result as FileContentResult;
+        Assert.IsNotNull(file);
+        Assert.AreEqual("brands.xlsx", file.FileDownloadName);
+    }
+
+    [TestMethod]
+    public async Task ExportXlsx_ExportThrows_ShowsErrorAndRedirectsToList()
+    {
+        _brandServiceMock
+            .Setup(b => b.GetAllBrands("", "", 0, int.MaxValue, true))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+        var exportManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IExportManager<Brand>>();
+
+        var result = await _controller.ExportXlsx(exportManagerMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task ImportFromXlsx_NoFile_ShowsErrorAndRedirectsToList()
+    {
+        var importManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IImportManager<Grand.Business.Core.Dto.BrandDto>>();
+
+        var result = await _controller.ImportFromXlsx(null, importManagerMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
+    }
 }
