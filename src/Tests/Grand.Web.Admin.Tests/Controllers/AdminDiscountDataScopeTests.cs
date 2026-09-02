@@ -66,16 +66,26 @@ public class AdminDiscountDataScopeTests
     }
 
     [TestMethod]
-    public void DefaultStoreId_NotStoreManager_ReturnsNull()
+    public async Task GetDefaultStoreIdAsync_NotStoreManager_ReturnsNull()
     {
         var scope = BuildScope(isStoreManager: false);
-        Assert.IsNull(scope.DefaultStoreId);
+        Assert.IsNull(await scope.GetDefaultStoreIdAsync());
     }
 
     [TestMethod]
-    public void DefaultStoreId_StoreManager_ReturnsStaffStoreId()
+    public async Task GetDefaultStoreIdAsync_StoreManager_ReturnsStaffStoreId()
     {
         var scope = BuildScope(isStoreManager: true, staffStoreId: "store-a");
-        Assert.AreEqual("store-a", scope.DefaultStoreId);
+        Assert.AreEqual("store-a", await scope.GetDefaultStoreIdAsync());
+    }
+
+    [TestMethod]
+    public void DefaultStoreId_SyncAccess_ThrowsNotSupported()
+    {
+        // DefaultStoreId requires the async IsStoreManager check and deliberately has no
+        // sync-safe implementation - see AdminDiscountDataScope's own doc comment. Every call
+        // site is async and must use GetDefaultStoreIdAsync instead.
+        var scope = BuildScope(isStoreManager: false);
+        Assert.ThrowsExactly<NotSupportedException>(() => _ = scope.DefaultStoreId);
     }
 }

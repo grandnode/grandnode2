@@ -52,18 +52,28 @@ public class RoutedDiscountDataScopeTests
     }
 
     [TestMethod]
-    public void AdminArea_ResolvesToAdminScope()
+    public async Task AdminArea_ResolvesToAdminScope()
     {
         var resolver = ResolverForArea("Admin");
         Assert.AreEqual("Admin", resolver.ResourceKeyPrefix);
-        Assert.IsNull(resolver.DefaultStoreId);
+        Assert.IsNull(await resolver.GetDefaultStoreIdAsync());
     }
 
     [TestMethod]
-    public void StoreArea_ResolvesToStoreScope()
+    public async Task StoreArea_ResolvesToStoreScope()
     {
         var resolver = ResolverForArea("Store");
-        Assert.AreEqual(StaffStoreId, resolver.DefaultStoreId);
+        Assert.AreEqual(StaffStoreId, await resolver.GetDefaultStoreIdAsync());
+    }
+
+    [TestMethod]
+    public void DefaultStoreId_SyncAccess_ThrowsNotSupported_RegardlessOfArea()
+    {
+        // RoutedDiscountDataScope.DefaultStoreId throws unconditionally (not just when Resolved
+        // is AdminDiscountDataScope) - see its own doc comment. Every call site must use
+        // GetDefaultStoreIdAsync instead.
+        var resolver = ResolverForArea("Store");
+        Assert.ThrowsExactly<NotSupportedException>(() => _ = resolver.DefaultStoreId);
     }
 
     [TestMethod]

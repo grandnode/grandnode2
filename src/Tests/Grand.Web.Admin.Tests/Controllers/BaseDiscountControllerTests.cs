@@ -177,7 +177,7 @@ public class BaseDiscountControllerTests
     [TestMethod]
     public async Task Create_Post_DefaultStoreIdSet_ForcesModelStores()
     {
-        _scope.Setup(x => x.DefaultStoreId).Returns("store-A");
+        _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("store-A");
         var model = new DiscountModel { Name = "Test" };
         _vmService.Setup(x => x.InsertDiscountModel(model)).ReturnsAsync(new Discount { Id = "1" });
 
@@ -339,7 +339,7 @@ public class BaseDiscountControllerTests
     [TestMethod]
     public async Task ProductAddPopupList_GlobalScope_LeavesSearchStoreIdUntouched()
     {
-        _scope.Setup(x => x.DefaultStoreId).Returns((string?)null);
+        _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync((string?)null);
         var model = new DiscountModel.AddProductToDiscountModel { SearchStoreId = "client-supplied" };
         _vmService.Setup(x => x.PrepareProductModel(model, 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
@@ -352,7 +352,7 @@ public class BaseDiscountControllerTests
     [TestMethod]
     public async Task ProductAddPopupList_StoreScope_ForcesSearchStoreId()
     {
-        _scope.Setup(x => x.DefaultStoreId).Returns("store-a");
+        _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("store-a");
         var model = new DiscountModel.AddProductToDiscountModel { SearchStoreId = "client-supplied" };
         _vmService.Setup(x => x.PrepareProductModel(model, 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
@@ -445,7 +445,7 @@ public class BaseDiscountControllerTests
     [TestMethod]
     public async Task CategoryAddPopupList_GlobalScope_PassesEmptyStoreId()
     {
-        _scope.Setup(x => x.DefaultStoreId).Returns((string?)null);
+        _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync((string?)null);
         var categoryService = new Mock<ICategoryService>();
         categoryService.Setup(x => x.GetAllCategories(null, null, "", 0, 10, true))
             .ReturnsAsync(new PagedList<Category>(new List<Category>(), 0, 10, 0));
@@ -459,7 +459,7 @@ public class BaseDiscountControllerTests
     [TestMethod]
     public async Task CategoryAddPopupList_StoreScope_PassesScopedStoreId()
     {
-        _scope.Setup(x => x.DefaultStoreId).Returns("store-a");
+        _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("store-a");
         var categoryService = new Mock<ICategoryService>();
         categoryService.Setup(x => x.GetAllCategories(null, null, "store-a", 0, 10, true))
             .ReturnsAsync(new PagedList<Category>(new List<Category>(), 0, 10, 0));
@@ -527,7 +527,7 @@ public class BaseDiscountControllerTests
     [TestMethod]
     public async Task BrandAddPopupList_GlobalScope_PassesEmptyStoreId()
     {
-        _scope.Setup(x => x.DefaultStoreId).Returns((string?)null);
+        _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync((string?)null);
         var brandService = new Mock<IBrandService>();
         brandService.Setup(x => x.GetAllBrands(null, "", 0, 10, true))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand>(), 0, 10, 0));
@@ -541,7 +541,7 @@ public class BaseDiscountControllerTests
     [TestMethod]
     public async Task BrandAddPopupList_StoreScope_PassesScopedStoreId()
     {
-        _scope.Setup(x => x.DefaultStoreId).Returns("store-a");
+        _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("store-a");
         var brandService = new Mock<IBrandService>();
         brandService.Setup(x => x.GetAllBrands(null, "store-a", 0, 10, true))
             .ReturnsAsync(new PagedList<Brand>(new List<Brand>(), 0, 10, 0));
@@ -609,7 +609,7 @@ public class BaseDiscountControllerTests
     [TestMethod]
     public async Task CollectionAddPopupList_GlobalScope_PassesEmptyStoreId()
     {
-        _scope.Setup(x => x.DefaultStoreId).Returns((string?)null);
+        _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync((string?)null);
         var collectionService = new Mock<ICollectionService>();
         collectionService.Setup(x => x.GetAllCollections(null, "", 0, 10, true))
             .ReturnsAsync(new PagedList<Collection>(new List<Collection>(), 0, 10, 0));
@@ -623,7 +623,7 @@ public class BaseDiscountControllerTests
     [TestMethod]
     public async Task CollectionAddPopupList_StoreScope_PassesScopedStoreId()
     {
-        _scope.Setup(x => x.DefaultStoreId).Returns("store-a");
+        _scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("store-a");
         var collectionService = new Mock<ICollectionService>();
         collectionService.Setup(x => x.GetAllCollections(null, "store-a", 0, 10, true))
             .ReturnsAsync(new PagedList<Collection>(new List<Collection>(), 0, 10, 0));
