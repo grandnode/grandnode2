@@ -68,7 +68,8 @@ public abstract class BaseDiscountController(
     {
         if (ModelState.IsValid)
         {
-            if (scope.DefaultStoreId is not null) model.Stores = [scope.DefaultStoreId];
+            var defaultStoreId = await scope.GetDefaultStoreIdAsync();
+            if (defaultStoreId is not null) model.Stores = [defaultStoreId];
             var discount = await discountViewModelService.InsertDiscountModel(model);
             Success(translationService.GetResource("admin.marketing.discounts.Added"));
             return continueEditing ? RedirectToAction("Edit", new { id = discount.Id }) : RedirectToAction("List");
@@ -104,7 +105,8 @@ public abstract class BaseDiscountController(
 
         if (ModelState.IsValid)
         {
-            if (scope.DefaultStoreId is not null) model.Stores = [scope.DefaultStoreId];
+            var defaultStoreId = await scope.GetDefaultStoreIdAsync();
+            if (defaultStoreId is not null) model.Stores = [defaultStoreId];
             discount = await discountViewModelService.UpdateDiscountModel(discount, model);
             Success(translationService.GetResource("admin.marketing.discounts.Updated"));
             if (continueEditing)
@@ -355,7 +357,8 @@ public abstract class BaseDiscountController(
     public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command,
         DiscountModel.AddProductToDiscountModel model)
     {
-        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+        var defaultStoreId = await scope.GetDefaultStoreIdAsync();
+        if (defaultStoreId is not null) model.SearchStoreId = defaultStoreId;
         var products = await discountViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
         return Json(new DataSourceResult { Data = products.products.ToList(), Total = products.totalCount });
     }
@@ -444,7 +447,7 @@ public abstract class BaseDiscountController(
         DiscountModel.AddCategoryToDiscountModel model, [FromServices] ICategoryService categoryService)
     {
         var categories = await categoryService.GetAllCategories(parentId: null, categoryName: model.SearchCategoryName,
-            storeId: scope.DefaultStoreId ?? "", pageIndex: command.Page - 1, pageSize: command.PageSize, showHidden: true);
+            storeId: await scope.GetDefaultStoreIdAsync() ?? "", pageIndex: command.Page - 1, pageSize: command.PageSize, showHidden: true);
         var items = new List<CategoryModel>();
         foreach (var item in categories)
         {
@@ -536,7 +539,7 @@ public abstract class BaseDiscountController(
         DiscountModel.AddBrandToDiscountModel model, [FromServices] IBrandService brandService)
     {
         var brands = await brandService.GetAllBrands(model.SearchBrandName,
-            scope.DefaultStoreId ?? "", command.Page - 1, command.PageSize, true);
+            await scope.GetDefaultStoreIdAsync() ?? "", command.Page - 1, command.PageSize, true);
         return Json(new DataSourceResult { Data = brands.Select(x => x.ToModel()), Total = brands.TotalCount });
     }
 
@@ -621,7 +624,7 @@ public abstract class BaseDiscountController(
         DiscountModel.AddCollectionToDiscountModel model, [FromServices] ICollectionService collectionService)
     {
         var collections = await collectionService.GetAllCollections(model.SearchCollectionName,
-            scope.DefaultStoreId ?? "", command.Page - 1, command.PageSize, true);
+            await scope.GetDefaultStoreIdAsync() ?? "", command.Page - 1, command.PageSize, true);
         return Json(new DataSourceResult { Data = collections.Select(x => x.ToModel()), Total = collections.TotalCount });
     }
 

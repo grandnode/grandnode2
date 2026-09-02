@@ -47,18 +47,19 @@ public class AdminDiscountDataScope(IContextAccessor contextAccessor, IGroupServ
         return entity.AccessToEntityByStore(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
     }
 
-    // DefaultStoreId is a synchronous property on IAdminDataScope<TEntity>, but IsStoreManager is
-    // async and this codebase has no sync-safe path to it (Customer/IGroupService expose no cached
-    // sync flag - confirmed by inspection, unlike AdminOrderDataScope's DefaultStoreId which is a
-    // hardcoded null and never needed this branch). Blocking on the async call here is a disclosed,
-    // pragmatic fallback: ASP.NET Core (Kestrel) has no capturing SynchronizationContext, so this
-    // does not carry the classic deadlock risk it would under ASP.NET Framework, but it is still a
-    // blocking call on an async check and is otherwise unprecedented in this project (no existing
-    // `.GetAwaiter().GetResult()` usage under Grand.Web.AdminShared/Services) - flagged for review.
+    // The synchronous DefaultStoreId required by IAdminDataScope<TEntity> has no sync-safe
+    // implementation here: it depends on IsStoreManager, which is async, and this codebase forbids
+    // blocking on a Task (`.GetAwaiter().GetResult()`) in request/service code - see
+    // `.ai/constraints.md` "Never block on a Task". Unlike AdminOrderDataScope's DefaultStoreId
+    // (hardcoded null, no I/O needed), this scope genuinely cannot answer synchronously. Every call
+    // site (BaseDiscountController) is already async, so it uses GetDefaultStoreIdAsync below
+    // instead; this member throws rather than silently blocking or returning a wrong answer.
     public string? DefaultStoreId =>
-        DefaultStoreIdAsync().GetAwaiter().GetResult();
+        throw new NotSupportedException(
+            $"{nameof(AdminDiscountDataScope)}.{nameof(DefaultStoreId)} requires an async customer-group " +
+            $"check and has no sync-safe implementation. Use {nameof(GetDefaultStoreIdAsync)} instead.");
 
-    private async Task<string?> DefaultStoreIdAsync()
+    public async Task<string?> GetDefaultStoreIdAsync()
     {
         var isStoreManager = await groupService.IsStoreManager(contextAccessor.WorkContext.CurrentCustomer);
         return isStoreManager ? contextAccessor.WorkContext.CurrentCustomer.StaffStoreId : null;

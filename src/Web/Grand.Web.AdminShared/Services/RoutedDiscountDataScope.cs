@@ -40,7 +40,16 @@ public class RoutedDiscountDataScope(
 
     public Task<bool> HasAccess(Discount entity) => Resolved.HasAccess(entity);
     public Task<bool> CanView(Discount entity) => Resolved.CanView(entity);
-    public string? DefaultStoreId => Resolved.DefaultStoreId;
+
+    // Not Resolved.DefaultStoreId: when Resolved is AdminDiscountDataScope that throws
+    // (see its own doc comment) - forwarding here would just relocate the same trap. Every call
+    // site uses GetDefaultStoreIdAsync below, which both branches answer without blocking.
+    public string? DefaultStoreId =>
+        throw new NotSupportedException(
+            $"{nameof(RoutedDiscountDataScope)}.{nameof(DefaultStoreId)} may resolve to a scope with " +
+            $"no sync-safe implementation. Use {nameof(GetDefaultStoreIdAsync)} instead.");
+
+    public Task<string?> GetDefaultStoreIdAsync() => Resolved.GetDefaultStoreIdAsync();
     public string ResourceKeyPrefix => Resolved.ResourceKeyPrefix;
     public bool ShowStoreSelector => Resolved.ShowStoreSelector;
     public string? DefaultVendorId => Resolved.DefaultVendorId;
