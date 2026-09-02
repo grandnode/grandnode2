@@ -158,7 +158,7 @@ public abstract class BaseDiscountController(
     [AcceptVerbs("GET")]
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> GetDiscountRequirementConfigurationUrl(string rulesystemName,
-        string discountId, string discountRequirementId)
+        string discountId, string discountRequirementId = null)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(rulesystemName);
 
@@ -175,7 +175,7 @@ public abstract class BaseDiscountController(
         var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x =>
             x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase));
         var url = discountViewModelService.GetRequirementUrlInternal(singleRequirement, discount,
-            discountRequirementId);
+            discountRequirementId ?? string.Empty);
         return Json(new { url });
     }
 
