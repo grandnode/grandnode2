@@ -10,6 +10,7 @@ using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Blogs;
+using Grand.Web.AdminShared.Models.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -195,5 +196,47 @@ public class BaseBlogControllerTests
         await _controller.Create(submitted, false);
 
         _blogViewModelServiceMock.Verify(v => v.InsertBlogPostModel(It.IsAny<BlogPostModel>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupGet_ScopeDeniesAccess_ReturnsDeniedContent()
+    {
+        var post = new BlogPost { Id = "p1", PictureId = "pic-1" };
+        _blogServiceMock.Setup(b => b.GetBlogPostById("p1")).ReturnsAsync(post);
+        _postScopeMock.Setup(s => s.HasAccess(post)).ReturnsAsync(false);
+
+        var result = await _controller.PicturePopup("p1");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("You don't have access to this blog post", content.Content);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupGet_PostNotFound_ReturnsNotExistContent()
+    {
+        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost)null);
+
+        var result = await _controller.PicturePopup("missing");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("Blog post not exist", content.Content);
+        _postScopeMock.Verify(s => s.HasAccess(It.IsAny<BlogPost>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_ScopeDeniesAccess_ReturnsDeniedContent()
+    {
+        var post = new BlogPost { Id = "p1", PictureId = "pic-1" };
+        _blogServiceMock.Setup(b => b.GetBlogPostById("p1")).ReturnsAsync(post);
+        _postScopeMock.Setup(s => s.HasAccess(post)).ReturnsAsync(false);
+
+        var model = new PictureModel { ObjectId = "p1", Id = "pic-1" };
+        var result = await _controller.PicturePopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("You don't have access to this blog post", content.Content);
     }
 }

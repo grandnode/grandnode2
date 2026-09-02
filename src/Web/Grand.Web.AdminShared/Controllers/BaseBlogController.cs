@@ -187,4 +187,40 @@ public abstract class BaseBlogController(
     }
 
     #endregion
+
+    #region Picture
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> PicturePopup(string blogpostId)
+    {
+        var blogpost = await blogService.GetBlogPostById(blogpostId);
+        if (blogpost == null) return Content("Blog post not exist");
+        if (!await postScope.HasAccess(blogpost)) return Content(NoAccessToBlogPostMessage);
+        if (string.IsNullOrEmpty(blogpost.PictureId)) return Content("Picture not exist");
+
+        return View("Partials/PicturePopup",
+            await pictureViewModelService.PreparePictureModel(blogpost.PictureId, blogpost.Id));
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> PicturePopup(PictureModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var blogpost = await blogService.GetBlogPostById(model.ObjectId);
+            if (blogpost == null) throw new ArgumentException("No blog post found with the specified id");
+            if (!await postScope.HasAccess(blogpost)) return Content(NoAccessToBlogPostMessage);
+            if (string.IsNullOrEmpty(blogpost.PictureId)) throw new ArgumentException("No picture found with the specified id");
+            if (blogpost.PictureId != model.Id) throw new ArgumentException("Picture ident doesn't fit with blog post");
+
+            await pictureViewModelService.UpdatePicture(model);
+            return Content("");
+        }
+
+        Error(ModelState);
+        return View("Partials/PicturePopup", model);
+    }
+
+    #endregion
 }
