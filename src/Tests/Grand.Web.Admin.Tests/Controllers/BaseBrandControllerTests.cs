@@ -147,4 +147,132 @@ public class BaseBrandControllerTests
 
         Assert.AreEqual("admin-submitted-store", model.SearchStoreId);
     }
+
+    // --- Edit (GET) --------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task EditGet_BrandNotFound_RedirectsToList()
+    {
+        _brandServiceMock.Setup(b => b.GetBrandById("missing")).ReturnsAsync((Brand)null);
+
+        var result = await _controller.Edit("missing");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        _scopeMock.Verify(s => s.CanView(It.IsAny<Brand>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EditGet_ScopeDeniesView_RedirectsToList()
+    {
+        var brand = new Brand { Id = "b1" };
+        _brandServiceMock.Setup(b => b.GetBrandById("b1")).ReturnsAsync(brand);
+        _scopeMock.Setup(s => s.CanView(brand)).ReturnsAsync(false);
+
+        var result = await _controller.Edit("b1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task EditGet_ScopeAllowsView_ReturnsViewWithModel()
+    {
+        var brand = new Brand { Id = "b1", Name = "Acme" };
+        _brandServiceMock.Setup(b => b.GetBrandById("b1")).ReturnsAsync(brand);
+        _scopeMock.Setup(s => s.CanView(brand)).ReturnsAsync(true);
+
+        var result = await _controller.Edit("b1");
+
+        var view = result as ViewResult;
+        Assert.IsNotNull(view);
+        Assert.AreEqual("Acme", ((BrandModel)view.Model).Name);
+    }
+
+    // --- Edit (POST) -------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task EditPost_ScopeDeniesAccess_RedirectsToEdit()
+    {
+        var brand = new Brand { Id = "b1" };
+        _brandServiceMock.Setup(b => b.GetBrandById("b1")).ReturnsAsync(brand);
+        _scopeMock.Setup(s => s.HasAccess(brand)).ReturnsAsync(false);
+
+        var result = await _controller.Edit(new BrandModel { Id = "b1" }, false);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        _brandViewModelServiceMock.Verify(v => v.UpdateBrandModel(It.IsAny<Brand>(), It.IsAny<BrandModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EditPost_StoreScoped_ForcesModelStores()
+    {
+        var brand = new Brand { Id = "b1" };
+        _brandServiceMock.Setup(b => b.GetBrandById("b1")).ReturnsAsync(brand);
+        _scopeMock.Setup(s => s.HasAccess(brand)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _brandViewModelServiceMock
+            .Setup(v => v.UpdateBrandModel(brand, It.IsAny<BrandModel>()))
+            .ReturnsAsync(brand)
+            .Callback<Brand, BrandModel>((_, m) => CollectionAssert.AreEqual(new[] { "store-1" }, m.Stores));
+
+        await _controller.Edit(new BrandModel { Id = "b1" }, false);
+
+        _brandViewModelServiceMock.Verify(v => v.UpdateBrandModel(brand, It.IsAny<BrandModel>()), Times.Once);
+    }
+
+    // --- Delete --------------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task Delete_ScopeDeniesAccess_RedirectsToEditWithoutDeleting()
+    {
+        var brand = new Brand { Id = "b1" };
+        _brandServiceMock.Setup(b => b.GetBrandById("b1")).ReturnsAsync(brand);
+        _scopeMock.Setup(s => s.HasAccess(brand)).ReturnsAsync(false);
+
+        var result = await _controller.Delete("b1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.AreEqual("b1", redirect.RouteValues["id"]);
+        _brandViewModelServiceMock.Verify(v => v.DeleteBrand(It.IsAny<Brand>()), Times.Never);
+    }
+
+    // --- Create (POST) ------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task CreatePost_StoreScoped_ForcesModelStores()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var inserted = new Brand { Id = "new-1" };
+        _brandViewModelServiceMock
+            .Setup(v => v.InsertBrandModel(It.IsAny<BrandModel>()))
+            .ReturnsAsync(inserted)
+            .Callback<BrandModel>(m => CollectionAssert.AreEqual(new[] { "store-1" }, m.Stores));
+
+        await _controller.Create(new BrandModel { Name = "N" }, false);
+
+        _brandViewModelServiceMock.Verify(v => v.InsertBrandModel(It.IsAny<BrandModel>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CreatePost_GlobalScoped_LeavesModelStoresUntouched()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        var inserted = new Brand { Id = "new-1" };
+        var submitted = new BrandModel { Name = "N", Stores = ["explicit-store"] };
+        _brandViewModelServiceMock
+            .Setup(v => v.InsertBrandModel(It.IsAny<BrandModel>()))
+            .ReturnsAsync(inserted)
+            .Callback<BrandModel>(m => CollectionAssert.AreEqual(new[] { "explicit-store" }, m.Stores));
+
+        await _controller.Create(submitted, false);
+
+        _brandViewModelServiceMock.Verify(v => v.InsertBrandModel(It.IsAny<BrandModel>()), Times.Once);
+    }
 }

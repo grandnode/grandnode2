@@ -1,3 +1,4 @@
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -8,6 +9,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -76,6 +78,125 @@ public abstract class BaseBrandController(
         };
 
         return Json(gridModel);
+    }
+
+    #endregion
+
+    #region Create / Edit / Delete
+
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public async Task<IActionResult> Create([FromServices] CatalogSettings catalogSettings)
+    {
+        var model = new BrandModel();
+        await AddLocales(languageService, model.Locales);
+        await brandViewModelService.PrepareLayoutsModel(model);
+        await brandViewModelService.PrepareDiscountModel(model, null, true);
+        model.PageSize = catalogSettings.DefaultPageSize;
+        model.PageSizeOptions = catalogSettings.DefaultPageSizeOptions;
+        model.Published = true;
+        model.AllowCustomersToSelectPageSize = true;
+        brandViewModelService.PrepareSortOptionsModel(model);
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Create(BrandModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
+        {
+            if (scope.DefaultStoreId is not null) model.Stores = [scope.DefaultStoreId];
+            var brand = await brandViewModelService.InsertBrandModel(model);
+            Success(translationService.GetResource("Admin.Catalog.Brands.Added"));
+            return continueEditing ? RedirectToAction("Edit", new { id = brand.Id }) : RedirectToAction("List");
+        }
+
+        await brandViewModelService.PrepareLayoutsModel(model);
+        await brandViewModelService.PrepareDiscountModel(model, null, true);
+        brandViewModelService.PrepareSortOptionsModel(model);
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var brand = await brandService.GetBrandById(id);
+        if (brand == null) return RedirectToAction("List");
+
+        EditWarningCheck(brand);
+        // CanView, not HasAccess: viewing a shared/global brand is allowed on Store (with a
+        // warning from EditWarningCheck above); only mutating one is restricted to the exclusive
+        // single-store owner. See IAdminDataScope<TEntity>.CanView's doc comment.
+        if (!await scope.CanView(brand)) return RedirectToAction("List");
+
+        var model = brand.ToModel();
+        await AddLocales(languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.Name = brand.GetTranslation(x => x.Name, languageId, false);
+            locale.Description = brand.GetTranslation(x => x.Description, languageId, false);
+            locale.BottomDescription = brand.GetTranslation(x => x.BottomDescription, languageId, false);
+            locale.MetaKeywords = brand.GetTranslation(x => x.MetaKeywords, languageId, false);
+            locale.MetaDescription = brand.GetTranslation(x => x.MetaDescription, languageId, false);
+            locale.MetaTitle = brand.GetTranslation(x => x.MetaTitle, languageId, false);
+            locale.SeName = brand.GetSeName(languageId, false);
+        });
+        await brandViewModelService.PrepareLayoutsModel(model);
+        await brandViewModelService.PrepareDiscountModel(model, brand, false);
+        brandViewModelService.PrepareSortOptionsModel(model);
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Edit(BrandModel model, bool continueEditing)
+    {
+        var brand = await brandService.GetBrandById(model.Id);
+        if (brand == null) return RedirectToAction("List");
+        if (!await scope.HasAccess(brand)) return RedirectToAction("Edit", new { id = brand.Id });
+
+        if (ModelState.IsValid)
+        {
+            if (scope.DefaultStoreId is not null) model.Stores = [scope.DefaultStoreId];
+            brand = await brandViewModelService.UpdateBrandModel(brand, model);
+            Success(translationService.GetResource("Admin.Catalog.Brands.Updated"));
+
+            if (continueEditing)
+            {
+                await SaveSelectedTabIndex();
+                return RedirectToAction("Edit", new { id = brand.Id });
+            }
+            return RedirectToAction("List");
+        }
+
+        await brandViewModelService.PrepareLayoutsModel(model);
+        await brandViewModelService.PrepareDiscountModel(model, brand, true);
+        brandViewModelService.PrepareSortOptionsModel(model);
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var brand = await brandService.GetBrandById(id);
+        if (brand == null) return RedirectToAction("List");
+        if (!await scope.HasAccess(brand)) return RedirectToAction("Edit", new { id = brand.Id });
+
+        if (ModelState.IsValid)
+        {
+            await brandViewModelService.DeleteBrand(brand);
+            Success(translationService.GetResource("Admin.Catalog.Brands.Deleted"));
+            return RedirectToAction("List");
+        }
+
+        Error(ModelState);
+        return RedirectToAction("Edit", new { id = brand.Id });
     }
 
     #endregion
