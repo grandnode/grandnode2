@@ -359,4 +359,39 @@ public class BaseBlogControllerTests
 
         Assert.AreEqual("store-1", model.SearchStoreId);
     }
+
+    [TestMethod]
+    public async Task CommentDelete_ScopeDeniesAccess_ReturnsKendoErrorWithoutDeleting()
+    {
+        var comment = new Grand.Domain.Blogs.BlogComment { Id = "cm1", BlogPostId = "p1" };
+        var post = new BlogPost { Id = "p1" };
+        _blogServiceMock.Setup(b => b.GetBlogCommentById("cm1")).ReturnsAsync(comment);
+        _blogServiceMock.Setup(b => b.GetBlogPostById("p1")).ReturnsAsync(post);
+        _postScopeMock.Setup(s => s.HasAccess(post)).ReturnsAsync(false);
+
+        var result = await _controller.CommentDelete("cm1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _blogServiceMock.Verify(b => b.DeleteBlogComment(It.IsAny<Grand.Domain.Blogs.BlogComment>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CommentDelete_ScopeGrantsAccess_DeletesAndUpdatesCommentCount()
+    {
+        var comment = new Grand.Domain.Blogs.BlogComment { Id = "cm1", BlogPostId = "p1" };
+        var post = new BlogPost { Id = "p1", CommentCount = 3 };
+        _blogServiceMock.Setup(b => b.GetBlogCommentById("cm1")).ReturnsAsync(comment);
+        _blogServiceMock.Setup(b => b.GetBlogPostById("p1")).ReturnsAsync(post);
+        _postScopeMock.Setup(s => s.HasAccess(post)).ReturnsAsync(true);
+        _blogServiceMock.Setup(b => b.GetBlogCommentsByBlogPostId("p1"))
+            .ReturnsAsync(new List<Grand.Domain.Blogs.BlogComment> { new(), new() });
+
+        await _controller.CommentDelete("cm1");
+
+        _blogServiceMock.Verify(b => b.DeleteBlogComment(comment), Times.Once);
+        _blogServiceMock.Verify(b => b.UpdateBlogPost(It.Is<BlogPost>(p => p.CommentCount == 2)), Times.Once);
+    }
 }

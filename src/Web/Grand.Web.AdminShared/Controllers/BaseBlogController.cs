@@ -446,4 +446,47 @@ public abstract class BaseBlogController(
     }
 
     #endregion
+
+    #region Comments
+
+    public IActionResult Comments(string filterByBlogPostId)
+    {
+        ViewBag.FilterByBlogPostId = filterByBlogPostId;
+        return View();
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    [HttpPost]
+    public async Task<IActionResult> Comments(string filterByBlogPostId, DataSourceRequest command)
+    {
+        var model = await blogViewModelService.PrepareBlogPostCommentsModel(filterByBlogPostId, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = model.blogComments,
+            Total = model.totalCount
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    public async Task<IActionResult> CommentDelete(string id)
+    {
+        var comment = await blogService.GetBlogCommentById(id);
+        if (comment == null) throw new ArgumentException("No comment found with the specified id");
+
+        var blogPost = await blogService.GetBlogPostById(comment.BlogPostId);
+        if (!await postScope.HasAccess(blogPost)) return ErrorForKendoGridJson(NoAccessToBlogPostMessage);
+
+        if (ModelState.IsValid)
+        {
+            await blogService.DeleteBlogComment(comment);
+            var comments = await blogService.GetBlogCommentsByBlogPostId(blogPost.Id);
+            blogPost.CommentCount = comments.Count;
+            await blogService.UpdateBlogPost(blogPost);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    #endregion
 }
