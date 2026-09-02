@@ -35,7 +35,6 @@ public class DiscountController : BaseAdminController
         ITranslationService translationService,
         IContextAccessor contextAccessor,
         IDateTimeService dateTimeService,
-        IGroupService groupService,
         IDiscountProviderLoader discountProviderLoader,
         IMediator mediator)
     {
@@ -44,7 +43,6 @@ public class DiscountController : BaseAdminController
         _translationService = translationService;
         _contextAccessor = contextAccessor;
         _dateTimeService = dateTimeService;
-        _groupService = groupService;
         _discountProviderLoader = discountProviderLoader;
         _mediator = mediator;
     }
@@ -58,7 +56,6 @@ public class DiscountController : BaseAdminController
     private readonly ITranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IDateTimeService _dateTimeService;
-    private readonly IGroupService _groupService;
     private readonly IDiscountProviderLoader _discountProviderLoader;
     private readonly IMediator _mediator;
 
@@ -110,9 +107,6 @@ public class DiscountController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-                model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
-
             var discount = await _discountViewModelService.InsertDiscountModel(model);
             Success(_translationService.GetResource("admin.marketing.discounts.Added"));
             return continueEditing ? RedirectToAction("Edit", new { id = discount.Id }) : RedirectToAction("List");
@@ -133,21 +127,6 @@ public class DiscountController : BaseAdminController
             //No discount found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-        {
-            if (!discount.LimitedToStores || (discount.LimitedToStores &&
-                                              discount.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
-                                              discount.Stores.Count > 1))
-            {
-                Warning(_translationService.GetResource("admin.marketing.discounts.Permissions"));
-            }
-            else
-            {
-                if (!discount.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                    return RedirectToAction("List");
-            }
-        }
-
         var model = discount.ToModel(_dateTimeService);
         await _discountViewModelService.PrepareDiscountModel(model, discount);
 
@@ -164,15 +143,8 @@ public class DiscountController : BaseAdminController
             //No discount found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!discount.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return RedirectToAction("Edit", new { id = discount.Id });
-
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-                model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
-
             discount = await _discountViewModelService.UpdateDiscountModel(discount, model);
             Success(_translationService.GetResource("admin.marketing.discounts.Updated"));
             if (continueEditing)
@@ -200,10 +172,6 @@ public class DiscountController : BaseAdminController
         if (discount == null)
             //No discount found with the specified id
             return RedirectToAction("List");
-
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!discount.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return RedirectToAction("Edit", new { id = discount.Id });
 
         var usageHistory = await _mediator.Send(new GetDiscountUsageHistoryQuery { DiscountId = discount.Id });
         if (usageHistory.Count > 0)

@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Domain.Permissions;
@@ -27,7 +26,6 @@ public class CourseController : BaseAdminController
     private readonly ICourseService _courseService;
     private readonly ICourseSubjectService _courseSubjectService;
     private readonly ICourseViewModelService _courseViewModelService;
-    private readonly IGroupService _groupService;
     private readonly ILanguageService _languageService;
 
     private readonly ITranslationService _translationService;
@@ -41,8 +39,7 @@ public class CourseController : BaseAdminController
         ICourseLessonService courseLessonService,
         ICourseViewModelService courseViewModelService,
         IContextAccessor contextAccessor,
-        ILanguageService languageService,
-        IGroupService groupService)
+        ILanguageService languageService)
     {
         _translationService = translationService;
         _courseLevelService = courseLevelService;
@@ -52,7 +49,6 @@ public class CourseController : BaseAdminController
         _courseViewModelService = courseViewModelService;
         _contextAccessor = contextAccessor;
         _languageService = languageService;
-        _groupService = groupService;
     }
 
 
@@ -155,9 +151,6 @@ public class CourseController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-                model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
-
             var course = await _courseViewModelService.InsertCourseModel(model);
             Success(_translationService.GetResource("Admin.Courses.Course.Added"));
             return continueEditing ? RedirectToAction("Edit", new { id = course.Id }) : RedirectToAction("List");
@@ -176,21 +169,6 @@ public class CourseController : BaseAdminController
         if (course == null)
             //No course found with the specified id
             return RedirectToAction("List");
-
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-        {
-            if (!course.LimitedToStores || (course.LimitedToStores &&
-                                            course.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
-                                            course.Stores.Count > 1))
-            {
-                Warning(_translationService.GetResource("Admin.Courses.Course.Permissions"));
-            }
-            else
-            {
-                if (!course.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                    return RedirectToAction("List");
-            }
-        }
 
         var model = course.ToModel();
         //locales
@@ -220,15 +198,8 @@ public class CourseController : BaseAdminController
             //No course found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!course.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return RedirectToAction("Edit", new { id = course.Id });
-
         if (ModelState.IsValid)
         {
-            if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-                model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
-
             course = await _courseViewModelService.UpdateCourseModel(course, model);
 
             Success(_translationService.GetResource("Admin.Courses.Course.Updated"));
@@ -257,10 +228,6 @@ public class CourseController : BaseAdminController
         if (course == null)
             //No course found with the specified id
             return RedirectToAction("List");
-
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!course.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return RedirectToAction("Edit", new { id = course.Id });
 
         if (ModelState.IsValid)
         {
@@ -394,21 +361,6 @@ public class CourseController : BaseAdminController
             //No course found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-        {
-            if (!course.LimitedToStores || (course.LimitedToStores &&
-                                            course.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
-                                            course.Stores.Count > 1))
-            {
-                Warning(_translationService.GetResource("Admin.Courses.Course.Permissions"));
-            }
-            else
-            {
-                if (!course.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                    return RedirectToAction("List");
-            }
-        }
-
         var model = await _courseViewModelService.PrepareCourseLessonModel(courseId);
 
         return View(model);
@@ -423,21 +375,6 @@ public class CourseController : BaseAdminController
         if (course == null)
             //No course found with the specified id
             return RedirectToAction("List");
-
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-        {
-            if (!course.LimitedToStores || (course.LimitedToStores &&
-                                            course.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
-                                            course.Stores.Count > 1))
-            {
-                Warning(_translationService.GetResource("Admin.Courses.Course.Permissions"));
-            }
-            else
-            {
-                if (!course.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                    return RedirectToAction("List");
-            }
-        }
 
         if (ModelState.IsValid)
         {
@@ -468,21 +405,6 @@ public class CourseController : BaseAdminController
             //No course found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-        {
-            if (!course.LimitedToStores || (course.LimitedToStores &&
-                                            course.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
-                                            course.Stores.Count > 1))
-            {
-                Warning(_translationService.GetResource("Admin.Courses.Course.Permissions"));
-            }
-            else
-            {
-                if (!course.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                    return RedirectToAction("List");
-            }
-        }
-
         var model = lesson.ToModel();
         model = await _courseViewModelService.PrepareCourseLessonModel(lesson.CourseId, model);
         return View(model);
@@ -503,9 +425,6 @@ public class CourseController : BaseAdminController
             //No category found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!course.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return RedirectToAction("Edit", new { id = course.Id });
         if (ModelState.IsValid)
         {
             lesson = await _courseViewModelService.UpdateCourseLessonModel(lesson, model);
@@ -541,9 +460,6 @@ public class CourseController : BaseAdminController
             //No category found with the specified id
             return RedirectToAction("List");
 
-        if (await _groupService.IsStoreManager(_contextAccessor.WorkContext.CurrentCustomer))
-            if (!course.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return RedirectToAction("Edit", new { id = course.Id });
         await _courseViewModelService.DeleteCourseLesson(lesson);
         Success(_translationService.GetResource("Admin.Courses.Course.Lesson.Deleted"));
 
