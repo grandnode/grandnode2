@@ -6,7 +6,6 @@ using Grand.Domain;
 using Grand.Domain.Discounts;
 using Grand.Domain.Permissions;
 using Grand.Domain.Vendors;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Mapper;
 using Grand.Mapping;
 using Grand.Mediator;
@@ -23,12 +22,13 @@ using Moq;
 namespace Grand.Web.Admin.Tests.Controllers;
 
 /// <summary>
-/// ARCH-001 / Task 7b: regression coverage for the Admin-only "Applied to vendors" region on
+/// ARCH-001 / Task 9: regression coverage for the Admin-only "Applied to vendors" region on
 /// Grand.Web.Admin.Controllers.DiscountController. This region has no Store counterpart (Store's
 /// original DiscountController never had a Vendor tab) so it lives directly on the concrete Admin
-/// controller rather than BaseDiscountController. These tests lock in the CURRENT, unchanged
-/// behavior of VendorList/VendorDelete/VendorAddPopup(get)/VendorAddPopupList/VendorAddPopup(post)
-/// so Task 9 can safely fold them into a thin BaseDiscountController subclass later.
+/// controller rather than BaseDiscountController. Task 7b's version had no discount-scope access
+/// check at all; Task 9 folded these actions onto the injected IAdminDataScope&lt;Discount&gt; scope
+/// (VendorList -> CanView, the other four -> HasAccess), matching every other region in
+/// BaseDiscountController. These tests exercise that scope-gated behavior.
 /// </summary>
 [TestClass]
 public class DiscountControllerVendorTests
@@ -36,6 +36,7 @@ public class DiscountControllerVendorTests
     private Mock<IDiscountViewModelService> _vmService = null!;
     private Mock<IDiscountService> _service = null!;
     private Mock<IVendorService> _vendorService = null!;
+    private Mock<IAdminDataScope<Discount>> _scope = null!;
     private DiscountController _sut = null!;
 
     [TestInitialize]
@@ -50,6 +51,9 @@ public class DiscountControllerVendorTests
         _vmService = new Mock<IDiscountViewModelService>();
         _service = new Mock<IDiscountService>();
         _vendorService = new Mock<IVendorService>();
+        _scope = new Mock<IAdminDataScope<Discount>>();
+        _scope.Setup(x => x.HasAccess(It.IsAny<Discount>())).ReturnsAsync(true);
+        _scope.Setup(x => x.CanView(It.IsAny<Discount>())).ReturnsAsync(true);
 
         var translationServiceMock = new Mock<ITranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
@@ -58,11 +62,10 @@ public class DiscountControllerVendorTests
             _vmService.Object,
             _service.Object,
             translationServiceMock.Object,
-            Mock.Of<IContextAccessor>(),
             Mock.Of<IDateTimeService>(),
-            Mock.Of<IGroupService>(),
+            Mock.Of<IMediator>(),
             Mock.Of<IDiscountProviderLoader>(),
-            Mock.Of<IMediator>());
+            _scope.Object);
     }
 
     [TestMethod]
@@ -134,9 +137,12 @@ public class DiscountControllerVendorTests
     }
 
     [TestMethod]
-    public void VendorAddPopup_Get_ReturnsViewWithEmptyModel()
+    public async Task VendorAddPopup_Get_ReturnsViewWithEmptyModel()
     {
-        var result = _sut.VendorAddPopup("1") as ViewResult;
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+
+        var result = await _sut.VendorAddPopup("1") as ViewResult;
 
         Assert.IsNotNull(result);
         Assert.IsInstanceOfType(result!.Model, typeof(DiscountModel.AddVendorToDiscountModel));
@@ -161,6 +167,60 @@ public class DiscountControllerVendorTests
         await _sut.VendorAddPopup(model);
 
         _vmService.Verify(x => x.InsertVendorToDiscountModel(model), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task VendorList_ScopeDeniesCanView_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.CanView(discount)).ReturnsAsync(false);
+
+        var result = await _sut.VendorList(new DataSourceRequest(), "1", _vendorService.Object) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task VendorDelete_ScopeDeniesHasAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        var vendor = new Vendor { Id = "v1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _vendorService.Setup(x => x.GetVendorById("v1")).ReturnsAsync(vendor);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+
+        await _sut.VendorDelete("1", "v1", _vendorService.Object);
+
+        _vmService.Verify(x => x.DeleteVendor(discount, vendor), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task VendorAddPopup_Get_ScopeDeniesHasAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+
+        var result = await _sut.VendorAddPopup("1") as JsonResult;
+
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task VendorAddPopup_Post_ScopeDeniesHasAccess_ReturnsAccessDeniedContent()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+        var model = new DiscountModel.AddVendorToDiscountModel { DiscountId = "1", SelectedVendorIds = ["v1"] };
+
+        var result = await _sut.VendorAddPopup(model) as ContentResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Access denied", result!.Content);
+        _vmService.Verify(x => x.InsertVendorToDiscountModel(model), Times.Never);
     }
 }
 
