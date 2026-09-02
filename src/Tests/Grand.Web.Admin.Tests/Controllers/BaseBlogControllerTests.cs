@@ -11,6 +11,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Blogs;
 using Grand.Web.AdminShared.Models.Common;
+using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -238,5 +239,56 @@ public class BaseBlogControllerTests
         var content = result as ContentResult;
         Assert.IsNotNull(content);
         Assert.AreEqual("You don't have access to this blog post", content.Content);
+    }
+
+    [TestMethod]
+    public async Task CategoryListPost_ForcesScopeDefaultStoreId()
+    {
+        _categoryScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _blogServiceMock.Setup(b => b.GetAllBlogCategories("store-1")).ReturnsAsync(new List<BlogCategory>());
+
+        await _controller.CategoryList(new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        _blogServiceMock.Verify(b => b.GetAllBlogCategories("store-1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CategoryListPost_GlobalScope_PassesEmptyString()
+    {
+        _categoryScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _blogServiceMock.Setup(b => b.GetAllBlogCategories("")).ReturnsAsync(new List<BlogCategory>());
+
+        await _controller.CategoryList(new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        _blogServiceMock.Verify(b => b.GetAllBlogCategories(""), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CategoryEditGet_ScopeDeniesAccess_RedirectsToCategoryList()
+    {
+        var category = new BlogCategory { Id = "c1" };
+        _blogServiceMock.Setup(b => b.GetBlogCategoryById("c1")).ReturnsAsync(category);
+        _categoryScopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(false);
+
+        var result = await _controller.CategoryEdit("c1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("CategoryList", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task CategoryDelete_ScopeDeniesAccess_RedirectsToCategoryListWithoutDeleting()
+    {
+        var category = new BlogCategory { Id = "c1" };
+        _blogServiceMock.Setup(b => b.GetBlogCategoryById("c1")).ReturnsAsync(category);
+        _categoryScopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(false);
+
+        var result = await _controller.CategoryDelete("c1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("CategoryList", redirect.ActionName);
+        _blogServiceMock.Verify(b => b.DeleteBlogCategory(It.IsAny<BlogCategory>()), Times.Never);
     }
 }

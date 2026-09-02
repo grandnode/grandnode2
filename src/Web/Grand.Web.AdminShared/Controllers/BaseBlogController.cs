@@ -223,4 +223,125 @@ public abstract class BaseBlogController(
     }
 
     #endregion
+
+    #region Categories
+
+    public IActionResult CategoryList() => View();
+
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    [HttpPost]
+    public async Task<IActionResult> CategoryList(DataSourceRequest command)
+    {
+        var categories = await blogService.GetAllBlogCategories(categoryScope.DefaultStoreId ?? "");
+        var gridModel = new DataSourceResult {
+            Data = categories,
+            Total = categories.Count
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
+    public async Task<IActionResult> CategoryCreate()
+    {
+        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
+        var model = new BlogCategoryModel();
+        await AddLocales(languageService, model.Locales);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> CategoryCreate(BlogCategoryModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
+        {
+            if (categoryScope.DefaultStoreId is not null) model.Stores = [categoryScope.DefaultStoreId];
+            var blogCategory = model.ToEntity();
+            blogCategory.SeName = SeoExtensions.GetSeName(
+                string.IsNullOrEmpty(blogCategory.SeName) ? blogCategory.Name : blogCategory.SeName,
+                seoSettings.ConvertNonWesternChars, seoSettings.AllowUnicodeCharsInUrls, seoSettings.SeoCharConversion);
+
+            await blogService.InsertBlogCategory(blogCategory);
+            Success(translationService.GetResource("Admin.Content.Blog.BlogCategory.Added"));
+            return continueEditing
+                ? RedirectToAction("CategoryEdit", new { id = blogCategory.Id })
+                : RedirectToAction(CategoryListAction);
+        }
+
+        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
+        await AddLocales(languageService, model.Locales);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> CategoryEdit(string id)
+    {
+        var blogCategory = await blogService.GetBlogCategoryById(id);
+        if (blogCategory == null) return RedirectToAction(CategoryListAction);
+        if (!await categoryScope.HasAccess(blogCategory)) return RedirectToAction(CategoryListAction);
+
+        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
+        var model = blogCategory.ToModel();
+        await AddLocales(languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.Name = blogCategory.GetTranslation(x => x.Name, languageId, false);
+        });
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> CategoryEdit(BlogCategoryModel model, bool continueEditing)
+    {
+        var blogCategory = await blogService.GetBlogCategoryById(model.Id);
+        if (blogCategory == null) return RedirectToAction(CategoryListAction);
+        if (!await categoryScope.HasAccess(blogCategory)) return RedirectToAction(CategoryListAction);
+
+        if (ModelState.IsValid)
+        {
+            if (categoryScope.DefaultStoreId is not null) model.Stores = [categoryScope.DefaultStoreId];
+            blogCategory = model.ToEntity(blogCategory);
+            blogCategory.SeName = SeoExtensions.GetSeName(
+                string.IsNullOrEmpty(blogCategory.SeName) ? blogCategory.Name : blogCategory.SeName,
+                seoSettings.ConvertNonWesternChars, seoSettings.AllowUnicodeCharsInUrls, seoSettings.SeoCharConversion);
+            await blogService.UpdateBlogCategory(blogCategory);
+            Success(translationService.GetResource("Admin.Content.Blog.BlogCategory.Updated"));
+            if (continueEditing)
+            {
+                await SaveSelectedTabIndex();
+                return RedirectToAction("CategoryEdit", new { id = blogCategory.Id });
+            }
+            return RedirectToAction(CategoryListAction);
+        }
+
+        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
+        await AddLocales(languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.Name = blogCategory.GetTranslation(x => x.Name, languageId, false);
+        });
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> CategoryDelete(string id)
+    {
+        var blogCategory = await blogService.GetBlogCategoryById(id);
+        if (blogCategory == null) return RedirectToAction(CategoryListAction);
+        if (!await categoryScope.HasAccess(blogCategory)) return RedirectToAction(CategoryListAction);
+
+        if (ModelState.IsValid)
+        {
+            await blogService.DeleteBlogCategory(blogCategory);
+            Success(translationService.GetResource("Admin.Content.Blog.BlogCategory.Deleted"));
+            return RedirectToAction(CategoryListAction);
+        }
+
+        Error(ModelState);
+        return RedirectToAction("CategoryEdit", new { id = blogCategory.Id });
+    }
+
+    #endregion
 }
