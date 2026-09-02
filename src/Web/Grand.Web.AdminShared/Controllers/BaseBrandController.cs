@@ -251,7 +251,7 @@ public abstract class BaseBrandController(
     {
         try
         {
-            var bytes = await exportManager.Export(await brandService.GetAllBrands(brandName: "", storeId: "", showHidden: true));
+            var bytes = await exportManager.Export(await brandService.GetAllBrands(brandName: "", storeId: scope.DefaultStoreId ?? "", showHidden: true));
             return File(bytes, "text/xls", "brands.xlsx");
         }
         catch (Exception exc)

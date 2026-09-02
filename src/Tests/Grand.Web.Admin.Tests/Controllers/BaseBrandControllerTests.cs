@@ -407,6 +407,24 @@ public class BaseBrandControllerTests
     }
 
     [TestMethod]
+    public async Task ExportXlsx_StoreScoped_ScopesExportToDefaultStoreId()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _brandServiceMock
+            .Setup(b => b.GetAllBrands("", "store-1", 0, int.MaxValue, true))
+            .ReturnsAsync(new PagedList<Brand>(new List<Brand> { new() { Id = "b1" } }, 0, int.MaxValue));
+        var exportManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IExportManager<Brand>>();
+        exportManagerMock.Setup(e => e.Export(It.IsAny<IEnumerable<Brand>>())).ReturnsAsync([1, 2, 3]);
+
+        var result = await _controller.ExportXlsx(exportManagerMock.Object);
+
+        var file = result as FileContentResult;
+        Assert.IsNotNull(file);
+        _brandServiceMock.Verify(b => b.GetAllBrands("", "store-1", 0, int.MaxValue, true), Times.Once);
+        _brandServiceMock.Verify(b => b.GetAllBrands("", "", 0, int.MaxValue, true), Times.Never);
+    }
+
+    [TestMethod]
     public async Task ExportXlsx_ExportThrows_ShowsErrorAndRedirectsToList()
     {
         _brandServiceMock
