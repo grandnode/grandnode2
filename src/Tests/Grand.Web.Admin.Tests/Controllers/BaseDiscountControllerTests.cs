@@ -631,6 +631,63 @@ public class BaseDiscountControllerTests
 
         collectionService.Verify(x => x.GetAllCollections(null, "store-a", 0, 10, true), Times.Once);
     }
+
+    [TestMethod]
+    public async Task UsageHistoryList_ScopeDeniesAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+
+        var result = await _sut.UsageHistoryList("1", new DataSourceRequest()) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task UsageHistoryList_ScopeAllowsAccess_ReturnsUsageHistory()
+    {
+        var discount = new Discount { Id = "1" };
+        var usageHistoryModel = new DiscountModel.DiscountUsageHistoryModel { Id = "h1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(true);
+        _vmService.Setup(x => x.PrepareDiscountUsageHistoryModel(discount, 1, 10))
+            .ReturnsAsync((new[] { usageHistoryModel }, 1));
+
+        var result = await _sut.UsageHistoryList("1", new DataSourceRequest { Page = 1, PageSize = 10 }) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual(1, data.Total);
+        Assert.AreEqual(1, ((List<DiscountModel.DiscountUsageHistoryModel>)data.Data).Count);
+    }
+
+    [TestMethod]
+    public async Task UsageHistoryDelete_ScopeDeniesAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+
+        var result = await _sut.UsageHistoryDelete("1", "h1") as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task UsageHistoryDelete_ScopeAllowsAccess_DeletesHistory()
+    {
+        var discount = new Discount { Id = "1" };
+        var history = new DiscountUsageHistory { Id = "h1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(true);
+        _service.Setup(x => x.GetDiscountUsageHistoryById("h1")).ReturnsAsync(history);
+
+        await _sut.UsageHistoryDelete("1", "h1");
+
+        _service.Verify(x => x.DeleteDiscountUsageHistory(history), Times.Once);
+    }
 }
 
 /// <summary>
@@ -862,6 +919,39 @@ public class BaseDiscountControllerCouponCodeAttributeTests
             .SingleOrDefault();
         Assert.IsNotNull(attr, "CouponCodeInsert missing [PermissionAuthorizeAction]");
         Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CouponCodeInsert should require Edit permission");
+    }
+}
+
+/// <summary>
+/// Regression test for ARCH-001 authorization attributes on Discount usage-history region methods.
+/// Ensures that UsageHistoryList and UsageHistoryDelete carry the required [PermissionAuthorizeAction]
+/// attributes to prevent authorization bypass.
+/// </summary>
+[TestClass]
+public class BaseDiscountControllerUsageHistoryAttributeTests
+{
+    [TestMethod]
+    public void UsageHistoryList_HasPermissionAuthorizeActionPreview()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("UsageHistoryList");
+        Assert.IsNotNull(method, "UsageHistoryList method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "UsageHistoryList missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Preview, attr!.PermissionAction, "UsageHistoryList should require Preview permission");
+    }
+
+    [TestMethod]
+    public void UsageHistoryDelete_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("UsageHistoryDelete");
+        Assert.IsNotNull(method, "UsageHistoryDelete method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "UsageHistoryDelete missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "UsageHistoryDelete should require Edit permission");
     }
 }
 

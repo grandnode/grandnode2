@@ -640,4 +640,50 @@ public abstract class BaseDiscountController(
     }
 
     #endregion
+
+    #region Discount usage history
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> UsageHistoryList(string discountId, DataSourceRequest command)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new ArgumentException("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var (usageHistoryModels, totalCount) =
+            await discountViewModelService.PrepareDiscountUsageHistoryModel(discount, command.Page,
+                command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = usageHistoryModels.ToList(),
+            Total = totalCount
+        };
+        return Json(gridModel);
+    }
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> UsageHistoryDelete(string discountId, string id)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new ArgumentException("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var duh = await discountService.GetDiscountUsageHistoryById(id);
+        if (duh != null)
+        {
+            if (ModelState.IsValid)
+                await discountService.DeleteDiscountUsageHistory(duh);
+            else
+                return ErrorForKendoGridJson(ModelState);
+        }
+
+        return new JsonResult("");
+    }
+
+    #endregion
 }
