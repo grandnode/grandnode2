@@ -489,4 +489,89 @@ public abstract class BaseBlogController(
     }
 
     #endregion
+
+    #region Products
+
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    [HttpPost]
+    public async Task<IActionResult> Products(string blogPostId, DataSourceRequest command)
+    {
+        var blogPost = await blogService.GetBlogPostById(blogPostId);
+        if (!await postScope.HasAccess(blogPost)) return ErrorForKendoGridJson(NoAccessToBlogPostMessage);
+
+        var model = await blogViewModelService.PrepareBlogProductsModel(blogPostId, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = model.blogProducts,
+            Total = model.totalCount
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductAddPopup(string blogPostId)
+    {
+        var blogPost = await blogService.GetBlogPostById(blogPostId);
+        if (!await postScope.HasAccess(blogPost)) return Content(NoAccessToBlogPostMessage);
+
+        var model = await blogViewModelService.PrepareBlogModelAddProductModel(blogPostId);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command, BlogProductModel.AddProductModel model)
+    {
+        if (postScope.DefaultStoreId is not null) model.SearchStoreId = postScope.DefaultStoreId;
+
+        var products = await blogViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = products.products.ToList(),
+            Total = products.totalCount
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAddPopup(string blogPostId, BlogProductModel.AddProductModel model)
+    {
+        var blogPost = await blogService.GetBlogPostById(blogPostId);
+        if (!await postScope.HasAccess(blogPost)) return Content(NoAccessToBlogPostMessage);
+
+        if (model.SelectedProductIds != null) await blogViewModelService.InsertProductModel(blogPostId, model);
+        return Content("");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> UpdateProduct(string blogPostId, BlogProductModel model)
+    {
+        var blogPost = await blogService.GetBlogPostById(blogPostId);
+        if (!await postScope.HasAccess(blogPost)) ModelState.AddModelError("Blog", NoAccessToBlogPostMessage);
+
+        if (ModelState.IsValid)
+        {
+            await blogViewModelService.UpdateProductModel(model);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    public async Task<IActionResult> DeleteProduct(string id)
+    {
+        var bp = await blogService.GetBlogProductById(id) ?? throw new ArgumentException("No blog product found with the specified id");
+        var blogPost = await blogService.GetBlogPostById(bp.BlogPostId);
+        if (!await postScope.HasAccess(blogPost)) ModelState.AddModelError("Blog", NoAccessToBlogPostMessage);
+
+        if (ModelState.IsValid)
+        {
+            await blogViewModelService.DeleteProductModel(id);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    #endregion
 }

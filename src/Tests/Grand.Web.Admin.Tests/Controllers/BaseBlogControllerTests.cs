@@ -379,6 +379,69 @@ public class BaseBlogControllerTests
     }
 
     [TestMethod]
+    public async Task Products_ScopeDeniesAccess_ReturnsKendoError()
+    {
+        var post = new BlogPost { Id = "p1" };
+        _blogServiceMock.Setup(b => b.GetBlogPostById("p1")).ReturnsAsync(post);
+        _postScopeMock.Setup(s => s.HasAccess(post)).ReturnsAsync(false);
+
+        var result = await _controller.Products("p1", new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopupList_ForcesScopeDefaultStoreId()
+    {
+        _postScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _blogViewModelServiceMock
+            .Setup(v => v.PrepareProductModel(It.IsAny<BlogProductModel.AddProductModel>(), 1, 10))
+            .ReturnsAsync((new List<Grand.Web.AdminShared.Models.Catalog.ProductModel>(), 0));
+
+        var model = new BlogProductModel.AddProductModel { SearchStoreId = "attacker-supplied" };
+        await _controller.ProductAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 }, model);
+
+        Assert.AreEqual("store-1", model.SearchStoreId);
+    }
+
+    [TestMethod]
+    public async Task UpdateProduct_ScopeDeniesAccess_ReturnsKendoErrorWithoutUpdating()
+    {
+        var post = new BlogPost { Id = "p1" };
+        _blogServiceMock.Setup(b => b.GetBlogPostById("p1")).ReturnsAsync(post);
+        _postScopeMock.Setup(s => s.HasAccess(post)).ReturnsAsync(false);
+
+        var result = await _controller.UpdateProduct("p1", new BlogProductModel { Id = "bp1" });
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _blogViewModelServiceMock.Verify(v => v.UpdateProductModel(It.IsAny<BlogProductModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DeleteProduct_ScopeDeniesAccess_ReturnsKendoErrorWithoutDeleting()
+    {
+        var bp = new Grand.Domain.Blogs.BlogProduct { Id = "bp1", BlogPostId = "p1" };
+        var post = new BlogPost { Id = "p1" };
+        _blogServiceMock.Setup(b => b.GetBlogProductById("bp1")).ReturnsAsync(bp);
+        _blogServiceMock.Setup(b => b.GetBlogPostById("p1")).ReturnsAsync(post);
+        _postScopeMock.Setup(s => s.HasAccess(post)).ReturnsAsync(false);
+
+        var result = await _controller.DeleteProduct("bp1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _blogViewModelServiceMock.Verify(v => v.DeleteProductModel(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task CommentDelete_ScopeGrantsAccess_DeletesAndUpdatesCommentCount()
     {
         var comment = new Grand.Domain.Blogs.BlogComment { Id = "cm1", BlogPostId = "p1" };
