@@ -3,7 +3,7 @@
 
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
-    <vc:admin-widget widget-zone="discount_details_requirements_top" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.Requirements.Top" model="Model"/>
     if (!string.IsNullOrEmpty(Model.Id))
     {
         <script>
@@ -208,5 +208,5 @@
         </div>
     }
 
-    <vc:admin-widget widget-zone="discount_details_requirements_bottom" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.Requirements.Bottom" model="Model"/>
 }

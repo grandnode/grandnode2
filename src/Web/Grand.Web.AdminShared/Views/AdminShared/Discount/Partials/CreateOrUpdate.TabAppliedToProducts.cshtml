@@ -6,7 +6,7 @@
     if (!string.IsNullOrEmpty(Model.Id))
     {
         <div class="panel panel-default">
-            <vc:admin-widget widget-zone="discount_details_applied_to_products_top" additional-data="Model"/>
+            <partial name="Partials/WidgetZone.AppliedToProducts.Top" model="Model"/>
             <div class="panel-body">
                 <div id="products-grid"></div>
             </div>
@@ -14,7 +14,7 @@
                 <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshProducts", formId = "discount-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToProducts.AddNew"]</a>
                 <input type="submit" id="btnRefreshProducts" style="display: none"/>
             </div>
-            <vc:admin-widget widget-zone="discount_details_applied_to_products_bottom" additional-data="Model"/>
+            <partial name="Partials/WidgetZone.AppliedToProducts.Bottom" model="Model"/>
         </div>
 
         <script>

@@ -2,9 +2,9 @@
 @inject AdminAreaSettings adminAreaSettings
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
-    <vc:admin-widget widget-zone="discount_details_history_top" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.History.Top" model="Model"/>
     <div id="usagehistory-grid"></div>
-    <vc:admin-widget widget-zone="discount_details_history_bottom" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.History.Bottom" model="Model"/>
     <script>
         $(document).ready(function () {
             $("#usagehistory-grid").kendoGrid({
