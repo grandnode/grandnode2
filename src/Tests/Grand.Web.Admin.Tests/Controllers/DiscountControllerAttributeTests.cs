@@ -12,9 +12,10 @@ namespace Grand.Web.Admin.Tests.Controllers;
 /// Discount. This is the first instance in this initiative closing the Phase 11 final-review
 /// follow-up — prior phases' attribute regression tests only asserted class-level attributes
 /// ([Area]/[Authorize*]/[AuthorizeMenu]/[PermissionAuthorize]); this test additionally asserts,
-/// for every one of the ~40 discount actions, that the correct [PermissionAuthorizeAction] is
-/// present, whether declared directly on the concrete controller or inherited from
-/// BaseDiscountController.
+/// for every distinct action method name on BaseDiscountController plus Admin's Vendor region
+/// (the full set of discount actions, including both GET and POST overloads of the XAddPopup
+/// methods), that the correct [PermissionAuthorizeAction] is present, whether declared directly
+/// on the concrete controller or inherited from BaseDiscountController.
 ///
 /// Vendor actions (VendorList/VendorDelete/VendorAddPopup/VendorAddPopupList) exist only on
 /// Grand.Web.Admin.Controllers.DiscountController (see Task 7b/9) — Store's DiscountController has
@@ -36,15 +37,19 @@ public class DiscountControllerAttributeTests
         ("DeleteDiscountRequirement", PermissionActionName.Edit),
         ("ProductList", PermissionActionName.Preview),
         ("ProductDelete", PermissionActionName.Edit),
+        ("ProductAddPopup", PermissionActionName.Edit),
         ("ProductAddPopupList", PermissionActionName.Edit),
         ("CategoryList", PermissionActionName.Preview),
         ("CategoryDelete", PermissionActionName.Edit),
+        ("CategoryAddPopup", PermissionActionName.Edit),
         ("CategoryAddPopupList", PermissionActionName.Edit),
         ("BrandList", PermissionActionName.Preview),
         ("BrandDelete", PermissionActionName.Edit),
+        ("BrandAddPopup", PermissionActionName.Edit),
         ("BrandAddPopupList", PermissionActionName.Edit),
         ("CollectionList", PermissionActionName.Preview),
         ("CollectionDelete", PermissionActionName.Edit),
+        ("CollectionAddPopup", PermissionActionName.Edit),
         ("CollectionAddPopupList", PermissionActionName.Edit),
         ("UsageHistoryList", PermissionActionName.Preview),
         ("UsageHistoryDelete", PermissionActionName.Edit)
@@ -53,6 +58,7 @@ public class DiscountControllerAttributeTests
     private static readonly (string Method, string Expected)[] AdminOnlyActionAttributes = [
         ("VendorList", PermissionActionName.Preview),
         ("VendorDelete", PermissionActionName.Edit),
+        ("VendorAddPopup", PermissionActionName.Edit),
         ("VendorAddPopupList", PermissionActionName.Edit)
     ];
 
