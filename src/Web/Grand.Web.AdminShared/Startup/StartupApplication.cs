@@ -90,6 +90,12 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreAdminDataScope<Collection>>();
         services.AddScoped<IAdminDataScope<Collection>, RoutedCollectionDataScope>();
 
+        // IAdminDataScope<Brand>: registered once here for the same reason as Category/Collection above —
+        // see RoutedBrandDataScope's doc comment. No Vendor scope: Brand has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<Brand>>();
+        services.AddScoped<StoreAdminDataScope<Brand>>();
+        services.AddScoped<IAdminDataScope<Brand>, RoutedBrandDataScope>();
+
         // IAdminDataScope<Order>: three bespoke implementations, none reusing the generic Global/Store
         // scopes — see AdminOrderDataScope/StoreOrderDataScope/VendorOrderDataScope doc comments.
         services.AddScoped<AdminOrderDataScope>();
