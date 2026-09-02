@@ -1,0 +1,82 @@
+using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Domain.Catalog;
+using Grand.Domain.Permissions;
+using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.Common.Controllers;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Security.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace Grand.Web.AdminShared.Controllers;
+
+// [AutoValidateAntiforgeryToken] is restated on each concrete host subclass (Admin/Store
+// BrandController) too - ASP.NET Core resolves filters from the concrete controller's full type
+// hierarchy at runtime, so every real endpoint is already protected. It's added here as well,
+// mirroring BaseProductController/BaseCategoryController/BaseCollectionController, so static
+// analysis that doesn't follow the attribute across a base/derived project boundary has something
+// to see in the same file as the actions.
+[PermissionAuthorize(PermissionSystemName.Brands)]
+[AutoValidateAntiforgeryToken]
+public abstract class BaseBrandController(
+    IBrandViewModelService brandViewModelService,
+    IBrandService brandService,
+    IStoreService storeService,
+    ILanguageService languageService,
+    ITranslationService translationService,
+    IPictureViewModelService pictureViewModelService,
+    IAdminDataScope<Brand> scope)
+    : BaseController
+{
+    /// <summary>Hook for host-specific UI-copy warnings that aren't access-scope decisions.
+    /// Overridden by the Store subclass (Task 6); no-op everywhere else. Mirrors
+    /// BaseCategoryController.EditWarningCheck/BaseCollectionController's equivalent.</summary>
+    protected virtual void EditWarningCheck(Brand brand) { }
+
+    // Exposed for host subclasses: primary-constructor parameters are not visible to derived
+    // classes by name in C#, so Store's EditWarningCheck override needs these.
+    protected ITranslationService TranslationService => translationService;
+    protected IAdminDataScope<Brand> Scope => scope;
+
+    #region List
+
+    public IActionResult Index() => RedirectToAction("List");
+
+    public async Task<IActionResult> List()
+    {
+        var model = new BrandListModel();
+        // Admin only: Store never had this dropdown (it's implicitly single-store).
+        // ShowStoreSelector can't gate this - it's true on both Global and Store scopes.
+        if (scope.DefaultStoreId is null)
+        {
+            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "" });
+            foreach (var s in await storeService.GetAllStores())
+            {
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+            }
+        }
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    [HttpPost]
+    public async Task<IActionResult> List(DataSourceRequest command, BrandListModel model)
+    {
+        if (scope.DefaultStoreId is not null) model.SearchStoreId = scope.DefaultStoreId;
+        var brands = await brandService.GetAllBrands(model.SearchBrandName,
+            model.SearchStoreId, command.Page - 1, command.PageSize, true);
+        var gridModel = new DataSourceResult {
+            Data = brands.Select(x => x.ToModel()),
+            Total = brands.TotalCount
+        };
+
+        return Json(gridModel);
+    }
+
+    #endregion
+}
