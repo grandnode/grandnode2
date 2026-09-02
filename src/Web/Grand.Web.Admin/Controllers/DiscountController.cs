@@ -708,6 +708,13 @@ public class DiscountController : BaseAdminController
 
     #endregion
 
+    // ARCH-001: Admin-only — Store's original DiscountController has no "Applied to vendors"
+    // region/actions/views at all, so this stays on Admin's concrete controller rather than
+    // BaseDiscountController. Note these 5 actions currently have NO discount-scope access
+    // check at all (unlike the other regions' IsStoreManager-conditional guards). When Task 9
+    // cuts this file down to a thin BaseDiscountController subclass (adding the injected
+    // IAdminDataScope<Discount> scope), add scope.HasAccess/scope.CanView calls here to match
+    // the pattern used by the other regions.
     #region Applied to vendors
 
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
