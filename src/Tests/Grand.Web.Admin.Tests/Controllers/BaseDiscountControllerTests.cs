@@ -213,7 +213,7 @@ public class BaseDiscountControllerTests
     }
 
     [TestMethod]
-    public async Task GetDiscountRequirementConfigurationUrl_ScopeDeniesAccess_Throws()
+    public async Task GetDiscountRequirementConfigurationUrl_ScopeDeniesAccess_ReturnsGracefulJsonError()
     {
         var discount = new Discount { Id = "1" };
         _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
@@ -221,19 +221,21 @@ public class BaseDiscountControllerTests
         var provider = Mock.Of<IDiscountProvider>();
         _loader.Setup(x => x.LoadDiscountProviderByRuleSystemName("rule1")).Returns(provider);
 
-        await Assert.ThrowsAsync<ArgumentException>(() =>
-            _sut.GetDiscountRequirementConfigurationUrl("rule1", "1", "req1"));
+        var result = await _sut.GetDiscountRequirementConfigurationUrl("rule1", "1", "req1") as JsonResult;
+
+        Assert.IsFalse((bool)result!.Value!.GetType().GetProperty("Result")!.GetValue(result.Value)!);
     }
 
     [TestMethod]
-    public async Task GetDiscountRequirementMetaInfo_ScopeDeniesAccess_Throws()
+    public async Task GetDiscountRequirementMetaInfo_ScopeDeniesAccess_ReturnsGracefulJsonError()
     {
         var discount = new Discount { Id = "1" };
         _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
         _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
 
-        await Assert.ThrowsAsync<ArgumentException>(() =>
-            _sut.GetDiscountRequirementMetaInfo("req1", "1"));
+        var result = await _sut.GetDiscountRequirementMetaInfo("req1", "1") as JsonResult;
+
+        Assert.IsFalse((bool)result!.Value!.GetType().GetProperty("Result")!.GetValue(result.Value)!);
     }
 
     [TestMethod]

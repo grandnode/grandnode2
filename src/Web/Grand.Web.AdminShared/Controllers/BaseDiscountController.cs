@@ -168,7 +168,7 @@ public abstract class BaseDiscountController(
         if (discount == null)
             throw new ArgumentException("Discount could not be loaded");
         if (!await scope.HasAccess(discount))
-            throw new ArgumentException("Access denied");
+            return Json(new { Result = false, Error = "Access denied" });
 
         var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x =>
             x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase));
@@ -184,7 +184,7 @@ public abstract class BaseDiscountController(
         if (discount == null)
             throw new ArgumentException("Discount could not be loaded");
         if (!await scope.HasAccess(discount))
-            throw new ArgumentException("Access denied");
+            return Json(new { Result = false, Error = "Access denied" });
 
         var discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
         if (discountRequirement == null)

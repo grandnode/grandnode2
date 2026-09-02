@@ -2,7 +2,9 @@ extern alias StoreHost;
 
 using System.Reflection;
 using Grand.Domain.Permissions;
+using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Web.Admin.Tests.Controllers;
@@ -86,6 +88,96 @@ public class DiscountControllerAttributeTests
             Assert.IsFalse(exists,
                 $"Store's DiscountController unexpectedly has a {methodName} method — Vendor actions must remain Admin-only.");
         }
+    }
+
+    // Class-level attribute regression guard (mirrors MerchandiseReturnControllerAttributeTests /
+    // AttributeFamilyControllerRoutingTests): BaseDiscountController can't carry a host's
+    // [Area]/[Authorize*] attributes itself (they differ per host), so each concrete subclass must
+    // restate its own - a missing one here would 404 or deauthorize the whole controller silently.
+    // Admin's set was verified to match OrderController.cs:27-30 exactly; Store's set was verified
+    // to match OrderController.cs:20-23 exactly (see Task 9 ledger).
+    [TestMethod]
+    public void AdminDiscountController_HasAreaAttributeWithAdminArea()
+    {
+        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(
+            typeof(Grand.Web.Admin.Controllers.DiscountController), typeof(AreaAttribute), false);
+        Assert.IsNotNull(areaAttr, "Missing [Area].");
+        Assert.AreEqual(Grand.Web.Admin.Extensions.Constants.AreaAdmin, areaAttr.RouteValue);
+    }
+
+    [TestMethod]
+    public void AdminDiscountController_HasAuthorizeAdminAttribute() =>
+        Assert.IsTrue(typeof(Grand.Web.Admin.Controllers.DiscountController).IsDefined(typeof(AuthorizeAdminAttribute), false),
+            "Missing [AuthorizeAdmin].");
+
+    [TestMethod]
+    public void AdminDiscountController_HasAutoValidateAntiforgeryTokenAttribute() =>
+        Assert.IsTrue(typeof(Grand.Web.Admin.Controllers.DiscountController).IsDefined(typeof(AutoValidateAntiforgeryTokenAttribute), false),
+            "Missing [AutoValidateAntiforgeryToken].");
+
+    [TestMethod]
+    public void AdminDiscountController_HasAuthorizeMenuAttribute() =>
+        Assert.IsTrue(typeof(Grand.Web.Admin.Controllers.DiscountController).IsDefined(typeof(AuthorizeMenuAttribute), false),
+            "Missing [AuthorizeMenu].");
+
+    [TestMethod]
+    public void StoreDiscountController_HasAreaAttributeWithStoreArea()
+    {
+        var areaAttr = (AreaAttribute)Attribute.GetCustomAttribute(
+            typeof(StoreHost::Grand.Web.Store.Controllers.DiscountController), typeof(AreaAttribute), false);
+        Assert.IsNotNull(areaAttr, "Missing [Area].");
+        Assert.AreEqual(StoreHost::Grand.Web.Store.Extensions.Constants.AreaStore, areaAttr.RouteValue);
+    }
+
+    [TestMethod]
+    public void StoreDiscountController_HasAuthorizeStoreAttribute() =>
+        Assert.IsTrue(typeof(StoreHost::Grand.Web.Store.Controllers.DiscountController).IsDefined(typeof(AuthorizeStoreAttribute), false),
+            "Missing [AuthorizeStore].");
+
+    [TestMethod]
+    public void StoreDiscountController_HasAutoValidateAntiforgeryTokenAttribute() =>
+        Assert.IsTrue(typeof(StoreHost::Grand.Web.Store.Controllers.DiscountController).IsDefined(typeof(AutoValidateAntiforgeryTokenAttribute), false),
+            "Missing [AutoValidateAntiforgeryToken].");
+
+    [TestMethod]
+    public void StoreDiscountController_HasAuthorizeMenuAttribute() =>
+        Assert.IsTrue(typeof(StoreHost::Grand.Web.Store.Controllers.DiscountController).IsDefined(typeof(AuthorizeMenuAttribute), false),
+            "Missing [AuthorizeMenu].");
+
+    // [PermissionAuthorize(PermissionSystemName.Discounts)] is inherited from BaseDiscountController
+    // and deliberately NOT re-declared on either concrete subclass (Task 9 ledger) - assert it via
+    // inherited-attribute lookup at the type level, same idiom as AssertAllActionsHaveAttribute's
+    // method-level inherited lookup below.
+    [TestMethod]
+    public void AdminDiscountController_HasPermissionAuthorizeForDiscounts_Inherited()
+    {
+        var attr = typeof(Grand.Web.Admin.Controllers.DiscountController)
+            .GetCustomAttributes(typeof(PermissionAuthorizeAttribute), inherit: true)
+            .Cast<PermissionAuthorizeAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "Missing [PermissionAuthorize] (checked with inherit: true).");
+        Assert.AreEqual(PermissionSystemName.Discounts, attr.Permission);
+
+        // Confirm it is genuinely inherited, not re-declared on the concrete class.
+        Assert.IsFalse(
+            typeof(Grand.Web.Admin.Controllers.DiscountController).IsDefined(typeof(PermissionAuthorizeAttribute), inherit: false),
+            "PermissionAuthorize should not be re-declared on the concrete Admin controller.");
+    }
+
+    [TestMethod]
+    public void StoreDiscountController_HasPermissionAuthorizeForDiscounts_Inherited()
+    {
+        var attr = typeof(StoreHost::Grand.Web.Store.Controllers.DiscountController)
+            .GetCustomAttributes(typeof(PermissionAuthorizeAttribute), inherit: true)
+            .Cast<PermissionAuthorizeAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "Missing [PermissionAuthorize] (checked with inherit: true).");
+        Assert.AreEqual(PermissionSystemName.Discounts, attr.Permission);
+
+        // Confirm it is genuinely inherited, not re-declared on the concrete class.
+        Assert.IsFalse(
+            typeof(StoreHost::Grand.Web.Store.Controllers.DiscountController).IsDefined(typeof(PermissionAuthorizeAttribute), inherit: false),
+            "PermissionAuthorize should not be re-declared on the concrete Store controller.");
     }
 
     private static void AssertAllActionsHaveAttribute(Type controllerType,
