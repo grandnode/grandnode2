@@ -1,5 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -550,6 +551,91 @@ public abstract class BaseDiscountController(
             return Content("Access denied");
 
         if (model.SelectedBrandIds != null) await discountViewModelService.InsertBrandToDiscountModel(model);
+        return Content("");
+    }
+
+    #endregion
+
+    #region Applied to collections
+
+    // CollectionList/CollectionDelete/CollectionAddPopup(POST) below preserve Store's original strict
+    // AccessToEntityByStore check (widened here to scope.CanView/HasAccess) and widen Admin's
+    // original, which had no check at all, to match Store. CollectionAddPopup(GET)/CollectionAddPopupList
+    // are the genuine both-hosts gap: neither original guarded them, so applying scope.HasAccess
+    // here is real disclosed security hardening, not behavior preservation.
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> CollectionList(DataSourceRequest command, string discountId,
+        [FromServices] ICollectionService collectionService)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.CanView(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var collections = await collectionService.GetAllCollectionsByDiscount(discount.Id);
+        return Json(new DataSourceResult {
+            Data = collections.Select(x => new DiscountModel.AppliedToCollectionModel { CollectionId = x.Id, CollectionName = x.Name }),
+            Total = collections.Count
+        });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> CollectionDelete(string discountId, string collectionId,
+        [FromServices] ICollectionService collectionService)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        var collection = await collectionService.GetCollectionById(collectionId);
+        if (collection == null)
+            throw new Exception("No collection found with the specified id");
+        if (ModelState.IsValid)
+        {
+            await discountViewModelService.DeleteCollection(discount, collection);
+            return new JsonResult("");
+        }
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> CollectionAddPopup(string discountId)
+    {
+        var discount = await discountService.GetDiscountById(discountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return new JsonResult(new DataSourceResult { Errors = "Access denied" });
+
+        return View(new DiscountModel.AddCollectionToDiscountModel());
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> CollectionAddPopupList(DataSourceRequest command,
+        DiscountModel.AddCollectionToDiscountModel model, [FromServices] ICollectionService collectionService)
+    {
+        var collections = await collectionService.GetAllCollections(model.SearchCollectionName,
+            scope.DefaultStoreId ?? "", command.Page - 1, command.PageSize, true);
+        return Json(new DataSourceResult { Data = collections.Select(x => x.ToModel()), Total = collections.TotalCount });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> CollectionAddPopup(DiscountModel.AddCollectionToDiscountModel model)
+    {
+        var discount = await discountService.GetDiscountById(model.DiscountId);
+        if (discount == null)
+            throw new Exception("No discount found with the specified id");
+        if (!await scope.HasAccess(discount))
+            return Content("Access denied");
+
+        if (model.SelectedCollectionIds != null) await discountViewModelService.InsertCollectionToDiscountModel(model);
         return Content("");
     }
 

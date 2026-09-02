@@ -1,5 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -547,6 +548,157 @@ public class BaseDiscountControllerTests
             new DiscountModel.AddBrandToDiscountModel(), brandService.Object);
 
         brandService.Verify(x => x.GetAllBrands(null, "store-a", 0, 10, true), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CollectionList_ScopeDeniesView_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.CanView(discount)).ReturnsAsync(false);
+        var collectionService = new Mock<ICollectionService>();
+
+        var result = await _sut.CollectionList(new DataSourceRequest(), "1", collectionService.Object) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task CollectionDelete_ScopeDeniesAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+        var collectionService = new Mock<ICollectionService>();
+
+        var result = await _sut.CollectionDelete("1", "c1", collectionService.Object) as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task CollectionAddPopup_Get_ScopeDeniesAccess_ReturnsAccessDeniedJson()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+
+        var result = await _sut.CollectionAddPopup("1") as JsonResult;
+
+        var data = (DataSourceResult)result!.Value!;
+        Assert.AreEqual("Access denied", data.Errors);
+    }
+
+    [TestMethod]
+    public async Task CollectionAddPopup_Post_ScopeDeniesAccess_ReturnsAccessDeniedContent()
+    {
+        var discount = new Discount { Id = "1" };
+        _service.Setup(x => x.GetDiscountById("1")).ReturnsAsync(discount);
+        _scope.Setup(x => x.HasAccess(discount)).ReturnsAsync(false);
+        var model = new DiscountModel.AddCollectionToDiscountModel { DiscountId = "1" };
+
+        var result = await _sut.CollectionAddPopup(model) as ContentResult;
+
+        Assert.AreEqual("Access denied", result!.Content);
+    }
+
+    [TestMethod]
+    public async Task CollectionAddPopupList_GlobalScope_PassesEmptyStoreId()
+    {
+        _scope.Setup(x => x.DefaultStoreId).Returns((string?)null);
+        var collectionService = new Mock<ICollectionService>();
+        collectionService.Setup(x => x.GetAllCollections(null, "", 0, 10, true))
+            .ReturnsAsync(new PagedList<Collection>(new List<Collection>(), 0, 10, 0));
+
+        await _sut.CollectionAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
+            new DiscountModel.AddCollectionToDiscountModel(), collectionService.Object);
+
+        collectionService.Verify(x => x.GetAllCollections(null, "", 0, 10, true), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CollectionAddPopupList_StoreScope_PassesScopedStoreId()
+    {
+        _scope.Setup(x => x.DefaultStoreId).Returns("store-a");
+        var collectionService = new Mock<ICollectionService>();
+        collectionService.Setup(x => x.GetAllCollections(null, "store-a", 0, 10, true))
+            .ReturnsAsync(new PagedList<Collection>(new List<Collection>(), 0, 10, 0));
+
+        await _sut.CollectionAddPopupList(new DataSourceRequest { Page = 1, PageSize = 10 },
+            new DiscountModel.AddCollectionToDiscountModel(), collectionService.Object);
+
+        collectionService.Verify(x => x.GetAllCollections(null, "store-a", 0, 10, true), Times.Once);
+    }
+}
+
+/// <summary>
+/// Regression test for ARCH-001 authorization attributes on Discount applied-to-collections region
+/// methods. Ensures CollectionList, CollectionDelete, both CollectionAddPopup overloads, and
+/// CollectionAddPopupList carry the required [PermissionAuthorizeAction] attributes.
+/// </summary>
+[TestClass]
+public class BaseDiscountControllerCollectionsAttributeTests
+{
+    [TestMethod]
+    public void CollectionList_HasPermissionAuthorizeActionPreview()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CollectionList");
+        Assert.IsNotNull(method, "CollectionList method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CollectionList missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Preview, attr!.PermissionAction, "CollectionList should require Preview permission");
+    }
+
+    [TestMethod]
+    public void CollectionDelete_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CollectionDelete");
+        Assert.IsNotNull(method, "CollectionDelete method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CollectionDelete missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CollectionDelete should require Edit permission");
+    }
+
+    [TestMethod]
+    public void CollectionAddPopup_Get_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CollectionAddPopup", [typeof(string)]);
+        Assert.IsNotNull(method, "CollectionAddPopup(string) method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CollectionAddPopup(string) missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CollectionAddPopup(string) should require Edit permission");
+    }
+
+    [TestMethod]
+    public void CollectionAddPopupList_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CollectionAddPopupList");
+        Assert.IsNotNull(method, "CollectionAddPopupList method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CollectionAddPopupList missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CollectionAddPopupList should require Edit permission");
+    }
+
+    [TestMethod]
+    public void CollectionAddPopup_Post_HasPermissionAuthorizeActionEdit()
+    {
+        var method = typeof(BaseDiscountController).GetMethod("CollectionAddPopup", [typeof(DiscountModel.AddCollectionToDiscountModel)]);
+        Assert.IsNotNull(method, "CollectionAddPopup(AddCollectionToDiscountModel) method not found");
+        var attr = method!.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), false)
+            .Cast<PermissionAuthorizeActionAttribute>()
+            .SingleOrDefault();
+        Assert.IsNotNull(attr, "CollectionAddPopup(AddCollectionToDiscountModel) missing [PermissionAuthorizeAction]");
+        Assert.AreEqual(PermissionActionName.Edit, attr!.PermissionAction, "CollectionAddPopup(AddCollectionToDiscountModel) should require Edit permission");
     }
 }
 
