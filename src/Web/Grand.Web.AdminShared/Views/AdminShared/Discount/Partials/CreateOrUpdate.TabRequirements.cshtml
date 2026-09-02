@@ -1,7 +1,9 @@
-﻿@using System.Text.Encodings.Web
+@using System.Text.Encodings.Web
 @model DiscountModel
 
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    <vc:admin-widget widget-zone="discount_details_requirements_top" additional-data="Model"/>
     if (!string.IsNullOrEmpty(Model.Id))
     {
         <script>
@@ -30,7 +32,7 @@
                     $.ajax({
                         cache:false,
                         type: "POST",
-                        url: "@(Url.Action("GetDiscountRequirementMetaInfo", "Discount", new { area = Constants.AreaStore }))",
+                        url: "@(Url.Action("GetDiscountRequirementMetaInfo", "Discount", new { area = area }))",
                         data: postData,
                         success: function (result) {
                             discountRequirements.push(
@@ -77,7 +79,7 @@
                 if (ruleSystemName != '') {
                     $.ajax({
                         cache:false,
-                        url: "@(Url.Action("GetDiscountRequirementConfigurationUrl", "Discount", new { area = Constants.AreaStore }))",
+                        url: "@(Url.Action("GetDiscountRequirementConfigurationUrl", "Discount", new { area = area }))",
                         data: { "rulesystemName": ruleSystemName, "discountId": discountId },
                         success: function (result) {
                             var configureRuleUrl = result.url;
@@ -138,7 +140,7 @@
                 $.ajax({
                     cache: false,
                     type: "POST",
-                    url: "@(Url.Action("DeleteDiscountRequirement", "Discount", new { area = Constants.AreaStore }))",
+                    url: "@(Url.Action("DeleteDiscountRequirement", "Discount", new { area = area }))",
                     data: postData,
                     success: function (data) {
                         removeRequirementByElement(discountRequirements, discountRequirementId);
@@ -205,4 +207,6 @@
             @Loc["admin.marketing.Discounts.Requirements.SaveBeforeEdit"]
         </div>
     }
+
+    <vc:admin-widget widget-zone="discount_details_requirements_bottom" additional-data="Model"/>
 }

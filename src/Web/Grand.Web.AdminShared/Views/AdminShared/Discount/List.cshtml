@@ -1,8 +1,9 @@
-﻿@model DiscountListModel
+@model DiscountListModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["admin.marketing.Discounts"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
 <div class="row">
@@ -14,7 +15,7 @@
                     @Loc["admin.marketing.Discounts"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
+                    <a href="@Url.Action("Create", new { area = area })" class="btn green">
                         <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
                     <vc:admin-widget widget-zone="discount_list_buttons" additional-data="null"/>
@@ -66,7 +67,7 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("List", "Discount", new { area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("List", "Discount", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: additionalData

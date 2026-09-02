@@ -1,6 +1,7 @@
-﻿@model DiscountModel
+@model DiscountModel
 @inject AdminAreaSettings adminAreaSettings
 
+@{ var area = ViewContext.RouteData.Values["area"]?.ToString(); }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
@@ -16,19 +17,19 @@
                     dataSource: {
                         transport: {
                             read: {
-                                url: "@Html.Raw(Url.Action("CouponCodeList", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                                url: "@Html.Raw(Url.Action("CouponCodeList", "Discount", new { discountId = Model.Id, area = area }))",
                                 type: "POST",
                                 dataType: "json",
                                 data: addAntiForgeryToken
                             },
                             create: {
-                                url: "@Html.Raw(Url.Action("CouponCodeInsert", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                                url: "@Html.Raw(Url.Action("CouponCodeInsert", "Discount", new { discountId = Model.Id, area = area }))",
                                 type: "POST",
                                 dataType: "json",
                                 data: addAntiForgeryToken
                             },
                             destroy: {
-                                url: "@Html.Raw(Url.Action("CouponCodeDelete", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                                url: "@Html.Raw(Url.Action("CouponCodeDelete", "Discount", new { discountId = Model.Id, area = area }))",
                                 type: "POST",
                                 dataType: "json",
                                 data: addAntiForgeryToken

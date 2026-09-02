@@ -1,12 +1,13 @@
-﻿@model DiscountModel.AddCategoryToDiscountModel
+@model DiscountModel.AddCategoryToDiscountModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "";
     //page title
     ViewBag.Title = Loc["admin.marketing.Discounts.AppliedToCategories.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<form id="CategoryAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="Discount" asp-action="CategoryAddPopup" method="post"
+<form id="CategoryAddPopup" asp-area="@area" asp-controller="Discount" asp-action="CategoryAddPopup" method="post"
       asp-route-DiscountId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["DiscountId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
@@ -87,7 +88,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("CategoryAddPopupList", "Discount", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("CategoryAddPopupList", "Discount", new { area = area }))",
                         type: "POST",
                         dataType: "json",
                         data: additionalData

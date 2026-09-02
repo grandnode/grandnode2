@@ -1,22 +1,22 @@
-﻿@model DiscountModel
+@model DiscountModel
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     if (!string.IsNullOrEmpty(Model.Id))
     {
         <div class="panel panel-default">
-            <vc:admin-widget widget-zone="discount_details_applied_to_brands_top" additional-data="Model"/>
+            <vc:admin-widget widget-zone="discount_details_applied_to_collections_top" additional-data="Model"/>
             <div class="panel-body">
-                <div id="brands-grid"></div>
+                <div id="collections-grid"></div>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewBrand" href="@(Url.Action("BrandAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshBrands", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Marketing.Discounts.AppliedToBrands.AddNew"]</a>
-                <input type="button" id="btnRefreshBrands" style="display: none"/>
+                <a id="btnAddNewCollection" href="@(Url.Action("CollectionAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCollections", formId = "discount-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]</a>
+                <input type="submit" id="btnRefreshCollections" style="display: none"/>
             </div>
-            <vc:admin-widget widget-zone="discount_details_applied_to_brands_bottom" additional-data="Model"/>
+            <vc:admin-widget widget-zone="discount_details_applied_to_collections_bottom" additional-data="Model"/>
         </div>
-
         <script>
             $(document).ready(function () {
-                $('#btnAddNewBrand').magnificPopup({
+                $('#btnAddNewCollection').magnificPopup({
                     type: 'ajax',
                     settings: { cache: false, async: false },
                     midClick: true,
@@ -29,17 +29,17 @@
                         }
                     }
                 });
-                $("#brands-grid").kendoGrid({
+                $("#collections-grid").kendoGrid({
                     dataSource: {
                         transport: {
                             read: {
-                                url: "@Html.Raw(Url.Action("BrandList", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                                url: "@Html.Raw(Url.Action("CollectionList", "Discount", new { discountId = Model.Id, area = area }))",
                                 type: "POST",
                                 dataType: "json",
                                 data: addAntiForgeryToken
                             },
                             destroy: {
-                                url: "@Html.Raw(Url.Action("BrandDelete", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                                url: "@Html.Raw(Url.Action("CollectionDelete", "Discount", new { discountId = Model.Id, area = area }))",
                                 type: "POST",
                                 dataType: "json",
                                 data: addAntiForgeryToken
@@ -50,10 +50,10 @@
                             total: "Total",
                             errors: "Errors",
                             model: {
-                                id: "BrandId",
+                                id: "CollectionId",
                                 fields: {
-                                    BrandName: {editable: false, type: "string" },
-                                    BrandId: {editable: false, type: "string" }
+                                    CollectionName: {editable: false, type: "string" },
+                                    CollectionId: {editable: false, type: "string" }
                                 }
                             }
                         },
@@ -78,9 +78,9 @@
                     },
                     scrollable: false,
                     columns: [{
-                        field: "BrandName",
-                        title: "@Loc["admin.marketing.Discounts.AppliedToBrands.Brand"]",
-                        template: '<a class="k-link" href="@Url.Action("Edit", "Brand", new { area = Constants.AreaAdmin })/#=BrandId#">#=kendo.htmlEncode(BrandName)#</a>',
+                        field: "CollectionName",
+                        title: "@Loc["admin.marketing.Discounts.AppliedToCollections.Collection"]",
+                        template: '<a class="k-link" href="@Url.Action("Edit", "Collection", new { area = area })/#=CollectionId#">#=kendo.htmlEncode(CollectionName)#</a>',
                     }, {
                         command: [{
                             name: "destroy",
@@ -93,9 +93,9 @@
         </script>
         <script>
             $(document).ready(function () {
-                $('#btnRefreshBrands').click(function () {
+                $('#btnRefreshCollections').click(function () {
                     //refresh grid
-                    var grid = $("#brands-grid").data('kendoGrid');
+                    var grid = $("#collections-grid").data('kendoGrid');
                     grid.dataSource.read();
 
                     //return false to don't reload a page
@@ -107,7 +107,7 @@
     else
     {
         <div class="note note-info">
-            @Loc["admin.marketing.Discounts.AppliedToBrands.SaveBeforeEdit"]
+            @Loc["admin.marketing.Discounts.AppliedToCollections.SaveBeforeEdit"]
         </div>
     }
 }

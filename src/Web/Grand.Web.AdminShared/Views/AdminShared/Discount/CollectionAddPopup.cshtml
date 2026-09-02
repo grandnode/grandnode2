@@ -1,14 +1,19 @@
-@model DiscountModel.AddBrandToDiscountModel
+@model DiscountModel.AddCollectionToDiscountModel
 @inject AdminAreaSettings adminAreaSettings
+
 @{
     Layout = "";
-    ViewBag.Title = Loc["admin.marketing.Discounts.AppliedToBrands.AddNew"];
+
+    //page title
+    ViewBag.Title = Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<form id="BrandAddPopup" asp-area="@Constants.AreaStore" asp-controller="Discount" asp-action="BrandAddPopup" method="post"
+<form id="CollectionAddPopup" asp-area="@area" asp-controller="Discount" asp-action="CollectionAddPopup" method="post"
       asp-route-DiscountId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["DiscountId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
+
 
     <div class="row">
         <div class="col-md-12">
@@ -16,7 +21,7 @@
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-cubes"></i>
-                        @Loc["admin.marketing.Discounts.AppliedToBrands.AddNew"]
+                        @Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]
                     </div>
                 </div>
                 <div class="x_content form">
@@ -26,14 +31,14 @@
                                 <div class="row align-items-end">
                                     <div class="col-md-8 col-sm-12 col-12">
                                         <div class="form-group mb-0">
-                                            <admin-label asp-for="SearchBrandName" class="control-label"/>
-                                            <admin-input asp-for="SearchBrandName"/>
+                                            <admin-label asp-for="SearchCollectionName" class="control-label"/>
+                                            <admin-input asp-for="SearchCollectionName"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4 col-sm-12 col-12">
                                         <div class="form-actions">
-                                            <div class="btn-group btn-group-devided">
-                                                <button class="btn btn-success filter-submit" id="search-brands">
+                                            <div class="btn-group btn-group-sm btn-group-devided">
+                                                <button class="btn btn-success filter-submit" id="search-collections">
                                                     <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
                                                 </button>
                                                 <button class="btn btn-success" type="submit" name="save">
@@ -44,17 +49,16 @@
                                     </div>
                                 </div>
                             </div>
-                            <div id="brands-grid"></div>
+                            <div id="collections-grid"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
         var mfp = $.magnificPopup.instance;
-        $("#BrandAddPopup").submit(function (e) {
+        $("#CollectionAddPopup").submit(function (e) {
             e.preventDefault();
             var form = $(this);
             var url = form.attr('action');
@@ -65,7 +69,7 @@
                 success: function (data) {
                     if (data == "") {
                         mfp.close();
-                        $('#btnRefreshBrands').click();
+                        $('#btnRefreshCollections').click();
                     } else {
                         $.magnificPopup.open({
                             items: {
@@ -82,11 +86,11 @@
                 }
             });
         });
-        $("#brands-grid").kendoGrid({
+        $("#collections-grid").kendoGrid({
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("BrandAddPopupList", "Discount", new { area = Constants.AreaStore }))",
+                        url: "@Html.Raw(Url.Action("CollectionAddPopupList", "Discount", new { area = area }))",
                         type: "POST",
                         dataType: "json",
                         data: additionalData
@@ -99,6 +103,7 @@
                 },
                 error: function(e) {
                     display_kendoui_grid_error(e);
+                    // Cancel the changes
                     this.cancelChanges();
                 },
                 pageSize: @(adminAreaSettings.DefaultGridPageSize),
@@ -119,50 +124,58 @@
                 field: "Id",
                 headerTemplate: "<input id='mastercheckbox' type='checkbox'/>",
                 headerAttributes: { style: "text-align:center" },
-                template: "<input type='checkbox' name='SelectedBrandIds' value='#=Id#' class='checkboxGroups' />",
+                template: "<input type='checkbox' name='SelectedCollectionIds' value='#=Id#' class='checkboxGroups' />",
                 attributes: { style: "text-align:center" },
                 width: 50
             }, {
                 field: "Name",
-                title: "@Loc["Admin.Catalog.Brands.Fields.Name"]"
+                title: "@Loc["Admin.Catalog.Collections.Fields.Name"]"
+            }, {
+                field: "Published",
+                title: "@Loc["Admin.Catalog.Collections.Fields.Published"]",
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
             }]
         });
-
-        $('#search-brands').click(function() {
-            var grid = $('#brands-grid').data('kendoGrid');
-            grid.dataSource.page(1);
-            $('.checkboxGroups').prop('checked', false).change();
-            return false;
-        });
-
-        $("#@Html.IdFor(model => model.SearchBrandName)").keydown(function(event) {
-            if (event.keyCode == 13) {
-                $("#search-brands").click();
+            $('#search-collections').click(function() {
+                var grid = $('#collections-grid').data('kendoGrid');
+                grid.dataSource.page(1); //new search. Set page size to 1
+                $('.checkboxGroups').prop('checked', false).change();
                 return false;
-            }
-        });
+            });
 
-        //wire up checkboxes
-        $('#mastercheckbox').click(function() {
-            $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-        });
+            $("#@Html.IdFor(model => model.SearchCollectionName)").keydown(function(event) {
+                if (event.keyCode == 13) {
+                    $("#search-collections").click();
+                    return false;
+                }
+            });
 
-        $('#brands-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
-            updateMasterCheckbox();
-        });
+            //wire up checkboxes
+            $('#mastercheckbox').click(function() {
+                $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
+            });
+
+            $('#collections-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
+                updateMasterCheckbox();
+            });
 
         function additionalData() {
             var data = {
-                SearchBrandName: $('#@Html.IdFor(model => model.SearchBrandName)').val(),
+                SearchCollectionName: $('#@Html.IdFor(model => model.SearchCollectionName)').val()
             };
             addAntiForgeryToken(data);
             return data;
         }
 
         function updateMasterCheckbox() {
-            var numChkBoxes = $('#brands-grid input[type=checkbox][id!=mastercheckbox]').length;
-            var numChkBoxesChecked = $('#brands-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
+            var numChkBoxes = $('#collections-grid input[type=checkbox][id!=mastercheckbox]').length;
+            var numChkBoxesChecked = $('#collections-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
             $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
         }
+
     </script>
+
 </form>

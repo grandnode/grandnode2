@@ -1,12 +1,13 @@
-﻿@model DiscountModel.AddBrandToDiscountModel
+@model DiscountModel.AddBrandToDiscountModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "";
     //page title
     ViewBag.Title = Loc["admin.marketing.Discounts.AppliedToBrands.AddNew"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-<form id="BrandAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="Discount" asp-action="BrandAddPopup" method="post"
+<form id="BrandAddPopup" asp-area="@area" asp-controller="Discount" asp-action="BrandAddPopup" method="post"
       asp-route-DiscountId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["DiscountId"])"
       asp-route-btnId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["btnId"])"
       asp-route-formId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["formId"])">
@@ -88,7 +89,7 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("BrandAddPopupList", "Discount", new { area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("BrandAddPopupList", "Discount", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: additionalData
@@ -143,7 +144,7 @@
 
             $("#@Html.IdFor(model => model.SearchBrandName)").keydown(function(event) {
                 if (event.keyCode == 13) {
-                    $("#search-vendors").click();
+                    $("#search-brands").click();
                     return false;
                 }
             });

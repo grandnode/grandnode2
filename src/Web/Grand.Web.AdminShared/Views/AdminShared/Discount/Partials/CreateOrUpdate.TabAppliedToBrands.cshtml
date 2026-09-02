@@ -1,24 +1,23 @@
-﻿@model DiscountModel
-@inject AdminAreaSettings adminAreaSettings
-
+@model DiscountModel
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     if (!string.IsNullOrEmpty(Model.Id))
     {
         <div class="panel panel-default">
-            <vc:admin-widget widget-zone="discount_details_applied_to_products_top" additional-data="Model"/>
+            <vc:admin-widget widget-zone="discount_details_applied_to_brands_top" additional-data="Model"/>
             <div class="panel-body">
-                <div id="products-grid"></div>
+                <div id="brands-grid"></div>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshProducts", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToProducts.AddNew"]</a>
-                <input type="submit" id="btnRefreshProducts" style="display: none"/>
+                <a id="btnAddNewBrand" href="@(Url.Action("BrandAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshBrands", formId = "discount-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Marketing.Discounts.AppliedToBrands.AddNew"]</a>
+                <input type="submit" id="btnRefreshBrands" style="display: none"/>
             </div>
-            <vc:admin-widget widget-zone="discount_details_applied_to_products_bottom" additional-data="Model"/>
+            <vc:admin-widget widget-zone="discount_details_applied_to_brands_bottom" additional-data="Model"/>
         </div>
 
         <script>
             $(document).ready(function () {
-                $('#btnAddNewProduct').magnificPopup({
+                $('#btnAddNewBrand').magnificPopup({
                     type: 'ajax',
                     settings: { cache: false, async: false },
                     midClick: true,
@@ -31,17 +30,17 @@
                         }
                     }
                 });
-                $("#products-grid").kendoGrid({
+                $("#brands-grid").kendoGrid({
                     dataSource: {
                         transport: {
                             read: {
-                                url: "@Html.Raw(Url.Action("ProductList", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                                url: "@Html.Raw(Url.Action("BrandList", "Discount", new { discountId = Model.Id, area = area }))",
                                 type: "POST",
                                 dataType: "json",
                                 data: addAntiForgeryToken
                             },
                             destroy: {
-                                url: "@Html.Raw(Url.Action("ProductDelete", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                                url: "@Html.Raw(Url.Action("BrandDelete", "Discount", new { discountId = Model.Id, area = area }))",
                                 type: "POST",
                                 dataType: "json",
                                 data: addAntiForgeryToken
@@ -52,10 +51,10 @@
                             total: "Total",
                             errors: "Errors",
                             model: {
-                                id: "ProductId",
+                                id: "BrandId",
                                 fields: {
-                                    ProductName: {editable: false, type: "string" },
-                                    ProductId: {editable: false, type: "string" }
+                                    BrandName: {editable: false, type: "string" },
+                                    BrandId: {editable: false, type: "string" }
                                 }
                             }
                         },
@@ -64,14 +63,15 @@
                             // Cancel the changes
                             this.cancelChanges();
                         },
-                        pageSize: @(adminAreaSettings.DefaultGridPageSize),
                         serverPaging: true,
                         serverFiltering: true,
                         serverSorting: true
                     },
                     pageable: {
                         refresh: true,
-                        pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                        numeric: false,
+                        previousNext: false,
+                        info: false
                     },
                     editable: {
                         confirmation: false,
@@ -79,9 +79,9 @@
                     },
                     scrollable: false,
                     columns: [{
-                        field: "ProductName",
-                        title: "@Loc["admin.marketing.Discounts.AppliedToProducts.Product"]",
-                        template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>',
+                        field: "BrandName",
+                        title: "@Loc["admin.marketing.Discounts.AppliedToBrands.Brand"]",
+                        template: '<a class="k-link" href="@Url.Action("Edit", "Brand", new { area = area })/#=BrandId#">#=kendo.htmlEncode(BrandName)#</a>',
                     }, {
                         command: [{
                             name: "destroy",
@@ -92,12 +92,11 @@
                 });
             });
         </script>
-
         <script>
             $(document).ready(function () {
-                $('#btnRefreshProducts').click(function () {
+                $('#btnRefreshBrands').click(function () {
                     //refresh grid
-                    var grid = $("#products-grid").data('kendoGrid');
+                    var grid = $("#brands-grid").data('kendoGrid');
                     grid.dataSource.read();
 
                     //return false to don't reload a page
@@ -109,7 +108,7 @@
     else
     {
         <div class="note note-info">
-            @Loc["admin.marketing.Discounts.AppliedToProducts.SaveBeforeEdit"]
+            @Loc["admin.marketing.Discounts.AppliedToBrands.SaveBeforeEdit"]
         </div>
     }
 }

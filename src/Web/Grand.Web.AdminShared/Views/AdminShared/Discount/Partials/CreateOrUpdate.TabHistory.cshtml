@@ -1,6 +1,7 @@
-﻿@model DiscountModel
+@model DiscountModel
 @inject AdminAreaSettings adminAreaSettings
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     <vc:admin-widget widget-zone="discount_details_history_top" additional-data="Model"/>
     <div id="usagehistory-grid"></div>
     <vc:admin-widget widget-zone="discount_details_history_bottom" additional-data="Model"/>
@@ -10,13 +11,13 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("UsageHistoryList", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("UsageHistoryList", "Discount", new { discountId = Model.Id, area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("UsageHistoryDelete", "Discount", new { area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("UsageHistoryDelete", "Discount", new { area = area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -65,7 +66,7 @@
                     field: "OrderId",
                     title: "@Loc["admin.marketing.Discounts.History.Order"]",
                     width: 200,
-                    template: '<a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=OrderId#"><i class="fa fa-search"></i> #=OrderNumber# - @Loc["Admin.Common.View"]</a>'
+                    template: '<a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = area })/#=OrderId#"><i class="fa fa-search"></i> #=OrderNumber# - @Loc["Admin.Common.View"]</a>'
                 }, {
                     field: "OrderTotal",
                     title: "@Loc["admin.marketing.Discounts.History.OrderTotal"]",
