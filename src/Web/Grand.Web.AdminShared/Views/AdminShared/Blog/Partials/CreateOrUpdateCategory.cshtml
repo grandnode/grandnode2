@@ -1,0 +1,23 @@
+@model BlogCategoryModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+<admin-tabstrip name="blog-category-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Content.Blog.BlogCategory.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdateCategory.TabInfo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Content.Blog.BlogCategory.Posts"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdateCategory.Posts" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <partial name="Partials/WidgetZone.CategoryTabs" model="Model"/>
+    </items>
+</admin-tabstrip>
