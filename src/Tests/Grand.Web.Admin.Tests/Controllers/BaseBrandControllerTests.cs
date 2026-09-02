@@ -275,4 +275,116 @@ public class BaseBrandControllerTests
 
         _brandViewModelServiceMock.Verify(v => v.InsertBrandModel(It.IsAny<BrandModel>()), Times.Once);
     }
+
+    // --- PicturePopup --------------------------------------------------------------------------------
+
+    [TestMethod]
+    public async Task PicturePopupGet_ScopeDeniesAccess_ReturnsDeniedContent()
+    {
+        var brand = new Brand { Id = "b1", PictureId = "pic-1" };
+        _brandServiceMock.Setup(b => b.GetBrandById("b1")).ReturnsAsync(brand);
+        _scopeMock.Setup(s => s.HasAccess(brand)).ReturnsAsync(false);
+
+        var result = await _controller.PicturePopup("b1");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("This is not your brand", content.Content);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupGet_BrandHasNoPicture_ReturnsNotExistContent()
+    {
+        var brand = new Brand { Id = "b1", PictureId = null };
+        _brandServiceMock.Setup(b => b.GetBrandById("b1")).ReturnsAsync(brand);
+        _scopeMock.Setup(s => s.HasAccess(brand)).ReturnsAsync(true);
+
+        var result = await _controller.PicturePopup("b1");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("Picture not exist", content.Content);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupGet_BrandNotFound_ReturnsNotExistContent()
+    {
+        _brandServiceMock.Setup(b => b.GetBrandById("missing")).ReturnsAsync((Brand)null);
+
+        var result = await _controller.PicturePopup("missing");
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("Brand not exist", content.Content);
+        _scopeMock.Verify(s => s.HasAccess(It.IsAny<Brand>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_ScopeDeniesAccess_ReturnsDeniedContent()
+    {
+        var brand = new Brand { Id = "b1", PictureId = "pic-1" };
+        _brandServiceMock.Setup(b => b.GetBrandById("b1")).ReturnsAsync(brand);
+        _scopeMock.Setup(s => s.HasAccess(brand)).ReturnsAsync(false);
+
+        var model = new Grand.Web.AdminShared.Models.Common.PictureModel { ObjectId = "b1", Id = "pic-1" };
+        var result = await _controller.PicturePopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("This is not your brand", content.Content);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_BrandNotFound_ThrowsArgumentException()
+    {
+        _brandServiceMock.Setup(b => b.GetBrandById("missing")).ReturnsAsync((Brand)null);
+
+        var model = new Grand.Web.AdminShared.Models.Common.PictureModel { ObjectId = "missing", Id = "pic-1" };
+
+        var exception = await Assert.ThrowsExactlyAsync<ArgumentException>(
+            async () => await _controller.PicturePopup(model));
+
+        Assert.AreEqual("No brand found with the specified id", exception.Message);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_PictureIdMismatch_ThrowsArgumentException()
+    {
+        var brand = new Brand { Id = "b1", PictureId = "pic-1" };
+        _brandServiceMock.Setup(b => b.GetBrandById("b1")).ReturnsAsync(brand);
+        _scopeMock.Setup(s => s.HasAccess(brand)).ReturnsAsync(true);
+
+        var model = new Grand.Web.AdminShared.Models.Common.PictureModel { ObjectId = "b1", Id = "pic-2" };
+
+        var exception = await Assert.ThrowsExactlyAsync<ArgumentException>(
+            async () => await _controller.PicturePopup(model));
+
+        Assert.AreEqual("Picture ident doesn't fit with brand", exception.Message);
+    }
+
+    [TestMethod]
+    public async Task PicturePopupPost_ValidRequest_CallsUpdatePicture()
+    {
+        var pictureViewModelServiceMock = new Mock<IPictureViewModelService>();
+        var brand = new Brand { Id = "b1", PictureId = "pic-1" };
+        _brandServiceMock.Setup(b => b.GetBrandById("b1")).ReturnsAsync(brand);
+        _scopeMock.Setup(s => s.HasAccess(brand)).ReturnsAsync(true);
+        pictureViewModelServiceMock.Setup(p => p.UpdatePicture(It.IsAny<Grand.Web.AdminShared.Models.Common.PictureModel>())).Returns(Task.CompletedTask);
+
+        var controller = new TestBrandController(
+            _brandViewModelServiceMock.Object, _brandServiceMock.Object, _storeServiceMock.Object,
+            new Mock<ILanguageService>().Object, _translationServiceMock.Object,
+            pictureViewModelServiceMock.Object, _scopeMock.Object);
+        controller.ControllerContext = _controller.ControllerContext;
+        controller.TempData = _controller.TempData;
+
+        var model = new Grand.Web.AdminShared.Models.Common.PictureModel { ObjectId = "b1", Id = "pic-1" };
+
+        var result = await controller.PicturePopup(model);
+
+        var content = result as ContentResult;
+        Assert.IsNotNull(content);
+        Assert.AreEqual("", content.Content);
+        pictureViewModelServiceMock.Verify(p => p.UpdatePicture(model), Times.Once);
+    }
 }

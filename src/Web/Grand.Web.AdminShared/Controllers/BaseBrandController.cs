@@ -7,6 +7,7 @@ using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Catalog;
+using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -197,6 +198,45 @@ public abstract class BaseBrandController(
 
         Error(ModelState);
         return RedirectToAction("Edit", new { id = brand.Id });
+    }
+
+    #endregion
+
+    #region Picture
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> PicturePopup(string brandId)
+    {
+        var brand = await brandService.GetBrandById(brandId);
+        if (brand == null) return Content("Brand not exist");
+        if (!await scope.HasAccess(brand)) return Content("This is not your brand");
+        if (string.IsNullOrEmpty(brand.PictureId)) return Content("Picture not exist");
+
+        return View("Partials/PicturePopup",
+            await pictureViewModelService.PreparePictureModel(brand.PictureId, brand.Id));
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> PicturePopup(PictureModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var brand = await brandService.GetBrandById(model.ObjectId);
+            if (brand == null)
+                throw new ArgumentException("No brand found with the specified id");
+            if (!await scope.HasAccess(brand)) return Content("This is not your brand");
+            if (string.IsNullOrEmpty(brand.PictureId))
+                throw new ArgumentException("No picture found with the specified id");
+            if (brand.PictureId != model.Id)
+                throw new ArgumentException("Picture ident doesn't fit with brand");
+
+            await pictureViewModelService.UpdatePicture(model);
+            return Content("");
+        }
+
+        Error(ModelState);
+        return View("Partials/PicturePopup", model);
     }
 
     #endregion
