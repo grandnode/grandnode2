@@ -182,16 +182,18 @@ public abstract class BaseGiftVoucherController(
 
     #region Gift voucher usage history
 
-    // CanView, not HasAccess: this is a read-only grid on the Edit screen's History tab, and Edit
-    // is reachable (read-only) for a global voucher via CanView above - History must follow or
-    // the tab breaks. Same "sibling read action must match its screen's view-gate" fix as
-    // ARCH-001 News's Comments-tab Critical finding.
+    // HasAccess, not CanView: a global voucher's usage-history rows can reference orders from any
+    // store that redeemed it (GetGiftVoucherQueryHandler makes an empty-StoreId voucher visible
+    // cross-store), so admitting CanView here would leak other stores' order ids/numbers/amounts
+    // to a Store user viewing a global voucher's History tab. This intentionally makes the History
+    // tab unavailable for a global voucher even though Edit itself is viewable read-only for it -
+    // filtering rows by store would be needlessly complex for this rarely-used tab.
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     [HttpPost]
     public async Task<IActionResult> UsageHistoryList(string giftVoucherId, DataSourceRequest command)
     {
         var giftVoucher = await giftVoucherService.GetGiftVoucherById(giftVoucherId);
-        if (giftVoucher == null || !await scope.CanView(giftVoucher))
+        if (giftVoucher == null || !await scope.HasAccess(giftVoucher))
             throw new ArgumentException("No gift voucher found with the specified id");
 
         var (giftVoucherUsageHistoryModels, totalCount) = await giftVoucherViewModelService

@@ -4,7 +4,6 @@ using Grand.Domain.Orders;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Store.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,9 +29,13 @@ public class GiftVoucherController(
     // empty/null StoreId as visible from every store, so a global voucher must warn, not block,
     // on Edit - matches Category/Collection/Page/News's proven EditWarningCheck idiom, adapted
     // for GiftVoucher's flat StoreId (no LimitedToStores/Stores list to inspect).
+    // Only the genuinely global case (empty StoreId) warns here - a voucher owned by another store
+    // is denied a moment later by the CanView gate in the base class's Edit(GET), so warning on
+    // that condition too would leak a cross-tenant id-existence oracle (warn for another store's
+    // id, no warning for a nonexistent one).
     protected override void EditWarningCheck(GiftVoucher giftVoucher)
     {
-        if (giftVoucher.StoreId != Scope.DefaultStoreId)
+        if (string.IsNullOrEmpty(giftVoucher.StoreId))
             Warning(TranslationService.GetResource("Admin.GiftVouchers.Permissions"));
     }
 }

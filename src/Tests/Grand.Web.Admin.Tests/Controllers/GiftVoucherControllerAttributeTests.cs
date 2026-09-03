@@ -1,5 +1,9 @@
+using System.Linq;
+using System.Reflection;
+using Grand.Domain.Permissions;
 using Grand.Web.Admin.Controllers;
 using Grand.Web.AdminShared.Controllers;
+using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -42,11 +46,26 @@ public class GiftVoucherControllerAttributeTests
     }
 
     [TestMethod]
-    public void DoesNotHaveAuthorizeMenuAttribute()
+    public void HasAuthorizeMenuAttribute()
     {
-        // Admin has no [AuthorizeMenu] on this controller pre-consolidation - confirm the thin
-        // subclass didn't pick one up.
         var attr = typeof(GiftVoucherController).GetCustomAttributes(typeof(AuthorizeMenuAttribute), inherit: false);
-        Assert.AreEqual(0, attr.Length);
+        Assert.AreEqual(1, attr.Length);
+    }
+
+    // Regression test for the disclosed bug fix noted on BaseGiftVoucherController.Create(POST):
+    // pre-consolidation, Admin's own Create(POST) required PermissionActionName.Edit while
+    // everything else on Create required .Create. Pin the fixed permission via reflection so a
+    // future edit can't silently regress it.
+    [TestMethod]
+    public void CreatePost_RequiresCreatePermission()
+    {
+        var method = typeof(BaseGiftVoucherController).GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .Single(m => m.Name == "Create" && m.GetParameters().Length == 2
+                         && m.GetParameters()[0].ParameterType == typeof(GiftVoucherModel));
+
+        var attr = method.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), inherit: false)
+            .Cast<PermissionAuthorizeActionAttribute>().Single();
+
+        Assert.AreEqual(PermissionActionName.Create, attr.PermissionAction);
     }
 }

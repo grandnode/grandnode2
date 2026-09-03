@@ -257,6 +257,25 @@ public class BaseGiftVoucherControllerTests
     }
 
     [TestMethod]
+    public async Task Delete_HasAccessTrue_InvalidModelState_DoesNotDeleteAndRedirectsToEdit()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "store-1" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.HasAccess(giftVoucher)).ReturnsAsync(true);
+
+        var controller = CreateController();
+        controller.ModelState.AddModelError("Test", "Test error");
+
+        var result = await controller.Delete(new GiftVoucherDeleteModel("gv-1")) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Edit", result.ActionName);
+        _viewModelService.Verify(s => s.DeleteGiftVoucher(It.IsAny<GiftVoucher>()), Times.Never);
+        Assert.IsTrue(controller.TempData["grand.notifications.Error"] is List<string> errors
+                      && errors.Contains("Test error"));
+    }
+
+    [TestMethod]
     public async Task Delete_HasAccessTrue_DeletesAndRedirectsToList()
     {
         var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "store-1" };
@@ -286,11 +305,11 @@ public class BaseGiftVoucherControllerTests
     }
 
     [TestMethod]
-    public async Task UsageHistoryList_CanViewTrue_ReturnsGrid()
+    public async Task UsageHistoryList_HasAccessTrue_ReturnsGrid()
     {
-        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "" };
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "store-1" };
         _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
-        _scope.Setup(s => s.CanView(giftVoucher)).ReturnsAsync(true);
+        _scope.Setup(s => s.HasAccess(giftVoucher)).ReturnsAsync(true);
         _viewModelService.Setup(s => s.PrepareGiftVoucherUsageHistoryModels(giftVoucher, 1, 10))
             .ReturnsAsync((Enumerable.Empty<GiftVoucherModel.GiftVoucherUsageHistoryModel>(), 0));
 
@@ -301,11 +320,27 @@ public class BaseGiftVoucherControllerTests
     }
 
     [TestMethod]
-    public async Task UsageHistoryList_CanViewFalse_ThrowsArgumentException()
+    public async Task UsageHistoryList_HasAccessFalse_ThrowsArgumentException()
     {
         var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "store-2" };
         _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
-        _scope.Setup(s => s.CanView(giftVoucher)).ReturnsAsync(false);
+        _scope.Setup(s => s.HasAccess(giftVoucher)).ReturnsAsync(false);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
+            CreateController().UsageHistoryList("gv-1", new DataSourceRequest { Page = 1, PageSize = 10 }));
+    }
+
+    // Regression test for the leak this fix closes: a global voucher (empty StoreId) is
+    // CanView == true (Edit itself stays viewable read-only for it) but must NOT be admitted to
+    // UsageHistoryList, because its usage-history rows can reference other stores' orders. Before
+    // the fix, UsageHistoryList gated on CanView and would have returned the grid here.
+    [TestMethod]
+    public async Task UsageHistoryList_GlobalVoucher_CanViewTrueButHasAccessFalse_ThrowsArgumentException()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.CanView(giftVoucher)).ReturnsAsync(true);
+        _scope.Setup(s => s.HasAccess(giftVoucher)).ReturnsAsync(false);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
             CreateController().UsageHistoryList("gv-1", new DataSourceRequest { Page = 1, PageSize = 10 }));

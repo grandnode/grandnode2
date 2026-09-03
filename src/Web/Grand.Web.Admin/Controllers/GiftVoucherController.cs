@@ -5,7 +5,6 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
@@ -20,6 +19,7 @@ namespace Grand.Web.Admin.Controllers;
 [AuthorizeAdmin]
 [AutoValidateAntiforgeryToken]
 [Area(Constants.AreaAdmin)]
+[AuthorizeMenu]
 public class GiftVoucherController(
     IGiftVoucherViewModelService giftVoucherViewModelService,
     IGiftVoucherService giftVoucherService,
