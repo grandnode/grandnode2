@@ -3,6 +3,7 @@ using elFinder.Net.Drivers.FileSystem.Extensions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Discounts;
 using Grand.Domain.Messages;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
@@ -102,6 +103,13 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreOrderDataScope>();
         services.AddScoped<VendorOrderDataScope>();
         services.AddScoped<IAdminDataScope<Order>, RoutedOrderDataScope>();
+
+        // IAdminDataScope<Discount>: bespoke Admin scope (Store Manager gating), reuses the generic
+        // StoreAdminDataScope<T> for Store — see AdminDiscountDataScope/RoutedDiscountDataScope doc
+        // comments. No Vendor scope: Discount has no Vendor screen.
+        services.AddScoped<AdminDiscountDataScope>();
+        services.AddScoped<StoreAdminDataScope<Discount>>();
+        services.AddScoped<IAdminDataScope<Discount>, RoutedDiscountDataScope>();
 
         // IAdminDataScope<Shipment>: registered once here for the same reason as Order above — see
         // RoutedShipmentDataScope's doc comment. Admin reuses the generic GlobalAdminDataScope<T>

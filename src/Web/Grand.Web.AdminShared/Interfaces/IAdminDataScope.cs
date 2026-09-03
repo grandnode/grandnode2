@@ -17,13 +17,26 @@ public interface IAdminDataScope<TEntity>
     /// <summary>Whether the current user may view/reference this entity (open its edit form, copy it) —
     /// looser than <see cref="HasAccess"/> for hosts where viewing a shared/global entity is allowed but
     /// mutating it isn't. Defaults to <see cref="HasAccess"/> for hosts with no such split (Admin: always
-    /// true either way; Vendor: the two are identical, verified against the existing, unsplit
-    /// `CheckAccessToProduct`). Only Store overrides this.</summary>
+    /// true either way for most entities; Vendor: the two are identical, verified against the existing,
+    /// unsplit `CheckAccessToProduct`). Overridden by Store, and by
+    /// <see cref="Grand.Web.AdminShared.Services.AdminDiscountDataScope"/> for its Store-Manager-gated
+    /// Admin case.</summary>
     Task<bool> CanView(TEntity entity) => HasAccess(entity);
 
     /// <summary>Store id to default onto new/edited entities. Null when the host has no store concept
     /// (Admin: global, no default; Vendor: not store-scoped at all).</summary>
     string? DefaultStoreId { get; }
+
+    /// <summary>Async counterpart to <see cref="DefaultStoreId"/>. Every controller/service call site
+    /// in this project is already async, so callers should always prefer this member. It exists
+    /// because <see cref="Grand.Web.AdminShared.Services.AdminDiscountDataScope"/> computes its
+    /// default store id from an async customer-group check (<c>IGroupService.IsStoreManager</c>) with
+    /// no sync-safe path — exposing only the synchronous <see cref="DefaultStoreId"/> would force it
+    /// to block on that Task (`.GetAwaiter().GetResult()`), which is a hard constraint violation
+    /// (see `.ai/constraints.md` "Never block on a Task") and a thread-pool starvation risk under
+    /// load. Every other scope's default store id needs no I/O, so the default implementation here
+    /// just wraps <see cref="DefaultStoreId"/> and costs those implementations nothing.</summary>
+    Task<string?> GetDefaultStoreIdAsync() => Task.FromResult(DefaultStoreId);
 
     /// <summary>Prefix used to build host-specific localization keys, e.g. "Admin", "Vendor". Store
     /// currently has no distinct resource set and uses "Admin" (see Task 6).</summary>
