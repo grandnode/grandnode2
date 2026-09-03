@@ -40,7 +40,11 @@ public abstract class BasePageController(
 
     public IActionResult Index() => RedirectToAction("List");
 
-    public IActionResult List() => View();
+    public async Task<IActionResult> List()
+    {
+        var model = await pageViewModelService.PreparePageListModel();
+        return View(model);
+    }
 
     [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpPost]

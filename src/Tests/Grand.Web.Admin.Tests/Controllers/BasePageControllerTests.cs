@@ -311,6 +311,26 @@ public class BasePageControllerTests
         _pageViewModelServiceMock.Verify(v => v.DeletePage(page), Times.Once);
     }
 
+    [TestMethod]
+    public async Task ListGet_ReturnsViewWithPreparedListModel()
+    {
+        var availableStores = new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>
+        {
+            new() { Text = "All", Value = "" },
+            new() { Text = "Store 1", Value = "store-1" }
+        };
+        var preparedModel = new PageListModel { AvailableStores = availableStores };
+        _pageViewModelServiceMock.Setup(v => v.PreparePageListModel()).ReturnsAsync(preparedModel);
+
+        var result = await _controller.List();
+
+        var view = result as ViewResult;
+        Assert.IsNotNull(view);
+        var model = view.Model as PageListModel;
+        Assert.IsNotNull(model);
+        Assert.AreSame(availableStores, model.AvailableStores);
+    }
+
     // --- EditWarningCheck truth table (base no-op default; Task 3 adds Store's real override) --------
 
     [TestMethod]
