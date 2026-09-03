@@ -6,6 +6,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Discounts;
 using Grand.Domain.Messages;
 using Grand.Domain.Orders;
+using Grand.Domain.Pages;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Domain.Vendors;
@@ -192,6 +193,12 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<GlobalAdminDataScope<SpecificationAttribute>>();
         services.AddScoped<StoreAdminDataScope<SpecificationAttribute>>();
         services.AddScoped<IAdminDataScope<SpecificationAttribute>, RoutedSpecificationAttributeDataScope>();
+
+        // IAdminDataScope<Page>: registered once here for the same reason as Category above — see
+        // RoutedPageDataScope's doc comment. No Vendor scope: Page has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<Page>>();
+        services.AddScoped<StoreAdminDataScope<Page>>();
+        services.AddScoped<IAdminDataScope<Page>, RoutedPageDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
