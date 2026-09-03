@@ -134,6 +134,13 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<VendorMerchandiseReturnDataScope>();
         services.AddScoped<IAdminDataScope<MerchandiseReturn>, RoutedMerchandiseReturnDataScope>();
 
+        // IAdminDataScope<GiftVoucher>: registered once here for the same reason as
+        // Category/Collection above — see RoutedGiftVoucherDataScope's doc comment. No Vendor
+        // scope: GiftVoucher has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<GiftVoucher>>();
+        services.AddScoped<StoreGiftVoucherDataScope>();
+        services.AddScoped<IAdminDataScope<GiftVoucher>, RoutedGiftVoucherDataScope>();
+
         // IReportDataScope: NOT an IAdminDataScope<TEntity> registration (Reports has no entity —
         // see IReportDataScope's doc comment and ARCH-001 Reports consolidation spec §3). All three
         // hosts have a Reports screen, so all three concrete scopes are registered.
