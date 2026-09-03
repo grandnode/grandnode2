@@ -4,6 +4,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Discounts;
+using Grand.Domain.News;
 using Grand.Domain.Messages;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
@@ -192,6 +193,12 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<GlobalAdminDataScope<SpecificationAttribute>>();
         services.AddScoped<StoreAdminDataScope<SpecificationAttribute>>();
         services.AddScoped<IAdminDataScope<SpecificationAttribute>, RoutedSpecificationAttributeDataScope>();
+
+        // IAdminDataScope<NewsItem>: registered once here for the same reason as Category above — see
+        // RoutedNewsItemDataScope's doc comment. No Vendor scope: News has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<NewsItem>>();
+        services.AddScoped<StoreAdminDataScope<NewsItem>>();
+        services.AddScoped<IAdminDataScope<NewsItem>, RoutedNewsItemDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
