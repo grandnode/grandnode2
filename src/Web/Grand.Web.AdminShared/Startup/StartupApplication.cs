@@ -211,7 +211,6 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<GlobalAdminDataScope<BlogCategory>>();
         services.AddScoped<StoreAdminDataScope<BlogCategory>>();
         services.AddScoped<IAdminDataScope<BlogCategory>, RoutedBlogCategoryDataScope>();
-        services.AddScoped<IAdminDataScope<BlogCategory>, RoutedBlogCategoryDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
