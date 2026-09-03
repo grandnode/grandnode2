@@ -168,4 +168,48 @@ public abstract class BaseNewsController(
     }
 
     #endregion
+
+    #region Comments
+
+    public IActionResult Comments(string filterByNewsItemId)
+    {
+        ViewBag.FilterByNewsItemId = filterByNewsItemId;
+        return View();
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.List)]
+    [HttpPost]
+    public async Task<IActionResult> Comments(string filterByNewsItemId, DataSourceRequest command)
+    {
+        var comments = await newsViewModelService.PrepareNewsCommentModel(filterByNewsItemId, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult {
+            Data = comments.newsCommentModels.ToList(),
+            Total = comments.totalCount
+        };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> CommentDelete(NewsComment model)
+    {
+        var newsItem = await newsService.GetNewsById(model.NewsItemId);
+        // Admin's original had no scope check on CommentDelete at all - but Comments/CommentDelete are
+        // newly shared with Store in this phase (fixing a live bug where Store's Edit.cshtml already
+        // rendered a Comments tab whose grid called actions that didn't exist), so this check is
+        // required for Store's benefit even though Admin's original never needed one (GlobalAdminDataScope
+        // makes it a no-op for Admin). Same pattern Blog's own CommentDelete already uses.
+        if (newsItem == null || !await scope.HasAccess(newsItem))
+            return ErrorForKendoGridJson("No access to this news item's comments");
+
+        if (ModelState.IsValid)
+        {
+            await newsViewModelService.CommentDelete(model);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    #endregion
 }

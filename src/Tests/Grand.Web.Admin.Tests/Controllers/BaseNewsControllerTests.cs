@@ -305,4 +305,59 @@ public class BaseNewsControllerTests
         Assert.AreEqual("List", redirect.ActionName);
         _newsServiceMock.Verify(n => n.DeleteNews(newsItem), Times.Once);
     }
+
+    [TestMethod]
+    public void Comments_ReturnsView()
+    {
+        var result = _controller.Comments("n1");
+
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+    }
+
+    [TestMethod]
+    public async Task CommentDelete_ScopeDeniesAccess_ReturnsKendoErrorWithoutDeleting()
+    {
+        var comment = new NewsComment { Id = "c1", NewsItemId = "n1" };
+        var newsItem = new NewsItem { Id = "n1" };
+        _newsServiceMock.Setup(n => n.GetNewsById("n1")).ReturnsAsync(newsItem);
+        _scopeMock.Setup(s => s.HasAccess(newsItem)).ReturnsAsync(false);
+
+        var result = await _controller.CommentDelete(comment);
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _newsViewModelServiceMock.Verify(v => v.CommentDelete(It.IsAny<NewsComment>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CommentDelete_ScopeGrantsAccess_Deletes()
+    {
+        var comment = new NewsComment { Id = "c1", NewsItemId = "n1" };
+        var newsItem = new NewsItem { Id = "n1" };
+        _newsServiceMock.Setup(n => n.GetNewsById("n1")).ReturnsAsync(newsItem);
+        _scopeMock.Setup(s => s.HasAccess(newsItem)).ReturnsAsync(true);
+
+        var result = await _controller.CommentDelete(comment);
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        _newsViewModelServiceMock.Verify(v => v.CommentDelete(comment), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CommentDelete_NewsItemNotFound_ReturnsKendoErrorWithoutDeleting()
+    {
+        var comment = new NewsComment { Id = "c1", NewsItemId = "missing" };
+        _newsServiceMock.Setup(n => n.GetNewsById("missing")).ReturnsAsync((NewsItem)null);
+
+        var result = await _controller.CommentDelete(comment);
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _newsViewModelServiceMock.Verify(v => v.CommentDelete(It.IsAny<NewsComment>()), Times.Never);
+    }
 }
