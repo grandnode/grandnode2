@@ -46,8 +46,7 @@ public class BlogController(
     protected override void EditWarningCheck(BlogPost blogPost)
     {
         if (!blogPost.LimitedToStores ||
-            (blogPost.LimitedToStores &&
-             blogPost.Stores.Contains(PostScope.DefaultStoreId) &&
+            (blogPost.Stores.Contains(PostScope.DefaultStoreId) &&
              blogPost.Stores.Count > 1))
             Warning(TranslationService.GetResource("Admin.Content.Blog.BlogPosts.Permissions"));
     }

@@ -40,8 +40,7 @@ public class CollectionController(
     protected override void EditWarningCheck(Collection collection)
     {
         if (!collection.LimitedToStores ||
-            (collection.LimitedToStores &&
-             collection.Stores.Contains(Scope.DefaultStoreId) &&
+            (collection.Stores.Contains(Scope.DefaultStoreId) &&
              collection.Stores.Count > 1))
             Warning(TranslationService.GetResource("Admin.Catalog.Collections.Permissions"));
     }
