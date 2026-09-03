@@ -474,6 +474,7 @@ public abstract class BaseBlogController(
         if (comment == null) throw new ArgumentException("No comment found with the specified id");
 
         var blogPost = await blogService.GetBlogPostById(comment.BlogPostId);
+        if (blogPost == null) return ErrorForKendoGridJson("blogPost no exists");
         if (!await postScope.HasAccess(blogPost)) return ErrorForKendoGridJson(NoAccessToBlogPostMessage);
 
         if (ModelState.IsValid)

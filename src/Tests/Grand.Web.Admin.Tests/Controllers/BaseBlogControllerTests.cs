@@ -379,6 +379,23 @@ public class BaseBlogControllerTests
     }
 
     [TestMethod]
+    public async Task CommentDelete_BlogPostNoLongerExists_ReturnsKendoErrorWithoutDeleting()
+    {
+        var comment = new Grand.Domain.Blogs.BlogComment { Id = "cm1", BlogPostId = "missing" };
+        _blogServiceMock.Setup(b => b.GetBlogCommentById("cm1")).ReturnsAsync(comment);
+        _blogServiceMock.Setup(b => b.GetBlogPostById("missing")).ReturnsAsync((BlogPost)null);
+
+        var result = await _controller.CommentDelete("cm1");
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _postScopeMock.Verify(s => s.HasAccess(It.IsAny<BlogPost>()), Times.Never);
+        _blogServiceMock.Verify(b => b.DeleteBlogComment(It.IsAny<Grand.Domain.Blogs.BlogComment>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task Products_ScopeDeniesAccess_ReturnsKendoError()
     {
         var post = new BlogPost { Id = "p1" };
