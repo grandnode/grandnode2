@@ -315,6 +315,59 @@ public class BaseNewsControllerTests
     }
 
     [TestMethod]
+    public async Task Comments_ScopeDeniesView_ReturnsKendoErrorWithoutCallingPrepareNewsCommentModel()
+    {
+        var newsItem = new NewsItem { Id = "n1" };
+        _newsServiceMock.Setup(n => n.GetNewsById("n1")).ReturnsAsync(newsItem);
+        _scopeMock.Setup(s => s.CanView(newsItem)).ReturnsAsync(false);
+
+        var result = await _controller.Comments("n1", new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _newsViewModelServiceMock.Verify(
+            v => v.PrepareNewsCommentModel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Comments_NewsItemNotFound_ReturnsKendoErrorWithoutCallingPrepareNewsCommentModel()
+    {
+        _newsServiceMock.Setup(n => n.GetNewsById("missing")).ReturnsAsync((NewsItem)null);
+
+        var result = await _controller.Comments("missing", new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNotNull(gridModel.Errors);
+        _newsViewModelServiceMock.Verify(
+            v => v.PrepareNewsCommentModel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Comments_ScopeGrantsView_ReturnsCommentsGrid()
+    {
+        var newsItem = new NewsItem { Id = "n1" };
+        _newsServiceMock.Setup(n => n.GetNewsById("n1")).ReturnsAsync(newsItem);
+        _scopeMock.Setup(s => s.CanView(newsItem)).ReturnsAsync(true);
+        var commentModels = new List<NewsCommentModel> { new() { Id = "c1" } };
+        _newsViewModelServiceMock
+            .Setup(v => v.PrepareNewsCommentModel("n1", 1, 10))
+            .ReturnsAsync((commentModels, 1));
+
+        var result = await _controller.Comments("n1", new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        var json = result as JsonResult;
+        Assert.IsNotNull(json);
+        var gridModel = (DataSourceResult)json.Value;
+        Assert.IsNull(gridModel.Errors);
+        Assert.AreEqual(1, gridModel.Total);
+        _newsViewModelServiceMock.Verify(v => v.PrepareNewsCommentModel("n1", 1, 10), Times.Once);
+    }
+
+    [TestMethod]
     public async Task CommentDelete_ScopeDeniesAccess_ReturnsKendoErrorWithoutDeleting()
     {
         var comment = new NewsComment { Id = "c1", NewsItemId = "n1" };

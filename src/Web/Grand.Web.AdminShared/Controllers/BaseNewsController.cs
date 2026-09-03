@@ -181,6 +181,17 @@ public abstract class BaseNewsController(
     [HttpPost]
     public async Task<IActionResult> Comments(string filterByNewsItemId, DataSourceRequest command)
     {
+        var newsItem = await newsService.GetNewsById(filterByNewsItemId);
+        // Comments/CommentDelete are newly shared with Store in this phase; Admin's original had no
+        // check here (GlobalAdminDataScope makes CanView a no-op for Admin), but Store now needs one.
+        // CanView, not HasAccess: this is a read reachable from the same Edit screen that already lets
+        // a Store user view (not just mutate) global/multi-store news items via scope.CanView in
+        // Edit(GET) - HasAccess would wrongly deny the Comments tab for those items. An empty/missing
+        // filterByNewsItemId makes GetNewsById return null, denying here before
+        // PrepareNewsCommentModel's own no-filter branch could return every store's comments.
+        if (newsItem == null || !await scope.CanView(newsItem))
+            return ErrorForKendoGridJson("No access to this news item's comments");
+
         var comments = await newsViewModelService.PrepareNewsCommentModel(filterByNewsItemId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult {
             Data = comments.newsCommentModels.ToList(),
