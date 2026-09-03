@@ -41,8 +41,7 @@ public class NewsController(
     protected override void EditWarningCheck(NewsItem newsItem)
     {
         if (!newsItem.LimitedToStores ||
-            (newsItem.LimitedToStores &&
-             newsItem.Stores.Contains(Scope.DefaultStoreId) &&
+            (newsItem.Stores.Contains(Scope.DefaultStoreId) &&
              newsItem.Stores.Count > 1))
             Warning(TranslationService.GetResource("Admin.Content.News.Permissions"));
     }
