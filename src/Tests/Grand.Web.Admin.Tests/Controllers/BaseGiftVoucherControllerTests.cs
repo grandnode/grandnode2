@@ -167,4 +167,147 @@ public class BaseGiftVoucherControllerTests
         Assert.AreEqual("store-1", model.StoreId);
         _viewModelService.Verify(s => s.InsertGiftVoucherModel(model), Times.Once);
     }
+
+    [TestMethod]
+    public async Task EditGet_NotFound_RedirectsToList()
+    {
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("missing")).ReturnsAsync((GiftVoucher)null);
+
+        var result = await CreateController().Edit("missing") as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result.ActionName);
+    }
+
+    [TestMethod]
+    public async Task EditGet_CanViewFalse_RedirectsToList()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "store-2" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.CanView(giftVoucher)).ReturnsAsync(false);
+
+        var result = await CreateController().Edit("gv-1") as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result.ActionName);
+    }
+
+    [TestMethod]
+    public async Task EditGet_CanViewTrue_ReturnsViewWithModel()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "" };
+        var model = new GiftVoucherModel { Id = "gv-1" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.CanView(giftVoucher)).ReturnsAsync(true);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _viewModelService.Setup(s => s.PrepareGiftVoucherModel(giftVoucher)).ReturnsAsync(model);
+
+        var result = await CreateController().Edit("gv-1") as ViewResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreSame(model, result.Model);
+    }
+
+    [TestMethod]
+    public async Task EditPost_HasAccessFalse_RedirectsToEditWithoutSaving()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "store-2" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.HasAccess(giftVoucher)).ReturnsAsync(false);
+
+        var result = await CreateController().Edit(new GiftVoucherModel { Id = "gv-1" }, false) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Edit", result.ActionName);
+        _viewModelService.Verify(s => s.UpdateGiftVoucherModel(It.IsAny<GiftVoucher>(), It.IsAny<GiftVoucherModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EditPost_HasAccessTrue_ForcesStoreIdWhenScoped_ThenSaves()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "store-1" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.HasAccess(giftVoucher)).ReturnsAsync(true);
+        _scope.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _viewModelService.Setup(s => s.FillGiftVoucherModel(giftVoucher, It.IsAny<GiftVoucherModel>()))
+            .ReturnsAsync((GiftVoucher gv2, GiftVoucherModel m2) => m2);
+        _viewModelService.Setup(s => s.UpdateGiftVoucherModel(giftVoucher, It.IsAny<GiftVoucherModel>())).ReturnsAsync(giftVoucher);
+        _translationService.Setup(s => s.GetResource(It.IsAny<string>())).Returns("Updated");
+
+        var model = new GiftVoucherModel { Id = "gv-1" };
+        var result = await CreateController().Edit(model, false) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result.ActionName);
+        Assert.AreEqual("store-1", model.StoreId);
+    }
+
+    [TestMethod]
+    public async Task Delete_HasAccessFalse_RedirectsToEditWithoutDeleting()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "store-2" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.HasAccess(giftVoucher)).ReturnsAsync(false);
+
+        var result = await CreateController().Delete(new GiftVoucherDeleteModel("gv-1")) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Edit", result.ActionName);
+        _viewModelService.Verify(s => s.DeleteGiftVoucher(It.IsAny<GiftVoucher>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Delete_HasAccessTrue_DeletesAndRedirectsToList()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "store-1" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.HasAccess(giftVoucher)).ReturnsAsync(true);
+        _translationService.Setup(s => s.GetResource(It.IsAny<string>())).Returns("Deleted");
+
+        var result = await CreateController().Delete(new GiftVoucherDeleteModel("gv-1")) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result.ActionName);
+        _viewModelService.Verify(s => s.DeleteGiftVoucher(giftVoucher), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task NotifyRecipient_HasAccessFalse_RedirectsWithoutNotifying()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "store-2" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.HasAccess(giftVoucher)).ReturnsAsync(false);
+
+        var result = await CreateController().NotifyRecipient(new GiftVoucherNotifyRecipient("gv-1")) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Edit", result.ActionName);
+        _viewModelService.Verify(s => s.NotifyRecipient(It.IsAny<GiftVoucher>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UsageHistoryList_CanViewTrue_ReturnsGrid()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.CanView(giftVoucher)).ReturnsAsync(true);
+        _viewModelService.Setup(s => s.PrepareGiftVoucherUsageHistoryModels(giftVoucher, 1, 10))
+            .ReturnsAsync((Enumerable.Empty<GiftVoucherModel.GiftVoucherUsageHistoryModel>(), 0));
+
+        var result = await CreateController().UsageHistoryList("gv-1",
+            new DataSourceRequest { Page = 1, PageSize = 10 }) as JsonResult;
+
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task UsageHistoryList_CanViewFalse_ThrowsArgumentException()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "store-2" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.CanView(giftVoucher)).ReturnsAsync(false);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
+            CreateController().UsageHistoryList("gv-1", new DataSourceRequest { Page = 1, PageSize = 10 }));
+    }
 }
