@@ -132,6 +132,7 @@ public abstract class BaseGiftVoucherController(
             return RedirectToAction("List");
         }
 
+        model = await giftVoucherViewModelService.PrepareGiftVoucherModel(model);
         return View(ApplyDefaultStoreToModel(model));
     }
 

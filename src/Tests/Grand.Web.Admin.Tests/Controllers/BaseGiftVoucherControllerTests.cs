@@ -310,4 +310,40 @@ public class BaseGiftVoucherControllerTests
         await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
             CreateController().UsageHistoryList("gv-1", new DataSourceRequest { Page = 1, PageSize = 10 }));
     }
+
+    [TestMethod]
+    public async Task EditPost_InvalidModel_CallsPrepareGiftVoucherModelToRepopulateAvailableStores()
+    {
+        var giftVoucher = new GiftVoucher { Id = "gv-1", StoreId = "" };
+        _giftVoucherService.Setup(s => s.GetGiftVoucherById("gv-1")).ReturnsAsync(giftVoucher);
+        _scope.Setup(s => s.HasAccess(giftVoucher)).ReturnsAsync(true);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+
+        // Simulate invalid model state by returning the model with AvailableStores populated
+        var preparedModel = new GiftVoucherModel {
+            Id = "gv-1",
+            AvailableStores = {
+                new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = "", Text = "All" },
+                new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = "store-1", Text = "Store 1" }
+            }
+        };
+        _viewModelService.Setup(s => s.FillGiftVoucherModel(giftVoucher, It.IsAny<GiftVoucherModel>()))
+            .ReturnsAsync((GiftVoucher gv2, GiftVoucherModel m2) => m2);
+        _viewModelService.Setup(s => s.PrepareGiftVoucherModel(It.IsAny<GiftVoucherModel>()))
+            .ReturnsAsync(preparedModel);
+
+        var controller = CreateController();
+        // Force ModelState.IsValid to be false by adding a model error
+        controller.ModelState.AddModelError("Test", "Test error");
+
+        var model = new GiftVoucherModel { Id = "gv-1" };
+        var result = await controller.Edit(model, false) as ViewResult;
+
+        Assert.IsNotNull(result);
+        var returnedModel = result.Model as GiftVoucherModel;
+        Assert.IsNotNull(returnedModel);
+        // Verify that AvailableStores was populated by PrepareGiftVoucherModel
+        Assert.AreEqual(2, returnedModel.AvailableStores.Count);
+        _viewModelService.Verify(s => s.PrepareGiftVoucherModel(It.IsAny<GiftVoucherModel>()), Times.Once);
+    }
 }
