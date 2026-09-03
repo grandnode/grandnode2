@@ -1,10 +1,11 @@
+@using Grand.Web.AdminShared.Models.Pages
 @model PageModel
 @{
     //page title
     ViewBag.Title = Loc["Admin.Content.Pages.AddNew"];
-    Layout = Constants.LayoutStore;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<form asp-area="@Constants.AreaStore" asp-controller="Page" asp-action="Create" method="post">
+<form asp-area="@area" asp-controller="Page" asp-action="Create" method="post">
 
     <div class="row">
         <div class="col-md-12">
@@ -25,6 +26,7 @@
                             <button class="btn btn-success" type="submit" name="save-continue">
                                 <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                             </button>
+                            <partial name="Partials/WidgetZone.DetailsButtonsCreate"/>
                         </div>
                     </div>
                 </div>

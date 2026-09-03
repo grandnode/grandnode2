@@ -1,5 +1,8 @@
 @using Microsoft.AspNetCore.Mvc.Razor
+@using Grand.Web.AdminShared.Models.Pages
 @model PageModel
+
+<partial name="Partials/WidgetZone.Seo.Top" model="Model"/>
 
 @{
     Func<int, HelperResult>
@@ -69,4 +72,6 @@
             </div>
         </div>
     </localized-editor>
+
 </div>
+<partial name="Partials/WidgetZone.Seo.Bottom" model="Model"/>
