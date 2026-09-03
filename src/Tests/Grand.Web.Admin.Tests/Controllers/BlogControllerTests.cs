@@ -1,5 +1,7 @@
+using System.Reflection;
 using Grand.Web.Admin.Controllers;
-using Microsoft.AspNetCore.Authorization;
+using Grand.Web.AdminShared.Controllers;
+using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -9,17 +11,21 @@ namespace Grand.Web.Admin.Tests.Controllers;
 public class BlogControllerTests
 {
     [TestMethod]
-    public void HasAreaAttribute_SetToAdmin()
+    public void BlogController_IsThinSubclassOfBaseBlogController()
     {
-        var attr = typeof(BlogController).GetCustomAttributes(typeof(AreaAttribute), false)
-            .Cast<AreaAttribute>().SingleOrDefault();
-        Assert.IsNotNull(attr);
-        Assert.AreEqual("Admin", attr.RouteValue);
+        Assert.IsTrue(typeof(BlogController).IsSubclassOf(typeof(BaseBlogController)));
     }
 
     [TestMethod]
-    public void HasAuthorizeAdminAttribute()
+    public void BlogController_HasRequiredHostAttributes()
     {
-        Assert.IsTrue(typeof(BlogController).GetCustomAttributes(typeof(Grand.Web.Common.Filters.AuthorizeAdminAttribute), true).Length > 0);
+        var type = typeof(BlogController);
+        Assert.IsTrue(type.IsDefined(typeof(AreaAttribute), inherit: false), "[Area] missing");
+        Assert.IsTrue(type.IsDefined(typeof(AuthorizeAdminAttribute), inherit: false), "[AuthorizeAdmin] missing");
+        Assert.IsTrue(type.IsDefined(typeof(AuthorizeMenuAttribute), inherit: false), "[AuthorizeMenu] missing");
+        Assert.IsTrue(type.IsDefined(typeof(AutoValidateAntiforgeryTokenAttribute), inherit: false), "[AutoValidateAntiforgeryToken] missing");
+
+        var area = type.GetCustomAttribute<AreaAttribute>()!;
+        Assert.AreEqual("Admin", area.RouteValue);
     }
 }
