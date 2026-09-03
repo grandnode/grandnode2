@@ -307,11 +307,16 @@ public class BaseNewsControllerTests
     }
 
     [TestMethod]
-    public void Comments_ReturnsView()
+    public void Comments_RedirectsToList()
     {
+        // Comments(string) has no Comments.cshtml to render (unlike Blog, which has one) and is
+        // unreachable from the UI - the Comments tab's grid calls the POST overload only. Redirects
+        // instead of rendering a nonexistent view; see BaseNewsController's ruled fix comment.
         var result = _controller.Comments("n1");
 
-        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
     }
 
     [TestMethod]
