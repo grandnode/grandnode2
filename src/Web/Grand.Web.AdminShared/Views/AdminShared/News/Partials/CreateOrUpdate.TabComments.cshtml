@@ -1,14 +1,18 @@
-﻿@model NewsItemModel
+@using Grand.Web.AdminShared.Models.News
+@model NewsItemModel
 @inject AdminAreaSettings adminAreaSettings
-<vc:admin-widget widget-zone="news_details_comments_list" additional-data="Model"/>
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<partial name="Partials/WidgetZone.DetailsCommentsList" model="Model"/>
 @if (!string.IsNullOrEmpty(Model.Id))
 {
     <div class="panel panel-default">
-        <vc:admin-widget widget-zone="news_details_comments_top" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.DetailsCommentsTop" model="Model"/>
         <div class="panel-body">
             <div id="comments-grid"></div>
         </div>
-        <vc:admin-widget widget-zone="news_details_comments_bottom" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.DetailsCommentsBottom" model="Model"/>
     </div>
     <script>
         $(document).ready(function () {
@@ -16,13 +20,13 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Url.Action("Comments", "News", new { filterByNewsItemId = Model.Id, area = Constants.AreaStore })",
+                            url: "@Url.Action("Comments", "News", new { filterByNewsItemId = Model.Id, area })",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("CommentDelete", "News", new { area = Constants.AreaStore }))",
+                            url: "@Html.Raw(Url.Action("CommentDelete", "News", new { area }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -65,7 +69,7 @@
                     field: "CustomerId",
                     title: "@Loc["Admin.Content.News.Comments.Fields.Customer"]",
                     width: 200,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaStore })/#=CustomerId#">#:kendo.htmlEncode(CustomerInfo)#</a>'
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area })/#=CustomerId#">#:kendo.htmlEncode(CustomerInfo)#</a>'
                 }, {
                     field: "CommentTitle",
                     title: "@Loc["Admin.Content.News.Comments.Fields.CommentTitle"]"

@@ -1,7 +1,8 @@
-﻿@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Grand.Web.AdminShared.Models.News
 @model NewsItemModel
 
-<vc:admin-widget widget-zone="news_details_seo_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.DetailsSeoTop" model="Model"/>
 @{
     Func<int, HelperResult>
         template = @<div class="form-body">
@@ -72,4 +73,4 @@
     </localized-editor>
 
 </div>
-<vc:admin-widget widget-zone="news_details_seo_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.DetailsSeoBottom" model="Model"/>

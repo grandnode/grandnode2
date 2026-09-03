@@ -1,8 +1,10 @@
-﻿@model NewsItemListModel
+@using Grand.Web.AdminShared.Models.News
+@model NewsItemListModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Content.News.NewsItems"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
 <div class="row">
@@ -14,33 +16,36 @@
                     @Loc["Admin.Content.News.NewsItems"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green">
+                    <a href="@Url.Action("Create", new { area })" class="btn green">
                         <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
-                    <vc:admin-widget widget-zone="news_list_buttons" additional-data="null"/>
+                    <partial name="Partials/WidgetZone.ListButtons"/>
                 </div>
             </div>
-            <div class="x_content form">
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="row align-items-end mb-1">
-                            <div class="col-md-3 col-sm-12 col-12">
-                                <div class="form-group mb-0">
-                                    <admin-label asp-for="SearchStoreId" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
-                                    <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+            @if (area == "Admin")
+            {
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="row align-items-end mb-1">
+                                <div class="col-md-3 col-sm-12 col-12">
+                                    <div class="form-group mb-0">
+                                        <admin-label asp-for="SearchStoreId" class="d-flex flex-column align-items-start mw-100 px-0 text-left"/>
+                                        <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores"/>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
-                                <div class="form-actions">
-                                    <button class="btn btn-success filter-submit" id="search-newsitem">
-                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
-                                    </button>
+                                <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
+                                    <div class="form-actions">
+                                        <button class="btn btn-success filter-submit" id="search-newsitem">
+                                            <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
             <div class="x_content">
                 <div class="form-horizontal">
                     <div class="form-body">
@@ -59,7 +64,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("List", "News", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("List", "News", new { area }))",
                         type: "POST",
                         dataType: "json",
                         data: additionalData
@@ -142,9 +147,10 @@
     });
 
     function additionalData() {
-        var data = {
-            SearchStoreId: $('#SearchStoreId').val()
-        };
+        var data = {};
+        if ($('#SearchStoreId').length) {
+            data.SearchStoreId = $('#SearchStoreId').val();
+        }
         addAntiForgeryToken(data);
         return data;
     }
