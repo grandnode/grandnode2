@@ -43,8 +43,7 @@ public class PageController(
     protected override void EditWarningCheck(Page page)
     {
         if (!page.LimitedToStores ||
-            (page.LimitedToStores &&
-             page.Stores.Contains(Scope.DefaultStoreId) &&
+            (page.Stores.Contains(Scope.DefaultStoreId) &&
              page.Stores.Count > 1))
             Warning(TranslationService.GetResource("Admin.Content.Pages.Permissions"));
     }
