@@ -1,5 +1,8 @@
+@using Grand.Web.AdminShared.Models.Pages
 @model PageModel
-
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
 <admin-tabstrip name="page-edit">
@@ -18,5 +21,16 @@
                 </div>
             </content>
         </tabstrip-item>
+        @if (area == "Admin")
+        {
+            <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="2">
+                <content>
+                    <div>
+                        <partial name="Partials/UserFields" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <partial name="Partials/WidgetZone.Tabs" model="Model"/>
     </items>
 </admin-tabstrip>

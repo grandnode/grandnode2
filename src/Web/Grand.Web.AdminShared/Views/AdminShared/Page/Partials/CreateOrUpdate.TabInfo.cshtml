@@ -1,5 +1,9 @@
-﻿@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Grand.Web.AdminShared.Models.Pages
 @model PageModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 
 <script>
 $(document).ready(function() {
@@ -15,7 +19,7 @@ function togglePassword() {
     }
 }
 </script>
-<vc:admin-widget widget-zone="page_details_info_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Info.Top" model="Model"/>
 
 @{
     Func<int, HelperResult>
@@ -151,20 +155,23 @@ function togglePassword() {
                 <span asp-validation-for="DisplayOrder"></span>
             </div>
         </div>
-        <div class="form-group">
-            <admin-label asp-for="CustomerGroups"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="CustomerGroups"/>
-                <span asp-validation-for="CustomerGroups"></span>
+        @if (area == "Admin")
+        {
+            <div class="form-group">
+                <admin-label asp-for="CustomerGroups"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="CustomerGroups"/>
+                    <span asp-validation-for="CustomerGroups"></span>
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <admin-label asp-for="Stores"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Stores"/>
-                <span asp-validation-for="Stores"></span>
+            <div class="form-group">
+                <admin-label asp-for="Stores"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Stores"/>
+                    <span asp-validation-for="Stores"></span>
+                </div>
             </div>
-        </div>
+        }
         <div class="form-group">
             <admin-label asp-for="AccessibleWhenStoreClosed"/>
             <div class="col-md-9 col-sm-9">
@@ -206,4 +213,4 @@ function togglePassword() {
         </div>
     </div>
 </div>
-<vc:admin-widget widget-zone="page_details_info_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.Info.Bottom" model="Model"/>

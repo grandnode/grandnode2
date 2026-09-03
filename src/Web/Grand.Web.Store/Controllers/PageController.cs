@@ -2,76 +2,61 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Pages;
 using Grand.Domain.Permissions;
-using Grand.Infrastructure;
-using Grand.Web.AdminShared.Extensions;
+using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Pages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Store.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-[PermissionAuthorize(PermissionSystemName.Pages)]
-public class PageController : BaseStoreController
+// Reduced to a thin subclass of BasePageController (ARCH-001 Page consolidation). All shared
+// behavior lives in the base; this class supplies Store's DI wiring, the EditWarningCheck hook, and
+// three genuinely Store-only actions (Copy, StorePagesList, GlobalPagesList) that have no Admin
+// equivalent and are not shared - Admin is already global, "copy into my store" and the two-tab
+// list split are Store-specific UI/workflow, not security-scope differences. Same pattern as
+// BlogController's kept Preview action.
+[AutoValidateAntiforgeryToken]
+[Area(Constants.AreaStore)]
+[AuthorizeStore]
+[AuthorizeMenu]
+public class PageController(
+    IPageViewModelService pageViewModelService,
+    IPageService pageService,
+    ILanguageService languageService,
+    ITranslationService translationService,
+    IDateTimeService dateTimeService,
+    IAdminDataScope<Page> scope)
+    : BasePageController(pageViewModelService, pageService, languageService, translationService,
+        dateTimeService, scope)
 {
-    #region Constructors
-
-    public PageController(
-        IPageViewModelService pageViewModelService,
-        IPageService pageService,
-        ILanguageService languageService,
-        ITranslationService translationService,
-        IContextAccessor contextAccessor,
-        IDateTimeService dateTimeService)
+    // Re-derived from the original Store PageController.Edit(GET) - the condition is unusual (warns
+    // when NOT limited to stores at all, or when limited AND the staff member's store is one of
+    // several) and easy to get backwards. Third occurrence of this exact idiom in ARCH-001
+    // (Category, Blog, now Page) - treat as proven.
+    protected override void EditWarningCheck(Page page)
     {
-        _pageViewModelService = pageViewModelService;
-        _pageService = pageService;
-        _languageService = languageService;
-        _translationService = translationService;
-        _contextAccessor = contextAccessor;
-        _dateTimeService = dateTimeService;
-    }
-
-    #endregion
-
-    #region Fields
-
-    private readonly IPageViewModelService _pageViewModelService;
-    private readonly IPageService _pageService;
-    private readonly ILanguageService _languageService;
-    private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
-    private readonly IDateTimeService _dateTimeService;
-
-    #endregion
-
-    #region List
-
-    public IActionResult Index()
-    {
-        return RedirectToAction("List");
-    }
-
-    public IActionResult List()
-    {
-        return View();
+        if (!page.LimitedToStores ||
+            (page.Stores.Contains(Scope.DefaultStoreId) &&
+             page.Stores.Count > 1))
+            Warning(TranslationService.GetResource("Admin.Content.Pages.Permissions"));
     }
 
     [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpPost]
     public async Task<IActionResult> StorePagesList(DataSourceRequest command, PageListModel model)
     {
-        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-        var pages = await _pageService.GetAllPages(storeId, true);
+        var pages = await pageService.GetAllPages(Scope.DefaultStoreId, true);
 
-        // Store-specific: exclusively assigned to this one store
         var pageModels = pages
             .Where(x => x.LimitedToStores && x.Stores.Count == 1)
-            .Select(x => x.ToModel(_dateTimeService))
+            .Select(x => x.ToModel(dateTimeService))
             .ToList();
 
         if (!string.IsNullOrEmpty(model.Name))
@@ -90,13 +75,11 @@ public class PageController : BaseStoreController
     [HttpPost]
     public async Task<IActionResult> GlobalPagesList(DataSourceRequest command, PageListModel model)
     {
-        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-        var pages = await _pageService.GetAllPages(storeId, true);
+        var pages = await pageService.GetAllPages(Scope.DefaultStoreId, true);
 
-        // Global: no store restriction, or shared across multiple stores
         var pageModels = pages
             .Where(x => !x.LimitedToStores || x.Stores.Count > 1)
-            .Select(x => x.ToModel(_dateTimeService))
+            .Select(x => x.ToModel(dateTimeService))
             .ToList();
 
         if (!string.IsNullOrEmpty(model.Name))
@@ -111,158 +94,36 @@ public class PageController : BaseStoreController
         return Json(new DataSourceResult { Data = pagedData, Total = total });
     }
 
-    #endregion
-
-    #region Create / Edit / Delete
-
-    [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public async Task<IActionResult> Create()
-    {
-        var model = new PageModel {
-            DisplayOrder = 1,
-            Published = true
-        };
-        await _pageViewModelService.PrepareLayoutsModel(model);
-        await AddLocales(_languageService, model.Locales);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Create(PageModel model, bool continueEditing)
-    {
-        if (ModelState.IsValid)
-        {
-            model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
-            var page = await _pageViewModelService.InsertPageModel(model);
-            Success(_translationService.GetResource("Admin.Content.Pages.Added"));
-            return continueEditing ? RedirectToAction("Edit", new { id = page.Id }) : RedirectToAction("List");
-        }
-
-        //If we got this far, something failed, redisplay form
-        await _pageViewModelService.PrepareLayoutsModel(model);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    public async Task<IActionResult> Edit(string id)
-    {
-        var page = await _pageService.GetPageById(id);
-        if (page == null)
-            return RedirectToAction("List");
-
-        if (!page.LimitedToStores || (page.Stores.Contains(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
-                                      page.Stores.Count > 1))
-        {
-            Warning(_translationService.GetResource("Admin.Content.Pages.Permissions"));
-        }
-        else
-        {
-            if (!page.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-                return RedirectToAction("List");
-        }
-
-        var model = page.ToModel(_dateTimeService);
-        model.ShowCopyButton = !page.LimitedToStores || page.Stores.Count > 1;
-        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) }, Request.Scheme);
-        await _pageViewModelService.PrepareLayoutsModel(model);
-        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
-        {
-            locale.Title = page.GetTranslation(x => x.Title, languageId, false);
-            locale.Body = page.GetTranslation(x => x.Body, languageId, false);
-            locale.MetaKeywords = page.GetTranslation(x => x.MetaKeywords, languageId, false);
-            locale.MetaDescription = page.GetTranslation(x => x.MetaDescription, languageId, false);
-            locale.MetaTitle = page.GetTranslation(x => x.MetaTitle, languageId, false);
-            locale.SeName = page.GetSeName(languageId, false);
-        });
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Edit(PageModel model, bool continueEditing)
-    {
-        var page = await _pageService.GetPageById(model.Id);
-        if (page == null)
-            return RedirectToAction("List");
-
-        if (!page.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return RedirectToAction("Edit", new { id = page.Id });
-
-        if (ModelState.IsValid)
-        {
-            model.Stores = [_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId];
-            model.CustomerGroups = page.CustomerGroups.ToArray();
-            page = await _pageViewModelService.UpdatePageModel(page, model);
-            Success(_translationService.GetResource("Admin.Content.Pages.Updated"));
-
-            if (continueEditing)
-            {
-                await SaveSelectedTabIndex();
-                return RedirectToAction("Edit", new { id = page.Id });
-            }
-
-            return RedirectToAction("List");
-        }
-
-        //If we got this far, something failed, redisplay form
-        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) }, "http");
-        await _pageViewModelService.PrepareLayoutsModel(model);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Delete)]
-    [HttpPost]
-    public async Task<IActionResult> Delete(string id)
-    {
-        var page = await _pageService.GetPageById(id);
-        if (page == null)
-            return RedirectToAction("List");
-
-        if (!page.AccessToEntityByStore(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
-            return RedirectToAction("List");
-
-        await _pageViewModelService.DeletePage(page);
-        Success(_translationService.GetResource("Admin.Content.Pages.Deleted"));
-        return RedirectToAction("List");
-    }
-
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     public async Task<IActionResult> Copy(string id)
     {
-        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-        var page = await _pageService.GetPageById(id);
-        if (page == null)
-            return RedirectToAction("List");
+        var storeId = Scope.DefaultStoreId;
+        var page = await pageService.GetPageById(id);
+        if (page == null) return RedirectToAction("List");
 
-        // A page is copyable only while it is still readable here and not yet owned by this store,
-        // so AccessToEntityByStore - which demands sole ownership - cannot be the guard.
+        // A page is copyable only while it is still readable here and not yet owned by this store, so
+        // HasAccess - which demands sole ownership - cannot be the guard.
         if (page.LimitedToStores && !page.Stores.Contains(storeId))
             return RedirectToAction("List");
 
-        // Only allow copy for multistore or store-unrestricted pages
+        // Only allow copy for multistore or store-unrestricted pages.
         if (page.LimitedToStores && page.Stores.Count <= 1)
             return RedirectToAction("Edit", new { id });
 
-        // Check if a page with the same SystemName already exists for the current store
-        var storePages = await _pageService.GetAllPages(storeId, true);
+        var storePages = await pageService.GetAllPages(storeId, true);
         if (storePages.Any(p => p.Id != page.Id &&
-                                p.SystemName.Equals(page.SystemName, StringComparison.OrdinalIgnoreCase)))
+                                 p.SystemName.Equals(page.SystemName, StringComparison.OrdinalIgnoreCase)))
         {
-            Error(_translationService.GetResource("Admin.Content.Pages.Copy.DuplicateSystemName"));
+            Error(translationService.GetResource("Admin.Content.Pages.Copy.DuplicateSystemName"));
             return RedirectToAction("Edit", new { id });
         }
 
-        // Build copy model from original page
-        var model = page.ToModel(_dateTimeService);
+        var model = page.ToModel(dateTimeService);
         model.Id = "";
         model.Stores = [storeId];
 
-        // Preserve localized content
-        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
+        await AddLocales(languageService, model.Locales, (locale, languageId) =>
         {
             locale.Title = page.GetTranslation(x => x.Title, languageId, false);
             locale.Body = page.GetTranslation(x => x.Body, languageId, false);
@@ -272,10 +133,8 @@ public class PageController : BaseStoreController
             locale.SeName = page.GetSeName(languageId, false);
         });
 
-        var newPage = await _pageViewModelService.InsertPageModel(model);
-        Success(_translationService.GetResource("Admin.Content.Pages.Added"));
+        var newPage = await pageViewModelService.InsertPageModel(model);
+        Success(translationService.GetResource("Admin.Content.Pages.Added"));
         return RedirectToAction("Edit", new { id = newPage.Id });
     }
-
-    #endregion
 }
