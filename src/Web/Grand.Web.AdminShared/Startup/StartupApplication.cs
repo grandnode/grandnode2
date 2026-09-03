@@ -1,5 +1,6 @@
 using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.Drivers.FileSystem.Extensions;
+using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -199,6 +200,18 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<GlobalAdminDataScope<Page>>();
         services.AddScoped<StoreAdminDataScope<Page>>();
         services.AddScoped<IAdminDataScope<Page>, RoutedPageDataScope>();
+
+        // IAdminDataScope<BlogPost>/<BlogCategory>: registered once here for the same reason as
+        // Category above — see RoutedBlogPostDataScope's doc comment. No Vendor scope: Blog has no
+        // Vendor screen. Two entities share one controller (BaseBlogController), so two routed
+        // scopes are registered.
+        services.AddScoped<GlobalAdminDataScope<BlogPost>>();
+        services.AddScoped<StoreAdminDataScope<BlogPost>>();
+        services.AddScoped<IAdminDataScope<BlogPost>, RoutedBlogPostDataScope>();
+        services.AddScoped<GlobalAdminDataScope<BlogCategory>>();
+        services.AddScoped<StoreAdminDataScope<BlogCategory>>();
+        services.AddScoped<IAdminDataScope<BlogCategory>, RoutedBlogCategoryDataScope>();
+        services.AddScoped<IAdminDataScope<BlogCategory>, RoutedBlogCategoryDataScope>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
