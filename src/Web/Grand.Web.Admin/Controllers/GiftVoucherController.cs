@@ -1,203 +1,28 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
+using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Permissions;
+using Grand.Domain.Orders;
+using Grand.Web.Admin.Extensions;
+using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
-using Grand.Web.AdminShared.Models.Orders;
-using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-[PermissionAuthorize(PermissionSystemName.GiftVouchers)]
-public class GiftVoucherController : BaseAdminController
-{
-    #region Constructors
-
-    public GiftVoucherController(
-        IGiftVoucherViewModelService giftVoucherViewModelService,
-        IGiftVoucherService giftVoucherService,
-        ITranslationService translationService)
-    {
-        _giftVoucherViewModelService = giftVoucherViewModelService;
-        _giftVoucherService = giftVoucherService;
-        _translationService = translationService;
-    }
-
-    #endregion
-
-    #region Fields
-
-    private readonly IGiftVoucherViewModelService _giftVoucherViewModelService;
-    private readonly IGiftVoucherService _giftVoucherService;
-    private readonly ITranslationService _translationService;
-
-    #endregion
-
-    #region Methods
-
-    //list
-    public IActionResult Index()
-    {
-        return RedirectToAction("List");
-    }
-
-    public IActionResult List()
-    {
-        var model = _giftVoucherViewModelService.PrepareGiftVoucherListModel();
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.List)]
-    [HttpPost]
-    public async Task<IActionResult> GiftVoucherList(DataSourceRequest command, GiftVoucherListModel model)
-    {
-        var (giftVoucherModels, totalCount) =
-            await _giftVoucherViewModelService.PrepareGiftVoucherModel(model, command.Page, command.PageSize);
-        var gridModel = new DataSourceResult {
-            Data = giftVoucherModels.ToList(),
-            Total = totalCount
-        };
-
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public async Task<IActionResult> Create()
-    {
-        var model = await _giftVoucherViewModelService.PrepareGiftVoucherModel();
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Create(GiftVoucherModel model, bool continueEditing)
-    {
-        if (ModelState.IsValid)
-        {
-            var giftVoucher = await _giftVoucherViewModelService.InsertGiftVoucherModel(model);
-            Success(_translationService.GetResource("Admin.GiftVouchers.Added"));
-            return continueEditing ? RedirectToAction("Edit", new { id = giftVoucher.Id }) : RedirectToAction("List");
-        }
-
-        //If we got this far, something failed, redisplay form
-        model = await _giftVoucherViewModelService.PrepareGiftVoucherModel(model);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    public async Task<IActionResult> Edit(string id)
-    {
-        var giftVoucher = await _giftVoucherService.GetGiftVoucherById(id);
-        if (giftVoucher == null)
-            //No gift voucher found with the specified id
-            return RedirectToAction("List");
-
-        var model = await _giftVoucherViewModelService.PrepareGiftVoucherModel(giftVoucher);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Edit(GiftVoucherModel model, bool continueEditing)
-    {
-        var giftVoucher = await _giftVoucherService.GetGiftVoucherById(model.Id);
-        if (giftVoucher == null)
-            return RedirectToAction("List");
-
-        await _giftVoucherViewModelService.FillGiftVoucherModel(giftVoucher, model);
-
-        if (ModelState.IsValid)
-        {
-            giftVoucher = await _giftVoucherViewModelService.UpdateGiftVoucherModel(giftVoucher, model);
-            Success(_translationService.GetResource("Admin.GiftVouchers.Updated"));
-
-            if (continueEditing)
-            {
-                //selected tab
-                await SaveSelectedTabIndex();
-
-                return RedirectToAction("Edit", new { id = giftVoucher.Id });
-            }
-
-            return RedirectToAction("List");
-        }
-
-        //If we got this far, something failed, redisplay form
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public IActionResult GenerateCouponCode()
-    {
-        return Json(new { CouponCode = _giftVoucherService.GenerateGiftVoucherCode() });
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> NotifyRecipient(GiftVoucherNotifyRecipient model)
-    {
-        var giftVoucher = await _giftVoucherService.GetGiftVoucherById(model.Id);
-
-        try
-        {
-            if (ModelState.IsValid)
-                await _giftVoucherViewModelService.NotifyRecipient(giftVoucher);
-            else
-                Error(ModelState);
-        }
-        catch (Exception exc)
-        {
-            Error(exc, false);
-        }
-
-        return RedirectToAction("Edit", new { id = model.Id });
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Delete)]
-    [HttpPost]
-    public async Task<IActionResult> Delete(GiftVoucherDeleteModel model)
-    {
-        var giftVoucher = await _giftVoucherService.GetGiftVoucherById(model.Id);
-        if (giftVoucher == null)
-            //No gift voucher found with the specified id
-            return RedirectToAction("List");
-
-        if (ModelState.IsValid)
-        {
-            await _giftVoucherViewModelService.DeleteGiftVoucher(giftVoucher);
-            Success(_translationService.GetResource("Admin.GiftVouchers.Deleted"));
-            return RedirectToAction("List");
-        }
-
-        Error(ModelState);
-        return RedirectToAction("Edit", new { id = giftVoucher.Id });
-    }
-
-    //Gif card usage history
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> UsageHistoryList(string giftVoucherId, DataSourceRequest command)
-    {
-        var giftVoucher = await _giftVoucherService.GetGiftVoucherById(giftVoucherId);
-        if (giftVoucher == null)
-            throw new ArgumentException("No gift voucher found with the specified id");
-
-        var (giftVoucherUsageHistoryModels, totalCount) =
-            await _giftVoucherViewModelService.PrepareGiftVoucherUsageHistoryModels(giftVoucher, command.Page,
-                command.PageSize);
-        var gridModel = new DataSourceResult {
-            Data = giftVoucherUsageHistoryModels.ToList(),
-            Total = totalCount
-        };
-
-        return Json(gridModel);
-    }
-
-    #endregion
-}
+// Reduced to a thin subclass of BaseGiftVoucherController (ARCH-001 GiftVoucher
+// consolidation). All regions of behavior live in the shared base; this class only supplies
+// Admin's DI wiring plus the attributes that used to arrive transitively via
+// BaseAdminController - BaseGiftVoucherController can't inherit any single host's base
+// controller (it's shared across Admin/Store, each with a different [Area]/[Authorize*] pair),
+// so each subclass restates its own host's attribute set explicitly. Same pattern as
+// CategoryController (see that file).
+[AuthorizeAdmin]
+[AutoValidateAntiforgeryToken]
+[Area(Constants.AreaAdmin)]
+public class GiftVoucherController(
+    IGiftVoucherViewModelService giftVoucherViewModelService,
+    IGiftVoucherService giftVoucherService,
+    ITranslationService translationService,
+    IAdminDataScope<GiftVoucher> scope)
+    : BaseGiftVoucherController(giftVoucherViewModelService, giftVoucherService, translationService, scope);
