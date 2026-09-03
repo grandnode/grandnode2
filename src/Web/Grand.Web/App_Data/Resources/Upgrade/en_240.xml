@@ -45,4 +45,7 @@
 	<Resource Name="validation.invalid" Area="Front">
 		<Value>Invalid value.</Value>
 	</Resource>
+	<Resource Name="Admin.GiftVouchers.Permissions" Area="Admin">
+		<Value>You can't edit this gift voucher, because it can be used in many stores.</Value>
+	</Resource>
 </Language>

@@ -1,14 +1,18 @@
 @model GiftVoucherModel
 @inject AdminAreaSettings adminAreaSettings
-
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<partial name="Partials/WidgetZone.HistoryTop" model="Model"/>
 <div id="usagehistory-grid"></div>
+<partial name="Partials/WidgetZone.HistoryBottom" model="Model"/>
 <script>
     $(document).ready(function () {
         $("#usagehistory-grid").kendoGrid({
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("UsageHistoryList", "GiftVoucher", new { giftVoucherId = Model.Id, area = Constants.AreaStore }))",
+                        url: "@Html.Raw(Url.Action("UsageHistoryList", "GiftVoucher", new { giftVoucherId = Model.Id, area }))",
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
@@ -47,7 +51,7 @@
                 field: "OrderId",
                 title: "@Loc["Admin.GiftVouchers.History.Order"]",
                 width: 200,
-                template: '<a href="@Url.Action("Edit", "Order", new { area = Constants.AreaStore })/#=OrderId#" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Common.View"] #=OrderNumber#</a>'
+                template: '<a href="@Url.Action("Edit", "Order", new { area })/#=OrderId#" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Common.View"] #=OrderNumber#</a>'
             }, {
                 field: "UsedValue",
                 title: "@Loc["Admin.GiftVouchers.History.UsedValue"]",

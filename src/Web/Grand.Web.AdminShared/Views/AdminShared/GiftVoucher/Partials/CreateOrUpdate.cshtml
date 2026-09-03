@@ -1,7 +1,11 @@
-﻿@model GiftVoucherModel
+@model GiftVoucherModel
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
+@if (Model.AvailableStores.Count <= 1)
+{
+    <input asp-for="StoreId" type="hidden"/>
+}
 <admin-tabstrip name="giftvoucher-edit">
     <items>
         <tabstrip-item text="@Loc["Admin.GiftVouchers.Info"]" tab-index="0">
@@ -21,6 +25,6 @@
                 </content>
             </tabstrip-item>
         }
-        <vc:admin-widget widget-zone="gift_voucher_details_tabs" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.Tabs" model="Model"/>
     </items>
 </admin-tabstrip>

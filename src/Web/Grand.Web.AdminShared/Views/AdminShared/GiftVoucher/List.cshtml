@@ -2,6 +2,7 @@
 @inject AdminAreaSettings adminAreaSettings
 
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     ViewBag.Title = Loc["Admin.GiftVouchers"];
 }
 
@@ -14,9 +15,10 @@
                     @Loc["Admin.GiftVouchers"]
                 </div>
                 <div class="actions btn-group btn-group-devided">
-                    <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn green">
+                    <a href="@Url.Action("Create", new { area })" class="btn green">
                         <i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span>
                     </a>
+                    <partial name="Partials/WidgetZone.ListButtons" model="Model"/>
                 </div>
             </div>
             <div class="x_content form">
@@ -65,7 +67,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("GiftVoucherList", "GiftVoucher", new { area = Constants.AreaStore }))",
+                        url: "@Html.Raw(Url.Action("GiftVoucherList", "GiftVoucher", new { area }))",
                         type: "POST",
                         dataType: "json",
                         data: additionalData
@@ -97,17 +99,17 @@
             columns: [{
                 field: "AmountStr",
                 title: "@Loc["Admin.GiftVouchers.Fields.Amount"]",
-                template: '# if(StoreId) {# <a class="k-link" href="Edit/#=Id#">#=AmountStr#</a> #} else {# #=AmountStr# #} #',
+                template: '<a class="k-link" href="Edit/#=Id#">#=AmountStr#</a>',
                 width: 100,
             }, {
                 field: "RemainingAmountStr",
                 title: "@Loc["Admin.GiftVouchers.Fields.RemainingAmount"]",
-                template: '# if(StoreId) {# <a class="k-link" href="Edit/#=Id#">#=RemainingAmountStr#</a> #} else {# #=RemainingAmountStr# #} #',
+                template: '<a class="k-link" href="Edit/#=Id#">#=RemainingAmountStr#</a>',
                 width: 100,
             }, {
                 field: "Code",
                 title: "@Loc["Admin.GiftVouchers.Fields.Code"]",
-                template: '# if(StoreId) {# <a class="k-link" href="Edit/#=Id#">#=Code#</a> #} else {# #=Code# #} #',
+                template: '<a class="k-link" href="Edit/#=Id#">#=Code#</a>',
                 width: 120,
             }, {
                 field: "RecipientName",
