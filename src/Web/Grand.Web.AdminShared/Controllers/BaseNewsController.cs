@@ -171,11 +171,11 @@ public abstract class BaseNewsController(
 
     #region Comments
 
-    public IActionResult Comments(string filterByNewsItemId)
-    {
-        ViewBag.FilterByNewsItemId = filterByNewsItemId;
-        return View();
-    }
+    // Ruled fix (PR review): Admin's original returned View() here with no Comments.cshtml ever
+    // existing for News (unlike Blog, which has one) - a preexisting 500 if this GET were ever hit
+    // directly. Unreachable from the UI (the Comments tab's grid calls the POST overload only), so
+    // redirect instead of carrying the dead View() call forward.
+    public IActionResult Comments(string filterByNewsItemId) => RedirectToAction("List");
 
     [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpPost]
