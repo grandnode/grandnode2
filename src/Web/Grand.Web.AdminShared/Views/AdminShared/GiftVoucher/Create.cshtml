@@ -1,17 +1,16 @@
-﻿@model GiftVoucherModel
+@model GiftVoucherModel
 @{
-    //page title
-    ViewBag.Title = Loc["Admin.GiftVouchers.EditGiftVoucherDetails"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    ViewBag.Title = Loc["Admin.GiftVouchers.AddNew"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="GiftVoucher" asp-action="Edit" method="post">
-
+<form asp-area="@area" asp-controller="GiftVoucher" asp-action="Create" method="post">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
                         <i class="fa fa-gift"></i>
-                        @Loc["Admin.GiftVouchers.EditGiftVoucherDetails"]
+                        @Loc["Admin.GiftVouchers.AddNew"]
                         <small>
                             <i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.GiftVouchers.BackToList"], "List")
                         </small>
@@ -23,10 +22,7 @@
                         <button class="btn btn-success" type="submit" name="save-continue">
                             <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                         </button>
-                        <span id="giftvoucher-delete" class="btn red">
-                            <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
-                        </span>
-                        <vc:admin-widget widget-zone="gift_voucher_details_buttons" additional-data="null"/>
+                        <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                     </div>
                 </div>
                 <div class="x_content form">
@@ -36,4 +32,3 @@
         </div>
     </div>
 </form>
-<admin-delete-confirmation button-id="giftvoucher-delete"/>
