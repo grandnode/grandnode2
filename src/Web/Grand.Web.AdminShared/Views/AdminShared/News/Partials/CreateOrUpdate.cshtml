@@ -1,4 +1,5 @@
-﻿@model NewsItemModel
+@using Grand.Web.AdminShared.Models.News
+@model NewsItemModel
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
@@ -25,6 +26,6 @@
                 </div>
             </content>
         </tabstrip-item>
-        <vc:admin-widget widget-zone="news_details_tabs" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
     </items>
 </admin-tabstrip>

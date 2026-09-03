@@ -1,229 +1,32 @@
-﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Domain.Permissions;
 using Grand.Domain.News;
-using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.Admin.Extensions;
+using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
-using Grand.Web.AdminShared.Models.News;
-using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Controllers;
 
-[PermissionAuthorize(PermissionSystemName.News)]
-public class NewsController : BaseAdminController
-{
-    #region Constructors
-
-    public NewsController(
-        INewsViewModelService newsViewModelService,
-        INewsService newsService,
-        ILanguageService languageService,
-        ITranslationService translationService,
-        IStoreService storeService,
-        IDateTimeService dateTimeService)
-    {
-        _newsViewModelService = newsViewModelService;
-        _newsService = newsService;
-        _languageService = languageService;
-        _translationService = translationService;
-        _storeService = storeService;
-        _dateTimeService = dateTimeService;
-    }
-
-    #endregion
-
-    #region Fields
-
-    private readonly INewsViewModelService _newsViewModelService;
-    private readonly INewsService _newsService;
-    private readonly ILanguageService _languageService;
-    private readonly ITranslationService _translationService;
-    private readonly IStoreService _storeService;
-    private readonly IDateTimeService _dateTimeService;
-
-    #endregion
-
-    #region News items
-
-    public IActionResult Index()
-    {
-        return RedirectToAction("List");
-    }
-
-    public async Task<IActionResult> List()
-    {
-        var model = new NewsItemListModel();
-        //stores
-        model.AvailableStores.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-        foreach (var s in await _storeService.GetAllStores())
-            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
-
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.List)]
-    [HttpPost]
-    public async Task<IActionResult> List(DataSourceRequest command, NewsItemListModel model)
-    {
-        var news = await _newsViewModelService.PrepareNewsItemModel(model, command.Page, command.PageSize);
-        var gridModel = new DataSourceResult {
-            Data = news.newsItemModels.ToList(),
-            Total = news.totalCount
-        };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public async Task<IActionResult> Create()
-    {
-        ViewBag.AllLanguages = _languageService.GetAllLanguages(true);
-        var model = new NewsItemModel {
-            //default values
-            Published = true,
-            AllowComments = true
-        };
-
-        //locales
-        await AddLocales(_languageService, model.Locales);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Create(NewsItemModel model, bool continueEditing)
-    {
-        if (ModelState.IsValid)
-        {
-            var newsItem = await _newsViewModelService.InsertNewsItemModel(model);
-            Success(_translationService.GetResource("Admin.Content.News.NewsItems.Added"));
-            return continueEditing ? RedirectToAction("Edit", new { id = newsItem.Id }) : RedirectToAction("List");
-        }
-
-        //If we got this far, something failed, redisplay form
-        ViewBag.AllLanguages = _languageService.GetAllLanguages(true);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    public async Task<IActionResult> Edit(string id)
-    {
-        var newsItem = await _newsService.GetNewsById(id);
-        if (newsItem == null)
-            //No news item found with the specified id
-            return RedirectToAction("List");
-
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
-        var model = newsItem.ToModel(_dateTimeService);
-        //locales
-        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
-        {
-            locale.Title = newsItem.GetTranslation(x => x.Title, languageId, false);
-            locale.Short = newsItem.GetTranslation(x => x.Short, languageId, false);
-            locale.Full = newsItem.GetTranslation(x => x.Full, languageId, false);
-            locale.MetaKeywords = newsItem.GetTranslation(x => x.MetaKeywords, languageId, false);
-            locale.MetaDescription = newsItem.GetTranslation(x => x.MetaDescription, languageId, false);
-            locale.MetaTitle = newsItem.GetTranslation(x => x.MetaTitle, languageId, false);
-            locale.SeName = newsItem.GetSeName(languageId, false);
-        });
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Edit(NewsItemModel model, bool continueEditing)
-    {
-        var newsItem = await _newsService.GetNewsById(model.Id);
-        if (newsItem == null)
-            //No news item found with the specified id
-            return RedirectToAction("List");
-
-        if (ModelState.IsValid)
-        {
-            newsItem = await _newsViewModelService.UpdateNewsItemModel(newsItem, model);
-            Success(_translationService.GetResource("Admin.Content.News.NewsItems.Updated"));
-
-            if (continueEditing)
-            {
-                //selected tab
-                await SaveSelectedTabIndex();
-
-                return RedirectToAction("Edit", new { id = newsItem.Id });
-            }
-
-            return RedirectToAction("List");
-        }
-
-        //If we got this far, something failed, redisplay form
-        ViewBag.AllLanguages = await _languageService.GetAllLanguages(true);
-
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Delete)]
-    [HttpPost]
-    public async Task<IActionResult> Delete(string id)
-    {
-        var newsItem = await _newsService.GetNewsById(id);
-        if (newsItem == null)
-            //No news item found with the specified id
-            return RedirectToAction("List");
-        if (ModelState.IsValid)
-        {
-            await _newsService.DeleteNews(newsItem);
-
-            Success(_translationService.GetResource("Admin.Content.News.NewsItems.Deleted"));
-            return RedirectToAction("List");
-        }
-
-        Error(ModelState);
-        return RedirectToAction("Edit", new { id = newsItem.Id });
-    }
-
-    #endregion
-
-    #region Comments
-
-    public IActionResult Comments(string filterByNewsItemId)
-    {
-        ViewBag.FilterByNewsItemId = filterByNewsItemId;
-        return View();
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.List)]
-    [HttpPost]
-    public async Task<IActionResult> Comments(string filterByNewsItemId, DataSourceRequest command)
-    {
-        var comments = await _newsViewModelService.PrepareNewsCommentModel(filterByNewsItemId, command.Page, command.PageSize);
-
-        var gridModel = new DataSourceResult {
-            Data = comments.newsCommentModels.ToList(),
-            Total = comments.totalCount
-        };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Delete)]
-    [HttpPost]
-    public async Task<IActionResult> CommentDelete(NewsComment model)
-    {
-        if (ModelState.IsValid)
-        {
-            await _newsViewModelService.CommentDelete(model);
-            return new JsonResult("");
-        }
-
-        return ErrorForKendoGridJson(ModelState);
-    }
-
-    #endregion
-}
+// Reduced to a thin subclass of BaseNewsController (ARCH-001 News consolidation). All shared
+// behavior lives in the base; this class only supplies Admin's DI wiring plus the attributes that
+// used to arrive transitively via BaseAdminController - BaseNewsController can't inherit any single
+// host's base controller. Same pattern as CategoryController (see that file).
+[AuthorizeAdmin]
+[AutoValidateAntiforgeryToken]
+[Area(Constants.AreaAdmin)]
+[AuthorizeMenu]
+public class NewsController(
+    INewsViewModelService newsViewModelService,
+    INewsService newsService,
+    ILanguageService languageService,
+    ITranslationService translationService,
+    IStoreService storeService,
+    IDateTimeService dateTimeService,
+    IAdminDataScope<NewsItem> scope)
+    : BaseNewsController(newsViewModelService, newsService, languageService, translationService,
+        storeService, dateTimeService, scope);

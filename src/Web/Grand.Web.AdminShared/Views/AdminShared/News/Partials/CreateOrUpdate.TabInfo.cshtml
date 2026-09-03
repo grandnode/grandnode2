@@ -1,7 +1,9 @@
-﻿@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Grand.Web.AdminShared.Models.News
 @model NewsItemModel
 
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     Func<int, HelperResult>
         template = @<div class="form-body">
             <div class="form-group">
@@ -30,7 +32,7 @@
 }
 
 <div class="form-horizontal">
-    <vc:admin-widget widget-zone="news_details_info_top" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.DetailsInfoTop" model="Model"/>
     <div class="form-body">
         <localized-editor localized-template="@template" name="newsitem-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
             <div class="form-group">
@@ -96,20 +98,23 @@
                 <span asp-validation-for="Published"></span>
             </div>
         </div>
-        <div class="form-group">
-            <admin-label asp-for="CustomerGroups"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="CustomerGroups"/>
-                <span asp-validation-for="CustomerGroups"></span>
+        @if (area == "Admin")
+        {
+            <div class="form-group">
+                <admin-label asp-for="CustomerGroups"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="CustomerGroups"/>
+                    <span asp-validation-for="CustomerGroups"></span>
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <admin-label asp-for="Stores"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Stores"/>
-                <span asp-validation-for="Stores"></span>
+            <div class="form-group">
+                <admin-label asp-for="Stores"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Stores"/>
+                    <span asp-validation-for="Stores"></span>
+                </div>
             </div>
-        </div>
+        }
     </div>
-    <vc:admin-widget widget-zone="news_details_info_bottom" additional-data="Model"/>
+    <partial name="Partials/WidgetZone.DetailsInfoBottom" model="Model"/>
 </div>
