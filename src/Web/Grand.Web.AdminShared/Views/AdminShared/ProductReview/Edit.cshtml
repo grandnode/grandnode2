@@ -1,9 +1,10 @@
-﻿@model ProductReviewModel
+@model ProductReviewModel
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     //page title
     ViewBag.Title = Loc["Admin.Catalog.ProductReviews.EditProductReviewDetails"];
 }
-<form asp-area="@Constants.AreaStore" asp-controller="ProductReview" asp-action="Edit" method="post" asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])">
+<form asp-area="@area" asp-controller="ProductReview" asp-action="Edit" method="post" asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])">
 
     <div class="row">
         <div class="col-md-12">
