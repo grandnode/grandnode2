@@ -122,7 +122,12 @@ public abstract class BaseMessageTemplateController(
 
         var model = messageTemplate.ToModel();
         model.IsReadOnly = !await scope.HasAccess(messageTemplate);
-        model.CanCopy = string.IsNullOrEmpty(scope.DefaultStoreId) || !await scope.HasAccess(messageTemplate);
+        // Mirror CopyTemplate's own guard exactly (fixed alongside it after a live cross-tenant
+        // leak): only a fully global template is actually copyable, not merely "not owned by
+        // me" (HasAccess == false is also true for a template exclusively owned by ANOTHER
+        // store, which CopyTemplate correctly denies at the server). Using HasAccess here would
+        // show the Copy button on a screen where clicking it silently no-ops to List.
+        model.CanCopy = string.IsNullOrEmpty(scope.DefaultStoreId) || !messageTemplate.LimitedToStores;
         model.SendImmediately = !model.DelayBeforeSend.HasValue;
         model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
         model.AllowedTokens = messageTokenProvider.GetListOfAllowedTokens();

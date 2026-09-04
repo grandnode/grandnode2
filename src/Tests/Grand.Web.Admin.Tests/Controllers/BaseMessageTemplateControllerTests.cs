@@ -142,6 +142,28 @@ public class BaseMessageTemplateControllerTests
     }
 
     [TestMethod]
+    public async Task EditGet_OtherStoreSharedTemplate_Store_IsReadOnlyTrue_CanCopyFalse()
+    {
+        // Regression test alongside CopyTemplate_Store_OtherStoreExclusiveTemplate_Denied: a
+        // template shared with (or exclusively owned by) a DIFFERENT store has HasAccess ==
+        // false, same as a fully global template — but unlike global, it must NOT be
+        // copyable. CanView allows opening it read-only (multi-store-shared case), but
+        // CanCopy must stay false since CopyTemplate itself denies it server-side.
+        var template = new MessageTemplate { Id = "mt-1", LimitedToStores = true, Stores = ["store-1", "store-2"] };
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
+        _scope.Setup(s => s.CanView(template)).ReturnsAsync(true);
+        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(false);
+        _scope.Setup(s => s.DefaultStoreId).Returns("store-3");
+
+        var result = await CreateController().Edit("mt-1") as ViewResult;
+        var model = result?.Model as MessageTemplateModel;
+
+        Assert.IsNotNull(model);
+        Assert.IsTrue(model.IsReadOnly);
+        Assert.IsFalse(model.CanCopy);
+    }
+
+    [TestMethod]
     public async Task EditGet_Admin_AlwaysNotReadOnly_AlwaysCanCopy()
     {
         var template = new MessageTemplate { Id = "mt-1", LimitedToStores = true, Stores = ["store-2"] };
