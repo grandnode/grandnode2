@@ -34,9 +34,10 @@ public class MessageTemplateController(
     IMessageTokenProvider messageTokenProvider,
     IDownloadService downloadService,
     IAdminDataScope<MessageTemplate> scope,
-    IStoreService storeService)
+    IStoreService storeService,
+    EmailAccountSettings emailAccountSettings)
     : BaseMessageTemplateController(messageTemplateService, emailAccountService, languageService,
-        translationService, messageTokenProvider, downloadService, scope)
+        translationService, messageTokenProvider, downloadService, scope, emailAccountSettings)
 {
     public async Task<IActionResult> List()
     {

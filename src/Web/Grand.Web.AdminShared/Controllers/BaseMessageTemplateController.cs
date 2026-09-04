@@ -23,7 +23,8 @@ public abstract class BaseMessageTemplateController(
     ITranslationService translationService,
     IMessageTokenProvider messageTokenProvider,
     IDownloadService downloadService,
-    IAdminDataScope<MessageTemplate> scope)
+    IAdminDataScope<MessageTemplate> scope,
+    EmailAccountSettings emailAccountSettings)
     : BaseController
 {
     public IActionResult Index() => RedirectToAction("List");
@@ -140,7 +141,15 @@ public abstract class BaseMessageTemplateController(
             locale.BccEmailAddresses = messageTemplate.GetTranslation(x => x.BccEmailAddresses, languageId, false);
             locale.Subject = messageTemplate.GetTranslation(x => x.Subject, languageId, false);
             locale.Body = messageTemplate.GetTranslation(x => x.Body, languageId, false);
-            locale.EmailAccountId = messageTemplate.GetTranslation(x => x.EmailAccountId, languageId, false);
+
+            var emailAccountId = messageTemplate.GetTranslation(x => x.EmailAccountId, languageId, false);
+            // Admin-only fallback, restored verbatim from Admin's original Edit(GET) (6deba9db9):
+            // when a language has no per-language email-account translation, preselect the
+            // system default rather than leaving the dropdown empty. Store's original never had
+            // this fallback, so it stays gated to the unscoped (Admin) case only.
+            locale.EmailAccountId = string.IsNullOrEmpty(scope.DefaultStoreId) && string.IsNullOrEmpty(emailAccountId)
+                ? emailAccountSettings.DefaultEmailAccountId
+                : emailAccountId;
         });
 
         return View(model);

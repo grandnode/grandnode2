@@ -29,6 +29,7 @@ public class BaseMessageTemplateControllerTests
     private Mock<IMessageTokenProvider> _messageTokenProvider;
     private Mock<IDownloadService> _downloadService;
     private Mock<IAdminDataScope<MessageTemplate>> _scope;
+    private EmailAccountSettings _emailAccountSettings;
 
     private class TestableMessageTemplateController(
         IMessageTemplateService messageTemplateService,
@@ -37,15 +38,16 @@ public class BaseMessageTemplateControllerTests
         ITranslationService translationService,
         IMessageTokenProvider messageTokenProvider,
         IDownloadService downloadService,
-        IAdminDataScope<MessageTemplate> scope)
+        IAdminDataScope<MessageTemplate> scope,
+        EmailAccountSettings emailAccountSettings)
         : BaseMessageTemplateController(messageTemplateService, emailAccountService, languageService,
-            translationService, messageTokenProvider, downloadService, scope);
+            translationService, messageTokenProvider, downloadService, scope, emailAccountSettings);
 
     private TestableMessageTemplateController CreateController()
     {
         var controller = new TestableMessageTemplateController(_messageTemplateService.Object, _emailAccountService.Object,
             _languageService.Object, _translationService.Object, _messageTokenProvider.Object, _downloadService.Object,
-            _scope.Object);
+            _scope.Object, _emailAccountSettings);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();
@@ -75,6 +77,7 @@ public class BaseMessageTemplateControllerTests
         _messageTokenProvider = new Mock<IMessageTokenProvider>();
         _downloadService = new Mock<IDownloadService>();
         _scope = new Mock<IAdminDataScope<MessageTemplate>>();
+        _emailAccountSettings = new EmailAccountSettings { DefaultEmailAccountId = "default-ea" };
 
         _messageTokenProvider.Setup(s => s.GetListOfAllowedTokens()).Returns(Array.Empty<string>());
         _emailAccountService.Setup(s => s.GetAllEmailAccounts(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
@@ -178,6 +181,50 @@ public class BaseMessageTemplateControllerTests
         Assert.IsNotNull(model);
         Assert.IsFalse(model.IsReadOnly);
         Assert.IsTrue(model.CanCopy);
+    }
+
+    [TestMethod]
+    public async Task EditGet_Admin_EmptyLocaleEmailAccountId_FallsBackToDefaultEmailAccount()
+    {
+        // Regression test restoring Admin's original Edit(GET) fallback (6deba9db9), dropped
+        // silently by the consolidation: when a language has no per-language EmailAccountId
+        // translation, Admin must preselect EmailAccountSettings.DefaultEmailAccountId rather
+        // than leaving the dropdown empty.
+        var template = new MessageTemplate { Id = "mt-1", LimitedToStores = false, Stores = [] };
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
+        _scope.Setup(s => s.CanView(template)).ReturnsAsync(true);
+        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
+        _scope.Setup(s => s.DefaultStoreId).Returns((string)null);
+        _languageService.Setup(s => s.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<Grand.Domain.Localization.Language> { new() { Id = "lang-1" } });
+
+        var result = await CreateController().Edit("mt-1") as ViewResult;
+        var model = result?.Model as MessageTemplateModel;
+
+        Assert.IsNotNull(model);
+        Assert.AreEqual(1, model.Locales.Count);
+        Assert.AreEqual("default-ea", model.Locales[0].EmailAccountId);
+    }
+
+    [TestMethod]
+    public async Task EditGet_Store_EmptyLocaleEmailAccountId_StaysEmpty_NoFallback()
+    {
+        // Store's original Edit(GET) never had the default-email-account fallback; the fix
+        // for the Admin regression must not introduce it for Store.
+        var template = new MessageTemplate { Id = "mt-1", LimitedToStores = true, Stores = ["store-1"] };
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
+        _scope.Setup(s => s.CanView(template)).ReturnsAsync(true);
+        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
+        _scope.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _languageService.Setup(s => s.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<Grand.Domain.Localization.Language> { new() { Id = "lang-1" } });
+
+        var result = await CreateController().Edit("mt-1") as ViewResult;
+        var model = result?.Model as MessageTemplateModel;
+
+        Assert.IsNotNull(model);
+        Assert.AreEqual(1, model.Locales.Count);
+        Assert.IsTrue(string.IsNullOrEmpty(model.Locales[0].EmailAccountId));
     }
 
     [TestMethod]

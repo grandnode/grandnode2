@@ -30,9 +30,10 @@ public class MessageTemplateController(
     IMessageTokenProvider messageTokenProvider,
     IDownloadService downloadService,
     IAdminDataScope<MessageTemplate> scope,
-    IContextAccessor contextAccessor)
+    IContextAccessor contextAccessor,
+    EmailAccountSettings emailAccountSettings)
     : BaseMessageTemplateController(messageTemplateService, emailAccountService, languageService,
-        translationService, messageTokenProvider, downloadService, scope)
+        translationService, messageTokenProvider, downloadService, scope, emailAccountSettings)
 {
     private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 

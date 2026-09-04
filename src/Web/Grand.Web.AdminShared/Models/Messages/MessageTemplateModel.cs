@@ -74,8 +74,12 @@ public class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemp
     /// <summary>
     /// True when the caller is allowed to invoke <c>CopyTemplate</c> on this entity. Always
     /// true for Admin (unrestricted copy, its original behavior). For Store, true exactly when
-    /// the template is NOT already exclusively owned by the current store — set by
-    /// <c>BaseMessageTemplateController.Edit(GET)</c>.
+    /// the template is fully global (<c>LimitedToStores == false</c>) — deliberately NOT "not
+    /// owned by me" (that is, NOT <c>!HasAccess</c>). A template exclusively owned by ANOTHER
+    /// store also has <c>HasAccess == false</c>, so an ownership-based predicate would
+    /// incorrectly mark another store's exclusive template as copyable and leak it. Set by
+    /// <c>BaseMessageTemplateController.Edit(GET)</c>, mirroring <c>CopyTemplate</c>'s own
+    /// guard exactly.
     /// </summary>
     public bool CanCopy { get; set; }
 }
