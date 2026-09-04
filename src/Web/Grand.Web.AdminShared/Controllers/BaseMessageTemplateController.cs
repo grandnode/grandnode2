@@ -237,12 +237,22 @@ public abstract class BaseMessageTemplateController(
         if (messageTemplate == null)
             return RedirectToAction("List");
 
-        // Store-only guard: block copying a template the store already exclusively owns —
-        // there's nothing new to gain from copying yourself. Admin (scope.DefaultStoreId ==
-        // null) is unrestricted, preserving its original unlimited-copy behavior.
+        // Store-only guard: only a fully global template (LimitedToStores == false) may be
+        // copied — matches Store's original behavior exactly (it never allowed copying any
+        // store-limited template, regardless of which store owned it). Admin
+        // (scope.DefaultStoreId == null) is unrestricted, preserving its original
+        // unlimited-copy behavior.
+        //
+        // NOTE: an earlier version of this guard used `scope.HasAccess(messageTemplate)` —
+        // "deny only if the caller already exclusively owns it" — which is NOT equivalent:
+        // it let a store copy another store's exclusive template (HasAccess is false there
+        // too), leaking that template's Name/Subject/Body into the caller's own store. Found
+        // live: store1 successfully copied store2's exclusive "Customer.PasswordRecovery"
+        // template via a crafted CopyTemplate POST. Fixed by checking LimitedToStores
+        // directly, not ownership of it.
         if (!string.IsNullOrEmpty(scope.DefaultStoreId))
         {
-            if (await scope.HasAccess(messageTemplate))
+            if (messageTemplate.LimitedToStores)
                 return RedirectToAction("List");
 
             var existing = (await messageTemplateService.GetAllMessageTemplates("", keywords: messageTemplate.Name))

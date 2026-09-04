@@ -246,7 +246,26 @@ public class BaseMessageTemplateControllerTests
     {
         var template = new MessageTemplate { Id = "mt-1", LimitedToStores = true, Stores = ["store-1"] };
         _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
-        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
+        _scope.Setup(s => s.DefaultStoreId).Returns("store-1");
+
+        var result = await CreateController().CopyTemplate(new MessageTemplateModel { Id = "mt-1" }) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result.ActionName);
+        _messageTemplateService.Verify(s => s.CopyMessageTemplate(It.IsAny<MessageTemplate>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CopyTemplate_Store_OtherStoreExclusiveTemplate_Denied()
+    {
+        // Regression test for a real Critical found via live smoke test: a template owned
+        // exclusively by ANOTHER store (HasAccess == false, but also LimitedToStores == true)
+        // must be denied, not copied. The bug: an earlier version of the guard checked
+        // scope.HasAccess(messageTemplate) instead of messageTemplate.LimitedToStores, which
+        // let store1 successfully copy store2's exclusive template's content.
+        var template = new MessageTemplate { Id = "mt-1", Name = "N", LimitedToStores = true, Stores = ["store-2"] };
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
+        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(false);
         _scope.Setup(s => s.DefaultStoreId).Returns("store-1");
 
         var result = await CreateController().CopyTemplate(new MessageTemplateModel { Id = "mt-1" }) as RedirectToActionResult;
