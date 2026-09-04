@@ -1,8 +1,8 @@
-﻿@model MessageTemplateModel
+@model MessageTemplateModel
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
-<vc:admin-widget widget-zone="message_template_details_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.DetailsTop" model="Model"/>
 
 <admin-tabstrip name="template-edit">
     <items>
@@ -13,7 +13,7 @@
                 </div>
             </content>
         </tabstrip-item>
-        <vc:admin-widget widget-zone="message_template_details_tabs" additional-data="Model"/>
+        <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
     </items>
 </admin-tabstrip>
-<vc:admin-widget widget-zone="message_template_details_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.DetailsBottom" model="Model"/>

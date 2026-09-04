@@ -1,10 +1,9 @@
-@model MessageTemplateStoreModel
+@model MessageTemplateModel
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     ViewBag.Title = Loc["Admin.Content.MessageTemplates.EditMessageTemplateDetails"];
-    Layout = Constants.LayoutStore;
-    var isReadOnly = Model.IsReadOnly;
 }
-<form asp-area="@Constants.AreaStore" asp-controller="MessageTemplate" asp-action="Edit" method="post">
+<form asp-area="@area" asp-controller="MessageTemplate" asp-action="Edit" method="post">
 
     <div class="row">
         <div class="col-md-12">
@@ -19,7 +18,7 @@
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            @if (!isReadOnly)
+                            @if (!Model.IsReadOnly)
                             {
                                 <button class="btn btn-success" type="submit" name="save">
                                     <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
@@ -27,11 +26,15 @@
                                 <button class="btn btn-success" type="submit" name="save-continue">
                                     <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                                 </button>
-                                <input type="submit" name="message-template-copy" asp-action="CopyTemplate" class="btn blue" value="@Loc["Admin.Content.MessageTemplates.Copy"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"/>
                                 <span id="message-template-delete" class="btn red">
                                     <i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]
                                 </span>
                             }
+                            @if (Model.CanCopy)
+                            {
+                                <input type="submit" name="message-template-copy" asp-action="CopyTemplate" class="btn blue" value="@Loc["Admin.Content.MessageTemplates.Copy"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"/>
+                            }
+                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>
                     </div>
                 </div>
@@ -42,7 +45,7 @@
         </div>
     </div>
 </form>
-@if (!isReadOnly)
+@if (!Model.IsReadOnly)
 {
     <admin-delete-confirmation button-id="message-template-delete"/>
 }
