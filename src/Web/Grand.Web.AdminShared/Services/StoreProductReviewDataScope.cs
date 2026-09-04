@@ -30,5 +30,6 @@ public class StoreProductReviewDataScope(IContextAccessor contextAccessor) : IAd
     public string ResourceKeyPrefix => "Admin";
     public bool ShowStoreSelector => false;
     public string? DefaultVendorId => null;
+    // Unused by this entity, kept only for IAdminDataScope<TEntity> interface conformance.
     public bool CanFeatureOnHomepage => true;
 }
