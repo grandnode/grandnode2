@@ -62,6 +62,22 @@ public class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemp
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.LimitedToStores")]
     [UIHint("Stores")]
     public string[] Stores { get; set; }
+
+    /// <summary>
+    /// True when the caller can only preview the template (global, or shared with other
+    /// stores), not save changes to it. Always false for Admin (unscoped, full CRUD on every
+    /// template). For Store, mirrors <c>!AccessToEntityByStore(CurrentStoreId)</c> — set by
+    /// <c>BaseMessageTemplateController.Edit(GET)</c>.
+    /// </summary>
+    public bool IsReadOnly { get; set; }
+
+    /// <summary>
+    /// True when the caller is allowed to invoke <c>CopyTemplate</c> on this entity. Always
+    /// true for Admin (unrestricted copy, its original behavior). For Store, true exactly when
+    /// the template is NOT already exclusively owned by the current store — set by
+    /// <c>BaseMessageTemplateController.Edit(GET)</c>.
+    /// </summary>
+    public bool CanCopy { get; set; }
 }
 
 public class MessageTemplateLocalizedModel : ILocalizedModelLocal
