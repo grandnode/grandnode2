@@ -1,187 +1,27 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Permissions;
-using Grand.Infrastructure;
+using Grand.Domain.Catalog;
+using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
-using Grand.Web.AdminShared.Models.Catalog;
-using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Store.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-[PermissionAuthorize(PermissionSystemName.ProductReviews)]
-public class ProductReviewController : BaseStoreController
-{
-    #region Constructors
-
-    public ProductReviewController(
-        IProductReviewViewModelService productReviewViewModelService,
-        IProductReviewService productReviewService,
-        ITranslationService translationService,
-        IContextAccessor contextAccessor)
-    {
-        _productReviewViewModelService = productReviewViewModelService;
-        _productReviewService = productReviewService;
-        _translationService = translationService;
-        _contextAccessor = contextAccessor;
-    }
-
-    #endregion
-
-    #region Fields
-
-    private readonly IProductReviewViewModelService _productReviewViewModelService;
-    private readonly IProductReviewService _productReviewService;
-    private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
-
-    #endregion Fields
-
-    #region Methods
-
-    //list
-    public IActionResult Index()
-    {
-        return RedirectToAction("List");
-    }
-
-    public IActionResult List()
-    {
-        var model = new ProductReviewListModel();
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.List)]
-    [HttpPost]
-    public async Task<IActionResult> List(DataSourceRequest command, ProductReviewListModel model)
-    {
-        model.SearchStoreId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-        var (productReviewModels, totalCount) = await _productReviewViewModelService.PrepareProductReviewsModel(model, command.Page, command.PageSize);
-        var gridModel = new DataSourceResult {
-            Data = productReviewModels.ToList(),
-            Total = totalCount
-        };
-
-        return Json(gridModel);
-    }
-
-    //edit
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    public async Task<IActionResult> Edit(string id)
-    {
-        var productReview = await _productReviewService.GetProductReviewById(id);
-
-        if (productReview == null)
-            //No product review found with the specified id
-            return RedirectToAction("List");
-
-        if (productReview.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
-
-        var model = new ProductReviewModel();
-        await _productReviewViewModelService.PrepareProductReviewModel(model, productReview, false, false);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Edit(ProductReviewModel model, bool continueEditing)
-    {
-        var productReview = await _productReviewService.GetProductReviewById(model.Id);
-        if (productReview == null)
-            //No product review found with the specified id
-            return RedirectToAction("List");
-
-        if (productReview.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
-
-        if (ModelState.IsValid)
-        {
-            productReview = await _productReviewViewModelService.UpdateProductReview(productReview, model);
-            Success(_translationService.GetResource("Admin.Catalog.ProductReviews.Updated"));
-            return continueEditing
-                ? RedirectToAction("Edit", new { productReview.Id, productReview.ProductId })
-                : RedirectToAction("List");
-        }
-
-        //If we got this far, something failed, redisplay form
-        await _productReviewViewModelService.PrepareProductReviewModel(model, productReview, true, false);
-        return View(model);
-    }
-
-    //delete
-    [PermissionAuthorizeAction(PermissionActionName.Delete)]
-    [HttpPost]
-    public async Task<IActionResult> Delete(string id)
-    {
-        var productReview = await _productReviewService.GetProductReviewById(id);
-        if (productReview == null)
-            //No product review found with the specified id
-            return RedirectToAction("List");
-
-        if (productReview.StoreId != _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) return RedirectToAction("List");
-
-        if (ModelState.IsValid)
-        {
-            await _productReviewViewModelService.DeleteProductReview(productReview);
-            Success(_translationService.GetResource("Admin.Catalog.ProductReviews.Deleted"));
-            return RedirectToAction("List");
-        }
-
-        Error(ModelState);
-        return RedirectToAction("Edit", new { id = productReview.Id });
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> ApproveSelected(ICollection<string> selectedIds)
-    {
-        if (selectedIds != null)
-            await _productReviewViewModelService.ApproveSelected(selectedIds.ToList(),
-                _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
-
-        return Json(new { Result = true });
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> DisapproveSelected(ICollection<string> selectedIds)
-    {
-        if (selectedIds != null)
-            await _productReviewViewModelService.DisapproveSelected(selectedIds.ToList(),
-                _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
-
-        return Json(new { Result = true });
-    }
-
-
-    public async Task<IActionResult> ProductSearchAutoComplete(string term,
-        [FromServices] IProductService productService)
-    {
-        const int searchTermMinimumLength = 3;
-        if (string.IsNullOrWhiteSpace(term) || term.Length < searchTermMinimumLength)
-            return Content("");
-
-        var storeId = _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
-        //products
-        const int productNumber = 15;
-        var products = (await productService.SearchProducts(
-            storeId: storeId,
-            keywords: term,
-            pageSize: productNumber,
-            showHidden: true)).products;
-
-        var result = (from p in products
-                      select new
-                      {
-                          label = p.Name,
-                          productid = p.Id
-                      })
-            .ToList();
-        return Json(result);
-    }
-
-    #endregion
-}
+// Reduced to a thin subclass of BaseProductReviewController (ARCH-001 ProductReview
+// consolidation). All regions of behavior live in the shared base; this class only supplies
+// Store's DI wiring and the attributes that used to arrive transitively via
+// BaseStoreController. No EditWarningCheck-style override needed: ProductReview has no
+// "global" concept, so there's nothing for Store to warn about (see Task 1's scope doc
+// comment).
+[AutoValidateAntiforgeryToken]
+[Area(Constants.AreaStore)]
+[AuthorizeStore]
+[AuthorizeMenu]
+public class ProductReviewController(
+    IProductReviewViewModelService productReviewViewModelService,
+    IProductReviewService productReviewService,
+    ITranslationService translationService,
+    IAdminDataScope<ProductReview> scope)
+    : BaseProductReviewController(productReviewViewModelService, productReviewService, translationService, scope);

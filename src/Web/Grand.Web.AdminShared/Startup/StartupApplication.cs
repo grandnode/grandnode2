@@ -144,6 +144,13 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreGiftVoucherDataScope>();
         services.AddScoped<IAdminDataScope<GiftVoucher>, RoutedGiftVoucherDataScope>();
 
+        // IAdminDataScope<ProductReview>: registered once here for the same reason as
+        // Category/Collection/GiftVoucher above — see RoutedProductReviewDataScope's doc
+        // comment. No Vendor scope: ProductReview has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<ProductReview>>();
+        services.AddScoped<StoreProductReviewDataScope>();
+        services.AddScoped<IAdminDataScope<ProductReview>, RoutedProductReviewDataScope>();
+
         // IAdminDataScope<MessageTemplate>: registered once here for the same reason as
         // Category/Collection/GiftVoucher above — see RoutedMessageTemplateDataScope's doc
         // comment. No Vendor scope: MessageTemplate has no Vendor screen.
