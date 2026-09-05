@@ -1,9 +1,10 @@
-﻿@using Grand.Domain.Media
+@using Grand.Domain.Media
 @using Grand.Domain.Messages
 @using Microsoft.AspNetCore.Mvc.Razor
 @using Constants = Grand.SharedUIResources.Constants
 @model MessageTemplateModel
 @{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     ViewData["DownloadType"] = DownloadType.MessageTemplate;
     ViewData["ReferenceId"] = Model.Id;
 }
@@ -151,13 +152,16 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
-            <admin-label asp-for="Stores"/>
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Stores"/>
-                <span asp-validation-for="Stores"></span>
+        @if (area == "Admin")
+        {
+            <div class="form-group">
+                <admin-label asp-for="Stores"/>
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Stores"/>
+                    <span asp-validation-for="Stores"></span>
+                </div>
             </div>
-        </div>
+        }
         <div class="form-group">
             <admin-label asp-for="AttachedDownloadId"/>
             <div class="col-md-9 col-sm-9">
