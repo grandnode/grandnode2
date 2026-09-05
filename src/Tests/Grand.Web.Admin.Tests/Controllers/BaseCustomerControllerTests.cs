@@ -49,7 +49,10 @@ public class BaseCustomerControllerTests
             customerProductService, productReviewService, productReviewViewModelService,
             productViewModelService, customerAttributeParser, customerAttributeService,
             addressAttributeParser, addressAttributeService, messageProviderService, groupService,
-            translationService, contextAccessor, customerSettings, scope);
+            translationService, contextAccessor, customerSettings, scope)
+    {
+        public Task<(Customer, IActionResult)> LoadAuthorizedCustomerPublic(string id) => LoadAuthorizedCustomer(id);
+    }
 
     protected TestCustomerController Controller;
     protected Mock<ICustomerService> CustomerServiceMock;
@@ -188,5 +191,106 @@ public class BaseCustomerControllerTests
 
         Assert.IsInstanceOfType(result, typeof(ViewResult));
         Assert.IsFalse(Controller.TempData.ContainsKey("grand.notifications.Warning"));
+    }
+
+    [TestMethod]
+    public async Task LoadAuthorizedCustomer_NotFound_ReturnsRedirectToList()
+    {
+        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
+
+        var (customer, denied) = await Controller.LoadAuthorizedCustomerPublic("missing");
+
+        Assert.IsNull(customer);
+        var redirect = denied as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        ScopeMock.Verify(s => s.HasAccess(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task LoadAuthorizedCustomer_ScopeDenies_ReturnsRedirectToList()
+    {
+        var customer = new Customer { Id = "c1" };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
+        ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(false);
+
+        var (result, denied) = await Controller.LoadAuthorizedCustomerPublic("c1");
+
+        Assert.IsNull(result);
+        var redirect = denied as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task LoadAuthorizedCustomer_ScopeAllows_ReturnsCustomerNoDenial()
+    {
+        var customer = new Customer { Id = "c1" };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
+        ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
+
+        var (result, denied) = await Controller.LoadAuthorizedCustomerPublic("c1");
+
+        Assert.AreSame(customer, result);
+        Assert.IsNull(denied);
+    }
+
+    [TestMethod]
+    public async Task EditGet_Authorized_ReturnsViewAndCallsPrepareCustomerModel()
+    {
+        var customer = new Customer { Id = "c1" };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
+        ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
+
+        var result = await Controller.Edit("c1");
+
+        Assert.IsInstanceOfType(result, typeof(ViewResult));
+        CustomerViewModelServiceMock.Verify(v => v.PrepareCustomerModel(It.IsAny<CustomerModel>(), customer, false), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task EditGet_Denied_RedirectsToList()
+    {
+        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
+
+        var result = await Controller.Edit("missing");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task Delete_SelfDelete_ErrorsAndRedirectsWithoutDeleting()
+    {
+        var self = new Customer { Id = "self" };
+        var contextAccessorMock = new Mock<IContextAccessor>();
+        var workContextMock = new Mock<IWorkContext>();
+        workContextMock.Setup(w => w.CurrentCustomer).Returns(self);
+        contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
+        // Rebuild controller with a context accessor whose CurrentCustomer matches the target id.
+        var controller = new TestCustomerController(CustomerServiceMock.Object, CustomerViewModelServiceMock.Object,
+            CustomerManagerServiceMock.Object, new Mock<ICustomerProductService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService>().Object,
+            new Mock<Grand.Web.AdminShared.Interfaces.IProductReviewViewModelService>().Object,
+            new Mock<Grand.Web.AdminShared.Interfaces.IProductViewModelService>().Object,
+            new Mock<ICustomerAttributeParser>().Object, new Mock<ICustomerAttributeService>().Object,
+            new Mock<IAddressAttributeParser>().Object, new Mock<IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Messages.IMessageProviderService>().Object,
+            GroupServiceMock.Object, TranslationServiceMock.Object, contextAccessorMock.Object,
+            new CustomerSettings(), ScopeMock.Object)
+        {
+            ControllerContext = Controller.ControllerContext,
+            TempData = Controller.TempData
+        };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("self")).ReturnsAsync(self);
+        ScopeMock.Setup(s => s.HasAccess(self)).ReturnsAsync(true);
+
+        var result = await controller.Delete("self");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        CustomerViewModelServiceMock.Verify(v => v.DeleteCustomer(It.IsAny<Customer>()), Times.Never);
     }
 }

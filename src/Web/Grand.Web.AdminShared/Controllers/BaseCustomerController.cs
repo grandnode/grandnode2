@@ -216,4 +216,189 @@ public abstract class BaseCustomerController(
     }
 
     #endregion
+
+    /// <summary>DRY replacement for the repeated "load customer, redirect to List if not found or
+    /// not authorized" pattern in both original controllers — every action in both files redirects
+    /// to "List", never "Edit", on either condition.</summary>
+    protected async Task<(Customer? customer, IActionResult? denied)> LoadAuthorizedCustomer(string id)
+    {
+        var customer = await customerService.GetCustomerById(id);
+        if (customer == null) return (null, RedirectToAction("List"));
+        if (!await scope.HasAccess(customer)) return (null, RedirectToAction("List"));
+        return (customer, null);
+    }
+
+    #region Edit / Delete
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> Edit(string id)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(id);
+        if (denied != null) return denied;
+
+        var model = new CustomerModel();
+        await customerViewModelService.PrepareCustomerModel(model, customer, false);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Edit(CustomerModel model, bool continueEditing)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(model.Id);
+        if (denied != null) return denied;
+
+        await ApplyPostConstraints(model);
+        CheckTwoFactorEnabledWarning(customer, model);
+
+        if (ModelState.IsValid)
+            try
+            {
+                model.Attributes = await ParseCustomCustomerAttributes(model.SelectedAttributes);
+                customer = await customerViewModelService.UpdateCustomerModel(customer!, model);
+
+                if (!string.IsNullOrWhiteSpace(model.Password))
+                {
+                    var changePassRequest = new ChangePasswordRequest(model.Email,
+                        customerSettings.DefaultPasswordFormat, model.Password);
+                    await customerManagerService.ChangePassword(changePassRequest, customer.StoreId);
+                }
+
+                Success(translationService.GetResource("Admin.Customers.Customers.Updated"));
+                if (continueEditing)
+                {
+                    await SaveSelectedTabIndex();
+                    return RedirectToAction("Edit", new { id = customer.Id });
+                }
+
+                return RedirectToAction("List");
+            }
+            catch (Grand.SharedKernel.GrandException exc)
+            {
+                Error(exc.Message);
+            }
+
+        await customerViewModelService.PrepareCustomerModel(model, customer, true);
+        await ApplyPostConstraints(model);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(id);
+        if (denied != null) return denied;
+
+        if (customer!.Id == contextAccessor.WorkContext.CurrentCustomer.Id)
+        {
+            Error(translationService.GetResource("Admin.Customers.Customers.NoSelfDelete"));
+            return RedirectToAction("List");
+        }
+
+        try
+        {
+            if (ModelState.IsValid)
+            {
+                await customerViewModelService.DeleteCustomer(customer);
+                Success(translationService.GetResource("Admin.Customers.Customers.Deleted"));
+                return RedirectToAction("List");
+            }
+
+            Error(ModelState);
+            return RedirectToAction("Edit", new { id = customer.Id });
+        }
+        catch (Grand.SharedKernel.GrandException exc)
+        {
+            Error(exc.Message);
+            return RedirectToAction("Edit", new { id = customer.Id });
+        }
+    }
+
+    #endregion
+
+    #region Vat / Messages
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> MarkVatNumberAsValid(string id)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(id);
+        if (denied != null) return denied;
+
+        await customerService.UpdateUserField(customer!, SystemCustomerFieldNames.VatNumberStatusId,
+            (int)Grand.Domain.Tax.VatNumberStatus.Valid);
+        return RedirectToAction("Edit", new { id = customer!.Id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> MarkVatNumberAsInvalid(string id)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(id);
+        if (denied != null) return denied;
+
+        await customerService.UpdateUserField(customer!, SystemCustomerFieldNames.VatNumberStatusId,
+            (int)Grand.Domain.Tax.VatNumberStatus.Invalid);
+        return RedirectToAction("Edit", new { id = customer!.Id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SendWelcomeMessage(string id)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(id);
+        if (denied != null) return denied;
+
+        await messageProviderService.SendCustomerWelcomeMessage(customer!, contextAccessor.StoreContext.CurrentStore,
+            contextAccessor.WorkContext.WorkingLanguage.Id);
+        Success(translationService.GetResource("Admin.Customers.Customers.SendWelcomeMessage.Success"));
+        return RedirectToAction("Edit", new { id = customer!.Id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ReSendActivationMessage(string id)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(id);
+        if (denied != null) return denied;
+
+        await customerService.UpdateUserField(customer!, SystemCustomerFieldNames.AccountActivationToken,
+            Guid.NewGuid().ToString());
+        await messageProviderService.SendCustomerEmailValidationMessage(customer!,
+            contextAccessor.StoreContext.CurrentStore, contextAccessor.WorkContext.WorkingLanguage.Id);
+        Success(translationService.GetResource("Admin.Customers.Customers.ReSendActivationMessage.Success"));
+        return RedirectToAction("Edit", new { id = customer!.Id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> SendEmail(CustomerModel.SendEmailModel model)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(model.Id);
+        if (denied != null) return denied;
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(customer!.Email))
+                throw new Grand.SharedKernel.GrandException("Customer email is empty");
+            if (!Grand.SharedKernel.Extensions.CommonHelper.IsValidEmail(customer.Email))
+                throw new Grand.SharedKernel.GrandException("Customer email is not valid");
+            if (string.IsNullOrWhiteSpace(model.Subject))
+                throw new Grand.SharedKernel.GrandException("Email subject is empty");
+            if (string.IsNullOrWhiteSpace(model.Body))
+                throw new Grand.SharedKernel.GrandException("Email body is empty");
+
+            await customerViewModelService.SendEmail(customer, model);
+            Success(translationService.GetResource("Admin.Customers.Customers.SendEmail.Queued"));
+        }
+        catch (Grand.SharedKernel.GrandException exc)
+        {
+            Error(exc.Message);
+        }
+
+        return RedirectToAction("Edit", new { id = customer!.Id });
+    }
+
+    #endregion
 }
