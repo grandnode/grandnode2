@@ -19,7 +19,7 @@ Use this file before making or reviewing repository changes.
 | `.ai/checklists/` | cross-cutting gates | verify a change before calling it done |
 | `.ai/examples/` | worked walkthroughs of shipped code | see the rules applied before writing new code |
 | `.ai/templates/` | copy-ready skeletons | scaffold a plugin, theme, or migration |
-| `.ai/agents/` | named sub-agent definitions | invoke a specialist agent for one recurring task |
+| `.ai/agents/` | agent definition wrappers | index reusable agent entry points (mirror into `.github/agents/` if you want Copilot discovery) |
 
 **Start from a prompt or a workflow.** It names the skills, knowledge, standards, and templates to load. Use a prompt when the goal is known; use a workflow when the cause, bottleneck, or path is not.
 
