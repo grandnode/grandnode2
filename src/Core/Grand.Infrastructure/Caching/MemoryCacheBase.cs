@@ -29,7 +29,7 @@ public class MemoryCacheBase : ICacheBase, IDisposable
     private readonly IMediator _mediator;
     private readonly CacheConfig _cacheConfig;
 
-    private static CancellationTokenSource _resetCacheToken = new();
+    private CancellationTokenSource _resetCacheToken = new();
 
     protected readonly ConcurrentDictionary<string, SemaphoreSlim> CacheEntries = new();
 
