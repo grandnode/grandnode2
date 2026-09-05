@@ -19,6 +19,7 @@ Use this file before making or reviewing repository changes.
 | `.ai/checklists/` | cross-cutting gates | verify a change before calling it done |
 | `.ai/examples/` | worked walkthroughs of shipped code | see the rules applied before writing new code |
 | `.ai/templates/` | copy-ready skeletons | scaffold a plugin, theme, or migration |
+| `.ai/agents/` | agent definition wrappers | index reusable agent entry points to follow manually (mirror into `.github/agents/` for GitHub Copilot to discover them) |
 
 **Start from a prompt or a workflow.** It names the skills, knowledge, standards, and templates to load. Use a prompt when the goal is known; use a workflow when the cause, bottleneck, or path is not.
 
@@ -114,6 +115,30 @@ Skills carry their own domain checklists; these cover what no single skill owns.
 - Use `.ai/templates/migration.md` for an upgrade migration skeleton.
 
 Templates are the shape; skills are the contract. Read the skill first, then diff the scaffold against the closest shipped plugin in `src/Plugins/`.
+
+## Agent Routing
+Each file in `.ai/agents/` is a thin wrapper around one prompt or workflow — same frontmatter
+shape as a GitHub custom agent (`name`, `description`, `tools`), kept in `.ai/` rather than
+`.github/agents/` so it stays indexed alongside the rest of the single source of truth. GitHub
+Copilot only discovers repository-scoped custom agents from `.github/agents/`, so these files are
+not directly usable by Copilot unless mirrored/moved there. Use them as a reference to follow when
+you want to hand off a whole recurring task instead of following a prompt manually.
+- Use `.ai/agents/plugin-creator.md` to scaffold a new installable plugin end to end.
+- Use `.ai/agents/bug-fixer.md` to diagnose and fix a broken behavior when the cause is unknown.
+- Use `.ai/agents/test-writer.md` to add or extend unit tests for a change.
+- Use `.ai/agents/reviewer.md` to review a pull request or diff against all applicable skills and checklists.
+- Use `.ai/agents/dotnet-expert.md` to write or review idiomatic C#/.NET code, async/await, and .NET test patterns.
+- Use `.ai/agents/mongodb-expert.md` to write or review MongoDB queries, indexes, aggregations, and data migrations.
+- Use `.ai/agents/security-reviewer.md` to audit authentication, authorization, input handling, secrets, and trust boundaries.
+- Use `.ai/agents/architecture-reviewer.md` to review layering, module boundaries, and public contracts.
+- Use `.ai/agents/theme-builder.md` to create a storefront theme or add view overrides to one.
+- Use `.ai/agents/migration-writer.md` to add an upgrade migration for existing installations.
+- Use `.ai/agents/admin-ui-specialist.md` for admin-facing changes across Main Admin, Store Owner, and Vendor.
+- Use `.ai/agents/performance-investigator.md` to diagnose slow queries or render paths.
+- Use `.ai/agents/permission-navigation-specialist.md` to add or change permissions and admin navigation entries.
+- Use `.ai/agents/notification-specialist.md` for message templates, DotLiquid tokens, and notification handlers.
+- Use `.ai/agents/scheduled-task-writer.md` to add a new scheduled task.
+- Use `.ai/agents/dependency-upgrader.md` to move a NuGet package, framework, or shared version.
 
 ## Operating Rules
 1. Read the user's goal before inspecting files.
