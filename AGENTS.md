@@ -125,6 +125,18 @@ them when you want to hand off a whole recurring task instead of following a pro
 - Use `.ai/agents/bug-fixer.md` to diagnose and fix a broken behavior when the cause is unknown.
 - Use `.ai/agents/test-writer.md` to add or extend unit tests for a change.
 - Use `.ai/agents/reviewer.md` to review a pull request or diff against all applicable skills and checklists.
+- Use `.ai/agents/dotnet-expert.md` to write or review idiomatic C#/.NET code, async/await, and .NET test patterns.
+- Use `.ai/agents/mongodb-expert.md` to write or review MongoDB queries, indexes, aggregations, and data migrations.
+- Use `.ai/agents/security-reviewer.md` to audit authentication, authorization, input handling, secrets, and trust boundaries.
+- Use `.ai/agents/architecture-reviewer.md` to review layering, module boundaries, and public contracts.
+- Use `.ai/agents/theme-builder.md` to create a storefront theme or add view overrides to one.
+- Use `.ai/agents/migration-writer.md` to add an upgrade migration for existing installations.
+- Use `.ai/agents/admin-ui-specialist.md` for admin-facing changes across Main Admin, Store Owner, and Vendor.
+- Use `.ai/agents/performance-investigator.md` to diagnose slow queries or render paths.
+- Use `.ai/agents/permission-navigation-specialist.md` to add or change permissions and admin navigation entries.
+- Use `.ai/agents/notification-specialist.md` for message templates, DotLiquid tokens, and notification handlers.
+- Use `.ai/agents/scheduled-task-writer.md` to add a new scheduled task.
+- Use `.ai/agents/dependency-upgrader.md` to move a NuGet package, framework, or shared version.
 
 ## Operating Rules
 1. Read the user's goal before inspecting files.
