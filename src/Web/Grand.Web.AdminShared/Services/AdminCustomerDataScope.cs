@@ -21,6 +21,7 @@ public class AdminCustomerDataScope(IContextAccessor contextAccessor, IGroupServ
     public async Task<bool> HasAccess(Customer entity)
     {
         if (entity is null) return false;
+        if (entity.Deleted) return false;
         var isSalesManager = await groupService.IsSalesManager(contextAccessor.WorkContext.CurrentCustomer);
         return !isSalesManager || contextAccessor.WorkContext.CurrentCustomer.SeId == entity.SeId;
     }

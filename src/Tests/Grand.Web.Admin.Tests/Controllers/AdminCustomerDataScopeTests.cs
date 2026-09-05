@@ -60,6 +60,24 @@ public class AdminCustomerDataScopeTests
     }
 
     [TestMethod]
+    public async Task HasAccess_DeletedCustomer_NotSalesManager_False()
+    {
+        var scope = Build(isSalesManager: false, currentCustomerSeId: "se-1");
+        var target = new Customer { SeId = "se-2", Deleted = true };
+
+        Assert.IsFalse(await scope.HasAccess(target));
+    }
+
+    [TestMethod]
+    public async Task HasAccess_DeletedCustomer_SalesManager_False()
+    {
+        var scope = Build(isSalesManager: true, currentCustomerSeId: "se-1");
+        var target = new Customer { SeId = "se-1", Deleted = true };
+
+        Assert.IsFalse(await scope.HasAccess(target));
+    }
+
+    [TestMethod]
     public void ScopeDefaults_MatchGlobalAdminSemantics()
     {
         var scope = Build(isSalesManager: false, currentCustomerSeId: null);
