@@ -30,6 +30,7 @@ public class MemoryCacheBase : ICacheBase, IDisposable
     private readonly CacheConfig _cacheConfig;
 
     private CancellationTokenSource _resetCacheToken = new();
+    private bool _disposed;
 
     protected readonly ConcurrentDictionary<string, SemaphoreSlim> CacheEntries = new();
 
@@ -148,9 +149,13 @@ public class MemoryCacheBase : ICacheBase, IDisposable
     ///     Disposes the current reset token once the cache manager itself is no longer needed
     ///     (e.g. on application shutdown). Unlike <see cref="Clear" />, there is no concurrent writer
     ///     activity at this point, so disposing here does not risk an ObjectDisposedException.
+    ///     Safe to call more than once.
     /// </summary>
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
+
         _resetCacheToken.Cancel();
         _resetCacheToken.Dispose();
     }
