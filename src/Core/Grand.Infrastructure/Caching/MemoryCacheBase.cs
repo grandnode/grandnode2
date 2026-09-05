@@ -30,7 +30,6 @@ public class MemoryCacheBase : ICacheBase, IDisposable
     private readonly CacheConfig _cacheConfig;
 
     private CancellationTokenSource _resetCacheToken = new();
-    private bool _disposed;
 
     protected readonly ConcurrentDictionary<string, SemaphoreSlim> CacheEntries = new();
 
@@ -153,8 +152,7 @@ public class MemoryCacheBase : ICacheBase, IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (_disposed) return;
-        _disposed = true;
+        if (_resetCacheToken.IsCancellationRequested) return;
 
         _resetCacheToken.Cancel();
         _resetCacheToken.Dispose();
