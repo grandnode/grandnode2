@@ -10,7 +10,7 @@ namespace Grand.Infrastructure.Caching;
 /// <summary>
 ///     Represents a manager for memory caching
 /// </summary>
-public class MemoryCacheBase : ICacheBase
+public class MemoryCacheBase : ICacheBase, IDisposable
 {
     #region Ctor
 
@@ -142,6 +142,17 @@ public class MemoryCacheBase : ICacheBase
         _resetCacheToken = new CancellationTokenSource();
 
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    ///     Disposes the current reset token once the cache manager itself is no longer needed
+    ///     (e.g. on application shutdown). Unlike <see cref="Clear" />, there is no concurrent writer
+    ///     activity at this point, so disposing here does not risk an ObjectDisposedException.
+    /// </summary>
+    public void Dispose()
+    {
+        _resetCacheToken.Cancel();
+        _resetCacheToken.Dispose();
     }
 
     #endregion
