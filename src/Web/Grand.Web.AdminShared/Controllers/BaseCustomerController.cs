@@ -1,3 +1,5 @@
+#nullable enable
+
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -74,7 +76,7 @@ public abstract class BaseCustomerController(
     /// <summary>Admin-only: warns when a submitted model newly enables two-factor auth. No-op here
     /// — Store's originals never referenced TwoFactorEnabled at all. existingCustomer is null on
     /// Create, which collapses to Admin's original simpler create-time condition automatically.</summary>
-    protected virtual void CheckTwoFactorEnabledWarning(Customer existingCustomer, CustomerModel model)
+    protected virtual void CheckTwoFactorEnabledWarning(Customer? existingCustomer, CustomerModel model)
     {
     }
 
@@ -154,7 +156,7 @@ public abstract class BaseCustomerController(
         string[] searchCustomerGroupIds, string[] searchCustomerTagIds)
     {
         var groupIds = searchCustomerGroupIds;
-        string[] tagIds = searchCustomerTagIds;
+        string[]? tagIds = searchCustomerTagIds;
         if (scope.DefaultStoreId is not null)
         {
             // Store panel always restricts to the Registered group regardless of what was
