@@ -19,7 +19,7 @@ Use this file before making or reviewing repository changes.
 | `.ai/checklists/` | cross-cutting gates | verify a change before calling it done |
 | `.ai/examples/` | worked walkthroughs of shipped code | see the rules applied before writing new code |
 | `.ai/templates/` | copy-ready skeletons | scaffold a plugin, theme, or migration |
-| `.ai/agents/` | agent definition wrappers | index reusable agent entry points (mirror into `.github/agents/` if you want Copilot discovery) |
+| `.ai/agents/` | agent definition wrappers | index reusable agent entry points to follow manually (mirror into `.github/agents/` for GitHub Copilot to discover them) |
 
 **Start from a prompt or a workflow.** It names the skills, knowledge, standards, and templates to load. Use a prompt when the goal is known; use a workflow when the cause, bottleneck, or path is not.
 
@@ -117,10 +117,12 @@ Skills carry their own domain checklists; these cover what no single skill owns.
 Templates are the shape; skills are the contract. Read the skill first, then diff the scaffold against the closest shipped plugin in `src/Plugins/`.
 
 ## Agent Routing
-Each file in `.ai/agents/` is a thin, invocable wrapper around one prompt or workflow — same
-frontmatter shape as a GitHub custom agent (`name`, `description`, `tools`), kept in `.ai/` rather
-than `.github/agents/` so it stays indexed alongside the rest of the single source of truth. Use
-them when you want to hand off a whole recurring task instead of following a prompt manually.
+Each file in `.ai/agents/` is a thin wrapper around one prompt or workflow — same frontmatter
+shape as a GitHub custom agent (`name`, `description`, `tools`), kept in `.ai/` rather than
+`.github/agents/` so it stays indexed alongside the rest of the single source of truth. GitHub
+Copilot only discovers repository-scoped custom agents from `.github/agents/`, so these files are
+not directly usable by Copilot unless mirrored/moved there. Use them as a reference to follow when
+you want to hand off a whole recurring task instead of following a prompt manually.
 - Use `.ai/agents/plugin-creator.md` to scaffold a new installable plugin end to end.
 - Use `.ai/agents/bug-fixer.md` to diagnose and fix a broken behavior when the cause is unknown.
 - Use `.ai/agents/test-writer.md` to add or extend unit tests for a change.
