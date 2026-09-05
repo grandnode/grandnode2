@@ -673,4 +673,162 @@ public abstract class BaseCustomerController(
     }
 
     #endregion
+
+    /// <summary>Non-redirecting ownership check for actions that soft-deny with an empty JSON
+    /// result instead of a redirect (e.g. UpdateProductPrice/DeleteProductPrice).</summary>
+    protected async Task<bool> HasAccessToCustomer(string customerId)
+    {
+        var customer = await customerService.GetCustomerById(customerId);
+        return customer != null && await scope.HasAccess(customer);
+    }
+
+    #region Customer Product Personalize / Price
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> ProductsPrice(DataSourceRequest command, string customerId)
+    {
+        var (productPriceModels, totalCount) =
+            await customerViewModelService.PrepareProductPriceModel(customerId, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult { Data = productPriceModels.ToList(), Total = totalCount };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> PersonalizedProducts(DataSourceRequest command, string customerId)
+    {
+        var (productModels, totalCount) =
+            await customerViewModelService.PreparePersonalizedProducts(customerId, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult { Data = productModels.ToList(), Total = totalCount };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> ProductAddPopup(string customerId)
+    {
+        if (scope.DefaultStoreId is not null)
+        {
+            var (_, denied) = await LoadAuthorizedCustomer(customerId);
+            if (denied != null) return denied;
+        }
+
+        var model = await customerViewModelService.PrepareCustomerModelAddProductModel();
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command, CustomerModel.AddProductModel model)
+    {
+        var products = await customerViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult { Data = products.products.ToList(), Total = products.totalCount };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ProductAddPopup(string customerId, bool personalized,
+        CustomerModel.AddProductModel model)
+    {
+        if (scope.DefaultStoreId is not null)
+        {
+            var (_, denied) = await LoadAuthorizedCustomer(customerId);
+            if (denied != null) return Content("");
+        }
+
+        if (model.SelectedProductIds != null)
+            await customerViewModelService.InsertCustomerAddProductModel(customerId, personalized, model);
+        return Content("");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> UpdateProductPrice(CustomerModel.ProductPriceModel model)
+    {
+        if (scope.DefaultStoreId is not null)
+        {
+            var productPrice = await customerProductService.GetCustomerProductPriceById(model.Id);
+            if (productPrice == null || !await HasAccessToCustomer(productPrice.CustomerId))
+                return new JsonResult("");
+        }
+
+        await customerViewModelService.UpdateProductPrice(model);
+        return new JsonResult("");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> DeleteProductPrice(string id)
+    {
+        if (scope.DefaultStoreId is not null)
+        {
+            var productPrice = await customerProductService.GetCustomerProductPriceById(id);
+            if (productPrice == null || !await HasAccessToCustomer(productPrice.CustomerId))
+                return new JsonResult("");
+
+            await customerProductService.DeleteCustomerProductPrice(productPrice);
+            return new JsonResult("");
+        }
+
+        await customerViewModelService.DeleteProductPrice(id);
+        return new JsonResult("");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> UpdatePersonalizedProduct(CustomerModel.ProductModel model)
+    {
+        if (scope.DefaultStoreId is not null)
+        {
+            var customerProduct = await customerProductService.GetCustomerProduct(model.Id);
+            if (customerProduct == null || !await HasAccessToCustomer(customerProduct.CustomerId))
+                return new JsonResult("");
+        }
+
+        await customerViewModelService.UpdatePersonalizedProduct(model);
+        return new JsonResult("");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> DeletePersonalizedProduct(string id)
+    {
+        if (scope.DefaultStoreId is not null)
+        {
+            var customerProduct = await customerProductService.GetCustomerProduct(id);
+            if (customerProduct == null || !await HasAccessToCustomer(customerProduct.CustomerId))
+                return new JsonResult("");
+
+            await customerProductService.DeleteCustomerProduct(customerProduct);
+            return new JsonResult("");
+        }
+
+        // Admin's original convenience method, preserved for the global-scope branch (still present
+        // on ICustomerViewModelService — no need to fall back to a two-step Get+Delete).
+        await customerViewModelService.DeletePersonalizedProduct(id);
+        return new JsonResult("");
+    }
+
+    #endregion
+
+    #region Out of stock subscriptions
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> OutOfStockSubscriptionList(DataSourceRequest command, string customerId)
+    {
+        if (scope.DefaultStoreId is not null)
+        {
+            var (_, denied) = await LoadAuthorizedCustomer(customerId);
+            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+        }
+
+        var (outOfStockSubscriptionModels, totalCount) =
+            await customerViewModelService.PrepareOutOfStockSubscriptionModel(customerId, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult { Data = outOfStockSubscriptionModels.ToList(), Total = totalCount };
+        return Json(gridModel);
+    }
+
+    #endregion
 }

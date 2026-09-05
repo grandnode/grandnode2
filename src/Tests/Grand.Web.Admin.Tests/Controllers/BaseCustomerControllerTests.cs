@@ -429,4 +429,56 @@ public class BaseCustomerControllerTests
 
         await Assert.ThrowsAsync<ArgumentException>(() => Controller.ReviewDelete("r1"));
     }
+
+    [TestMethod]
+    public async Task DeleteProductPrice_GlobalScope_NoOwnershipCheck_CallsServiceDirectly()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        CustomerViewModelServiceMock.Setup(v => v.DeleteProductPrice("pp1")).Returns(Task.CompletedTask);
+
+        var result = await Controller.DeleteProductPrice("pp1");
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        CustomerViewModelServiceMock.Verify(v => v.DeleteProductPrice("pp1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteProductPrice_StoreScope_DeniedOwnership_NoOpsSilently()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+
+        var result = await Controller.DeleteProductPrice("pp1");
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        CustomerViewModelServiceMock.Verify(v => v.DeleteProductPrice(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductAddPopup_Get_StoreScope_Denied_RedirectsToList()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+
+        var result = await Controller.ProductAddPopup("c1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task OutOfStockSubscriptionList_GlobalScope_NoOwnershipCheck()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        CustomerViewModelServiceMock
+            .Setup(v => v.PrepareOutOfStockSubscriptionModel("c1", 1, 10))
+            .ReturnsAsync((Enumerable.Empty<CustomerModel.OutOfStockSubscriptionModel>(), 0));
+
+        var result = await Controller.OutOfStockSubscriptionList(
+            new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        CustomerServiceMock.Verify(s => s.GetCustomerById(It.IsAny<string>()), Times.Never);
+    }
 }
