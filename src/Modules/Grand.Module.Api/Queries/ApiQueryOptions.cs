@@ -43,13 +43,19 @@ public static class ApiQueryOptions
         "and", "or", "not", "true", "false", "null", "iif"
     };
 
-    private static readonly Regex Identifier = new(@"[A-Za-z_][A-Za-z0-9_]*", RegexOptions.Compiled);
+    /// <summary>
+    ///     A bounded execution budget so a pathological input cannot make regex matching the slow part
+    ///     of the request; both patterns below are cheap on well-formed input, so this should never trip.
+    /// </summary>
+    private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(200);
+
+    private static readonly Regex Identifier = new(@"[A-Za-z_][A-Za-z0-9_]*", RegexOptions.Compiled, RegexTimeout);
 
     /// <summary>
     ///     String literals hold user text, not member names, so they are removed before the whitelist
     ///     runs - otherwise a product named "Password" would fail its own search.
     /// </summary>
-    private static readonly Regex StringLiteral = new(@"""(?:[^""\\]|\\.)*""|'(?:[^'\\]|\\.)*'", RegexOptions.Compiled);
+    private static readonly Regex StringLiteral = new(@"""(?:[^""\\]|\\.)*""|'(?:[^'\\]|\\.)*'", RegexOptions.Compiled, RegexTimeout);
 
     /// <summary>
     ///     Denies everything the parser can reach outside the model: no type resolution, no `it`/`root`
