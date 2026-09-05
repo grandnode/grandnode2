@@ -8,14 +8,11 @@ using Grand.Web.AdminShared.Interfaces;
 namespace Grand.Web.AdminShared.Services;
 
 /// <summary>
-///     Store's <see cref="IAdminDataScope{MessageTemplate}" />. Bespoke, not the generic
-///     <see cref="StoreAdminDataScope{TEntity}" />: although <c>MessageTemplate</c> IS
-///     <c>IStoreLinkEntity</c>, ownership uses the stricter, already-established
-///     <see cref="AclMappingExtension.AccessToEntityByStore{T}"/> idiom (exact single-store
-///     ownership: <c>LimitedToStores &amp;&amp; Stores.Count == 1 &amp;&amp; Stores[0] ==
-///     storeId</c>) shared with the attribute family (CheckoutAttribute/ContactAttribute/
-///     CustomerAttribute/AddressAttribute — see <c>project_store_attributes</c> memory), not the
-///     generic scope's plain <c>Stores.Contains</c> check.
+///     Store's <see cref="IAdminDataScope{MessageTemplate}" />. Similar to
+///     <see cref="StoreAdminDataScope{TEntity}" /> (it also uses the strict
+///     <see cref="AclMappingExtension.AccessToEntityByStore{T}"/> ownership check), but bespoke
+///     because Store never exposes a Stores picker for message templates (always self-assigned),
+///     so <see cref="ShowStoreSelector"/> must be <c>false</c>.
 ///
 ///     A template can also be shared across N&gt;1 stores without being exclusively owned by any
 ///     of them — visible/openable read-only, not mutable. <see cref="CanView"/> is therefore
