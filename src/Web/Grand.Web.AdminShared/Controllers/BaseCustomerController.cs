@@ -234,7 +234,7 @@ public abstract class BaseCustomerController(
     public async Task<IActionResult> Edit(string id)
     {
         var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (denied != null) return denied;
+        if (customer is null) return denied!;
 
         var model = new CustomerModel();
         await customerViewModelService.PrepareCustomerModel(model, customer, false);
@@ -247,7 +247,7 @@ public abstract class BaseCustomerController(
     public async Task<IActionResult> Edit(CustomerModel model, bool continueEditing)
     {
         var (customer, denied) = await LoadAuthorizedCustomer(model.Id);
-        if (denied != null) return denied;
+        if (customer is null) return denied!;
 
         await ApplyPostConstraints(model);
         CheckTwoFactorEnabledWarning(customer, model);
@@ -256,7 +256,7 @@ public abstract class BaseCustomerController(
             try
             {
                 model.Attributes = await ParseCustomCustomerAttributes(model.SelectedAttributes);
-                customer = await customerViewModelService.UpdateCustomerModel(customer!, model);
+                customer = await customerViewModelService.UpdateCustomerModel(customer, model);
 
                 if (!string.IsNullOrWhiteSpace(model.Password))
                 {
@@ -289,9 +289,9 @@ public abstract class BaseCustomerController(
     public async Task<IActionResult> Delete(string id)
     {
         var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (denied != null) return denied;
+        if (customer is null) return denied!;
 
-        if (customer!.Id == contextAccessor.WorkContext.CurrentCustomer.Id)
+        if (customer.Id == contextAccessor.WorkContext.CurrentCustomer.Id)
         {
             Error(translationService.GetResource("Admin.Customers.Customers.NoSelfDelete"));
             return RedirectToAction("List");
@@ -325,11 +325,11 @@ public abstract class BaseCustomerController(
     public async Task<IActionResult> MarkVatNumberAsValid(string id)
     {
         var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (denied != null) return denied;
+        if (customer is null) return denied!;
 
-        await customerService.UpdateUserField(customer!, SystemCustomerFieldNames.VatNumberStatusId,
+        await customerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumberStatusId,
             (int)Grand.Domain.Tax.VatNumberStatus.Valid);
-        return RedirectToAction("Edit", new { id = customer!.Id });
+        return RedirectToAction("Edit", new { id = customer.Id });
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -337,11 +337,11 @@ public abstract class BaseCustomerController(
     public async Task<IActionResult> MarkVatNumberAsInvalid(string id)
     {
         var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (denied != null) return denied;
+        if (customer is null) return denied!;
 
-        await customerService.UpdateUserField(customer!, SystemCustomerFieldNames.VatNumberStatusId,
+        await customerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumberStatusId,
             (int)Grand.Domain.Tax.VatNumberStatus.Invalid);
-        return RedirectToAction("Edit", new { id = customer!.Id });
+        return RedirectToAction("Edit", new { id = customer.Id });
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -349,12 +349,12 @@ public abstract class BaseCustomerController(
     public async Task<IActionResult> SendWelcomeMessage(string id)
     {
         var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (denied != null) return denied;
+        if (customer is null) return denied!;
 
-        await messageProviderService.SendCustomerWelcomeMessage(customer!, contextAccessor.StoreContext.CurrentStore,
+        await messageProviderService.SendCustomerWelcomeMessage(customer, contextAccessor.StoreContext.CurrentStore,
             contextAccessor.WorkContext.WorkingLanguage.Id);
         Success(translationService.GetResource("Admin.Customers.Customers.SendWelcomeMessage.Success"));
-        return RedirectToAction("Edit", new { id = customer!.Id });
+        return RedirectToAction("Edit", new { id = customer.Id });
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -362,25 +362,25 @@ public abstract class BaseCustomerController(
     public async Task<IActionResult> ReSendActivationMessage(string id)
     {
         var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (denied != null) return denied;
+        if (customer is null) return denied!;
 
-        await customerService.UpdateUserField(customer!, SystemCustomerFieldNames.AccountActivationToken,
+        await customerService.UpdateUserField(customer, SystemCustomerFieldNames.AccountActivationToken,
             Guid.NewGuid().ToString());
-        await messageProviderService.SendCustomerEmailValidationMessage(customer!,
+        await messageProviderService.SendCustomerEmailValidationMessage(customer,
             contextAccessor.StoreContext.CurrentStore, contextAccessor.WorkContext.WorkingLanguage.Id);
         Success(translationService.GetResource("Admin.Customers.Customers.ReSendActivationMessage.Success"));
-        return RedirectToAction("Edit", new { id = customer!.Id });
+        return RedirectToAction("Edit", new { id = customer.Id });
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> SendEmail(CustomerModel.SendEmailModel model)
     {
         var (customer, denied) = await LoadAuthorizedCustomer(model.Id);
-        if (denied != null) return denied;
+        if (customer is null) return denied!;
 
         try
         {
-            if (string.IsNullOrWhiteSpace(customer!.Email))
+            if (string.IsNullOrWhiteSpace(customer.Email))
                 throw new Grand.SharedKernel.GrandException("Customer email is empty");
             if (!Grand.SharedKernel.Extensions.CommonHelper.IsValidEmail(customer.Email))
                 throw new Grand.SharedKernel.GrandException("Customer email is not valid");
@@ -397,7 +397,7 @@ public abstract class BaseCustomerController(
             Error(exc.Message);
         }
 
-        return RedirectToAction("Edit", new { id = customer!.Id });
+        return RedirectToAction("Edit", new { id = customer.Id });
     }
 
     #endregion
