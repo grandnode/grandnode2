@@ -158,6 +158,13 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreMessageTemplateDataScope>();
         services.AddScoped<IAdminDataScope<MessageTemplate>, RoutedMessageTemplateDataScope>();
 
+        // IAdminDataScope<Customer>: two bespoke implementations, neither reusing
+        // GlobalAdminDataScope<T>/StoreAdminDataScope<T> — see AdminCustomerDataScope/
+        // StoreCustomerDataScope doc comments. No Vendor scope: Customer has no Vendor screen.
+        services.AddScoped<AdminCustomerDataScope>();
+        services.AddScoped<StoreCustomerDataScope>();
+        services.AddScoped<IAdminDataScope<Customer>, RoutedCustomerDataScope>();
+
         // IReportDataScope: NOT an IAdminDataScope<TEntity> registration (Reports has no entity —
         // see IReportDataScope's doc comment and ARCH-001 Reports consolidation spec §3). All three
         // hosts have a Reports screen, so all three concrete scopes are registered.
