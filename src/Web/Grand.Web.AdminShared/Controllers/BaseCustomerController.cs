@@ -15,6 +15,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.Common.Controllers;
@@ -398,6 +399,141 @@ public abstract class BaseCustomerController(
         }
 
         return RedirectToAction("Edit", new { id = customer.Id });
+    }
+
+    #endregion
+
+    #region Loyalty points history
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> LoyaltyPointsHistorySelect(string customerId)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
+        if (customer is null) throw new ArgumentException("No customer found with the specified id");
+
+        var model = (await customerViewModelService.PrepareLoyaltyPointsHistoryModel(customerId)).ToList();
+        var gridModel = new DataSourceResult { Data = model, Total = model.Count };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> LoyaltyPointsHistoryAdd(string customerId, string storeId,
+        int addLoyaltyPointsValue, string addLoyaltyPointsMessage)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
+        if (customer is null) return Json(new { Result = false });
+
+        // Store scope always forces its own StaffStoreId, ignoring the caller-supplied storeId —
+        // ports the original controller's `CurrentStoreId` usage. Admin has no store concept here
+        // and keeps using whatever the caller (its own store picker) submitted.
+        var effectiveStoreId = scope.DefaultStoreId ?? storeId;
+
+        await customerViewModelService.InsertLoyaltyPointsHistory(customer, effectiveStoreId,
+            addLoyaltyPointsValue, addLoyaltyPointsMessage);
+        return Json(new { Result = true });
+    }
+
+    #endregion
+
+    #region Addresses
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> AddressesSelect(string customerId, DataSourceRequest command)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
+        if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
+
+        var addresses = (await customerViewModelService.PrepareAddressModel(customer)).ToList();
+        var gridModel = new DataSourceResult { Data = addresses, Total = addresses.Count };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> AddressDelete(string id, string customerId)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
+        if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
+
+        var address = customer.Addresses.FirstOrDefault(a => a.Id == id);
+        if (address == null) return Content("No customer found with the specified id");
+        if (ModelState.IsValid)
+        {
+            await customerViewModelService.DeleteAddress(customer, address);
+            return new JsonResult("");
+        }
+
+        return ErrorForKendoGridJson(ModelState);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> AddressCreate(string customerId)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
+        if (customer is null) return denied!;
+
+        var model = new CustomerAddressModel();
+        await customerViewModelService.PrepareAddressModel(model, null, customer, false);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> AddressCreate(CustomerAddressModel model)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(model.CustomerId);
+        if (customer is null) return denied!;
+
+        if (ModelState.IsValid)
+        {
+            var customAttributes =
+                await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
+            var address = await customerViewModelService.InsertAddressModel(customer, model, customAttributes);
+            Success(translationService.GetResource("Admin.Customers.Customers.Addresses.Added"));
+            return RedirectToAction("AddressEdit", new { addressId = address.Id, customerId = model.CustomerId });
+        }
+
+        await customerViewModelService.PrepareAddressModel(model, null, customer, true);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> AddressEdit(string addressId, string customerId)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
+        if (customer is null) return denied!;
+
+        var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
+        if (address == null) return RedirectToAction("Edit", new { id = customer.Id });
+
+        var model = new CustomerAddressModel();
+        await customerViewModelService.PrepareAddressModel(model, address, customer, false);
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> AddressEdit(CustomerAddressModel model)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(model.CustomerId);
+        if (customer is null) return denied!;
+
+        var address = customer.Addresses.FirstOrDefault(x => x.Id == model.Address.Id);
+        if (address == null) return RedirectToAction("Edit", new { id = customer.Id });
+
+        if (ModelState.IsValid)
+        {
+            var customAttributes =
+                await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
+            await customerViewModelService.UpdateAddressModel(customer, address, model, customAttributes);
+            Success(translationService.GetResource("Admin.Customers.Customers.Addresses.Updated"));
+            return RedirectToAction("AddressEdit", new { addressId = model.Address.Id, customerId = model.CustomerId });
+        }
+
+        await customerViewModelService.PrepareAddressModel(model, address, customer, true);
+        return View(model);
     }
 
     #endregion

@@ -9,6 +9,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Http;
@@ -61,6 +62,7 @@ public class BaseCustomerControllerTests
     protected Mock<IGroupService> GroupServiceMock;
     protected Mock<IAdminDataScope<Customer>> ScopeMock;
     protected Mock<ITranslationService> TranslationServiceMock;
+    protected Mock<IAddressAttributeService> AddressAttributeServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -73,6 +75,9 @@ public class BaseCustomerControllerTests
         ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         TranslationServiceMock = new Mock<ITranslationService>();
         TranslationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
+        AddressAttributeServiceMock = new Mock<IAddressAttributeService>();
+        AddressAttributeServiceMock.Setup(a => a.GetAllAddressAttributes())
+            .ReturnsAsync(new List<Grand.Domain.Common.AddressAttribute>());
 
         var contextAccessorMock = new Mock<IContextAccessor>();
 
@@ -87,7 +92,7 @@ public class BaseCustomerControllerTests
             new Mock<ICustomerAttributeParser>().Object,
             new Mock<ICustomerAttributeService>().Object,
             new Mock<IAddressAttributeParser>().Object,
-            new Mock<IAddressAttributeService>().Object,
+            AddressAttributeServiceMock.Object,
             new Mock<Grand.Business.Core.Interfaces.Messages.IMessageProviderService>().Object,
             GroupServiceMock.Object,
             TranslationServiceMock.Object,
@@ -292,5 +297,66 @@ public class BaseCustomerControllerTests
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
         CustomerViewModelServiceMock.Verify(v => v.DeleteCustomer(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task LoyaltyPointsHistoryAdd_StoreScope_ForcesStaffStoreId_IgnoringSubmittedStoreId()
+    {
+        var customer = new Customer { Id = "c1" };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
+        ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        CustomerViewModelServiceMock
+            .Setup(v => v.InsertLoyaltyPointsHistory(customer, "store-1", 10, "msg"))
+            .ReturnsAsync(new Grand.Domain.Orders.LoyaltyPointsHistory());
+
+        // Caller submits a different, attacker-controlled storeId — must be ignored under Store scope.
+        await Controller.LoyaltyPointsHistoryAdd("c1", "attacker-store", 10, "msg");
+
+        CustomerViewModelServiceMock.Verify(v => v.InsertLoyaltyPointsHistory(customer, "store-1", 10, "msg"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task LoyaltyPointsHistoryAdd_GlobalScope_UsesSubmittedStoreId()
+    {
+        var customer = new Customer { Id = "c1" };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
+        ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        CustomerViewModelServiceMock
+            .Setup(v => v.InsertLoyaltyPointsHistory(customer, "admin-submitted-store", 10, "msg"))
+            .ReturnsAsync(new Grand.Domain.Orders.LoyaltyPointsHistory());
+
+        await Controller.LoyaltyPointsHistoryAdd("c1", "admin-submitted-store", 10, "msg");
+
+        CustomerViewModelServiceMock.Verify(v => v.InsertLoyaltyPointsHistory(customer, "admin-submitted-store", 10, "msg"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task AddressesSelect_Denied_ThrowsArgumentException()
+    {
+        CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
+
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            Controller.AddressesSelect("missing", new DataSourceRequest()));
+    }
+
+    [TestMethod]
+    public async Task AddressCreatePost_Authorized_InsertsAndRedirects()
+    {
+        var customer = new Customer { Id = "c1" };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
+        ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
+        var model = new CustomerAddressModel { CustomerId = "c1", Address = new AddressModel() };
+        var inserted = new Grand.Domain.Common.Address { Id = "a1" };
+        CustomerViewModelServiceMock
+            .Setup(v => v.InsertAddressModel(customer, model, It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()))
+            .ReturnsAsync(inserted);
+
+        var result = await Controller.AddressCreate(model);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("AddressEdit", redirect.ActionName);
     }
 }
