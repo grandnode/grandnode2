@@ -537,4 +537,140 @@ public abstract class BaseCustomerController(
     }
 
     #endregion
+
+    #region Orders
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> OrderList(string customerId, DataSourceRequest command,
+        [FromServices] Grand.Business.Core.Interfaces.Checkout.Orders.IOrderService orderService,
+        [FromServices] Grand.Web.AdminShared.Interfaces.IOrderViewModelService orderViewModelService,
+        [FromServices] IPermissionService permissionService)
+    {
+        if (scope.DefaultStoreId is not null)
+        {
+            var (_, denied) = await LoadAuthorizedCustomer(customerId);
+            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+        }
+        else if (!await permissionService.Authorize(StandardPermission.ManageOrders))
+        {
+            return Json(new DataSourceResult { Data = null, Total = 0 });
+        }
+
+        var model = new Grand.Web.AdminShared.Models.Orders.OrderListModel {
+            CustomerId = customerId, StoreId = scope.DefaultStoreId ?? ""
+        };
+        var (orderModels, totalCount) = await orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
+        var gridModel = new DataSourceResult { Data = orderModels.ToList(), Total = totalCount };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> OrderDetails(string orderId,
+        [FromServices] Grand.Business.Core.Interfaces.Checkout.Orders.IOrderService orderService,
+        [FromServices] Grand.Web.AdminShared.Interfaces.IOrderViewModelService orderViewModelService,
+        [FromServices] IPermissionService permissionService)
+    {
+        Grand.Domain.Orders.Order order;
+        if (scope.DefaultStoreId is null)
+        {
+            if (!await permissionService.Authorize(StandardPermission.ManageOrders))
+                return Json(new DataSourceResult { Data = null, Total = 0 });
+
+            order = await orderService.GetOrderById(orderId);
+            if (order == null) throw new ArgumentException("No order found with the specified id");
+        }
+        else
+        {
+            order = await orderService.GetOrderById(orderId);
+            if (order == null || order.StoreId != scope.DefaultStoreId)
+                return Json(new DataSourceResult { Data = null, Total = 0 });
+        }
+
+        var ordermodel = new Grand.Web.AdminShared.Models.Orders.OrderModel();
+        await orderViewModelService.PrepareOrderDetailsModel(ordermodel, order);
+        var gridModel = new DataSourceResult { Data = ordermodel.Items, Total = ordermodel.Items.Count };
+        return Json(gridModel);
+    }
+
+    #endregion
+
+    #region Reviews
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> ReviewList(string customerId, DataSourceRequest command)
+    {
+        var productReviews = await productReviewService.GetAllProductReviews(customerId, null,
+            null, null, "", scope.DefaultStoreId, "", command.Page - 1, command.PageSize);
+        var items = new List<Grand.Web.AdminShared.Models.Catalog.ProductReviewModel>();
+        foreach (var x in productReviews)
+        {
+            var m = new Grand.Web.AdminShared.Models.Catalog.ProductReviewModel();
+            await productViewModelService.PrepareProductReviewModel(m, x, false, true);
+            items.Add(m);
+        }
+
+        var gridModel = new DataSourceResult { Data = items, Total = productReviews.TotalCount };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ReviewDelete(string id)
+    {
+        var productReview = await productReviewService.GetProductReviewById(id);
+        if (productReview == null) throw new ArgumentException("No review found with the specified id", nameof(id));
+        if (scope.DefaultStoreId is not null && productReview.StoreId != scope.DefaultStoreId)
+            throw new ArgumentException("No review found with the specified id", nameof(id));
+
+        await productReviewViewModelService.DeleteProductReview(productReview);
+        return new JsonResult("");
+    }
+
+    #endregion
+
+    #region Current shopping cart / wishlist
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> GetCartList(string customerId, int cartTypeId)
+    {
+        // Admin's original never checked ownership here at all — preserved exactly, see task note.
+        if (scope.DefaultStoreId is not null)
+        {
+            var (_, denied) = await LoadAuthorizedCustomer(customerId);
+            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+        }
+
+        var cart = await customerViewModelService.PrepareShoppingCartItemModel(customerId, cartTypeId);
+        var gridModel = new DataSourceResult { Data = cart, Total = cart.Count };
+        return Json(gridModel);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> UpdateCart(string id, string customerId, double? unitPriceValue)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
+        if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
+
+        var warnings = await customerViewModelService.UpdateCart(customer, id, unitPriceValue);
+        if (warnings.Any()) return ErrorForKendoGridJson(string.Join(",", warnings));
+        return new JsonResult("");
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> DeleteCart(string id, string customerId)
+    {
+        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
+        if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
+
+        await customerViewModelService.DeleteCart(customer, id);
+        return new JsonResult("");
+    }
+
+    #endregion
 }

@@ -63,6 +63,7 @@ public class BaseCustomerControllerTests
     protected Mock<IAdminDataScope<Customer>> ScopeMock;
     protected Mock<ITranslationService> TranslationServiceMock;
     protected Mock<IAddressAttributeService> AddressAttributeServiceMock;
+    protected Mock<Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService> ProductReviewServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -78,6 +79,7 @@ public class BaseCustomerControllerTests
         AddressAttributeServiceMock = new Mock<IAddressAttributeService>();
         AddressAttributeServiceMock.Setup(a => a.GetAllAddressAttributes())
             .ReturnsAsync(new List<Grand.Domain.Common.AddressAttribute>());
+        ProductReviewServiceMock = new Mock<Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService>();
 
         var contextAccessorMock = new Mock<IContextAccessor>();
 
@@ -86,7 +88,7 @@ public class BaseCustomerControllerTests
             CustomerViewModelServiceMock.Object,
             CustomerManagerServiceMock.Object,
             new Mock<ICustomerProductService>().Object,
-            new Mock<Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService>().Object,
+            ProductReviewServiceMock.Object,
             new Mock<Grand.Web.AdminShared.Interfaces.IProductReviewViewModelService>().Object,
             new Mock<Grand.Web.AdminShared.Interfaces.IProductViewModelService>().Object,
             new Mock<ICustomerAttributeParser>().Object,
@@ -358,5 +360,73 @@ public class BaseCustomerControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("AddressEdit", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task OrderDetails_StoreScope_MismatchedStore_ReturnsEmptyNotException()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var orderServiceMock = new Mock<Grand.Business.Core.Interfaces.Checkout.Orders.IOrderService>();
+        orderServiceMock.Setup(s => s.GetOrderById("o1"))
+            .ReturnsAsync(new Grand.Domain.Orders.Order { Id = "o1", StoreId = "store-2" });
+
+        var result = await Controller.OrderDetails("o1", orderServiceMock.Object,
+            new Mock<Grand.Web.AdminShared.Interfaces.IOrderViewModelService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Security.IPermissionService>().Object);
+
+        var json = result as JsonResult;
+        var data = json.Value as DataSourceResult;
+        Assert.AreEqual(0, data.Total);
+    }
+
+    [TestMethod]
+    public async Task OrderDetails_GlobalScope_NotFound_ThrowsArgumentException()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        var permissionServiceMock = new Mock<Grand.Business.Core.Interfaces.Common.Security.IPermissionService>();
+        permissionServiceMock.Setup(p => p.Authorize(Grand.Domain.Permissions.StandardPermission.ManageOrders)).ReturnsAsync(true);
+        var orderServiceMock = new Mock<Grand.Business.Core.Interfaces.Checkout.Orders.IOrderService>();
+        orderServiceMock.Setup(s => s.GetOrderById("missing")).ReturnsAsync((Grand.Domain.Orders.Order)null);
+
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            Controller.OrderDetails("missing", orderServiceMock.Object,
+                new Mock<Grand.Web.AdminShared.Interfaces.IOrderViewModelService>().Object, permissionServiceMock.Object));
+    }
+
+    [TestMethod]
+    public async Task GetCartList_GlobalScope_NoOwnershipCheck_CallsServiceDirectly()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        CustomerViewModelServiceMock.Setup(v => v.PrepareShoppingCartItemModel("any-customer-id", 1))
+            .ReturnsAsync(new List<Grand.Web.AdminShared.Models.ShoppingCart.ShoppingCartItemModel>());
+
+        var result = await Controller.GetCartList("any-customer-id", 1);
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        CustomerServiceMock.Verify(s => s.GetCustomerById(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task GetCartList_StoreScope_DeniedOwnership_ReturnsEmpty()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+
+        var result = await Controller.GetCartList("c1", 1);
+
+        var json = result as JsonResult;
+        var data = json.Value as DataSourceResult;
+        Assert.AreEqual(0, data.Total);
+        CustomerViewModelServiceMock.Verify(v => v.PrepareShoppingCartItemModel(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ReviewDelete_StoreScope_MismatchedStore_ThrowsArgumentException()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var review = new Grand.Domain.Catalog.ProductReview { Id = "r1", StoreId = "store-2" };
+        ProductReviewServiceMock.Setup(s => s.GetProductReviewById("r1")).ReturnsAsync(review);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => Controller.ReviewDelete("r1"));
     }
 }
