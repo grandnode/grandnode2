@@ -46,7 +46,18 @@ public class MemoryCacheBase : ICacheBase, IDisposable
     {
         if (_cache.TryGetValue(key, out T cacheEntry)) return cacheEntry;
         var semaphore = CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
-        semaphore.Wait(_resetCacheToken.Token);
+        while (true)
+        {
+            var resetToken = _resetCacheToken.Token;
+            try
+            {
+                semaphore.Wait(resetToken);
+                break;
+            }
+            catch (OperationCanceledException) when (resetToken.IsCancellationRequested)
+            {
+            }
+        }
         try
         {
             if (!_cache.TryGetValue(key, out cacheEntry))

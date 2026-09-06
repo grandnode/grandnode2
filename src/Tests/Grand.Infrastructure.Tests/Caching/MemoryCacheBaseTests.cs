@@ -45,6 +45,31 @@ public class MemoryCacheBaseTests
     }
 
     [TestMethod]
+    [Timeout(10000)]
+    public async Task Get_WhenClearCancelsWaitingSemaphore_DoesNotThrow()
+    {
+        var acquireStarted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var releaseAcquire = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var firstRead = _service.GetAsync("key", async () =>
+        {
+            acquireStarted.SetResult(true);
+            await releaseAcquire.Task;
+            return "test";
+        }, 1);
+
+        await acquireStarted.Task;
+
+        var secondRead = Task.Run(() => _service.Get("key", () => "fallback", 1));
+
+        _service.Clear(false).GetAwaiter().GetResult();
+        releaseAcquire.SetResult(true);
+
+        Assert.AreEqual("test", await firstRead);
+        Assert.AreEqual("test", await secondRead);
+    }
+
+    [TestMethod]
     public async Task GetAsyncTest()
     {
         var result = await _service.GetAsync("key", () => { return Task.FromResult("test"); });
