@@ -1,0 +1,147 @@
+@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Domain.Customers
+@using Grand.Domain.Permissions
+@model CustomerModel
+@inject IPermissionService permissionService
+@inject IAdminDataScope<Customer> Scope
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //has "Manage Documents" permission?
+    var canManageDocuments = await permissionService.Authorize(StandardPermission.ManageDocuments);
+}
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+@if (area == "Store")
+{
+    <input asp-for="StoreId" type="hidden"/>
+    @foreach (var item in Model.CustomerGroups.Select((value, index) => new { value, index }))
+    {
+        <input type="hidden"
+               name="CustomerGroups[@item.index]"
+               value="@item.value"/>
+    }
+}
+
+@if (area == "Admin")
+{
+    <link rel="stylesheet" type="text/css" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/tagEditor/jquery.tag-editor.css"/>
+    <script asp-location="Footer" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/tagEditor/jquery.tag-editor.min.js"></script>
+    <script asp-location="Footer" asp-src="@(Grand.SharedUIResources.Constants.WwwRoot)/administration/tagEditor/jquery.caret.min.js"></script>
+
+    <script>
+        //tags
+        $(document).ready(function () {
+            $("#@Html.IdFor(model => model.CustomerTags)").tagEditor({
+                autocomplete: {
+                    delay: 0,
+                    position: { collision: 'flip' },
+                    source: '@Url.Action("Search", "CustomerTag", new { area = area })',
+                    minLength: 3,
+                    //source: initialProductTags
+                },
+                delimiter: ',',
+                placeholder: 'Enter tags ...'
+            });
+        });
+
+
+    </script>
+}
+
+<admin-tabstrip name="customer-edit" SetTabPos="true" BindGrid="true">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Customers.Customers.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (!string.IsNullOrEmpty(Model.Id))
+        {
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.Orders"]" tab-index="1">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabOrders" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.Reviews"]" tab-index="2">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabReviews" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.Addresses"]" tab-index="3">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabAddresses" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.ShoppingCartWishlist"]" tab-index="4">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabCurrentShoppingCart" model="Model"/>
+                        <partial name="Partials/CreateOrUpdate.TabCurrentWishlist" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.PersonalizedProduct"]" tab-index="5">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabProduct" model="Model"/>
+                        <partial name="Partials/CreateOrUpdate.TabProductPrice" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            @if (Scope.DefaultStoreId is null)
+            {
+                <tabstrip-item text="@Loc["Admin.Customers.Customers.CustomerNotes"]" tab-index="6">
+                    <content>
+                        <div>
+                            <partial name="Partials/CreateOrUpdate.TabNotes" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Customers.Customers.ActivityLog"]" tab-index="7">
+                    <content>
+                        <div>
+                            <partial name="Partials/CreateOrUpdate.TabActivityLog" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+            }
+            <tabstrip-item text="@Loc["Admin.Customers.Customers.OutOfStockSubscriptions"]" tab-index="8">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabOutOfStockSubscriptions" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+            @if (Model.DisplayLoyaltyPointsHistory)
+            {
+                <tabstrip-item text="@Loc["Admin.Customers.Customers.LoyaltyPoints"]" tab-index="9">
+                    <content>
+                        <div>
+                            <partial name="Partials/CreateOrUpdate.TabLoyaltyPoints" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+            }
+
+            @if (Scope.DefaultStoreId is null && canManageDocuments)
+            {
+                <tabstrip-item text="@Loc["Admin.Customers.Customers.Documents"]" tab-index="10">
+                    <content>
+                        <div>
+                            <partial name="Partials/CreateOrUpdate.Documents" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+            }
+        }
+        <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
+    </items>
+</admin-tabstrip>
