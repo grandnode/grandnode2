@@ -1,5 +1,10 @@
-﻿@model CustomerModel
+@using Grand.Domain.Customers
+@model CustomerModel
+@inject IAdminDataScope<Customer> Scope
 
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
     <script>
@@ -16,7 +21,7 @@
                 $.ajax({
                     cache: false,
                     type: "GET",
-                    url: "@(Url.Action("GetStatesByCountryId", "Home", new { area = Constants.AreaAdmin }))",
+                    url: "@(Url.Action("GetStatesByCountryId", "Home", new { area = area }))",
                     data: postData,
                     success: function(data) {
                         ddlStates.html('');
@@ -33,7 +38,7 @@
     </script>
 }
 <div class="form-horizontal">
-<vc:admin-widget widget-zone="customer_details_info_top" additional-data="Model"/>
+<partial name="Partials/WidgetZone.InfoTop" model="Model"/>
 <div class="form-body">
 @if (Model.UsernamesEnabled)
 {
@@ -76,23 +81,26 @@
         </div>
     </div>
 </div>
-<div class="form-group">
-    @{
-        ViewData["DisableIgnoreAclWarnings"] = true;
-    }
-    <admin-label asp-for="CustomerGroups"/>
-    <div class="col-md-9 col-sm-9">
-        <admin-input asp-for="CustomerGroups"/>
-        <span asp-validation-for="CustomerGroups"></span>
+@if (Scope.DefaultStoreId is null)
+{
+    <div class="form-group">
+        @{
+            ViewData["DisableIgnoreAclWarnings"] = true;
+        }
+        <admin-label asp-for="CustomerGroups"/>
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="CustomerGroups"/>
+            <span asp-validation-for="CustomerGroups"></span>
+        </div>
     </div>
-</div>
-<div class="form-group">
-    <admin-label asp-for="CustomerTags"/>
-    <div class="col-md-9 col-sm-9">
-        <admin-input asp-for="CustomerTags"/>
-        <span asp-validation-for="CustomerTags"></span>
+    <div class="form-group">
+        <admin-label asp-for="CustomerTags"/>
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="CustomerTags"/>
+            <span asp-validation-for="CustomerTags"></span>
+        </div>
     </div>
-</div>
+}
 @if (!string.IsNullOrEmpty(Model.Id) && Model.AssociatedExternalAuthRecords.Count > 0)
 {
     <div class="form-group">
@@ -168,42 +176,45 @@
         </div>
     </div>
 }
-<div class="form-group">
-    <admin-label asp-for="VendorId"/>
-    <div class="col-md-9 col-sm-9">
-        <admin-input asp-for="VendorId"/>
-        <span asp-validation-for="VendorId"></span>
-        <em>@Loc["Admin.Customers.Customers.VendorShouldBeInVendorsGroup"]</em>
+@if (Scope.DefaultStoreId is null)
+{
+    <div class="form-group">
+        <admin-label asp-for="VendorId"/>
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="VendorId"/>
+            <span asp-validation-for="VendorId"></span>
+            <em>@Loc["Admin.Customers.Customers.VendorShouldBeInVendorsGroup"]</em>
+        </div>
     </div>
-</div>
-<div class="form-group">
-    <admin-label asp-for="StaffStoreId"/>
-    <div class="col-md-9 col-sm-9">
-        <admin-select asp-for="StaffStoreId" asp-items="Model.AvailableStores"/>
-        <span asp-validation-for="StaffStoreId"></span>
+    <div class="form-group">
+        <admin-label asp-for="StaffStoreId"/>
+        <div class="col-md-9 col-sm-9">
+            <admin-select asp-for="StaffStoreId" asp-items="Model.AvailableStores"/>
+            <span asp-validation-for="StaffStoreId"></span>
+        </div>
     </div>
-</div>
-<div class="form-group">
-    <admin-label asp-for="StoreId"/>
-    <div class="col-md-9 col-sm-9">
-        <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
-        <span asp-validation-for="StoreId"></span>
+    <div class="form-group">
+        <admin-label asp-for="StoreId"/>
+        <div class="col-md-9 col-sm-9">
+            <admin-select asp-for="StoreId" asp-items="Model.AvailableStores"/>
+            <span asp-validation-for="StoreId"></span>
+        </div>
     </div>
-</div>
-<div class="form-group">
-    <admin-label asp-for="Owner"/>
-    <div class="col-md-9 col-sm-9">
-        <admin-input asp-for="Owner"/>
-        <span asp-validation-for="Owner"></span>
+    <div class="form-group">
+        <admin-label asp-for="Owner"/>
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="Owner"/>
+            <span asp-validation-for="Owner"></span>
+        </div>
     </div>
-</div>
-<div class="form-group">
-    <admin-label asp-for="SeId"/>
-    <div class="col-md-9 col-sm-9">
-        <admin-select asp-for="SeId" asp-items="Model.AvailableSalesEmployees"/>
-        <span asp-validation-for="SeId"></span>
+    <div class="form-group">
+        <admin-label asp-for="SeId"/>
+        <div class="col-md-9 col-sm-9">
+            <admin-select asp-for="SeId" asp-items="Model.AvailableSalesEmployees"/>
+            <span asp-validation-for="SeId"></span>
+        </div>
     </div>
-</div>
+}
 @if (Model.GenderEnabled)
 {
     <div class="form-group">
@@ -377,12 +388,12 @@
         <span asp-validation-for="TwoFactorEnabled"></span>
     </div>
 </div>
-@if (!string.IsNullOrEmpty(Model.AffiliateId))
+@if (Scope.DefaultStoreId is null && !string.IsNullOrEmpty(Model.AffiliateId))
 {
     <div class="form-group">
         <admin-label asp-for="AffiliateId"/>
         <div class="col-md-9 col-sm-9">
-            <a class="k-button" href="@Url.Action("Edit", "Affiliate", new { id = Model.AffiliateId, area = Constants.AreaAdmin })"><span class="k-icon k-i-eye"></span>&nbsp;@Model.AffiliateName - @Loc["Admin.Common.View"]</a>
+            <a class="k-button" href="@Url.Action("Edit", "Affiliate", new { id = Model.AffiliateId, area = area })"><span class="k-icon k-i-eye"></span>&nbsp;@Model.AffiliateName - @Loc["Admin.Common.View"]</a>
             <button type="submit" name="remove-affiliate" asp-action="RemoveAffiliate" class="k-button red"><span class="k-icon k-i-delete"></span>&nbsp;@Loc["Admin.Customers.Customers.Fields.Affiliate.Remove"]</button>
         </div>
     </div>
@@ -484,5 +495,5 @@ else
     </div>
 }
 </div>
-<vc:admin-widget widget-zone="customer_details_info_bottom" additional-data="Model"/>
+<partial name="Partials/WidgetZone.InfoBottom" model="Model"/>
 </div>

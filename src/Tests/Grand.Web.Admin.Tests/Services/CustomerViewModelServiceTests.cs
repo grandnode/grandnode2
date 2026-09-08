@@ -42,6 +42,7 @@ public class CustomerViewModelServiceTests
     private Mock<IStoreService> _storeServiceMock;
     private Mock<ICustomerTagService> _customerTagServiceMock;
     private Mock<IVendorService> _vendorServiceMock;
+    private Mock<IAffiliateService> _affiliateServiceMock;
     private Mock<IEnumTranslationService> _enumTranslationServiceMock;
     private Mock<ICustomerNoteService> _customerNoteServiceMock;
     private Mock<ICustomerProductService> _customerProductServiceMock;
@@ -62,6 +63,7 @@ public class CustomerViewModelServiceTests
         _storeServiceMock = new Mock<IStoreService>();
         _customerTagServiceMock = new Mock<ICustomerTagService>();
         _vendorServiceMock = new Mock<IVendorService>();
+        _affiliateServiceMock = new Mock<IAffiliateService>();
         _enumTranslationServiceMock = new Mock<IEnumTranslationService>();
         _customerNoteServiceMock = new Mock<ICustomerNoteService>();
         _customerProductServiceMock = new Mock<ICustomerProductService>();
@@ -144,7 +146,7 @@ public class CustomerViewModelServiceTests
             customerAttributeServiceMock.Object,
             new Mock<IAddressAttributeParser>().Object,
             new Mock<IAddressAttributeService>().Object,
-            new Mock<IAffiliateService>().Object,
+            _affiliateServiceMock.Object,
             _customerTagServiceMock.Object,
             _productServiceMock.Object,
             salesEmployeeServiceMock.Object,
@@ -201,6 +203,82 @@ public class CustomerViewModelServiceTests
         await _customerViewModelService.PrepareCustomerModel(model, null, false);
 
         Assert.IsTrue(string.IsNullOrEmpty(model.StoreId));
+    }
+
+    /// <summary>
+    /// TabInfo.cshtml (Task 13) gates CustomerGroups/CustomerTags/VendorId/StaffStoreId/StoreId/
+    /// Owner/SeId/AffiliateId behind "@if (Scope.DefaultStoreId is null)" — Admin-scoped rendering
+    /// only. PrepareCustomerModel itself is host-agnostic and always populates these fields; the
+    /// Store host's own BaseCustomerController.ApplyPostConstraints (not PrepareCustomerModel)
+    /// blanks/forces them back on POST. This test proves PrepareCustomerModel's output has every
+    /// field both hosts' TabInfo.cshtml needs, for a global-scoped (Admin) call, so Admin's view
+    /// has real data to render behind its gate.
+    /// </summary>
+    [TestMethod]
+    public async Task PrepareCustomerModel_GlobalScopedCall_PopulatesAdminOnlyGatedFields()
+    {
+        var customer = new Customer
+        {
+            Id = "c1",
+            Email = "customer@example.com",
+            VendorId = "vendor-1",
+            StaffStoreId = "store-staff",
+            StoreId = "store-9",
+            SeId = "se-1",
+            AffiliateId = "aff-1"
+        };
+        customer.CustomerTags.Add("tag-1");
+        _customerTagServiceMock.Setup(t => t.GetCustomerTagById("tag-1"))
+            .ReturnsAsync(new CustomerTag { Id = "tag-1", Name = "VIP" });
+        _groupServiceMock.Setup(g => g.IsOwner(customer)).ReturnsAsync(true);
+        _affiliateServiceMock.Setup(a => a.GetAffiliateById("aff-1"))
+            .ReturnsAsync(new Grand.Domain.Affiliates.Affiliate
+            {
+                Id = "aff-1",
+                Address = new Address { FirstName = "Aff", LastName = "Iliate" }
+            });
+
+        var model = new CustomerModel();
+        await _customerViewModelService.PrepareCustomerModel(model, customer, false);
+
+        //fields TabInfo.cshtml renders unconditionally on both hosts
+        Assert.AreEqual("customer@example.com", model.Email);
+        //fields TabInfo.cshtml gates behind "Scope.DefaultStoreId is null" (category (a)/(b) per
+        //Task 13's audit) — PrepareCustomerModel always populates them; the view/controller layer
+        //decides visibility, not this service.
+        Assert.AreEqual("VIP, ", model.CustomerTags);
+        Assert.IsTrue(string.IsNullOrEmpty(model.Owner)); //IsOwner true -> Owner blanked, by design
+        Assert.AreEqual("aff-1", model.AffiliateId);
+    }
+
+    /// <summary>
+    /// Store-scoped call: BaseCustomerController.ApplyPostConstraints (Store's override, exercised
+    /// on POST, not by PrepareCustomerModel) is what actually forces/blanks StoreId/Owner/VendorId/
+    /// StaffStoreId/SeId/CustomerGroups. This test proves the GET/prepare path still leaves those
+    /// same fields populated from the entity for an existing customer even when scoped to a store,
+    /// confirming TabInfo.cshtml's Scope-gate — not this service — is what hides them for Store.
+    /// </summary>
+    [TestMethod]
+    public async Task PrepareCustomerModel_StoreScopedExistingCustomer_StillMapsGatedFieldsFromEntity()
+    {
+        var customer = new Customer
+        {
+            Id = "c1",
+            Email = "customer@example.com",
+            StoreId = "store-9",
+            VendorId = "vendor-1"
+        };
+
+        var model = new CustomerModel();
+        await _customerViewModelService.PrepareCustomerModel(model, customer, false);
+
+        //fields Store's TabInfo.cshtml needs (ungated, always rendered)
+        Assert.AreEqual("customer@example.com", model.Email);
+        //PrepareCustomerModel maps StoreId/VendorId from the entity regardless of host; it is
+        //ApplyPostConstraints (controller-level, Store-only) that later forces StoreId back to
+        //scope.DefaultStoreId and blanks VendorId on submit -- not this method.
+        Assert.AreEqual("store-9", model.StoreId);
+        Assert.AreEqual("vendor-1", model.VendorId);
     }
 
     [TestMethod]
