@@ -64,6 +64,7 @@ public class BaseCustomerControllerTests
     protected Mock<ITranslationService> TranslationServiceMock;
     protected Mock<IAddressAttributeService> AddressAttributeServiceMock;
     protected Mock<Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService> ProductReviewServiceMock;
+    protected Mock<ICustomerProductService> CustomerProductServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -80,6 +81,7 @@ public class BaseCustomerControllerTests
         AddressAttributeServiceMock.Setup(a => a.GetAllAddressAttributes())
             .ReturnsAsync(new List<Grand.Domain.Common.AddressAttribute>());
         ProductReviewServiceMock = new Mock<Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService>();
+        CustomerProductServiceMock = new Mock<ICustomerProductService>();
 
         var contextAccessorMock = new Mock<IContextAccessor>();
 
@@ -87,7 +89,7 @@ public class BaseCustomerControllerTests
             CustomerServiceMock.Object,
             CustomerViewModelServiceMock.Object,
             CustomerManagerServiceMock.Object,
-            new Mock<ICustomerProductService>().Object,
+            CustomerProductServiceMock.Object,
             ProductReviewServiceMock.Object,
             new Mock<Grand.Web.AdminShared.Interfaces.IProductReviewViewModelService>().Object,
             new Mock<Grand.Web.AdminShared.Interfaces.IProductViewModelService>().Object,
@@ -443,15 +445,36 @@ public class BaseCustomerControllerTests
     }
 
     [TestMethod]
-    public async Task DeleteProductPrice_StoreScope_DeniedOwnership_NoOpsSilently()
+    public async Task DeleteProductPrice_StoreScope_PriceNotFound_NoOpsSilently()
     {
         ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+        CustomerProductServiceMock.Setup(s => s.GetCustomerProductPriceById("pp1"))
+            .ReturnsAsync((Grand.Domain.Customers.CustomerProductPrice)null);
 
         var result = await Controller.DeleteProductPrice("pp1");
 
         Assert.IsInstanceOfType(result, typeof(JsonResult));
         CustomerViewModelServiceMock.Verify(v => v.DeleteProductPrice(It.IsAny<string>()), Times.Never);
+        CustomerProductServiceMock.Verify(s => s.DeleteCustomerProductPrice(It.IsAny<Grand.Domain.Customers.CustomerProductPrice>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DeleteProductPrice_StoreScope_DeniedOwnership_NoOpsSilently()
+    {
+        // Price exists but belongs to a customer outside the caller's store — exercises the
+        // ownership-denial half of the guard, distinct from the not-found half above.
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var price = new Grand.Domain.Customers.CustomerProductPrice { Id = "pp1", CustomerId = "c1" };
+        CustomerProductServiceMock.Setup(s => s.GetCustomerProductPriceById("pp1")).ReturnsAsync(price);
+        var foreignCustomer = new Customer { Id = "c1" };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(foreignCustomer);
+        ScopeMock.Setup(s => s.HasAccess(foreignCustomer)).ReturnsAsync(false);
+
+        var result = await Controller.DeleteProductPrice("pp1");
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        CustomerViewModelServiceMock.Verify(v => v.DeleteProductPrice(It.IsAny<string>()), Times.Never);
+        CustomerProductServiceMock.Verify(s => s.DeleteCustomerProductPrice(It.IsAny<Grand.Domain.Customers.CustomerProductPrice>()), Times.Never);
     }
 
     [TestMethod]
@@ -465,6 +488,95 @@ public class BaseCustomerControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task ProductsPrice_StoreScope_DeniedOwnership_ReturnsEmpty()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+
+        var result = await Controller.ProductsPrice(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
+
+        var json = result as JsonResult;
+        var data = json.Value as DataSourceResult;
+        Assert.AreEqual(0, data.Total);
+        CustomerViewModelServiceMock.Verify(
+            v => v.PrepareProductPriceModel(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ProductsPrice_GlobalScope_NoOwnershipCheck_CallsServiceDirectly()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        CustomerViewModelServiceMock.Setup(v => v.PrepareProductPriceModel("c1", 1, 10))
+            .ReturnsAsync((Enumerable.Empty<CustomerModel.ProductPriceModel>(), 0));
+
+        var result = await Controller.ProductsPrice(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        CustomerServiceMock.Verify(s => s.GetCustomerById(It.IsAny<string>()), Times.Never);
+        CustomerViewModelServiceMock.Verify(v => v.PrepareProductPriceModel("c1", 1, 10), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PersonalizedProducts_StoreScope_DeniedOwnership_ReturnsEmpty()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+
+        var result = await Controller.PersonalizedProducts(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
+
+        var json = result as JsonResult;
+        var data = json.Value as DataSourceResult;
+        Assert.AreEqual(0, data.Total);
+        CustomerViewModelServiceMock.Verify(
+            v => v.PreparePersonalizedProducts(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PersonalizedProducts_GlobalScope_NoOwnershipCheck_CallsServiceDirectly()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        CustomerViewModelServiceMock.Setup(v => v.PreparePersonalizedProducts("c1", 1, 10))
+            .ReturnsAsync((Enumerable.Empty<CustomerModel.ProductModel>(), 0));
+
+        var result = await Controller.PersonalizedProducts(new DataSourceRequest { Page = 1, PageSize = 10 }, "c1");
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        CustomerServiceMock.Verify(s => s.GetCustomerById(It.IsAny<string>()), Times.Never);
+        CustomerViewModelServiceMock.Verify(v => v.PreparePersonalizedProducts("c1", 1, 10), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ReviewList_StoreScope_DeniedOwnership_ReturnsEmpty()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync((Customer)null);
+
+        var result = await Controller.ReviewList("c1", new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        var json = result as JsonResult;
+        var data = json.Value as DataSourceResult;
+        Assert.AreEqual(0, data.Total);
+        ProductReviewServiceMock.Verify(s => s.GetAllProductReviews(
+            It.IsAny<string>(), It.IsAny<bool?>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ReviewList_GlobalScope_NoOwnershipCheck_CallsServiceDirectly()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        ProductReviewServiceMock.Setup(s => s.GetAllProductReviews(
+                "c1", null, null, null, "", null, "", 0, 10))
+            .ReturnsAsync(new Grand.Domain.PagedList<Grand.Domain.Catalog.ProductReview>(
+                new List<Grand.Domain.Catalog.ProductReview>(), 0, 10, 0));
+
+        var result = await Controller.ReviewList("c1", new DataSourceRequest { Page = 1, PageSize = 10 });
+
+        Assert.IsInstanceOfType(result, typeof(JsonResult));
+        CustomerServiceMock.Verify(s => s.GetCustomerById(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
