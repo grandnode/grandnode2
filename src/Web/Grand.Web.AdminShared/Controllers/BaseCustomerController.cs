@@ -139,6 +139,7 @@ public abstract class BaseCustomerController(
 
     public IActionResult Index() => RedirectToAction("List");
 
+    [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> List()
     {
         // Fix: unconditionally call the shared, fully-populated PrepareCustomerListModel() for
@@ -275,7 +276,7 @@ public abstract class BaseCustomerController(
 
                 return RedirectToAction("List");
             }
-            catch (Grand.SharedKernel.GrandException exc)
+            catch (Exception exc)
             {
                 Error(exc.Message);
             }
@@ -310,7 +311,7 @@ public abstract class BaseCustomerController(
             Error(ModelState);
             return RedirectToAction("Edit", new { id = customer.Id });
         }
-        catch (Grand.SharedKernel.GrandException exc)
+        catch (Exception exc)
         {
             Error(exc.Message);
             return RedirectToAction("Edit", new { id = customer.Id });
@@ -393,7 +394,7 @@ public abstract class BaseCustomerController(
             await customerViewModelService.SendEmail(customer, model);
             Success(translationService.GetResource("Admin.Customers.Customers.SendEmail.Queued"));
         }
-        catch (Grand.SharedKernel.GrandException exc)
+        catch (Exception exc)
         {
             Error(exc.Message);
         }
@@ -602,6 +603,12 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> ReviewList(string customerId, DataSourceRequest command)
     {
+        if (scope.DefaultStoreId is not null)
+        {
+            var (_, denied) = await LoadAuthorizedCustomer(customerId);
+            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+        }
+
         var productReviews = await productReviewService.GetAllProductReviews(customerId, null,
             null, null, "", scope.DefaultStoreId, "", command.Page - 1, command.PageSize);
         var items = new List<Grand.Web.AdminShared.Models.Catalog.ProductReviewModel>();
@@ -688,6 +695,12 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> ProductsPrice(DataSourceRequest command, string customerId)
     {
+        if (scope.DefaultStoreId is not null)
+        {
+            var (_, denied) = await LoadAuthorizedCustomer(customerId);
+            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+        }
+
         var (productPriceModels, totalCount) =
             await customerViewModelService.PrepareProductPriceModel(customerId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult { Data = productPriceModels.ToList(), Total = totalCount };
@@ -698,6 +711,12 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> PersonalizedProducts(DataSourceRequest command, string customerId)
     {
+        if (scope.DefaultStoreId is not null)
+        {
+            var (_, denied) = await LoadAuthorizedCustomer(customerId);
+            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+        }
+
         var (productModels, totalCount) =
             await customerViewModelService.PreparePersonalizedProducts(customerId, command.Page, command.PageSize);
         var gridModel = new DataSourceResult { Data = productModels.ToList(), Total = totalCount };
