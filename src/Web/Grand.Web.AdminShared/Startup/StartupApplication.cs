@@ -186,6 +186,11 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreShippingMethodDataScope>();
         services.AddScoped<IAdminDataScope<ShippingMethod>, RoutedShippingMethodDataScope>();
 
+        // IAdminDataScope<DeliveryDate>: registered once here, same reason as Warehouse/ShippingMethod above.
+        services.AddScoped<GlobalAdminDataScope<DeliveryDate>>();
+        services.AddScoped<StoreDeliveryDateDataScope>();
+        services.AddScoped<IAdminDataScope<DeliveryDate>, RoutedDeliveryDateDataScope>();
+
         // IAdminDataScope<TaxCategory>: registered once here for the same reason as EmailAccount
         // above — see RoutedTaxCategoryDataScope's doc comment. No Vendor scope: Tax has no
         // Vendor screen.
