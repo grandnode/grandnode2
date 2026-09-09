@@ -64,11 +64,6 @@ public class ShippingController(
         model.CompanyEnabled = true;
     }
 
-    private async Task PrepareWarehouseModel(WarehouseModel model)
-    {
-        await PrepareAddressModel(model.Address, model.Address.CountryId);
-    }
-
     private async Task PreparePickupPointModel(PickupPointModel model)
     {
         await PrepareAddressModel(model.Address, model.Address.CountryId);
@@ -381,106 +376,6 @@ public class ShippingController(
         await deliveryDateService.DeleteDeliveryDate(deliveryDate);
         Success(translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Deleted"));
         return RedirectToAction("DeliveryDates");
-    }
-
-    #endregion
-
-    #region Warehouses
-
-    public IActionResult Warehouses()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.List)]
-    public async Task<IActionResult> WarehousesListData()
-    {
-        var warehouses = (await warehouseService.GetAllWarehouses(CurrentStoreId))
-            .ToList();
-
-        var gridModel = new DataSourceResult {
-            Data = warehouses.Select(w => w.ToModel()),
-            Total = warehouses.Count
-        };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public async Task<IActionResult> CreateWarehouse()
-    {
-        var model = new WarehouseModel();
-        await PrepareWarehouseModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.Create)]
-    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> CreateWarehouse(WarehouseModel model, bool continueEditing)
-    {
-        if (ModelState.IsValid)
-        {
-            var warehouse = model.ToEntity();
-            warehouse.Address = model.Address.ToEntity();
-            warehouse.StoreId = CurrentStoreId;
-            await warehouseService.InsertWarehouse(warehouse);
-            Success(translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Added"));
-            return continueEditing
-                ? RedirectToAction("EditWarehouse", new { id = warehouse.Id })
-                : RedirectToAction("Warehouses");
-        }
-        await PrepareWarehouseModel(model);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> EditWarehouse(string id)
-    {
-        var warehouse = await warehouseService.GetWarehouseById(id);
-        if (warehouse == null || warehouse.StoreId != CurrentStoreId)
-            return RedirectToAction("Warehouses");
-
-        var model = warehouse.ToModel();
-        await PrepareWarehouseModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> EditWarehouse(WarehouseModel model, bool continueEditing)
-    {
-        var warehouse = await warehouseService.GetWarehouseById(model.Id);
-        if (warehouse == null || warehouse.StoreId != CurrentStoreId)
-            return RedirectToAction("Warehouses");
-
-        if (ModelState.IsValid)
-        {
-            warehouse = model.ToEntity(warehouse);
-            warehouse.Address = model.Address.ToEntity();
-            warehouse.StoreId = CurrentStoreId;
-            await warehouseService.UpdateWarehouse(warehouse);
-            Success(translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Updated"));
-            return continueEditing
-                ? RedirectToAction("EditWarehouse", new { id = warehouse.Id })
-                : RedirectToAction("Warehouses");
-        }
-        await PrepareWarehouseModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.Delete)]
-    public async Task<IActionResult> DeleteWarehouse(string id)
-    {
-        var warehouse = await warehouseService.GetWarehouseById(id);
-        if (warehouse == null || warehouse.StoreId != CurrentStoreId)
-            return RedirectToAction("Warehouses");
-
-        await warehouseService.DeleteWarehouse(warehouse);
-        Success(translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Deleted"));
-        return RedirectToAction("Warehouses");
     }
 
     #endregion
