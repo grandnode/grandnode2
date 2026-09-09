@@ -85,17 +85,6 @@ public class ShippingController : BaseAdminController
             });
     }
 
-    protected virtual async Task PrepareShippingMethodModel(ShippingMethodModel model)
-    {
-        model.AvailableStores.Add(new SelectListItem {
-            Text = _translationService.GetResource("Admin.Configuration.Shipping.Methods.SelectStore"), Value = ""
-        });
-        foreach (var s in await _storeService.GetAllStores())
-            model.AvailableStores.Add(new SelectListItem {
-                Text = s.Shortcut, Value = s.Id, Selected = s.Id == model.StoreId
-            });
-    }
-
     protected virtual async Task PreparePickupPointModel(PickupPointModel model)
     {
         model.Address.AvailableCountries.Add(new SelectListItem
@@ -197,117 +186,6 @@ public class ShippingController : BaseAdminController
         }
 
         return new JsonResult("");
-    }
-
-    #endregion
-
-    #region Shipping methods
-
-    public IActionResult Methods()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Methods(DataSourceRequest command)
-    {
-        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
-        var shippingMethodsModel = (await _shippingMethodService.GetAllShippingMethods())
-            .Select(x => {
-                var m = x.ToModel();
-                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name) ? name : "";
-                return m;
-            })
-            .ToList();
-        var gridModel = new DataSourceResult {
-            Data = shippingMethodsModel,
-            Total = shippingMethodsModel.Count
-        };
-
-        return Json(gridModel);
-    }
-
-
-    public async Task<IActionResult> CreateMethod()
-    {
-        var model = new ShippingMethodModel();
-        //locales
-        await AddLocales(_languageService, model.Locales);
-        await PrepareShippingMethodModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> CreateMethod(ShippingMethodModel model, bool continueEditing)
-    {
-        if (ModelState.IsValid)
-        {
-            var sm = model.ToEntity();
-            await _shippingMethodService.InsertShippingMethod(sm);
-
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.Methods.Added"));
-            return continueEditing ? RedirectToAction("EditMethod", new { id = sm.Id }) : RedirectToAction("Methods");
-        }
-
-        //If we got this far, something failed, redisplay form
-        await PrepareShippingMethodModel(model);
-        return View(model);
-    }
-
-    public async Task<IActionResult> EditMethod(string id)
-    {
-        var sm = await _shippingMethodService.GetShippingMethodById(id);
-        if (sm == null)
-            //No shipping method found with the specified id
-            return RedirectToAction("Methods");
-
-        var model = sm.ToModel();
-        //locales
-        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
-        {
-            locale.Name = sm.GetTranslation(x => x.Name, languageId, false);
-            locale.Description = sm.GetTranslation(x => x.Description, languageId, false);
-        });
-        await PrepareShippingMethodModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> EditMethod(ShippingMethodModel model, bool continueEditing)
-    {
-        var sm = await _shippingMethodService.GetShippingMethodById(model.Id);
-        if (sm == null)
-            //No shipping method found with the specified id
-            return RedirectToAction("Methods");
-
-        if (ModelState.IsValid)
-        {
-            sm = model.ToEntity(sm);
-            await _shippingMethodService.UpdateShippingMethod(sm);
-
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.Methods.Updated"));
-            return continueEditing ? RedirectToAction("EditMethod", new { id = sm.Id }) : RedirectToAction("Methods");
-        }
-
-        //If we got this far, something failed, redisplay form
-        await PrepareShippingMethodModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> DeleteMethod(string id)
-    {
-        var sm = await _shippingMethodService.GetShippingMethodById(id);
-        if (sm == null)
-            //No shipping method found with the specified id
-            return RedirectToAction("Methods");
-
-        await _shippingMethodService.DeleteShippingMethod(sm);
-
-        Success(_translationService.GetResource("Admin.Configuration.Shipping.Methods.Deleted"));
-        return RedirectToAction("Methods");
     }
 
     #endregion
