@@ -30,6 +30,11 @@ public abstract class BaseEmailAccountController(
         var model = await emailAccountViewModelService.PrepareEmailAccountModel();
         if (scope.DefaultStoreId is not null)
             model.StoreId = scope.DefaultStoreId;
+        // Store never shows a Stores picker (its view emits only a hidden StoreId input) and must
+        // never carry other stores' names/ids in a model handed to its widget zones - same
+        // ShowStoreSelector gate ProductViewModelService uses for the same reason.
+        if (!scope.ShowStoreSelector)
+            model.AvailableStores.Clear();
         return View(model);
     }
 
@@ -68,6 +73,9 @@ public abstract class BaseEmailAccountController(
 
         var model = emailAccount.ToModel();
         await emailAccountViewModelService.PrepareAvailableStores(model);
+        // See Create() above: Store must never receive other stores' names/ids on this model.
+        if (!scope.ShowStoreSelector)
+            model.AvailableStores.Clear();
         return View(model);
     }
 

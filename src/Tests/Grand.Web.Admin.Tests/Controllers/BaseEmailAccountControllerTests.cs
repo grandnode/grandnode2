@@ -9,6 +9,7 @@ using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
@@ -72,6 +73,7 @@ public class BaseEmailAccountControllerTests
         var scope = new Mock<IAdminDataScope<EmailAccount>>();
         scope.Setup(s => s.DefaultStoreId).Returns((string?)null);
         scope.Setup(s => s.HasAccess(It.IsAny<EmailAccount>())).ReturnsAsync(true);
+        scope.Setup(s => s.ShowStoreSelector).Returns(true);
         return scope;
     }
 
@@ -80,6 +82,7 @@ public class BaseEmailAccountControllerTests
         var scope = new Mock<IAdminDataScope<EmailAccount>>();
         scope.Setup(s => s.DefaultStoreId).Returns(storeId);
         scope.Setup(s => s.HasAccess(It.IsAny<EmailAccount>())).ReturnsAsync(hasAccess);
+        scope.Setup(s => s.ShowStoreSelector).Returns(false);
         return scope;
     }
 
@@ -109,6 +112,40 @@ public class BaseEmailAccountControllerTests
 
         var model = (EmailAccountModel)result!.Model!;
         Assert.AreEqual("store-1", model.StoreId);
+    }
+
+    [TestMethod]
+    public async Task CreateGet_AdminScope_KeepsAvailableStores()
+    {
+        _emailAccountViewModelServiceMock.Setup(s => s.PrepareEmailAccountModel())
+            .ReturnsAsync(new EmailAccountModel {
+                AvailableStores = { new SelectListItem { Value = "store-1", Text = "Store 1" } }
+            });
+        var controller = CreateController(AdminScope().Object);
+
+        var result = await controller.Create() as ViewResult;
+
+        var model = (EmailAccountModel)result!.Model!;
+        Assert.AreEqual(1, model.AvailableStores.Count);
+    }
+
+    [TestMethod]
+    public async Task CreateGet_StoreScope_ClearsAvailableStores()
+    {
+        // Regression test for the latent cross-store leak flagged in code review: Store's own
+        // view never renders AvailableStores (it emits only a hidden StoreId input), but the
+        // shared PrepareEmailAccountModel() call always populates it - every store's id/name must
+        // not reach a model handed to Store's widget zones via additional-data="Model".
+        _emailAccountViewModelServiceMock.Setup(s => s.PrepareEmailAccountModel())
+            .ReturnsAsync(new EmailAccountModel {
+                AvailableStores = { new SelectListItem { Value = "store-1", Text = "Store 1" } }
+            });
+        var controller = CreateController(StoreScope("store-1", true).Object);
+
+        var result = await controller.Create() as ViewResult;
+
+        var model = (EmailAccountModel)result!.Model!;
+        Assert.AreEqual(0, model.AvailableStores.Count);
     }
 
     // --- Create POST ---
@@ -179,6 +216,42 @@ public class BaseEmailAccountControllerTests
 
         Assert.IsNotNull(result);
         _emailAccountViewModelServiceMock.Verify(s => s.PrepareAvailableStores(It.IsAny<EmailAccountModel>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task EditGet_StoreScope_ClearsAvailableStores()
+    {
+        // Same leak as CreateGet_StoreScope_ClearsAvailableStores, via PrepareAvailableStores
+        // instead of PrepareEmailAccountModel.
+        _emailAccountServiceMock.Setup(s => s.GetEmailAccountById("acc-1"))
+            .ReturnsAsync(new EmailAccount { Id = "acc-1", StoreId = "store-1", Email = "a@b.com" });
+        _emailAccountViewModelServiceMock
+            .Setup(s => s.PrepareAvailableStores(It.IsAny<EmailAccountModel>()))
+            .Callback<EmailAccountModel>(m => m.AvailableStores.Add(new SelectListItem { Value = "store-1", Text = "Store 1" }))
+            .Returns(Task.CompletedTask);
+        var controller = CreateController(StoreScope("store-1", true).Object);
+
+        var result = await controller.Edit("acc-1") as ViewResult;
+
+        var model = (EmailAccountModel)result!.Model!;
+        Assert.AreEqual(0, model.AvailableStores.Count);
+    }
+
+    [TestMethod]
+    public async Task EditGet_AdminScope_KeepsAvailableStores()
+    {
+        _emailAccountServiceMock.Setup(s => s.GetEmailAccountById("acc-1"))
+            .ReturnsAsync(new EmailAccount { Id = "acc-1", StoreId = "store-1", Email = "a@b.com" });
+        _emailAccountViewModelServiceMock
+            .Setup(s => s.PrepareAvailableStores(It.IsAny<EmailAccountModel>()))
+            .Callback<EmailAccountModel>(m => m.AvailableStores.Add(new SelectListItem { Value = "store-1", Text = "Store 1" }))
+            .Returns(Task.CompletedTask);
+        var controller = CreateController(AdminScope().Object);
+
+        var result = await controller.Edit("acc-1") as ViewResult;
+
+        var model = (EmailAccountModel)result!.Model!;
+        Assert.AreEqual(1, model.AvailableStores.Count);
     }
 
     // --- Edit POST ---
