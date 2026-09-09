@@ -202,4 +202,35 @@ public class MemoryCacheBaseTests
 
         Assert.IsNull(captured, $"Clear raced a concurrent write: {captured}");
     }
+
+    [TestMethod]
+    public async Task Dispose_OneInstance_DoesNotBreakAnotherInstance()
+    {
+        using var serviceProvider = new ServiceCollection()
+            .AddMemoryCache()
+            .BuildServiceProvider();
+        var firstCache = serviceProvider.GetRequiredService<IMemoryCache>();
+        var secondCache = serviceProvider.GetRequiredService<IMemoryCache>();
+        var first = new MemoryCacheBase(firstCache, new Mock<IMediator>().Object, _config);
+        var second = new MemoryCacheBase(secondCache, new Mock<IMediator>().Object, _config);
+
+        first.Dispose();
+
+        var result = await second.GetAsync("key", () => Task.FromResult("value"));
+
+        Assert.AreEqual("value", result);
+    }
+
+    [TestMethod]
+    public void Dispose_CalledTwice_DoesNotThrow()
+    {
+        using var serviceProvider = new ServiceCollection()
+            .AddMemoryCache()
+            .BuildServiceProvider();
+        var cacheManager = new MemoryCacheBase(serviceProvider.GetRequiredService<IMemoryCache>(),
+            new Mock<IMediator>().Object, _config);
+
+        cacheManager.Dispose();
+        cacheManager.Dispose();
+    }
 }

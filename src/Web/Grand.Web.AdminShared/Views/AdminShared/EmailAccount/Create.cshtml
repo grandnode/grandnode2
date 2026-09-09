@@ -1,16 +1,23 @@
-﻿@model EmailAccountModel
+@model EmailAccountModel
 @{
-    //page title
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
     ViewBag.Title = Loc["Admin.Configuration.EmailAccounts.AddNew"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="EmailAccount" asp-action="Create" method="post">
+<form asp-area="@area" asp-controller="EmailAccount" asp-action="Create" method="post">
 
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
                 <div class="x_title">
                     <div class="caption">
-                        <i class="fa fa-users"></i>
+                        @if (area == "Admin")
+                        {
+                            <i class="fa fa-users"></i>
+                        }
+                        else
+                        {
+                            <i class="fa fa-envelope"></i>
+                        }
                         @Loc["Admin.Configuration.EmailAccounts.AddNew"]
                         <small>
                             <i class="fa fa-arrow-circle-left"></i> @Html.ActionLink(Loc["Admin.Configuration.EmailAccounts.BackToList"], "List")
@@ -23,7 +30,7 @@
                         <button class="btn btn-success" type="submit" name="save-continue">
                             <i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
                         </button>
-                        <vc:admin-widget widget-zone="email_account_details_buttons" additional-data="null"/>
+                        <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                     </div>
                 </div>
                 <div class="x_content form">
