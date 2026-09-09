@@ -158,6 +158,14 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreMessageTemplateDataScope>();
         services.AddScoped<IAdminDataScope<MessageTemplate>, RoutedMessageTemplateDataScope>();
 
+        // IAdminDataScope<EmailAccount>: registered once here for the same reason as
+        // Category/Collection/GiftVoucher/MessageTemplate above — see
+        // RoutedEmailAccountDataScope's doc comment. No Vendor scope: EmailAccount has no
+        // Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<EmailAccount>>();
+        services.AddScoped<StoreEmailAccountDataScope>();
+        services.AddScoped<IAdminDataScope<EmailAccount>, RoutedEmailAccountDataScope>();
+
         // IReportDataScope: NOT an IAdminDataScope<TEntity> registration (Reports has no entity —
         // see IReportDataScope's doc comment and ARCH-001 Reports consolidation spec §3). All three
         // hosts have a Reports screen, so all three concrete scopes are registered.
