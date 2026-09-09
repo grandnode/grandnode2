@@ -121,6 +121,52 @@ public class BaseTaxCategoryControllerTests
         _storeServiceMock.Verify(s => s.GetAllStores(), Times.Never); // ShowStoreSelector=false: no store lookup needed
     }
 
+    [TestMethod]
+    public async Task Categories_AdminScope_ResolvesStoreNameForOwnedCategory()
+    {
+        _storeServiceMock.Setup(s => s.GetAllStores())
+            .ReturnsAsync(new List<Store> { new() { Id = "store-1", Shortcut = "MyStore" } });
+        _taxCategoryServiceMock.Setup(s => s.GetAllTaxCategories(""))
+            .ReturnsAsync(new List<TaxCategory> { new() { Id = "tc-1", Name = "Books", StoreId = "store-1" } });
+        var controller = CreateController(AdminScope().Object);
+
+        var result = await controller.Categories(new DataSourceRequest()) as JsonResult;
+
+        var payload = (DataSourceResult)result!.Value!;
+        var items = (List<TaxCategoryModel>)payload.Data;
+        Assert.AreEqual("MyStore", items.Single().StoreName);
+    }
+
+    [TestMethod]
+    public async Task Categories_AdminScope_ResolvesStoreNameAsAllForGlobalCategory()
+    {
+        _storeServiceMock.Setup(s => s.GetAllStores())
+            .ReturnsAsync(new List<Store> { new() { Id = "store-1", Shortcut = "MyStore" } });
+        _taxCategoryServiceMock.Setup(s => s.GetAllTaxCategories(""))
+            .ReturnsAsync(new List<TaxCategory> { new() { Id = "tc-1", Name = "Books", StoreId = "" } });
+        var controller = CreateController(AdminScope().Object);
+
+        var result = await controller.Categories(new DataSourceRequest()) as JsonResult;
+
+        var payload = (DataSourceResult)result!.Value!;
+        var items = (List<TaxCategoryModel>)payload.Data;
+        Assert.AreEqual("Admin.Common.All", items.Single().StoreName);
+    }
+
+    [TestMethod]
+    public async Task Categories_StoreScope_LeavesStoreNameEmpty()
+    {
+        _taxCategoryServiceMock.Setup(s => s.GetAllTaxCategories("store-1"))
+            .ReturnsAsync(new List<TaxCategory> { new() { Id = "tc-1", Name = "Books", StoreId = "store-1" } });
+        var controller = CreateController(StoreScope("store-1", true).Object);
+
+        var result = await controller.Categories(new DataSourceRequest()) as JsonResult;
+
+        var payload = (DataSourceResult)result!.Value!;
+        var items = (List<TaxCategoryModel>)payload.Data;
+        Assert.AreEqual(string.Empty, items.Single().StoreName);
+    }
+
     // --- CategoryAdd ---
 
     [TestMethod]

@@ -27,6 +27,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Store.Controllers;
 
+// Attributes are restated here (and on Admin's TaxController) because they used to arrive
+// transitively via BaseAdminController/BaseStoreController - BaseTaxCategoryController (used
+// instead now) can't inherit either, since it must stay host-agnostic: Admin, Store, and
+// (hypothetically) Vendor all extend it.
 [AuthorizeStore]
 [Area(Constants.AreaStore)]
 [AuthorizeMenu]

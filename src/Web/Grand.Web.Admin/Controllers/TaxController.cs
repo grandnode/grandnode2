@@ -21,13 +21,15 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Localization;
-using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Controllers;
 
+// Attributes are restated here (and on Store's TaxController) because they used to arrive
+// transitively via BaseAdminController/BaseStoreController - BaseTaxCategoryController (used
+// instead now) can't inherit either, since it must stay host-agnostic: Admin, Store, and
+// (hypothetically) Vendor all extend it.
 [AuthorizeAdmin]
 [Area(Constants.AreaAdmin)]
 [AuthorizeMenu]
@@ -41,6 +43,7 @@ public class TaxController(
     ICountryService countryService,
     IStoreService storeService,
     IEnumTranslationService enumTranslationService,
+    IContextAccessor contextAccessor,
     IAdminDataScope<TaxCategory> scope)
     : BaseTaxCategoryController(taxCategoryService, storeService, translationService, scope)
 {
@@ -50,7 +53,7 @@ public class TaxController(
     /// <returns>Store ID; 0 if we are in a shared mode</returns>
     private async Task<string> GetActiveStore()
     {
-        var workContext = HttpContext.RequestServices.GetRequiredService<IContextAccessor>().WorkContext;
+        var workContext = contextAccessor.WorkContext;
 
         var stores = await storeService.GetAllStores();
         if (stores.Count < 2)
