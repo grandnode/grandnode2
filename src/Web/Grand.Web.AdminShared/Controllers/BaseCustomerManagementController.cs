@@ -115,8 +115,8 @@ public abstract class BaseCustomerManagementController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Delete)]
+    [HttpPost]
     public async Task<IActionResult> DeleteSelected(ICollection<string> selectedIds)
-    {
         if (selectedIds != null) await CustomerViewModelService.DeleteSelected(selectedIds.ToList());
         return Json(new { Result = true });
     }
