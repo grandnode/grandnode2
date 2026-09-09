@@ -26,8 +26,6 @@ namespace Grand.Web.Store.Controllers;
 public class ShippingController(
     IShippingService shippingService,
     IShippingMethodService shippingMethodService,
-    IWarehouseService warehouseService,
-    IPickupPointService pickupPointService,
     ICountryService countryService,
     IGroupService groupService,
     ILanguageService languageService,
@@ -36,43 +34,6 @@ public class ShippingController(
     IContextAccessor contextAccessor) : BaseStoreController
 {
     private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-
-    #region Utilities
-
-    private async Task PrepareAddressModel(AddressModel model, string selectedCountryId)
-    {
-        model.AvailableCountries.Add(new SelectListItem { Text = translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
-        foreach (var c in await countryService.GetAllCountries(showHidden: true))
-            model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == selectedCountryId });
-
-        var states = !string.IsNullOrEmpty(selectedCountryId)
-            ? (await countryService.GetCountryById(selectedCountryId))?.StateProvinces
-            : new List<StateProvince>();
-        if (states?.Count > 0)
-            foreach (var s in states)
-                model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == model.StateProvinceId });
-
-        model.CountryEnabled = true;
-        model.StateProvinceEnabled = true;
-        model.CityEnabled = true;
-        model.StreetAddressEnabled = true;
-        model.ZipPostalCodeEnabled = true;
-        model.ZipPostalCodeRequired = true;
-        model.PhoneEnabled = true;
-        model.FaxEnabled = true;
-        model.CompanyEnabled = true;
-    }
-
-    private async Task PreparePickupPointModel(PickupPointModel model)
-    {
-        await PrepareAddressModel(model.Address, model.Address.CountryId);
-
-        model.AvailableWarehouses.Add(new SelectListItem { Text = translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectWarehouse"), Value = "" });
-        foreach (var w in await warehouseService.GetAllWarehouses(CurrentStoreId))
-            model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id, Selected = w.Id == model.WarehouseId });
-    }
-
-    #endregion
 
     #region Providers
 
@@ -179,104 +140,6 @@ public class ShippingController(
         await settingService.SaveSetting(shippingSettings, storeScope);
         Success(translationService.GetResource("Admin.Configuration.Updated"));
         return RedirectToAction("Settings");
-    }
-
-    #endregion
-
-    #region Pickup points
-
-    public IActionResult PickupPoints()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.List)]
-    public async Task<IActionResult> PickupPointsListData()
-    {
-        var pickupPoints = (await pickupPointService.GetAllPickupPoints(CurrentStoreId))
-            .ToList();
-
-        var gridModel = new DataSourceResult {
-            Data = pickupPoints.Select(p => p.ToModel()),
-            Total = pickupPoints.Count
-        };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public async Task<IActionResult> CreatePickupPoint()
-    {
-        var model = new PickupPointModel();
-        await PreparePickupPointModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.Create)]
-    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> CreatePickupPoint(PickupPointModel model, bool continueEditing)
-    {
-        if (ModelState.IsValid)
-        {
-            var pickupPoint = model.ToEntity();
-            pickupPoint.StoreId = CurrentStoreId;
-            await pickupPointService.InsertPickupPoint(pickupPoint);
-            Success(translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Added"));
-            return continueEditing
-                ? RedirectToAction("EditPickupPoint", new { id = pickupPoint.Id })
-                : RedirectToAction("PickupPoints");
-        }
-        await PreparePickupPointModel(model);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> EditPickupPoint(string id)
-    {
-        var pickupPoint = await pickupPointService.GetPickupPointById(id);
-        if (pickupPoint == null || pickupPoint.StoreId != CurrentStoreId)
-            return RedirectToAction("PickupPoints");
-
-        var model = pickupPoint.ToModel();
-        await PreparePickupPointModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [Grand.Web.Common.Filters.ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> EditPickupPoint(PickupPointModel model, bool continueEditing)
-    {
-        var pickupPoint = await pickupPointService.GetPickupPointById(model.Id);
-        if (pickupPoint == null || pickupPoint.StoreId != CurrentStoreId)
-            return RedirectToAction("PickupPoints");
-
-        if (ModelState.IsValid)
-        {
-            pickupPoint = model.ToEntity(pickupPoint);
-            pickupPoint.StoreId = CurrentStoreId;
-            await pickupPointService.UpdatePickupPoint(pickupPoint);
-            Success(translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Updated"));
-            return continueEditing
-                ? RedirectToAction("EditPickupPoint", new { id = pickupPoint.Id })
-                : RedirectToAction("PickupPoints");
-        }
-        await PreparePickupPointModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.Delete)]
-    public async Task<IActionResult> DeletePickupPoint(string id)
-    {
-        var pickupPoint = await pickupPointService.GetPickupPointById(id);
-        if (pickupPoint == null || pickupPoint.StoreId != CurrentStoreId)
-            return RedirectToAction("PickupPoints");
-
-        await pickupPointService.DeletePickupPoint(pickupPoint);
-        Success(translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Deleted"));
-        return RedirectToAction("PickupPoints");
     }
 
     #endregion

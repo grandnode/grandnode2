@@ -31,8 +31,6 @@ public class ShippingController : BaseAdminController
     public ShippingController(
         IShippingService shippingService,
         IShippingMethodService shippingMethodService,
-        IPickupPointService pickupPointService,
-        IWarehouseService warehouseService,
         ISettingService settingService,
         ICountryService countryService,
         ITranslationService translationService,
@@ -42,8 +40,6 @@ public class ShippingController : BaseAdminController
     {
         _shippingService = shippingService;
         _shippingMethodService = shippingMethodService;
-        _pickupPointService = pickupPointService;
-        _warehouseService = warehouseService;
         _settingService = settingService;
         _countryService = countryService;
         _translationService = translationService;
@@ -58,58 +54,12 @@ public class ShippingController : BaseAdminController
 
     private readonly IShippingService _shippingService;
     private readonly IShippingMethodService _shippingMethodService;
-    private readonly IPickupPointService _pickupPointService;
-    private readonly IWarehouseService _warehouseService;
     private readonly ISettingService _settingService;
     private readonly ICountryService _countryService;
     private readonly ITranslationService _translationService;
     private readonly ILanguageService _languageService;
     private readonly IStoreService _storeService;
     private readonly IGroupService _groupService;
-
-    #endregion
-
-    #region Utilities
-
-    protected virtual async Task PreparePickupPointModel(PickupPointModel model)
-    {
-        model.Address.AvailableCountries.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
-        foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-            model.Address.AvailableCountries.Add(new SelectListItem
-                { Text = c.Name, Value = c.Id, Selected = c.Id == model.Address.CountryId });
-        //states
-        var states = !string.IsNullOrEmpty(model.Address.CountryId)
-            ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces
-            : new List<StateProvince>();
-        if (states?.Count > 0)
-            foreach (var s in states)
-                model.Address.AvailableStates.Add(new SelectListItem
-                    { Text = s.Name, Value = s.Id, Selected = s.Id == model.Address.StateProvinceId });
-
-        model.Address.CountryEnabled = true;
-        model.Address.StateProvinceEnabled = true;
-        model.Address.CityEnabled = true;
-        model.Address.StreetAddressEnabled = true;
-        model.Address.ZipPostalCodeEnabled = true;
-        model.Address.ZipPostalCodeRequired = true;
-        model.Address.PhoneEnabled = true;
-        model.Address.FaxEnabled = true;
-        model.Address.CompanyEnabled = true;
-
-        model.AvailableStores.Add(new SelectListItem {
-            Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectStore"), Value = ""
-        });
-        foreach (var c in await _storeService.GetAllStores())
-            model.AvailableStores.Add(new SelectListItem { Text = c.Shortcut, Value = c.Id, Selected = c.Id == model.StoreId });
-
-        model.AvailableWarehouses.Add(new SelectListItem {
-            Text = _translationService.GetResource("Admin.Configuration.Shipping.PickupPoint.SelectWarehouse"),
-            Value = ""
-        });
-        foreach (var c in await _warehouseService.GetAllWarehouses())
-            model.AvailableWarehouses.Add(new SelectListItem { Text = c.Name, Value = c.Id });
-    }
 
     #endregion
 
@@ -230,115 +180,6 @@ public class ShippingController : BaseAdminController
 
         Success(_translationService.GetResource("Admin.Configuration.Updated"));
         return RedirectToAction("Settings");
-    }
-
-    #endregion
-
-    #region PickupPoints
-
-    public IActionResult PickupPoints()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> PickupPoints(DataSourceRequest command)
-    {
-        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
-        var pickupPointsModel = (await _pickupPointService.GetAllPickupPoints())
-            .Select(x => {
-                var m = x.ToModel();
-                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name) ? name : "";
-                return m;
-            })
-            .ToList();
-
-        var gridModel = new DataSourceResult {
-            Data = pickupPointsModel,
-            Total = pickupPointsModel.Count
-        };
-
-        return Json(gridModel);
-    }
-
-    public async Task<IActionResult> CreatePickupPoint()
-    {
-        var model = new PickupPointModel();
-        await PreparePickupPointModel(model);
-        return View(model);
-    }
-
-
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> CreatePickupPoint(PickupPointModel model, bool continueEditing)
-    {
-        if (ModelState.IsValid)
-        {
-            var pickuppoint = model.ToEntity();
-            await _pickupPointService.InsertPickupPoint(pickuppoint);
-
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Added"));
-            return continueEditing
-                ? RedirectToAction("EditPickupPoint", new { id = pickuppoint.Id })
-                : RedirectToAction("PickupPoints");
-        }
-
-        //If we got this far, something failed, redisplay form
-        await PreparePickupPointModel(model);
-        return View(model);
-    }
-
-    public async Task<IActionResult> EditPickupPoint(string id)
-    {
-        var pickuppoint = await _pickupPointService.GetPickupPointById(id);
-        if (pickuppoint == null)
-            //No pickup pint found with the specified id
-            return RedirectToAction("PickupPoints");
-
-        var model = pickuppoint.ToModel();
-        await PreparePickupPointModel(model);
-
-        return View(model);
-    }
-
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> EditPickupPoint(PickupPointModel model, bool continueEditing)
-    {
-        var pickupPoint = await _pickupPointService.GetPickupPointById(model.Id);
-        if (pickupPoint == null)
-            //No pickup point found with the specified id
-            return RedirectToAction("PickupPoints");
-
-        if (ModelState.IsValid)
-        {
-            pickupPoint = model.ToEntity(pickupPoint);
-            await _pickupPointService.UpdatePickupPoint(pickupPoint);
-
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Updated"));
-            return continueEditing
-                ? RedirectToAction("EditPickupPoint", new { id = pickupPoint.Id })
-                : RedirectToAction("PickupPoints");
-        }
-
-        //If we got this far, something failed, redisplay form
-        await PreparePickupPointModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> DeletePickupPoint(string id)
-    {
-        var pickupPoint = await _pickupPointService.GetPickupPointById(id);
-        if (pickupPoint == null)
-            //No pickup point found with the specified id
-            return RedirectToAction("PickupPoints");
-
-        await _pickupPointService.DeletePickupPoint(pickupPoint);
-
-        Success(_translationService.GetResource("Admin.Configuration.Shipping.PickupPoints.Deleted"));
-        return RedirectToAction("PickupPoints");
     }
 
     #endregion

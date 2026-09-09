@@ -47,8 +47,6 @@ public class ShippingControllerTests
         _controller = new ShippingController(
             new Mock<IShippingService>().Object,
             _shippingMethodServiceMock.Object,
-            new Mock<IWarehouseService>().Object,
-            new Mock<IPickupPointService>().Object,
             _countryServiceMock.Object,
             _groupServiceMock.Object,
             new Mock<ILanguageService>().Object,
