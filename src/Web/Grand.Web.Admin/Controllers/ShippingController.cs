@@ -32,7 +32,6 @@ public class ShippingController : BaseAdminController
         IShippingService shippingService,
         IShippingMethodService shippingMethodService,
         IPickupPointService pickupPointService,
-        IDeliveryDateService deliveryDateService,
         IWarehouseService warehouseService,
         ISettingService settingService,
         ICountryService countryService,
@@ -44,7 +43,6 @@ public class ShippingController : BaseAdminController
         _shippingService = shippingService;
         _shippingMethodService = shippingMethodService;
         _pickupPointService = pickupPointService;
-        _deliveryDateService = deliveryDateService;
         _warehouseService = warehouseService;
         _settingService = settingService;
         _countryService = countryService;
@@ -61,7 +59,6 @@ public class ShippingController : BaseAdminController
     private readonly IShippingService _shippingService;
     private readonly IShippingMethodService _shippingMethodService;
     private readonly IPickupPointService _pickupPointService;
-    private readonly IDeliveryDateService _deliveryDateService;
     private readonly IWarehouseService _warehouseService;
     private readonly ISettingService _settingService;
     private readonly ICountryService _countryService;
@@ -73,17 +70,6 @@ public class ShippingController : BaseAdminController
     #endregion
 
     #region Utilities
-
-    protected virtual async Task PrepareDeliveryDateModel(DeliveryDateModel model)
-    {
-        model.AvailableStores.Add(new SelectListItem {
-            Text = _translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.SelectStore"), Value = ""
-        });
-        foreach (var s in await _storeService.GetAllStores())
-            model.AvailableStores.Add(new SelectListItem {
-                Text = s.Shortcut, Value = s.Id, Selected = s.Id == model.StoreId
-            });
-    }
 
     protected virtual async Task PreparePickupPointModel(PickupPointModel model)
     {
@@ -244,129 +230,6 @@ public class ShippingController : BaseAdminController
 
         Success(_translationService.GetResource("Admin.Configuration.Updated"));
         return RedirectToAction("Settings");
-    }
-
-    #endregion
-
-    #region Delivery dates
-
-    public IActionResult DeliveryDates()
-    {
-        return View();
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> DeliveryDates(DataSourceRequest command)
-    {
-        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
-        var deliveryDatesModel = (await _deliveryDateService.GetAllDeliveryDates())
-            .Select(x => {
-                var m = x.ToModel();
-                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name) ? name : "";
-                return m;
-            })
-            .ToList();
-        var gridModel = new DataSourceResult {
-            Data = deliveryDatesModel,
-            Total = deliveryDatesModel.Count
-        };
-
-        return Json(gridModel);
-    }
-
-    public async Task<IActionResult> CreateDeliveryDate()
-    {
-        var model = new DeliveryDateModel {
-            ColorSquaresRgb = "#000000"
-        };
-        //locales
-        await AddLocales(_languageService, model.Locales);
-        await PrepareDeliveryDateModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> CreateDeliveryDate(DeliveryDateModel model, bool continueEditing)
-    {
-        if (ModelState.IsValid)
-        {
-            var deliveryDate = model.ToEntity();
-            await _deliveryDateService.InsertDeliveryDate(deliveryDate);
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Added"));
-            return continueEditing
-                ? RedirectToAction("EditDeliveryDate", new { id = deliveryDate.Id })
-                : RedirectToAction("DeliveryDates");
-        }
-
-        //If we got this far, something failed, redisplay form
-        await PrepareDeliveryDateModel(model);
-        return View(model);
-    }
-
-    public async Task<IActionResult> EditDeliveryDate(string id)
-    {
-        var deliveryDate = await _deliveryDateService.GetDeliveryDateById(id);
-        if (deliveryDate == null)
-            //No delivery date found with the specified id
-            return RedirectToAction("DeliveryDates");
-
-        var model = deliveryDate.ToModel();
-
-        if (string.IsNullOrEmpty(model.ColorSquaresRgb)) model.ColorSquaresRgb = "#000000";
-
-        //locales
-        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
-        {
-            locale.Name = deliveryDate.GetTranslation(x => x.Name, languageId, false);
-        });
-
-        await PrepareDeliveryDateModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> EditDeliveryDate(DeliveryDateModel model, bool continueEditing)
-    {
-        var deliveryDate = await _deliveryDateService.GetDeliveryDateById(model.Id);
-        if (deliveryDate == null)
-            //No delivery date found with the specified id
-            return RedirectToAction("DeliveryDates");
-
-        if (ModelState.IsValid)
-        {
-            deliveryDate = model.ToEntity(deliveryDate);
-            await _deliveryDateService.UpdateDeliveryDate(deliveryDate);
-            //locales
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Updated"));
-            return continueEditing
-                ? RedirectToAction("EditDeliveryDate", new { id = deliveryDate.Id })
-                : RedirectToAction("DeliveryDates");
-        }
-
-        //If we got this far, something failed, redisplay form
-        await PrepareDeliveryDateModel(model);
-        return View(model);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> DeleteDeliveryDate(string id)
-    {
-        var deliveryDate = await _deliveryDateService.GetDeliveryDateById(id);
-        if (deliveryDate == null)
-            //No delivery date found with the specified id
-            return RedirectToAction("DeliveryDates");
-        if (ModelState.IsValid)
-        {
-            await _deliveryDateService.DeleteDeliveryDate(deliveryDate);
-
-            Success(_translationService.GetResource("Admin.Configuration.Shipping.DeliveryDates.Deleted"));
-            return RedirectToAction("DeliveryDates");
-        }
-
-        Error(ModelState);
-        return RedirectToAction("EditDeliveryDate", new { id });
     }
 
     #endregion
