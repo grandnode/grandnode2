@@ -174,6 +174,13 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreEmailAccountDataScope>();
         services.AddScoped<IAdminDataScope<EmailAccount>, RoutedEmailAccountDataScope>();
 
+        // IAdminDataScope<Warehouse>: registered once here for the same reason as Category/
+        // EmailAccount above — see RoutedWarehouseDataScope's doc comment. No Vendor scope:
+        // Shipping has no Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<Warehouse>>();
+        services.AddScoped<StoreWarehouseDataScope>();
+        services.AddScoped<IAdminDataScope<Warehouse>, RoutedWarehouseDataScope>();
+
         // IAdminDataScope<TaxCategory>: registered once here for the same reason as EmailAccount
         // above — see RoutedTaxCategoryDataScope's doc comment. No Vendor scope: Tax has no
         // Vendor screen.
