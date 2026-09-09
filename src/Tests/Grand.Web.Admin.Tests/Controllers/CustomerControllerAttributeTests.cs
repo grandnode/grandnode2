@@ -1,7 +1,11 @@
+using System.Linq;
 using System.Reflection;
+using Grand.Domain.Permissions;
 using Grand.Web.Admin.Controllers;
 using Grand.Web.AdminShared.Controllers;
+using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -70,5 +74,23 @@ public class CustomerControllerAttributeTests
             BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
         Assert.AreEqual(0, ownMethods.Length,
             "CustomerController should declare zero action methods of its own — everything lives in BaseCustomerManagementController/BaseCustomerController.");
+    }
+
+    // Regression test for the disclosed bug fix noted on BaseCustomerController.Create(POST):
+    // pre-consolidation, Admin's own Create(POST) required PermissionActionName.Edit while
+    // everything else on Create required .Create (same defect class as GiftVoucher's, see
+    // GiftVoucherControllerAttributeTests.CreatePost_RequiresCreatePermission). Pin the fixed
+    // permission via reflection so a future edit can't silently regress it.
+    [TestMethod]
+    public void CreatePost_RequiresCreatePermission()
+    {
+        var method = typeof(BaseCustomerController).GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .Single(m => m.Name == "Create" && m.GetParameters().Length == 2
+                         && m.GetParameters()[0].ParameterType == typeof(CustomerModel));
+
+        var attr = method.GetCustomAttributes(typeof(PermissionAuthorizeActionAttribute), inherit: false)
+            .Cast<PermissionAuthorizeActionAttribute>().Single();
+
+        Assert.AreEqual(PermissionActionName.Create, attr.PermissionAction);
     }
 }

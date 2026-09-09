@@ -188,6 +188,10 @@ public abstract class BaseCustomerController(
         return View(model);
     }
 
+    // Disclosed bug fix, same class as GiftVoucher's: Admin's pre-consolidation Create(POST)
+    // required PermissionActionName.Edit while everything else on Create required .Create — Store's
+    // original already used .Create. Harmonized on .Create here (matches every other Base*Controller
+    // in AdminShared). See CustomerControllerAttributeTests.CreatePost_RequiresCreatePermission.
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
