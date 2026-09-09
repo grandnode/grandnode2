@@ -11,6 +11,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Pages;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
+using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
@@ -172,6 +173,13 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<GlobalAdminDataScope<EmailAccount>>();
         services.AddScoped<StoreEmailAccountDataScope>();
         services.AddScoped<IAdminDataScope<EmailAccount>, RoutedEmailAccountDataScope>();
+
+        // IAdminDataScope<TaxCategory>: registered once here for the same reason as EmailAccount
+        // above — see RoutedTaxCategoryDataScope's doc comment. No Vendor scope: Tax has no
+        // Vendor screen.
+        services.AddScoped<GlobalAdminDataScope<TaxCategory>>();
+        services.AddScoped<StoreTaxCategoryDataScope>();
+        services.AddScoped<IAdminDataScope<TaxCategory>, RoutedTaxCategoryDataScope>();
 
         // IReportDataScope: NOT an IAdminDataScope<TEntity> registration (Reports has no entity —
         // see IReportDataScope's doc comment and ARCH-001 Reports consolidation spec §3). All three
