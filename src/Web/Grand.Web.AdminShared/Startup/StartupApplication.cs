@@ -191,6 +191,12 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<StoreDeliveryDateDataScope>();
         services.AddScoped<IAdminDataScope<DeliveryDate>, RoutedDeliveryDateDataScope>();
 
+        // IAdminDataScope<PickupPoint>: registered once here, same reason as the other three
+        // Shipping sub-entities above. WarehouseId is a plain FK, not a scope concern.
+        services.AddScoped<GlobalAdminDataScope<PickupPoint>>();
+        services.AddScoped<StorePickupPointDataScope>();
+        services.AddScoped<IAdminDataScope<PickupPoint>, RoutedPickupPointDataScope>();
+
         // IAdminDataScope<TaxCategory>: registered once here for the same reason as EmailAccount
         // above — see RoutedTaxCategoryDataScope's doc comment. No Vendor scope: Tax has no
         // Vendor screen.
