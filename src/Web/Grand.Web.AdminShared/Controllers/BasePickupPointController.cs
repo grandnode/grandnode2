@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.AdminShared.Controllers;
 
+[SharedViewFolder("Shipping")]
 public abstract class BasePickupPointController(
     IPickupPointService pickupPointService,
     IWarehouseService warehouseService,

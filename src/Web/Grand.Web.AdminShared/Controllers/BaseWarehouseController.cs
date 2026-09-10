@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.AdminShared.Controllers;
 
+[SharedViewFolder("Shipping")]
 public abstract class BaseWarehouseController(
     IWarehouseService warehouseService,
     ICountryService countryService,

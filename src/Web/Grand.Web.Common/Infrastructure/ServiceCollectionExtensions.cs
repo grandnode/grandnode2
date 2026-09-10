@@ -206,6 +206,9 @@ public static class ServiceCollectionExtensions
             options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
         });
 
+        mvcBuilder.AddMvcOptions(options =>
+            options.Conventions.Add(new SharedViewFolderControllerNameConvention()));
+
         //add view localization
         mvcBuilder.AddViewLocalization();
 
