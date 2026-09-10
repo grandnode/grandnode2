@@ -1,10 +1,9 @@
-﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Directory;
-using Grand.Infrastructure.Caching;
 using Grand.SharedKernel;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
@@ -31,8 +30,7 @@ public class CurrencyController : BaseAdminController
         ISettingService settingService,
         IDateTimeService dateTimeService,
         ITranslationService translationService,
-        ILanguageService languageService,
-        ICacheBase cacheBase)
+        ILanguageService languageService)
     {
         _currencyService = currencyService;
         _exchangeRateService = exchangeRateService;
@@ -42,7 +40,6 @@ public class CurrencyController : BaseAdminController
         _dateTimeService = dateTimeService;
         _translationService = translationService;
         _languageService = languageService;
-        _cacheBase = cacheBase;
     }
 
     #endregion
@@ -57,16 +54,10 @@ public class CurrencyController : BaseAdminController
     private readonly IDateTimeService _dateTimeService;
     private readonly ITranslationService _translationService;
     private readonly ILanguageService _languageService;
-    private readonly ICacheBase _cacheBase;
 
     #endregion
 
     #region Methods
-
-    protected async Task ClearCache()
-    {
-        await _cacheBase.Clear();
-    }
 
     public IActionResult Index()
     {
@@ -150,11 +141,7 @@ public class CurrencyController : BaseAdminController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> MarkAsPrimaryExchangeRateCurrency(string id)
     {
-        _currencySettings.PrimaryExchangeRateCurrencyId = id;
-        await _settingService.SaveSetting(_currencySettings);
-
-        //now clear cache
-        await ClearCache();
+        await _currencyViewModelService.MarkAsPrimaryExchangeRateCurrency(id);
 
         return Json(new { result = true });
     }
@@ -163,11 +150,7 @@ public class CurrencyController : BaseAdminController
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> MarkAsPrimaryStoreCurrency(string id)
     {
-        _currencySettings.PrimaryStoreCurrencyId = id;
-        await _settingService.SaveSetting(_currencySettings);
-
-        //now clear cache
-        await ClearCache();
+        await _currencyViewModelService.MarkAsPrimaryStoreCurrency(id);
 
         return Json(new { result = true });
     }
@@ -233,12 +216,12 @@ public class CurrencyController : BaseAdminController
 
         if (ModelState.IsValid)
         {
-            //ensure we have at least one published language
-            var allCurrencies = await _currencyService.GetAllCurrencies();
-            if (allCurrencies.Count == 1 && allCurrencies[0].Id == currency.Id &&
-                !model.Published)
+            //ensure we have at least one published currency
+            var (canProceed, message) =
+                await _currencyViewModelService.ValidateCurrencyUnpublish(currency.Id, model.Published);
+            if (!canProceed)
             {
-                Error("At least one published currency is required.");
+                Error(message);
                 return RedirectToAction("Edit", new { id = currency.Id });
             }
 
@@ -271,19 +254,10 @@ public class CurrencyController : BaseAdminController
 
         try
         {
-            if (currency.Id == _currencySettings.PrimaryStoreCurrencyId)
-                throw new GrandException(
-                    _translationService.GetResource("Admin.Configuration.Currencies.CantDeletePrimary"));
-
-            if (currency.Id == _currencySettings.PrimaryExchangeRateCurrencyId)
-                throw new GrandException(
-                    _translationService.GetResource("Admin.Configuration.Currencies.CantDeleteExchange"));
-
-            //ensure we have at least one published currency
-            var allCurrencies = await _currencyService.GetAllCurrencies();
-            if (allCurrencies.Count == 1 && allCurrencies[0].Id == currency.Id)
+            var (canDelete, message) = await _currencyViewModelService.ValidateCurrencyDelete(currency);
+            if (!canDelete)
             {
-                Error("At least one published currency is required.");
+                Error(message);
                 return RedirectToAction("Edit", new { id = currency.Id });
             }
 

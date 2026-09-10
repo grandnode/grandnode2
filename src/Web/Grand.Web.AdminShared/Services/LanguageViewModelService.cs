@@ -161,4 +161,26 @@ public class LanguageViewModelService : ILanguageViewModelService
         resources = resources.AsQueryable();
         return (resources.Skip((pageIndex - 1) * pageSize).Take(pageSize), resources.Count());
     }
+
+    public virtual async Task<(bool canProceed, string message)> ValidateLanguageUnpublish(string languageId,
+        bool published)
+    {
+        if (published)
+            return (true, string.Empty);
+
+        var allLanguages = await _languageService.GetAllLanguages();
+        if (allLanguages.Count == 1 && allLanguages[0].Id == languageId)
+            return (false, "At least one published language is required.");
+
+        return (true, string.Empty);
+    }
+
+    public virtual async Task<(bool canDelete, string message)> ValidateLanguageDelete(Language language)
+    {
+        var allLanguages = await _languageService.GetAllLanguages();
+        if (allLanguages.Count == 1 && allLanguages[0].Id == language.Id)
+            return (false, "At least one published language is required.");
+
+        return (true, string.Empty);
+    }
 }
