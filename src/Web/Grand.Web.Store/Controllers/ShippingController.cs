@@ -28,7 +28,6 @@ public class ShippingController(
     IShippingMethodService shippingMethodService,
     ICountryService countryService,
     IGroupService groupService,
-    ILanguageService languageService,
     ITranslationService translationService,
     ISettingService settingService,
     IContextAccessor contextAccessor) : BaseStoreController

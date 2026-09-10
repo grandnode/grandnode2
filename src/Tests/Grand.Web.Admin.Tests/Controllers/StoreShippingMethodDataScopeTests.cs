@@ -28,12 +28,26 @@ public class StoreShippingMethodDataScopeTests
     }
 
     [TestMethod]
+    public async Task HasAccess_MismatchedStoreId_False()
+    {
+        var scope = Build("store-1");
+        Assert.IsFalse(await scope.HasAccess(new ShippingMethod { StoreId = "store-2" }));
+    }
+
+    [TestMethod]
     public async Task HasAccess_GlobalShippingMethod_False()
     {
         // Strict own-store-only for mutation, even though GetAllShippingMethods(storeId) itself
         // returns own-store-OR-global for the List grid — a deliberate, pre-existing asymmetry.
         var scope = Build("store-1");
         Assert.IsFalse(await scope.HasAccess(new ShippingMethod { StoreId = "" }));
+    }
+
+    [TestMethod]
+    public async Task HasAccess_NullEntity_False()
+    {
+        var scope = Build("store-1");
+        Assert.IsFalse(await scope.HasAccess(null));
     }
 
     [TestMethod]

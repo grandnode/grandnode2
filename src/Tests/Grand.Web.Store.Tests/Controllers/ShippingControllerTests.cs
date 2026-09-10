@@ -49,7 +49,6 @@ public class ShippingControllerTests
             _shippingMethodServiceMock.Object,
             _countryServiceMock.Object,
             _groupServiceMock.Object,
-            new Mock<ILanguageService>().Object,
             _translationServiceMock.Object,
             new Mock<ISettingService>().Object,
             _contextAccessorMock.Object);

@@ -34,7 +34,6 @@ public class ShippingController : BaseAdminController
         ISettingService settingService,
         ICountryService countryService,
         ITranslationService translationService,
-        ILanguageService languageService,
         IStoreService storeService,
         IGroupService groupService)
     {
@@ -43,7 +42,6 @@ public class ShippingController : BaseAdminController
         _settingService = settingService;
         _countryService = countryService;
         _translationService = translationService;
-        _languageService = languageService;
         _storeService = storeService;
         _groupService = groupService;
     }
@@ -57,7 +55,6 @@ public class ShippingController : BaseAdminController
     private readonly ISettingService _settingService;
     private readonly ICountryService _countryService;
     private readonly ITranslationService _translationService;
-    private readonly ILanguageService _languageService;
     private readonly IStoreService _storeService;
     private readonly IGroupService _groupService;
 
