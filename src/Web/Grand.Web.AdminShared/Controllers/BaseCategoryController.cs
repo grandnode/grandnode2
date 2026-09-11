@@ -236,6 +236,17 @@ public abstract class BaseCategoryController(
     {
         try
         {
+            // ImportManager<T>/CategoryImportDataObject match rows by an attacker-supplied Id and
+            // upsert with no ownership check at all (see project security-fix history) - a
+            // store-scoped caller could otherwise create or silently overwrite ANY store's category.
+            // Deny outright for non-global scope rather than threading scope through the shared,
+            // multi-entity import engine.
+            if (scope.DefaultStoreId is not null)
+            {
+                Error(translationService.GetResource("Admin.AccessDenied.Title"));
+                return RedirectToAction("List");
+            }
+
             if (importexcelfile is { Length: > 0 })
             {
                 await importManager.Import(importexcelfile.OpenReadStream());

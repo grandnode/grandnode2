@@ -451,4 +451,40 @@ public class BaseBrandControllerTests
         Assert.AreEqual("List", redirect.ActionName);
         importManagerMock.Verify(i => i.Import(It.IsAny<Stream>()), Times.Never);
     }
+
+    // --- ImportFromXlsx (security fix: ImportManager<T> upserts by an attacker-supplied Id with no
+    // ownership check - store-scoped callers must be denied outright) ------------------------------
+
+    [TestMethod]
+    public async Task ImportFromXlsx_StoreScope_DeniesAndNeverCallsImportManager()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        var importManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IImportManager<Grand.Business.Core.Dto.BrandDto>>();
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.Length).Returns(100);
+
+        var result = await _controller.ImportFromXlsx(fileMock.Object, importManagerMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        importManagerMock.Verify(m => m.Import(It.IsAny<Stream>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ImportFromXlsx_GlobalScope_CallsImportManager()
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        var importManagerMock = new Mock<Grand.Business.Core.Interfaces.ExportImport.IImportManager<Grand.Business.Core.Dto.BrandDto>>();
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(f => f.Length).Returns(100);
+        fileMock.Setup(f => f.OpenReadStream()).Returns(Stream.Null);
+
+        var result = await _controller.ImportFromXlsx(fileMock.Object, importManagerMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        importManagerMock.Verify(m => m.Import(It.IsAny<Stream>()), Times.Once);
+    }
 }
