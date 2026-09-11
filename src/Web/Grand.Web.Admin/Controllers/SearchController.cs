@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -13,18 +13,30 @@ using Grand.Domain.Admin;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Models.Settings;
 using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
 using Grand.Web.Common.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-public class SearchController : BaseAdminController
+// Reduced to a thin subclass of BaseSearchController (ARCH-001) for the Category/Collection/Brand
+// picker methods, which now live in the shared base. Index (full admin command/menu search) and the
+// CustomerGroup/Stores/Vendor pickers stay here - they have no Store/Vendor equivalent, same shape as
+// TaxController's Providers/Settings regions staying host-specific alongside its consolidated
+// TaxCategory sub-resource. Restates the attribute set that used to arrive transitively via
+// BaseAdminController - BaseSearchController can't inherit any single host's base controller (it's
+// shared across Admin/Store/Vendor, each with a different [Area]/[Authorize*] pair).
+[AuthorizeAdmin]
+[AutoValidateAntiforgeryToken]
+[Area(Constants.AreaAdmin)]
+[AuthorizeMenu]
+public class SearchController : BaseSearchController
 {
     private readonly AdminSearchSettings _adminSearchSettings;
     private readonly IBlogService _blogService;
-    private readonly IBrandService _brandService;
     private readonly ICategoryService _categoryService;
     private readonly ICollectionService _collectionService;
     private readonly ICustomerService _customerService;
@@ -45,10 +57,10 @@ public class SearchController : BaseAdminController
         AdminSearchSettings adminSearchSettings, ITranslationService translationService, IContextAccessor contextAccessor,
         IGroupService groupService,
         IStoreService storeService, IVendorService vendorService)
+        : base(categoryService, brandService, collectionService, adminSearchSettings)
     {
         _productService = productService;
         _categoryService = categoryService;
-        _brandService = brandService;
         _collectionService = collectionService;
         _pageService = pageService;
         _newsService = newsService;
@@ -226,38 +238,6 @@ public class SearchController : BaseAdminController
         return Json(result.Take(_adminSearchSettings.MaxSearchResultsCount).Select(x => x.Item1).ToList());
     }
 
-
-    [HttpGet]
-    public async Task<IActionResult> Category(string categoryId, DataSourceRequestFilter model)
-    {
-        var categories = await _categoryService.GetAllCategories(
-            parentId: null,
-            categoryName: model.GetNameFilterValue(),
-            storeId: "",
-            pageIndex: 0,
-            pageSize: _adminSearchSettings.CategorySizeLimit,
-            showHidden: false
-        );
-
-        var gridModel = await DataSourceResultHelper.GetSearchResult(categoryId, categories, async category => await _categoryService.GetFormattedBreadCrumb(category));
-        return Json(gridModel);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Collection(string collectionId, DataSourceRequestFilter model)
-    {
-        var collections = await _collectionService.GetAllCollections(
-            collectionName: model.GetNameFilterValue(),
-            storeId: "",
-            pageIndex: 0,
-            pageSize: _adminSearchSettings.CollectionSizeLimit,
-            showHidden: false
-        );
-
-        var gridModel = await DataSourceResultHelper.GetSearchResult(collectionId, collections, collection => Task.FromResult(collection.Name));
-        return Json(gridModel);
-    }
-
     [HttpGet]
     public async Task<IActionResult> CustomerGroup(string customerGroupId, DataSourceRequestFilter model)
     {
@@ -292,18 +272,6 @@ public class SearchController : BaseAdminController
             pageSize: _adminSearchSettings.VendorSizeLimit, showHidden: true);
 
         var gridModel = await DataSourceResultHelper.GetSearchResult(vendorId, vendors, vendor => Task.FromResult(vendor.Name));
-        return Json(gridModel);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Brand(string brandId, DataSourceRequestFilter model)
-    {
-        var brands = await _brandService.GetAllBrands(
-            model.GetNameFilterValue(),
-            storeId: "",
-            pageSize: _adminSearchSettings.BrandSizeLimit);
-
-        var gridModel = await DataSourceResultHelper.GetSearchResult(brandId, brands, brand => Task.FromResult(brand.Name));
         return Json(gridModel);
     }
 }

@@ -1,73 +1,31 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Domain.Admin;
 using Grand.Infrastructure;
-using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Helpers;
+using Grand.Web.AdminShared.Controllers;
+using Grand.Web.Common.Filters;
+using Grand.Web.Store.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
 
-public class SearchController : BaseStoreController
+// Reduced to a thin subclass of BaseSearchController (ARCH-001) for the Category/Collection/Brand
+// picker methods. Store is the only host that scopes these pickers by store - overrides
+// PickerStoreId to the current store manager's StaffStoreId, exactly replicating the original
+// per-method storeId argument. Restates the attribute set that used to arrive transitively via
+// BaseStoreController - see Admin's SearchController for why.
+[AutoValidateAntiforgeryToken]
+[Area(Constants.AreaStore)]
+[AuthorizeStore]
+[AuthorizeMenu]
+public class SearchController(
+    ICategoryService categoryService,
+    IBrandService brandService,
+    ICollectionService collectionService,
+    AdminSearchSettings adminSearchSettings,
+    IContextAccessor contextAccessor)
+    : BaseSearchController(categoryService, brandService, collectionService, adminSearchSettings)
 {
-    private readonly AdminSearchSettings _adminSearchSettings;
-    private readonly IBrandService _brandService;
-    private readonly ICategoryService _categoryService;
-    private readonly ICollectionService _collectionService;
-    private readonly IContextAccessor _contextAccessor;
-
-    public SearchController(ICategoryService categoryService,
-        IBrandService brandService, ICollectionService collectionService,
-        AdminSearchSettings adminSearchSettings, IContextAccessor contextAccessor)
-    {
-        _categoryService = categoryService;
-        _brandService = brandService;
-        _collectionService = collectionService;
-        _adminSearchSettings = adminSearchSettings;
-        _contextAccessor = contextAccessor;
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Category(string categoryId, DataSourceRequestFilter model)
-    {
-        var categories = await _categoryService.GetAllCategories(
-            parentId: null,
-            categoryName: model.GetNameFilterValue(),
-            storeId: _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId,
-            pageIndex: 0,
-            pageSize: _adminSearchSettings.CategorySizeLimit,
-            showHidden: false
-        );
-
-        var gridModel = await DataSourceResultHelper.GetSearchResult(categoryId, categories, async category => await _categoryService.GetFormattedBreadCrumb(category));
-        return Json(gridModel);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Collection(string collectionId, DataSourceRequestFilter model)
-    {
-        var collections = await _collectionService.GetAllCollections(
-            collectionName: model.GetNameFilterValue(),
-            storeId: _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId,
-            pageIndex: 0,
-            pageSize: _adminSearchSettings.CollectionSizeLimit,
-            showHidden: false
-        );
-
-        var gridModel = await DataSourceResultHelper.GetSearchResult(collectionId, collections, collection => Task.FromResult(collection.Name));
-        return Json(gridModel);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Brand(string brandId, DataSourceRequestFilter model)
-    {
-        var brands = await _brandService.GetAllBrands(
-            model.GetNameFilterValue(),
-            storeId: _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId,
-            pageSize: _adminSearchSettings.BrandSizeLimit);
-
-        var gridModel = await DataSourceResultHelper.GetSearchResult(brandId, brands, brand => Task.FromResult(brand.Name));
-        return Json(gridModel);
-    }
+    protected override string PickerStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 }
