@@ -3,16 +3,15 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Directory;
 using Grand.Domain.Shipping;
-using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Mapper;
 using Grand.Mapping;
 using Grand.Web.Admin.Controllers;
 using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Payments;
+using Grand.Web.Common.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -64,15 +63,14 @@ public class PaymentControllerTests
             new Mock<IServiceProvider>().Object,
             contextAccessorMock.Object);
 
-        // GetActiveStore resolves its services from HttpContext.RequestServices;
-        // a single store short-circuits the group/user-field lookups
-        var storeServiceMock = new Mock<IStoreService>();
-        storeServiceMock.Setup(s => s.GetAllStores())
-            .ReturnsAsync(new List<Store> { new() { Id = StoreId } });
+        // GetActiveStore resolves IAdminStoreService from HttpContext.RequestServices
+        // (ARCH-001 GetActiveStore() consolidation - BaseAdminController delegates to it instead of
+        // duplicating the store-scope lookup itself); a single store short-circuits to its own id.
+        var adminStoreServiceMock = new Mock<IAdminStoreService>();
+        adminStoreServiceMock.Setup(s => s.GetActiveStore()).ReturnsAsync(StoreId);
         var requestServicesMock = new Mock<IServiceProvider>();
-        requestServicesMock.Setup(sp => sp.GetService(typeof(IStoreService))).Returns(storeServiceMock.Object);
-        requestServicesMock.Setup(sp => sp.GetService(typeof(IContextAccessor)))
-            .Returns(contextAccessorMock.Object);
+        requestServicesMock.Setup(sp => sp.GetService(typeof(IAdminStoreService)))
+            .Returns(adminStoreServiceMock.Object);
         requestServicesMock.Setup(sp => sp.GetService(typeof(IGroupService)))
             .Returns(new Mock<IGroupService>().Object);
 

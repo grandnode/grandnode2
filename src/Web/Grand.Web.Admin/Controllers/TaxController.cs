@@ -3,11 +3,8 @@ using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Domain.Common;
-using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Tax;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Extensions;
@@ -20,6 +17,7 @@ using Grand.Web.AdminShared.Models.Tax;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -43,34 +41,14 @@ public class TaxController(
     ICountryService countryService,
     IStoreService storeService,
     IEnumTranslationService enumTranslationService,
-    IContextAccessor contextAccessor,
+    IAdminStoreService adminStoreService,
     IAdminDataScope<TaxCategory> scope)
     : BaseTaxCategoryController(taxCategoryService, storeService, translationService, scope)
 {
-    /// <summary>
-    ///     Get active store scope (for multi-store configuration mode)
-    /// </summary>
-    /// <returns>Store ID; 0 if we are in a shared mode</returns>
-    private async Task<string> GetActiveStore()
-    {
-        var workContext = contextAccessor.WorkContext;
-
-        var stores = await storeService.GetAllStores();
-        if (stores.Count < 2)
-            return stores.FirstOrDefault()?.Id;
-
-        var storeId =
-            workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames
-                .AdminAreaStoreScopeConfiguration);
-        //empty scope means "all stores" - settings are loaded from/saved to the global scope
-        if (string.IsNullOrEmpty(storeId))
-        {
-            return "";
-        }
-
-        var store = await storeService.GetStoreById(storeId);
-        return store != null ? store.Id : "";
-    }
+    // ARCH-001 GetActiveStore() consolidation: was a hand-duplicated private copy of the same logic
+    // now in IAdminStoreService (also used by BaseAdminController and StoreScope) - BaseTaxCategoryController
+    // can't carry it itself, it must stay host-agnostic (Admin/Store/Vendor all extend it).
+    private Task<string> GetActiveStore() => adminStoreService.GetActiveStore();
 
     #region Tax Providers
 
