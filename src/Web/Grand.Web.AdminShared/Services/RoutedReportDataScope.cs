@@ -43,5 +43,5 @@ public class RoutedReportDataScope(
     public bool ShowStoreSelector => Resolved.ShowStoreSelector;
     public bool ShowVendorSelector => Resolved.ShowVendorSelector;
     public string ResourceKeyPrefix => Resolved.ResourceKeyPrefix;
-    public bool CanIncludeProduct(Product product) => Resolved.CanIncludeProduct(product);
+    public bool CanIncludeProduct(Product? product) => Resolved.CanIncludeProduct(product);
 }

@@ -27,6 +27,15 @@ public abstract class BaseMessageTemplateController(
     EmailAccountSettings emailAccountSettings)
     : BaseController
 {
+    /// <summary>Exposed so host controllers that extend this base (Admin/Store's
+    /// MessageTemplateController) can reuse the same instance for their own List actions instead
+    /// of re-capturing their own copy of the primary-constructor parameter (which would trigger
+    /// CS9107 - the parameter stored twice, once here and once in the derived class).</summary>
+    protected IMessageTemplateService MessageTemplateService => messageTemplateService;
+
+    /// <summary>See <see cref="MessageTemplateService" />.</summary>
+    protected ITranslationService TranslationService => translationService;
+
     public IActionResult Index() => RedirectToAction("List");
 
     #region Create

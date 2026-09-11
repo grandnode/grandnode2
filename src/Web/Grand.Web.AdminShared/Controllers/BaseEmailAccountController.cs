@@ -22,6 +22,15 @@ public abstract class BaseEmailAccountController(
     IAdminDataScope<EmailAccount> scope)
     : BaseController
 {
+    /// <summary>Exposed so host controllers that extend this base (Admin/Store's
+    /// EmailAccountController) can reuse the same instance for their own List action instead of
+    /// re-capturing their own copy of the primary-constructor parameter (which would trigger
+    /// CS9107 - the parameter stored twice, once here and once in the derived class).</summary>
+    protected IEmailAccountService EmailAccountService => emailAccountService;
+
+    /// <summary>See <see cref="EmailAccountService" />.</summary>
+    protected IAdminDataScope<EmailAccount> Scope => scope;
+
     #region Create
 
     [PermissionAuthorizeAction(PermissionActionName.Create)]

@@ -1,3 +1,5 @@
+#nullable enable
+
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;

@@ -111,15 +111,15 @@ public class TaxController(
         model.TaxBasedOnValues = enumTranslationService.ToSelectList(taxSettings.TaxBasedOn);
         model.TaxDisplayTypeValues = enumTranslationService.ToSelectList(taxSettings.TaxDisplayType);
 
-        var taxCategories = await taxCategoryService.GetAllTaxCategories(CurrentStoreId);
+        var taxCategories = await TaxCategoryService.GetAllTaxCategories(CurrentStoreId);
         model.TaxCategories.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = ""
+            Text = TranslationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = ""
         });
         foreach (var tc in taxCategories)
             model.TaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id });
 
         model.EuVatShopCountries.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+            { Text = TranslationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
         foreach (var c in await countryService.GetAllCountries(showHidden: true))
             model.EuVatShopCountries.Add(new SelectListItem
                 { Text = c.Name, Value = c.Id, Selected = c.Id == taxSettings.EuVatShopCountryId });
@@ -130,7 +130,7 @@ public class TaxController(
             : new AddressModel();
 
         model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+            { Text = TranslationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
         foreach (var c in await countryService.GetAllCountries(showHidden: true))
             model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem
                 { Text = c.Name, Value = c.Id, Selected = defaultAddress != null && c.Id == defaultAddress.CountryId });
@@ -159,7 +159,7 @@ public class TaxController(
         taxSettings = model.ToEntity(taxSettings);
         await settingService.SaveSetting(taxSettings, CurrentStoreId);
         await cacheBase.Clear();
-        Success(translationService.GetResource("Admin.Configuration.Updated"));
+        Success(TranslationService.GetResource("Admin.Configuration.Updated"));
         return RedirectToAction("Settings");
     }
 

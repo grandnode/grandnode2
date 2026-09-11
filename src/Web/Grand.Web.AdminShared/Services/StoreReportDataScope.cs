@@ -19,5 +19,5 @@ public class StoreReportDataScope(IContextAccessor contextAccessor) : IReportDat
     public bool ShowStoreSelector => false;
     public bool ShowVendorSelector => false;
     public string ResourceKeyPrefix => "Admin";
-    public bool CanIncludeProduct(Product product) => true;
+    public bool CanIncludeProduct(Product? product) => true;
 }

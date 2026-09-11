@@ -64,7 +64,7 @@ public class ReportsController(
     /// this check explicitly.</summary>
     public override async Task<IActionResult> CountryReport()
     {
-        if (!await permissionService.Authorize(StandardPermission.ManageCustomers))
+        if (!await PermissionService.Authorize(StandardPermission.ManageCustomers))
             return AccessDeniedView();
         return await base.CountryReport();
     }
@@ -74,7 +74,7 @@ public class ReportsController(
     /// this one) but not on Store's or Vendor's.</summary>
     public override async Task<IActionResult> Customer()
     {
-        if (!await permissionService.Authorize(StandardPermission.ManageCustomers))
+        if (!await PermissionService.Authorize(StandardPermission.ManageCustomers))
             return AccessDeniedView();
         return await base.Customer();
     }
@@ -84,7 +84,7 @@ public class ReportsController(
     [HttpPost]
     public async Task<IActionResult> PopularSearchTermsReport(DataSourceRequest command)
     {
-        if (!await permissionService.Authorize(StandardPermission.ManageProducts))
+        if (!await PermissionService.Authorize(StandardPermission.ManageProducts))
             return AccessDeniedView();
 
         var searchTermRecordLines = await searchTermService.GetStats(command.Page - 1, command.PageSize);

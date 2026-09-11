@@ -19,5 +19,5 @@ public class AdminReportDataScope : IReportDataScope
     public bool ShowStoreSelector => true;
     public bool ShowVendorSelector => true;
     public string ResourceKeyPrefix => "Admin";
-    public bool CanIncludeProduct(Product product) => true;
+    public bool CanIncludeProduct(Product? product) => true;
 }

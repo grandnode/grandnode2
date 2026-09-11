@@ -36,6 +36,8 @@ public abstract class BaseNewsController(
 
     // Exposed for host subclasses: primary-constructor parameters are not visible to derived classes
     // by name in C#.
+    protected INewsService NewsService => newsService;
+    protected IDateTimeService DateTimeService => dateTimeService;
     protected ITranslationService TranslationService => translationService;
     protected IAdminDataScope<NewsItem> Scope => scope;
 

@@ -73,12 +73,12 @@ public class CustomerController(
     /// ApplyPostConstraints_CraftedPost_CannotSmuggleOwnershipFields for the exact contract.</summary>
     protected override async Task ApplyPostConstraints(CustomerModel model)
     {
-        model.StoreId = scope.DefaultStoreId;
+        model.StoreId = Scope.DefaultStoreId;
         model.Owner = "";
         model.VendorId = "";
         model.StaffStoreId = "";
         model.SeId = "";
-        var registered = await groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
+        var registered = await GroupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
         model.CustomerGroups = registered != null ? new[] { registered.Id } : Array.Empty<string>();
     }
 }

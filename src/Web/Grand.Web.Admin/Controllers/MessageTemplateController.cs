@@ -43,7 +43,7 @@ public class MessageTemplateController(
     {
         var model = new MessageTemplateListModel();
         model.AvailableStores.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Common.All"), Value = "" });
+            { Text = TranslationService.GetResource("Admin.Common.All"), Value = "" });
         foreach (var s in await storeService.GetAllStores())
             model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
 
@@ -54,7 +54,7 @@ public class MessageTemplateController(
     [HttpPost]
     public async Task<IActionResult> List(DataSourceRequest command, MessageTemplateListModel model)
     {
-        var messageTemplates = await messageTemplateService.GetAllMessageTemplates(
+        var messageTemplates = await MessageTemplateService.GetAllMessageTemplates(
             model.SearchStoreId,
             keywords: model.Name,
             pageIndex: command.Page - 1,

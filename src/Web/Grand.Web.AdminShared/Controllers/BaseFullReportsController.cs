@@ -101,9 +101,9 @@ public abstract class BaseFullReportsController(
                      (30, "Admin.Reports.Period.month"), (365, "Admin.Reports.Period.year")
                  })
         {
-            var reportPeriod = await orderReportService.GetOrderPeriodReport(days, scope.StoreId);
+            var reportPeriod = await OrderReportService.GetOrderPeriodReport(days, Scope.StoreId);
             report.Add(new OrderPeriodReportLineModel {
-                Period = translationService.GetResource(resourceKey),
+                Period = TranslationService.GetResource(resourceKey),
                 Count = reportPeriod.Count,
                 Amount = reportPeriod.Amount
             });
@@ -130,7 +130,7 @@ public abstract class BaseFullReportsController(
         if (!await permissionService.Authorize(StandardPermission.ManageOrders))
             return Content("");
 
-        var model = await orderReportService.GetOrderByTimeReport(scope.StoreId, startDate, endDate);
+        var model = await OrderReportService.GetOrderByTimeReport(Scope.StoreId, startDate, endDate);
         return Json(new DataSourceResult { Data = model });
     }
 
@@ -141,22 +141,22 @@ public abstract class BaseFullReportsController(
             return Content("");
 
         var report = new List<OrderAverageReportLineSummary> {
-            await orderReportService.OrderAverageReport(scope.StoreId, (int)OrderStatusSystem.Pending),
-            await orderReportService.OrderAverageReport(scope.StoreId, (int)OrderStatusSystem.Processing),
-            await orderReportService.OrderAverageReport(scope.StoreId, (int)OrderStatusSystem.Complete),
-            await orderReportService.OrderAverageReport(scope.StoreId, (int)OrderStatusSystem.Cancelled)
+            await OrderReportService.OrderAverageReport(Scope.StoreId, (int)OrderStatusSystem.Pending),
+            await OrderReportService.OrderAverageReport(Scope.StoreId, (int)OrderStatusSystem.Processing),
+            await OrderReportService.OrderAverageReport(Scope.StoreId, (int)OrderStatusSystem.Complete),
+            await OrderReportService.OrderAverageReport(Scope.StoreId, (int)OrderStatusSystem.Cancelled)
         };
 
-        var statuses = await orderStatusService.GetAll();
+        var statuses = await OrderStatusService.GetAll();
         var model = new List<OrderAverageReportLineSummaryModel>();
         foreach (var x in report)
             model.Add(new OrderAverageReportLineSummaryModel {
                 OrderStatus = statuses.FirstOrDefault(y => y.StatusId == x.OrderStatus)?.Name,
-                SumTodayOrders = priceFormatter.FormatPrice(x.SumTodayOrders, await currencyService.GetPrimaryStoreCurrency()),
-                SumThisWeekOrders = priceFormatter.FormatPrice(x.SumThisWeekOrders, await currencyService.GetPrimaryStoreCurrency()),
-                SumThisMonthOrders = priceFormatter.FormatPrice(x.SumThisMonthOrders, await currencyService.GetPrimaryStoreCurrency()),
-                SumThisYearOrders = priceFormatter.FormatPrice(x.SumThisYearOrders, await currencyService.GetPrimaryStoreCurrency()),
-                SumAllTimeOrders = priceFormatter.FormatPrice(x.SumAllTimeOrders, await currencyService.GetPrimaryStoreCurrency())
+                SumTodayOrders = PriceFormatter.FormatPrice(x.SumTodayOrders, await CurrencyService.GetPrimaryStoreCurrency()),
+                SumThisWeekOrders = PriceFormatter.FormatPrice(x.SumThisWeekOrders, await CurrencyService.GetPrimaryStoreCurrency()),
+                SumThisMonthOrders = PriceFormatter.FormatPrice(x.SumThisMonthOrders, await CurrencyService.GetPrimaryStoreCurrency()),
+                SumThisYearOrders = PriceFormatter.FormatPrice(x.SumThisYearOrders, await CurrencyService.GetPrimaryStoreCurrency()),
+                SumAllTimeOrders = PriceFormatter.FormatPrice(x.SumAllTimeOrders, await CurrencyService.GetPrimaryStoreCurrency())
             });
 
         var gridModel = new DataSourceResult { Data = model, Total = model.Count };
@@ -171,28 +171,28 @@ public abstract class BaseFullReportsController(
             return Content("");
 
         var orders = await orderService.SearchOrders(
-            storeId: scope.StoreId,
+            storeId: Scope.StoreId,
             createdFromUtc: startDate,
             createdToUtc: endDate,
             pageIndex: command.Page - 1,
             pageSize: command.PageSize);
 
-        var statuses = await orderStatusService.GetAll();
+        var statuses = await OrderStatusService.GetAll();
         var items = new List<OrderModel>();
         foreach (var x in orders)
         {
-            var store = await storeService.GetStoreById(x.StoreId);
+            var store = await StoreService.GetStoreById(x.StoreId);
             items.Add(new OrderModel {
                 Id = x.Id,
                 OrderNumber = x.OrderNumber,
                 StoreName = store != null ? store.Shortcut : "Unknown",
-                OrderTotal = priceFormatter.FormatPrice(x.OrderTotal, await currencyService.GetPrimaryStoreCurrency()),
+                OrderTotal = PriceFormatter.FormatPrice(x.OrderTotal, await CurrencyService.GetPrimaryStoreCurrency()),
                 OrderStatus = statuses.FirstOrDefault(y => y.StatusId == x.OrderStatusId)?.Name,
-                PaymentStatus = enumTranslationService.GetTranslationEnum(x.PaymentStatusId),
-                ShippingStatus = enumTranslationService.GetTranslationEnum(x.ShippingStatusId),
+                PaymentStatus = EnumTranslationService.GetTranslationEnum(x.PaymentStatusId),
+                ShippingStatus = EnumTranslationService.GetTranslationEnum(x.ShippingStatusId),
                 CustomerEmail = x.BillingAddress.Email,
                 CustomerFullName = $"{x.BillingAddress.FirstName} {x.BillingAddress.LastName}",
-                CreatedOn = dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
+                CreatedOn = DateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
             });
         }
 
@@ -202,7 +202,7 @@ public abstract class BaseFullReportsController(
 
     /// <summary>Area constant for the "View" link on each row: reproduces each host's original
     /// literal (Admin used Constants.AreaAdmin, Store used Constants.AreaStore) via
-    /// scope.ResourceKeyPrefix, which happens to already equal "Admin" for both Admin and Store (Store
+    /// Scope.ResourceKeyPrefix, which happens to already equal "Admin" for both Admin and Store (Store
     /// reuses Admin's resource keys — Task 2's StoreReportDataScope) — but the *area* value must be
     /// the actual routing area, not the resource-key prefix, so this uses
     /// ViewContext.RouteData.Values["area"] directly instead, matching the same
@@ -218,30 +218,30 @@ public abstract class BaseFullReportsController(
         var area = ControllerContext.RouteData.Values["area"]?.ToString();
         var model = new List<OrderIncompleteReportLineModel>();
 
-        var psPending = await orderReportService.GetOrderAverageReportLine(scope.StoreId, ps: PaymentStatus.Pending,
+        var psPending = await OrderReportService.GetOrderAverageReportLine(Scope.StoreId, ps: PaymentStatus.Pending,
             ignoreCancelledOrders: true);
         model.Add(new OrderIncompleteReportLineModel {
-            Item = translationService.GetResource("Admin.Reports.Incomplete.TotalUnpaidOrders"),
+            Item = TranslationService.GetResource("Admin.Reports.Incomplete.TotalUnpaidOrders"),
             Count = psPending.CountOrders,
-            Total = priceFormatter.FormatPrice(psPending.SumOrders, await currencyService.GetPrimaryStoreCurrency()),
+            Total = PriceFormatter.FormatPrice(psPending.SumOrders, await CurrencyService.GetPrimaryStoreCurrency()),
             ViewLink = Url.Action("List", "Order", new { paymentStatusId = ((int)PaymentStatus.Pending).ToString(), area })
         });
 
-        var ssPending = await orderReportService.GetOrderAverageReportLine(scope.StoreId, ss: ShippingStatus.Pending,
+        var ssPending = await OrderReportService.GetOrderAverageReportLine(Scope.StoreId, ss: ShippingStatus.Pending,
             ignoreCancelledOrders: true);
         model.Add(new OrderIncompleteReportLineModel {
-            Item = translationService.GetResource("Admin.Reports.Incomplete.TotalNotShippedOrders"),
+            Item = TranslationService.GetResource("Admin.Reports.Incomplete.TotalNotShippedOrders"),
             Count = ssPending.CountOrders,
-            Total = priceFormatter.FormatPrice(ssPending.SumOrders, await currencyService.GetPrimaryStoreCurrency()),
+            Total = PriceFormatter.FormatPrice(ssPending.SumOrders, await CurrencyService.GetPrimaryStoreCurrency()),
             ViewLink = Url.Action("List", "Order", new { shippingStatusId = ((int)ShippingStatus.Pending).ToString(), area })
         });
 
-        var osPending = await orderReportService.GetOrderAverageReportLine(scope.StoreId, os: (int)OrderStatusSystem.Pending,
+        var osPending = await OrderReportService.GetOrderAverageReportLine(Scope.StoreId, os: (int)OrderStatusSystem.Pending,
             ignoreCancelledOrders: true);
         model.Add(new OrderIncompleteReportLineModel {
-            Item = translationService.GetResource("Admin.Reports.Incomplete.TotalIncompleteOrders"),
+            Item = TranslationService.GetResource("Admin.Reports.Incomplete.TotalIncompleteOrders"),
             Count = osPending.CountOrders,
-            Total = priceFormatter.FormatPrice(osPending.SumOrders, await currencyService.GetPrimaryStoreCurrency()),
+            Total = PriceFormatter.FormatPrice(osPending.SumOrders, await CurrencyService.GetPrimaryStoreCurrency()),
             ViewLink = Url.Action("List", "Order", new { orderStatusId = ((int)OrderStatusSystem.Pending).ToString(), area })
         });
 
@@ -257,10 +257,10 @@ public abstract class BaseFullReportsController(
     public virtual async Task<IActionResult> ReportBestCustomersByNumberOfOrdersList(DataSourceRequest command,
         BestCustomersReportModel model)
     {
-        if (!string.IsNullOrEmpty(scope.StoreId)) model.StoreId = scope.StoreId;
+        if (!string.IsNullOrEmpty(Scope.StoreId)) model.StoreId = Scope.StoreId;
 
-        var (bestCustomerReportLineModels, totalCount) = await customerReportViewModelService
-            .PrepareBestCustomerReportLineModel(model, 2, command.Page, command.PageSize, scope.VendorId);
+        var (bestCustomerReportLineModels, totalCount) = await CustomerReportViewModelService
+            .PrepareBestCustomerReportLineModel(model, 2, command.Page, command.PageSize, Scope.VendorId);
 
         var gridModel = new DataSourceResult { Data = bestCustomerReportLineModels.ToList(), Total = totalCount };
         return Json(gridModel);
@@ -269,7 +269,7 @@ public abstract class BaseFullReportsController(
     [HttpPost]
     public virtual async Task<IActionResult> ReportRegisteredCustomersList(DataSourceRequest command)
     {
-        var model = await customerReportViewModelService.GetReportRegisteredCustomersModel(scope.StoreId, scope.VendorId);
+        var model = await CustomerReportViewModelService.GetReportRegisteredCustomersModel(Scope.StoreId, Scope.VendorId);
         var gridModel = new DataSourceResult { Data = model, Total = model.Count };
         return Json(gridModel);
     }
@@ -278,7 +278,7 @@ public abstract class BaseFullReportsController(
     public virtual async Task<IActionResult> ReportCustomerTimeChart(DataSourceRequest command, DateTime? startDate,
         DateTime? endDate)
     {
-        var model = await customerReportService.GetCustomerByTimeReport(scope.StoreId, startDate, endDate);
+        var model = await customerReportService.GetCustomerByTimeReport(Scope.StoreId, startDate, endDate);
         return Json(new DataSourceResult { Data = model });
     }
 

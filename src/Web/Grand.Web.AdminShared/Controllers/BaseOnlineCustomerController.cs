@@ -29,6 +29,13 @@ public abstract class BaseOnlineCustomerController(
     IContextAccessor contextAccessor)
     : BaseController
 {
+    /// <summary>Exposed so host controllers that extend this base (Admin's
+    /// OnlineCustomerController) can reuse the same instance for their own SalesEmployeeIdFilter
+    /// override instead of re-capturing their own copy of the primary-constructor parameter (which
+    /// would trigger CS9107 - the parameter stored twice, once here and once in the derived
+    /// class).</summary>
+    protected IContextAccessor ContextAccessor => contextAccessor;
+
     /// <summary>
     ///     Sales-Manager restriction on the online-customers list. Admin restricts to the current
     ///     Sales-Manager's own customers; Store has no such concept and never restricts by it.

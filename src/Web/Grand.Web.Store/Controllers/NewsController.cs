@@ -51,11 +51,11 @@ public class NewsController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> Preview(string id)
     {
-        var newsItem = await newsService.GetNewsById(id);
+        var newsItem = await NewsService.GetNewsById(id);
         if (newsItem == null) return RedirectToAction("List");
         if (!await Scope.HasAccess(newsItem)) return RedirectToAction("List");
 
-        var model = newsItem.ToModel(dateTimeService);
+        var model = newsItem.ToModel(DateTimeService);
         return View(model);
     }
 }

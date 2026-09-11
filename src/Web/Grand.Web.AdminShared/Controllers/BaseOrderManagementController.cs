@@ -68,9 +68,9 @@ public abstract class BaseOrderManagementController(
 
         try
         {
-            await orderViewModelService.SaveOrderTags(order, orderModel.OrderTags);
+            await OrderViewModelService.SaveOrderTags(order, orderModel.OrderTags);
             var model = new OrderModel();
-            await orderViewModelService.PrepareOrderDetailsModel(model, order);
+            await OrderViewModelService.PrepareOrderDetailsModel(model, order);
             return RedirectToAction("Edit", "Order", new { id = order.Id });
         }
         catch (Exception exception)
@@ -93,15 +93,15 @@ public abstract class BaseOrderManagementController(
             ArgumentNullException.ThrowIfNull(status);
 
             order.OrderStatusId = model.OrderStatusId;
-            await orderService.UpdateOrder(order);
+            await OrderService.UpdateOrder(order);
 
-            await orderService.InsertOrderNote(new OrderNote {
+            await OrderService.InsertOrderNote(new OrderNote {
                 Note = $"Order status has been edited. New status: {status.Name}",
                 DisplayToCustomer = false,
                 OrderId = order.Id
             });
             model = new OrderModel();
-            await orderViewModelService.PrepareOrderDetailsModel(model, order);
+            await OrderViewModelService.PrepareOrderDetailsModel(model, order);
             return RedirectToAction("Edit", "Order", new { id });
         }
         catch (Exception exc)
@@ -134,15 +134,15 @@ public abstract class BaseOrderManagementController(
         order.OrderDiscount = model.OrderTotalDiscountValue;
         order.OrderTotal = model.OrderTotalValue;
         order.CurrencyRate = model.CurrencyRate;
-        await orderService.UpdateOrder(order);
+        await OrderService.UpdateOrder(order);
 
-        await orderService.InsertOrderNote(new OrderNote {
+        await OrderService.InsertOrderNote(new OrderNote {
             Note = "Order totals have been edited",
             DisplayToCustomer = false,
             OrderId = order.Id
         });
 
-        await orderViewModelService.PrepareOrderDetailsModel(model, order);
+        await OrderViewModelService.PrepareOrderDetailsModel(model, order);
         return RedirectToAction("Edit", "Order", new { id });
     }
 
@@ -154,14 +154,14 @@ public abstract class BaseOrderManagementController(
         if (denied != null) return denied;
 
         order.ShippingMethod = model.ShippingMethod;
-        await orderService.UpdateOrder(order);
+        await OrderService.UpdateOrder(order);
 
-        await orderService.InsertOrderNote(new OrderNote {
+        await OrderService.InsertOrderNote(new OrderNote {
             Note = "Shipping method has been edited",
             DisplayToCustomer = false,
             OrderId = order.Id
         });
-        await orderViewModelService.PrepareOrderDetailsModel(model, order);
+        await OrderViewModelService.PrepareOrderDetailsModel(model, order);
 
         await SaveSelectedTabIndex(persistForTheNextRequest: true);
         return RedirectToAction("Edit", "Order", new { id });
@@ -174,8 +174,8 @@ public abstract class BaseOrderManagementController(
         if (denied != null) return denied;
 
         order.UserFields = model.UserFields;
-        await orderService.UpdateOrder(order);
-        await orderViewModelService.PrepareOrderDetailsModel(model, order);
+        await OrderService.UpdateOrder(order);
+        await OrderViewModelService.PrepareOrderDetailsModel(model, order);
 
         await SaveSelectedTabIndex(persistForTheNextRequest: true);
         return RedirectToAction("Edit", "Order", new { id });
@@ -305,9 +305,9 @@ public abstract class BaseOrderManagementController(
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
             ?? throw new ArgumentException("No order item found with the specified id");
         orderItem.DownloadCount = 0;
-        await orderService.UpdateOrder(order);
+        await OrderService.UpdateOrder(order);
         var model = new OrderModel();
-        await orderViewModelService.PrepareOrderDetailsModel(model, order);
+        await OrderViewModelService.PrepareOrderDetailsModel(model, order);
 
         await SaveSelectedTabIndex(persistForTheNextRequest: true);
         return RedirectToAction("Edit", "Order", new { id });
@@ -323,9 +323,9 @@ public abstract class BaseOrderManagementController(
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
             ?? throw new ArgumentException("No order item found with the specified id");
         orderItem.IsDownloadActivated = !orderItem.IsDownloadActivated;
-        await orderService.UpdateOrder(order);
+        await OrderService.UpdateOrder(order);
         var model = new OrderModel();
-        await orderViewModelService.PrepareOrderDetailsModel(model, order);
+        await OrderViewModelService.PrepareOrderDetailsModel(model, order);
 
         await SaveSelectedTabIndex(persistForTheNextRequest: true);
         return RedirectToAction("Edit", "Order", new { id });
@@ -365,7 +365,7 @@ public abstract class BaseOrderManagementController(
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId)
             ?? throw new ArgumentException("No order item found with the specified id");
         orderItem.LicenseDownloadId = !string.IsNullOrEmpty(model.LicenseDownloadId) ? model.LicenseDownloadId : null;
-        await orderService.UpdateOrder(order);
+        await OrderService.UpdateOrder(order);
 
         model.RefreshPage = true;
         return View(model);
@@ -381,7 +381,7 @@ public abstract class BaseOrderManagementController(
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId)
             ?? throw new ArgumentException("No order item found with the specified id");
         orderItem.LicenseDownloadId = null;
-        await orderService.UpdateOrder(order);
+        await OrderService.UpdateOrder(order);
 
         return RedirectToAction("Edit", "Order", new { id = model.OrderId });
     }
@@ -396,7 +396,7 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(orderId);
         if (denied != null) return denied;
 
-        var model = await orderViewModelService.PrepareAddOrderProductModel(order);
+        var model = await OrderViewModelService.PrepareAddOrderProductModel(order);
         return View(model);
     }
 
@@ -411,7 +411,7 @@ public abstract class BaseOrderManagementController(
 
         var gridModel = new Grand.Web.Common.DataSource.DataSourceResult();
         var products = (await productService.SearchProducts(categoryIds: categoryIds,
-            storeId: scope.DefaultStoreId,
+            storeId: Scope.DefaultStoreId,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             productType: model.SearchProductTypeId > 0 ? (Grand.Domain.Catalog.ProductType?)model.SearchProductTypeId : null,
@@ -434,7 +434,7 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(orderId);
         if (denied != null) return denied;
 
-        var model = await orderViewModelService.PrepareAddProductToOrderModel(order, productId);
+        var model = await OrderViewModelService.PrepareAddProductToOrderModel(order, productId);
         return View(model);
     }
 
@@ -445,10 +445,10 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
         if (denied != null) return denied;
 
-        var warnings = await orderViewModelService.AddProductToOrderDetails(model);
+        var warnings = await OrderViewModelService.AddProductToOrderDetails(model);
         if (!warnings.Any()) return RedirectToAction("Edit", "Order", new { id = model.OrderId });
 
-        var result = await orderViewModelService.PrepareAddProductToOrderModel(order, model.ProductId);
+        var result = await OrderViewModelService.PrepareAddProductToOrderModel(order, model.ProductId);
         result.Warnings.AddRange(warnings);
         return View(result);
     }
@@ -477,7 +477,7 @@ public abstract class BaseOrderManagementController(
         if (address == null)
             throw new ArgumentException("No address found with the specified id", nameof(addressId));
 
-        var model = await orderViewModelService.PrepareOrderAddressModel(order, address);
+        var model = await OrderViewModelService.PrepareOrderAddressModel(order, address);
         model.BillingAddress = billingAddress;
         return View(model);
     }
@@ -505,12 +505,12 @@ public abstract class BaseOrderManagementController(
         if (ModelState.IsValid)
         {
             var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
-            await orderViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
+            await OrderViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
             return RedirectToAction("AddressEdit",
                 new { addressId = model.Address.Id, orderId = model.OrderId, model.BillingAddress });
         }
 
-        model = await orderViewModelService.PrepareOrderAddressModel(order, address);
+        model = await OrderViewModelService.PrepareOrderAddressModel(order, address);
         return View(model);
     }
 
@@ -522,15 +522,15 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> OrderNotesSelect(string orderId, Grand.Web.Common.DataSource.DataSourceRequest command)
     {
-        var order = await orderService.GetOrderById(orderId)
+        var order = await OrderService.GetOrderById(orderId)
             ?? throw new ArgumentException("No order found with the specified id");
         // Preserved host divergence: Admin's original throws for both not-found and Sales-Manager
         // denial; Store's original throws only for not-found and soft-denies (empty content) for
         // store-mismatch. Unifying these into one behavior would be a real change for one host -
         // deliberately not done here. See plan's Global Constraints.
-        if (!await scope.HasAccess(order)) return Content("");
+        if (!await Scope.HasAccess(order)) return Content("");
 
-        var orderNoteModels = await orderViewModelService.PrepareOrderNotes(order);
+        var orderNoteModels = await OrderViewModelService.PrepareOrderNotes(order);
         var gridModel = new Grand.Web.Common.DataSource.DataSourceResult {
             Data = orderNoteModels,
             Total = orderNoteModels.Count
@@ -541,10 +541,10 @@ public abstract class BaseOrderManagementController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> OrderNoteAdd(string orderId, string downloadId, bool displayToCustomer, string message)
     {
-        var order = await orderService.GetOrderById(orderId);
-        if (order == null || !await scope.HasAccess(order)) return Json(new { Result = false });
+        var order = await OrderService.GetOrderById(orderId);
+        if (order == null || !await Scope.HasAccess(order)) return Json(new { Result = false });
 
-        await orderViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message);
+        await OrderViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message);
         return Json(new { Result = true });
     }
 
@@ -552,11 +552,11 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> OrderNoteDelete(string id, string orderId)
     {
-        var order = await orderService.GetOrderById(orderId)
+        var order = await OrderService.GetOrderById(orderId)
             ?? throw new ArgumentException("No order found with the specified id");
-        if (!await scope.HasAccess(order)) return Json(new { Result = false });
+        if (!await Scope.HasAccess(order)) return Json(new { Result = false });
 
-        await orderViewModelService.DeleteOrderNote(order, id);
+        await OrderViewModelService.DeleteOrderNote(order, id);
         return new JsonResult("");
     }
 

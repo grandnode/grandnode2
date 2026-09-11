@@ -55,7 +55,7 @@ public class TaxController(
     {
         var workContext = contextAccessor.WorkContext;
 
-        var stores = await storeService.GetAllStores();
+        var stores = await StoreService.GetAllStores();
         if (stores.Count < 2)
             return stores.FirstOrDefault()?.Id;
 
@@ -68,7 +68,7 @@ public class TaxController(
             return "";
         }
 
-        var store = await storeService.GetStoreById(storeId);
+        var store = await StoreService.GetStoreById(storeId);
         return store != null ? store.Id : "";
     }
 
@@ -151,16 +151,16 @@ public class TaxController(
         model.TaxDisplayTypeValues = enumTranslationService.ToSelectList(taxSettings.TaxDisplayType);
 
         //tax categories
-        var taxCategories = await taxCategoryService.GetAllTaxCategories();
+        var taxCategories = await TaxCategoryService.GetAllTaxCategories();
         model.TaxCategories.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = ""
+            Text = TranslationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = ""
         });
         foreach (var tc in taxCategories)
             model.TaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id });
 
         //EU VAT countries
         model.EuVatShopCountries.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+            { Text = TranslationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
         foreach (var c in await countryService.GetAllCountries(showHidden: true))
             model.EuVatShopCountries.Add(new SelectListItem
                 { Text = c.Name, Value = c.Id, Selected = c.Id == taxSettings.EuVatShopCountryId });
@@ -173,7 +173,7 @@ public class TaxController(
             model.DefaultTaxAddress = new AddressModel();
 
         model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+            { Text = TranslationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
         foreach (var c in await countryService.GetAllCountries(showHidden: true))
             model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem
                 { Text = c.Name, Value = c.Id, Selected = defaultAddress != null && c.Id == defaultAddress.CountryId });
@@ -207,7 +207,7 @@ public class TaxController(
         //now clear cache
         await ClearCache();
 
-        Success(translationService.GetResource("Admin.Configuration.Updated"));
+        Success(TranslationService.GetResource("Admin.Configuration.Updated"));
         return RedirectToAction("Settings");
     }
 
@@ -219,8 +219,8 @@ public class TaxController(
     {
         var model = new TaxCategoryListModel();
         model.AvailableStores.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Common.All"), Value = "" });
-        foreach (var s in await storeService.GetAllStores())
+            { Text = TranslationService.GetResource("Admin.Common.All"), Value = "" });
+        foreach (var s in await StoreService.GetAllStores())
             model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
         return View(model);
     }

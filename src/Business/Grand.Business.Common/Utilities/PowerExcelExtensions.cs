@@ -7,14 +7,6 @@ namespace Grand.Business.Common.Utilities;
 
 internal static class PowerExcelExtensions
 {
-    [Obsolete("This method is obsolete. Use the new method instead.")]
-    internal static IEnumerable<IRow> Rows(this ISheet sheet)
-    {
-        var e = sheet.GetRowEnumerator();
-        while (e.MoveNext())
-            yield return e.Current as IRow;
-    }
-
     internal static bool IsIdenticalTo(this MemberInfo memberInfo, MemberInfo other)
     {
         if (memberInfo == null || other == null) return false;

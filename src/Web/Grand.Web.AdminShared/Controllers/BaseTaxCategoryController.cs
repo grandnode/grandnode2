@@ -30,6 +30,21 @@ public abstract class BaseTaxCategoryController(
     IAdminDataScope<TaxCategory> scope)
     : BaseController
 {
+    /// <summary>Exposed so host controllers that extend this base (Admin/Store's TaxController)
+    /// can reuse the same instance for their own Providers/Settings actions instead of re-capturing
+    /// their own copy of the primary-constructor parameter (which would trigger CS9107 - the
+    /// parameter stored twice, once here and once in the derived class).</summary>
+    protected ITaxCategoryService TaxCategoryService => taxCategoryService;
+
+    /// <summary>See <see cref="TaxCategoryService" />.</summary>
+    protected IStoreService StoreService => storeService;
+
+    /// <summary>See <see cref="TaxCategoryService" />.</summary>
+    protected ITranslationService TranslationService => translationService;
+
+    /// <summary>See <see cref="TaxCategoryService" />.</summary>
+    protected IAdminDataScope<TaxCategory> Scope => scope;
+
     [HttpPost]
     [PermissionAuthorizeAction(PermissionActionName.List)]
     public virtual async Task<IActionResult> Categories(DataSourceRequest command)

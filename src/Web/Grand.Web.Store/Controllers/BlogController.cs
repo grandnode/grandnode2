@@ -56,11 +56,11 @@ public class BlogController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> Preview(string id)
     {
-        var blogPost = await blogService.GetBlogPostById(id);
+        var blogPost = await BlogService.GetBlogPostById(id);
         if (blogPost == null) return RedirectToAction("List");
         if (!await PostScope.HasAccess(blogPost)) return RedirectToAction("List");
 
-        var model = blogPost.ToModel(dateTimeService);
+        var model = blogPost.ToModel(DateTimeService);
         return View(model);
     }
 }

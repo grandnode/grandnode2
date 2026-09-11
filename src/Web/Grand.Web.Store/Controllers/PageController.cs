@@ -52,11 +52,11 @@ public class PageController(
     [HttpPost]
     public async Task<IActionResult> StorePagesList(DataSourceRequest command, PageListModel model)
     {
-        var pages = await pageService.GetAllPages(Scope.DefaultStoreId, true);
+        var pages = await PageService.GetAllPages(Scope.DefaultStoreId, true);
 
         var pageModels = pages
             .Where(x => x.LimitedToStores && x.Stores.Count == 1)
-            .Select(x => x.ToModel(dateTimeService))
+            .Select(x => x.ToModel(DateTimeService))
             .ToList();
 
         if (!string.IsNullOrEmpty(model.Name))
@@ -75,11 +75,11 @@ public class PageController(
     [HttpPost]
     public async Task<IActionResult> GlobalPagesList(DataSourceRequest command, PageListModel model)
     {
-        var pages = await pageService.GetAllPages(Scope.DefaultStoreId, true);
+        var pages = await PageService.GetAllPages(Scope.DefaultStoreId, true);
 
         var pageModels = pages
             .Where(x => !x.LimitedToStores || x.Stores.Count > 1)
-            .Select(x => x.ToModel(dateTimeService))
+            .Select(x => x.ToModel(DateTimeService))
             .ToList();
 
         if (!string.IsNullOrEmpty(model.Name))
@@ -99,7 +99,7 @@ public class PageController(
     public async Task<IActionResult> Copy(string id)
     {
         var storeId = Scope.DefaultStoreId;
-        var page = await pageService.GetPageById(id);
+        var page = await PageService.GetPageById(id);
         if (page == null) return RedirectToAction("List");
 
         // A page is copyable only while it is still readable here and not yet owned by this store, so
@@ -111,19 +111,19 @@ public class PageController(
         if (page.LimitedToStores && page.Stores.Count <= 1)
             return RedirectToAction("Edit", new { id });
 
-        var storePages = await pageService.GetAllPages(storeId, true);
+        var storePages = await PageService.GetAllPages(storeId, true);
         if (storePages.Any(p => p.Id != page.Id &&
                                  p.SystemName.Equals(page.SystemName, StringComparison.OrdinalIgnoreCase)))
         {
-            Error(translationService.GetResource("Admin.Content.Pages.Copy.DuplicateSystemName"));
+            Error(TranslationService.GetResource("Admin.Content.Pages.Copy.DuplicateSystemName"));
             return RedirectToAction("Edit", new { id });
         }
 
-        var model = page.ToModel(dateTimeService);
+        var model = page.ToModel(DateTimeService);
         model.Id = "";
         model.Stores = [storeId];
 
-        await AddLocales(languageService, model.Locales, (locale, languageId) =>
+        await AddLocales(LanguageService, model.Locales, (locale, languageId) =>
         {
             locale.Title = page.GetTranslation(x => x.Title, languageId, false);
             locale.Body = page.GetTranslation(x => x.Body, languageId, false);
@@ -133,8 +133,8 @@ public class PageController(
             locale.SeName = page.GetSeName(languageId, false);
         });
 
-        var newPage = await pageViewModelService.InsertPageModel(model);
-        Success(translationService.GetResource("Admin.Content.Pages.Added"));
+        var newPage = await PageViewModelService.InsertPageModel(model);
+        Success(TranslationService.GetResource("Admin.Content.Pages.Added"));
         return RedirectToAction("Edit", new { id = newPage.Id });
     }
 }

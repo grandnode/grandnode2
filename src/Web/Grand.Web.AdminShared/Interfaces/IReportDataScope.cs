@@ -40,5 +40,5 @@ public interface IReportDataScope
     /// filtering) for Admin and Store. Vendor overrides this to additionally drop rows whose product
     /// the current vendor sub-account has no access to (WorkContext.HasAccessToProduct) — preserves
     /// Vendor's existing BestsellersReportList behavior exactly (see spec §2.3).</summary>
-    bool CanIncludeProduct(Grand.Domain.Catalog.Product product) => true;
+    bool CanIncludeProduct(Grand.Domain.Catalog.Product? product) => true;
 }

@@ -33,6 +33,18 @@ public abstract class BaseDiscountController(
     IAdminDataScope<Discount> scope)
     : BaseController
 {
+    /// <summary>Exposed so host controllers that extend this base (Admin's DiscountController) can
+    /// reuse the same instance for their own vendor-region actions instead of re-capturing their
+    /// own copy of the primary-constructor parameter (which would trigger CS9107 - the parameter
+    /// stored twice, once here and once in the derived class).</summary>
+    protected IDiscountViewModelService DiscountViewModelService => discountViewModelService;
+
+    /// <summary>See <see cref="DiscountViewModelService" />.</summary>
+    protected IDiscountService DiscountService => discountService;
+
+    /// <summary>See <see cref="DiscountViewModelService" />.</summary>
+    protected IAdminDataScope<Discount> Scope => scope;
+
     #region Discounts
 
     public IActionResult Index() => RedirectToAction("List");

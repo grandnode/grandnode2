@@ -28,5 +28,5 @@ public class OnlineCustomerController(
     IContextAccessor contextAccessor)
     : BaseOnlineCustomerController(customerService, dateTimeService, customerSettings, translationService, contextAccessor)
 {
-    protected override string SalesEmployeeIdFilter => contextAccessor.WorkContext.CurrentCustomer.SeId;
+    protected override string SalesEmployeeIdFilter => ContextAccessor.WorkContext.CurrentCustomer.SeId;
 }

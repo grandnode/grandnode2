@@ -56,10 +56,10 @@ public class DiscountController(
     public async Task<IActionResult> VendorList(DataSourceRequest command, string discountId,
         [FromServices] IVendorService vendorService)
     {
-        var discount = await discountService.GetDiscountById(discountId);
+        var discount = await DiscountService.GetDiscountById(discountId);
         if (discount == null)
             throw new Exception("No discount found with the specified id");
-        if (!await scope.CanView(discount))
+        if (!await Scope.CanView(discount))
             return new JsonResult(new DataSourceResult { Errors = "Access denied" });
 
         var vendors = await vendorService.GetAllVendorsByDiscount(discount.Id);
@@ -73,10 +73,10 @@ public class DiscountController(
     public async Task<IActionResult> VendorDelete(string discountId, string vendorId,
         [FromServices] IVendorService vendorService)
     {
-        var discount = await discountService.GetDiscountById(discountId);
+        var discount = await DiscountService.GetDiscountById(discountId);
         if (discount == null)
             throw new Exception("No discount found with the specified id");
-        if (!await scope.HasAccess(discount))
+        if (!await Scope.HasAccess(discount))
             return new JsonResult(new DataSourceResult { Errors = "Access denied" });
 
         var vendor = await vendorService.GetVendorById(vendorId);
@@ -84,7 +84,7 @@ public class DiscountController(
             throw new Exception("No vendor found with the specified id");
         if (ModelState.IsValid)
         {
-            await discountViewModelService.DeleteVendor(discount, vendor);
+            await DiscountViewModelService.DeleteVendor(discount, vendor);
             return new JsonResult("");
         }
         return ErrorForKendoGridJson(ModelState);
@@ -93,10 +93,10 @@ public class DiscountController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> VendorAddPopup(string discountId)
     {
-        var discount = await discountService.GetDiscountById(discountId);
+        var discount = await DiscountService.GetDiscountById(discountId);
         if (discount == null)
             throw new Exception("No discount found with the specified id");
-        if (!await scope.HasAccess(discount))
+        if (!await Scope.HasAccess(discount))
             return new JsonResult(new DataSourceResult { Errors = "Access denied" });
 
         return View(new DiscountModel.AddVendorToDiscountModel());
@@ -122,13 +122,13 @@ public class DiscountController(
     [HttpPost]
     public async Task<IActionResult> VendorAddPopup(DiscountModel.AddVendorToDiscountModel model)
     {
-        var discount = await discountService.GetDiscountById(model.DiscountId);
+        var discount = await DiscountService.GetDiscountById(model.DiscountId);
         if (discount == null)
             throw new Exception("No discount found with the specified id");
-        if (!await scope.HasAccess(discount))
+        if (!await Scope.HasAccess(discount))
             return Content("Access denied");
 
-        if (model.SelectedVendorIds != null) await discountViewModelService.InsertVendorToDiscountModel(model);
+        if (model.SelectedVendorIds != null) await DiscountViewModelService.InsertVendorToDiscountModel(model);
         return Content("");
     }
 

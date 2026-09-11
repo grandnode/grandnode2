@@ -33,6 +33,10 @@ public abstract class BasePageController(
 
     // Exposed for host subclasses: primary-constructor parameters are not visible to derived classes
     // by name in C#.
+    protected IPageViewModelService PageViewModelService => pageViewModelService;
+    protected IPageService PageService => pageService;
+    protected ILanguageService LanguageService => languageService;
+    protected IDateTimeService DateTimeService => dateTimeService;
     protected ITranslationService TranslationService => translationService;
     protected IAdminDataScope<Page> Scope => scope;
 

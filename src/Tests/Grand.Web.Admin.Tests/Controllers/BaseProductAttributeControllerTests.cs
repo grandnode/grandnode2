@@ -1,3 +1,5 @@
+#nullable enable
+
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain;

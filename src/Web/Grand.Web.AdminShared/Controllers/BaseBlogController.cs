@@ -50,6 +50,8 @@ public abstract class BaseBlogController(
 
     // Exposed for host subclasses: primary-constructor parameters are not visible to derived classes
     // by name in C#.
+    protected IBlogService BlogService => blogService;
+    protected IDateTimeService DateTimeService => dateTimeService;
     protected ITranslationService TranslationService => translationService;
     protected IAdminDataScope<BlogPost> PostScope => postScope;
     protected IAdminDataScope<BlogCategory> CategoryScope => categoryScope;

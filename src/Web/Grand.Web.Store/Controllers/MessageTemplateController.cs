@@ -43,7 +43,7 @@ public class MessageTemplateController(
     [HttpPost]
     public async Task<IActionResult> ListGlobal(DataSourceRequest command)
     {
-        var allTemplates = await messageTemplateService.GetAllMessageTemplates("");
+        var allTemplates = await MessageTemplateService.GetAllMessageTemplates("");
         var globalTemplates = allTemplates
             .Where(t => !t.LimitedToStores)
             .ToList();
@@ -62,7 +62,7 @@ public class MessageTemplateController(
     [HttpPost]
     public async Task<IActionResult> ListStore(DataSourceRequest command)
     {
-        var allTemplates = await messageTemplateService.GetAllMessageTemplates("");
+        var allTemplates = await MessageTemplateService.GetAllMessageTemplates("");
         var storeTemplates = allTemplates
             .Where(t => t.LimitedToStores && t.Stores.Contains(CurrentStoreId))
             .ToList();

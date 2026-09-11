@@ -24,6 +24,6 @@ public class VendorReportDataScope(IContextAccessor contextAccessor) : IReportDa
     public bool ShowVendorSelector => false;
     public string ResourceKeyPrefix => "Vendor";
 
-    public bool CanIncludeProduct(Product product) =>
+    public bool CanIncludeProduct(Product? product) =>
         product is not null && product.VendorId == contextAccessor.WorkContext.CurrentVendor.Id;
 }

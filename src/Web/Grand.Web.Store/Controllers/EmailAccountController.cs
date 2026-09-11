@@ -36,7 +36,7 @@ public class EmailAccountController(
     [PermissionAuthorizeAction(PermissionActionName.List)]
     public async Task<IActionResult> List(DataSourceRequest command)
     {
-        var emailAccounts = await emailAccountService.GetAllEmailAccounts(scope.DefaultStoreId ?? "",
+        var emailAccounts = await EmailAccountService.GetAllEmailAccounts(Scope.DefaultStoreId ?? "",
             pageIndex: command.Page - 1, pageSize: command.PageSize);
         var emailAccountModels = emailAccounts.Select(x => x.ToModel()).ToList();
 

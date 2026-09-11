@@ -1,3 +1,5 @@
+#nullable enable
+
 using Grand.Domain.Customers;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
