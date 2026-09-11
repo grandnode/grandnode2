@@ -109,7 +109,8 @@ public class BasePictureControllerTests
     {
         var controller = CreateController();
         var file = CreateFormFile("picture.jpg");
-        file.Setup(f => f.OpenReadStream()).Returns(new MemoryStream([1, 2, 3]));
+        using var fileStream = new MemoryStream([1, 2, 3]);
+        file.Setup(f => f.OpenReadStream()).Returns(fileStream);
         var insertedPicture = new Picture { Id = "pic-1" };
         _pictureServiceMock
             .Setup(p => p.InsertPicture(It.IsAny<byte[]>(), "image/jpeg", null,
