@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -10,37 +10,49 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
+using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Models.Home;
 using Grand.Mediator;
+using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-public class HomeController : BaseAdminController
+// Reduced to a thin subclass of BaseHomeControllerWithSetLanguage (ARCH-001 Phase 28).
+// GetStatesByCountryId/Logout/SetLanguage live in the shared base; DashboardActivity/ChangeStore
+// (Admin-only) and Index/Statistics/AccessDenied (real per-host dashboards/views) stay here.
+// BaseHomeControllerWithSetLanguage can't inherit any single host's base controller (it's shared
+// across Admin/Store), so this subclass restates its own host's attribute set explicitly - same
+// pattern as ProductController/EmailAccountController/PictureController.
+[AuthorizeAdmin]
+[AutoValidateAntiforgeryToken]
+[Area(Constants.AreaAdmin)]
+[AuthorizeMenu]
+public class HomeController : BaseHomeControllerWithSetLanguage
 {
     #region Ctor
 
     public HomeController(
+        ICountryService countryService,
         ITranslationService translationService,
+        IGrandAuthenticationService authenticationService,
+        IContextAccessor contextAccessor,
         IStoreService storeService,
         ICustomerService customerService,
-        IContextAccessor contextAccessor,
         IGroupService groupService,
         IOrderReportService orderReportService,
         IProductsReportService productsReportService,
         ILogger<HomeController> logger,
-        IGrandAuthenticationService authenticationService,
         IMediator mediator)
+        : base(countryService, translationService, authenticationService, contextAccessor)
     {
-        _translationService = translationService;
+        _contextAccessor = contextAccessor;
         _storeService = storeService;
         _customerService = customerService;
-        _contextAccessor = contextAccessor;
         _groupService = groupService;
         _orderReportService = orderReportService;
         _productsReportService = productsReportService;
         _logger = logger;
-        _authenticationService = authenticationService;
         _mediator = mediator;
     }
 
@@ -80,20 +92,22 @@ public class HomeController : BaseAdminController
 
     #region Fields
 
-    private readonly ITranslationService _translationService;
+    private readonly IContextAccessor _contextAccessor;
     private readonly IStoreService _storeService;
     private readonly ICustomerService _customerService;
-    private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
     private readonly IOrderReportService _orderReportService;
     private readonly IProductsReportService _productsReportService;
     private readonly ILogger<HomeController> _logger;
-    private readonly IGrandAuthenticationService _authenticationService;
     private readonly IMediator _mediator;
 
     #endregion
 
     #region Methods
+
+    protected override string SelectStateResourceKey => "Admin.Address.SelectState";
+    protected override string LogoutRouteName => "AdminLogin";
+    protected override string AreaName => Constants.AreaAdmin;
 
     public IActionResult Index()
     {
@@ -109,25 +123,6 @@ public class HomeController : BaseAdminController
     {
         var model = await PrepareActivityModel();
         return PartialView(model);
-    }
-
-    public async Task<IActionResult> SetLanguage(string langid,
-        [FromServices] ILanguageService languageService,
-        [FromServices] ICustomerService _customerService,
-        string returnUrl = "")
-    {
-        var language = await languageService.GetLanguageById(langid);
-        if (language != null)
-            await _customerService.UpdateUserField(_contextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.LanguageId,
-                language.Id, _contextAccessor.StoreContext.CurrentStore.Id);
-
-        //home page
-        if (string.IsNullOrEmpty(returnUrl))
-            returnUrl = Url.Action("Index", "Home", new { area = Constants.AreaAdmin });
-        //prevent open redirection attack
-        if (!Url.IsLocalUrl(returnUrl))
-            return RedirectToAction("Index", "Home", new { area = Constants.AreaAdmin });
-        return Redirect(returnUrl);
     }
 
     public async Task<IActionResult> ChangeStore(string storeid, string returnUrl = "")
@@ -150,57 +145,10 @@ public class HomeController : BaseAdminController
         return Redirect(returnUrl);
     }
 
-    [AcceptVerbs("Get")]
-    public async Task<IActionResult> GetStatesByCountryId([FromServices] ICountryService countryService,
-        string countryId, bool? addSelectStateItem, bool? addAsterisk)
-    {
-        // This action method gets called via an ajax request
-        if (string.IsNullOrEmpty(countryId))
-            return Json(new List<dynamic>
-                { new { id = "", name = _translationService.GetResource("Address.SelectState") } });
-
-        var country = await countryService.GetCountryById(countryId);
-        var states = country != null ? country.StateProvinces.ToList() : [];
-        var result = (from s in states
-            select new { id = s.Id, name = s.Name }).ToList();
-        if (addAsterisk.HasValue && addAsterisk.Value)
-        {
-            //asterisk
-            result.Insert(0, new { id = "", name = "*" });
-        }
-        else
-        {
-            if (country == null)
-            {
-                //country is not selected ("choose country" item)
-                if (addSelectStateItem.HasValue && addSelectStateItem.Value)
-                    result.Insert(0,
-                        new { id = "", name = _translationService.GetResource("Admin.Address.SelectState") });
-            }
-            else
-            {
-                //some country is selected
-                if (result.Any())
-                    //country has some states
-                    if (addSelectStateItem.HasValue && addSelectStateItem.Value)
-                        result.Insert(0,
-                            new { id = "", name = _translationService.GetResource("Admin.Address.SelectState") });
-            }
-        }
-
-        return Json(result);
-    }
-
     public IActionResult AccessDenied()
     {
         _logger.LogInformation("Access denied");
         return View();
-    }
-
-    public async Task<IActionResult> Logout()
-    {
-        await _authenticationService.SignOut();
-        return RedirectToRoute("AdminLogin");
     }
 
     #endregion
