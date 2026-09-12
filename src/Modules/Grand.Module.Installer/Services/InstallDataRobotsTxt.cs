@@ -8,7 +8,7 @@ public partial class InstallationService
     protected virtual async Task InstallDataRobotsTxt(
         Store store)
     {
-        var url = store.SslEnabled ? store.SecureUrl : store.Url;
+        var url = store.Url;
 
         var robotsTxt = new RobotsTxt {
             Name = "RobotsTXT",

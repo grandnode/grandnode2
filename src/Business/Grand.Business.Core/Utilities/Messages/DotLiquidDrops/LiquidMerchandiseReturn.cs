@@ -25,7 +25,7 @@ public class LiquidMerchandiseReturn : Drop
         _host = host;
         _merchandiseReturnNote = merchandiseReturnNote;
 
-        url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+        url = _host?.Url.Trim('/') ?? _store.Url.Trim('/');
 
         Items = new List<LiquidMerchandiseReturnItem>();
         AdditionalTokens = new Dictionary<string, string>();

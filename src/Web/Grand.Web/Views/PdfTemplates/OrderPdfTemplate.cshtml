@@ -126,7 +126,7 @@
         <h4>@store.CompanyName</h4>
         if (logoExists)
         {
-            var url = await _pictureService.GetPictureUrl(logoPicture, 0, false, store.SslEnabled ? store.SecureUrl : store.Url);
+            var url = await _pictureService.GetPictureUrl(logoPicture, 0, false, store.Url);
             <div style="float: right; top:10px;">
                 <img src="@url" title="logo" alt="logo"/>
             </div>

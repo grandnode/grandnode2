@@ -1,7 +1,6 @@
 ﻿{
   Name: Grand Store,
   Url: https://grandstore.com,
-  SslEnabled: true,
   DisplayOrder: 1,
   CompanyName: Grand LLC,
   CompanyAddress: 123 Commerce St,

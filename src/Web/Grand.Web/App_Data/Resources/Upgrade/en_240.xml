@@ -48,4 +48,7 @@
 	<Resource Name="Admin.GiftVouchers.Permissions" Area="Admin">
 		<Value>You can't edit this gift voucher, because it can be used in many stores.</Value>
 	</Resource>
+	<Resource Name="Admin.Configuration.Stores.Fields.Url.WrongFormat" Area="Admin">
+		<Value>Wrong format of the URL - provide the full address including the scheme (e.g. https://yourstore.com/)</Value>
+	</Resource>
 </Language>

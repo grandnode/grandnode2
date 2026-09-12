@@ -261,7 +261,7 @@ public class CommonController : BasePublicController
                     await _mediator.Publish(new ChangeStoreEvent(_contextAccessor.WorkContext.CurrentCustomer, selectedstore));
 
                     if (selectedstore.Url != _contextAccessor.StoreContext.CurrentStore.Url)
-                        return Redirect(selectedstore.SslEnabled ? selectedstore.SecureUrl : selectedstore.Url);
+                        return Redirect(selectedstore.Url);
                 }
             }
 

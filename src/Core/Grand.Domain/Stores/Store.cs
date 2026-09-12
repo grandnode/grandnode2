@@ -18,19 +18,9 @@ public class Store : BaseEntity, ITranslationEntity
     public string Shortcut { get; set; }
 
     /// <summary>
-    ///     Gets or sets the store URL
+    ///     Gets or sets the store URL, including the scheme
     /// </summary>
     public string Url { get; set; }
-
-    /// <summary>
-    ///     Gets or sets a value indicating whether SSL is enabled
-    /// </summary>
-    public bool SslEnabled { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the store secure URL (HTTPS)
-    /// </summary>
-    public string SecureUrl { get; set; }
 
     /// <summary>
     ///     Gets or sets the list of domains
