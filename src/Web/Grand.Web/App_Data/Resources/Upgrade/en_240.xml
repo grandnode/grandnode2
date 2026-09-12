@@ -81,8 +81,14 @@
 	<Resource Name="admin.configuration.currencies.cannotmodifyglobal" Area="Admin">
 		<Value>Global currencies cannot be modified by store owners.</Value>
 	</Resource>
+	<Resource Name="admin.configuration.currencies.cantlimitstores" Area="Admin">
+		<Value>The store '{0}' would be left without an available currency.</Value>
+	</Resource>
 	<Resource Name="admin.configuration.currencies.cantunassigndefault" Area="Admin">
 		<Value>The default store currency can't be unassigned.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.cantunassignlast" Area="Admin">
+		<Value>At least one currency must remain available for your store.</Value>
 	</Resource>
 	<Resource Name="admin.configuration.currencies.notassignedtostore" Area="Admin">
 		<Value>This currency is not assigned to your store.</Value>

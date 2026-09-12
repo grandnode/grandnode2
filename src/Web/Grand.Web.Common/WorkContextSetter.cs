@@ -397,6 +397,12 @@ public class WorkContextSetter : IWorkContextSetter
 
         var allStoreCurrencies = await _currencyService.GetAllCurrencies(storeId: store.Id);
 
+        //no published currency is mapped to the store - fall back to the primary store currency
+        //rather than failing every request for that store
+        if (!allStoreCurrencies.Any())
+            return await _currencyService.GetPrimaryStoreCurrency() ??
+                   throw new Exception("No currency could be loaded");
+
         if (allStoreCurrencies.Count == 1)
             return allStoreCurrencies.FirstOrDefault();
 

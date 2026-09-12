@@ -108,6 +108,11 @@ public class CurrencyController(
         if (store?.DefaultCurrencyId == currency.Id)
             return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.CantUnassignDefault") });
 
+        //the store must keep at least one available currency, otherwise its work context cannot be built
+        var storeCurrencies = await currencyService.GetAllCurrencies(storeId: storeId);
+        if (!storeCurrencies.Any(c => c.Id != currency.Id))
+            return Json(new { success = false, message = translationService.GetResource("Admin.Configuration.Currencies.CantUnassignLast") });
+
         if (currency.Stores.Remove(storeId))
             await currencyService.UpdateCurrency(currency);
 
