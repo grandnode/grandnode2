@@ -18,7 +18,7 @@ namespace Grand.Web.Store.Controllers;
 [AutoValidateAntiforgeryToken]
 [AuthorizeMenu]
 [PermissionAuthorize(PermissionSystemName.ShippingSettings)]
-[Route("[area]/Shipping/[action]")]
+[Route("[area]/Shipping/[action]/{id?}")]
 public class WarehouseController(
     IWarehouseService warehouseService,
     ICountryService countryService,

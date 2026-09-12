@@ -18,7 +18,7 @@ namespace Grand.Web.Store.Controllers;
 [AutoValidateAntiforgeryToken]
 [AuthorizeMenu]
 [PermissionAuthorize(PermissionSystemName.ShippingSettings)]
-[Route("[area]/Shipping/[action]")]
+[Route("[area]/Shipping/[action]/{id?}")]
 public class PickupPointController(
     IPickupPointService pickupPointService,
     IWarehouseService warehouseService,

@@ -34,7 +34,7 @@ public class ShippingMethodControllerAttributeTests
     {
         var route = ControllerType.GetCustomAttribute<RouteAttribute>();
         Assert.IsNotNull(route);
-        Assert.AreEqual("[area]/Shipping/[action]", route.Template);
+        Assert.AreEqual("[area]/Shipping/[action]/{id?}", route.Template);
     }
 
     [TestMethod]

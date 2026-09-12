@@ -18,7 +18,7 @@ namespace Grand.Web.Admin.Controllers;
 [AutoValidateAntiforgeryToken]
 [AuthorizeMenu]
 [PermissionAuthorize(PermissionSystemName.ShippingSettings)]
-[Route("[area]/Shipping/[action]")]
+[Route("[area]/Shipping/[action]/{id?}")]
 public class DeliveryDateController(
     IDeliveryDateService deliveryDateService,
     ILanguageService languageService,
