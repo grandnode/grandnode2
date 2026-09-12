@@ -51,4 +51,202 @@
 	<Resource Name="Admin.Configuration.Stores.Fields.Url.WrongFormat" Area="Admin">
 		<Value>Wrong format of the URL - provide the full address including the scheme (e.g. https://yourstore.com/)</Value>
 	</Resource>
+	<Resource Name="admin.address.addressattributes.fields.limitedtostores" Area="Admin">
+		<Value>Limited to stores</Value>
+	</Resource>
+	<Resource Name="admin.address.addressattributes.globalreadonly" Area="Admin">
+		<Value>Global attribute - read only</Value>
+	</Resource>
+	<Resource Name="admin.Catalog.attributes.checkoutAttributes.permissions" Area="Admin">
+		<Value>You can't edit this checkout attribute.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.attributes.contactattributes.globalreadonly" Area="Admin">
+		<Value>Global attribute - read only</Value>
+	</Resource>
+	<Resource Name="admin.Catalog.attributes.productattributes.permissions" Area="Admin">
+		<Value>You can't edit this product attribute.</Value>
+	</Resource>
+	<Resource Name="admin.catalog.attributes.specificationattributes.permissions" Area="Admin">
+		<Value>You can't edit this specification attribute.</Value>
+	</Resource>
+	<Resource Name="admin.common.actions" Area="Admin">
+		<Value>Actions</Value>
+	</Resource>
+	<Resource Name="admin.common.copy" Area="Admin">
+		<Value>Copy</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.assignstore" Area="Admin">
+		<Value>Assign to store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.cannotmodifyglobal" Area="Admin">
+		<Value>Global currencies cannot be modified by store owners.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.cantunassigndefault" Area="Admin">
+		<Value>The default store currency can't be unassigned.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.notassignedtostore" Area="Admin">
+		<Value>This currency is not assigned to your store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.notdefaultcurrency" Area="Admin">
+		<Value>This currency is not the default currency for your store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.notfound" Area="Admin">
+		<Value>Currency not found.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.notpublished" Area="Admin">
+		<Value>This currency is not published.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.setdefaultcurrency" Area="Admin">
+		<Value>Set as default currency</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.unassignstore" Area="Admin">
+		<Value>Unassign from store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.unsetdefaultcurrency" Area="Admin">
+		<Value>Unset as default currency</Value>
+	</Resource>
+	<Resource Name="admin.configuration.emailaccounts.entertestemail" Area="Admin">
+		<Value>Enter a test email address</Value>
+	</Resource>
+	<Resource Name="admin.configuration.emailaccounts.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.assignstore" Area="Admin">
+		<Value>Assign to store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.cannotmodifyglobal" Area="Admin">
+		<Value>Global languages cannot be modified by store owners.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.cantdeleteprimary" Area="Admin">
+		<Value>The primary store language can't be unassigned.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.cantunassigndefault" Area="Admin">
+		<Value>The default store language can't be unassigned.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.fields.isprimarystorelanguage" Area="Admin">
+		<Value>Is primary store language</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.notassignedtostore" Area="Admin">
+		<Value>This language is not assigned to your store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.notdefaultlanguage" Area="Admin">
+		<Value>This language is not the default language for your store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.notfound" Area="Admin">
+		<Value>Language not found.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.notpublished" Area="Admin">
+		<Value>This language is not published.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.setdefaultlanguage" Area="Admin">
+		<Value>Set as default language</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.unassignstore" Area="Admin">
+		<Value>Unassign from store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.languages.unsetdefaultlanguage" Area="Admin">
+		<Value>Unset as default language</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.deliverydates.alreadyassignedtootherstore" Area="Admin">
+		<Value>Delivery date is already assigned to another store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.deliverydates.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.deliverydates.notassignedtostore" Area="Admin">
+		<Value>Delivery date is not assigned to this store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.deliverydates.notfound" Area="Admin">
+		<Value>Delivery date not found.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.deliverydates.selectstore" Area="Admin">
+		<Value>Select store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.methods.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.methods.selectstore" Area="Admin">
+		<Value>Select store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.pickuppoints.alreadyassignedtootherstore" Area="Admin">
+		<Value>Pickup point is already assigned to another store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.pickuppoints.notassignedtostore" Area="Admin">
+		<Value>Pickup point is not assigned to this store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.pickuppoints.notfound" Area="Admin">
+		<Value>Pickup point not found.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.warehouses.alreadyassignedtootherstore" Area="Admin">
+		<Value>Warehouse is already assigned to another store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.warehouses.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.warehouses.notassignedtostore" Area="Admin">
+		<Value>Warehouse is not assigned to this store.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.warehouses.notfound" Area="Admin">
+		<Value>Warehouse not found.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.shipping.warehouses.selectstore" Area="Admin">
+		<Value>Select store</Value>
+	</Resource>
+	<Resource Name="admin.configuration.stores.notfound" Area="Admin">
+		<Value>Store not found.</Value>
+	</Resource>
+	<Resource Name="admin.content.messagetemplates.copied" Area="Admin">
+		<Value>The message template has been copied.</Value>
+	</Resource>
+	<Resource Name="admin.content.messagetemplates.fields.name.alreadyexists" Area="Admin">
+		<Value>A message template with the same name already exists for this store.</Value>
+	</Resource>
+	<Resource Name="admin.content.messagetemplates.tab.global" Area="Admin">
+		<Value>Global</Value>
+	</Resource>
+	<Resource Name="admin.content.messagetemplates.tab.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.content.news.permissions" Area="Admin">
+		<Value>You can't edit this news, because it can be used in many stores.</Value>
+	</Resource>
+	<Resource Name="admin.content.pages.copy.duplicatesystemname" Area="Admin">
+		<Value>A page with the same system name already exists for this store.</Value>
+	</Resource>
+	<Resource Name="admin.content.pages.list.globalpages" Area="Admin">
+		<Value>Global Pages</Value>
+	</Resource>
+	<Resource Name="admin.content.pages.list.storepages" Area="Admin">
+		<Value>Store Pages</Value>
+	</Resource>
+	<Resource Name="admin.content.pages.permissions" Area="Admin">
+		<Value>Warning: This page is shared across multiple stores. Changes may affect other stores.</Value>
+	</Resource>
+	<Resource Name="admin.customers.customerattributes.fields.limitedtostores" Area="Admin">
+		<Value>Limited to stores</Value>
+	</Resource>
+	<Resource Name="admin.customers.customerattributes.globalreadonly" Area="Admin">
+		<Value>Global attribute - read only</Value>
+	</Resource>
+	<Resource Name="admin.customers.customers.fields.store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="admin.customers.customers.fields.store.mustbecurrentstore" Area="Admin">
+		<Value>As a store manager you can only assign the customer to your own store</Value>
+	</Resource>
+	<Resource Name="admin.customers.customers.fields.store.required" Area="Admin">
+		<Value>Store is required</Value>
+	</Resource>
+	<Resource Name="admin.settings.catalog.defaultpagesize" Area="Admin">
+		<Value>Default page size</Value>
+	</Resource>
+	<Resource Name="admin.settings.catalog.DefaultPageSizeOptions" Area="Admin">
+		<Value>Default page size options (3,6,9) comma separated</Value>
+	</Resource>
+	<Resource Name="permission.AccessStorePanel" Area="Admin">
+		<Value>Access Store Manager Panel</Value>
+	</Resource>
+	<Resource Name="store.portal" Area="Front">
+		<Value>Store portal</Value>
+	</Resource>
 </Language>
