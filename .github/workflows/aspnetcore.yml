@@ -18,9 +18,9 @@ jobs:
       with:
         dotnet-version: 10.0.301
     - name: Restore
-      run: dotnet restore ./GrandNode.sln
+      run: dotnet restore ./GrandNode.slnx
     - name: Build with dotnet
-      run: dotnet build ./GrandNode.sln --configuration Release
+      run: dotnet build ./GrandNode.slnx --configuration Release
     - name: Start Docker for Mongodb
       run: docker run -d -p 27017:27017 mongo
     - name: Wait for MongoDB to be ready

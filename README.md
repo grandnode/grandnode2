@@ -136,7 +136,7 @@ docker pull grandnode/grandnode2:x.xx
 * Open locally in an IDE
 
 Extract the source code package downloaded from the Releases tab to a folder (or
-clone the repository), and open `GrandNode.sln`. Build the whole solution - that
+clone the repository), and open `GrandNode.slnx`. Build the whole solution - that
 compiles the modules and plugins into the web project's output as well - then set
 `Grand.Web` as the startup project and run it. See
 [Building from source](#building-from-source) for the command line equivalent and
@@ -152,7 +152,7 @@ git clone - b x.xx https://github.com/grandnode/grandnode2.git
 ```
 ```bash
 cd ~/source/grandnode
-dotnet restore GrandNode.sln
+dotnet restore GrandNode.slnx
 ```
 Now it's time to rebuild all modules and plugins and publish the application. Each
 module and plugin copies itself into the web project's output, so they have to be
@@ -195,11 +195,11 @@ Feel free to visit our [detailed guide about GrandNode installation.](https://gr
 #### Backend
 
 ```bash
-dotnet restore GrandNode.sln
-dotnet build GrandNode.sln
+dotnet restore GrandNode.slnx
+dotnet build GrandNode.slnx
 ```
 
-`GrandNode.sln` contains the whole application: the core libraries, the web
+`GrandNode.slnx` contains the whole application: the core libraries, the web
 project, the modules under `src/Modules` (installer, migrations, REST API,
 scheduled tasks) and the plugins under `src/Plugins`. Building the solution
 builds them all and copies each module and plugin into
@@ -254,7 +254,7 @@ dotnet run --project src/Web/Grand.Web
 
 `Grand.Web` does not reference the plugins - they install themselves into its
 output directory when *they* are built. So build the solution once
-(`dotnet build GrandNode.sln`) before the first run; after that you can start the
+(`dotnet build GrandNode.slnx`) before the first run; after that you can start the
 web project alone.
 
 The Kestrel profile listens on <https://localhost:5001> and

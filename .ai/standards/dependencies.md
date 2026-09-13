@@ -92,5 +92,5 @@ Modules use `..\..\Web\Grand.Web\Modules\{ModuleName}\`. Both Debug and Release 
 
 1. Create under the correct `src/` folder — see `.ai/knowledge/repository-map.md`.
 2. Import `Grand.Common.props`.
-3. Add to `GrandNode.sln`.
+3. Add to `GrandNode.slnx`.
 4. Add the mirror test project under `src/Tests/` when the project contains logic.

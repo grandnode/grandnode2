@@ -1,0 +1,100 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Build/">
+    <File Path="src/Build/Grand.Common.props" />
+    <File Path="src/Build/Grand.Plugin.props" />
+  </Folder>
+  <Folder Name="/Business/">
+    <Project Path="src/Business/Grand.Business.Authentication/Grand.Business.Authentication.csproj" />
+    <Project Path="src/Business/Grand.Business.Catalog/Grand.Business.Catalog.csproj" />
+    <Project Path="src/Business/Grand.Business.Checkout/Grand.Business.Checkout.csproj" />
+    <Project Path="src/Business/Grand.Business.Cms/Grand.Business.Cms.csproj" />
+    <Project Path="src/Business/Grand.Business.Common/Grand.Business.Common.csproj" />
+    <Project Path="src/Business/Grand.Business.Core/Grand.Business.Core.csproj" />
+    <Project Path="src/Business/Grand.Business.Customers/Grand.Business.Customers.csproj" />
+    <Project Path="src/Business/Grand.Business.Marketing/Grand.Business.Marketing.csproj" />
+    <Project Path="src/Business/Grand.Business.Messages/Grand.Business.Messages.csproj" />
+    <Project Path="src/Business/Grand.Business.Storage/Grand.Business.Storage.csproj" />
+  </Folder>
+  <Folder Name="/Core/">
+    <Project Path="src/Core/Grand.Data/Grand.Data.csproj" />
+    <Project Path="src/Core/Grand.Domain/Grand.Domain.csproj" />
+    <Project Path="src/Core/Grand.Infrastructure/Grand.Infrastructure.csproj" />
+    <Project Path="src/Core/Grand.Mapping/Grand.Mapping.csproj" />
+    <Project Path="src/Core/Grand.Mediator/Grand.Mediator.csproj" />
+    <Project Path="src/Core/Grand.SharedKernel/Grand.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/Modules/">
+    <Project Path="src/Modules/Grand.Module.Api/Grand.Module.Api.csproj" />
+    <Project Path="src/Modules/Grand.Module.Installer/Grand.Module.Installer.csproj" />
+    <Project Path="src/Modules/Grand.Module.Migration/Grand.Module.Migration.csproj" />
+    <Project Path="src/Modules/Grand.Module.ScheduledTasks/Grand.Module.ScheduledTasks.csproj" />
+  </Folder>
+  <Folder Name="/Plugins/">
+    <Project Path="src/Plugins/Authentication.Facebook/Authentication.Facebook.csproj" />
+    <Project Path="src/Plugins/Authentication.Google/Authentication.Google.csproj" />
+    <Project Path="src/Plugins/DiscountRules.Standard/DiscountRules.Standard.csproj" />
+    <Project Path="src/Plugins/ExchangeRate.McExchange/ExchangeRate.McExchange.csproj" />
+    <Project Path="src/Plugins/Payments.BrainTree/Payments.BrainTree.csproj" />
+    <Project Path="src/Plugins/Payments.CashOnDelivery/Payments.CashOnDelivery.csproj" />
+    <Project Path="src/Plugins/Payments.StripeCheckout/Payments.StripeCheckout.csproj" />
+    <Project Path="src/Plugins/Shipping.ByWeight/Shipping.ByWeight.csproj" />
+    <Project Path="src/Plugins/Shipping.FixedRateShipping/Shipping.FixedRateShipping.csproj" />
+    <Project Path="src/Plugins/Shipping.ShippingPoint/Shipping.ShippingPoint.csproj" />
+    <Project Path="src/Plugins/Tax.CountryStateZip/Tax.CountryStateZip.csproj" />
+    <Project Path="src/Plugins/Tax.FixedRate/Tax.FixedRate.csproj" />
+    <Project Path="src/Plugins/Theme.Modern/Theme.Modern.csproj" />
+    <Project Path="src/Plugins/Widgets.FacebookPixel/Widgets.FacebookPixel.csproj" />
+    <Project Path="src/Plugins/Widgets.GoogleAnalytics/Widgets.GoogleAnalytics.csproj" />
+    <Project Path="src/Plugins/Widgets.Slider/Widgets.Slider.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Core/" />
+  <Folder Name="/src/Tests/">
+    <Project Path="src/Tests/Grand.Web.Store.Tests/Grand.Web.Store.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Web.Vendor.Tests/Grand.Web.Vendor.Tests.csproj" />
+  </Folder>
+  <Folder Name="/src/Web/" />
+  <Folder Name="/Tests/">
+    <Project Path="src/Tests/Grand.Business.Authentication.Tests/Grand.Business.Authentication.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Business.Catalog.Tests/Grand.Business.Catalog.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Business.Checkout.Tests/Grand.Business.Checkout.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Business.Cms.Tests/Grand.Business.Cms.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Business.Common.Tests/Grand.Business.Common.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Business.Customers.Tests/Grand.Business.Customers.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Business.Marketing.Tests/Grand.Business.Marketing.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Business.Messages.Tests/Grand.Business.Messages.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Business.Storage.Tests/Grand.Business.Storage.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Data.Tests/Grand.Data.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Domain.Tests/Grand.Domain.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Infrastructure.Tests/Grand.Infrastructure.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Mapping.Tests/Grand.Mapping.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Mediator.Tests/Grand.Mediator.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Module.Api.Tests/Grand.Module.Api.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Modules.Tests/Grand.Modules.Tests.csproj" />
+    <Project Path="src/Tests/Grand.SharedKernel.Tests/Grand.SharedKernel.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Web.Admin.Tests/Grand.Web.Admin.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Web.Common.Tests/Grand.Web.Common.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Web/">
+    <Project Path="src/Web/Grand.Web.Admin/Grand.Web.Admin.csproj" />
+    <Project Path="src/Web/Grand.Web.Store/Grand.Web.Store.csproj" />
+    <Project Path="src/Web/Grand.Web.Vendor/Grand.Web.Vendor.csproj" />
+    <Project Path="src/Web/Grand.Web/Grand.Web.csproj" />
+  </Folder>
+  <Folder Name="/Web/Shared/">
+    <Project Path="src/Web/Grand.SharedUIResources/Grand.SharedUIResources.csproj" />
+    <Project Path="src/Web/Grand.Web.AdminShared/Grand.Web.AdminShared.csproj" />
+    <Project Path="src/Web/Grand.Web.Common/Grand.Web.Common.csproj" />
+  </Folder>
+  <Project Path="src/Aspire/Aspire.AppHost/Aspire.AppHost.csproj" />
+  <Project Path="src/Aspire/Aspire.ServiceDefaults/Aspire.ServiceDefaults.csproj" />
+  <Project Path="src/Tests/Grand.Web.Tests/Grand.Web.Tests.csproj" />
+</Solution>

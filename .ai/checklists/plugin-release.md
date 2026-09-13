@@ -21,7 +21,7 @@ Domain rules live in the per-kind skills; this is the packaging and lifecycle ga
 - [ ] Output path set for **both** Debug and Release, to `Grand.Web/Plugins/{SystemName}/`.
 - [ ] All GrandNode project references `<Private>false</Private>`, with `ExcludeAssets` matching the nearest comparable plugin.
 - [ ] Package references carry no inline version.
-- [ ] Added to `GrandNode.sln`.
+- [ ] Added to `GrandNode.slnx`.
 - [ ] `logo.jpg` present and copied to output.
 - [ ] Themes only: `Content/theme.jpg` present, and `Content/**` copied with `PreserveNewest`.
 
