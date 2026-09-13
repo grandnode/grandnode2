@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
@@ -53,7 +53,7 @@ public class ProductLayoutService : IProductLayoutService
             var query = from pt in _productLayoutRepository.Table
                 orderby pt.DisplayOrder
                 select pt;
-            return await Task.FromResult(query.ToList());
+            return await _productLayoutRepository.ToListAsync(query);
         });
     }
 

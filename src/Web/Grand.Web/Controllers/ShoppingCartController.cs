@@ -192,23 +192,20 @@ public class ShoppingCartController : BasePublicController
 
         var contentType = file.ContentType;
         var fileExtension = Path.GetExtension(fileName);
-        if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
-        {
-            var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.Split([','], StringSplitOptions.RemoveEmptyEntries);
-            if (!allowedFileExtensions.IsAllowedMediaFileType(fileExtension))
-                return Json(new {
-                    success = false,
-                    message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
-                    downloadGuid = Guid.Empty
-                });
-        }
+        //empty configuration must not mean "any extension allowed" - fall back to the safe default allow-list
+        var allowedFileExtensions = FileExtensions.GetAllowedMediaFileTypes(attribute.ValidationFileAllowedExtensions);
+        if (!allowedFileExtensions.IsAllowedMediaFileType(fileExtension))
+            return Json(new {
+                success = false,
+                message = _translationService.GetResource("ShoppingCart.ValidationFileAllowed"),
+                downloadGuid = Guid.Empty
+            });
 
-        var fileBinary = file.GetDownloadBits();
         if (attribute.ValidationFileMaximumSize.HasValue)
         {
-            //compare in bytes
-            var maxFileSizeBytes = attribute.ValidationFileMaximumSize.Value * 1024;
-            if (fileBinary.Length > maxFileSizeBytes)
+            //compare in bytes - check the size reported by the multipart headers before buffering the file into memory
+            var maxFileSizeBytes = attribute.ValidationFileMaximumSize.Value * 1024L;
+            if (file.Length > maxFileSizeBytes)
                 //when returning JSON the mime-type must be set to text/plain
                 //otherwise some browsers will pop-up a "Save As" dialog.
                 return Json(new {
@@ -218,6 +215,8 @@ public class ShoppingCartController : BasePublicController
                     downloadGuid = Guid.Empty
                 });
         }
+
+        var fileBinary = file.GetDownloadBits();
 
         var download = new Download {
             DownloadGuid = Guid.NewGuid(),

@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Orders;
@@ -49,7 +50,7 @@ public class ShipmentModel : BaseEntityModel
     public bool AddShipmentNoteDisplayToCustomer { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.ShipmentNotes.Fields.Note")]
-
+    [NoHtml]
     public string AddShipmentNoteMessage { get; set; }
 
     public bool AddShipmentNoteHasDownload { get; set; }

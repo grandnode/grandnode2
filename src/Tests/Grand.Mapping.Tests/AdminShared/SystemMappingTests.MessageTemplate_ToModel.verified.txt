@@ -11,5 +11,7 @@
   Stores: [
     store-001
   ],
+  IsReadOnly: false,
+  CanCopy: false,
   Id: mt-001
 }

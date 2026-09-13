@@ -1,21 +1,37 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Directory;
+using Grand.Web.AdminShared.Controllers;
+using Grand.Web.Common.Filters;
+using Grand.Web.Vendor.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Vendor.Controllers;
 
-public class HomeController : BaseVendorController
+// Reduced to a thin subclass of BaseHomeController (ARCH-001 Phase 28). GetStatesByCountryId/Logout
+// live in the shared base; Index/Statistics/AccessDenied (real per-host views) stay here. Vendor
+// never had a SetLanguage action, so it extends the plain BaseHomeController rather than
+// BaseHomeControllerWithSetLanguage (see that class's remarks) - inheriting the with-SetLanguage
+// base would silently add a route that never existed on Vendor before. BaseHomeController can't
+// inherit any single host's base controller (it's shared across Admin/Store/Vendor), so this
+// subclass restates its own host's attribute set explicitly - same pattern as
+// ProductController/EmailAccountController/PictureController.
+[AutoValidateAntiforgeryToken]
+[Area(Constants.AreaVendor)]
+[AuthorizeVendor]
+[AuthorizeMenu]
+public class HomeController : BaseHomeController
 {
     #region Ctor
 
     public HomeController(
-        ILogger<HomeController> logger,
-        IGrandAuthenticationService authenticationService)
+        ICountryService countryService,
+        ITranslationService translationService,
+        IGrandAuthenticationService authenticationService,
+        ILogger<HomeController> logger)
+        : base(countryService, translationService, authenticationService)
     {
         _logger = logger;
-        _authenticationService = authenticationService;
     }
 
     #endregion
@@ -23,11 +39,13 @@ public class HomeController : BaseVendorController
     #region Fields
 
     private readonly ILogger<HomeController> _logger;
-    private readonly IGrandAuthenticationService _authenticationService;
 
     #endregion
 
     #region Methods
+
+    protected override string SelectStateResourceKey => "Vendor.Address.SelectState";
+    protected override string LogoutRouteName => "VendorLogin";
 
     public IActionResult Index()
     {
@@ -43,55 +61,6 @@ public class HomeController : BaseVendorController
     {
         _logger.LogInformation("Access denied");
         return View();
-    }
-
-    public async Task<IActionResult> Logout()
-    {
-        await _authenticationService.SignOut();
-        return RedirectToRoute("VendorLogin");
-    }
-
-    [AcceptVerbs("Get")]
-    public async Task<IActionResult> GetStatesByCountryId(
-        [FromServices] ICountryService countryService,
-        [FromServices] ITranslationService translationService,
-        string countryId, bool? addSelectStateItem, bool? addAsterisk)
-    {
-        // This action method gets called via an ajax request
-        if (string.IsNullOrEmpty(countryId))
-            return Json(new List<dynamic>
-                { new { id = "", name = translationService.GetResource("Address.SelectState") } });
-
-        var country = await countryService.GetCountryById(countryId);
-        var states = country != null ? country.StateProvinces.ToList() : new List<StateProvince>();
-        var result = (from s in states
-            select new { id = s.Id, name = s.Name }).ToList();
-        if (addAsterisk.HasValue && addAsterisk.Value)
-        {
-            //asterisk
-            result.Insert(0, new { id = "", name = "*" });
-        }
-        else
-        {
-            if (country == null)
-            {
-                //country is not selected ("choose country" item)
-                if (addSelectStateItem.HasValue && addSelectStateItem.Value)
-                    result.Insert(0,
-                        new { id = "", name = translationService.GetResource("Vendor.Address.SelectState") });
-            }
-            else
-            {
-                //some country is selected
-                if (result.Any())
-                    //country has some states
-                    if (addSelectStateItem.HasValue && addSelectStateItem.Value)
-                        result.Insert(0,
-                            new { id = "", name = translationService.GetResource("Vendor.Address.SelectState") });
-            }
-        }
-
-        return Json(result);
     }
 
     #endregion

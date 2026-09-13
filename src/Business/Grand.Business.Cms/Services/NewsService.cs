@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Cms;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Customers;
@@ -60,7 +60,7 @@ public class NewsService : INewsService
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <param name="newsTitle">News title</param>
     /// <returns>News items</returns>
-    public virtual async Task<IPagedList<NewsItem>> GetAllNews(string storeId = "",
+    public virtual async Task<IPagedList<NewsItem>> GetAllNews(string storeId,
         int pageIndex = 0, int pageSize = int.MaxValue, bool ignoreAcl = false, bool showHidden = false,
         string newsTitle = "")
     {
@@ -97,7 +97,7 @@ public class NewsService : INewsService
         }
 
         query = query.OrderByDescending(n => n.CreatedOnUtc);
-        return await PagedList<NewsItem>.Create(query, pageIndex, pageSize);
+        return await _newsItemRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -158,7 +158,7 @@ public class NewsService : INewsService
             where customerId == "" || c.CustomerId == customerId
             select c;
 
-        return await Task.FromResult(query2.ToList());
+        return await _newsItemRepository.ToListAsync(query2);
     }
 
     #endregion

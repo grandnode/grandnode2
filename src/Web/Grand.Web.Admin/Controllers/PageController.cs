@@ -1,201 +1,30 @@
-﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Domain.Permissions;
-using Grand.Infrastructure;
-using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Domain.Pages;
+using Grand.Web.Admin.Extensions;
+using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
-using Grand.Web.AdminShared.Models.Pages;
-using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Admin.Controllers;
 
-[PermissionAuthorize(PermissionSystemName.Pages)]
-public class PageController : BaseAdminController
-{
-    #region Constructors
-
-    public PageController(
-        IPageViewModelService pageViewModelService,
-        IPageService pageService,
-        ILanguageService languageService,
-        ITranslationService translationService,
-        IContextAccessor contextAccessor,
-        IDateTimeService dateTimeService)
-    {
-        _pageViewModelService = pageViewModelService;
-        _pageService = pageService;
-        _languageService = languageService;
-        _translationService = translationService;
-        _contextAccessor = contextAccessor;
-        _dateTimeService = dateTimeService;
-    }
-
-    #endregion
-
-    #region Fields
-
-    private readonly IPageViewModelService _pageViewModelService;
-    private readonly IPageService _pageService;
-    private readonly ILanguageService _languageService;
-    private readonly ITranslationService _translationService;
-    private readonly IContextAccessor _contextAccessor;
-    private readonly IDateTimeService _dateTimeService;
-
-    #endregion Fields
-
-    #region List
-
-    public IActionResult Index()
-    {
-        return RedirectToAction("List");
-    }
-
-    public async Task<IActionResult> List()
-    {
-        var model = await _pageViewModelService.PreparePageListModel();
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.List)]
-    [HttpPost]
-    public async Task<IActionResult> List(DataSourceRequest command, PageListModel model)
-    {
-        var pageModels = (await _pageService.GetAllPages(model.SearchStoreId, true))
-            .Select(x => x.ToModel(_dateTimeService))
-            .ToList();
-
-        if (!string.IsNullOrEmpty(model.Name))
-            pageModels = pageModels.Where
-            (x => x.SystemName.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()) ||
-                  (x.Title != null && x.Title.ToLowerInvariant().Contains(model.Name.ToLowerInvariant()))).ToList();
-        //"Error during serialization or deserialization using the JSON JavaScriptSerializer. The length of the string exceeds the value set on the maxJsonLength property. "
-        foreach (var page in pageModels) page.Body = "";
-        var total = pageModels.Count;
-        var pagedData = pageModels.Skip((command.Page - 1) * command.PageSize).Take(command.PageSize).ToList();
-        var gridModel = new DataSourceResult {
-            Data = pagedData,
-            Total = total
-        };
-
-        return Json(gridModel);
-    }
-
-    #endregion
-
-    #region Create / Edit / Delete
-
-    [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public async Task<IActionResult> Create()
-    {
-        var model = new PageModel();
-        //layouts
-        await _pageViewModelService.PrepareLayoutsModel(model);
-        //locales
-        await AddLocales(_languageService, model.Locales);
-        //default values
-        model.DisplayOrder = 1;
-
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Create(PageModel model, bool continueEditing)
-    {
-        if (ModelState.IsValid)
-        {
-            var page = await _pageViewModelService.InsertPageModel(model);
-            Success(_translationService.GetResource("Admin.Content.Pages.Added"));
-            return continueEditing ? RedirectToAction("Edit", new { id = page.Id }) : RedirectToAction("List");
-        }
-
-        //If we got this far, something failed, redisplay form
-        //layouts
-        await _pageViewModelService.PrepareLayoutsModel(model);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    public async Task<IActionResult> Edit(string id)
-    {
-        var page = await _pageService.GetPageById(id);
-        if (page == null)
-            //No page found with the specified id
-            return RedirectToAction("List");
-
-        var model = page.ToModel(_dateTimeService);
-        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) }, "http");
-        //layouts
-        await _pageViewModelService.PrepareLayoutsModel(model);
-        //locales
-        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
-        {
-            locale.Title = page.GetTranslation(x => x.Title, languageId, false);
-            locale.Body = page.GetTranslation(x => x.Body, languageId, false);
-            locale.MetaKeywords = page.GetTranslation(x => x.MetaKeywords, languageId, false);
-            locale.MetaDescription = page.GetTranslation(x => x.MetaDescription, languageId, false);
-            locale.MetaTitle = page.GetTranslation(x => x.MetaTitle, languageId, false);
-            locale.SeName = page.GetSeName(languageId, false);
-        });
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
-    public async Task<IActionResult> Edit(PageModel model, bool continueEditing)
-    {
-        var page = await _pageService.GetPageById(model.Id);
-        if (page == null)
-            //No page found with the specified id
-            return RedirectToAction("List");
-
-        if (ModelState.IsValid)
-        {
-            page = await _pageViewModelService.UpdatePageModel(page, model);
-            Success(_translationService.GetResource("Admin.Content.Pages.Updated"));
-            if (continueEditing)
-            {
-                //selected tab
-                await SaveSelectedTabIndex();
-                return RedirectToAction("Edit", new { id = page.Id });
-            }
-
-            return RedirectToAction("List");
-        }
-
-        //If we got this far, something failed, redisplay form
-        model.Url = Url.RouteUrl("Page", new { SeName = page.GetSeName(_contextAccessor.WorkContext.WorkingLanguage.Id) }, "http");
-        //layouts
-        await _pageViewModelService.PrepareLayoutsModel(model);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Delete)]
-    [HttpPost]
-    public async Task<IActionResult> Delete(string id)
-    {
-        var page = await _pageService.GetPageById(id);
-        if (page == null)
-            //No page found with the specified id
-            return RedirectToAction("List");
-
-        if (ModelState.IsValid)
-        {
-            await _pageViewModelService.DeletePage(page);
-            Success(_translationService.GetResource("Admin.Content.Pages.Deleted"));
-            return RedirectToAction("List");
-        }
-
-        Error(ModelState);
-        return RedirectToAction("Edit", new { id });
-    }
-
-    #endregion
-}
+// Reduced to a thin subclass of BasePageController (ARCH-001 Page consolidation). All shared
+// behavior lives in the base; this class only supplies Admin's DI wiring plus the attributes that
+// used to arrive transitively via BaseAdminController - BasePageController can't inherit any single
+// host's base controller. Same pattern as BlogController (see that file).
+[AuthorizeAdmin]
+[AutoValidateAntiforgeryToken]
+[Area(Constants.AreaAdmin)]
+[AuthorizeMenu]
+public class PageController(
+    IPageViewModelService pageViewModelService,
+    IPageService pageService,
+    ILanguageService languageService,
+    ITranslationService translationService,
+    IDateTimeService dateTimeService,
+    IAdminDataScope<Page> scope)
+    : BasePageController(pageViewModelService, pageService, languageService, translationService,
+        dateTimeService, scope);

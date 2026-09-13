@@ -20,7 +20,7 @@ public class ShippingByWeightService : IShippingByWeightService
 
     #region Constants
 
-    private const string SHIPPINGBYWEIGHT_ALL_KEY = "Grand.shippingbyweight.all-{0}-{1}";
+    private const string SHIPPINGBYWEIGHT_ALL_KEY = "Grand.shippingbyweight.all-{0}-{1}-{2}";
     private const string SHIPPINGBYWEIGHT_PATTERN_KEY = "Grand.shippingbyweight.";
 
     #endregion
@@ -43,15 +43,18 @@ public class ShippingByWeightService : IShippingByWeightService
         await _cacheBase.RemoveByPrefix(SHIPPINGBYWEIGHT_PATTERN_KEY);
     }
 
-    public virtual async Task<IPagedList<ShippingByWeightRecord>> GetAll(int pageIndex = 0, int pageSize = int.MaxValue)
+    public virtual async Task<IPagedList<ShippingByWeightRecord>> GetAll(string storeId = "", int pageIndex = 0,
+        int pageSize = int.MaxValue)
     {
-        var key = string.Format(SHIPPINGBYWEIGHT_ALL_KEY, pageIndex, pageSize);
-        return await _cacheBase.GetAsync(key, () =>
+        var key = string.Format(SHIPPINGBYWEIGHT_ALL_KEY, storeId, pageIndex, pageSize);
+        return await _cacheBase.GetAsync(key, async () =>
         {
-            var query = from sbw in _sbwRepository.Table
-                select sbw;
+            var query = _sbwRepository.Table.AsQueryable();
+            //filter by store when requested; an empty storeId returns records of all stores
+            if (!string.IsNullOrEmpty(storeId))
+                query = query.Where(sbw => sbw.StoreId == storeId);
 
-            return Task.FromResult(new PagedList<ShippingByWeightRecord>(query, pageIndex, pageSize));
+            return await _sbwRepository.PagedAsync(query, pageIndex, pageSize);
         });
     }
 

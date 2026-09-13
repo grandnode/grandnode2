@@ -20,7 +20,7 @@ public interface IPageService
     /// <param name="systemName">The page system name</param>
     /// <param name="storeId">Store identifier; pass 0 to ignore filtering by store and load the first one</param>
     /// <returns>Page</returns>
-    Task<Page> GetPageBySystemName(string systemName, string storeId = "");
+    Task<Page> GetPageBySystemName(string systemName, string storeId);
 
     /// <summary>
     ///     Gets all pages

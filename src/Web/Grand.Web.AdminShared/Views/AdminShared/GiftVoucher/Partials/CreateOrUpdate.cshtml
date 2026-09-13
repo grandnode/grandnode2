@@ -1,0 +1,30 @@
+@model GiftVoucherModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+@if (Model.AvailableStores.Count <= 1)
+{
+    <input asp-for="StoreId" type="hidden"/>
+}
+<admin-tabstrip name="giftvoucher-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.GiftVouchers.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (!string.IsNullOrEmpty(Model.Id))
+        {
+            <tabstrip-item text="@Loc["Admin.GiftVouchers.History"]" tab-index="1">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.TabHistory" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <partial name="Partials/WidgetZone.Tabs" model="Model"/>
+    </items>
+</admin-tabstrip>

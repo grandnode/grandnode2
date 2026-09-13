@@ -58,7 +58,7 @@ public class LoyaltyPointsService : ILoyaltyPointsService
         //Id as tie-breaker - entries created within the same millisecond share CreatedOnUtc
         query = query.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id);
 
-        var lastRph = await Task.FromResult(query.FirstOrDefault());
+        var lastRph = await _rphRepository.FirstOrDefaultAsync(query);
         return lastRph?.PointsBalance ?? 0;
     }
 
@@ -107,7 +107,7 @@ public class LoyaltyPointsService : ILoyaltyPointsService
                 query = query.Where(rph => rph.StoreId == storeId);
         query = query.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id);
 
-        return await Task.FromResult(query.ToList());
+        return await _rphRepository.ToListAsync(query);
     }
 
     #endregion

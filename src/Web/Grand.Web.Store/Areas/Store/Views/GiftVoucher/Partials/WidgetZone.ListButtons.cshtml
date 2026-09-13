@@ -1,0 +1,6 @@
+@* vc:store-widget, not vc:admin-widget: that tag helper is not registered in the Store app (no
+   ProjectReference to Grand.Web.Admin). Store's pre-consolidation views had no <vc:> calls at
+   all for GiftVoucher (unlike every other ARCH-001 phase, which had dead copy-pasted
+   vc:admin-widget markup to convert) - these 7 satellites are new additions, not conversions. *@
+@model GiftVoucherListModel
+<vc:store-widget widget-zone="store_gift_voucher_list_buttons" additional-data="null"/>

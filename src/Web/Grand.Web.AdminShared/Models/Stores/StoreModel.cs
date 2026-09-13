@@ -16,12 +16,6 @@ public class StoreModel : BaseEntityModel, ILocalizedModel<StoreLocalizedModel>
     [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.Url")]
     public string Url { get; set; }
 
-    [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.SslEnabled")]
-    public virtual bool SslEnabled { get; set; }
-
-    [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.SecureUrl")]
-    public virtual string SecureUrl { get; set; }
-
     [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
 

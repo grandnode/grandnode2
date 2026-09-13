@@ -101,6 +101,8 @@ public class PaymentControllerTests
         var model = ((IEnumerable<PaymentMethodModel>)data.Data).First();
         Assert.AreEqual("Payments.TestMethod", model.SystemName);
         Assert.IsTrue(model.IsActive);
+        //the provider ships no Store-area screen, so no configuration link is offered
+        Assert.IsNull(model.ConfigurationUrl);
         _paymentServiceMock.Verify(p => p.LoadAllPaymentMethods(null, StoreId, ""), Times.Once);
         _settingServiceMock.Verify(s => s.LoadSetting<PaymentSettings>(StoreId), Times.Once);
     }

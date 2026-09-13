@@ -126,11 +126,11 @@ public class LanguageController : BaseAdminController
         if (ModelState.IsValid)
         {
             //ensure we have at least one published language
-            var allLanguages = await _languageService.GetAllLanguages();
-            if (allLanguages.Count == 1 && allLanguages[0].Id == language.Id &&
-                !model.Published)
+            var (canProceed, message) =
+                await _languageViewModelService.ValidateLanguageUnpublish(language.Id, model.Published);
+            if (!canProceed)
             {
-                Error("At least one published language is required.");
+                Error(message);
                 return RedirectToAction("Edit", new { id = language.Id });
             }
 
@@ -167,10 +167,10 @@ public class LanguageController : BaseAdminController
             return RedirectToAction("List");
 
         //ensure we have at least one published language
-        var allLanguages = await _languageService.GetAllLanguages();
-        if (allLanguages.Count == 1 && allLanguages[0].Id == language.Id)
+        var (canDelete, message) = await _languageViewModelService.ValidateLanguageDelete(language);
+        if (!canDelete)
         {
-            Error("At least one published language is required.");
+            Error(message);
             return RedirectToAction("Edit", new { id = language.Id });
         }
 

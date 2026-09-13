@@ -15,7 +15,7 @@ public interface IMerchandiseReturnViewModelService
 
     Task<AddressModel> PrepareAddressModel(AddressModel model, Address address, bool excludeProperties);
     Task NotifyCustomer(MerchandiseReturn merchandiseReturn);
-    MerchandiseReturnListModel PrepareReturnReqestListModel();
+    MerchandiseReturnListModel PrepareReturnRequestListModel();
 
     Task<IList<MerchandiseReturnModel.MerchandiseReturnItemModel>> PrepareMerchandiseReturnItemModel(
         string merchandiseReturnId);

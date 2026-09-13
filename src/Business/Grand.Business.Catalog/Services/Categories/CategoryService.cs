@@ -1,4 +1,4 @@
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
@@ -74,8 +74,8 @@ public class CategoryService : ICategoryService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Categories</returns>
-    public virtual async Task<IPagedList<Category>> GetAllCategories(string parentId = null, string categoryName = "",
-        string storeId = "",
+    public virtual async Task<IPagedList<Category>> GetAllCategories(string parentId, string categoryName,
+        string storeId,
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
         var query = from c in _categoryRepository.Table
@@ -111,7 +111,7 @@ public class CategoryService : ICategoryService
         query = query.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name);
 
         //pagination
-        return await Task.FromResult(new PagedList<Category>(query, pageIndex, pageSize));
+        return await _categoryRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -129,7 +129,7 @@ public class CategoryService : ICategoryService
         {
             case true when
                 string.IsNullOrEmpty(CurrentStore.Id) || _accessControlConfig.IgnoreStoreLimitations:
-                return await Task.FromResult(query.ToList());
+                return await _categoryRepository.ToListAsync(query);
             case false:
             {
                 //Limited to customer group (access control list)
@@ -146,7 +146,7 @@ public class CategoryService : ICategoryService
             query = from p in query
                 where !p.LimitedToStores || p.Stores.Contains(CurrentStore.Id)
                 select p;
-        return await Task.FromResult(query.ToList());
+        return await _categoryRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -159,9 +159,27 @@ public class CategoryService : ICategoryService
     public virtual async Task<IList<Category>> GetAllCategoriesByParentCategoryId(string parentCategoryId = "",
         bool showHidden = false, bool includeAllLevels = false)
     {
+        var categories = await GetChildCategories(parentCategoryId, showHidden);
+        if (!includeAllLevels) return categories;
+
+        //walk the tree outside the cache: every level resolves through its own cache entry, so no
+        //semaphore is held while the next level is fetched, and a subtree is stored once rather than
+        //once per ancestor
+        var allLevels = new List<Category>(categories);
+        foreach (var category in categories)
+            allLevels.AddRange(await GetAllCategoriesByParentCategoryId(category.Id, showHidden, true));
+
+        return allLevels;
+    }
+
+    /// <summary>
+    ///     Gets the direct children of a category, filtered by the current customer's groups and store
+    /// </summary>
+    private async Task<IList<Category>> GetChildCategories(string parentCategoryId, bool showHidden)
+    {
         var key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, showHidden,
-            CurrentCustomer.Id, CurrentStore.Id, includeAllLevels);
-        return await _cacheBase.GetAsync(key, async () =>
+            string.Join(",", CurrentCustomer.GetCustomerGroupIds()), CurrentStore.Id);
+        return await _cacheBase.GetAsync(key, () =>
         {
             var query = _categoryRepository.Table.Where(c => c.ParentCategoryId == parentCategoryId);
             if (!showHidden)
@@ -185,14 +203,7 @@ public class CategoryService : ICategoryService
                         select p;
             }
 
-            var categories = query.OrderBy(x => x.DisplayOrder).ToList();
-            if (!includeAllLevels) return categories;
-            var childCategories = new List<Category>();
-            //add child levels
-            foreach (var category in categories)
-                childCategories.AddRange(await GetAllCategoriesByParentCategoryId(category.Id, showHidden, true));
-            categories.AddRange(childCategories);
-            return categories;
+            return Task.FromResult<IList<Category>>(query.OrderBy(x => x.DisplayOrder).ToList());
         });
     }
 
@@ -206,7 +217,7 @@ public class CategoryService : ICategoryService
         var query = _categoryRepository.Table
             .Where(x => x.Published && x.ShowOnHomePage)
             .OrderBy(x => x.DisplayOrder);
-        var categories = await Task.FromResult(query.ToList());
+        var categories = await _categoryRepository.ToListAsync(query);
         if (!showHidden)
             categories = categories
                 .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
@@ -227,7 +238,7 @@ public class CategoryService : ICategoryService
             .Where(x => x.Published && x.FeaturedProductsOnHomePage)
             .OrderBy(x => x.DisplayOrder);
 
-        var categories = await Task.FromResult(query.ToList());
+        var categories = await _categoryRepository.ToListAsync(query);
         if (!showHidden)
             categories = categories
                 .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
@@ -246,7 +257,7 @@ public class CategoryService : ICategoryService
             .Where(x => x.Published && x.ShowOnSearchBox)
             .OrderBy(x => x.SearchBoxDisplayOrder);
 
-        var categories = (await Task.FromResult(query.ToList()))
+        var categories = (await _categoryRepository.ToListAsync(query))
             .Where(c => _aclService.Authorize(c, CurrentCustomer) &&
                         _aclService.Authorize(c, CurrentStore.Id))
             .ToList();
@@ -381,7 +392,7 @@ public class CategoryService : ICategoryService
             where c.AppliedDiscounts.Any(x => x == discountId)
             select c;
 
-        return await Task.FromResult(query.ToList());
+        return await _categoryRepository.ToListAsync(query);
     }
 
     /// <summary>

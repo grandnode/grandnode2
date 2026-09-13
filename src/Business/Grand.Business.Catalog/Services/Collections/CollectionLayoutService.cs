@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Collections;
+﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
@@ -53,7 +53,7 @@ public class CollectionLayoutService : ICollectionLayoutService
             var query = from pt in _collectionLayoutRepository.Table
                 orderby pt.DisplayOrder
                 select pt;
-            return await Task.FromResult(query.ToList());
+            return await _collectionLayoutRepository.ToListAsync(query);
         });
     }
 

@@ -45,8 +45,8 @@ public class ProductCollectionService : IProductCollectionService
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
         var key = string.Format(CacheKey.PRODUCTCOLLECTIONS_ALLBYCOLLECTIONID_KEY, showHidden, collectionId, pageIndex,
-            pageSize, _contextAccessor.WorkContext.CurrentCustomer.Id, storeId);
-        return await _cacheBase.GetAsync(key, () =>
+            pageSize, string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()), storeId);
+        return await _cacheBase.GetAsync(key, async () =>
         {
             var query = _productRepository.Table.Where(x =>
                 x.ProductCollections.Any(y => y.CollectionId == collectionId));
@@ -84,7 +84,7 @@ public class ProductCollectionService : IProductCollectionService
                 orderby pm.DisplayOrder
                 select pm;
 
-            return Task.FromResult(new PagedList<ProductsCollection>(queryProductCollection, pageIndex, pageSize));
+            return await _productRepository.PagedAsync(queryProductCollection, pageIndex, pageSize);
         });
     }
 

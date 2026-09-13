@@ -1,73 +1,60 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Domain.Permissions;
 using Grand.Domain.Directory;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Plugins;
+using Grand.Web.Admin.Extensions;
+using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Extensions.Mapping.Settings;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Tax;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Localization;
-using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Admin.Controllers;
 
-[PermissionAuthorize(PermissionSystemName.TaxSettings)]
-public class TaxController : BaseAdminController
+// Attributes are restated here (and on Store's TaxController) because they used to arrive
+// transitively via BaseAdminController/BaseStoreController - BaseTaxCategoryController (used
+// instead now) can't inherit either, since it must stay host-agnostic: Admin, Store, and
+// (hypothetically) Vendor all extend it.
+[AuthorizeAdmin]
+[Area(Constants.AreaAdmin)]
+[AuthorizeMenu]
+public class TaxController(
+    ITaxService taxService,
+    ITaxCategoryService taxCategoryService,
+    ISettingService settingService,
+    IServiceProvider serviceProvider,
+    ICacheBase cacheBase,
+    ITranslationService translationService,
+    ICountryService countryService,
+    IStoreService storeService,
+    IEnumTranslationService enumTranslationService,
+    IAdminStoreService adminStoreService,
+    IAdminDataScope<TaxCategory> scope)
+    : BaseTaxCategoryController(taxCategoryService, storeService, translationService, scope)
 {
-    #region Constructors
-
-    public TaxController(ITaxService taxService,
-        ITaxCategoryService taxCategoryService,
-        ISettingService settingService,
-        IServiceProvider serviceProvider,
-        ICacheBase cacheBase,
-        ITranslationService translationService,
-        ICountryService countryService,
-        IStoreService storeService,
-        IEnumTranslationService enumTranslationService)
-    {
-        _taxService = taxService;
-        _taxCategoryService = taxCategoryService;
-        _settingService = settingService;
-        _serviceProvider = serviceProvider;
-        _cacheBase = cacheBase;
-        _translationService = translationService;
-        _countryService = countryService;
-        _storeService = storeService;
-        _enumTranslationService = enumTranslationService;
-    }
-
-    #endregion
-
-    #region Fields
-
-    private readonly ITaxService _taxService;
-    private readonly ITaxCategoryService _taxCategoryService;
-    private readonly ISettingService _settingService;
-    private readonly IServiceProvider _serviceProvider;
-    private readonly ICacheBase _cacheBase;
-    private readonly ITranslationService _translationService;
-    private readonly ICountryService _countryService;
-    private readonly IStoreService _storeService;
-    private readonly IEnumTranslationService _enumTranslationService;
-    
-    #endregion
+    // ARCH-001 GetActiveStore() consolidation: was a hand-duplicated private copy of the same logic
+    // now in IAdminStoreService (also used by BaseAdminController and StoreScope) - BaseTaxCategoryController
+    // can't carry it itself, it must stay host-agnostic (Admin/Store/Vendor all extend it).
+    private Task<string> GetActiveStore() => adminStoreService.GetActiveStore();
 
     #region Tax Providers
 
     protected async Task ClearCache()
     {
-        await _cacheBase.Clear();
+        await cacheBase.Clear();
     }
 
     public IActionResult Providers()
@@ -79,9 +66,9 @@ public class TaxController : BaseAdminController
     public async Task<IActionResult> Providers(DataSourceRequest command)
     {
         var storeScope = await GetActiveStore();
-        var taxProviderSettings = await _settingService.LoadSetting<TaxProviderSettings>(storeScope);
+        var taxProviderSettings = await settingService.LoadSetting<TaxProviderSettings>(storeScope);
 
-        var taxProviders = _taxService.LoadAllTaxProviders()
+        var taxProviders = taxService.LoadAllTaxProviders()
             .ToList();
         var taxProvidersModel = new List<TaxProviderModel>();
         foreach (var tax in taxProviders)
@@ -91,7 +78,7 @@ public class TaxController : BaseAdminController
             if (string.IsNullOrEmpty(url))
                 url = PluginManager.ReferencedPlugins.FirstOrDefault(x =>
                         x.SystemName.Equals(tax.SystemName, StringComparison.OrdinalIgnoreCase))
-                    ?.Instance<IPlugin>(_serviceProvider)?.ConfigurationUrl();
+                    ?.Instance<IPlugin>(serviceProvider)?.ConfigurationUrl();
             tmp.ConfigurationUrl = url;
 
             tmp.IsPrimaryTaxProvider = tmp.SystemName.Equals(taxProviderSettings.ActiveTaxProviderSystemName,
@@ -110,14 +97,14 @@ public class TaxController : BaseAdminController
     public async Task<IActionResult> MarkAsPrimaryProvider(string systemName)
     {
         var storeScope = await GetActiveStore();
-        var taxProviderettings = await _settingService.LoadSetting<TaxProviderSettings>(storeScope);
+        var taxProviderettings = await settingService.LoadSetting<TaxProviderSettings>(storeScope);
 
         if (string.IsNullOrEmpty(systemName)) return RedirectToAction("Providers");
-        var taxProvider = _taxService.LoadTaxProviderBySystemName(systemName);
+        var taxProvider = taxService.LoadTaxProviderBySystemName(systemName);
         if (taxProvider != null)
         {
             taxProviderettings.ActiveTaxProviderSystemName = systemName;
-            await _settingService.SaveSetting(taxProviderettings, storeScope);
+            await settingService.SaveSetting(taxProviderettings, storeScope);
         }
 
         //now clear cache
@@ -134,43 +121,43 @@ public class TaxController : BaseAdminController
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var taxSettings = await _settingService.LoadSetting<TaxSettings>(storeScope);
+        var taxSettings = await settingService.LoadSetting<TaxSettings>(storeScope);
         var model = taxSettings.ToModel();
 
         model.ActiveStore = storeScope;
-        model.TaxBasedOnValues = _enumTranslationService.ToSelectList(taxSettings.TaxBasedOn);
-        model.TaxDisplayTypeValues = _enumTranslationService.ToSelectList(taxSettings.TaxDisplayType);
+        model.TaxBasedOnValues = enumTranslationService.ToSelectList(taxSettings.TaxBasedOn);
+        model.TaxDisplayTypeValues = enumTranslationService.ToSelectList(taxSettings.TaxDisplayType);
 
         //tax categories
-        var taxCategories = await _taxCategoryService.GetAllTaxCategories();
+        var taxCategories = await TaxCategoryService.GetAllTaxCategories();
         model.TaxCategories.Add(new SelectListItem {
-            Text = _translationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = ""
+            Text = TranslationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = ""
         });
         foreach (var tc in taxCategories)
             model.TaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id });
 
         //EU VAT countries
         model.EuVatShopCountries.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
-        foreach (var c in await _countryService.GetAllCountries(showHidden: true))
+            { Text = TranslationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+        foreach (var c in await countryService.GetAllCountries(showHidden: true))
             model.EuVatShopCountries.Add(new SelectListItem
                 { Text = c.Name, Value = c.Id, Selected = c.Id == taxSettings.EuVatShopCountryId });
 
         //default tax address
         var defaultAddress = taxSettings.DefaultTaxAddress;
         if (defaultAddress != null)
-            model.DefaultTaxAddress = await defaultAddress.ToModel(_countryService);
+            model.DefaultTaxAddress = await defaultAddress.ToModel(countryService);
         else
             model.DefaultTaxAddress = new AddressModel();
 
         model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
-        foreach (var c in await _countryService.GetAllCountries(showHidden: true))
+            { Text = TranslationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+        foreach (var c in await countryService.GetAllCountries(showHidden: true))
             model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem
                 { Text = c.Name, Value = c.Id, Selected = defaultAddress != null && c.Id == defaultAddress.CountryId });
 
         var states = defaultAddress != null && !string.IsNullOrEmpty(defaultAddress.CountryId)
-            ? (await _countryService.GetCountryById(defaultAddress.CountryId))?.StateProvinces
+            ? (await countryService.GetCountryById(defaultAddress.CountryId))?.StateProvinces
             : new List<StateProvince>();
         if (states?.Count > 0)
             foreach (var s in states)
@@ -190,15 +177,15 @@ public class TaxController : BaseAdminController
     {
         //load settings for a chosen store scope
         var storeScope = await GetActiveStore();
-        var taxSettings = await _settingService.LoadSetting<TaxSettings>(storeScope);
+        var taxSettings = await settingService.LoadSetting<TaxSettings>(storeScope);
         taxSettings = model.ToEntity(taxSettings);
 
-        await _settingService.SaveSetting(taxSettings, storeScope);
+        await settingService.SaveSetting(taxSettings, storeScope);
 
         //now clear cache
         await ClearCache();
 
-        Success(_translationService.GetResource("Admin.Configuration.Updated"));
+        Success(TranslationService.GetResource("Admin.Configuration.Updated"));
         return RedirectToAction("Settings");
     }
 
@@ -210,65 +197,10 @@ public class TaxController : BaseAdminController
     {
         var model = new TaxCategoryListModel();
         model.AvailableStores.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
-        foreach (var s in await _storeService.GetAllStores())
+            { Text = TranslationService.GetResource("Admin.Common.All"), Value = "" });
+        foreach (var s in await StoreService.GetAllStores())
             model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
         return View(model);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Categories(DataSourceRequest command)
-    {
-        var storeMap = (await _storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
-        var categoriesModel = (await _taxCategoryService.GetAllTaxCategories())
-            .Select(x => {
-                var m = x.ToModel();
-                m.StoreName = !string.IsNullOrEmpty(x.StoreId) && storeMap.TryGetValue(x.StoreId, out var name)
-                    ? name
-                    : _translationService.GetResource("Admin.Common.All");
-                return m;
-            })
-            .ToList();
-        var gridModel = new DataSourceResult {
-            Data = categoriesModel,
-            Total = categoriesModel.Count
-        };
-        return Json(gridModel);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> CategoryUpdate(TaxCategoryModel model)
-    {
-        if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
-
-        var taxCategory = await _taxCategoryService.GetTaxCategoryById(model.Id);
-        taxCategory = model.ToEntity(taxCategory);
-        await _taxCategoryService.UpdateTaxCategory(taxCategory);
-
-        return new JsonResult("");
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> CategoryAdd(TaxCategoryModel model)
-    {
-        if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
-
-        var taxCategory = new TaxCategory();
-        taxCategory = model.ToEntity(taxCategory);
-        await _taxCategoryService.InsertTaxCategory(taxCategory);
-
-        return new JsonResult("");
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> CategoryDelete(string id)
-    {
-        var taxCategory = await _taxCategoryService.GetTaxCategoryById(id);
-        if (taxCategory == null)
-            throw new ArgumentException("No tax category found with the specified id");
-        await _taxCategoryService.DeleteTaxCategory(taxCategory);
-
-        return new JsonResult("");
     }
 
     #endregion

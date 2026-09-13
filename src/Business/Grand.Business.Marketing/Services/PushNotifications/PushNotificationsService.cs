@@ -63,7 +63,8 @@ public class PushNotificationsService : IPushNotificationsService
     /// <param name="customerId"></param>
     public virtual async Task<PushRegistration> GetPushReceiverByCustomerId(string customerId)
     {
-        return await Task.FromResult(_pushRegistrationRepository.Table.FirstOrDefault(x => x.CustomerId == customerId));
+        return await _pushRegistrationRepository.FirstOrDefaultAsync(
+            _pushRegistrationRepository.Table.Where(x => x.CustomerId == customerId));
     }
 
     /// <summary>
@@ -81,7 +82,8 @@ public class PushNotificationsService : IPushNotificationsService
     /// </summary>
     public virtual async Task<List<PushRegistration>> GetAllowedPushReceivers()
     {
-        return await Task.FromResult(_pushRegistrationRepository.Table.Where(x => x.Allowed).ToList());
+        return (await _pushRegistrationRepository.ToListAsync(
+            _pushRegistrationRepository.Table.Where(x => x.Allowed))).ToList();
     }
 
     /// <summary>
@@ -89,7 +91,8 @@ public class PushNotificationsService : IPushNotificationsService
     /// </summary>
     public virtual async Task<int> GetAllowedReceivers()
     {
-        return await Task.FromResult(_pushRegistrationRepository.Table.Count(x => x.Allowed));
+        return await _pushRegistrationRepository.CountAsync(
+            _pushRegistrationRepository.Table.Where(x => x.Allowed));
     }
 
     /// <summary>
@@ -97,7 +100,8 @@ public class PushNotificationsService : IPushNotificationsService
     /// </summary>
     public virtual async Task<int> GetDeniedReceivers()
     {
-        return await Task.FromResult(_pushRegistrationRepository.Table.Count(x => !x.Allowed));
+        return await _pushRegistrationRepository.CountAsync(
+            _pushRegistrationRepository.Table.Where(x => !x.Allowed));
     }
 
     /// <summary>
@@ -116,7 +120,7 @@ public class PushNotificationsService : IPushNotificationsService
     public virtual async Task<IPagedList<PushMessage>> GetPushMessages(int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = _pushMessagesRepository.Table.OrderByDescending(x => x.SentOn);
-        return await Task.FromResult(new PagedList<PushMessage>(query, pageIndex, pageSize));
+        return await _pushMessagesRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -126,7 +130,7 @@ public class PushNotificationsService : IPushNotificationsService
         int pageSize = int.MaxValue)
     {
         var query = _pushRegistrationRepository.Table.OrderByDescending(x => x.RegisteredOn);
-        return await Task.FromResult(new PagedList<PushRegistration>(query, pageIndex, pageSize));
+        return await _pushRegistrationRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

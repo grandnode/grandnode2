@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -52,7 +53,7 @@ public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, I
     public string Title { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.Body")]
-
+    [SanitizeHtml]
     public string Body { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.PageLayout")]
@@ -61,15 +62,15 @@ public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, I
     public IList<SelectListItem> AvailablePageLayouts { get; set; } = new List<SelectListItem>();
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaKeywords")]
-
+    [NoHtml]
     public string MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaDescription")]
-
+    [NoHtml]
     public string MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaTitle")]
-
+    [NoHtml]
     public string MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.SeName")]
@@ -95,6 +96,12 @@ public class PageModel : BaseEntityModel, ILocalizedModel<PageLocalizedModel>, I
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.LimitedToStores")]
     [UIHint("Stores")]
     public string[] Stores { get; set; }
+
+    /// <summary>
+    /// True when the page is global or shared with more than one store, so a store manager may copy it
+    /// into their own store instead of editing it directly.
+    /// </summary>
+    public bool ShowCopyButton { get; set; }
 }
 
 public class PageLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
@@ -104,19 +111,19 @@ public class PageLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     public string Title { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.Body")]
-
+    [SanitizeHtml]
     public string Body { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaKeywords")]
-
+    [NoHtml]
     public string MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaDescription")]
-
+    [NoHtml]
     public string MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Pages.Fields.MetaTitle")]
-
+    [NoHtml]
     public string MetaTitle { get; set; }
 
     public string LanguageId { get; set; }

@@ -64,7 +64,7 @@ public class PickupPointService : IPickupPointService
             query = query.Where(pp => pp.StoreId == storeId);
 
         query = query.OrderBy(pp => pp.DisplayOrder);
-        return await PagedList<PickupPoint>.Create(query, pageIndex, pageSize);
+        return await _pickupPointsRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

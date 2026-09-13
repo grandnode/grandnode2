@@ -33,6 +33,13 @@ public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerA
     [UIHint("Stores")]
     public string[] Stores { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether this attribute is shared across all stores
+    /// (i.e., not limited to the current store). Marked as read-only in store scope and
+    /// calculated from <see cref="Stores"/> membership. Only relevant in store-scoped contexts.
+    /// </summary>
+    public bool IsGlobalAttribute { get; set; }
+
     public IList<CustomerAttributeLocalizedModel> Locales { get; set; } = new List<CustomerAttributeLocalizedModel>();
 }
 

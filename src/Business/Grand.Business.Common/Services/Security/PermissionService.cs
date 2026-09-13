@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Common.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
 using Grand.Domain.Customers;
@@ -57,8 +57,8 @@ public class PermissionService : IPermissionService
         return await _cacheBase.GetAsync(key, async () =>
         {
             var permissionRecord =
-                await Task.FromResult(
-                    _permissionRepository.Table.FirstOrDefault(x => x.SystemName == permissionSystemName));
+                await _permissionRepository.FirstOrDefaultAsync(
+                    _permissionRepository.Table.Where(x => x.SystemName == permissionSystemName));
             return permissionRecord?.CustomerGroups.Contains(customerGroup.Id) ?? false;
         });
     }
@@ -114,7 +114,7 @@ public class PermissionService : IPermissionService
             where pr.SystemName == systemName
             select pr;
 
-        return await Task.FromResult(query.FirstOrDefault());
+        return await _permissionRepository.FirstOrDefaultAsync(query);
     }
 
     /// <summary>
@@ -126,7 +126,7 @@ public class PermissionService : IPermissionService
         var query = from pr in _permissionRepository.Table
             orderby pr.Name
             select pr;
-        return await Task.FromResult(query.ToList());
+        return await _permissionRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -221,8 +221,8 @@ public class PermissionService : IPermissionService
     /// <returns>Permission action</returns>
     public virtual async Task<IList<PermissionAction>> GetPermissionActions(string systemName, string customerGroupId)
     {
-        return await Task.FromResult(_permissionActionRepository.Table
-            .Where(x => x.SystemName == systemName && x.CustomerGroupId == customerGroupId).ToList());
+        return await _permissionActionRepository.ToListAsync(_permissionActionRepository.Table
+            .Where(x => x.SystemName == systemName && x.CustomerGroupId == customerGroupId));
     }
 
     /// <summary>
@@ -277,8 +277,8 @@ public class PermissionService : IPermissionService
                 permissionActionName);
             var permissionAction = await _cacheBase.GetAsync(key, async () =>
             {
-                return await Task.FromResult(_permissionActionRepository.Table
-                    .FirstOrDefault(x =>
+                return await _permissionActionRepository.FirstOrDefaultAsync(_permissionActionRepository.Table
+                    .Where(x =>
                         x.SystemName == permissionSystemName && x.CustomerGroupId == group.Id &&
                         x.Action == permissionActionName));
             });

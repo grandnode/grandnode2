@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,6 +16,7 @@ public class CourseModel : BaseEntityModel, ILocalizedModel<CourseLocalizedModel
     [GrandResourceDisplayName("Admin.Courses.Course.Fields.ShortDescription")]
     public string ShortDescription { get; set; }
 
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Courses.Course.Fields.Description")]
     public string Description { get; set; }
 
@@ -33,15 +35,16 @@ public class CourseModel : BaseEntityModel, ILocalizedModel<CourseLocalizedModel
 
     public IList<SelectListItem> AvailableLevels { get; set; } = new List<SelectListItem>();
 
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Courses.Course.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Courses.Course.Fields.MetaDescription")]
-
+    [NoHtml]
     public string MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Courses.Course.Fields.MetaTitle")]
-
+    [NoHtml]
     public string MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Courses.Course.Fields.SeName")]
@@ -114,19 +117,19 @@ public class CourseLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     public string ShortDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Courses.Course.Fields.Description")]
-
+    [SanitizeHtml]
     public string Description { get; set; }
 
     [GrandResourceDisplayName("Admin.Courses.Course.MetaKeywords")]
-
+    [NoHtml]
     public string MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Courses.Course.Fields.MetaDescription")]
-
+    [NoHtml]
     public string MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Courses.Course.Fields.MetaTitle")]
-
+    [NoHtml]
     public string MetaTitle { get; set; }
 
     public string LanguageId { get; set; }

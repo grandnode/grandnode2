@@ -1,0 +1,19 @@
+@model MessageTemplateModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+<partial name="Partials/WidgetZone.DetailsTop" model="Model"/>
+
+<admin-tabstrip name="template-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Content.MessageTemplates.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="Partials/CreateOrUpdate.TabInfo" model="Model"/>
+                </div>
+            </content>
+        </tabstrip-item>
+        <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
+    </items>
+</admin-tabstrip>
+<partial name="Partials/WidgetZone.DetailsBottom" model="Model"/>

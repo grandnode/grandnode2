@@ -33,7 +33,7 @@ public class CourseLevelService : ICourseLevelService
             orderby l.DisplayOrder
             select l;
 
-        return await Task.FromResult(query.ToList());
+        return await _courseLevelRepository.ToListAsync(query);
     }
 
     public virtual Task<CourseLevel> GetById(string id)

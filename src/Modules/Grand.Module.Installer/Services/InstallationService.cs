@@ -865,8 +865,9 @@ public partial class InstallationService : IInstallationService
             "CustomerId_1_CreatedOnUtc_-1");
         await dbContext.CreateIndex(_orderRepository, OrderBuilder<Order>.Create().Descending(x => x.CreatedOnUtc),
             "CreatedOnUtc_-1");
+        //unique - the order number is assigned from the collection itself, the index is what makes it atomic
         await dbContext.CreateIndex(_orderRepository, OrderBuilder<Order>.Create().Descending(x => x.OrderNumber),
-            "OrderNumber");
+            "OrderNumber", true);
         await dbContext.CreateIndex(_orderRepository, OrderBuilder<Order>.Create().Ascending(x => x.Code), "OrderCode");
         await dbContext.CreateIndex(_orderRepository, OrderBuilder<Order>.Create().Ascending("OrderItems.ProductId"),
             "OrderItemProductId");

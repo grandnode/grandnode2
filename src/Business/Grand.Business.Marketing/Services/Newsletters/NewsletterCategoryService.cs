@@ -85,7 +85,7 @@ public class NewsletterCategoryService : INewsletterCategoryService
     /// <returns>NewsletterCategories</returns>
     public virtual async Task<IList<NewsletterCategory>> GetAllNewsletterCategory()
     {
-        return await Task.FromResult(_newsletterCategoryRepository.Table.ToList());
+        return await _newsletterCategoryRepository.ToListAsync(_newsletterCategoryRepository.Table);
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public class NewsletterCategoryService : INewsletterCategoryService
             where !p.LimitedToStores || p.Stores.Contains(storeId)
             orderby p.DisplayOrder
             select p;
-        return await Task.FromResult(query.ToList());
+        return await _newsletterCategoryRepository.ToListAsync(query);
     }
 
     #endregion

@@ -83,7 +83,7 @@ public class TaxRateService : ITaxRateService
                 .OrderBy(tr => tr.StoreId).ThenBy(tr => tr.CountryId).ThenBy(tr => tr.StateProvinceId)
                 .ThenBy(tr => tr.Zip).ThenBy(tr => tr.TaxCategoryId);
 
-            return await Task.FromResult(new PagedList<TaxRate>(ordered, pageIndex, pageSize));
+            return await _taxRateRepository.PagedAsync(ordered, pageIndex, pageSize);
         });
     }
 

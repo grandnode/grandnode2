@@ -110,7 +110,8 @@ public class RedisMessageBusTests
     {
         _subscriberMock.Setup(s =>
                 s.PublishAsync(It.IsAny<RedisChannel>(), It.IsAny<RedisValue>(), It.IsAny<CommandFlags>()))
-            .ThrowsAsync(new RedisConnectionException(ConnectionFailureType.SocketFailure, "connection lost"));
+            .ThrowsAsync(new RedisConnectionException(ConnectionFailureType.SocketFailure, CommandFlags.None,
+                "connection lost", null, CommandStatus.Unknown));
 
         await _bus.PublishAsync(new MessageEvent { Key = "key", MessageType = (int)MessageEventType.RemoveKey });
     }

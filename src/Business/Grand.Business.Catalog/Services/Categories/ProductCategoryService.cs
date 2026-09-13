@@ -49,8 +49,9 @@ public class ProductCategoryService : IProductCategoryService
             return new PagedList<ProductsCategory>(new List<ProductsCategory>(), pageIndex, pageSize);
 
         var key = string.Format(CacheKey.PRODUCTCATEGORIES_ALLBYCATEGORYID_KEY, showHidden, categoryId, pageIndex,
-            pageSize, _contextAccessor.WorkContext.CurrentCustomer.Id, _contextAccessor.StoreContext.CurrentStore.Id);
-        return await _cacheBase.GetAsync(key, () =>
+            pageSize, string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _contextAccessor.StoreContext.CurrentStore.Id);
+        return await _cacheBase.GetAsync(key, async () =>
         {
             var query = _productRepository.Table.Where(x => x.ProductCategories.Any(y => y.CategoryId == categoryId));
 
@@ -90,7 +91,7 @@ public class ProductCategoryService : IProductCategoryService
                 orderby pm.DisplayOrder
                 select pm;
 
-            return Task.FromResult(new PagedList<ProductsCategory>(queryProductCategories, pageIndex, pageSize));
+            return await _productRepository.PagedAsync(queryProductCategories, pageIndex, pageSize);
         });
     }
 

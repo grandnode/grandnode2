@@ -1,4 +1,5 @@
-﻿using Grand.Module.Api.Models;
+﻿using Grand.Infrastructure.Validators;
+using Grand.Module.Api.Models;
 
 namespace Grand.Module.Api.DTOs.Catalog;
 
@@ -6,11 +7,16 @@ public class BrandDto : BaseApiEntityModel
 {
     public string Name { get; set; }
     public string SeName { get; set; }
+    [SanitizeHtml]
     public string Description { get; set; }
+    [SanitizeHtml]
     public string BottomDescription { get; set; }
     public string BrandLayoutId { get; set; }
+    [NoHtml]
     public string MetaKeywords { get; set; }
+    [NoHtml]
     public string MetaDescription { get; set; }
+    [NoHtml]
     public string MetaTitle { get; set; }
     public string PictureId { get; set; }
     public int PageSize { get; set; }

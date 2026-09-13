@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 using Grand.Web.AdminShared.Models.Discounts;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
-using Grand.Web.Common.Validators;
+using Grand.Infrastructure.Validators;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -23,11 +23,11 @@ public class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocali
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Name")]
     public string Name { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Description")]
     public string Description { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.BottomDescription")]
     public string BottomDescription { get; set; }
 
@@ -36,15 +36,15 @@ public class CollectionModel : BaseEntityModel, ILocalizedModel<CollectionLocali
 
     public IList<SelectListItem> AvailableCollectionLayouts { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 
@@ -169,23 +169,23 @@ public class CollectionLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Name")]
     public string Name { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.Description")]
     public string Description { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.BottomDescription")]
     public string BottomDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 

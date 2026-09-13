@@ -67,6 +67,7 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
         //top menu pages
         var now = DateTime.UtcNow;
         var pageModel = (await _pageService.GetAllPages(request.Store.Id))
+            .PreferStoreOverrides(request.Store.Id)
             .Where(t => t.Published && t.IncludeInMenu && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
                         (!t.EndDateUtc.HasValue || t.EndDateUtc > now))
             .Select(t => new MenuModel.MenuPageModel {
@@ -79,7 +80,7 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
             request.Language.Id, request.Store.Id);
 
         var cachedBrandModel = await _cacheBase.GetAsync(brandCacheKey, async () =>
-            (await _brandService.GetAllBrands(storeId: request.Store.Id))
+            (await _brandService.GetAllBrands(brandName: "", storeId: request.Store.Id))
             .Where(x => x.IncludeInMenu)
             .Select(t => new MenuModel.MenuBrandModel {
                 Id = t.Id,
@@ -94,7 +95,7 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
             request.Language.Id, request.Store.Id);
 
         var cachedCollectionModel = await _cacheBase.GetAsync(collectionCacheKey, async () =>
-            (await _collectionService.GetAllCollections(storeId: request.Store.Id))
+            (await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id))
             .Where(x => x.IncludeInMenu)
             .Select(t => new MenuModel.MenuCollectionModel {
                 Id = t.Id,

@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Common;
 using System.ComponentModel.DataAnnotations;
 
@@ -65,6 +66,7 @@ public class MerchandiseReturnModel : BaseEntityModel
     public bool AddMerchandiseReturnNoteDisplayToCustomer { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Note")]
+    [NoHtml]
     public string AddMerchandiseReturnNoteMessage { get; set; }
 
     public bool AddMerchandiseReturnNoteHasDownload { get; set; }

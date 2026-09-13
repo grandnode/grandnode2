@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -57,8 +57,8 @@ public class BrandService : IBrandService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Brands</returns>
-    public virtual async Task<IPagedList<Brand>> GetAllBrands(string brandName = "",
-        string storeId = "",
+    public virtual async Task<IPagedList<Brand>> GetAllBrands(string brandName,
+        string storeId,
         int pageIndex = 0,
         int pageSize = int.MaxValue,
         bool showHidden = false)
@@ -91,7 +91,7 @@ public class BrandService : IBrandService
         }
 
         query = query.OrderBy(m => m.DisplayOrder).ThenBy(m => m.Name);
-        return await PagedList<Brand>.Create(query, pageIndex, pageSize);
+        return await _brandRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -166,7 +166,7 @@ public class BrandService : IBrandService
             where c.AppliedDiscounts.Any(x => x == discountId)
             select c;
 
-        return await Task.FromResult(query.ToList());
+        return await _brandRepository.ToListAsync(query);
     }
 
     #endregion

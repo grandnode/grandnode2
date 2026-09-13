@@ -3,5 +3,6 @@
   IsRequired: true,
   AttributeControlTypeId: 1,
   DisplayOrder: 1,
+  IsGlobalAttribute: false,
   Id: aa-001
 }

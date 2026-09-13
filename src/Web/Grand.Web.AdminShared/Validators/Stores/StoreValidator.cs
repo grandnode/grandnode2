@@ -20,38 +20,13 @@ public class StoreValidator : BaseGrandValidator<StoreModel>
             .WithMessage(translationService.GetResource("Admin.Configuration.Stores.Fields.Url.Required"));
         RuleFor(x => x.Url).Must((x, _, _) =>
         {
-            try
-            {
-                var uri = new Uri(x.Url);
-                return uri != null;
-            }
-            catch
-            {
+            //the store url is used to build absolute links outside of a request (emails, sitemap, robots.txt),
+            //so it has to be an absolute http(s) url
+            if (!Uri.TryCreate(x.Url, UriKind.Absolute, out var uri))
                 return false;
-            }
+
+            return uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) ||
+                   uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase);
         }).WithMessage(translationService.GetResource("Admin.Configuration.Stores.Fields.Url.WrongFormat"));
-        RuleFor(x => x.SecureUrl).Must((x, _, _) =>
-        {
-            try
-            {
-                if (!x.SslEnabled)
-                    return true;
-
-                var sslUri = new Uri(x.SecureUrl);
-
-                if (!sslUri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase))
-                    return false;
-
-                var storeUri = new Uri(x.Url);
-                if (sslUri.Host != storeUri.Host)
-                    return false;
-
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }).WithMessage(translationService.GetResource("Admin.Configuration.Stores.Fields.SecureUrl.WrongFormat"));
     }
 }

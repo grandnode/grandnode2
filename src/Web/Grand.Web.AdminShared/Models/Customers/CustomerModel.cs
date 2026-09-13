@@ -2,6 +2,7 @@
 using Grand.Domain.Common;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Binders;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -193,6 +194,7 @@ public class CustomerModel : BaseEntityModel
     public int AddLoyaltyPointsValue { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.LoyaltyPoints.Fields.AddLoyaltyPointsMessage")]
+    [NoHtml]
     public string AddLoyaltyPointsMessage { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.LoyaltyPoints.Fields.AddLoyaltyPointsStore")]
@@ -272,6 +274,7 @@ public class CustomerModel : BaseEntityModel
         public string Subject { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.SendEmail.Body")]
+        [NoHtml]
         public string Body { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.SendEmail.SendImmediately")]

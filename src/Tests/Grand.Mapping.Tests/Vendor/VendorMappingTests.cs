@@ -1,18 +1,22 @@
 using Grand.Mapping;
-using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Web.Vendor.Mapper;
-using Grand.Web.Vendor.Models.Catalog;
 using Grand.Web.Vendor.Models.Common;
 using Grand.Web.Vendor.Models.Vendor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using VerifyMSTest;
 using AddressProfile = Grand.Web.Vendor.Mapper.AddressProfile;
-using ProductProfile = Grand.Web.Vendor.Mapper.ProductProfile;
 using VendorProfile = Grand.Web.Vendor.Mapper.VendorProfile;
 
 namespace Grand.Mapping.Tests.Vendor;
 
+// Product-related cases (Product/ProductAttributeMapping/ProductAttributeCombination <-> Vendor's
+// Models.Catalog) were removed here (ARCH-001 Phase 1 Task 13): the Vendor.Mapper.ProductProfile they
+// exercised, and the Vendor.Models.Catalog types they mapped to/from, were deleted as orphans once
+// Task 12 repointed Vendor's _ViewImports.cshtml to AdminShared's models/service. The equivalent
+// coverage - mapping Product/ProductAttributeMapping/ProductAttributeCombination to/from AdminShared's
+// ProductModel via AdminShared's ProductProfile, which Vendor now uses - lives in
+// Grand.Mapping.Tests.AdminShared.CatalogProductMappingTests.
 [TestClass]
 public class VendorMappingTests : VerifyBase
 {
@@ -23,7 +27,6 @@ public class VendorMappingTests : VerifyBase
     {
         var config = new MapperConfiguration(cfg => {
             cfg.AddProfile<AddressProfile>();
-            cfg.AddProfile<ProductProfile>();
             cfg.AddProfile<VendorProfile>();
         });
         _mapper = config.CreateMapper();
@@ -87,74 +90,5 @@ public class VendorMappingTests : VerifyBase
             PageSizeOptions = "6, 12, 24"
         };
         return Verify(_mapper.Map<Grand.Domain.Vendors.Vendor>(model));
-    }
-
-    // ── Product ───────────────────────────────────────────────────────────────
-
-    [TestMethod]
-    public Task Product_ToVendorProductModel()
-    {
-        var entity = new Product {
-            Id = "prod-v-1",
-            Name = "Vendor Product",
-            ShortDescription = "Short desc",
-            FullDescription = "Full description",
-            Sku = "VSKU001",
-            Price = 49.99,
-            OldPrice = 59.99,
-            Published = true,
-            StockQuantity = 50,
-            Weight = 1.5,
-            DisplayOrder = 1,
-            ProductTypeId = (ProductType)5
-        };
-        return Verify(_mapper.Map<ProductModel>(entity));
-    }
-
-    [TestMethod]
-    public Task VendorProductModel_ToProduct()
-    {
-        var model = new ProductModel {
-            Name = "New Product",
-            ShortDescription = "Short",
-            FullDescription = "Full",
-            Sku = "SKU002",
-            Price = 39.99,
-            Published = true,
-            StockQuantity = 25
-        };
-        return Verify(_mapper.Map<Product>(model));
-    }
-
-    // ── ProductAttributeMapping ───────────────────────────────────────────────
-
-    [TestMethod]
-    public Task ProductAttributeMapping_ToVendorModel()
-    {
-        var entity = new ProductAttributeMapping {
-            Id = "pam-v-1",
-            ProductAttributeId = "pa-1",
-            TextPrompt = "Choose size",
-            IsRequired = true,
-            AttributeControlTypeId = (AttributeControlType)1,
-            DisplayOrder = 0
-        };
-        return Verify(_mapper.Map<ProductModel.ProductAttributeMappingModel>(entity));
-    }
-
-    // ── ProductAttributeCombination ───────────────────────────────────────────
-
-    [TestMethod]
-    public Task ProductAttributeCombination_ToVendorModel()
-    {
-        var entity = new ProductAttributeCombination {
-            Id = "pac-v-1",
-            Sku = "COMB-SKU",
-            StockQuantity = 5,
-            AllowOutOfStockOrders = false,
-            OverriddenPrice = null,
-            NotifyAdminForQuantityBelow = 1
-        };
-        return Verify(_mapper.Map<ProductAttributeCombinationModel>(entity));
     }
 }

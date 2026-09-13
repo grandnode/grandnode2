@@ -14,4 +14,7 @@ public interface ILanguageViewModelService
 
     Task<(IEnumerable<LanguageResourceModel> languageResourceModels, int totalCount)> PrepareLanguageResourceModel(
         LanguageResourceFilterModel model, string languageId, int pageIndex, int pageSize);
+
+    Task<(bool canProceed, string message)> ValidateLanguageUnpublish(string languageId, bool published);
+    Task<(bool canDelete, string message)> ValidateLanguageDelete(Language language);
 }

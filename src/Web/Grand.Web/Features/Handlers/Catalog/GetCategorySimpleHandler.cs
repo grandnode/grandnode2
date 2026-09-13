@@ -65,7 +65,7 @@ public class GetCategorySimpleHandler : IRequestHandler<GetCategorySimple, IList
 
             async Task PrepareCategories(string categoryId)
             {
-                var parentCategories = await _categoryService.GetAllCategories(categoryId, storeId: request.Store.Id);
+                var parentCategories = await _categoryService.GetAllCategories(categoryId, categoryName: "", storeId: request.Store.Id);
                 if (parentCategories.Any())
                 {
                     categories.AddRange(parentCategories);
@@ -79,7 +79,7 @@ public class GetCategorySimpleHandler : IRequestHandler<GetCategorySimple, IList
             if (currentCategory != null)
             {
                 var currentCategories =
-                    await _categoryService.GetAllCategories(currentCategory.Id, storeId: request.Store.Id);
+                    await _categoryService.GetAllCategories(currentCategory.Id, categoryName: "", storeId: request.Store.Id);
                 categories.AddRange(currentCategories);
                 await PrepareCategories(currentCategory.ParentCategoryId);
             }

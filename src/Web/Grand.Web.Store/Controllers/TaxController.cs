@@ -2,27 +2,38 @@ using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Directory;
 using Grand.Domain.Permissions;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Plugins;
+using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Extensions.Mapping.Settings;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Tax;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Filters;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Store.Extensions;
 using Grand.Web.Store.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Grand.Web.Store.Controllers;
 
-[PermissionAuthorize(PermissionSystemName.TaxSettings)]
+// Attributes are restated here (and on Admin's TaxController) because they used to arrive
+// transitively via BaseAdminController/BaseStoreController - BaseTaxCategoryController (used
+// instead now) can't inherit either, since it must stay host-agnostic: Admin, Store, and
+// (hypothetically) Vendor all extend it.
+[AuthorizeStore]
+[Area(Constants.AreaStore)]
+[AuthorizeMenu]
 public class TaxController(
     ITaxService taxService,
     ITaxCategoryService taxCategoryService,
@@ -32,7 +43,10 @@ public class TaxController(
     ITranslationService translationService,
     ICountryService countryService,
     IEnumTranslationService enumTranslationService,
-    IContextAccessor contextAccessor) : BaseStoreController
+    IContextAccessor contextAccessor,
+    IStoreService storeService,
+    IAdminDataScope<TaxCategory> scope)
+    : BaseTaxCategoryController(taxCategoryService, storeService, translationService, scope)
 {
     private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
@@ -97,15 +111,15 @@ public class TaxController(
         model.TaxBasedOnValues = enumTranslationService.ToSelectList(taxSettings.TaxBasedOn);
         model.TaxDisplayTypeValues = enumTranslationService.ToSelectList(taxSettings.TaxDisplayType);
 
-        var taxCategories = await taxCategoryService.GetAllTaxCategories(CurrentStoreId);
+        var taxCategories = await TaxCategoryService.GetAllTaxCategories(CurrentStoreId);
         model.TaxCategories.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = ""
+            Text = TranslationService.GetResource("Admin.Configuration.Tax.Settings.TaxCategories.None"), Value = ""
         });
         foreach (var tc in taxCategories)
             model.TaxCategories.Add(new SelectListItem { Text = tc.Name, Value = tc.Id });
 
         model.EuVatShopCountries.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+            { Text = TranslationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
         foreach (var c in await countryService.GetAllCountries(showHidden: true))
             model.EuVatShopCountries.Add(new SelectListItem
                 { Text = c.Name, Value = c.Id, Selected = c.Id == taxSettings.EuVatShopCountryId });
@@ -116,7 +130,7 @@ public class TaxController(
             : new AddressModel();
 
         model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem
-            { Text = translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
+            { Text = TranslationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
         foreach (var c in await countryService.GetAllCountries(showHidden: true))
             model.DefaultTaxAddress.AvailableCountries.Add(new SelectListItem
                 { Text = c.Name, Value = c.Id, Selected = defaultAddress != null && c.Id == defaultAddress.CountryId });
@@ -145,7 +159,7 @@ public class TaxController(
         taxSettings = model.ToEntity(taxSettings);
         await settingService.SaveSetting(taxSettings, CurrentStoreId);
         await cacheBase.Clear();
-        Success(translationService.GetResource("Admin.Configuration.Updated"));
+        Success(TranslationService.GetResource("Admin.Configuration.Updated"));
         return RedirectToAction("Settings");
     }
 
@@ -156,57 +170,6 @@ public class TaxController(
     public IActionResult Categories()
     {
         return View(new Models.TaxCategoryListModel { StoreId = CurrentStoreId });
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.List)]
-    public async Task<IActionResult> Categories(DataSourceRequest command)
-    {
-        var categoriesModel = (await taxCategoryService.GetAllTaxCategories(CurrentStoreId))
-            .Select(x => x.ToModel())
-            .ToList();
-        var gridModel = new DataSourceResult {
-            Data = categoriesModel,
-            Total = categoriesModel.Count
-        };
-        return Json(gridModel);
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> CategoryUpdate(TaxCategoryModel model)
-    {
-        if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
-        var taxCategory = await taxCategoryService.GetTaxCategoryById(model.Id);
-        if (taxCategory == null || taxCategory.StoreId != CurrentStoreId)
-            return new JsonResult("");
-        taxCategory = model.ToEntity(taxCategory);
-        taxCategory.StoreId = CurrentStoreId;
-        await taxCategoryService.UpdateTaxCategory(taxCategory);
-        return new JsonResult("");
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public async Task<IActionResult> CategoryAdd(TaxCategoryModel model)
-    {
-        if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
-        var taxCategory = new TaxCategory { StoreId = CurrentStoreId };
-        taxCategory = model.ToEntity(taxCategory);
-        taxCategory.StoreId = CurrentStoreId;
-        await taxCategoryService.InsertTaxCategory(taxCategory);
-        return new JsonResult("");
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.Delete)]
-    public async Task<IActionResult> CategoryDelete(string id)
-    {
-        var taxCategory = await taxCategoryService.GetTaxCategoryById(id);
-        if (taxCategory == null || taxCategory.StoreId != CurrentStoreId)
-            return new JsonResult("");
-        await taxCategoryService.DeleteTaxCategory(taxCategory);
-        return new JsonResult("");
     }
 
     #endregion

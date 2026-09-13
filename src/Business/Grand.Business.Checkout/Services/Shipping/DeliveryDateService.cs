@@ -64,7 +64,7 @@ public class DeliveryDateService : IDeliveryDateService
             query = query.Where(dd => dd.StoreId == storeId);
         query = query.OrderBy(dd => dd.DisplayOrder);
 
-        return await PagedList<DeliveryDate>.Create(query, pageIndex, pageSize);
+        return await _deliveryDateRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

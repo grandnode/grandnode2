@@ -1,5 +1,7 @@
 ﻿using Grand.Domain.Common;
+using Grand.SharedKernel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MongoDB.Driver;
 
 namespace Grand.Data.Tests.MongoDb;
 
@@ -29,6 +31,23 @@ public class MongoRepositoryTests
         Assert.AreEqual(DateTime.UtcNow.Day, _myRepository.Table.FirstOrDefault()!.CreatedOnUtc.Day);
     }
 
+
+    [TestMethod]
+    public async Task InsertAsync_UniqueIndexViolated_ThrowsDuplicateKeyGrandException()
+    {
+        //Arrange
+        var collection = ((MongoDBRepositoryTest<SampleCollection>)_myRepository).Collection;
+        await collection.Indexes.CreateOneAsync(new CreateIndexModel<SampleCollection>(
+            Builders<SampleCollection>.IndexKeys.Descending(x => x.Count),
+            new CreateIndexOptions { Name = "Count", Unique = true }));
+        await _myRepository.InsertAsync(new SampleCollection { Id = "1", Count = 7 });
+
+        //Act / Assert
+        await Assert.ThrowsExactlyAsync<DuplicateKeyGrandException>(async () =>
+            await _myRepository.InsertAsync(new SampleCollection { Id = "2", Count = 7 }));
+
+        Assert.AreEqual(1, _myRepository.Table.Count());
+    }
 
     [TestMethod]
     public async Task GetById_MongoRepository_Success()

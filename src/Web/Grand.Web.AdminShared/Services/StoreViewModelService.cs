@@ -114,14 +114,11 @@ public class StoreViewModelService : IStoreViewModelService
         if (!store.Url.Trim().EndsWith("/"))
             store.Url = store.Url.Trim() + "/";
 
-        if (!string.IsNullOrEmpty(store.SecureUrl) && !store.SecureUrl.Trim().EndsWith("/"))
-            store.SecureUrl = store.SecureUrl.Trim() + "/";
-
         var storeUri = new Uri(store.Url);
 
         store.Domains.Add(new DomainHost {
             HostName = storeUri.Host,
-            Url = store.SslEnabled ? store.SecureUrl : store.Url,
+            Url = store.Url,
             Primary = true
         });
 
@@ -136,24 +133,19 @@ public class StoreViewModelService : IStoreViewModelService
         //ensure we have "/" at the end
         if (!store.Url.Trim().EndsWith("/"))
             store.Url = store.Url.Trim() + "/";
-        if (!string.IsNullOrEmpty(store.SecureUrl) && !store.SecureUrl.Trim().EndsWith("/"))
-            store.SecureUrl = store.SecureUrl.Trim() + "/";
 
+        var storeUri = new Uri(store.Url);
         var domain = store.Domains.FirstOrDefault(x => x.Primary);
         if (domain == null)
-        {
-            var storeUri = new Uri(store.Url);
             store.Domains.Add(new DomainHost {
                 HostName = storeUri.Host,
-                Url = store.SslEnabled ? store.SecureUrl : store.Url,
+                Url = store.Url,
                 Primary = true
             });
-        }
         else
         {
-            var storeUri = new Uri(store.Url);
             domain.HostName = storeUri.Host;
-            domain.Url = store.SslEnabled ? store.SecureUrl : store.Url;
+            domain.Url = store.Url;
         }
 
         await _storeService.UpdateStore(store);

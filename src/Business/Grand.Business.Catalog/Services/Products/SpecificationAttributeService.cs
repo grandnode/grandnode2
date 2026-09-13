@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -72,8 +72,8 @@ public class SpecificationAttributeService : ISpecificationAttributeService
 
         var key = string.Format(CacheKey.SPECIFICATION_BY_SENAME, sename);
         return await _cacheBase.GetAsync(key, async () =>
-            await Task.FromResult(_specificationAttributeRepository.Table
-                .FirstOrDefault(x => x.SeName == sename)));
+            await _specificationAttributeRepository.FirstOrDefaultAsync(_specificationAttributeRepository.Table
+                .Where(x => x.SeName == sename)));
     }
 
 
@@ -98,7 +98,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
 
         query = query.OrderBy(sa => sa.DisplayOrder).ThenBy(sa => sa.Name);
 
-        return await PagedList<SpecificationAttribute>.Create(query, pageIndex, pageSize);
+        return await _specificationAttributeRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 
@@ -178,7 +178,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
             var query = from p in _specificationAttributeRepository.Table
                 where p.SpecificationAttributeOptions.Any(x => x.Id == specificationAttributeOptionId)
                 select p;
-            return await Task.FromResult(query.FirstOrDefault());
+            return await _specificationAttributeRepository.FirstOrDefaultAsync(query);
         });
     }
 

@@ -77,7 +77,7 @@ public class CustomerNoteService : ICustomerNoteService
 
         query = query.OrderByDescending(x => x.CreatedOnUtc);
 
-        return await Task.FromResult(query.ToList());
+        return await _customerNoteRepository.ToListAsync(query);
     }
 
     #endregion

@@ -1,4 +1,5 @@
-﻿@using Grand.Domain.Localization
+﻿@using System.Text.Encodings.Web
+@using Grand.Domain.Localization
 @model LanguageModel
 @inject AdminAreaSettings adminAreaSettings
 <vc:admin-widget widget-zone="language_details_resources_top" additional-data="Model"/>
@@ -50,7 +51,7 @@
                     <text>
                         {
                             Id: '@(method.Value)',
-                            Name: "@Html.Raw(method.Text)"
+                            Name: "@Html.Raw(JavaScriptEncoder.Default.Encode(method.Text))"
                         },
                         </text>
                 }

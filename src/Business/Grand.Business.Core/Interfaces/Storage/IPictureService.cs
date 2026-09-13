@@ -113,7 +113,7 @@ public interface IPictureService
     /// <param name="pageIndex">Current page</param>
     /// <param name="pageSize">Items on each page</param>
     /// <returns>Paged list of pictures</returns>
-    IPagedList<Picture> GetPictures(int pageIndex = 0, int pageSize = int.MaxValue);
+    Task<IPagedList<Picture>> GetPictures(int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Inserts a picture

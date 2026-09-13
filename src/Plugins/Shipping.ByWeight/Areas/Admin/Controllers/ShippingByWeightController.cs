@@ -92,7 +92,8 @@ public class ShippingByWeightController : BaseShippingController
     [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> RatesList(DataSourceRequest command)
     {
-        var records = await _shippingByWeightService.GetAll(command.Page - 1, command.PageSize);
+        //main admin sees the records of every store
+        var records = await _shippingByWeightService.GetAll("", command.Page - 1, command.PageSize);
 
         var sbwModel = new List<ShippingByWeightModel>();
         foreach (var x in records)

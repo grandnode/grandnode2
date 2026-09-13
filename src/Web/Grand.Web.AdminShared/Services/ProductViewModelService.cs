@@ -71,7 +71,8 @@ public class ProductViewModelService(
     IAuctionService auctionService,
     IPriceFormatter priceFormatter,
     ISeNameService seNameService,
-    IEnumTranslationService enumTranslationService)
+    IEnumTranslationService enumTranslationService,
+    IAdminDataScope<Product> scope)
     : IProductViewModelService
 {
     public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
@@ -139,14 +140,22 @@ public class ProductViewModelService(
             (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
     }
 
-    public virtual async Task PrepareTierPriceModel(ProductModel.TierPriceModel model, string storeId = "")
+    public virtual async Task PrepareTierPriceModel(ProductModel.TierPriceModel model)
     {
-        if (string.IsNullOrEmpty(storeId))
-            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+        var storeId = scope.DefaultStoreId ?? "";
 
-        foreach (var store in (await storeService.GetAllStores()).Where(x =>
-                     x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-            model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
+        //stores - same capability gate as PrepareProductListModel: Vendor's original PrepareTierPriceModel
+        //never populated a stores dropdown at all (vendors don't pick stores), so this must not run for
+        //Vendor even though its storeId also resolves to "".
+        if (scope.ShowStoreSelector)
+        {
+            if (string.IsNullOrEmpty(storeId))
+                model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+
+            foreach (var store in (await storeService.GetAllStores()).Where(x =>
+                         x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
+                model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
+        }
 
         //customer groups
         model.AvailableCustomerGroups.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
@@ -175,7 +184,7 @@ public class ProductViewModelService(
         model.AssociatedProductName = associatedProduct != null ? associatedProduct.Name : "";
     }
 
-    public virtual async Task OutOfStockNotifications(Product product, ProductModel model, int prevStockQuantity,
+    public virtual async Task OutOfStockNotifications(Product product, int prevStockQuantity,
         List<ProductWarehouseInventory> prevMultiWarehouseStock
     )
     {
@@ -518,24 +527,30 @@ public class ProductViewModelService(
         }
     }
 
-    public virtual async Task<ProductListModel> PrepareProductListModel(string storeId = "")
+    public virtual async Task<ProductListModel> PrepareProductListModel()
     {
         var model = new ProductListModel();
+        var storeId = scope.DefaultStoreId ?? "";
 
-        //stores
-        model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var s in (await storeService.GetAllStores()).Where(x =>
-                     x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        //stores - Vendor has no store concept at all (ShowStoreSelector is false), so the dropdown
+        //is left empty entirely rather than populated off storeId, which is "" for Vendor same as Admin.
+        if (scope.ShowStoreSelector)
+        {
+            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Common.All"), Value = " " });
+            foreach (var s in (await storeService.GetAllStores()).Where(x =>
+                         x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        }
+
         //warehouses
-        model.AvailableWarehouses.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+        model.AvailableWarehouses.Add(new SelectListItem { Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Common.All"), Value = " " });
         foreach (var wh in await warehouseService.GetAllWarehouses(storeId))
             model.AvailableWarehouses.Add(new SelectListItem { Text = wh.Name, Value = wh.Id });
 
         //product types
         model.AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
         model.AvailableProductTypes.Insert(0,
-            new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "0" });
+            new SelectListItem { Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Common.All"), Value = "0" });
 
         //"published" property
         //0 - all (according to "ShowHidden" parameter)
@@ -543,21 +558,26 @@ public class ProductViewModelService(
         //2 - unpublished only
         //3 - Show on homepage
         //4 - mark as new
-        model.AvailablePublishedOptions.Add(new SelectListItem { Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.All"), Value = " " });
+        model.AvailablePublishedOptions.Add(new SelectListItem { Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.List.SearchPublished.All"), Value = " " });
         model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.PublishedOnly"),
+            Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.List.SearchPublished.PublishedOnly"),
             Value = "1"
         });
         model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.UnpublishedOnly"),
+            Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.List.SearchPublished.UnpublishedOnly"),
             Value = "2"
         });
+
+        // Admin/Store show "Show on homepage" (value 3); Vendor's original copy omits it entirely - vendors
+        // can't feature products on the homepage, a real capability difference, not a naming difference.
+        if (scope.CanFeatureOnHomepage)
+            model.AvailablePublishedOptions.Add(new SelectListItem {
+                Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.List.SearchPublished.ShowOnHomePage"),
+                Value = "3"
+            });
+
         model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.ShowOnHomePage"),
-            Value = "3"
-        });
-        model.AvailablePublishedOptions.Add(new SelectListItem {
-            Text = translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.MarkAsNew"),
+            Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.List.SearchPublished.MarkAsNew"),
             Value = "4"
         });
 
@@ -596,12 +616,16 @@ public class ProductViewModelService(
 
         var markedAsNewOnly = model.SearchPublishedId == 4;
 
+        // vendorId: scope.DefaultVendorId (when set) overrides whatever the search model asks for - mirrors
+        // Vendor's original PrepareProductsModel, which always passed vendorId: CurrentVendor.Id regardless
+        // of any vendor filter on the model. Admin/Store have no DefaultVendorId, so this falls back to
+        // model.SearchVendorId unchanged for them.
         var products = (await productService.SearchProducts(
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             storeId: model.SearchStoreId,
-            vendorId: model.SearchVendorId,
+            vendorId: scope.DefaultVendorId ?? model.SearchVendorId,
             warehouseId: model.SearchWarehouseId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
@@ -661,12 +685,14 @@ public class ProductViewModelService(
                 break;
         }
 
+        // vendorId: same override as PrepareProductsModel above - mirrors Vendor's original PrepareProducts,
+        // which always passed vendorId: CurrentVendor.Id regardless of the search model.
         var products = (await productService.SearchProducts(
             categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             storeId: model.SearchStoreId,
-            vendorId: model.SearchVendorId,
+            vendorId: scope.DefaultVendorId ?? model.SearchVendorId,
             warehouseId: model.SearchWarehouseId,
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
@@ -681,6 +707,16 @@ public class ProductViewModelService(
     {
         //product
         var product = model.ToEntity(dateTimeService);
+
+        // VendorId: forced onto new products when scope.DefaultVendorId is set - mirrors Vendor's original
+        // InsertProductModel, which always set product.VendorId = CurrentVendor?.Id explicitly and ignored
+        // VendorId in its AutoMapper profile for exactly this reason. AdminShared's shared ProductProfile
+        // does *not* ignore ProductModel.VendorId -> Product.VendorId (Admin's create form legitimately
+        // assigns vendor ownership), so without this, a vendor host would map whatever (usually blank)
+        // VendorId the model carries, leaving newly-created products belonging to no vendor at all -
+        // orphaned and inaccessible to the vendor who just created them once VendorProductDataScope.HasAccess
+        // gates on VendorId equality.
+        if (scope.DefaultVendorId is not null) product.VendorId = scope.DefaultVendorId;
 
         //discounts
         var allDiscounts = await discountService.GetDiscountsQuery(DiscountType.AssignedToSkus, model.StoreId);
@@ -721,6 +757,16 @@ public class ProductViewModelService(
         //product
         product = model.ToEntity(product, dateTimeService);
         product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
+
+        // VendorId: re-forced to scope.DefaultVendorId (when set) after mapping, not merely left alone -
+        // AdminShared's shared ProductProfile does not ignore ProductModel.VendorId -> Product.VendorId, so
+        // without this, mapping a caller-supplied model onto the existing entity would let a vendor
+        // reassign their own product to a different vendor id via a tampered/mass-assigned VendorId field.
+        // Vendor's original UpdateProductModel never touched VendorId at all (its own AutoMapper profile
+        // ignores it), relying on the pre-loaded entity's existing value - forcing it here is strictly
+        // equivalent for legitimately-owned products (already gated by scope.HasAccess before reaching this
+        // method) while also closing that mass-assignment gap for Admin/Store's shared profile.
+        if (scope.DefaultVendorId is not null) product.VendorId = scope.DefaultVendorId;
         product.Locales = await seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
         product.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
         //discounts
@@ -756,7 +802,7 @@ public class ProductViewModelService(
         await UpdatePictureSeoNames(product);
 
         //out of stock notifications
-        await OutOfStockNotifications(product, model, prevStockQuantity, prevMultiWarehouseStock);
+        await OutOfStockNotifications(product, prevStockQuantity, prevMultiWarehouseStock);
 
         //delete an old "download" file (if deleted or updated)
         if (!string.IsNullOrEmpty(prevDownloadId) && prevDownloadId != product.DownloadId)
@@ -807,17 +853,21 @@ public class ProductViewModelService(
         }
     }
 
-    public virtual async Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddRequiredProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddRequiredProductModel>();
         return model;
     }
 
     public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(
         ProductModel.AddProductModel model, int pageIndex, int pageSize)
     {
+        // vendorId: scope.DefaultVendorId (when set) overrides the search model - mirrors Vendor's original
+        // PrepareProductModel(AddProductModel,...), which always passed vendorId: CurrentVendor.Id (and
+        // storeId: string.Empty) regardless of the model, so the "add related/similar/bundle/etc. product"
+        // popups can never surface another vendor's products.
         var products = await productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
-            model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
+            model.SearchCollectionId, model.SearchStoreId, scope.DefaultVendorId ?? model.SearchVendorId, model.SearchProductTypeId,
             model.SearchProductName, pageIndex, pageSize);
         return (products.Select(x => x.ToModel(dateTimeService)).ToList(), products.TotalCount);
     }
@@ -946,20 +996,22 @@ public class ProductViewModelService(
         foreach (var id in model.SelectedProductIds)
         {
             var product = await productService.GetProductById(id);
-            if (product != null)
-            {
-                var existingRelatedProducts = productId1.RelatedProducts;
-                if (model.ProductId != id)
-                    if (!existingRelatedProducts.Any(x => x.ProductId2 == id))
-                    {
-                        var related = new RelatedProduct {
-                            ProductId2 = id,
-                            DisplayOrder = 1
-                        };
-                        productId1.RelatedProducts.Add(related);
-                        await productService.InsertRelatedProduct(related, model.ProductId);
-                    }
-            }
+            // scope.HasAccess: same per-id ownership filter as BaseProductController's
+            // AssociatedProductAddPopup(POST) selected-ids loop - without it a vendor could map another
+            // vendor's products into their own related-products list (ARCH-001 Phase 1, Task 11).
+            if (product == null || !await scope.HasAccess(product)) continue;
+
+            var existingRelatedProducts = productId1.RelatedProducts;
+            if (model.ProductId != id)
+                if (!existingRelatedProducts.Any(x => x.ProductId2 == id))
+                {
+                    var related = new RelatedProduct {
+                        ProductId2 = id,
+                        DisplayOrder = 1
+                    };
+                    productId1.RelatedProducts.Add(related);
+                    await productService.InsertRelatedProduct(related, model.ProductId);
+                }
         }
     }
 
@@ -995,21 +1047,21 @@ public class ProductViewModelService(
         foreach (var id in model.SelectedProductIds)
         {
             var product = await productService.GetProductById(id);
-            if (product != null)
-            {
-                var existingSimilarProducts = productId1.SimilarProducts;
-                if (model.ProductId != id)
-                    if (!existingSimilarProducts.Any(x => x.ProductId2 == id))
-                    {
-                        var similar = new SimilarProduct {
-                            ProductId1 = model.ProductId,
-                            ProductId2 = id,
-                            DisplayOrder = 1
-                        };
-                        productId1.SimilarProducts.Add(similar);
-                        await productService.InsertSimilarProduct(similar);
-                    }
-            }
+            // scope.HasAccess: see InsertRelatedProductModel above.
+            if (product == null || !await scope.HasAccess(product)) continue;
+
+            var existingSimilarProducts = productId1.SimilarProducts;
+            if (model.ProductId != id)
+                if (!existingSimilarProducts.Any(x => x.ProductId2 == id))
+                {
+                    var similar = new SimilarProduct {
+                        ProductId1 = model.ProductId,
+                        ProductId2 = id,
+                        DisplayOrder = 1
+                    };
+                    productId1.SimilarProducts.Add(similar);
+                    await productService.InsertSimilarProduct(similar);
+                }
         }
     }
 
@@ -1047,21 +1099,21 @@ public class ProductViewModelService(
         foreach (var id in model.SelectedProductIds)
         {
             var product = await productService.GetProductById(id);
-            if (product != null)
-            {
-                var existingBundleProducts = productId1.BundleProducts;
-                if (model.ProductId != id)
-                    if (!existingBundleProducts.Any(x => x.ProductId == id))
-                    {
-                        var bundle = new BundleProduct {
-                            ProductId = id,
-                            DisplayOrder = 1,
-                            Quantity = 1
-                        };
-                        productId1.BundleProducts.Add(bundle);
-                        await productService.InsertBundleProduct(bundle, model.ProductId);
-                    }
-            }
+            // scope.HasAccess: see InsertRelatedProductModel above.
+            if (product == null || !await scope.HasAccess(product)) continue;
+
+            var existingBundleProducts = productId1.BundleProducts;
+            if (model.ProductId != id)
+                if (!existingBundleProducts.Any(x => x.ProductId == id))
+                {
+                    var bundle = new BundleProduct {
+                        ProductId = id,
+                        DisplayOrder = 1,
+                        Quantity = 1
+                    };
+                    productId1.BundleProducts.Add(bundle);
+                    await productService.InsertBundleProduct(bundle, model.ProductId);
+                }
         }
     }
 
@@ -1098,14 +1150,16 @@ public class ProductViewModelService(
         foreach (var id in model.SelectedProductIds)
         {
             var product = await productService.GetProductById(id);
-            if (product != null)
-                if (!crossSellProduct.CrossSellProduct.Any(x => x == id))
-                    if (model.ProductId != id)
-                        await productService.InsertCrossSellProduct(
-                            new CrossSellProduct {
-                                ProductId1 = model.ProductId,
-                                ProductId2 = id
-                            });
+            // scope.HasAccess: see InsertRelatedProductModel above.
+            if (product == null || !await scope.HasAccess(product)) continue;
+
+            if (!crossSellProduct.CrossSellProduct.Any(x => x == id))
+                if (model.ProductId != id)
+                    await productService.InsertCrossSellProduct(
+                        new CrossSellProduct {
+                            ProductId1 = model.ProductId,
+                            ProductId2 = id
+                        });
         }
     }
 
@@ -1124,10 +1178,12 @@ public class ProductViewModelService(
         foreach (var id in model.SelectedProductIds)
         {
             var product = await productService.GetProductById(id);
-            if (product != null)
-                if (!mainproduct.RecommendedProduct.Any(x => x == id))
-                    if (model.ProductId != id)
-                        await productService.InsertRecommendedProduct(model.ProductId, id);
+            // scope.HasAccess: see InsertRelatedProductModel above.
+            if (product == null || !await scope.HasAccess(product)) continue;
+
+            if (!mainproduct.RecommendedProduct.Any(x => x == id))
+                if (model.ProductId != id)
+                    await productService.InsertRecommendedProduct(model.ProductId, id);
         }
     }
 
@@ -1155,44 +1211,45 @@ public class ProductViewModelService(
         await productService.UpdateAssociatedProduct(product);
     }
 
-    public virtual async Task<ProductModel.AddRelatedProductModel> PrepareRelatedProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddRelatedProductModel> PrepareRelatedProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddRelatedProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddRelatedProductModel>();
         return model;
     }
 
-    public virtual async Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddSimilarProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddSimilarProductModel>();
         return model;
     }
 
-    public virtual async Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddBundleProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddBundleProductModel>();
         return model;
     }
 
-    public virtual async Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddCrossSellProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddCrossSellProductModel>();
         return model;
     }
 
-    public virtual async Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddRecommendedProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddRecommendedProductModel>();
         return model;
     }
 
-    public virtual async Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel(string storeId = "")
+    public virtual async Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.AddAssociatedProductModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.AddAssociatedProductModel>();
         return model;
     }
 
-    public virtual async Task<BulkEditListModel> PrepareBulkEditListModel(string storeId = "")
+    public virtual async Task<BulkEditListModel> PrepareBulkEditListModel()
     {
+        var storeId = scope.DefaultStoreId ?? "";
         var model = new BulkEditListModel();
 
         //product types
@@ -1200,19 +1257,24 @@ public class ProductViewModelService(
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "0" });
 
-        // avaible stores
-        if (!string.IsNullOrEmpty(storeId))
+        // avaible stores - same capability gate as PrepareProductListModel: Vendor's original never
+        // populated a stores dropdown here at all (vendors don't pick stores), so this must not run for
+        // Vendor even though its storeId also resolves to "".
+        if (scope.ShowStoreSelector)
         {
-            var store = (await storeService.GetAllStores()).FirstOrDefault(x => x.Id == storeId);
-            if (store != null)
-                model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
-        }
-        else
-        {
-            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "" });
+            if (!string.IsNullOrEmpty(storeId))
+            {
+                var store = (await storeService.GetAllStores()).FirstOrDefault(x => x.Id == storeId);
+                if (store != null)
+                    model.AvailableStores.Add(new SelectListItem { Text = store.Shortcut, Value = store.Id });
+            }
+            else
+            {
+                model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "" });
 
-            foreach (var s in await storeService.GetAllStores())
-                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+                foreach (var s in await storeService.GetAllStores())
+                    model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+            }
         }
 
         return model;
@@ -1225,10 +1287,17 @@ public class ProductViewModelService(
         if (!string.IsNullOrEmpty(model.SearchCategoryId))
             searchCategoryIds.Add(model.SearchCategoryId);
 
+        // vendorId: scope.DefaultVendorId forces the bulk-edit grid to the current vendor's own products.
+        // Vendor's original PrepareBulkEditProductModel always passed vendorId: CurrentVendor.Id; this
+        // shared version previously had no vendor filtering at all - a real gap, since BulkEditListModel
+        // has no SearchVendorId field for a caller to (mis)supply in the first place, so there is nothing
+        // to fall back to for Admin/Store, whose scope.DefaultVendorId is null and who intentionally see
+        // every vendor's products in bulk-edit.
         var products = (await productService.SearchProducts(categoryIds: searchCategoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             storeId: model.SearchStoreId,
+            vendorId: scope.DefaultVendorId ?? "",
             productType: model.SearchProductTypeId > 0 ? (ProductType?)model.SearchProductTypeId : null,
             keywords: model.SearchProductName,
             pageIndex: pageIndex - 1,
@@ -1296,8 +1365,9 @@ public class ProductViewModelService(
         }
     }
 
-    public virtual async Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product, string storeId = "")
+    public virtual async Task<IList<ProductModel.TierPriceModel>> PrepareTierPriceModel(Product product)
     {
+        var storeId = scope.DefaultStoreId ?? "";
         var items = new List<ProductModel.TierPriceModel>();
         foreach (var x in product.TierPrices
                      .Where(x => x.StoreId == storeId || string.IsNullOrWhiteSpace(storeId) ||
@@ -1868,9 +1938,9 @@ public class ProductViewModelService(
             model.ProductAttributeMappingId);
     }
 
-    public virtual async Task<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel> PrepareAssociateProductToAttributeValueModel(string storeId = "")
+    public virtual async Task<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel> PrepareAssociateProductToAttributeValueModel()
     {
-        var model = await PrepareAddProductModel<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>(storeId);
+        var model = await PrepareAddProductModel<ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel>();
         return model;
     }
 
@@ -2330,6 +2400,14 @@ public class ProductViewModelService(
         if (product.ProductPictures.Any(x => x.PictureId == picture.Id))
             return;
 
+        // IsDefault: deliberately left unset here (defaults to false), matching Admin/Store's original
+        // InsertProductPicture. Vendor's original copy set `IsDefault = product.ProductPictures.Any()` -
+        // true only once a picture already exists, i.e. false on the very first upload and true on every
+        // one after that. That reads as inverted (the first picture is normally the one that should
+        // default to true) rather than as an intentional feature Admin/Store were missing, so it is not
+        // being ported here. This is a documented behavior decision (ARCH-001 Phase 1, Task 11), not an
+        // oversight - flag for product-team review if Vendor's admins report the default-picture picker
+        // behaving differently than before.
         var productPicture = new ProductPicture {
             PictureId = picture.Id,
             DisplayOrder = displayOrder
@@ -2445,8 +2523,8 @@ public class ProductViewModelService(
         product.ProductSpecificationAttributes.Add(psa);
     }
 
-    public virtual async Task UpdateProductSpecificationAttributeModel(Product product,
-        ProductSpecificationAttribute psa, ProductModel.AddProductSpecificationAttributeModel model)
+    public virtual async Task UpdateProductSpecificationAttributeModel(ProductSpecificationAttribute psa,
+        ProductModel.AddProductSpecificationAttributeModel model)
     {
         psa = model.ToEntity(psa);
         await specificationAttributeService.UpdateProductSpecificationAttribute(psa, model.ProductId);
@@ -2547,20 +2625,32 @@ public class ProductViewModelService(
         }
     }
 
-    protected virtual async Task<T> PrepareAddProductModel<T>(string storeId = "") where T : ProductModel.AddProductModel, new()
+    protected virtual async Task<T> PrepareAddProductModel<T>() where T : ProductModel.AddProductModel, new()
     {
+        var storeId = scope.DefaultStoreId ?? "";
         var model = new T();
 
-        //stores
-        model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var s in (await storeService.GetAllStores()).Where(x =>
-                     x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
-            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        //stores - same capability gate as PrepareProductListModel: Vendor's original PrepareAddProductModel<T>
+        //never populated a stores dropdown at all (vendors don't pick stores), so this must not run for
+        //Vendor even though its storeId also resolves to "".
+        if (scope.ShowStoreSelector)
+        {
+            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+            foreach (var s in (await storeService.GetAllStores()).Where(x =>
+                         x.Id == storeId || string.IsNullOrWhiteSpace(storeId)))
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        }
 
-        //vendors
-        model.AvailableVendors.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var v in await vendorService.GetAllVendors(showHidden: true))
-            model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
+        //vendors - only when the host isn't already forced onto a single vendor (scope.DefaultVendorId):
+        //Vendor's original PrepareAddProductModel<T> never populated a vendor picker at all (matches the
+        //ShowStoreSelector gate above for the same reason - there's nothing to pick, the search is always
+        //forced to the current vendor).
+        if (scope.DefaultVendorId is null)
+        {
+            model.AvailableVendors.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+            foreach (var v in await vendorService.GetAllVendors(showHidden: true))
+                model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
+        }
 
         //product types
         model.AvailableProductTypes = enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();

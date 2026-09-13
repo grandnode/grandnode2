@@ -49,8 +49,8 @@ public class GroupService : IGroupService
         var key = string.Format(CacheKey.CUSTOMERGROUPS_BY_SYSTEMNAME_KEY, systemName);
         return await _cacheBase.GetAsync(key, async () =>
         {
-            return await Task.FromResult(
-                _customerGroupRepository.Table.FirstOrDefault(x => x.SystemName == systemName));
+            return await _customerGroupRepository.FirstOrDefaultAsync(
+                _customerGroupRepository.Table.Where(x => x.SystemName == systemName));
         });
     }
 
@@ -76,7 +76,7 @@ public class GroupService : IGroupService
 
         query = query.OrderBy(m => m.DisplayOrder).ThenBy(m => m.Name);
 
-        return await PagedList<CustomerGroup>.Create(query, pageIndex, pageSize);
+        return await _customerGroupRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -202,7 +202,7 @@ public class GroupService : IGroupService
             var query = from cr in _customerGroupRepository.Table
                 orderby cr.Name
                 select cr;
-            return await Task.FromResult(query.ToList());
+            return await _customerGroupRepository.ToListAsync(query);
         });
         return customerGroups.Where(x => ids.Contains(x.Id)).ToList();
     }

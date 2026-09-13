@@ -28,14 +28,14 @@
                                         <div class="row align-items-end">
                                             <div class="col-md-4 col-ms-12 col-12">
                                                 <div class="form-group mb-0">
-                                                    <admin-label asp-for="StartDate" class="control-label"/>
-                                                    <admin-input asp-for="StartDate"/>
+                                                    <admin-label asp-for="BestCustomersByOrderTotal.StartDate" class="control-label"/>
+                                                    <admin-input asp-for="BestCustomersByOrderTotal.StartDate"/>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-ms-12 col-12">
                                                 <div class="form-group mb-0">
-                                                    <admin-label asp-for="EndDate" class="control-label"/>
-                                                    <admin-input asp-for="EndDate"/>
+                                                    <admin-label asp-for="BestCustomersByOrderTotal.EndDate" class="control-label"/>
+                                                    <admin-input asp-for="BestCustomersByOrderTotal.EndDate"/>
                                                 </div>
                                             </div>
                                             <div class="col-md-4 col-sm-12 col-12">
@@ -55,9 +55,9 @@
                                     <div class="collapse" id="filterCollapse">
                                         <div class="drop-filters-container w-100">
                                             <div class="form-group">
-                                                <admin-label asp-for="PaymentStatusId" class="control-label col-md-3 col-sm-3"/>
+                                                <admin-label asp-for="BestCustomersByOrderTotal.PaymentStatusId" class="control-label col-md-3 col-sm-3"/>
                                                 <div class="col-md-9 col-sm-9">
-                                                    <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses"/>
+                                                    <admin-select asp-for="BestCustomersByOrderTotal.PaymentStatusId" asp-items="Model.BestCustomersByOrderTotal.AvailablePaymentStatuses"/>
                                                 </div>
                                             </div>
                                         </div>
@@ -138,9 +138,9 @@
 
         function additionalData() {
             var data = {
-                StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
-                EndDate: $('#@Html.IdFor(model => model.EndDate)').val(),
-                PaymentStatusId: $('#PaymentStatusId').val()
+                StartDate: $('#@Html.IdFor(model => model.BestCustomersByOrderTotal.StartDate)').val(),
+                EndDate: $('#@Html.IdFor(model => model.BestCustomersByOrderTotal.EndDate)').val(),
+                PaymentStatusId: $('#@Html.IdFor(model => model.BestCustomersByOrderTotal.PaymentStatusId)').val()
             };
             addAntiForgeryToken(data);
             return data;

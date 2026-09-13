@@ -30,7 +30,7 @@ public class LiquidOrderItem : Drop
         _vendor = vendor;
         _host = host;
 
-        url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+        url = _host?.Url.Trim('/') ?? _store.Url.Trim('/');
 
         AdditionalTokens = new Dictionary<string, string>();
     }

@@ -341,7 +341,6 @@ public class CommonMappingTests : VerifyBase
             Id = "store-001",
             Name = "Grand Store",
             Url = "https://grandstore.com",
-            SslEnabled = true,
             CompanyName = "Grand LLC",
             CompanyAddress = "123 Commerce St",
             CompanyPhoneNumber = "+1-555-9999",
@@ -362,7 +361,6 @@ public class CommonMappingTests : VerifyBase
         var model = new StoreModel {
             Name = "Grand Store",
             Url = "https://grandstore.com",
-            SslEnabled = true,
             CompanyName = "Grand LLC",
             DefaultLanguageId = "lang-001",
             DisplayOrder = 1

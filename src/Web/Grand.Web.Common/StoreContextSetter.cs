@@ -71,7 +71,7 @@ public class StoreContextSetter : IStoreContextSetter
         if (store != null)
             return store.HostValue(host) ?? new DomainHost {
                 Id = int.MinValue.ToString(),
-                Url = store.SslEnabled ? store.SecureUrl : store.Url,
+                Url = store.Url,
                 HostName = "temporary-store"
             };
 

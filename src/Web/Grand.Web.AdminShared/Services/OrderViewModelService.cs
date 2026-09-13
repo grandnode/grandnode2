@@ -77,6 +77,7 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IOrderStatusService _orderStatusService;
     private readonly IMediator _mediator;
     private readonly IEnumTranslationService _enumTranslationService;
+    private readonly IAdminDataScope<Order> _scope;
 
     #endregion
 
@@ -116,7 +117,8 @@ public class OrderViewModelService : IOrderViewModelService
         IOrderTagService orderTagService,
         IOrderStatusService orderStatusService,
         IMediator mediator,
-        IProductAttributeFormatter productAttributeFormatter, IEnumTranslationService enumTranslationService)
+        IProductAttributeFormatter productAttributeFormatter, IEnumTranslationService enumTranslationService,
+        IAdminDataScope<Order> scope)
     {
         _orderService = orderService;
         _pricingService = priceCalculationService;
@@ -154,6 +156,7 @@ public class OrderViewModelService : IOrderViewModelService
         _mediator = mediator;
         _productAttributeFormatter = productAttributeFormatter;
         _enumTranslationService = enumTranslationService;
+        _scope = scope;
     }
 
     #endregion
@@ -345,62 +348,80 @@ public class OrderViewModelService : IOrderViewModelService
         model.OrderGuid = order.OrderGuid;
 
         var status = await _orderStatusService.GetAll();
-        model.OrderStatuses =
-            status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
+        if (_scope.DefaultVendorId is null)
+            model.OrderStatuses =
+                status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
         model.OrderStatus = status.FirstOrDefault(x => x.StatusId == order.OrderStatusId)?.Name;
 
         var store = await _storeService.GetStoreById(order.StoreId);
         model.StoreName = store != null ? store.Shortcut : "Unknown";
-        model.CustomerId = order.CustomerId;
+        if (_scope.DefaultVendorId is null)
+            model.CustomerId = order.CustomerId;
         model.UserFields = order.UserFields;
 
         var customer = await _customerService.GetCustomerById(order.CustomerId);
         if (customer != null)
             model.CustomerInfo = !string.IsNullOrEmpty(customer.Email)
                 ? customer.Email
-                : _translationService.GetResource("Admin.Customers.Guest");
+                : _translationService.GetResource($"{_scope.ResourceKeyPrefix}.Customers.Guest");
 
-        model.CustomerIp = order.CustomerIp;
+        if (_scope.DefaultVendorId is null)
+            model.CustomerIp = order.CustomerIp;
         model.VatNumber = order.VatNumber;
         model.CreatedOn = _dateTimeService.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
         model.TaxDisplayType = _taxSettings.TaxDisplayType;
 
-        if (!string.IsNullOrEmpty(order.AffiliateId))
+        if (_scope.DefaultVendorId is null)
         {
-            var affiliate = await _affiliateService.GetAffiliateById(order.AffiliateId);
-            if (affiliate != null)
+            if (!string.IsNullOrEmpty(order.AffiliateId))
             {
-                model.AffiliateId = affiliate.Id;
-                model.AffiliateName = affiliate.GetFullName();
+                var affiliate = await _affiliateService.GetAffiliateById(order.AffiliateId);
+                if (affiliate != null)
+                {
+                    model.AffiliateId = affiliate.Id;
+                    model.AffiliateName = affiliate.GetFullName();
+                }
             }
         }
 
-        if (!string.IsNullOrEmpty(order.SeId))
+        if (_scope.DefaultVendorId is null)
         {
-            var salesEmployee = await _salesEmployeeService.GetSalesEmployeeById(order.SeId);
-            if (salesEmployee != null)
+            if (!string.IsNullOrEmpty(order.SeId))
             {
-                model.SalesEmployeeId = salesEmployee.Id;
-                model.SalesEmployeeName = salesEmployee.Name;
+                var salesEmployee = await _salesEmployeeService.GetSalesEmployeeById(order.SeId);
+                if (salesEmployee != null)
+                {
+                    model.SalesEmployeeId = salesEmployee.Id;
+                    model.SalesEmployeeName = salesEmployee.Name;
+                }
             }
         }
 
         //order's tags
-        if (order.OrderTags.Any())
+        if (_scope.DefaultVendorId is null)
         {
-            var tagsName = new List<string>();
-            foreach (var item in order.OrderTags)
+            if (order.OrderTags.Any())
             {
-                var tag = await _orderTagService.GetOrderTagById(item);
-                if (tag != null)
-                    tagsName.Add(tag.Name);
-            }
+                var tagsName = new List<string>();
+                foreach (var item in order.OrderTags)
+                {
+                    var tag = await _orderTagService.GetOrderTagById(item);
+                    if (tag != null)
+                        tagsName.Add(tag.Name);
+                }
 
-            model.OrderTags = string.Join(",", tagsName);
+                model.OrderTags = string.Join(",", tagsName);
+            }
         }
+
+        model.CurrencyRate = order.CurrencyRate;
+        model.CurrencyCode = order.CustomerCurrencyCode;
 
         #region Order totals
 
+        // primaryStoreCurrency/orderCurrency stay ungated: they're needed below (outside this
+        // gate) to format each OrderItemModel's unit price/discount/subtotal/commission, which
+        // Vendor's own OrderDetails.Products partial does render.
         var primaryStoreCurrency = await _currencyService.GetCurrencyByCode(order.PrimaryCurrencyCode) ??
                                    await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
 
@@ -411,6 +432,15 @@ public class OrderViewModelService : IOrderViewModelService
         if (orderCurrency == null)
             throw new Exception("Cannot load order currency");
 
+        // Vendor's original service never populated the rest of this block (subtotal, discount,
+        // shipping, tax, payment fee, order total, refund, loyalty points, gift vouchers,
+        // discount usage, profit) - matches the gating already applied above for CustomerId,
+        // CustomerIp, Affiliate, SalesEmployee, OrderTags and OrderStatuses (final review I2).
+        // None of Vendor's own Order partials render these fields today, so this has no visible
+        // behavior change for Vendor - it closes a latent exposure risk (e.g. a future shared
+        // view rendering merchant Profit to a vendor).
+        if (_scope.DefaultVendorId is null)
+        {
         //subtotal
         model.OrderSubtotalInclTax = _priceFormatter.FormatPrice(order.OrderSubtotalInclTax, orderCurrency);
         model.OrderSubtotalExclTax = _priceFormatter.FormatPrice(order.OrderSubtotalExclTax, orderCurrency);
@@ -488,8 +518,6 @@ public class OrderViewModelService : IOrderViewModelService
         //total
         model.OrderTotal = _priceFormatter.FormatPrice(order.OrderTotal, orderCurrency);
         model.OrderTotalValue = order.OrderTotal;
-        model.CurrencyRate = order.CurrencyRate;
-        model.CurrencyCode = order.CustomerCurrencyCode;
 
         //refunded amount
         if (order.RefundedAmount > 0)
@@ -564,6 +592,7 @@ public class OrderViewModelService : IOrderViewModelService
         }
 
         #endregion
+        }
 
         #region Payment info
 
@@ -572,12 +601,18 @@ public class OrderViewModelService : IOrderViewModelService
         model.PaymentMethod = pm != null ? pm.FriendlyName : order.PaymentMethodSystemName;
         model.PaymentStatus = _enumTranslationService.GetTranslationEnum(order.PaymentStatusId);
         model.PaymentStatusEnum = order.PaymentStatusId;
-        var pt = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
-        if (pt != null)
-            model.PaymentTransactionId = pt.Id;
 
-        model.PrimaryStoreCurrencyCode = order.PrimaryCurrencyCode;
-        model.MaxAmountToRefund = order.OrderTotal - order.RefundedAmount;
+        // Vendor's original service never populated PaymentTransactionId, PrimaryStoreCurrencyCode
+        // or MaxAmountToRefund either - same gate as the totals block above (final review I2).
+        if (_scope.DefaultVendorId is null)
+        {
+            var pt = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
+            if (pt != null)
+                model.PaymentTransactionId = pt.Id;
+
+            model.PrimaryStoreCurrencyCode = order.PrimaryCurrencyCode;
+            model.MaxAmountToRefund = order.OrderTotal - order.RefundedAmount;
+        }
 
         #endregion
 
@@ -614,7 +649,10 @@ public class OrderViewModelService : IOrderViewModelService
         model.BillingAddress.FaxRequired = _addressSettings.FaxRequired;
         model.BillingAddress.NoteEnabled = _addressSettings.NoteEnabled;
 
-        model.ShippingStatus = _enumTranslationService.GetTranslationEnum(order.ShippingStatusId);
+        // Vendor's original service never populated ShippingStatus - same gate as the totals
+        // block above (final review I2).
+        if (_scope.DefaultVendorId is null)
+            model.ShippingStatus = _enumTranslationService.GetTranslationEnum(order.ShippingStatusId);
         if (order.ShippingStatusId != ShippingStatus.ShippingNotRequired)
         {
             model.IsShippable = true;
@@ -693,7 +731,7 @@ public class OrderViewModelService : IOrderViewModelService
 
         model.CheckoutAttributeInfo = order.CheckoutAttributeDescription;
         var hasDownloadableItems = false;
-        var products = order.OrderItems;
+        var products = _scope.FilterOrderItems(order.OrderItems);
         foreach (var orderItem in products)
         {
             var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);

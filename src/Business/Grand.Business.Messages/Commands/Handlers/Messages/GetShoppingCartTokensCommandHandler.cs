@@ -41,7 +41,7 @@ public class GetShoppingCartTokensCommandHandler : IRequestHandler<GetShoppingCa
                         product.ProductPictures.OrderByDescending(p => p.IsDefault)  
                             .ThenBy(p => p.DisplayOrder) 
                             .FirstOrDefault()?.PictureId, 100,
-                        storeLocation: request.Store.SslEnabled ? request.Store.SecureUrl : request.Store.Url);
+                        storeLocation: request.Store.Url);
 
                 //attributes
                 if (item.Attributes != null && item.Attributes.Any())

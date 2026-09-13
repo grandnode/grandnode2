@@ -84,7 +84,7 @@ public class ShippingMethodService : IShippingMethodService
 
         query = query.OrderBy(sm => sm.DisplayOrder);
 
-        var shippingMethods = await Task.FromResult(query.ToList());
+        var shippingMethods = await _shippingMethodRepository.ToListAsync(query);
 
         if (!string.IsNullOrEmpty(filterByCountryId))
             shippingMethods = shippingMethods.Where(x => !x.CountryRestrictionExists(filterByCountryId)).ToList();

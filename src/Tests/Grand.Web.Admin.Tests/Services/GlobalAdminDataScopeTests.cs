@@ -1,0 +1,45 @@
+using Grand.Domain.Catalog;
+using Grand.Web.AdminShared.Services;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Grand.Web.Admin.Tests.Services;
+
+[TestClass]
+public class GlobalAdminDataScopeTests
+{
+    [TestMethod]
+    public async Task HasAccess_AlwaysReturnsTrue()
+    {
+        var scope = new GlobalAdminDataScope<Product>();
+        var result = await scope.HasAccess(new Product());
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void DefaultStoreId_IsNull()
+    {
+        var scope = new GlobalAdminDataScope<Product>();
+        Assert.IsNull(scope.DefaultStoreId);
+    }
+
+    [TestMethod]
+    public void ResourceKeyPrefix_IsAdmin()
+    {
+        var scope = new GlobalAdminDataScope<Product>();
+        Assert.AreEqual("Admin", scope.ResourceKeyPrefix);
+    }
+
+    [TestMethod]
+    public void ShowStoreSelector_IsTrue()
+    {
+        var scope = new GlobalAdminDataScope<Product>();
+        Assert.IsTrue(scope.ShowStoreSelector);
+    }
+
+    [TestMethod]
+    public void CanFeatureOnHomepage_IsTrue()
+    {
+        var scope = new GlobalAdminDataScope<Product>();
+        Assert.IsTrue(scope.CanFeatureOnHomepage);
+    }
+}

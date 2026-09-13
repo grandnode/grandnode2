@@ -3,6 +3,7 @@ using Grand.Domain.Payments;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
@@ -228,7 +229,7 @@ public class OrderModel : BaseEntityModel
     public bool AddOrderNoteDisplayToCustomer { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.OrderNotes.Fields.Note")]
-
+    [NoHtml]
     public string AddOrderNoteMessage { get; set; }
 
     public bool AddOrderNoteHasDownload { get; set; }
@@ -344,6 +345,11 @@ public class OrderModel : BaseEntityModel
         public string OrderItemId { get; set; }
 
         [UIHint("Download")] public string LicenseDownloadId { get; set; }
+
+        /// <summary>
+        /// Set by the controller after a successful save, so the popup view can signal the parent page to refresh.
+        /// </summary>
+        public bool RefreshPage { get; set; }
     }
 
     public class AddOrderProductModel : BaseModel

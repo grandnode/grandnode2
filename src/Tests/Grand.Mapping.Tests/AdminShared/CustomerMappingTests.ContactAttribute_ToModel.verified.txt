@@ -5,5 +5,6 @@
   AttributeControlTypeId: 1,
   DisplayOrder: 1,
   ConditionAllowed: false,
+  IsReadOnly: false,
   Id: coa-001
 }

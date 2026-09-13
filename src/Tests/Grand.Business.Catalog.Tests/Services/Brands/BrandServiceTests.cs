@@ -47,7 +47,7 @@ public class BrandServiceTests
         await _brandService.InsertBrand(new Brand { Published = true });
 
         //Act
-        var brand = await _brandService.GetAllBrands();
+        var brand = await _brandService.GetAllBrands(brandName: "", storeId: "");
 
         //Assert
         Assert.HasCount(3, brand);

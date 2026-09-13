@@ -45,7 +45,7 @@ public class ContactController : BasePublicController
     {
         if (storeInformationSettings.StoreClosed)
         {
-            var closestorepage = await pageService.GetPageBySystemName("ContactUs");
+            var closestorepage = await pageService.GetPageBySystemName("ContactUs", _contextAccessor.StoreContext.CurrentStore.Id);
             if (closestorepage is not { AccessibleWhenStoreClosed: true })
                 return RedirectToRoute("StoreClosed");
         }
@@ -68,7 +68,7 @@ public class ContactController : BasePublicController
     {
         if (storeInformationSettings.StoreClosed)
         {
-            var closeStorePage = await pageService.GetPageBySystemName("ContactUs");
+            var closeStorePage = await pageService.GetPageBySystemName("ContactUs", _contextAccessor.StoreContext.CurrentStore.Id);
             if (closeStorePage is not { AccessibleWhenStoreClosed: true })
                 return RedirectToRoute("StoreClosed");
         }
@@ -136,25 +136,21 @@ public class ContactController : BasePublicController
         var fileName = Path.GetFileName(file.FileName);
         var contentType = file.ContentType;
         var fileExtension = Path.GetExtension(fileName);
-        if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
-        {
-            var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.Split(',', StringSplitOptions.RemoveEmptyEntries);
-            if (!allowedFileExtensions.IsAllowedMediaFileType(fileExtension))
-                return Json(new
-                {
-                    success = false,
-                    message = _translationService.GetResource("ContactUs.ValidationFileAllowed"),
-                    downloadGuid = Guid.Empty
-                });
-        }
-
-        var fileBinary = file.GetDownloadBits();
+        //empty configuration must not mean "any extension allowed" - fall back to the safe default allow-list
+        var allowedFileExtensions = FileExtensions.GetAllowedMediaFileTypes(attribute.ValidationFileAllowedExtensions);
+        if (!allowedFileExtensions.IsAllowedMediaFileType(fileExtension))
+            return Json(new
+            {
+                success = false,
+                message = _translationService.GetResource("ContactUs.ValidationFileAllowed"),
+                downloadGuid = Guid.Empty
+            });
 
         if (attribute.ValidationFileMaximumSize.HasValue)
         {
-            //compare in bytes
-            var maxFileSizeBytes = attribute.ValidationFileMaximumSize.Value * 1024;
-            if (fileBinary.Length > maxFileSizeBytes)
+            //compare in bytes - check the size reported by the multipart headers before buffering the file into memory
+            var maxFileSizeBytes = attribute.ValidationFileMaximumSize.Value * 1024L;
+            if (file.Length > maxFileSizeBytes)
                 //when returning JSON the mime-type must be set to text/plain
                 //otherwise some browsers will pop-up a "Save As" dialog.
                 return Json(new
@@ -165,6 +161,8 @@ public class ContactController : BasePublicController
                     downloadGuid = Guid.Empty
                 });
         }
+
+        var fileBinary = file.GetDownloadBits();
 
         var download = new Download
         {

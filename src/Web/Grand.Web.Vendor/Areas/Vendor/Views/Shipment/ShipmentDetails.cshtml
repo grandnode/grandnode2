@@ -66,7 +66,7 @@
                             <span id="shipment-delete" class="btn red">
                                 <i class="fa fa-trash-o"></i> @Loc["Vendor.Common.Delete"]
                             </span>
-                            <vc:vendor-widget widget-zone="vendor_order_shipment_details_buttons" additional-data="Model"/>
+                            <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
                         </div>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                                     </div>
                                 </content>
                             </tabstrip-item>
-                            <vc:vendor-widget widget-zone="vendor_order_shipment_details_tabs" additional-data="Model"/>
+                            <partial name="Partials/WidgetZone.DetailsTabs" model="Model"/>
                         </items>
                     </admin-tabstrip>
                 </div>

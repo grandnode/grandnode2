@@ -61,7 +61,7 @@ public class ProductAttributeService : IProductAttributeService
         int pageSize = int.MaxValue)
     {
         var key = string.Format(CacheKey.PRODUCTATTRIBUTES_ALL_KEY, storeId, pageIndex, pageSize);
-        return await _cacheBase.GetAsync(key, () =>
+        return await _cacheBase.GetAsync(key, async () =>
         {
             var query = from pa in _productAttributeRepository.Table
                 select pa;
@@ -74,7 +74,7 @@ public class ProductAttributeService : IProductAttributeService
 
             query = query.OrderBy(pa => pa.Name);
 
-            return Task.FromResult(new PagedList<ProductAttribute>(query, pageIndex, pageSize));
+            return await _productAttributeRepository.PagedAsync(query, pageIndex, pageSize);
         });
 
         

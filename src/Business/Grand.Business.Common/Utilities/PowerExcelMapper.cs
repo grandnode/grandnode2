@@ -47,7 +47,7 @@ public class PowerExcelMapper : ExcelMapper
         var firstRowNumber = HeaderRowNumber;
 
         if (!HeaderRow)
-            firstRowNumber = sheet.Rows().Where(r => r.RowNum >= MinRowNumber && r.RowNum <= MaxRowNumber)
+            firstRowNumber = sheet.Where(r => r.RowNum >= MinRowNumber && r.RowNum <= MaxRowNumber)
                 .OrderByDescending(r => r.LastCellNum).FirstOrDefault()?.RowNum ?? 0;
 
         var firstRow = sheet.GetRow(firstRowNumber);

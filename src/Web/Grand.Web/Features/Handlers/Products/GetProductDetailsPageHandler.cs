@@ -171,12 +171,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
 
         if (_catalogSettings.ShowShareButton && !string.IsNullOrEmpty(_catalogSettings.PageShareCode))
         {
-            var shareCode = _catalogSettings.PageShareCode;
-            if (store.SslEnabled)
-                //need to change the add this link to be https linked when the page is, so that the page doesnt ask about mixed mode when viewed in https...
-                shareCode = shareCode.Replace("http://", "https://");
-
-            model.PageShareCode = shareCode;
+            model.PageShareCode = _catalogSettings.PageShareCode;
         }
 
         #endregion

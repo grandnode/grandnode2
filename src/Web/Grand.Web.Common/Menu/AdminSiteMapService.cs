@@ -26,13 +26,13 @@ public class AdminSiteMapService : IAdminSiteMapService
 
     public virtual async Task<IList<AdminSiteMap>> GetSiteMap()
     {
-        return await _cacheBase.GetAsync(CacheKey.ADMIN_SITEMAP_KEY, () =>
+        return await _cacheBase.GetAsync(CacheKey.ADMIN_SITEMAP_KEY, async () =>
         {
             var query = from c in _adminSiteMapRepository.Table
                 orderby c.DisplayOrder
                 select c;
 
-            return Task.FromResult(query.ToList());
+            return await _adminSiteMapRepository.ToListAsync(query);
         });
     }
 

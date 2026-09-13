@@ -13,6 +13,7 @@ using Grand.Web.AdminShared.Models.Payments;
 using Grand.Web.AdminShared.Models.Shipping;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Store.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Controllers;
@@ -47,6 +48,10 @@ public class PaymentController(
         {
             var tmp = await paymentMethod.ToModel();
             tmp.IsActive = paymentMethod.IsPaymentMethodActive(paymentSettings);
+            //the provider's own url points at the Admin area, so it is replaced by the Store-area
+            //screen the plugin ships - null when it ships none, and then no link is rendered at all
+            tmp.ConfigurationUrl = StoreAreaConfiguration.GetConfigurationUrl(paymentMethod);
+
             paymentMethodsModel.Add(tmp);
         }
 

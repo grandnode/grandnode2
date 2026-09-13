@@ -1,5 +1,7 @@
 using Grand.Domain;
+using Grand.SharedKernel;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System.Linq.Expressions;
 
 namespace Grand.Data.Mongo;
@@ -97,7 +99,15 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        Collection.InsertOne(entity);
+        try
+        {
+            Collection.InsertOne(entity);
+        }
+        catch (MongoWriteException ex) when (ex.WriteError?.Category == ServerErrorCategory.DuplicateKey)
+        {
+            throw DuplicateKey(ex);
+        }
+
         return entity;
     }
 
@@ -109,8 +119,26 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        await Collection.InsertOneAsync(entity);
+        try
+        {
+            await Collection.InsertOneAsync(entity);
+        }
+        catch (MongoWriteException ex) when (ex.WriteError?.Category == ServerErrorCategory.DuplicateKey)
+        {
+            throw DuplicateKey(ex);
+        }
+
         return entity;
+    }
+
+    /// <summary>
+    ///     Translates a driver duplicate key error into a store independent exception
+    /// </summary>
+    /// <param name="exception">Driver exception</param>
+    private static DuplicateKeyGrandException DuplicateKey(MongoWriteException exception)
+    {
+        return new DuplicateKeyGrandException(
+            $"Insert into {typeof(T).Name} rejected - it violates a unique index", exception);
     }
 
     /// <summary>
@@ -340,6 +368,72 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     public virtual IQueryable<C> TableCollection<C>() where C : class
     {
         return Database.GetCollection<C>(typeof(T).Name).AsQueryable();
+    }
+
+    #endregion
+
+    #region Query execution
+
+    /// <summary>
+    ///     Executes the query and returns its results
+    /// </summary>
+    public virtual async Task<IList<TResult>> ToListAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Executes the query and returns the number of matching documents
+    /// </summary>
+    public virtual async Task<int> CountAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.CountAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Executes the query and returns its first result, or the default value when nothing matches
+    /// </summary>
+    public virtual async Task<TResult> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Executes the query and returns whether any document matches it
+    /// </summary>
+    public virtual async Task<bool> AnyAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return await query.AnyAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Executes the query and returns a single page of its results
+    /// </summary>
+    public virtual async Task<IPagedList<TResult>> PagedAsync<TResult>(IQueryable<TResult> query, int pageIndex,
+        int pageSize, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        //keep the same normalization the paged list applies, so the skip matches the reported page size
+        if (pageSize <= 0)
+            pageSize = 1;
+
+        var totalCount = await CountAsync(query, cancellationToken);
+        var items = await ToListAsync(query.Skip(pageIndex * pageSize).Take(pageSize), cancellationToken);
+
+        return new PagedList<TResult>(items, pageIndex, pageSize, totalCount);
     }
 
     #endregion

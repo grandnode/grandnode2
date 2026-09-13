@@ -1,4 +1,5 @@
 ﻿using Grand.Domain.Common;
+using Grand.SharedKernel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Data.Tests.LiteDb;
@@ -39,6 +40,19 @@ public class LiteDbRepositoryTests
         Assert.IsNotNull(p);
         Assert.AreEqual(1, myRepository.Table.Count());
         Assert.AreEqual("user", p.CreatedBy);
+    }
+
+    [TestMethod]
+    public async Task InsertAsync_UniqueIndexViolated_ThrowsDuplicateKeyGrandException()
+    {
+        var myRepository = new LiteDBRepositoryMock<SampleCollection>();
+        myRepository.EnsureUniqueIndex(x => x.Count);
+        await myRepository.InsertAsync(new SampleCollection { Id = "1", Count = 7 });
+
+        await Assert.ThrowsExactlyAsync<DuplicateKeyGrandException>(async () =>
+            await myRepository.InsertAsync(new SampleCollection { Id = "2", Count = 7 }));
+
+        Assert.AreEqual(1, myRepository.Table.Count());
     }
 
     [TestMethod]

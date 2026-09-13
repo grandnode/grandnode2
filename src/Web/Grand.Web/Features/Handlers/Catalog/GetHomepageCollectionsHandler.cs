@@ -43,7 +43,7 @@ public class GetHomepageCollectionsHandler : IRequestHandler<GetHomepageCollecti
         var model = await _cacheBase.GetAsync(collectionsCacheKey, async () =>
         {
             var modelCollect = new List<CollectionModel>();
-            var allcollections = await _collectionService.GetAllCollections(storeId: request.Store.Id);
+            var allcollections = await _collectionService.GetAllCollections(collectionName: "", storeId: request.Store.Id);
             foreach (var x in allcollections.Where(x => x.ShowOnHomePage))
             {
                 var _model = x.ToModel(request.Language);

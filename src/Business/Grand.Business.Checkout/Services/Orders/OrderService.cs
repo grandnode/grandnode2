@@ -1,4 +1,4 @@
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
@@ -8,6 +8,7 @@ using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
+using Grand.SharedKernel;
 
 namespace Grand.Business.Checkout.Services.Orders;
 
@@ -38,6 +39,11 @@ public class OrderService : IOrderService
 
     #region Fields
 
+    /// <summary>
+    ///     How many times an order insert is retried when another checkout took the same order number
+    /// </summary>
+    private const int OrderNumberAttempts = 5;
+
     private readonly IRepository<Order> _orderRepository;
     private readonly IRepository<OrderNote> _orderNoteRepository;
     private readonly IMediator _mediator;
@@ -64,13 +70,13 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderItemId">The order item identifier</param>
     /// <returns>Order</returns>
-    public virtual Task<Order> GetOrderByOrderItemId(string orderItemId)
+    public virtual async Task<Order> GetOrderByOrderItemId(string orderItemId)
     {
         var query = from o in _orderRepository.Table
             where o.OrderItems.Any(x => x.Id == orderItemId)
             select o;
 
-        return Task.FromResult(query.FirstOrDefault());
+        return await _orderRepository.FirstOrDefaultAsync(query);
     }
 
     /// <summary>
@@ -78,9 +84,10 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderNumber">The order number</param>
     /// <returns>Order</returns>
-    public virtual Task<Order> GetOrderByNumber(int orderNumber)
+    public virtual async Task<Order> GetOrderByNumber(int orderNumber)
     {
-        return Task.FromResult(_orderRepository.Table.FirstOrDefault(x => x.OrderNumber == orderNumber));
+        return await _orderRepository.FirstOrDefaultAsync(
+            _orderRepository.Table.Where(x => x.OrderNumber == orderNumber));
     }
 
     /// <summary>
@@ -93,7 +100,8 @@ public class OrderService : IOrderService
         if (string.IsNullOrEmpty(code))
             return new List<Order>();
 
-        return await Task.FromResult(_orderRepository.Table.Where(x => x.Code == code.ToUpperInvariant()).ToList());
+        return await _orderRepository.ToListAsync(
+            _orderRepository.Table.Where(x => x.Code == code.ToUpperInvariant()));
     }
 
 
@@ -110,7 +118,7 @@ public class OrderService : IOrderService
         var query = from o in _orderRepository.Table
             where orderIds.Contains(o.Id)
             select o;
-        var orders = await Task.FromResult(query.ToList());
+        var orders = await _orderRepository.ToListAsync(query);
         //sort by passed identifiers
         return orderIds.Select(id => orders.FirstOrDefault(order => order.Id == id))
             .Where(order => order != null)
@@ -122,12 +130,12 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderGuid">The order identifier</param>
     /// <returns>Order</returns>
-    public virtual Task<Order> GetOrderByGuid(Guid orderGuid)
+    public virtual async Task<Order> GetOrderByGuid(Guid orderGuid)
     {
         var query = from o in _orderRepository.Table
             where o.OrderGuid == orderGuid
             select o;
-        return Task.FromResult(query.FirstOrDefault());
+        return await _orderRepository.FirstOrDefaultAsync(query);
     }
 
     /// <summary>
@@ -197,7 +205,7 @@ public class OrderService : IOrderService
             SalesEmployeeId = salesEmployeeId
         };
         var query = await _mediator.Send(queryModel);
-        return await PagedList<Order>.Create(query, pageIndex, pageSize);
+        return await _orderRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>
@@ -208,11 +216,23 @@ public class OrderService : IOrderService
     {
         ArgumentNullException.ThrowIfNull(order);
 
-        var orderExists = _orderRepository.Table.OrderByDescending(x => x.OrderNumber).Select(x => x.OrderNumber)
-            .FirstOrDefault();
-        order.OrderNumber = orderExists != 0 ? orderExists + 1 : 1;
+        //the order number is taken from the collection itself, so two concurrent checkouts can read the same
+        //value - the unique index on OrderNumber rejects the loser and the number is read again
+        for (var attempt = 1;; attempt++)
+        {
+            var lastOrderNumber = await _orderRepository.FirstOrDefaultAsync(
+                _orderRepository.Table.OrderByDescending(x => x.OrderNumber).Select(x => x.OrderNumber));
+            order.OrderNumber = lastOrderNumber + 1;
 
-        await _orderRepository.InsertAsync(order);
+            try
+            {
+                await _orderRepository.InsertAsync(order);
+                break;
+            }
+            catch (DuplicateKeyGrandException) when (attempt < OrderNumberAttempts)
+            {
+            }
+        }
 
         //event notification
         await _mediator.EntityInserted(order);
@@ -258,7 +278,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderItemGuid">Order identifier</param>
     /// <returns>Order item</returns>
-    public virtual Task<OrderItem> GetOrderItemByGuid(Guid orderItemGuid)
+    public virtual async Task<OrderItem> GetOrderItemByGuid(Guid orderItemGuid)
     {
         var query = from order in _orderRepository.Table
             from orderItem in order.OrderItems
@@ -268,7 +288,7 @@ public class OrderService : IOrderService
             where orderItem.OrderItemGuid == orderItemGuid
             select orderItem;
 
-        return Task.FromResult(query.FirstOrDefault());
+        return await _orderRepository.FirstOrDefaultAsync(query);
     }
 
     #endregion
@@ -310,7 +330,7 @@ public class OrderService : IOrderService
             orderby orderNote.CreatedOnUtc descending
             select orderNote;
 
-        return await Task.FromResult(query.ToList());
+        return await _orderNoteRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -318,9 +338,10 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderNoteId">Order note identifier</param>
     /// <returns>OrderNote</returns>
-    public virtual Task<OrderNote> GetOrderNote(string orderNoteId)
+    public virtual async Task<OrderNote> GetOrderNote(string orderNoteId)
     {
-        return Task.FromResult(_orderNoteRepository.Table.FirstOrDefault(x => x.Id == orderNoteId));
+        return await _orderNoteRepository.FirstOrDefaultAsync(
+            _orderNoteRepository.Table.Where(x => x.Id == orderNoteId));
     }
 
     #endregion

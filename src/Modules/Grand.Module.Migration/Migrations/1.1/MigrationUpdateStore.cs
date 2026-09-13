@@ -29,10 +29,9 @@ public class MigrationUpdateStore : IMigration
                 if (!store.Domains.Any())
                 {
                     var storeUri = new Uri(store.Url);
-                    var httpscheme = store.SslEnabled ? "https" : "http";
                     var domain = new DomainHost {
                         HostName = storeUri.Authority,
-                        Url = $"{httpscheme}://{storeUri.Authority}",
+                        Url = $"{storeUri.Scheme}://{storeUri.Authority}",
                         Primary = true
                     };
                     store.Domains.Add(domain);

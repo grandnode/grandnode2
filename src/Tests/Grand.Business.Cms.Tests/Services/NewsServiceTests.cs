@@ -55,7 +55,7 @@ public class NewsServiceTests
         var newsItem = new NewsItem { Published = true };
         await _repository.InsertAsync(newsItem);
         //Act
-        var result = await _newsService.GetAllNews();
+        var result = await _newsService.GetAllNews(storeId: "");
         //Assert
         Assert.IsTrue(result.Any());
     }

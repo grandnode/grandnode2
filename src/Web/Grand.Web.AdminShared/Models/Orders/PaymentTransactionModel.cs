@@ -95,4 +95,10 @@ public class PaymentTransactionModel : BaseEntityModel
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.PartialRefund.AmountToPaid")]
     public double AmountToPaid { get; set; }
+
+    /// <summary>
+    /// Set by the controller after a successful partial refund/paid, so the popup view can signal
+    /// the parent page to refresh.
+    /// </summary>
+    public bool RefreshPage { get; set; }
 }

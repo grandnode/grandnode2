@@ -55,8 +55,8 @@ public class CustomerProductService : ICustomerProductService
         var key = string.Format(CacheKey.CUSTOMER_PRODUCT_PRICE_KEY_ID, customerId, productId);
         var productPrice = await _cacheBase.GetAsync(key, async () =>
         {
-            var pp = await Task.FromResult(
-                _customerProductPriceRepository.Table.FirstOrDefault(x =>
+            var pp = await _customerProductPriceRepository.FirstOrDefaultAsync(
+                _customerProductPriceRepository.Table.Where(x =>
                     x.CustomerId == customerId && x.ProductId == productId));
             return pp == null ? (null, false) : (pp, true);
         });
@@ -126,7 +126,7 @@ public class CustomerProductService : ICustomerProductService
         var query = from pp in _customerProductPriceRepository.Table
             where pp.CustomerId == customerId
             select pp;
-        return await PagedList<CustomerProductPrice>.Create(query, pageIndex, pageSize);
+        return await _customerProductPriceRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     #endregion
@@ -155,7 +155,7 @@ public class CustomerProductService : ICustomerProductService
             where pp.CustomerId == customerId && pp.ProductId == productId
             select pp;
 
-        return await Task.FromResult(query.FirstOrDefault());
+        return await _customerProductRepository.FirstOrDefaultAsync(query);
     }
 
     /// <summary>
@@ -219,7 +219,7 @@ public class CustomerProductService : ICustomerProductService
             where pp.CustomerId == customerId
             orderby pp.DisplayOrder
             select pp;
-        return await PagedList<CustomerProduct>.Create(query, pageIndex, pageSize);
+        return await _customerProductRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     #endregion

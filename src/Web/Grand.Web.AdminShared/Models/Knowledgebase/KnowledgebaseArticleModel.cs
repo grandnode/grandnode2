@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,6 +14,7 @@ public class KnowledgebaseArticleModel : BaseEntityModel, ILocalizedModel<Knowle
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Name")]
     public string Name { get; set; }
 
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Content")]
     public string Content { get; set; }
 
@@ -25,12 +27,15 @@ public class KnowledgebaseArticleModel : BaseEntityModel, ILocalizedModel<Knowle
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Published")]
     public bool Published { get; set; }
 
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 
@@ -75,15 +80,19 @@ public class KnowledgebaseArticleLocalizedModel : ILocalizedModelLocal, ISlugMod
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Name")]
     public string Name { get; set; }
 
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Content")]
     public string Content { get; set; }
 
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 

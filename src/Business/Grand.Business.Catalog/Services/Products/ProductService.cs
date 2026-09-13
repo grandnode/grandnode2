@@ -1,4 +1,4 @@
-using Grand.Business.Core.Events.Catalog;
+﻿using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Queries.Catalog;
@@ -65,7 +65,7 @@ public class ProductService : IProductService
         var query = _productRepository.Table.Where(x => x.Published && x.ShowOnHomePage && x.VisibleIndividually)
             .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).Select(x => x.Id);
 
-        return await Task.FromResult(query.ToList());
+        return await _productRepository.ToListAsync(query);
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public class ProductService : IProductService
             .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
             .Select(x => x.Id);
 
-        var products = await Task.FromResult(query.ToList());
+        var products = await _productRepository.ToListAsync(query);
 
         return products;
     }
@@ -168,7 +168,7 @@ public class ProductService : IProductService
                     where c.AppliedDiscounts.Any(x => x == discountId)
                     select c;
 
-        return await PagedList<Product>.Create(query, pageIndex, pageSize);
+        return await _productRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
 
@@ -592,7 +592,7 @@ public class ProductService : IProductService
 
         query = query.OrderBy(x => x.Name);
 
-        return await PagedList<Product>.Create(query, pageIndex, pageSize);
+        return await _productRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Data;
 using Grand.Domain.Localization;
 using Grand.Infrastructure.Caching;
@@ -59,7 +59,7 @@ public class LanguageService : ILanguageService
             if (!showHidden)
                 query = query.Where(l => l.Published);
             query = query.OrderBy(l => l.DisplayOrder);
-            return await Task.FromResult(query.ToList());
+            return await _languageRepository.ToListAsync(query);
         });
 
         //store acl
@@ -96,7 +96,7 @@ public class LanguageService : ILanguageService
             var query = from q in _languageRepository.Table
                 where q.UniqueSeoCode.ToLowerInvariant() == languageCode.ToLowerInvariant()
                 select q;
-            return await Task.FromResult(query.FirstOrDefault());
+            return await _languageRepository.FirstOrDefaultAsync(query);
         });
     }
 

@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -12,11 +13,11 @@ public class PickupPointModel : BaseEntityModel
     public string Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.Description")]
-
+    [NoHtml]
     public string Description { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.AdminComment")]
-
+    [NoHtml]
     public string AdminComment { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.Address")]

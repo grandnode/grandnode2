@@ -936,7 +936,7 @@ public class SettingController(
         const int pageSize = 100;
         while (true)
         {
-            var pictures = pictureService.GetPictures(pageIndex, pageSize);
+            var pictures = await pictureService.GetPictures(pageIndex, pageSize);
             pageIndex++;
             if (!pictures.Any())
                 break;

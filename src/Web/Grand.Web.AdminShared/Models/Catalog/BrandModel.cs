@@ -3,7 +3,7 @@ using Grand.Infrastructure.Models;
 using Grand.Web.AdminShared.Models.Discounts;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
-using Grand.Web.Common.Validators;
+using Grand.Infrastructure.Validators;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -19,11 +19,11 @@ public class BrandModel : BaseEntityModel, ILocalizedModel<BrandLocalizedModel>,
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Name")]
     public string Name { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Description")]
     public string Description { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.BottomDescription")]
     public string BottomDescription { get; set; }
 
@@ -32,15 +32,15 @@ public class BrandModel : BaseEntityModel, ILocalizedModel<BrandLocalizedModel>,
 
     public IList<SelectListItem> AvailableBrandLayouts { get; set; } = [];
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 
@@ -105,23 +105,23 @@ public class BrandLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Name")]
     public string Name { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Description")]
     public string Description { get; set; }
 
-    [NoScripts]
+    [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.BottomDescription")]
     public string BottomDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaKeywords")]
     public string MetaKeywords { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaDescription")]
     public string MetaDescription { get; set; }
 
-    [NoScripts]
+    [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 

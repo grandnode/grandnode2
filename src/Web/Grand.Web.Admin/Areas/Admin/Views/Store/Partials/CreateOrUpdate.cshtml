@@ -1,22 +1,5 @@
 ﻿@model StoreModel
 
-<script>
-    $(document).ready(function () {
-
-        $("#@Html.IdFor(model => model.SslEnabled)").click(toggleSslEnabled);
-
-        toggleSslEnabled();
-    });
-
-    function toggleSslEnabled() {
-        if ($('#@Html.IdFor(model => model.SslEnabled)').is(':checked')) {
-            $('#pnlSecureUrl').show();
-        }
-        else {
-            $('#pnlSecureUrl').hide();
-        }
-    }
-</script>
 <vc:admin-widget widget-zone="store_details_top" additional-data="Model"/>
 
 <div asp-validation-summary="All"></div>

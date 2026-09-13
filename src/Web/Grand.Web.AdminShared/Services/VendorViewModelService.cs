@@ -57,7 +57,7 @@ public class VendorViewModelService(
 
         model.Id = vendorReview.Id;
         model.VendorId = vendorReview.VendorId;
-        model.VendorName = vendor.Name;
+        model.VendorName = vendor?.Name;
         model.CustomerId = vendorReview.CustomerId;
         model.CustomerInfo = customer != null
             ? !string.IsNullOrEmpty(customer.Email)
@@ -331,43 +331,38 @@ public class VendorViewModelService(
         await vendorService.UpdateVendorReviewTotals(vendor);
     }
 
-    public virtual async Task ApproveVendorReviews(IEnumerable<string> selectedIds)
+    public virtual async Task ApproveVendorReviews(IEnumerable<string> selectedIds, IAdminDataScope<VendorReview> scope)
     {
         foreach (var id in selectedIds)
         {
             var idReview = id.Split(':').First();
-            var idVendor = id.Split(':').Last();
-            var vendor = await vendorService.GetVendorById(idVendor);
             var vendorReview = await vendorService.GetVendorReviewById(idReview);
-            if (vendorReview != null)
-            {
-                var previousIsApproved = vendorReview.IsApproved;
-                vendorReview.IsApproved = true;
-                await vendorService.UpdateVendorReview(vendorReview);
-                await vendorService.UpdateVendorReviewTotals(vendor);
+            if (vendorReview == null || !await scope.HasAccess(vendorReview)) continue;
 
-                //raise event (only if it wasn't approved before)
-                if (!previousIsApproved)
-                    await mediator.Publish(new VendorReviewApprovedEvent(vendorReview));
-            }
+            var vendor = await vendorService.GetVendorById(vendorReview.VendorId);
+            var previousIsApproved = vendorReview.IsApproved;
+            vendorReview.IsApproved = true;
+            await vendorService.UpdateVendorReview(vendorReview);
+            await vendorService.UpdateVendorReviewTotals(vendor);
+
+            //raise event (only if it wasn't approved before)
+            if (!previousIsApproved)
+                await mediator.Publish(new VendorReviewApprovedEvent(vendorReview));
         }
     }
 
-    public virtual async Task DisapproveVendorReviews(IEnumerable<string> selectedIds)
+    public virtual async Task DisapproveVendorReviews(IEnumerable<string> selectedIds, IAdminDataScope<VendorReview> scope)
     {
         foreach (var id in selectedIds)
         {
             var idReview = id.Split(':').First();
-            var idVendor = id.Split(':').Last();
-
-            var vendor = await vendorService.GetVendorById(idVendor);
             var vendorReview = await vendorService.GetVendorReviewById(idReview);
-            if (vendorReview != null)
-            {
-                vendorReview.IsApproved = false;
-                await vendorService.UpdateVendorReview(vendorReview);
-                await vendorService.UpdateVendorReviewTotals(vendor);
-            }
+            if (vendorReview == null || !await scope.HasAccess(vendorReview)) continue;
+
+            var vendor = await vendorService.GetVendorById(vendorReview.VendorId);
+            vendorReview.IsApproved = false;
+            await vendorService.UpdateVendorReview(vendorReview);
+            await vendorService.UpdateVendorReviewTotals(vendor);
         }
     }
 }

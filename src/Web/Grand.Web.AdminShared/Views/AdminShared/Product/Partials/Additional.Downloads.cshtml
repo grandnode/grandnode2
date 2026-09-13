@@ -1,0 +1,88 @@
+@using Grand.Domain.Media
+@model ProductModel
+<div class="form-horizontal" id="group-downloads">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="IsDownload"/>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsDownload"/>
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsDownload"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDownloadFile">
+            <admin-label asp-for="DownloadId"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DownloadId"/>
+                <span asp-validation-for="DownloadId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlUnlimitedDownloads">
+            <admin-label asp-for="UnlimitedDownloads"/>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="UnlimitedDownloads"/>
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="UnlimitedDownloads"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlMaxNumberOfDownloads">
+            <admin-label asp-for="MaxNumberOfDownloads"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="MaxNumberOfDownloads"/>
+                <span asp-validation-for="MaxNumberOfDownloads"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDownloadExpirationDays">
+            <admin-label asp-for="DownloadExpirationDays"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DownloadExpirationDays"/>
+                <span asp-validation-for="DownloadExpirationDays"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDownloadActivationType">
+            <admin-label asp-for="DownloadActivationTypeId"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="DownloadActivationTypeId" asp-items="EnumTranslationService.ToSelectList((DownloadActivationType)Model.DownloadActivationTypeId)"/>
+                <span asp-validation-for="DownloadActivationTypeId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlHasUserAgreement">
+            <admin-label asp-for="HasUserAgreement"/>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="HasUserAgreement"/>
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="HasUserAgreement"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlUserAgreementText">
+            <admin-label asp-for="UserAgreementText"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="UserAgreementText"></admin-textarea>
+                <span asp-validation-for="UserAgreementText"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlHasSampleDownload">
+            <admin-label asp-for="HasSampleDownload"/>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="HasSampleDownload"/>
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="HasSampleDownload"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlSampleDownloadFile">
+            <admin-label asp-for="SampleDownloadId"/>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="SampleDownloadId"/>
+                <span asp-validation-for="SampleDownloadId"></span>
+            </div>
+        </div>
+    </div>
+</div>

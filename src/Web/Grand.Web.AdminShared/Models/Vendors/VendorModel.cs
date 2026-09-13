@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Discounts;
 using Grand.Web.Common.Models;
@@ -28,7 +29,7 @@ public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel
     public string Email { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.Description")]
-
+    [SanitizeHtml]
     public string Description { get; set; }
 
     [UIHint("Picture")]
@@ -41,7 +42,7 @@ public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel
     public List<SelectListItem> AvailableStores { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.AdminComment")]
-
+    [NoHtml]
     public string AdminComment { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.Active")]
@@ -54,15 +55,15 @@ public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel
     public bool AllowCustomerReviews { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaKeywords")]
-
+    [NoHtml]
     public string MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaDescription")]
-
+    [NoHtml]
     public string MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaTitle")]
-
+    [NoHtml]
     public string MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.SeName")]
@@ -125,19 +126,19 @@ public class VendorLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     public string Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.Description")]
-
+    [SanitizeHtml]
     public string Description { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaKeywords")]
-
+    [NoHtml]
     public string MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaDescription")]
-
+    [NoHtml]
     public string MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaTitle")]
-
+    [NoHtml]
     public string MetaTitle { get; set; }
 
     public string LanguageId { get; set; }

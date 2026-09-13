@@ -106,7 +106,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     /// <returns>Protocol name as string</returns>
     private string GetHttpProtocol()
     {
-        return _request.Store.SslEnabled ? "https" : "http";
+        return GetStoreUri().Scheme;
     }
 
     /// <summary>
@@ -115,9 +115,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     /// <returns>Protocol name as string</returns>
     private HostString GetHost()
     {
-        return _request.Store.SslEnabled
-            ? new HostString(_request.Store.SecureUrl.Replace("https://", "").Trim('/'))
-            : new HostString(_request.Store.Url.Replace("http://", "").Trim('/'));
+        return new HostString(GetStoreUri().Authority);
     }
 
     /// <summary>
@@ -126,7 +124,12 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     /// <returns>Store url</returns>
     private string GetStoreLocation()
     {
-        return _request.Store.SslEnabled ? _request.Store.SecureUrl : _request.Store.Url;
+        return _request.Store.Url;
+    }
+
+    private Uri GetStoreUri()
+    {
+        return new Uri(_request.Store.Url);
     }
 
     private async Task<IList<SitemapUrl>> GenerateUrls(Language language, Store store)
@@ -231,7 +234,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
 
     private async Task<IEnumerable<SitemapUrl>> GetBrandUrls(Language language, Store store)
     {
-        var brands = await _brandService.GetAllBrands(storeId: store.Id);
+        var brands = await _brandService.GetAllBrands(brandName: "", storeId: store.Id);
         var brandUrls = new List<SitemapUrl>();
         var storeLocation = GetStoreLocation();
         foreach (var brand in brands)
@@ -294,6 +297,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     {
         var now = DateTime.UtcNow;
         return (await _pageService.GetAllPages(store.Id))
+            .PreferStoreOverrides(store.Id)
             .Where(t => t.IncludeInSitemap && (!t.StartDateUtc.HasValue || t.StartDateUtc < now) &&
                         (!t.EndDateUtc.HasValue || t.EndDateUtc > now))
             .Select(topic =>

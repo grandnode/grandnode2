@@ -1,4 +1,5 @@
 using Grand.Domain;
+using Grand.SharedKernel;
 using Grand.SharedKernel.Attributes;
 using LiteDB;
 using System.Linq.Expressions;
@@ -107,7 +108,16 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     {
         entity.CreatedOnUtc = _auditInfoProvider.GetCurrentDateTime();
         entity.CreatedBy = _auditInfoProvider.GetCurrentUser();
-        Collection.Insert(entity);
+        try
+        {
+            Collection.Insert(entity);
+        }
+        catch (LiteException ex) when (ex.ErrorCode == LiteException.INDEX_DUPLICATE_KEY)
+        {
+            throw new DuplicateKeyGrandException(
+                $"Insert into {typeof(T).Name} rejected - it violates a unique index", ex);
+        }
+
         return entity;
     }
 
@@ -415,6 +425,76 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     {
         //typeof(T).Name, not nameof(T) - the latter is the literal "T"
         return Database.GetCollection<C>(typeof(T).Name).Query().ToEnumerable().AsQueryable();
+    }
+
+    #endregion
+
+    #region Query execution
+
+    //LiteDB is an embedded database with no asynchronous API, and Table already materialises the
+    //collection before the query runs. These complete synchronously by design - unlike the rest of
+    //the codebase, Task.FromResult here is honest rather than a fake async signature.
+
+    /// <summary>
+    ///     Executes the query and returns its results
+    /// </summary>
+    public virtual Task<IList<TResult>> ToListAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return Task.FromResult<IList<TResult>>(query.ToList());
+    }
+
+    /// <summary>
+    ///     Executes the query and returns the number of matching documents
+    /// </summary>
+    public virtual Task<int> CountAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return Task.FromResult(query.Count());
+    }
+
+    /// <summary>
+    ///     Executes the query and returns its first result, or the default value when nothing matches
+    /// </summary>
+    public virtual Task<TResult> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return Task.FromResult(query.FirstOrDefault());
+    }
+
+    /// <summary>
+    ///     Executes the query and returns whether any document matches it
+    /// </summary>
+    public virtual Task<bool> AnyAsync<TResult>(IQueryable<TResult> query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        return Task.FromResult(query.Any());
+    }
+
+    /// <summary>
+    ///     Executes the query and returns a single page of its results
+    /// </summary>
+    public virtual Task<IPagedList<TResult>> PagedAsync<TResult>(IQueryable<TResult> query, int pageIndex,
+        int pageSize, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        //keep the same normalization the paged list applies, so the skip matches the reported page size
+        if (pageSize <= 0)
+            pageSize = 1;
+
+        var totalCount = query.Count();
+        var items = query.Skip(pageIndex * pageSize).Take(pageSize).ToList();
+
+        return Task.FromResult<IPagedList<TResult>>(new PagedList<TResult>(items, pageIndex, pageSize, totalCount));
     }
 
     #endregion

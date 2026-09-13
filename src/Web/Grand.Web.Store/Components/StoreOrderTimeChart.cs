@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Store.Components;
 
-public class StoreOrderTimeChartViewComponent : BaseAdminViewComponent
+public class StoreOrderTimeChartViewComponent : BaseStoreViewComponent
 {
     private readonly IPermissionService _permissionService;
 

@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using System.ComponentModel.DataAnnotations;
@@ -14,7 +15,7 @@ public class NewsletterCategoryModel : BaseEntityModel, ILocalizedModel<Newslett
     public string Name { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.NewsletterCategory.Fields.Description")]
-
+    [SanitizeHtml]
     public string Description { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.NewsletterCategory.Fields.Selected")]
@@ -37,7 +38,7 @@ public class NewsletterCategoryLocalizedModel : ILocalizedModelLocal
     public string Name { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.NewsletterCategory.Fields.Description")]
-
+    [SanitizeHtml]
     public string Description { get; set; }
 
     public string LanguageId { get; set; }

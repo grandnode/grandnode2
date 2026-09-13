@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
@@ -79,7 +79,7 @@ public class CustomerAttributeService : ICustomerAttributeService
                     where !ca.LimitedToStores || ca.Stores.Contains(storeId)
                     select ca;
 
-            return await Task.FromResult(query.ToList());
+            return await _customerAttributeRepository.ToListAsync(query);
         });
     }
 

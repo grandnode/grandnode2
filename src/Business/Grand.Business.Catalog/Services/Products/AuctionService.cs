@@ -53,14 +53,14 @@ public class AuctionService : IAuctionService
         int pageSize = int.MaxValue)
     {
         var query = _bidRepository.Table.Where(x => x.ProductId == productId).OrderByDescending(x => x.Date);
-        return await Task.FromResult(new PagedList<Bid>(query, pageIndex, pageSize));
+        return await _bidRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     public virtual async Task<IPagedList<Bid>> GetBidsByCustomerId(string customerId, int pageIndex = 0,
         int pageSize = int.MaxValue)
     {
         var query = _bidRepository.Table.Where(x => x.CustomerId == customerId);
-        return await Task.FromResult(new PagedList<Bid>(query, pageIndex, pageSize));
+        return await _bidRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
     public virtual async Task InsertBid(Bid bid)
@@ -107,9 +107,9 @@ public class AuctionService : IAuctionService
 
     public virtual async Task<IList<Product>> GetAuctionsToEnd()
     {
-        return await Task.FromResult(_productRepository.Table
+        return await _productRepository.ToListAsync(_productRepository.Table
             .Where(x => x.ProductTypeId == ProductType.Auction &&
-                        !x.AuctionEnded && x.AvailableEndDateTimeUtc < DateTime.UtcNow).ToList());
+                        !x.AuctionEnded && x.AvailableEndDateTimeUtc < DateTime.UtcNow));
     }
 
     public virtual async Task UpdateAuctionEnded(Product product, bool ended, bool endDate = false)

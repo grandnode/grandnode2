@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Common.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Data;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
@@ -69,7 +69,7 @@ public class TranslationService : ITranslationService
                     orderby lsr.Name
                     where lsr.LanguageId == languageId && lsr.Name == name
                     select lsr;
-        var translateResource = await Task.FromResult(query.FirstOrDefault());
+        var translateResource = await _translationRepository.FirstOrDefaultAsync(query);
         return translateResource;
     }
 

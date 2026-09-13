@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Infrastructure.Validators;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -59,7 +60,7 @@ public class GiftVoucherModel : BaseEntityModel
     public string SenderEmail { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.Message")]
-
+    [NoHtml]
     public string Message { get; set; }
 
     [GrandResourceDisplayName("Admin.GiftVouchers.Fields.IsRecipientNotified")]
