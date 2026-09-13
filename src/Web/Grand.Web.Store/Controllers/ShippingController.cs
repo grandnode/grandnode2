@@ -17,6 +17,7 @@ using Grand.Web.AdminShared.Models.Shipping;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Models;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Store.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -50,6 +51,10 @@ public class ShippingController(
             .Select(p => {
                 var m = p.ToModel();
                 m.IsActive = p.IsShippingRateMethodActive(shippingProviderSettings);
+                //a provider whose plugin is not multi-store has no Store-area configuration screen -
+                //its relative url would resolve under /Store/ and 404, so offer no link at all
+                if (!StoreAreaConfiguration.Exists(p))
+                    m.ConfigurationUrl = null;
                 return m;
             })
             .ToList();
