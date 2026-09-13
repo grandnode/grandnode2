@@ -105,7 +105,7 @@ public class PriceServiceTests
 
         _currencyService = new CurrencyService(
             cacheManager, _currencyRepository, _aclService,
-            _currencySettings, _eventPublisher);
+            _currencySettings, _eventPublisher, new Mock<IContextAccessor>().Object);
 
         tempDiscountApplicationService = new Mock<IDiscountHandlerService>();
 

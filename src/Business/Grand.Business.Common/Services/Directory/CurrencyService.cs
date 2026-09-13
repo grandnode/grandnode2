@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
 using Grand.Domain.Directory;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
@@ -29,13 +30,15 @@ public class CurrencyService : ICurrencyService
         IRepository<Currency> currencyRepository,
         IAclService aclService,
         CurrencySettings currencySettings,
-        IMediator mediator)
+        IMediator mediator,
+        IContextAccessor contextAccessor)
     {
         _cacheBase = cacheBase;
         _currencyRepository = currencyRepository;
         _aclService = aclService;
         _currencySettings = currencySettings;
         _mediator = mediator;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -47,6 +50,7 @@ public class CurrencyService : ICurrencyService
     private readonly ICacheBase _cacheBase;
     private readonly IMediator _mediator;
     private readonly CurrencySettings _currencySettings;
+    private readonly IContextAccessor _contextAccessor;
     private Currency _primaryCurrency;
     private Currency _primaryExchangeRateCurrency;
 
@@ -66,11 +70,18 @@ public class CurrencyService : ICurrencyService
     }
 
     /// <summary>
-    ///     Gets primary store currency
+    ///     Gets primary store currency - the currency prices are stored in. A store may override it via
+    ///     Store.PrimaryCurrencyId; otherwise the global setting applies.
     /// </summary>
     /// <returns>Currency</returns>
     public async Task<Currency> GetPrimaryStoreCurrency()
     {
+        if (_primaryCurrency != null) return _primaryCurrency;
+
+        var storeCurrencyId = _contextAccessor?.StoreContext?.CurrentStore?.PrimaryCurrencyId;
+        if (!string.IsNullOrEmpty(storeCurrencyId))
+            _primaryCurrency = await GetCurrencyById(storeCurrencyId);
+
         return _primaryCurrency ??= await GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
     }
 

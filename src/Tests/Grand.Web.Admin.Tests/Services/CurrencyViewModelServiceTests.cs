@@ -29,6 +29,7 @@ public class CurrencyViewModelServiceTests
     {
         _currencyServiceMock = new Mock<ICurrencyService>();
         _storeServiceMock = new Mock<IStoreService>();
+        _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
         _currencySettings = new CurrencySettings();
         _settingServiceMock = new Mock<ISettingService>();
         _translationServiceMock = new Mock<ITranslationService>();
@@ -169,6 +170,73 @@ public class CurrencyViewModelServiceTests
 
         Assert.IsFalse(canDelete);
         Assert.AreEqual("Cannot delete primary", message);
+    }
+
+    [TestMethod]
+    public async Task ValidateCurrencyDelete_PrimaryCurrencyOfAnotherStore_CannotDelete()
+    {
+        _storeServiceMock.Setup(s => s.GetAllStores())
+            .ReturnsAsync(new List<Store> { new() { Id = "store-1", PrimaryCurrencyId = "currency-1" } });
+        _translationServiceMock.Setup(t => t.GetResource("Admin.Configuration.Currencies.CantDeletePrimary"))
+            .Returns("Cannot delete primary");
+
+        var (canDelete, message) = await _service.ValidateCurrencyDelete(new Currency { Id = "currency-1" });
+
+        Assert.IsFalse(canDelete);
+        Assert.AreEqual("Cannot delete primary", message);
+    }
+
+    [TestMethod]
+    public async Task ValidateCurrencyUnpublish_PrimaryCurrencyOfAnotherStore_CannotProceed()
+    {
+        _currencyServiceMock.Setup(c => c.GetAllCurrencies(It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<Currency> { new() { Id = "currency-1" }, new() { Id = "currency-2" } });
+        _storeServiceMock.Setup(s => s.GetAllStores())
+            .ReturnsAsync(new List<Store> { new() { Id = "store-1", PrimaryCurrencyId = "currency-1" } });
+        _translationServiceMock.Setup(t => t.GetResource("Admin.Configuration.Currencies.CantUnpublishPrimary"))
+            .Returns("Cannot unpublish primary");
+
+        var (canProceed, message) = await _service.ValidateCurrencyUnpublish("currency-1", false);
+
+        Assert.IsFalse(canProceed);
+        Assert.AreEqual("Cannot unpublish primary", message);
+    }
+
+    [TestMethod]
+    public async Task ValidateCurrencyStoreMapping_TakesPrimaryCurrencyAwayFromItsStore_CannotProceed()
+    {
+        _currencyServiceMock.Setup(c => c.GetAllCurrencies(It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<Currency> { new() { Id = "currency-1" }, new() { Id = "currency-2" } });
+        _storeServiceMock.Setup(s => s.GetAllStores())
+            .ReturnsAsync(new List<Store> {
+                new() { Id = "store-1" },
+                new() { Id = "store-2", Name = "Second", PrimaryCurrencyId = "currency-1" }
+            });
+        _translationServiceMock.Setup(t => t.GetResource("Admin.Configuration.Currencies.CantLimitPrimaryStores"))
+            .Returns("Store '{0}' uses this currency as primary");
+
+        var (canProceed, message) = await _service.ValidateCurrencyStoreMapping(new Currency { Id = "currency-1" },
+            new CurrencyModel { Published = true, Stores = ["store-1"] });
+
+        Assert.IsFalse(canProceed);
+        Assert.AreEqual("Store 'Second' uses this currency as primary", message);
+    }
+
+    [TestMethod]
+    public async Task ValidateCurrencyStoreMapping_KeepsPrimaryCurrencyOfItsStore_CanProceed()
+    {
+        _currencyServiceMock.Setup(c => c.GetAllCurrencies(It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<Currency> { new() { Id = "currency-1" }, new() { Id = "currency-2" } });
+        _storeServiceMock.Setup(s => s.GetAllStores())
+            .ReturnsAsync(new List<Store> {
+                new() { Id = "store-1" },
+                new() { Id = "store-2", PrimaryCurrencyId = "currency-1" }
+            });
+
+        var (canProceed, _) = await _service.ValidateCurrencyStoreMapping(new Currency { Id = "currency-1" },
+            new CurrencyModel { Published = true, Stores = ["store-1", "store-2"] });
+
+        Assert.IsTrue(canProceed);
     }
 
     [TestMethod]

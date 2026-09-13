@@ -81,6 +81,12 @@ public class CurrencyViewModelService : ICurrencyViewModelService
         await _cacheBase.Clear();
     }
 
+    private async Task<bool> IsPrimaryCurrencyOfAnyStore(string currencyId)
+    {
+        var stores = await _storeService.GetAllStores();
+        return stores.Any(s => s.PrimaryCurrencyId == currencyId);
+    }
+
     public virtual async Task<(bool canProceed, string message)> ValidateCurrencyUnpublish(string currencyId,
         bool published)
     {
@@ -90,6 +96,10 @@ public class CurrencyViewModelService : ICurrencyViewModelService
         var allCurrencies = await _currencyService.GetAllCurrencies();
         if (allCurrencies.Count == 1 && allCurrencies[0].Id == currencyId)
             return (false, "At least one published currency is required.");
+
+        //a store cannot be left with an unpublished currency its prices are stored in
+        if (await IsPrimaryCurrencyOfAnyStore(currencyId))
+            return (false, _translationService.GetResource("Admin.Configuration.Currencies.CantUnpublishPrimary"));
 
         return (true, string.Empty);
     }
@@ -108,6 +118,14 @@ public class CurrencyViewModelService : ICurrencyViewModelService
 
         foreach (var store in await _storeService.GetAllStores())
         {
+            //a store's prices are stored in its primary currency - it must stay available there
+            if (store.PrimaryCurrencyId == currency.Id &&
+                (!model.Published || (limitedToStores && !model.Stores.Contains(store.Id))))
+                return (false, string.Format(
+                    _translationService.GetResource("Admin.Configuration.Currencies.CantLimitPrimaryStores"),
+                    store.Name));
+
+
             if (otherCurrencies.Any(c => !c.LimitedToStores || c.Stores.Contains(store.Id)))
                 continue;
 
@@ -123,7 +141,8 @@ public class CurrencyViewModelService : ICurrencyViewModelService
 
     public virtual async Task<(bool canDelete, string message)> ValidateCurrencyDelete(Currency currency)
     {
-        if (currency.Id == _currencySettings.PrimaryStoreCurrencyId)
+        if (currency.Id == _currencySettings.PrimaryStoreCurrencyId ||
+            await IsPrimaryCurrencyOfAnyStore(currency.Id))
             return (false, _translationService.GetResource("Admin.Configuration.Currencies.CantDeletePrimary"));
 
         if (currency.Id == _currencySettings.PrimaryExchangeRateCurrencyId)

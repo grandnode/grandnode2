@@ -86,7 +86,8 @@ public class PriceFormatterTests
             _currencyRepo,
             _aclService,
             _currencySettings,
-            null);
+            null,
+            new Mock<IContextAccessor>().Object);
 
         _taxSettings = new TaxSettings();
 

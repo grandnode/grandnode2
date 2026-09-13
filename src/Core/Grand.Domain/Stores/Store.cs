@@ -49,6 +49,12 @@ public class Store : BaseEntity, ITranslationEntity
     public string DefaultCurrencyId { get; set; }
 
     /// <summary>
+    ///     Gets or sets the identifier of the primary currency for this store - the currency prices are
+    ///     stored in. Empty means the store follows the global CurrencySettings.PrimaryStoreCurrencyId.
+    /// </summary>
+    public string PrimaryCurrencyId { get; set; }
+
+    /// <summary>
     ///     Gets or sets the display order
     /// </summary>
     public int DisplayOrder { get; set; }

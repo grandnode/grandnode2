@@ -58,6 +58,14 @@ public interface IProductService
     Task<IPagedList<Product>> GetProductsByDiscount(string discountId, int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
+    ///     Counts products visible in the given store that are also visible in at least one other store,
+    ///     either because they are not limited to stores at all or because they are mapped to more stores.
+    /// </summary>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>Number of shared products</returns>
+    Task<int> CountSharedProducts(string storeId);
+
+    /// <summary>
     ///     Inserts a product
     /// </summary>
     /// <param name="product">Product</param>
