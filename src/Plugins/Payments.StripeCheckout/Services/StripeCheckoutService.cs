@@ -93,8 +93,6 @@ public class StripeCheckoutService : IStripeCheckoutService
 
     private async Task<Session> CreateUrlSession(Order order)
     {
-        StripeConfiguration.ApiKey = _stripeCheckoutPaymentSettings.ApiKey;
-
         var storeLocation = _contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/');
 
         var options = new SessionCreateOptions {
@@ -119,7 +117,10 @@ public class StripeCheckoutService : IStripeCheckoutService
             SuccessUrl = $"{storeLocation}/orderdetails/{order.Id}",
             CancelUrl = $"{storeLocation}/Plugins/PaymentStripeCheckout/CancelOrder/{order.Id}"
         };
-        var service = new SessionService();
+        //the api key is store-specific, so it travels with the client - the static
+        //StripeConfiguration.ApiKey is process-wide and two stores checking out at the same time
+        //would overwrite each other's credentials
+        var service = new SessionService(new StripeClient(_stripeCheckoutPaymentSettings.ApiKey));
         var session = await service.CreateAsync(options);
 
         return session;
