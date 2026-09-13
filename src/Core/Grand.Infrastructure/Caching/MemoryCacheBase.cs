@@ -37,6 +37,11 @@ public class MemoryCacheBase : ICacheBase, IDisposable
 
     #region Methods
 
+    public virtual bool TryGetValue<T>(string key, out T value)
+    {
+        return _cache.TryGetValue(key, out value);
+    }
+
     public virtual T Get<T>(string key, Func<T> acquire)
     {
         return Get(key, acquire, _cacheConfig.DefaultCacheTimeMinutes);

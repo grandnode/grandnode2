@@ -5,6 +5,7 @@ namespace Grand.Infrastructure.Caching;
 /// </summary>
 public interface ICacheBase
 {
+    bool TryGetValue<T>(string key, out T value);
     T Get<T>(string key, Func<T> acquire);
     T Get<T>(string key, Func<T> acquire, int cacheTime);
     Task<T> GetAsync<T>(string key, Func<Task<T>> acquire);

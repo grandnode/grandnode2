@@ -14,37 +14,33 @@ using Moq;
 
 namespace Grand.Business.Catalog.Tests.Services.Products;
 
-/// <summary>
-///     GetProductsByIds used to loop GetProductById, so a "batch" read cost one query per identifier.
-///     These tests count reads at the repository, because the number of round trips is the whole point
-///     of the change - asserting only on the returned products would pass either way.
-/// </summary>
 [TestClass]
 public class ProductServiceBatchTests
 {
+    private readonly List<Product> _products = [
+        new() { Id = "1", Published = true, VisibleIndividually = true },
+        new() { Id = "2", Published = true, VisibleIndividually = true },
+        new() { Id = "3", Published = true, VisibleIndividually = true }
+    ];
+
     private MemoryCacheBase _cacheBase;
     private ProductService _productService;
-    private Mock<IRepository<Product>> _repository;
-    private int _tableReads;
+    private List<string[]> _queries;
 
     [TestInitialize]
     public void InitializeTests()
     {
-        var products = new List<Product> {
-            new() { Id = "1", Published = true, VisibleIndividually = true },
-            new() { Id = "2", Published = true, VisibleIndividually = true },
-            new() { Id = "3", Published = true, VisibleIndividually = true }
-        };
+        _queries = [];
+        var repository = new Mock<IRepository<Product>>();
+        repository.Setup(x => x.Table).Returns(() => _products.AsQueryable());
+        repository.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IQueryable<Product> query, CancellationToken _) =>
+            {
+                var result = query.ToList();
+                _queries.Add(result.Select(x => x.Id).ToArray());
+                return result;
+            });
 
-        _tableReads = 0;
-        _repository = new Mock<IRepository<Product>>();
-        _repository.Setup(x => x.Table).Returns(() =>
-        {
-            _tableReads++;
-            return products.AsQueryable();
-        });
-
-        //a single customer and store: a fresh instance per access would give each call its own cache key
         var customer = new Customer { Id = "customer" };
         var contextAccessor = new Mock<IContextAccessor>();
         contextAccessor.Setup(c => c.StoreContext.CurrentStore).Returns(() => new Store { Id = "store" });
@@ -52,30 +48,60 @@ public class ProductServiceBatchTests
         var mediator = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), mediator.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _productService = new ProductService(_cacheBase, _repository.Object, contextAccessor.Object,
+        _productService = new ProductService(_cacheBase, repository.Object, contextAccessor.Object,
             mediator.Object, new AclService(new AccessControlConfig()));
     }
 
     [TestMethod]
-    public async Task ColdCache_ReadsEveryProductInOneGo()
+    public async Task ColdCache_ReadsEveryProductInOneQuery()
     {
         var result = await _productService.GetProductsByIds(["1", "2", "3"], true);
 
         Assert.HasCount(3, result);
-        Assert.AreEqual(1, _tableReads, "three identifiers must not cost three reads");
-        _repository.Verify(x => x.GetByIdAsync(It.IsAny<string>()), Times.Never);
+        Assert.HasCount(1, _queries);
     }
 
     [TestMethod]
-    public async Task WarmCache_DoesNotReadAtAll()
+    public async Task WarmCache_DoesNotQuery()
     {
         await _productService.GetProductsByIds(["1", "2", "3"], true);
-        var reads = _tableReads;
 
         var result = await _productService.GetProductsByIds(["1", "2", "3"], true);
 
         Assert.HasCount(3, result);
-        Assert.AreEqual(reads, _tableReads, "everything was already cached");
+        Assert.HasCount(1, _queries);
+    }
+
+    [TestMethod]
+    public async Task PartlyWarmCache_QueriesOnlyTheMissingProducts()
+    {
+        await _productService.GetProductsByIds(["1"], true);
+
+        var result = await _productService.GetProductsByIds(["1", "2", "3"], true);
+
+        Assert.HasCount(3, result);
+        Assert.HasCount(2, _queries);
+        CollectionAssert.AreEquivalent(new[] { "2", "3" }, _queries[1]);
+    }
+
+    [TestMethod]
+    public async Task MissingProduct_IsCachedAndNotQueriedAgain()
+    {
+        await _productService.GetProductsByIds(["missing"], true);
+
+        var result = await _productService.GetProductsByIds(["missing"], true);
+
+        Assert.IsEmpty(result);
+        Assert.HasCount(1, _queries);
+    }
+
+    [TestMethod]
+    public async Task SharesCacheEntriesWithGetProductById()
+    {
+        await _productService.GetProductsByIds(["1"], true);
+        _products.Clear();
+
+        Assert.IsNotNull(await _productService.GetProductById("1"));
     }
 
     [TestMethod]
@@ -100,12 +126,13 @@ public class ProductServiceBatchTests
         var result = await _productService.GetProductsByIds(["1", "1"], true);
 
         CollectionAssert.AreEqual(new[] { "1", "1" }, result.Select(x => x.Id).ToArray());
+        Assert.HasCount(1, _queries);
     }
 
     [TestMethod]
     public async Task ReturnsNothingForAnEmptyRequest()
     {
         Assert.IsEmpty(await _productService.GetProductsByIds([], true));
-        Assert.AreEqual(0, _tableReads);
+        Assert.IsEmpty(_queries);
     }
 }

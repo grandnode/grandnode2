@@ -126,32 +126,39 @@ public class ProductService : IProductService
         if (productIds == null || productIds.Length == 0)
             return new List<Product>();
 
-        //One query serves every identifier that is not cached yet, and the identifiers that are cached
-        //never reach it - so a warm call still costs nothing, and a cold one costs a single round trip
-        //instead of one per identifier. The lazy is what ties the misses together: the first of them
-        //starts the query, the rest await the same task.
-        var batch = new Lazy<Task<ILookup<string, Product>>>(() => GetProductsFromDb(productIds));
+        var products = new Dictionary<string, Product>();
+        var missing = new List<string>();
 
-        var found = await Task.WhenAll(productIds.Select(id =>
-            _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, id),
-                async () => (await batch.Value)[id].FirstOrDefault())));
+        foreach (var id in productIds.Distinct())
+        {
+            if (_cacheBase.TryGetValue(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, id), out Product cached))
+                products[id] = cached;
+            else
+                missing.Add(id);
+        }
 
-        return found.Where(product =>
-                product != null && (showHidden ||
-                                    (_aclService.Authorize(product, _contextAccessor.WorkContext.CurrentCustomer) &&
-                                     _aclService.Authorize(product, _contextAccessor.StoreContext.CurrentStore.Id) &&
-                                     product.IsAvailable())))
+        if (missing.Count > 0)
+        {
+            var query = _productRepository.Table.Where(product => missing.Contains(product.Id));
+            var fromDb = (await _productRepository.ToListAsync(query)).ToDictionary(product => product.Id);
+
+            foreach (var id in missing)
+            {
+                //cache the miss as well, same as GetProductById does
+                fromDb.TryGetValue(id, out var product);
+                await _cacheBase.SetAsync(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, id), () => Task.FromResult(product));
+                products[id] = product;
+            }
+        }
+
+        //keep the order of the identifiers given - recently viewed products rely on it
+        return productIds
+            .Select(id => products[id])
+            .Where(product => product != null && (showHidden ||
+                                                  (_aclService.Authorize(product, _contextAccessor.WorkContext.CurrentCustomer) &&
+                                                   _aclService.Authorize(product, _contextAccessor.StoreContext.CurrentStore.Id) &&
+                                                   product.IsAvailable())))
             .ToList();
-    }
-
-    /// <summary>
-    ///     Reads the given products in one go. A lookup rather than a dictionary because the caller may
-    ///     repeat an identifier and because an identifier may match nothing.
-    /// </summary>
-    private Task<ILookup<string, Product>> GetProductsFromDb(string[] productIds)
-    {
-        var products = _productRepository.Table.Where(product => productIds.Contains(product.Id)).ToList();
-        return Task.FromResult(products.ToLookup(product => product.Id));
     }
 
     /// <summary>
