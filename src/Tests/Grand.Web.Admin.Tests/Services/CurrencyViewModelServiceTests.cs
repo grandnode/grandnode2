@@ -1,8 +1,11 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Directory;
+using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
+using Grand.Web.AdminShared.Models.Directory;
 using Grand.Web.AdminShared.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -14,6 +17,7 @@ namespace Grand.Web.Admin.Tests.Services;
 public class CurrencyViewModelServiceTests
 {
     private Mock<ICurrencyService> _currencyServiceMock;
+    private Mock<IStoreService> _storeServiceMock;
     private CurrencySettings _currencySettings;
     private Mock<ISettingService> _settingServiceMock;
     private Mock<ITranslationService> _translationServiceMock;
@@ -24,6 +28,7 @@ public class CurrencyViewModelServiceTests
     public void Setup()
     {
         _currencyServiceMock = new Mock<ICurrencyService>();
+        _storeServiceMock = new Mock<IStoreService>();
         _currencySettings = new CurrencySettings();
         _settingServiceMock = new Mock<ISettingService>();
         _translationServiceMock = new Mock<ITranslationService>();
@@ -31,6 +36,7 @@ public class CurrencyViewModelServiceTests
 
         _service = new CurrencyViewModelService(
             _currencyServiceMock.Object,
+            _storeServiceMock.Object,
             _currencySettings,
             _settingServiceMock.Object,
             _translationServiceMock.Object,
@@ -88,6 +94,68 @@ public class CurrencyViewModelServiceTests
         var (canProceed, _) = await _service.ValidateCurrencyUnpublish("currency-1", false);
 
         Assert.IsTrue(canProceed);
+    }
+
+    [TestMethod]
+    public async Task ValidateCurrencyStoreMapping_PublishedAndNotLimited_CanProceed()
+    {
+        var (canProceed, message) = await _service.ValidateCurrencyStoreMapping(new Currency { Id = "currency-1" },
+            new CurrencyModel { Published = true, Stores = [] });
+
+        Assert.IsTrue(canProceed);
+        Assert.AreEqual(string.Empty, message);
+        _storeServiceMock.Verify(s => s.GetAllStores(), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ValidateCurrencyStoreMapping_StoreLeftWithoutCurrency_CannotProceed()
+    {
+        _currencyServiceMock.Setup(c => c.GetAllCurrencies(It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<Currency> {
+                new() { Id = "currency-1" },
+                new() { Id = "currency-2", LimitedToStores = true, Stores = ["store-1"] }
+            });
+        _storeServiceMock.Setup(s => s.GetAllStores())
+            .ReturnsAsync(new List<Store> { new() { Id = "store-1" }, new() { Id = "store-2", Name = "Second" } });
+        _translationServiceMock.Setup(t => t.GetResource("Admin.Configuration.Currencies.CantLimitStores"))
+            .Returns("Store '{0}' has no currency");
+
+        var (canProceed, message) = await _service.ValidateCurrencyStoreMapping(new Currency { Id = "currency-1" },
+            new CurrencyModel { Published = true, Stores = ["store-1"] });
+
+        Assert.IsFalse(canProceed);
+        Assert.AreEqual("Store 'Second' has no currency", message);
+    }
+
+    [TestMethod]
+    public async Task ValidateCurrencyStoreMapping_AnotherGlobalCurrencyExists_CanProceed()
+    {
+        _currencyServiceMock.Setup(c => c.GetAllCurrencies(It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<Currency> { new() { Id = "currency-1" }, new() { Id = "currency-2" } });
+        _storeServiceMock.Setup(s => s.GetAllStores())
+            .ReturnsAsync(new List<Store> { new() { Id = "store-1" }, new() { Id = "store-2" } });
+
+        var (canProceed, _) = await _service.ValidateCurrencyStoreMapping(new Currency { Id = "currency-1" },
+            new CurrencyModel { Published = true, Stores = ["store-1"] });
+
+        Assert.IsTrue(canProceed);
+    }
+
+    [TestMethod]
+    public async Task ValidateCurrencyStoreMapping_UnpublishingLastCurrencyOfStore_CannotProceed()
+    {
+        _currencyServiceMock.Setup(c => c.GetAllCurrencies(It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<Currency> { new() { Id = "currency-1" } });
+        _storeServiceMock.Setup(s => s.GetAllStores())
+            .ReturnsAsync(new List<Store> { new() { Id = "store-1", Name = "First" } });
+        _translationServiceMock.Setup(t => t.GetResource("Admin.Configuration.Currencies.CantLimitStores"))
+            .Returns("Store '{0}' has no currency");
+
+        var (canProceed, message) = await _service.ValidateCurrencyStoreMapping(new Currency { Id = "currency-1" },
+            new CurrencyModel { Published = false, Stores = [] });
+
+        Assert.IsFalse(canProceed);
+        Assert.AreEqual("Store 'First' has no currency", message);
     }
 
     [TestMethod]

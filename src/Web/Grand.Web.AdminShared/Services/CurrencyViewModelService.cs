@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Web.AdminShared.Extensions.Mapping;
@@ -14,6 +15,7 @@ public class CurrencyViewModelService : ICurrencyViewModelService
     #region Fields
 
     private readonly ICurrencyService _currencyService;
+    private readonly IStoreService _storeService;
     private readonly CurrencySettings _currencySettings;
     private readonly ISettingService _settingService;
     private readonly ITranslationService _translationService;
@@ -24,12 +26,14 @@ public class CurrencyViewModelService : ICurrencyViewModelService
     #region Constructors
 
     public CurrencyViewModelService(ICurrencyService currencyService,
+        IStoreService storeService,
         CurrencySettings currencySettings,
         ISettingService settingService,
         ITranslationService translationService,
         ICacheBase cacheBase)
     {
         _currencyService = currencyService;
+        _storeService = storeService;
         _currencySettings = currencySettings;
         _settingService = settingService;
         _translationService = translationService;
@@ -86,6 +90,33 @@ public class CurrencyViewModelService : ICurrencyViewModelService
         var allCurrencies = await _currencyService.GetAllCurrencies();
         if (allCurrencies.Count == 1 && allCurrencies[0].Id == currencyId)
             return (false, "At least one published currency is required.");
+
+        return (true, string.Empty);
+    }
+
+    public virtual async Task<(bool canProceed, string message)> ValidateCurrencyStoreMapping(Currency currency,
+        CurrencyModel model)
+    {
+        var limitedToStores = model.Stores is { Length: > 0 };
+
+        //a published currency available to every store can never leave a store without one
+        if (model.Published && !limitedToStores)
+            return (true, string.Empty);
+
+        var otherCurrencies = (await _currencyService.GetAllCurrencies())
+            .Where(c => c.Id != currency.Id).ToList();
+
+        foreach (var store in await _storeService.GetAllStores())
+        {
+            if (otherCurrencies.Any(c => !c.LimitedToStores || c.Stores.Contains(store.Id)))
+                continue;
+
+            if (model.Published && (!limitedToStores || model.Stores.Contains(store.Id)))
+                continue;
+
+            return (false, string.Format(
+                _translationService.GetResource("Admin.Configuration.Currencies.CantLimitStores"), store.Name));
+        }
 
         return (true, string.Empty);
     }

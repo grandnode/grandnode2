@@ -225,6 +225,15 @@ public class CurrencyController : BaseAdminController
                 return RedirectToAction("Edit", new { id = currency.Id });
             }
 
+            //ensure no store is left without an available currency
+            var (canMap, mappingMessage) =
+                await _currencyViewModelService.ValidateCurrencyStoreMapping(currency, model);
+            if (!canMap)
+            {
+                Error(mappingMessage);
+                return RedirectToAction("Edit", new { id = currency.Id });
+            }
+
             currency = await _currencyViewModelService.UpdateCurrencyModel(currency, model);
             Success(_translationService.GetResource("Admin.Configuration.Currencies.Updated"));
             if (continueEditing)
