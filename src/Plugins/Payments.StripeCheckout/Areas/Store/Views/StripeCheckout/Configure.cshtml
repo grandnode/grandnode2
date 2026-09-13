@@ -1,0 +1,90 @@
+@model Payments.StripeCheckout.Models.ConfigurationModel
+@{
+    Layout = "~/Areas/Store/Views/Shared/_StoreLayout.cshtml";
+    ViewBag.Title = Loc["Admin.Configuration.Payment.Methods"];
+}
+<input id="active-menu-item" type="hidden" value="/Store/Payment/Index"/>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption level-caption">
+                    <i class="fa fa-money"></i>
+                    @Loc["Plugins.Payments.StripeCheckout.FriendlyName"]
+                </div>
+            </div>
+            <div class="x_content form">
+                <form asp-area="Store" asp-controller="StripeCheckout" asp-action="Configure" method="post">
+                    <p>
+                        For plugin configuration please check:<br/>
+                        <br/>
+                        1. Generate API keys from the Stripe Dashboard: <a href="https://stripe.com/docs/api/authentication" target="_blank">Click here.</a><br/>
+                        2. Register webhook endpoints with Stripe <a href="https://stripe.com/docs/development/dashboard/register-webhook" target="_blank">Click here.</a><br/>
+                        3. Your Webhook URL: @ViewBag.WebhookUrl <br/>
+                        4. Fill in your credentials below.<br/>
+                        5. Save the configuration.<br/>
+                        <br/>
+                        <em>Note: Ensure that you have configured your primary store currency that is supported by selected payment service provider.</em><br/>
+                    </p>
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <div class="col-md-3 col-sm-3 text-right">
+                                    <admin-label asp-for="ApiKey" class="control-label"/>
+                                </div>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="ApiKey"/>
+                                    <span asp-validation-for="ApiKey"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-3 col-sm-3 text-right">
+                                    <admin-label asp-for="WebhookEndpointSecret" class="control-label"/>
+                                </div>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="WebhookEndpointSecret"/>
+                                    <span asp-validation-for="WebhookEndpointSecret"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-3 col-sm-3 text-right">
+                                    <admin-label asp-for="Line" class="control-label"/>
+                                </div>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="Line"/>
+                                    <span asp-validation-for="Line"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-3 col-sm-3 text-right">
+                                    <admin-label asp-for="Description" class="control-label"/>
+                                </div>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-textarea asp-for="Description"/>
+                                    <span asp-validation-for="Description"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-3 col-sm-3 text-right">
+                                    <admin-label asp-for="DisplayOrder" class="control-label"/>
+                                </div>
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="DisplayOrder"/>
+                                    <span asp-validation-for="DisplayOrder"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <div class="row">
+                                <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
+                                    <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

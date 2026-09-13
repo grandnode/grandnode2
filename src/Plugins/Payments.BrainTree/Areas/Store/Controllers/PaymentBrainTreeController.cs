@@ -1,17 +1,29 @@
-﻿using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Permissions;
+using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
-using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.BrainTree.Models;
 
-namespace Payments.BrainTree.Areas.Admin.Controllers;
+namespace Payments.BrainTree.Areas.Store.Controllers;
 
-[AuthorizeAdmin]
-[Area("Admin")]
+/// <summary>
+///     Store-manager configuration of the BrainTree payment method.
+///     <para>
+///         The settings - the gateway credentials included - are read and written for the store the
+///         manager is bound to (<see cref="CurrentStoreId" />), so each store transacts on its own
+///         BrainTree account. The provider builds a <c>BraintreeGateway</c> per call from the settings
+///         instance the container resolved for the current store, so no further change is needed for
+///         the payment itself to use them. Note that the first save creates a store row covering the
+///         whole settings class, after which this store stops inheriting later global changes to it.
+///     </para>
+/// </summary>
+[Area("Store")]
+[AuthorizeStore]
+[AuthorizeMenu]
 [PermissionAuthorize(PermissionSystemName.PaymentMethods)]
 public class PaymentBrainTreeController : BasePaymentController
 {
@@ -19,11 +31,11 @@ public class PaymentBrainTreeController : BasePaymentController
 
     public PaymentBrainTreeController(ISettingService settingService,
         ITranslationService translationService,
-        IAdminStoreService adminStoreService)
+        IContextAccessor contextAccessor)
     {
         _settingService = settingService;
         _translationService = translationService;
-        _adminStoreService = adminStoreService;
+        _contextAccessor = contextAccessor;
     }
 
     #endregion
@@ -32,7 +44,13 @@ public class PaymentBrainTreeController : BasePaymentController
 
     private readonly ISettingService _settingService;
     private readonly ITranslationService _translationService;
-    private readonly IAdminStoreService _adminStoreService;
+    private readonly IContextAccessor _contextAccessor;
+
+    /// <summary>
+    ///     The store the current store manager is bound to. AuthorizeStore already rejects a
+    ///     customer without one, so this is never empty here.
+    /// </summary>
+    private string CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
 
     #endregion
 
@@ -40,10 +58,7 @@ public class PaymentBrainTreeController : BasePaymentController
 
     public async Task<IActionResult> Configure()
     {
-        //load settings for a chosen store scope - the injected settings instance would always be the
-        //one of the store hosting the admin panel, which ignores the scope the admin selected
-        var storeScope = await _adminStoreService.GetActiveStore();
-        var brainTreePaymentSettings = await _settingService.LoadSetting<BrainTreePaymentSettings>(storeScope);
+        var brainTreePaymentSettings = await _settingService.LoadSetting<BrainTreePaymentSettings>(CurrentStoreId);
 
         var model = new ConfigurationModel {
             Use3DS = brainTreePaymentSettings.Use3DS,
@@ -66,9 +81,7 @@ public class PaymentBrainTreeController : BasePaymentController
         if (!ModelState.IsValid)
             return await Configure();
 
-        //load settings for a chosen store scope
-        var storeScope = await _adminStoreService.GetActiveStore();
-        var brainTreePaymentSettings = await _settingService.LoadSetting<BrainTreePaymentSettings>(storeScope);
+        var brainTreePaymentSettings = await _settingService.LoadSetting<BrainTreePaymentSettings>(CurrentStoreId);
 
         //save settings
         brainTreePaymentSettings.Use3DS = model.Use3DS;
@@ -80,7 +93,7 @@ public class PaymentBrainTreeController : BasePaymentController
         brainTreePaymentSettings.AdditionalFeePercentage = model.AdditionalFeePercentage;
         brainTreePaymentSettings.DisplayOrder = model.DisplayOrder;
 
-        await _settingService.SaveSetting(brainTreePaymentSettings, storeScope);
+        await _settingService.SaveSetting(brainTreePaymentSettings, CurrentStoreId);
 
         //now clear settings cache
         await _settingService.ClearCache();

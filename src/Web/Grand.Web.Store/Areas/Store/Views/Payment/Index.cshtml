@@ -51,6 +51,7 @@
                         fields: {
                             FriendlyName: { editable: false, type: "string" },
                             SystemName: { editable: false, type: "string" },
+                            ConfigurationUrl: { editable: false, type: "string" },
                             SupportCapture: { editable: false, type: "boolean" },
                             SupportRefund: { editable: false, type: "boolean" },
                             SupportPartiallyRefund: { editable: false, type: "boolean" },
@@ -86,10 +87,12 @@
             scrollable: false,
             columns: [{
                 field: "FriendlyName",
-                title: "@Loc["Admin.Configuration.Payment.Methods.Fields.FriendlyName"]"
+                title: "@Loc["Admin.Configuration.Payment.Methods.Fields.FriendlyName"]",
+                template: '# if (ConfigurationUrl) { # <a class="k-link" href="#=ConfigurationUrl#">#:FriendlyName#</a> # } else { # #:FriendlyName# # } #'
             }, {
                 field: "SystemName",
-                title: "@Loc["Admin.Configuration.Payment.Methods.Fields.SystemName"]"
+                title: "@Loc["Admin.Configuration.Payment.Methods.Fields.SystemName"]",
+                template: '# if (ConfigurationUrl) { # <a class="k-link" href="#=ConfigurationUrl#">#:SystemName#</a> # } else { # #:SystemName# # } #'
             }, {
                 field: "SupportCapture",
                 title: "@Loc["Admin.Configuration.Payment.Methods.Fields.SupportCapture"]",

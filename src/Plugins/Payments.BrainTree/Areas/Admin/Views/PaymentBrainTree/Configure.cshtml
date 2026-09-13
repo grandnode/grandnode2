@@ -2,6 +2,7 @@
     Layout = "_ConfigurePlugin";
 }
 @model Payments.BrainTree.Models.ConfigurationModel
+@await Component.InvokeAsync("StoreScope")
 <input id="active-menu-item" type="hidden" value="/Admin/Payment/Methods"/>
 <form asp-controller="PaymentBrainTree" asp-action="Configure" method="post">
 
