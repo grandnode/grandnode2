@@ -82,6 +82,7 @@
     <Project Path="src/Tests/Grand.SharedKernel.Tests/Grand.SharedKernel.Tests.csproj" />
     <Project Path="src/Tests/Grand.Web.Admin.Tests/Grand.Web.Admin.Tests.csproj" />
     <Project Path="src/Tests/Grand.Web.Common.Tests/Grand.Web.Common.Tests.csproj" />
+    <Project Path="src/Tests/Grand.Web.Tests/Grand.Web.Tests.csproj" />
   </Folder>
   <Folder Name="/Web/">
     <Project Path="src/Web/Grand.Web.Admin/Grand.Web.Admin.csproj" />
@@ -96,5 +97,4 @@
   </Folder>
   <Project Path="src/Aspire/Aspire.AppHost/Aspire.AppHost.csproj" />
   <Project Path="src/Aspire/Aspire.ServiceDefaults/Aspire.ServiceDefaults.csproj" />
-  <Project Path="src/Tests/Grand.Web.Tests/Grand.Web.Tests.csproj" />
 </Solution>
