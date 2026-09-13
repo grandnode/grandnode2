@@ -69,6 +69,7 @@ public class FakeStoreController : BaseController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public IActionResult Configure(string model)
     {
         return new EmptyResult();
