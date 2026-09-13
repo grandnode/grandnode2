@@ -18,6 +18,7 @@ public static class StoreAreaConfiguration
 {
     //plugin assemblies never change within a process lifetime, so the reflection cost is paid once
     private static readonly ConcurrentDictionary<Assembly, bool> Cache = new();
+    private static readonly ConcurrentDictionary<Assembly, string> UrlCache = new();
 
     /// <summary>
     ///     Whether the provider's plugin exposes at least one controller in the Store area.
@@ -27,12 +28,46 @@ public static class StoreAreaConfiguration
         return provider != null && Cache.GetOrAdd(provider.GetType().Assembly, HasStoreAreaController);
     }
 
+    /// <summary>
+    ///     The url of the provider's configuration screen within the Store area, or null when its
+    ///     plugin ships none.
+    ///     <para>
+    ///         A provider's own <c>ConfigurationUrl</c> cannot be reused here: some plugins declare it
+    ///         relative ("../ShippingByWeight/Configure", which resolves per area) but others declare it
+    ///         absolute ("/Admin/PaymentBrainTree/Configure"), which would send a store manager into the
+    ///         Admin area. The url is therefore built from the Store-area controller the plugin actually
+    ///         ships, which by convention exposes a Configure action.
+    ///     </para>
+    /// </summary>
+    public static string GetConfigurationUrl(object provider)
+    {
+        if (provider == null) return null;
+        var controller = UrlCache.GetOrAdd(provider.GetType().Assembly, FindStoreAreaConfigurationController);
+        return controller == null ? null : $"/{Constants.AreaStore}/{controller}/Configure";
+    }
+
     private static bool HasStoreAreaController(Assembly assembly)
     {
-        return GetLoadableTypes(assembly).Any(type =>
-            typeof(ControllerBase).IsAssignableFrom(type) &&
-            string.Equals(type.GetCustomAttribute<AreaAttribute>()?.RouteValue, Constants.AreaStore,
-                StringComparison.OrdinalIgnoreCase));
+        return GetLoadableTypes(assembly).Any(IsStoreAreaController);
+    }
+
+    private static string FindStoreAreaConfigurationController(Assembly assembly)
+    {
+        //a configuration screen has a GET and a POST Configure, so the overloads are enumerated
+        //rather than asked for by name - GetMethod would throw on the ambiguity
+        var controller = GetLoadableTypes(assembly).FirstOrDefault(type =>
+            IsStoreAreaController(type) &&
+            type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Any(method => method.Name == "Configure"));
+
+        return controller == null ? null : controller.Name.Replace("Controller", string.Empty);
+    }
+
+    private static bool IsStoreAreaController(Type type)
+    {
+        return typeof(ControllerBase).IsAssignableFrom(type) &&
+               string.Equals(type.GetCustomAttribute<AreaAttribute>()?.RouteValue, Constants.AreaStore,
+                   StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
