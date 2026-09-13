@@ -344,10 +344,13 @@ public partial class InstallationService
         });
 
         await _settingRepository.SaveSetting(new CurrencySettings {
-            PrimaryStoreCurrencyId = _currencyRepository.Table.Single(c => c.CurrencyCode == "USD").Id,
             PrimaryExchangeRateCurrencyId = _currencyRepository.Table.Single(c => c.CurrencyCode == "USD").Id,
             ActiveExchangeRateProviderSystemName = "CurrencyExchange.MoneyConverter",
             AutoUpdateEnabled = false
+        });
+
+        await _settingRepository.SaveSetting(new PrimaryCurrencySettings {
+            CurrencyId = _currencyRepository.Table.Single(c => c.CurrencyCode == "USD").Id
         });
 
         await _settingRepository.SaveSetting(new MeasureSettings {

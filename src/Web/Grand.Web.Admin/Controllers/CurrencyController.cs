@@ -110,10 +110,12 @@ public class CurrencyController : BaseAdminController
     public async Task<IActionResult> ListGrid(DataSourceRequest command)
     {
         var currenciesModel = (await _currencyService.GetAllCurrencies(true)).Select(x => x.ToModel()).ToList();
+        //the global primary currency - a store overriding it manages that from its own panel
+        var primaryStoreCurrencyId = (await _settingService.LoadSetting<PrimaryCurrencySettings>()).CurrencyId;
         foreach (var currency in currenciesModel)
             currency.IsPrimaryExchangeRateCurrency = currency.Id == _currencySettings.PrimaryExchangeRateCurrencyId;
         foreach (var currency in currenciesModel)
-            currency.IsPrimaryStoreCurrency = currency.Id == _currencySettings.PrimaryStoreCurrencyId;
+            currency.IsPrimaryStoreCurrency = currency.Id == primaryStoreCurrencyId;
 
         var gridModel = new DataSourceResult {
             Data = currenciesModel,

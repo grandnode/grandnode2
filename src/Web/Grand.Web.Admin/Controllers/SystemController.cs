@@ -155,7 +155,7 @@ public class SystemController : BaseAdminController
         }
 
         //primary store currency
-        var pscCurrency = await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
+        var pscCurrency = await _currencyService.GetPrimaryStoreCurrency();
         if (pscCurrency != null)
             model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                 Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,

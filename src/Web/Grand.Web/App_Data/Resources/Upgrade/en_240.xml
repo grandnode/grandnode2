@@ -255,4 +255,19 @@
 	<Resource Name="store.portal" Area="Front">
 		<Value>Store portal</Value>
 	</Resource>
+	<Resource Name="admin.configuration.currencies.setprimarycurrency" Area="Admin">
+		<Value>Set as primary currency</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.primarycurrency.sharedproducts" Area="Admin">
+		<Value>{0} product(s) available in your store are also available in other stores. Product prices are stored in the primary currency and are NOT recalculated, so changing it reinterprets those prices in the new currency. Continue?</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.cantunassignprimary" Area="Admin">
+		<Value>The currency your store prices are stored in can not be unassigned.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.cantunpublishprimary" Area="Admin">
+		<Value>This currency can not be unpublished because at least one store uses it as its primary currency.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.currencies.cantlimitprimarystores" Area="Admin">
+		<Value>The store '{0}' uses this currency as its primary currency.</Value>
+	</Resource>
 </Language>

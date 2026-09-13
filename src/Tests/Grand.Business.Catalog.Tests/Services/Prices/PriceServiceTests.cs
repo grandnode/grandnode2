@@ -66,8 +66,7 @@ public class PriceServiceTests
         _eventPublisher = eventPublisher.Object;
 
         _currencySettings = new CurrencySettings {
-            PrimaryExchangeRateCurrencyId = "1",
-            PrimaryStoreCurrencyId = "1"
+            PrimaryExchangeRateCurrencyId = "1"
         };
 
         _currency = new Currency {
@@ -105,7 +104,7 @@ public class PriceServiceTests
 
         _currencyService = new CurrencyService(
             cacheManager, _currencyRepository, _aclService,
-            _currencySettings, _eventPublisher);
+            _currencySettings, new PrimaryCurrencySettings { CurrencyId = "1" }, _eventPublisher);
 
         tempDiscountApplicationService = new Mock<IDiscountHandlerService>();
 

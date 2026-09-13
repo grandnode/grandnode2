@@ -1,4 +1,4 @@
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -178,7 +178,7 @@ public abstract class BaseCheckoutAttributeController(
             await checkoutAttributeViewModelService.InsertCheckoutAttributeValueModel(checkoutAttribute, model);
             return Content("");
         }
-        model.PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
+        model.PrimaryStoreCurrencyCode = (await currencyService.GetPrimaryStoreCurrency()).CurrencyCode;
         model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId)).Name;
         return View(model);
     }
@@ -219,7 +219,7 @@ public abstract class BaseCheckoutAttributeController(
             await checkoutAttributeViewModelService.UpdateCheckoutAttributeValueModel(checkoutAttribute, cav, model);
             return Content("");
         }
-        model.PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
+        model.PrimaryStoreCurrencyCode = (await currencyService.GetPrimaryStoreCurrency()).CurrencyCode;
         model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId)).Name;
         return View(model);
     }

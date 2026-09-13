@@ -86,6 +86,7 @@ public class PriceFormatterTests
             _currencyRepo,
             _aclService,
             _currencySettings,
+            new PrimaryCurrencySettings(),
             null);
 
         _taxSettings = new TaxSettings();

@@ -73,7 +73,7 @@ public class CheckoutAttributeViewModelService(
         var checkoutAttribute = await checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
         var model = new CheckoutAttributeValueModel {
             CheckoutAttributeId = checkoutAttributeId,
-            PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))
+            PrimaryStoreCurrencyCode = (await currencyService.GetPrimaryStoreCurrency())
                 .CurrencyCode,
             BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId)).Name,
             //color squares
@@ -90,7 +90,7 @@ public class CheckoutAttributeViewModelService(
         var model = checkoutAttributeValue.ToModel();
         model.DisplayColorSquaresRgb = checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares;
         model.PrimaryStoreCurrencyCode =
-            (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
+            (await currencyService.GetPrimaryStoreCurrency()).CurrencyCode;
         model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId)).Name;
 
         return model;

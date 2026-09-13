@@ -156,6 +156,20 @@ public class ProductService : IProductService
         return await _productRepository.PagedAsync(query, pageIndex, pageSize);
     }
 
+    /// <summary>
+    ///     Counts products visible in the given store that are also visible in at least one other store
+    /// </summary>
+    /// <param name="storeId">Store identifier</param>
+    /// <returns>Number of shared products</returns>
+    public virtual async Task<int> CountSharedProducts(string storeId)
+    {
+        var query = from p in _productRepository.Table
+                    where !p.LimitedToStores || (p.Stores.Contains(storeId) && p.Stores.Count > 1)
+                    select p;
+
+        return await _productRepository.CountAsync(query);
+    }
+
 
     /// <summary>
     ///     Inserts a product

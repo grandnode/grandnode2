@@ -1,4 +1,4 @@
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -268,8 +268,7 @@ public class SettingController(
             ActiveStore = storeScope
         };
 
-        var currencySettings = await settingService.LoadSetting<CurrencySettings>();
-        var currency = await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId);
+        var currency = await currencyService.GetPrimaryStoreCurrency();
 
         model.LoyaltyPointsSettings.PrimaryStoreCurrencyCode = currency?.CurrencyCode;
         var status = await orderStatusService.GetAll();
@@ -323,8 +322,7 @@ public class SettingController(
                 foreach (var error in modelState.Errors)
                     Error(error.ErrorMessage);
 
-            var currencySettings = await settingService.LoadSetting<CurrencySettings>();
-            var currency = await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId);
+                var currency = await currencyService.GetPrimaryStoreCurrency();
             model.LoyaltyPointsSettings.PrimaryStoreCurrencyCode = currency?.CurrencyCode;
             model.OrderSettings.PrimaryStoreCurrencyCode = currency?.CurrencyCode;
 
