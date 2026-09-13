@@ -14,6 +14,7 @@ using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
@@ -184,6 +185,81 @@ public class BaseCustomerControllerTests
         var model = view.Model as CustomerModel;
         Assert.IsTrue(model.Active);
         Assert.AreEqual("", model.StoreId ?? ""); // never forced for Admin (default no-op hook)
+    }
+
+    [TestMethod]
+    public async Task CreateGet_StoreScope_ClearsAvailableStores()
+    {
+        // Regression test for the cross-store leak flagged in code review: PrepareCustomerModel
+        // always populates every store's id/name onto AvailableStores (used for the
+        // StaffStoreId/StoreId pickers), but Store's own view never renders either select and the
+        // model still reaches Store's store_customer_details_* widget zones via
+        // additional-data="Model" - other stores' names/ids must not leak there.
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        CustomerViewModelServiceMock
+            .Setup(v => v.PrepareCustomerModel(It.IsAny<CustomerModel>(), null, false))
+            .Callback<CustomerModel, Customer, bool>((m, _, _) =>
+                m.AvailableStores.Add(new SelectListItem { Value = "store-1", Text = "Store 1" }))
+            .Returns(Task.CompletedTask);
+
+        var result = await Controller.Create();
+
+        var model = (CustomerModel)((ViewResult)result).Model;
+        Assert.AreEqual(0, model.AvailableStores.Count);
+    }
+
+    [TestMethod]
+    public async Task CreateGet_GlobalScope_KeepsAvailableStores()
+    {
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        CustomerViewModelServiceMock
+            .Setup(v => v.PrepareCustomerModel(It.IsAny<CustomerModel>(), null, false))
+            .Callback<CustomerModel, Customer, bool>((m, _, _) =>
+                m.AvailableStores.Add(new SelectListItem { Value = "store-1", Text = "Store 1" }))
+            .Returns(Task.CompletedTask);
+
+        var result = await Controller.Create();
+
+        var model = (CustomerModel)((ViewResult)result).Model;
+        Assert.AreEqual(1, model.AvailableStores.Count);
+    }
+
+    [TestMethod]
+    public async Task EditGet_StoreScope_ClearsAvailableStores()
+    {
+        var customer = new Customer { Id = "c1" };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
+        ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
+        CustomerViewModelServiceMock
+            .Setup(v => v.PrepareCustomerModel(It.IsAny<CustomerModel>(), customer, false))
+            .Callback<CustomerModel, Customer, bool>((m, _, _) =>
+                m.AvailableStores.Add(new SelectListItem { Value = "store-1", Text = "Store 1" }))
+            .Returns(Task.CompletedTask);
+
+        var result = await Controller.Edit("c1");
+
+        var model = (CustomerModel)((ViewResult)result).Model;
+        Assert.AreEqual(0, model.AvailableStores.Count);
+    }
+
+    [TestMethod]
+    public async Task EditGet_GlobalScope_KeepsAvailableStores()
+    {
+        var customer = new Customer { Id = "c1" };
+        CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
+        ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
+        ScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        CustomerViewModelServiceMock
+            .Setup(v => v.PrepareCustomerModel(It.IsAny<CustomerModel>(), customer, false))
+            .Callback<CustomerModel, Customer, bool>((m, _, _) =>
+                m.AvailableStores.Add(new SelectListItem { Value = "store-1", Text = "Store 1" }))
+            .Returns(Task.CompletedTask);
+
+        var result = await Controller.Edit("c1");
+
+        var model = (CustomerModel)((ViewResult)result).Model;
+        Assert.AreEqual(1, model.AvailableStores.Count);
     }
 
     [TestMethod]
