@@ -1,0 +1,144 @@
+@{
+    Layout = "~/Areas/Store/Views/Shared/_StoreLayout.cshtml";
+    ViewBag.Title = Loc["Admin.Configuration.Shipping.Providers"];
+}
+<input id="active-menu-item" type="hidden" value="/Store/Shipping/Providers"/>
+
+<form asp-controller="ShippingPoint" asp-action="Configure" asp-route-area="Store" method="post" id="shipping-instore-form">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption level-caption">
+                        <i class="fa fa-map-marker"></i>
+                        @Loc["Shipping.ShippingPoint.FriendlyName"]
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div id="shipping-points-grid"></div>
+                </div>
+                <div class="panel-footer">
+                    <a id="btnAddNewOption" class="btn btn-primary" href="@(Url.Action("Create", "ShippingPoint", new { area = "Store" }) + "?btnId=btnRefresh&formId=shipping-instore-form")">
+                        @Loc["Admin.Common.AddNew"]
+                    </a>
+                    <input type="submit" id="btnRefresh" class="btn btn-default" style="display: none"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#btnAddNewOption').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+            $("#shipping-points-grid").kendoGrid({
+                dataBound: function () {
+                    $('.editpopup').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        midClick: true,
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                            },
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                            }
+                        }
+                    });
+                },
+                dataSource: {
+                    type: "json",
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("List", "ShippingPoint", new { area = "Store" }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("Delete", "ShippingPoint", new { area = "Store" }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id"
+                        }
+                    },
+                    requestEnd: function (e) {
+                        if (e.type == "update") {
+                            this.read();
+                        }
+                    },
+                    error: function (e) {
+                        display_kendoui_grid_error(e);
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: "@Loc["Admin.Common.DeleteConfirmation"]",
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "ShippingPointName",
+                    width: 200,
+                    title: "@Loc["Shipping.ShippingPoint.Fields.ShippingPointName"]"
+                }, {
+                    field: "OpeningHours",
+                    width: 200,
+                    title: "@Loc["Shipping.ShippingPoint.Fields.OpeningHours"]"
+                }, {
+                    field: "PickupFee",
+                    width: 150,
+                    title: "@Loc["Shipping.ShippingPoint.Fields.PickupFee"]"
+                }, {
+                    field: "Id",
+                    title: "@Loc["Admin.Common.Edit"]",
+                    width: 100,
+                    template: "<a href=\"@Url.Action("Edit", "ShippingPoint", new { area = "Store" })?id=#=Id#&btnId=btnRefresh&formId=shipping-instore-form\" class='k-button editpopup k-button-icontext'>@Loc["Admin.Common.Edit"]</a>"
+                }, {
+                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                    title: "@Loc["Admin.Common.Delete"]",
+                    width: 100
+                }]
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#btnRefresh').click(function () {
+                var grid = $("#shipping-points-grid").data('kendoGrid');
+                grid.dataSource.read();
+                return false;
+            });
+        });
+    </script>
+</form>
