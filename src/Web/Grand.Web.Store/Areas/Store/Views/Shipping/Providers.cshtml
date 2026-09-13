@@ -85,12 +85,12 @@ $(document).ready(function () {
             field: "FriendlyName",
             title: "@Loc["Admin.Configuration.Shipping.Providers.Fields.FriendlyName"]",
             width: 250,
-            template: '<a class="k-link" href="#=ConfigurationUrl#">#=FriendlyName#</a>',
+            template: '# if (ConfigurationUrl) { # <a class="k-link" href="#=ConfigurationUrl#">#:FriendlyName#</a> # } else { # #:FriendlyName# # } #',
         }, {
             field: "SystemName",
             title: "@Loc["Admin.Configuration.Shipping.Providers.Fields.SystemName"]",
             width: 250,
-            template: '<a class="k-link" href="#=ConfigurationUrl#">#=SystemName#</a>',
+            template: '# if (ConfigurationUrl) { # <a class="k-link" href="#=ConfigurationUrl#">#:SystemName#</a> # } else { # #:SystemName# # } #',
         }, {
             field: "DisplayOrder",
             title: "@Loc["Admin.Configuration.Shipping.Providers.Fields.DisplayOrder"]",
