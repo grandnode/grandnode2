@@ -50,7 +50,10 @@ for (const entry of HAR_PAGES) {
 
             if (entry.detail && dataLength > 0) await expandFirstDetail(page, entry.grid)
 
-            if (entry.captureUpdate && dataLength > 0) {
+            //rows may exist without an Edit command (e.g. only global tax categories in the Store panel)
+            const editable = entry.captureUpdate && dataLength > 0
+                && (await page.locator(`#${entry.grid}`).locator(gridSelectors.editButton).count()) > 0
+            if (editable) {
                 await page.route(entry.captureUpdate, async route => {
                     const request = route.request()
                     captured.push({ url: request.url(), method: request.method(), headers: request.headers(), body: request.postData() })
