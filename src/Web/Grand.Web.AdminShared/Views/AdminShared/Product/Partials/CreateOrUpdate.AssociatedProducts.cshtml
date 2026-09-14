@@ -10,7 +10,21 @@
     <div class="panel panel-default">
         <partial name="Partials/WidgetZone.AssociatedProducts.Top" model="Model"/>
         <div class="panel-body">
-            <div id="associatedproducts-grid"></div>
+            <admin-grid id="associatedproducts-grid"
+                        read-url="@Url.Action("AssociatedProductList", "Product", new { productId = Model.Id, area = area })"
+                        update-url="@Url.Action("AssociatedProductUpdate", "Product", new { area = area })"
+                        destroy-url="@Url.Action("AssociatedProductDelete", "Product", new { area = area })"
+                        pager="Compact"
+                        auto-bind="false"
+                        edit-mode="Inline">
+                <grid-column field="ProductName" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AssociatedProducts.Fields.Product"]">
+                    <cell-template>
+                        <a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = area })/{{ Id }}">{{ ProductName }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="DisplayOrder" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AssociatedProducts.Fields.DisplayOrder"]" width="150" format="{0:0}" editor="Integer"/>
+                <grid-commands edit="true" destroy="true" width="300"/>
+            </admin-grid>
         </div>
         <div class="panel-footer">
             <a id="btnAddNewAssociatedProduct" href="@(Url.Action("AssociatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshAssociatedProducts", formId = "product-form", area = area }))" class="k-button">
@@ -34,93 +48,6 @@
                         $('.mfp-wrap').removeAttr('tabindex');
                     }
                 }
-            });
-            $("#associatedproducts-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("AssociatedProductList", "Product", new { productId = Model.Id, area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        update: {
-                            url:"@Html.Raw(Url.Action("AssociatedProductUpdate", "Product", new { area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("AssociatedProductDelete", "Product", new { area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                ProductName: {editable: false, type: "string" },
-                                DisplayOrder: {editable: true, type: "number" },
-                                ProductId: { editable: false, type: "string" },
-                                Id: { editable: false, type: "string" }
-                            }
-                        }
-                    },
-                    requestEnd: function(e) {
-                        if(e.type=="update") {
-                            this.read();
-                        }
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                autoBind: false,
-                pageable: {
-                    refresh: true,
-                    numeric: false,
-                    previousNext: false,
-                    info: false
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "ProductName",
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AssociatedProducts.Fields.Product"]",
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = area })/#=Id#">#=kendo.htmlEncode(ProductName)#</a>'
-                }, {
-                    field: "DisplayOrder",
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.AssociatedProducts.Fields.DisplayOrder"]",
-                    //integer format
-                    format: "{0:0}",
-                    width: 150
-                }, {
-                    command: [{
-                        name: "edit",
-                        text: {
-                            edit: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Edit"]",
-                            update: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Update"]",
-                            cancel: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Cancel"]"
-                        }
-                    }, {
-                        name: "destroy",
-                        text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"
-                    }],
-                    width: 300
-                }]
             });
         });
     </script>

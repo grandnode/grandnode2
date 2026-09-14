@@ -1,5 +1,4 @@
 @model ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "";
     var area = ViewContext.RouteData.Values["area"]?.ToString();
@@ -87,7 +86,23 @@
                                     </div>
                                 </div>
                             </div>
-                            <div id="products-grid"></div>
+                            <admin-grid id="products-grid"
+                                        read-url="@Url.Action("AssociateProductToAttributeValuePopupList", "Product", new { area = area })"
+                                        additional-data="additionalData">
+                                <grid-text name="select" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Select"]"/>
+                                <grid-column field="Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Select"]" width="50">
+                                    <cell-template>
+                                        <input type="button" value="{{ $texts.select }}" data-grid-click="selectAssociatedProductRow" class="k-button" />
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Name"]"/>
+                                <grid-column field="Published" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Published"]" width="100" align="Center">
+                                    <cell-template>
+                                        <i data-if="Published" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                    </cell-template>
+                                </grid-column>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -146,69 +161,16 @@
             return data;
         }
 
+        function selectAssociatedProductRow(product) {
+            selectAssociatedProduct(product.Id, product.Name);
+        }
+
         function selectAssociatedProduct(productid, productname) {
             $("#@Html.IdFor(model => model.AssociatedToProductId)").val(productid);
             $("#@Html.IdFor(model => model.AssociatedToProductId)").attr("data-name", productname);
             $('#associateproduct').submit();
         }
 
-        $("#products-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("AssociateProductToAttributeValuePopupList", "Product", new { area = area }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors",
-                    model: {
-                        id: "Id",
-                        fields: {
-                            Name: { editable: false, type: "string" },
-                        }
-                    }
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Name",
-                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Select"]",
-                width: 50,
-                template: '<input type="button" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Select"]" onclick="selectAssociatedProduct(\'#=Id#\',\'#=Name#\')" class="k-button" />'
-            },{
-                field: "Name",
-                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Name"]"
-            }, {
-                field: "Published",
-                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Fields.Published"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }]
-        });
 
             $('#search-products').click(function () {
                 var grid = $('#products-grid').data('kendoGrid');

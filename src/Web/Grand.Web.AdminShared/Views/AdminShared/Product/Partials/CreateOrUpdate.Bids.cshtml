@@ -1,5 +1,4 @@
 @model ProductModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
@@ -10,86 +9,28 @@
     <div class="panel panel-default">
         <partial name="Partials/WidgetZone.Bids.Top" model="Model"/>
         <div class="panel-body">
-            <div id="bids-grid"></div>
+            <admin-grid id="bids-grid"
+                        read-url="@Url.Action("ListBids", "Product", new { productId = Model.Id, area = area })"
+                        destroy-url="@Url.Action("BidDelete", "Product", new { area = area })"
+                        auto-bind="false">
+                <grid-text name="view" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]"/>
+                <grid-column field="Date" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Bids.Date"]" width="200" format="{0:MM/dd/yyyy  h:mm tt}"/>
+                <grid-column field="CustomerId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Bids.CustomerId"]" width="200">
+                    <cell-template>
+                        <a data-if="Email" href="@Url.Action("Edit", "Customer")/{{ CustomerId }}">{{ Email }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Amount" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Bids.Amount"]" width="200"/>
+                <grid-column field="OrderId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Bids.OrderId"]" width="200">
+                    <cell-template>
+                        <a data-if="OrderId" class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}"><i class="fa fa-search"></i> {{ $texts.view }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-commands destroy="true" width="100"/>
+            </admin-grid>
         </div>
         <partial name="Partials/WidgetZone.Bids.Bottom" model="Model"/>
     </div>
-    <script>
-        $(document).ready(function () {
-                $("#bids-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("ListBids", "Product", new { productId = Model.Id, area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken,
-                        }, destroy: {
-                            url: "@Html.Raw(Url.Action("BidDelete", "Product", new { area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors",
-                    model: {
-                        id: "Id",
-                        ProductId: "ProductId"
-                    }
-                },
-                error: function (e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            autoBind: false,
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Date",
-                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Bids.Date"]",
-                width: 200,
-                type: "date",
-                template: "#= kendo.toString(kendo.parseDate(Date, 'yyyy-MM-dd'), 'MM/dd/yyyy  h:mm tt') #"
-            }, {
-                field: "CustomerId",
-                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Bids.CustomerId"]",
-                width: 200,
-                template: '# if(Email) {# <a  href="@Url.Action("Edit", "Customer")/#=CustomerId#">#=Email#</a>  #} #'
-            }, {
-                field: "Amount",
-                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Bids.Amount"]",
-                width: 200
-            }, {
-                field: "OrderId",
-                title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.Bids.OrderId"]",
-                width: 200,
-                template: '# if(OrderId) {# <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = area })/#=OrderId#"><i class="fa fa-search"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]</a>  #} #'
-            }, {
-                command: [{
-                    name: "destroy",
-                    text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]"
-                }],
-                width: 100
-            }]
-            });
-        });
-    </script>
 }
 else
 {

@@ -1,6 +1,4 @@
-@using System.Text.Encodings.Web
 @model BulkEditListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit"];
@@ -81,7 +79,33 @@
                                 </div>
                             </div>
                             <div class="x_content">
-                                <div id="products-grid"></div>
+                                <admin-grid id="products-grid"
+                                            read-url="@Url.Action("BulkEditSelect", "Product", new { area = area })"
+                                            update-url="@Url.Action("BulkEditUpdate", "Product", new { area = area })"
+                                            destroy-url="@Url.Action("BulkEditDelete", "Product", new { area = area })"
+                                            additional-data="additionalData"
+                                            edit-mode="Batch"
+                                            batch-prefix="products"
+                                            confirm-destroy="true">
+                                    <grid-toolbar-save/>
+                                    <grid-toolbar-cancel/>
+                                    <grid-text name="view" value="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]"/>
+                                    <grid-column field="Name" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Name"]" width="200" editor="Text"/>
+                                    <grid-column field="ProductId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]" width="80">
+                                        <cell-template>
+                                            <a href="@Url.Action("Edit", "Product", new { area = area })/{{ Id }}">{{ $texts.view }}</a>
+                                        </cell-template>
+                                    </grid-column>
+                                    <grid-column field="Sku" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Sku"]" width="100" editor="Text"/>
+                                    @*prices are posted with four decimals in the request culture, like the Kendo parameterMap*@
+                                    <grid-column field="Price" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Price"]" width="100" editor="Numeric" decimals="4"/>
+                                    <grid-column field="OldPrice" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.OldPrice"]" width="100" editor="Numeric" decimals="4"/>
+                                    <grid-column field="StockQuantity" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.StockQuantity"]" width="100" format="{0:0}" editor="Integer"/>
+                                    <grid-column field="ManageInventoryMethodId" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.ManageInventoryMethod"]" width="150"
+                                                 editor="Select" options="EnumTranslationService.ToSelectList(ManageInventoryMethod.DontManageStock)" text-field="ManageInventoryMethod"/>
+                                    <grid-column field="Published" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Published"]" width="90" editor="Checkbox"/>
+                                    <grid-commands destroy="true" title="@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]" width="100"/>
+                                </admin-grid>
                             </div>
                         </div>
                     </div>
@@ -91,193 +115,6 @@
     </div>
 
     <script>
-            @{
-                var methods = EnumTranslationService.ToSelectList(ManageInventoryMethod.DontManageStock);
-            }
-            var allInventoryMethod = [
-                @foreach (var method in methods)
-                {
-                    <text>
-                        {
-                            Id: '@(method.Value)',
-                            Name: "@Html.Raw(JavaScriptEncoder.Default.Encode(method.Text))"
-                        },
-                        </text>
-                }
-            ];
-
-        $(document).ready(function() {
-            var _grid = $("#products-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("BulkEditSelect", "Product", new { area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        },
-                        update: {
-                            url: "@Html.Raw(Url.Action("BulkEditUpdate", "Product", new { area = area }))",
-                            type: "POST",
-                            dataType: "json"
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("BulkEditDelete", "Product", new { area = area }))",
-                            type: "POST",
-                            dataType: "json"
-                        },
-                        parameterMap: function(data, operation) {
-                            if (operation != "read") {
-
-                                var result = {};
-
-                                for (var i = 0; i < data.models.length; i++) {
-                                    var entity = data.models[i];
-
-                                    for (var member in entity) {
-                                        result["products[" + i + "]." + member] = entity[member];
-                                        if (member == 'Price' || member == 'OldPrice') {
-                                            result["products[" + i + "]." + member] = kendo.toString(entity[member], "n4");
-                                        }
-
-                                    }
-                                }
-
-                                addAntiForgeryToken(result);
-                                return result;
-                            } else {
-                                addAntiForgeryToken(data);
-                                //return JSON.stringify(data);
-                                return data;
-                            }
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                Name: { editable: true, type: "string" },
-                                ProductId: { editable: false, type: "string" },
-                                Sku: { editable: true, type: "string" },
-                                Price: { editable: true, type: "number" },
-                                OldPrice: { editable: true, type: "number" },
-                                ManageInventoryMethodId: { editable: true, type: "int" },
-                                ManageInventoryMethod: { editable: true, type: "string" },
-                                StockQuantity: { editable: true, type: "number" },
-                                Published: { editable: true, type: "boolean" },
-                                Id: { editable: false, type: "string" }
-                            }
-                        }
-                    },
-                    requestEnd: function (e) {
-                        if (e.type == "update") {
-                            this.read();
-                        }
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    //bulk editing
-                    batch: true,
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                toolbar: ["save", "cancel"],
-                editable: {
-                    confirmation: true,
-                    //bulk editing
-                    mode: "incell"
-                },
-                scrollable: true,
-                columns: [ {
-                    field: "Name",
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Name"]",
-                    width: 200
-                }, {
-                    field: "ProductId",
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]",
-                    width: 80,
-                    template: '<a href="@Url.Action("Edit", "Product", new { area = area })/#=Id#">@Loc[$"{Scope.ResourceKeyPrefix}.Common.View"]</a>'
-                },{
-                    field: "Sku",
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Sku"]",
-                    width: 100
-                }, {
-                    field: "Price",
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Price"]",
-                    width: 100,
-                    editor: function (container, options) {
-                        $('<input name="' + options.field + '"/>')
-                            .appendTo(container)
-                            .kendoNumericTextBox({
-                                format: "{0:n4}",
-                                decimals: 4
-                            });
-                    }
-                }, {
-                    field: "OldPrice",
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.OldPrice"]",
-                    width: 100,
-                    editor: function (container, options) {
-                        $('<input name="' + options.field + '"/>')
-                            .appendTo(container)
-                            .kendoNumericTextBox({
-                                format: "{0:n4}",
-                                decimals: 4
-                            });
-                    }
-                }, {
-                    field: "StockQuantity",
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.StockQuantity"]",
-                    //integer format
-                    format: "{0:0}",
-                    width: 100
-                }, {
-                    field: "ManageInventoryMethod",
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.ManageInventoryMethod"]",
-                    width: 150,
-                    editor: function (container, options) {
-                        $("<input data-bind='value:ManageInventoryMethod' />")
-                            .attr("id", "ddl_ManageInventoryMethod")
-                            .appendTo(container)
-                            .kendoDropDownList({
-                                dataSource: allInventoryMethod,
-                                dataTextField: "Name",
-                                dataValueField: "Name",
-                                template: "<span data-id='${data.id}'>${data.Name}</span>",
-                                select: function (e) {
-                                    var product = _grid.dataItem($(e.sender.element).closest("tr"));
-                                    product.ManageInventoryMethodId = e.dataItem.Id;
-                                }
-                            });
-                    }
-                },{
-                    field: "Published",
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.BulkEdit.Fields.Published"]",
-                    width: 90
-                }, {
-                    command: { name: "destroy", text: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]" },
-                    title: "@Loc[$"{Scope.ResourceKeyPrefix}.Common.Delete"]",
-                    width: 100
-                }
-                ]
-            }).data("kendoGrid");
-        });
-    </script>
-
-    <script>
-
         $(document).ready(function () {
             $('#search-products').click(function () {
                     var grid = $('#products-grid').data('kendoGrid');

@@ -1,5 +1,4 @@
 ﻿@model CollectionModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
@@ -8,7 +7,26 @@
     <div class="panel panel-default">
         <partial name="Partials/WidgetZone.Products.Top" model="Model"/>
         <div class="panel-body">
-            <div id="products-grid"></div>
+            <admin-grid id="products-grid"
+                        read-url="@Url.Action("ProductList", "Collection", new { collectionId = Model.Id, area = area })"
+                        update-url="@Url.Action("ProductUpdate", "Collection", new { area = area })"
+                        destroy-url="@Url.Action("ProductDelete", "Collection", new { area = area })"
+                        auto-bind="false"
+                        edit-mode="Inline">
+                <grid-column field="ProductName" title="@Loc["Admin.Catalog.Collections.Products.Fields.Product"]">
+                    <cell-template>
+                        <a href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="IsFeaturedProduct" title="@Loc["Admin.Catalog.Collections.Products.Fields.IsFeaturedProduct"]" width="100" align="Center" min-screen-width="750" editor="Checkbox">
+                    <cell-template>
+                        <i data-if="IsFeaturedProduct" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Collections.Products.Fields.DisplayOrder"]" width="120" align="Center" format="{0:0}" min-screen-width="750" editor="Integer"/>
+                <grid-commands edit="true" destroy="true"/>
+            </admin-grid>
         </div>
         <div class="panel-footer">
             <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "Collection", new { collectionId = Model.Id, btnId = "btnRefreshProducts", formId = "collection-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Collections.Products.AddNew"]</a>
@@ -30,103 +48,6 @@
                         $('.mfp-wrap').removeAttr('tabindex');
                     }
                 }
-            });
-            $("#products-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("ProductList", "Collection", new { collectionId = Model.Id, area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        update: {
-                            url:"@Html.Raw(Url.Action("ProductUpdate", "Collection", new { area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("ProductDelete", "Collection", new { area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                ProductName: {editable: false, type: "string" },
-                                IsFeaturedProduct: {editable: true, type: "boolean" },
-                                DisplayOrder: {editable: true, type: "number" },
-                                ProductId: {editable: false, type: "string" }
-                            }
-                        }
-                    },
-                    requestEnd: function(e) {
-                        if(e.type=="update") {
-                            this.read();
-                        }
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                autoBind: false,
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "ProductName",
-                    editable: false,
-                    type: "string",
-                    title: "@Loc["Admin.Catalog.Collections.Products.Fields.Product"]",
-                    template: '<a href="@Url.Action("Edit", "Product", new { area = area })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
-                }, {
-                    field: "IsFeaturedProduct",
-                    title: "@Loc["Admin.Catalog.Collections.Products.Fields.IsFeaturedProduct"]",
-                    width: 100,
-                    minScreenWidth: 750,
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    template: '# if(IsFeaturedProduct) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                }, {
-                    field: "DisplayOrder",
-                    title: "@Loc["Admin.Catalog.Collections.Products.Fields.DisplayOrder"]",
-                    minScreenWidth: 750,
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    format: "{0:0}",
-                    width: 120
-                }, {
-                    command: [{
-                        name: "edit",
-                        text: {
-                            edit: "@Loc["Admin.Common.Edit"]",
-                            update: "@Loc["Admin.Common.Update"]",
-                            cancel: "@Loc["Admin.Common.Cancel"]"
-                        }
-                    }, {
-                        name: "destroy",
-                        text: "@Loc["Admin.Common.Delete"]"
-                    }],
-                }]
             });
         });
     </script>

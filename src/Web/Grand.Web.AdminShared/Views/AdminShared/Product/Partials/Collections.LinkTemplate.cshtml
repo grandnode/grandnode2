@@ -1,4 +1,5 @@
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-template: '<a class="k-link" href="@Url.Action("Edit", "Collection", new { area = area })/#=CollectionId#">#:Collection#</a>'
+@*content of the CollectionId cell template of the product collections grid*@
+<a class="k-link" href="@Url.Action("Edit", "Collection", new { area = area })/{{ CollectionId }}">{{ Collection }}</a>
