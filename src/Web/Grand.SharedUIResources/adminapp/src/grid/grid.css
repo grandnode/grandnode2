@@ -52,6 +52,36 @@
     background-color: #fff;
 }
 
+/*
+ * Tabulator measures row heights once and pins them on every cell, so content that grows
+ * afterwards (thumbnails loading, a detail grid) would be clipped. Rows are flex lines
+ * instead: cells keep the widths Tabulator sets and stretch to the tallest one, and a
+ * detail holder wraps onto its own line.
+ */
+.grand-grid .tabulator-row:not(.tabulator-group) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.grand-grid .tabulator-row .tabulator-cell {
+    height: auto !important;
+    flex: none;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.grand-grid .tabulator-row .tabulator-cell[tabulator-hozalign="center"],
+.grand-grid .tabulator-row .tabulator-cell[style*="text-align: center"] {
+    align-items: center;
+}
+
+.grand-grid .tabulator-row .tabulator-cell[style*="text-align: right"] {
+    align-items: flex-end;
+}
+
 .grand-grid .tabulator-row.tabulator-row-even {
     background-color: #fbfcfd;
 }
@@ -121,6 +151,7 @@
 
 .grand-grid .grand-grid-detail {
     display: block;
+    flex: 0 0 100%;
     width: 100%;
     box-sizing: border-box;
     padding: 8px 8px 8px 44px;
