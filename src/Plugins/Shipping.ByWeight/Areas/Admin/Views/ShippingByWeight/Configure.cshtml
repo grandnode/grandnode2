@@ -1,6 +1,4 @@
-﻿@using Grand.Domain.Common
-@model Shipping.ByWeight.Models.ShippingByWeightListModel
-@inject AdminAreaSettings adminAreaSettings
+﻿@model Shipping.ByWeight.Models.ShippingByWeightListModel
 @{
     Layout = "_ConfigurePlugin";
 }
@@ -18,7 +16,25 @@
 
     <div class="panel panel-default">
         <div class="panel-body">
-            <div id="shipping-byweight-grid"></div>
+            <admin-grid id="shipping-byweight-grid"
+                        read-url="@Url.Action("RatesList", "ShippingByWeight")"
+                        destroy-url="@Url.Action("RateDelete", "ShippingByWeight")"
+                        on-data-bound="bindShippingByWeightEditPopups">
+                <grid-column field="StoreName" title="@Loc["Plugins.Shipping.ByWeight.Fields.Store"]" width="300"/>
+                <grid-column field="WarehouseName" title="@Loc["Plugins.Shipping.ByWeight.Fields.Warehouse"]" width="300"/>
+                <grid-column field="CountryName" title="@Loc["Plugins.Shipping.ByWeight.Fields.Country"]" width="200"/>
+                <grid-column field="StateProvinceName" title="@Loc["Plugins.Shipping.ByWeight.Fields.StateProvince"]" width="200"/>
+                <grid-column field="Zip" title="@Loc["Plugins.Shipping.ByWeight.Fields.Zip"]" width="200"/>
+                <grid-column field="ShippingMethodName" title="@Loc["Plugins.Shipping.ByWeight.Fields.ShippingMethod"]" width="200"/>
+                @*DataHtml is markup the plugin builds from the rate values*@
+                <grid-column field="DataHtml" title="@Loc["Plugins.Shipping.ByWeight.Fields.DataHtml"]" width="200" encoded="false"/>
+                <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
+                    <cell-template>
+                        <a href="@Url.Action("EditPopup", "ShippingByWeight")?id={{ Id }}&btnId=btnRefresh&formId=shipping-byweight-form" class="k-button editpopup k-button-icontext">@Loc["Admin.Common.Edit"]</a>
+                    </cell-template>
+                </grid-column>
+                <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+            </admin-grid>
         </div>
         <div class="panel-footer">
             <a id="btnAddNewOption" href="@(addNewUrl)" class="btn default">
@@ -42,112 +58,25 @@
                     }
                 }
             });
-            $("#shipping-byweight-grid").kendoGrid({
-                dataBound: function() {
-                    $('.editpopup').magnificPopup({
-                        type: 'ajax',
-                        settings: { cache: false, async: false },
-                        callbacks: {
-                            parseAjax: function (mfpResponse) {
-                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
-                            },
-                            ajaxContentAdded: function () {
-                                $('.mfp-wrap').removeAttr('tabindex');
-                            }
-                        }
-                    });
-                },
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("RatesList", "ShippingByWeight"))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("RateDelete", "ShippingByWeight"))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id"
-                        }
-                    },
-                    requestEnd: function (e) {
-                        if (e.type == "update") {
-                            this.read();
-                        }
-                    },
-                    error: function (e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "StoreName",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.Store"]",
-                    width: 300
-                }, {
-                    field: "WarehouseName",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.Warehouse"]",
-                    width: 300
-                }, {
-                    field: "CountryName",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.Country"]",
-                    width: 200
-                }, {
-                    field: "StateProvinceName",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.StateProvince"]",
-                    width: 200
-                }, {
-                    field: "Zip",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.Zip"]",
-                    width: 200
-                }, {
-                    field: "ShippingMethodName",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.ShippingMethod"]",
-                    width: 200
-                }, {
-                    field: "DataHtml",
-                    title: "@Loc["Plugins.Shipping.ByWeight.Fields.DataHtml"]",
-                    width: 200,
-                    encoded: false
-                }, {
-                    field: "Id",
-                    title: "@Loc["Admin.Common.Edit"]",
-                    width: 100,
-                    template: "<a href=\"@Url.Action("EditPopup", "ShippingByWeight")?id=#=Id#&btnId=btnRefresh&formId=shipping-byweight-form\" class='k-button editpopup k-button-icontext'>@Loc["Admin.Common.Edit"]</a>"
-                },  {
-                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
-                    title: "@Loc["Admin.Common.Delete"]",
-                    width: 100
-                }]
-            });
         });
     </script>
 
     <script>
+        function bindShippingByWeightEditPopups() {
+            $('.editpopup').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+        }
+
         $(document).ready(function () {
             $('#btnRefresh').click(function () {
                 //refresh grid
