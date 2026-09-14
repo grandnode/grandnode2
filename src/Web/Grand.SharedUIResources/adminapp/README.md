@@ -34,15 +34,16 @@ npm run build
 ```
 
 `scripts/build.mjs` runs one Vite build per entry (an IIFE build cannot be split across
-inputs) and writes `admin.grid.js`/`admin.grid.css`, `admin.legacy.js` and `admin.core.js`
-to `../wwwroot/administration/bundles/`, each loaded by a plain `<script src>`.
-`npm run build -- admin.grid` builds one entry. `emptyOutDir` is off because the output
+inputs) into `../wwwroot/administration/bundles/`, each loaded by a plain `<script src>`.
+A plain `npm run build` writes only the bundles a panel loads (`admin.grid.js`,
+`admin.grid.css`); `npm run build -- admin.legacy` or `-- admin.core` builds an unused
+entry on request. `emptyOutDir` is off because the output
 directory sits inside the vendored `wwwroot/administration` tree, and `vue` is aliased to
 the esm-bundler build that includes the template compiler.
 
 `admin.grid.js` and `admin.grid.css` are committed together with the source that produced
-them, as in `vueapp`. `admin.core.js` and `admin.legacy.js` are git-ignored until a panel
-loads them.
+them, as in `vueapp`. Do not commit `admin.core.js` or `admin.legacy.js` built on request
+until a panel loads them.
 
 ## Lint and test
 

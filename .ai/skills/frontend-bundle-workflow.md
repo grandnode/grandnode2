@@ -158,9 +158,9 @@ npm project for the Admin, Store and Vendor panels, following the `vueapp` conve
 
 Current state:
 
-- `npm run build` (`scripts/build.mjs`) runs one IIFE build per entry: `admin.grid` (the `<admin-grid>` runtime on Tabulator, `window.GrandAdmin.grids`), `admin.legacy` (the `$.fn.kendoGrid` shim) and `admin.core` (reserves `window.GrandAdmin`).
+- `npm run build` (`scripts/build.mjs`) runs one IIFE build per shipped entry. Entries: `admin.grid` (the `<admin-grid>` runtime on Tabulator, `window.GrandAdmin.grids`), `admin.legacy` (the `$.fn.kendoGrid` shim) and `admin.core` (reserves `window.GrandAdmin`).
 - `HeadAdmin.cshtml`, `HeadStore.cshtml` and `HeadVendor.cshtml` load `bundles/admin.grid.js` and `bundles/admin.grid.css` after `admin.common.js`, next to Kendo. **`admin.grid.js` and `admin.grid.css` are committed** and follow the commit rules above: rebuild and stage them with every change under `adminapp/src/grid`.
-- `admin.core.js` and `admin.legacy.js` are not loaded by any panel, so they stay uncommitted (listed in the root `.gitignore`) until a `Head*` partial references them.
+- `admin.core.js` and `admin.legacy.js` are not loaded by any panel: a plain `npm run build` does not write them (`npm run build -- admin.legacy` does, on request), and they are not committed until a `Head*` partial references them.
 - Everything else in `wwwroot/administration/` is still the vendored libraries the panels load directly.
 - `Grand.SharedUIResources.csproj` excludes `adminapp\**` from its items, so sources, `package.json` and `node_modules` never become content or static web assets.
 - Playwright is not part of `azure-pipelines.yml`; the e2e specs run locally against a running instance.

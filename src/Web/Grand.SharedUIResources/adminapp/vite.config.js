@@ -11,6 +11,11 @@ export const entries = {
     'admin.legacy': './src/admin.legacy.js'
 }
 
+//Entries a panel loads; only these are written by a plain `npm run build`. The others
+//are built on request (`npm run build -- admin.legacy`) and must not be committed until
+//a Head* partial references them.
+export const shippedEntries = ['admin.grid']
+
 export default defineConfig(() => {
     const entry = process.env.ADMIN_ENTRY || 'admin.grid'
     return {
