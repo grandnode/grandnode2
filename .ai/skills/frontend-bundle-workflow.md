@@ -2,19 +2,20 @@
 
 ## Purpose
 
-Guide agents making frontend changes in GrandNode's storefront: when to run the build, what gets rebuilt, and that the output must be committed alongside source.
+Guide agents making frontend changes in GrandNode's storefront: when to run the build, what gets rebuilt, and that the output must be committed alongside source. The admin panels' npm project is covered in [Admin Panel Project](#admin-panel-project) at the end.
 
 ---
 
 ## Project Location
 
-Single npm project at:
+Two npm projects:
 
-```
-src/Web/Grand.Web/vueapp/
-```
+| Project | Serves | Output |
+|---------|--------|--------|
+| `src/Web/Grand.Web/vueapp/` | storefront | `src/Web/Grand.Web/wwwroot/bundles/` (committed) |
+| `src/Web/Grand.SharedUIResources/adminapp/` | Admin, Store and Vendor panels | `src/Web/Grand.SharedUIResources/wwwroot/administration/bundles/` (not committed yet, see below) |
 
-No other npm project in the solution (the old webpack project at `Grand.Web/` root was removed).
+The old webpack project at `Grand.Web/` root was removed. Everything up to [Admin Panel Project](#admin-panel-project) is about `vueapp`.
 
 ---
 
@@ -144,3 +145,34 @@ Two files are **not** part of `vueapp` and must not be moved here:
 | `wwwroot/theme/script/app.js` | Default theme |
 | `Plugins/Theme.Modern/Content/script/app.js` | Theme.Modern plugin |
 | `wwwroot/js/public.checkout.js` | Checkout-only script |
+
+---
+
+## Admin Panel Project
+
+```
+src/Web/Grand.SharedUIResources/adminapp/
+```
+
+npm project for the Admin, Store and Vendor panels, following the `vueapp` conventions (IIFE output, `vue` aliased to `vue.esm-bundler.js`, `emptyOutDir: false`, eslint). See its `README.md`.
+
+Current state:
+
+- `src/admin.core.js` only reserves `window.GrandAdmin`. **No panel loads anything from this project yet** — `HeadAdmin.cshtml`, `HeadStore.cshtml` and `HeadVendor.cshtml` still reference the vendored files in `wwwroot/administration/` directly.
+- `npm run build` writes `wwwroot/administration/bundles/admin.core.js`. That output is **not committed** while no view references it. The first change that loads the bundle from a `Head*` partial starts committing it, and from then on the commit rules above apply.
+- `Grand.SharedUIResources.csproj` excludes `adminapp\**` from its items, so sources, `package.json` and `node_modules` never become content or static web assets.
+- Playwright is not part of `azure-pipelines.yml`; the e2e specs run locally against a running instance.
+
+Commands (run from `adminapp/`):
+
+| Command | Does |
+|---------|------|
+| `npm install` | one-time setup (browsers for e2e: `npx playwright install chromium`) |
+| `npm run build` | Vite build to `wwwroot/administration/bundles/` |
+| `npm run lint` | eslint over the whole project (`src`, `scripts`, `e2e`, configs) |
+| `npm test` | Vitest, once |
+| `npm run analyze:grids` | read-only inventory of every `kendoGrid` in `src/Web` and `src/Plugins`, classified A/B/C, written to git-ignored `reports/` |
+| `npm run e2e` | Playwright smoke specs for the three panels (needs `GRAND_ADMIN_URL` and panel credentials, see README) |
+| `npm run e2e:har` | records HAR files of representative grid pages into git-ignored `e2e/har/` |
+
+Never commit `reports/`, `e2e/har/`, `e2e/test-results/` or `e2e/playwright-report/` — HAR files contain session cookies and store data.

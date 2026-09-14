@@ -1,7 +1,8 @@
 # Storefront frontend
 
-The only npm project in the solution. It builds everything the storefront loads
-from `wwwroot/bundles`:
+The storefront's npm project. It builds everything the storefront loads from
+`wwwroot/bundles` (the admin panels have their own project in
+`src/Web/Grand.SharedUIResources/adminapp`):
 
 | output | contents |
 | --- | --- |
