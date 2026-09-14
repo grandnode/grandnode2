@@ -93,18 +93,25 @@ export async function expandFirstDetail(page, gridId) {
 
 /** Selects a tab of an <admin-tabstrip> by index (language independent). */
 export async function openTab(page, tabStripName, index) {
-    const tab = page.locator(`#${tabStripName} > ul.k-tabstrip-items > li`).nth(index)
-    await tab.click()
-    await expect(tab).toHaveClass(/k-state-active/)
+    //Kendo 2021 wraps the items in .k-tabstrip-items-wrapper
+    const tab = page.locator(`#${tabStripName} > .k-tabstrip-items-wrapper > ul.k-tabstrip-items > li, #${tabStripName} > ul.k-tabstrip-items > li`).nth(index)
+    //the Kendo TabStrip ignores a click while the previous tab is still fading in
+    await expect(async () => {
+        await tab.click()
+        await expect(tab).toHaveClass(/k-state-active/, { timeout: 1_000 })
+    }).toPass({ timeout: 15_000 })
     await page.waitForLoadState('networkidle')
     const content = page.locator(`#${tabStripName} > .k-content.k-state-active`)
     await expect(content).toBeVisible()
     return content
 }
 
-/** Waits for every grid inside a container (e.g. an opened tab). */
+/**
+ * Waits for every visible grid inside a container (e.g. an opened tab). Grids in nested
+ * tabs that are not shown, or in sections the product type hides, are skipped.
+ */
 export async function waitForGridsIn(page, container) {
-    const ids = await container.locator('[data-role="grid"][id]').evaluateAll(els => els.map(e => e.id))
+    const ids = await container.locator('[data-role="grid"][id]').evaluateAll(els => els.filter(e => e.offsetParent !== null).map(e => e.id))
     const states = {}
     for (const id of ids) states[id] = await waitForGrid(page, id)
     return states

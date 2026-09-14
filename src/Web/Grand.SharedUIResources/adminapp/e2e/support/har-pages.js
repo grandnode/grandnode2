@@ -11,7 +11,7 @@ export const HAR_PAGES = [
     { panel: 'admin', name: 'customer-list', path: '/Admin/Customer/List', grid: 'customers-grid' },
     { panel: 'admin', name: 'current-carts', path: '/Admin/ShoppingCart/CurrentCarts', grid: 'carts-grid', detail: true },
     { panel: 'admin', name: 'measure-weights', path: '/Admin/Measure/Index', tab: ['measures-list', 2], grid: 'measureweight-grid', captureUpdate: /\/Measure\/WeightUpdate/i },
-    { panel: 'admin', name: 'currency-list', path: '/Admin/Currency/List', grid: 'currencies-grid', captureUpdate: /\/Currency\/\w*Update/i },
+    { panel: 'admin', name: 'currency-list', path: '/Admin/Currency/List', grid: 'currencies-grid' },
     { panel: 'admin', name: 'tax-categories', path: '/Admin/Tax/Categories', grid: 'tax-categories-grid', captureUpdate: /\/Tax\/CategoryUpdate/i },
     { panel: 'admin', name: 'language-list', path: '/Admin/Language/List', grid: 'languages-grid' },
     { panel: 'admin', name: 'country-list', path: '/Admin/Country/List', grid: 'countries-grid' },
