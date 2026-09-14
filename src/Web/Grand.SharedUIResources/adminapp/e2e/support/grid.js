@@ -1,10 +1,23 @@
 import { expect } from '@playwright/test'
 
 /*
- * Helpers for the Kendo grids as they are rendered today. They read the widget
- * through $(el).data('kendoGrid') - the same API the views and plugins use - so the
- * specs keep working unchanged once GrandGrid provides that API.
+ * Helpers that work for both grid engines: Kendo grids built in script and <admin-grid>
+ * (admin.grid.js). They read the widget through $(el).data('kendoGrid') - the API both
+ * provide - and use a selector for each engine where the markup differs.
  */
+
+//markup of the two engines; each selector matches either
+export const gridSelectors = {
+    loading: '.k-loading-mask',
+    editButton: 'tbody .k-grid-edit, .grand-grid-edit',
+    editRow: 'tr.k-grid-edit-row, .grand-grid-edit-row',
+    cancelButton: '.k-grid-cancel, .grand-grid-cancel',
+    updateButton: '.k-grid-update, .grand-grid-update',
+    detailExpander: 'tbody > tr.k-master-row .k-hierarchy-cell a, .grand-grid-detail-toggle',
+    detailRow: 'tr.k-detail-row, .grand-grid-detail',
+    checkedRowCheckbox: 'tbody input[type=checkbox]:checked, .grand-grid-table input.grand-grid-select:checked',
+    selectAll: '#mastercheckbox, .grand-grid-select-all'
+}
 
 /** Opens a panel page and waits until its requests (including grid reads) settle. */
 export async function openPage(page, path) {
@@ -19,12 +32,16 @@ export async function waitForGrid(page, gridId) {
     const grid = page.locator(`#${gridId}`)
     await expect(grid, `grid #${gridId} is rendered`).toBeVisible()
     await page.waitForLoadState('networkidle')
-    await expect(grid.locator('.k-loading-mask')).toHaveCount(0)
+    await expect(grid.locator(gridSelectors.loading)).toHaveCount(0)
     const state = await page.evaluate(id => {
         const widget = $('#' + id).data('kendoGrid')
         if (!widget) return null
+        const element = $('#' + id)
+        const rows = widget.grandGrid
+            ? element.children('.grand-grid-table').find('.tabulator-table').first().children('.tabulator-row').length
+            : element.find('tbody > tr').not('.k-detail-row, .k-grouping-row').length
         return {
-            rows: $('#' + id).find('tbody > tr').not('.k-detail-row, .k-grouping-row').length,
+            rows,
             total: widget.dataSource.total(),
             dataLength: widget.dataSource.data().length
         }
@@ -47,27 +64,27 @@ export async function firstItemField(page, gridId, field = 'Id') {
 /** Opens inline edit on the first row and cancels it; nothing is sent to the server. */
 export async function openInlineEditAndCancel(page, gridId) {
     const grid = page.locator(`#${gridId}`)
-    const edit = grid.locator('tbody .k-grid-edit').first()
+    const edit = grid.locator(gridSelectors.editButton).first()
     if ((await edit.count()) === 0) return false
     const requests = []
     const onRequest = request => { if (request.method() !== 'GET') requests.push(request.url()) }
     page.on('request', onRequest)
     await edit.click()
-    await expect(grid.locator('tr.k-grid-edit-row')).toHaveCount(1)
-    await grid.locator('tr.k-grid-edit-row .k-grid-cancel').click()
-    await expect(grid.locator('tr.k-grid-edit-row')).toHaveCount(0)
+    await expect(grid.locator(gridSelectors.editRow)).toHaveCount(1)
+    await grid.locator(gridSelectors.editRow).locator(gridSelectors.cancelButton).click()
+    await expect(grid.locator(gridSelectors.editRow)).toHaveCount(0)
     page.off('request', onRequest)
     expect(requests, 'cancelling inline edit must not call the server').toEqual([])
     return true
 }
 
-/** Expands the first master row of a grid with detailInit and waits for the detail grid. */
+/** Expands the first master row of a grid with a detail grid and waits for it. */
 export async function expandFirstDetail(page, gridId) {
     const grid = page.locator(`#${gridId}`)
-    const expander = grid.locator('tbody > tr.k-master-row .k-hierarchy-cell a').first()
+    const expander = grid.locator(gridSelectors.detailExpander).first()
     if ((await expander.count()) === 0) return false
     await expander.click()
-    const detail = grid.locator('tr.k-detail-row').first()
+    const detail = grid.locator(gridSelectors.detailRow).first()
     await expect(detail).toBeVisible()
     await page.waitForLoadState('networkidle')
     await expect(detail.locator('[data-role="grid"]').first()).toBeVisible()

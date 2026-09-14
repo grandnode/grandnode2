@@ -147,6 +147,19 @@ The empty layout is deliberate — the admin renders plugin configuration inside
 
 Use the admin tag helpers rather than raw markup, and follow the closest existing `Configure.cshtml` for the store-scope override controls when the plugin is store-scoped.
 
+A configuration page that lists records uses `<admin-grid>`; the `_ViewImports.cshtml` above already registers the `Grand.Web.Common` tag helpers. `src/Plugins/Shipping.ByWeight/Areas/Admin/Views/ShippingByWeight/Configure.cshtml` is a converted example:
+
+```cshtml
+<admin-grid id="rates-grid"
+            read-url="@Url.Action("RatesList", "{ControllerName}")"
+            destroy-url="@Url.Action("RateDelete", "{ControllerName}")">
+    <grid-column field="Name" title="@Loc["Plugins.{Group}.{Name}.Fields.Name"]" width="300"/>
+    <grid-commands destroy="true" width="100"/>
+</admin-grid>
+```
+
+Plugin views compile into the plugin assembly, so a view change needs a plugin rebuild.
+
 ---
 
 ## Checklist

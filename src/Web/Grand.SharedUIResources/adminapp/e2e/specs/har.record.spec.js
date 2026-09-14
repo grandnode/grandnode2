@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { hasCredentials } from '../support/env.js'
 import { login, useLanguage } from '../support/auth.js'
-import { expandFirstDetail, openTab, waitForGrid } from '../support/grid.js'
+import { expandFirstDetail, gridSelectors, openTab, waitForGrid } from '../support/grid.js'
 import { HAR_PAGES } from '../support/har-pages.js'
 
 //Records one HAR per page into e2e/har/ (git-ignored: it holds session cookies,
@@ -57,11 +57,14 @@ for (const entry of HAR_PAGES) {
                     await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
                 })
                 const grid = page.locator(`#${entry.grid}`)
-                await grid.locator('tbody .k-grid-edit').first().click()
+                await grid.locator(gridSelectors.editButton).first().click()
                 //Kendo only syncs dirty items; mark the unchanged row dirty so the
-                //payload is exactly the row as loaded
-                await page.evaluate(id => { $('#' + id).data('kendoGrid').dataSource.data()[0].dirty = true }, entry.grid)
-                await grid.locator('tr.k-grid-edit-row .k-grid-update').click()
+                //payload is exactly the row as loaded (<admin-grid> always posts the row)
+                await page.evaluate(id => {
+                    const widget = $('#' + id).data('kendoGrid')
+                    if (!widget.grandGrid) widget.dataSource.data()[0].dirty = true
+                }, entry.grid)
+                await grid.locator(gridSelectors.editRow).locator(gridSelectors.updateButton).click()
                 await expect.poll(() => captured.length).toBeGreaterThan(0)
                 await page.waitForLoadState('networkidle')
             }

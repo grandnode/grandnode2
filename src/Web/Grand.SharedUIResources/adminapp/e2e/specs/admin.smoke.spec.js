@@ -1,5 +1,5 @@
 import { test, expect } from '../support/fixtures.js'
-import { expandFirstDetail, firstItemField, openInlineEditAndCancel, openPage, openTab, waitForGrid, waitForGridsIn } from '../support/grid.js'
+import { expandFirstDetail, firstItemField, gridSelectors, openInlineEditAndCancel, openPage, openTab, waitForGrid, waitForGridsIn } from '../support/grid.js'
 
 //Admin panel smoke set. Read-only: pages are opened, grids loaded, inline edit is
 //opened and cancelled, tabs are switched - nothing is saved, deleted or uploaded.
@@ -28,11 +28,14 @@ test.describe('Admin', () => {
         await waitForGrid(page, 'products-grid')
 
         test.skip(dataLength === 0, 'no products to select')
-        const master = page.locator('#mastercheckbox')
+        //Kendo view: #mastercheckbox; <admin-grid>: the checkbox column header
+        const grid = page.locator('#products-grid')
+        const master = grid.locator(gridSelectors.selectAll).first()
+        const checked = grid.locator(gridSelectors.checkedRowCheckbox)
         await master.check()
-        await expect(page.locator('#products-grid tbody input[type=checkbox]:checked').first()).toBeVisible()
+        await expect(checked.first()).toBeVisible()
         await master.uncheck()
-        await expect(page.locator('#products-grid tbody input[type=checkbox]:checked')).toHaveCount(0)
+        await expect(checked).toHaveCount(0)
     })
 
     test('product edit: categories, prices, pictures, attributes, specification attributes', async ({ panelPage: page }) => {

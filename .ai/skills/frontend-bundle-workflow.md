@@ -13,7 +13,7 @@ Two npm projects:
 | Project | Serves | Output |
 |---------|--------|--------|
 | `src/Web/Grand.Web/vueapp/` | storefront | `src/Web/Grand.Web/wwwroot/bundles/` (committed) |
-| `src/Web/Grand.SharedUIResources/adminapp/` | Admin, Store and Vendor panels | `src/Web/Grand.SharedUIResources/wwwroot/administration/bundles/` (not committed yet, see below) |
+| `src/Web/Grand.SharedUIResources/adminapp/` | Admin, Store and Vendor panels | `src/Web/Grand.SharedUIResources/wwwroot/administration/bundles/` (`admin.grid.*` committed, see below) |
 
 The old webpack project at `Grand.Web/` root was removed. Everything up to [Admin Panel Project](#admin-panel-project) is about `vueapp`.
 
@@ -158,8 +158,10 @@ npm project for the Admin, Store and Vendor panels, following the `vueapp` conve
 
 Current state:
 
-- `src/admin.core.js` only reserves `window.GrandAdmin`. **No panel loads anything from this project yet** — `HeadAdmin.cshtml`, `HeadStore.cshtml` and `HeadVendor.cshtml` still reference the vendored files in `wwwroot/administration/` directly.
-- `npm run build` writes `wwwroot/administration/bundles/admin.core.js`. That output is **not committed** while no view references it. The first change that loads the bundle from a `Head*` partial starts committing it, and from then on the commit rules above apply.
+- `npm run build` (`scripts/build.mjs`) runs one IIFE build per entry: `admin.grid` (the `<admin-grid>` runtime on Tabulator, `window.GrandAdmin.grids`), `admin.legacy` (the `$.fn.kendoGrid` shim) and `admin.core` (reserves `window.GrandAdmin`).
+- `HeadAdmin.cshtml`, `HeadStore.cshtml` and `HeadVendor.cshtml` load `bundles/admin.grid.js` and `bundles/admin.grid.css` after `admin.common.js`, next to Kendo. **`admin.grid.js` and `admin.grid.css` are committed** and follow the commit rules above: rebuild and stage them with every change under `adminapp/src/grid`.
+- `admin.core.js` and `admin.legacy.js` are not loaded by any panel, so they stay uncommitted (listed in the root `.gitignore`) until a `Head*` partial references them.
+- Everything else in `wwwroot/administration/` is still the vendored libraries the panels load directly.
 - `Grand.SharedUIResources.csproj` excludes `adminapp\**` from its items, so sources, `package.json` and `node_modules` never become content or static web assets.
 - Playwright is not part of `azure-pipelines.yml`; the e2e specs run locally against a running instance.
 

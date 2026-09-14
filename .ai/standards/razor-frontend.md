@@ -34,9 +34,49 @@ Rules for `.cshtml`, storefront JavaScript, and theme assets. Complementary to `
 ## Admin views
 
 - Use the admin tag helpers for labels, inputs, validation, cards, tabs, and grids rather than raw Bootstrap markup.
-- Follow the existing Kendo grid + AJAX conventions.
+- New and reworked grids use `<admin-grid>` (see [Admin grids](#admin-grids)). Views that have not been converted still build Kendo grids in script; do not add new `kendoGrid({...})` calls.
 - Keep tab partials named `CreateOrUpdate.Tab{Name}.cshtml` next to `CreateOrUpdate.cshtml`.
 - Never render an action the controller's permission attribute does not allow — the view is not the security boundary, but a mismatch is a bug.
+
+## Admin grids
+
+`<admin-grid>` (`Grand.Web.Common/TagHelpers/Admin/AdminGridTagHelper.cs`) renders `<div id data-role="grid" data-grand-grid='{json}'>` plus inert `<template>` elements; `admin.grid.js` (an adapter over Tabulator 6, built from `Grand.SharedUIResources/adminapp/src/grid`) turns it into the grid. `HeadAdmin`, `HeadStore` and `HeadVendor` load it next to Kendo, which still serves every grid that has not been converted.
+
+```cshtml
+<admin-grid id="measureweight-grid"
+            read-url="@Url.Action("Weights", "Measure", new { area = Constants.AreaAdmin })"
+            create-url="..." update-url="..." destroy-url="..."
+            pager="Compact" edit-mode="Inline">
+    <grid-toolbar-create/>
+    <grid-text name="markAsPrimary" value="@Loc["Admin.Configuration.Measures.Weights.Fields.MarkAsPrimaryWeight"]"/>
+    <grid-column field="Name" title="@Loc["..."]" width="300" editor="Text"/>
+    <grid-column field="Ratio" title="@Loc["..."]" width="200" editor="Numeric" decimals="8"/>
+    <grid-column field="DisplayOrder" title="@Loc["..."]" format="{0:0}" editor="Integer"/>
+    <grid-column field="Id" title="@Loc["..."]" editable="false">
+        <cell-template>
+            <button type="button" class="k-button" data-grid-click="markAsPrimaryWeight">
+                <i data-if="IsPrimaryWeight" class="fa fa-check"></i><i data-else class="fa fa-times"></i>
+                {{ $texts.markAsPrimary }}
+            </button>
+        </cell-template>
+    </grid-column>
+    <grid-commands edit="true" destroy="true" width="200"/>
+</admin-grid>
+```
+
+- The server contract does not change: `DataSourceRequest` in, `DataSourceResult {Data, Total, Errors}` out, form-urlencoded POSTs serialized like `jQuery.param`, the antiforgery token read like `addAntiForgeryToken`, errors shown through `display_kendoui_grid_error`.
+- The tag helper fills the defaults: page size and page sizes from `AdminAreaSettings` for `pager="Full"` (`pager="Compact"` sends no paging fields, like a Kendo grid without `pageSize`), localized pager and command texts, the request culture for number and date formats, RTL from the working language.
+- URLs: `*-url` attributes, or `controller` with `read-action`/`create-action`/`update-action`/`destroy-action`, the area taken from the current route.
+- Conditional columns are plain `@if` around `<grid-column>`.
+- Cell templates are markup, not code: `{{ Field }}` is encoded text, `{{ Field | n2 }}` is formatted, `{{{ Field }}}` is raw HTML, `data-if` / `data-else` hold simple conditions, `data-grid-click="globalFunction"` receives `(dataItem, event, grid)`. Nothing is evaluated as JavaScript; placeholders inside `on*`, `style` and `srcdoc` attributes are dropped, and URL attributes that would run script are removed.
+- `{{{ Field }}}` and `encoded="false"` are only for markup the server builds (such as `AttributeInfo`). Never put `@Html.Raw` inside `<cell-template>`; pass localized text through `<grid-text>` and read it as `{{ $texts.name }}`.
+- Editors: `Text`, `Numeric` (`decimals`; posts the culture decimal separator the model binder reads), `Integer`, `Checkbox`, `Date`, `DateTime`, `Select` (`options` from a `SelectListItem` list, or `options-url` returning JSON; `text-field` names the row field holding the display text), `Custom` (`editor-name` registered with `GrandAdmin.grids.editors.register`).
+- `edit-mode="Inline"` gives Kendo-style row editing (Edit, then Update/Cancel); `<grid-toolbar-create>` adds a row; `confirm-destroy="true"` asks before Delete; `reload-after-save="false"` keeps the page after an update (create always reloads); `visible-if` on `<grid-commands>` hides Edit/Delete per row - the controller still enforces access.
+- `selectable="Checkbox"` adds a checkbox column whose selection survives paging: `selectedIds` on the grid API, `on-change="fn"` (`e.selectedIds`), the `grand-grid:selection` DOM event, `clearSelection()`.
+- `<grid-detail read-url="..." param="customerId:CustomerId">` with nested `<grid-column>` elements loads a detail grid per expanded row.
+- `min-screen-width` hides a column below that window width; `auto-bind="false"` waits for `tabstrip_on_tab_show`.
+- `$(el).data('kendoGrid')` keeps working for the calls views make (`dataSource.read/page/pageSize/get/data/total/remove/sync`, `dataItem(tr)`, `select()`, `refresh()`); `on-data-bound`, `on-edit`, `on-save`, `on-request-start`, `on-request-end`, `on-error`, `on-detail-init` name global handlers.
+- `adminapp` source changes need `npm run build` and the rebuilt bundle committed with them (`.ai/skills/frontend-bundle-workflow.md`).
 
 ## Themes
 

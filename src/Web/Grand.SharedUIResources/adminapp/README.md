@@ -9,13 +9,17 @@ What exists today:
 
 | path | contents |
 | --- | --- |
+| `src/admin.grid.js` | bundle entry of the `<admin-grid>` runtime: registers `window.GrandAdmin.grids` |
+| `src/grid/` | the adapter over Tabulator 6: data source and transport (server contract, `jQuery.param` serialization), row editing and editors, eval-free cell templates, culture formatting, pager, `$(el).data('kendoGrid')` API |
+| `src/admin.legacy.js`, `src/legacy/` | `$.fn.kendoGrid` shim and Kendo template compiler; built and tested, not loaded by any panel |
 | `src/admin.core.js` | bundle entry; only reserves `window.GrandAdmin` |
 | `scripts/codemods/analyze-kendo-grids.mjs` | read-only inventory and A/B/C classification of every `kendoGrid` in the views |
 | `scripts/codemods/lib/` | Razor masking and grid analysis used by the analyzer (unit tested) |
 | `e2e/` | Playwright smoke specs for the three panels and a HAR recorder |
 
-Nothing in this project is loaded by `HeadAdmin`, `HeadStore` or `HeadVendor` yet;
-the panels run exactly on the vendored files in `wwwroot/administration`.
+`HeadAdmin`, `HeadStore` and `HeadVendor` load `admin.grid.js` and `admin.grid.css` next
+to Kendo; the grids declared with `<admin-grid>` (see `.ai/standards/razor-frontend.md`)
+run on it and every other grid still runs on Kendo.
 
 ## Setup
 
@@ -29,16 +33,16 @@ npm install
 npm run build
 ```
 
-Writes `admin.core.js` to `../wwwroot/administration/bundles/` as an IIFE (loaded by a
-plain `<script src>`, like the storefront bundle). `emptyOutDir` is off because the
-output directory sits inside the vendored `wwwroot/administration` tree, and `vue` is
-aliased to the esm-bundler build that includes the template compiler.
+`scripts/build.mjs` runs one Vite build per entry (an IIFE build cannot be split across
+inputs) and writes `admin.grid.js`/`admin.grid.css`, `admin.legacy.js` and `admin.core.js`
+to `../wwwroot/administration/bundles/`, each loaded by a plain `<script src>`.
+`npm run build -- admin.grid` builds one entry. `emptyOutDir` is off because the output
+directory sits inside the vendored `wwwroot/administration` tree, and `vue` is aliased to
+the esm-bundler build that includes the template compiler.
 
-**The build output is not committed yet.** No view references the bundle, so shipping
-it would only add an unused static web asset. Do not commit
-`wwwroot/administration/bundles/` until the first change that loads it from a `Head*`
-partial; from that change on the bundle is committed together with its source, as in
-`vueapp`.
+`admin.grid.js` and `admin.grid.css` are committed together with the source that produced
+them, as in `vueapp`. `admin.core.js` and `admin.legacy.js` are git-ignored until a panel
+loads them.
 
 ## Lint and test
 
@@ -47,7 +51,10 @@ npm run lint
 npm test
 ```
 
-`npm test` runs Vitest once over `scripts/**/*.test.mjs` and `src/**/*.test.js`.
+`npm test` runs Vitest once over `scripts/**/*.test.mjs` and `src/**/*.test.js`. Browser-API
+tests opt into jsdom with `// @vitest-environment jsdom`; the serializer tests compare
+against `jQuery.param` from jQuery 2.2.4 (a dev dependency only, the panels load their own
+copy).
 
 ## Kendo grid analyzer
 
