@@ -1,5 +1,4 @@
 @model PaymentTransactionListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Orders.PaymentTransaction"];
@@ -80,91 +79,47 @@
                 </div>
                 <div class="x_content form">
                     <div class="x_content">
-                        <div id="paymenttransactions-grid"></div>
+                        <admin-grid id="paymenttransactions-grid"
+                                    read-url="@Url.Action("List", "PaymentTransaction", new { area = area })"
+                                    additional-data="additionalData">
+                            <grid-column field="PaymentMethodSystemName" title="@Loc["Admin.Orders.PaymentTransaction.Fields.PaymentMethodSystemName"]" width="80">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}">{{ PaymentMethodSystemName }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="TransactionAmount" title="@Loc["Admin.Orders.PaymentTransaction.Fields.TransactionAmount"]" width="80">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}">{{ TransactionAmount | n2 }} {{ CurrencyCode }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="PaidAmount" title="@Loc["Admin.Orders.PaymentTransaction.Fields.PaidAmount"]" width="100">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}">{{ PaidAmount | n2 }} {{ CurrencyCode }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="CustomerId" title="@Loc["Admin.Orders.PaymentTransaction.Fields.Customer"]" width="200">
+                                <cell-template>
+                                    <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerEmail }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="OrderNumber" title="@Loc["Admin.Orders.PaymentTransaction.Fields.OrderNumber"]" width="80">
+                                <cell-template>
+                                    <a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Status" title="@Loc["Admin.Orders.PaymentTransaction.Fields.Status"]" width="130">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}">{{ Status }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="CreatedOn" title="@Loc["Admin.Orders.PaymentTransaction.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+                        </admin-grid>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </form>
-<script>
-    $(document).ready(function() {
-        $("#paymenttransactions-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("List", "PaymentTransaction", new { area = area }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [
-                 {
-                    field: "PaymentMethodSystemName",
-                    title: "@Loc["Admin.Orders.PaymentTransaction.Fields.PaymentMethodSystemName"]",
-                    width: 80,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=PaymentMethodSystemName#</a>'
-                }, {
-                    field: "TransactionAmount",
-                    title: "@Loc["Admin.Orders.PaymentTransaction.Fields.TransactionAmount"]",
-                    width: 80,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=kendo.toString(TransactionAmount, "n2")# #=CurrencyCode#</a>'
-                }, {
-                    field: "PaidAmount",
-                    title: "@Loc["Admin.Orders.PaymentTransaction.Fields.PaidAmount"]",
-                    width: 100,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=kendo.toString(PaidAmount, "n2")# #=CurrencyCode#</a>'
-                }, {
-                    field: "CustomerId",
-                    title: "@Loc["Admin.Orders.PaymentTransaction.Fields.Customer"]",
-                    width: 200,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/#=CustomerId#">#:kendo.htmlEncode(CustomerEmail)#</a>'
-                }, {
-                    field: "OrderNumber",
-                    title: "@Loc["Admin.Orders.PaymentTransaction.Fields.OrderNumber"]",
-                    width: 80,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/#=OrderId#">#:OrderNumber#</a>'
-                }, {
-                    field: "Status",
-                    title: "@Loc["Admin.Orders.PaymentTransaction.Fields.Status"]",
-                    width: 130,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=Status#</a>'
-                }, {
-                    field: "CreatedOn",
-                    title: "@Loc["Admin.Orders.PaymentTransaction.Fields.CreatedOn"]",
-                    width: 100,
-                    type: "date",
-                    format: "{0:G}"
-                }
-            ]
-        });
-    });
-</script>
 
 <script>
     function additionalData() {

@@ -1,5 +1,4 @@
 @model OrderModel.AddOrderProductModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = string.Format(Loc["Admin.Orders.Products.AddNew.Title1"], Model.OrderNumber);
@@ -72,7 +71,14 @@
             </div>
             <div class="x_content">
                 <strong>@Loc["Admin.Orders.Products.AddNew.Note1"]</strong>
-                <div id="products-grid"></div>
+                <admin-grid id="products-grid"
+                            read-url="@Url.Action("AddProductToOrder", "Order", new { area = area })"
+                            additional-data="additionalData"
+                            selectable="Row"
+                            on-change="onChange">
+                    <grid-column field="Name" title="@Loc["Admin.Orders.Products.AddNew.Name"]" width="400"/>
+                    <grid-column field="Sku" title="@Loc["Admin.Orders.Products.AddNew.SKU"]" width="100"/>
+                </admin-grid>
             </div>
         </div>
     </div>
@@ -84,54 +90,6 @@
         $('.filter-extend-button').click(function () {
             $('.extend-collapse').toggle("slow");
             $('.filter-text-close').toggle();
-        });
-
-        $("#products-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("AddProductToOrder", "Order", new { area = area }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            //selectable
-            selectable: true,
-            change: onChange,
-            columns: [{
-                field: "Name",
-                title: "@Loc["Admin.Orders.Products.AddNew.Name"]",
-                width: 400
-            },{
-                field: "Sku",
-                title: "@Loc["Admin.Orders.Products.AddNew.SKU"]",
-                width: 100
-            }]
         });
     });
 </script>

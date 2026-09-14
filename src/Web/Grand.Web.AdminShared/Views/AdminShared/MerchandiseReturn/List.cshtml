@@ -1,5 +1,4 @@
 @model MerchandiseReturnListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Orders.MerchandiseReturns"];
@@ -86,91 +85,47 @@
                 </div>
                 <div class="x_content form">
                     <div class="x_content">
-                        <div id="merchandisereturns-grid"></div>
+                        <admin-grid id="merchandisereturns-grid"
+                                    read-url="@Url.Action("List", "MerchandiseReturn", new { area = area })"
+                                    additional-data="additionalData">
+                            <grid-column field="ReturnNumber" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.ID"]" width="50">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}">{{ ReturnNumber }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Quantity" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]" width="80">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}">{{ Quantity }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Total" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Total"]" width="100">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}">{{ Total }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="CustomerId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Customer"]" width="200">
+                                <cell-template>
+                                    <a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/{{ CustomerId }}">{{ CustomerInfo }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="OrderId" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Order"]" width="80">
+                                <cell-template>
+                                    <a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/{{ OrderId }}">{{ OrderNumber }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="MerchandiseReturnStatusStr" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.Status"]" width="130">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}">{{ MerchandiseReturnStatusStr }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="CreatedOn" title="@Loc["Admin.Orders.MerchandiseReturns.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+                        </admin-grid>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </form>
-<script>
-    $(document).ready(function() {
-        $("#merchandisereturns-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("List", "MerchandiseReturn", new { area = area }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [
-                {
-                    field: "ReturnNumber",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.ID"]",
-                    width: 50,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=ReturnNumber#</a>'
-                }, {
-                    field: "Quantity",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]",
-                    width: 80,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=Quantity#</a>'
-                }, {
-                    field: "Total",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Total"]",
-                    width: 100,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=Total#</a>'
-                } , {
-                    field: "CustomerId",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Customer"]",
-                    width: 200,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = area })/#=CustomerId#">#:kendo.htmlEncode(CustomerInfo)#</a>'
-                }, {
-                    field: "OrderId",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Order"]",
-                    width: 80,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = area })/#=OrderId#">#:OrderNumber#</a>'
-                }, {
-                    field: "MerchandiseReturnStatusStr",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Status"]",
-                    width: 130,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=MerchandiseReturnStatusStr#</a>'
-                }, {
-                    field: "CreatedOn",
-                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.CreatedOn"]",
-                    width: 100,
-                    type: "date",
-                    format: "{0:G}"
-                }
-            ]
-        });
-    });
-    </script>
 
 <script>
     function additionalData() {

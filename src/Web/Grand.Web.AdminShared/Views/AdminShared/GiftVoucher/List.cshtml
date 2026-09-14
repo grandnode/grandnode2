@@ -1,5 +1,4 @@
 @model GiftVoucherListModel
-@inject AdminAreaSettings adminAreaSettings
 
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
@@ -55,7 +54,33 @@
                 </div>
             </div>
             <div class="x_content">
-                <div id="giftvouchers-grid"></div>
+                <admin-grid id="giftvouchers-grid"
+                            read-url="@Url.Action("GiftVoucherList", "GiftVoucher", new { area })"
+                            additional-data="additionalData">
+                    <grid-column field="AmountStr" title="@Loc["Admin.GiftVouchers.Fields.Amount"]" width="100">
+                        <cell-template>
+                            <a class="k-link" href="Edit/{{ Id }}">{{ AmountStr }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="RemainingAmountStr" title="@Loc["Admin.GiftVouchers.Fields.RemainingAmount"]" width="100">
+                        <cell-template>
+                            <a class="k-link" href="Edit/{{ Id }}">{{ RemainingAmountStr }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="Code" title="@Loc["Admin.GiftVouchers.Fields.Code"]" width="120">
+                        <cell-template>
+                            <a class="k-link" href="Edit/{{ Id }}">{{ Code }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="RecipientName" title="@Loc["Admin.GiftVouchers.Fields.RecipientName"]" width="150" min-screen-width="750"/>
+                    <grid-column field="IsGiftVoucherActivated" title="@Loc["Admin.GiftVouchers.Fields.IsGiftVoucherActivated"]" width="100" align="Center">
+                        <cell-template>
+                            <i data-if="IsGiftVoucherActivated" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="CreatedOn" title="@Loc["Admin.GiftVouchers.Fields.CreatedOn"]" width="180" format="{0:G}"/>
+                </admin-grid>
             </div>
         </div>
     </div>
@@ -63,74 +88,6 @@
 
 <script>
     $(document).ready(function () {
-        $("#giftvouchers-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("GiftVoucherList", "GiftVoucher", new { area }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "AmountStr",
-                title: "@Loc["Admin.GiftVouchers.Fields.Amount"]",
-                template: '<a class="k-link" href="Edit/#=Id#">#=AmountStr#</a>',
-                width: 100,
-            }, {
-                field: "RemainingAmountStr",
-                title: "@Loc["Admin.GiftVouchers.Fields.RemainingAmount"]",
-                template: '<a class="k-link" href="Edit/#=Id#">#=RemainingAmountStr#</a>',
-                width: 100,
-            }, {
-                field: "Code",
-                title: "@Loc["Admin.GiftVouchers.Fields.Code"]",
-                template: '<a class="k-link" href="Edit/#=Id#">#=Code#</a>',
-                width: 120,
-            }, {
-                field: "RecipientName",
-                title: "@Loc["Admin.GiftVouchers.Fields.RecipientName"]",
-                minScreenWidth: 750,
-                width: 150,
-            }, {
-                field: "IsGiftVoucherActivated",
-                title: "@Loc["Admin.GiftVouchers.Fields.IsGiftVoucherActivated"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(IsGiftVoucherActivated) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
-                field: "CreatedOn",
-                title: "@Loc["Admin.GiftVouchers.Fields.CreatedOn"]",
-                width: 180,
-                type: "date",
-                format: "{0:G}"
-            }]
-        });
 
         $('#search-giftvouchers').click(function () {
             var grid = $('#giftvouchers-grid').data('kendoGrid');
