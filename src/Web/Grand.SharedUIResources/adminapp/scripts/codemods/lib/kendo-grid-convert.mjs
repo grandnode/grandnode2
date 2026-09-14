@@ -339,6 +339,8 @@ function pagerOf(config, ds, ctx, grid) {
     const pageable = getProp(config, 'pageable')
     const pageSize = getProp(ds, 'pageSize')
     const result = { pager: 'None', pageSize: null, pageSizes: null }
+    //a page size without serverPaging: Kendo read every row once and paged in the browser
+    if (getProp(ds, 'pageSize') && literal(getProp(ds, 'serverPaging')) !== true) result.serverPaging = false
     if (!pageable || literal(pageable) === false) {
         if (pageSize) grid.markers.push('Kendo grid paged without a pager')
         return result
@@ -610,6 +612,7 @@ export function renderAdminGrid(grid, indent, blocks = []) {
     if (grid.pager !== 'Full') attrs.push(attr('pager', grid.pager))
     if (grid.pageSize != null) attrs.push(attr('page-size', grid.pageSize))
     if (grid.pageSizes != null) attrs.push(attr('page-sizes', grid.pageSizes))
+    if (grid.serverPaging === false) attrs.push('server-paging="false"')
     if (grid.autoBind === false) attrs.push('auto-bind="false"')
     if (grid.editMode) attrs.push(attr('edit-mode', grid.editMode))
     if (grid.reloadAfterSave === false) attrs.push('reload-after-save="false"')
