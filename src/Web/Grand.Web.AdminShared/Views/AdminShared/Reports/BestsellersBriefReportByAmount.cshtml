@@ -2,57 +2,17 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     var gridPageSize = 5;
 }
-<div id="bestsellers-byamount-grid"></div>
-<script>
-    $(document).ready(function () {
-        $("#bestsellers-byamount-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("BestsellersBriefReportByAmountList", "Reports", new { area }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(gridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "ProductName",
-                title: "@Loc["Admin.Reports.Bestsellers.Fields.Name"]"
-            }, {
-                field: "TotalQuantity",
-                title: "@Loc["Admin.Reports.Bestsellers.Fields.TotalQuantity"]"
-            }, {
-                field: "TotalAmount",
-                title: "@Loc["Admin.Reports.Bestsellers.Fields.TotalAmount"]"
-            }, {
-                field: "ProductId",
-                title: "@Loc["Admin.Common.View"]",
-                width: 100,
-                template: '<a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Product", new { area })/#=ProductId#"><i class="fa fa-search"></i> @Loc["Admin.Common.View"]</a>'
-            }]
-        });
-    });
-</script>
+<admin-grid id="bestsellers-byamount-grid"
+            read-url="@Url.Action("BestsellersBriefReportByAmountList", "Reports", new { area })"
+            page-size="@(gridPageSize)"
+            page-sizes="">
+    <grid-text name="view" value="@Loc["Admin.Common.View"]"/>
+    <grid-column field="ProductName" title="@Loc["Admin.Reports.Bestsellers.Fields.Name"]"/>
+    <grid-column field="TotalQuantity" title="@Loc["Admin.Reports.Bestsellers.Fields.TotalQuantity"]"/>
+    <grid-column field="TotalAmount" title="@Loc["Admin.Reports.Bestsellers.Fields.TotalAmount"]"/>
+    <grid-column field="ProductId" title="@Loc["Admin.Common.View"]" width="100">
+        <cell-template>
+            <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Product", new { area })/{{ ProductId }}"><i class="fa fa-search"></i> {{ $texts.view }}</a>
+        </cell-template>
+    </grid-column>
+</admin-grid>

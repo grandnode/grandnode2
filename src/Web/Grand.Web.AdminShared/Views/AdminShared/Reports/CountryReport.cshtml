@@ -70,7 +70,14 @@
                                     </div>
                                 </div>
                                 <div class="x_content">
-                                    <div id="countryreport-grid"></div>
+                                    <admin-grid id="countryreport-grid"
+                                                read-url="@Url.Action("CountryReportList", "Reports", new { area })"
+                                                additional-data="additionalData"
+                                                pager="Compact">
+                                        <grid-column field="CountryName" title="@Loc["Admin.Reports.Country.Fields.CountryName"]"/>
+                                        <grid-column field="TotalOrders" title="@Loc["Admin.Reports.Country.Fields.TotalOrders"]"/>
+                                        <grid-column field="SumOrders" title="@Loc["Admin.Reports.Country.Fields.SumOrders"]"/>
+                                    </admin-grid>
                                 </div>
                             </div>
                         </div>
@@ -82,52 +89,6 @@
 </div>
 
 
-<script>
-        $(document).ready(function () {
-            $("#countryreport-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("CountryReportList", "Reports", new { area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    numeric: false,
-                    previousNext: false,
-                    info: false
-                },
-                scrollable: false,
-                columns: [{
-                    field: "CountryName",
-                    title: "@Loc["Admin.Reports.Country.Fields.CountryName"]"
-                }, {
-                    field: "TotalOrders",
-                    title: "@Loc["Admin.Reports.Country.Fields.TotalOrders"]"
-                },{
-                    field: "SumOrders",
-                    title: "@Loc["Admin.Reports.Country.Fields.SumOrders"]"
-                }]
-            });
-        });
-    </script>
 
 <script>
 

@@ -1,5 +1,4 @@
 @model BestsellersReportModel
-@inject AdminAreaSettings adminAreaSettings
 @inject IReportDataScope Scope
 @{
     //page title
@@ -95,7 +94,17 @@
                                 </div>
 
                                 <div class="x_content">
-                                    <div id="salesreport-grid"></div>
+                                    <admin-grid id="salesreport-grid"
+                                                read-url="@Url.Action("BestsellersReportList", "Reports", new { area })"
+                                                additional-data="additionalData">
+                                        <grid-column field="ProductName" title="@Loc["Admin.Reports.Bestsellers.Fields.Name"]">
+                                            <cell-template>
+                                                <a class="k-link" href="@Url.Action("Edit", "Product", new { area })/{{ ProductId }}">{{ ProductName }}</a>
+                                            </cell-template>
+                                        </grid-column>
+                                        <grid-column field="TotalQuantity" title="@Loc["Admin.Reports.Bestsellers.Fields.TotalQuantity"]"/>
+                                        <grid-column field="TotalAmount" title="@Loc["Admin.Reports.Bestsellers.Fields.TotalAmount"]"/>
+                                    </admin-grid>
                                 </div>
                             </div>
                         </div>
@@ -106,56 +115,6 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $("#salesreport-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("BestsellersReportList", "Reports", new { area }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "ProductName",
-                title: "@Loc["Admin.Reports.Bestsellers.Fields.Name"]",
-                template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
-            }, {
-                field: "TotalQuantity",
-                title: "@Loc["Admin.Reports.Bestsellers.Fields.TotalQuantity"]"
-            },{
-                field: "TotalAmount",
-                title: "@Loc["Admin.Reports.Bestsellers.Fields.TotalAmount"]"
-            }]
-        });
-    });
-</script>
 <script>
 
     $(document).ready(function () {

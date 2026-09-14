@@ -1,5 +1,4 @@
 @model BestCustomersReportModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
@@ -60,59 +59,19 @@
             </div>
         </div>
     </div>
-    <div id="best-customers-numberoforders-grid"></div>
+    <admin-grid id="best-customers-numberoforders-grid"
+                read-url="@Url.Action("ReportBestCustomersByNumberOfOrdersList", "Reports", new { area })"
+                additional-data="bestCustomersNumberOfOrdersAdditionalData">
+        <grid-column field="CustomerName" title="@Loc["Admin.Reports.Customers.BestBy.Fields.Customer"]">
+            <cell-template>
+                <a class="k-link" href="@Url.Action("Edit", "Customer", new { area })/{{ CustomerId }}">{{ CustomerName }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="OrderTotal" title="@Loc["Admin.Reports.Customers.BestBy.Fields.OrderTotal"]"/>
+        <grid-column field="OrderCount" title="@Loc["Admin.Reports.Customers.BestBy.Fields.OrderCount"]"/>
+    </admin-grid>
 </div>
 <partial name="Partials/WidgetZone.CustomerByNumberOfOrdersBottom" model="Model"/>
-<script>
-$(document).ready(function () {
-    $("#best-customers-numberoforders-grid").kendoGrid({
-        dataSource: {
-            transport: {
-                read: {
-                    url: "@Html.Raw(Url.Action("ReportBestCustomersByNumberOfOrdersList", "Reports", new { area }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: bestCustomersNumberOfOrdersAdditionalData
-                }
-            },
-            schema: {
-                data: "Data",
-                total: "Total",
-                errors: "Errors"
-            },
-            error: function (e) {
-                display_kendoui_grid_error(e);
-                // Cancel the changes
-                this.cancelChanges();
-            },
-            pageSize: @(adminAreaSettings.DefaultGridPageSize),
-            serverPaging: true,
-            serverFiltering: true,
-            serverSorting: true
-        },
-        pageable: {
-            refresh: true,
-            pageSizes: [@(adminAreaSettings.GridPageSizes)]
-        },
-        editable: {
-            confirmation: false,
-            mode: "inline"
-        },
-        scrollable: false,
-        columns: [{
-            field: "CustomerName",
-            title: "@Loc["Admin.Reports.Customers.BestBy.Fields.Customer"]",
-            template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area })/#=CustomerId#">#:CustomerName#</a>',
-        }, {
-            field: "OrderTotal",
-            title: "@Loc["Admin.Reports.Customers.BestBy.Fields.OrderTotal"]"
-        }, {
-            field: "OrderCount",
-            title: "@Loc["Admin.Reports.Customers.BestBy.Fields.OrderCount"]"
-        }]
-    });
-});
-</script>
 <script>
 $(document).ready(function () {
 
