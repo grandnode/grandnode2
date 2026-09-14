@@ -3,6 +3,9 @@
 	<PropertyGroup>
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 		<CompressionEnabled>false</CompressionEnabled>
+		<!-- adminapp is the npm project that builds wwwroot/administration/bundles; its
+		     sources, package.json and node_modules are not part of this library -->
+		<DefaultItemExcludes>$(DefaultItemExcludes);adminapp\**</DefaultItemExcludes>
 	</PropertyGroup>
     <ItemGroup>
       <Folder Include="wwwroot\" />
