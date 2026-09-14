@@ -38,13 +38,16 @@ public class AdminGridTagHelperTests
         CultureInfo.CurrentCulture = new CultureInfo("en-US");
         _adminAreaSettings = new AdminAreaSettings { DefaultGridPageSize = 15, GridPageSizes = "10, 15, 20, x, 50" };
         _languageSettings = new LanguageSettings();
-        _workingLanguage = new Language { Rtl = false };
+        _workingLanguage = new Language { Id = "lang1", Rtl = false };
         var workContextMock = new Mock<IWorkContext>();
         workContextMock.Setup(x => x.WorkingLanguage).Returns(() => _workingLanguage);
         _contextAccessorMock = new Mock<IContextAccessor>();
         _contextAccessorMock.Setup(x => x.WorkContext).Returns(workContextMock.Object);
         _translationServiceMock = new Mock<ITranslationService>();
         _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns((string key) => $"[{key}]");
+        _translationServiceMock
+            .Setup(x => x.GetResource(It.IsAny<string>(), "lang1", string.Empty, true))
+            .Returns((string key, string _, string _, bool _) => $"[{key}]");
         _urlHelperMock = new Mock<IUrlHelper>();
         _urlHelperMock.Setup(x => x.Action(It.IsAny<UrlActionContext>()))
             .Returns((UrlActionContext c) =>
@@ -234,6 +237,19 @@ public class AdminGridTagHelperTests
         Assert.AreEqual("[Admin.Common.Grid.PageInfo]", texts.GetProperty("pageInfo").GetString());
         Assert.AreEqual("[Admin.Common.DeleteConfirmation]", texts.GetProperty("deleteConfirmation").GetString());
         Assert.AreEqual("{{ Id }} <b>", texts.GetProperty("markAsPrimary").GetString());
+    }
+
+    [TestMethod]
+    public async Task Process_MissingResources_AreLeftOutInsteadOfShowingTheKey()
+    {
+        _translationServiceMock
+            .Setup(x => x.GetResource("Admin.Common.Grid.PageInfo", "lang1", string.Empty, true))
+            .Returns(string.Empty);
+
+        var texts = Config(await RunGrid(CreateGrid())).GetProperty("texts");
+
+        Assert.IsFalse(texts.TryGetProperty("pageInfo", out _));
+        Assert.AreEqual("[Admin.Common.Grid.Refresh]", texts.GetProperty("refresh").GetString());
     }
 
     [TestMethod]

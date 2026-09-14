@@ -197,25 +197,38 @@ public class AdminGridTagHelper : TagHelper
 
     private IDictionary<string, string> Texts(IDictionary<string, string> custom)
     {
-        var texts = new Dictionary<string, string> {
-            ["edit"] = _translationService.GetResource("Admin.Common.Edit"),
-            ["update"] = _translationService.GetResource("Admin.Common.Update"),
-            ["cancel"] = _translationService.GetResource("Admin.Common.Cancel"),
-            ["delete"] = _translationService.GetResource("Admin.Common.Delete"),
-            ["areYouSure"] = _translationService.GetResource("Admin.Common.AreYouSure"),
-            ["deleteConfirmation"] = _translationService.GetResource("Admin.Common.DeleteConfirmation"),
-            ["refresh"] = _translationService.GetResource("Admin.Common.Grid.Refresh"),
-            ["itemsPerPage"] = _translationService.GetResource("Admin.Common.Grid.ItemsPerPage"),
-            ["pageInfo"] = _translationService.GetResource("Admin.Common.Grid.PageInfo"),
-            ["noRecords"] = _translationService.GetResource("Admin.Common.Grid.NoRecords"),
-            ["firstPage"] = _translationService.GetResource("Admin.Common.Grid.FirstPage"),
-            ["previousPage"] = _translationService.GetResource("Admin.Common.Grid.PreviousPage"),
-            ["nextPage"] = _translationService.GetResource("Admin.Common.Grid.NextPage"),
-            ["lastPage"] = _translationService.GetResource("Admin.Common.Grid.LastPage"),
-            ["toggleDetail"] = _translationService.GetResource("Admin.Common.Grid.ToggleDetail"),
-            ["selectAll"] = _translationService.GetResource("Admin.Common.Grid.SelectAll"),
-            ["selectRow"] = _translationService.GetResource("Admin.Common.Grid.SelectRow")
+        var keys = new Dictionary<string, string> {
+            ["edit"] = "Admin.Common.Edit",
+            ["update"] = "Admin.Common.Update",
+            ["cancel"] = "Admin.Common.Cancel",
+            ["delete"] = "Admin.Common.Delete",
+            ["areYouSure"] = "Admin.Common.AreYouSure",
+            ["deleteConfirmation"] = "Admin.Common.DeleteConfirmation",
+            ["refresh"] = "Admin.Common.Grid.Refresh",
+            ["itemsPerPage"] = "Admin.Common.Grid.ItemsPerPage",
+            ["pageInfo"] = "Admin.Common.Grid.PageInfo",
+            ["noRecords"] = "Admin.Common.Grid.NoRecords",
+            ["firstPage"] = "Admin.Common.Grid.FirstPage",
+            ["previousPage"] = "Admin.Common.Grid.PreviousPage",
+            ["nextPage"] = "Admin.Common.Grid.NextPage",
+            ["lastPage"] = "Admin.Common.Grid.LastPage",
+            ["toggleDetail"] = "Admin.Common.Grid.ToggleDetail",
+            ["selectAll"] = "Admin.Common.Grid.SelectAll",
+            ["selectRow"] = "Admin.Common.Grid.SelectRow"
         };
+        var languageId = _contextAccessor.WorkContext?.WorkingLanguage?.Id;
+        var texts = new Dictionary<string, string>();
+        foreach (var (name, key) in keys)
+        {
+            //a resource missing from the database (e.g. a 2.4 development database that
+            //never imported en_240.xml) is left out, so the grid shows its neutral default
+            //("1 - 15 / 40", no label) instead of the raw resource key
+            var value = languageId is null
+                ? null
+                : _translationService.GetResource(key, languageId, string.Empty, true);
+            if (!string.IsNullOrEmpty(value)) texts[name] = value;
+        }
+
         foreach (var (name, value) in custom)
             texts[name] = value;
         return texts;
