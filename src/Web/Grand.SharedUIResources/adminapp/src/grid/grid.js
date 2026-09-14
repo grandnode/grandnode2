@@ -651,6 +651,11 @@ export class GrandGrid {
         return true
     }
 
+    /** Measures the table again, e.g. after a hidden tab became visible. */
+    resize() {
+        if (this.table && this.element.offsetParent !== null) this.table.redraw(true)
+    }
+
     /** Re-renders the current data without a request. */
     refresh() {
         return this._render()

@@ -56,6 +56,9 @@ export function createKendoApi(grid) {
         },
         clearSelection: () => grid.clearSelection(),
         refresh: () => grid.refresh(),
+        //kendo.resize(container) - called by the Kendo TabStrip when a tab is shown - finds
+        //every [data-role] element and calls resize() on the widget stored in its data
+        resize: () => grid.resize(),
         addRow: () => grid.addRow(),
         editRow: row => grid.editRow(row),
         saveRow: () => grid.saveRow(),
