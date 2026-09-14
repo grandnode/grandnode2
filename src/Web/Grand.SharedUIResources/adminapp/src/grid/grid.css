@@ -1,0 +1,216 @@
+/*
+ * <admin-grid> look inside the current Bootstrap 4.5 admin layout. Tabulator's Bootstrap 5
+ * theme (imported before this file) only styles .tabulator elements and ships no Bootstrap
+ * globals; everything here is scoped to .grand-grid so nothing leaks into the panels.
+ */
+
+.grand-grid {
+    position: relative;
+    width: 100%;
+}
+
+.grand-grid .tabulator {
+    font-size: inherit;
+    border: 1px solid #e7ecf1;
+    border-radius: 0;
+    margin: 0;
+    background-color: transparent;
+}
+
+/*
+ * Admin grids never scroll inside the table (no height option, basic rendering). Tabulator
+ * still pins the holder to the height it measured, which would clip detail rows that open
+ * or finish loading afterwards.
+ */
+.grand-grid .tabulator .tabulator-tableholder {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible;
+}
+
+.grand-grid .tabulator .tabulator-header {
+    border-bottom: 2px solid #e7ecf1;
+    background-color: #f9fafc;
+    color: #333;
+}
+
+.grand-grid .tabulator .tabulator-header .tabulator-col {
+    background-color: transparent;
+    border-right: none;
+}
+
+.grand-grid .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+    padding: 8px 10px;
+}
+
+.grand-grid .tabulator .tabulator-header .tabulator-col .tabulator-col-title {
+    white-space: normal;
+}
+
+.grand-grid .tabulator-row {
+    border-bottom: 1px solid #e7ecf1;
+    background-color: #fff;
+}
+
+.grand-grid .tabulator-row.tabulator-row-even {
+    background-color: #fbfcfd;
+}
+
+.grand-grid .tabulator-row .tabulator-cell {
+    padding: 8px 10px;
+    border-right: none;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    vertical-align: middle;
+}
+
+.grand-grid .tabulator-row.grand-grid-edit-row {
+    background-color: #fdf8e4;
+}
+
+.grand-grid .tabulator-row.grand-grid-edit-row .tabulator-cell {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.grand-grid .tabulator .tabulator-tableholder .tabulator-placeholder .tabulator-placeholder-contents {
+    font-size: 1em;
+    font-weight: normal;
+    color: #888;
+    padding: 12px;
+}
+
+.grand-grid .tabulator-cell img {
+    max-width: 100%;
+    height: auto;
+}
+
+.grand-grid .grand-grid-true {
+    color: green;
+}
+
+.grand-grid .grand-grid-false {
+    color: red;
+}
+
+.grand-grid .grand-grid-toolbar {
+    padding: 0 0 8px;
+}
+
+.grand-grid .grand-grid-command-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.grand-grid .grand-grid-command-buttons .btn,
+.grand-grid .grand-grid-toolbar .btn {
+    margin: 0;
+}
+
+.grand-grid .grand-grid-detail-toggle {
+    border: 0;
+    background: transparent;
+    padding: 0 4px;
+    font-size: 1.15em;
+    line-height: 1;
+    color: inherit;
+    cursor: pointer;
+}
+
+.grand-grid .grand-grid-detail {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 8px 8px 44px;
+    background-color: #f6f7f9;
+    border-top: 1px solid #e7ecf1;
+    clear: both;
+}
+
+.grand-grid[dir="rtl"] .grand-grid-detail {
+    padding: 8px 44px 8px 8px;
+}
+
+.grand-grid .grand-grid-pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    padding: 8px 0;
+}
+
+.grand-grid .grand-grid-pager-nav,
+.grand-grid .grand-grid-pager-numbers {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.grand-grid .grand-grid-pager-button {
+    min-width: 30px;
+    height: 30px;
+    padding: 0 8px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.grand-grid .grand-grid-pager-button:hover:not(:disabled) {
+    border-color: #e7ecf1;
+    background-color: #f2f4f7;
+}
+
+.grand-grid .grand-grid-pager-button.active {
+    border-color: #32c5d2;
+    background-color: #32c5d2;
+    color: #fff;
+}
+
+.grand-grid .grand-grid-pager-button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.grand-grid .grand-grid-page-size {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-weight: normal;
+}
+
+.grand-grid .grand-grid-page-size select {
+    width: auto;
+}
+
+.grand-grid .grand-grid-pager-info {
+    margin-inline-start: auto;
+}
+
+.grand-grid[dir="rtl"] .grand-grid-pager-nav .fa-angle-left,
+.grand-grid[dir="rtl"] .grand-grid-pager-nav .fa-angle-right,
+.grand-grid[dir="rtl"] .grand-grid-pager-nav .fa-angle-double-left,
+.grand-grid[dir="rtl"] .grand-grid-pager-nav .fa-angle-double-right {
+    transform: scaleX(-1);
+}
+
+[data-theme="dark"] .grand-grid .tabulator,
+[data-theme="dark"] .grand-grid .tabulator-row,
+[data-theme="dark"] .grand-grid .tabulator .tabulator-header {
+    background-color: transparent;
+    color: inherit;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .grand-grid .tabulator-row.tabulator-row-even,
+[data-theme="dark"] .grand-grid .grand-grid-detail {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] .grand-grid .tabulator-row.grand-grid-edit-row {
+    background-color: rgba(255, 220, 120, 0.08);
+}

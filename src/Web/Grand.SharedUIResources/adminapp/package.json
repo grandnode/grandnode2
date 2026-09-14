@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "build": "node scripts/build.mjs",
     "lint": "eslint .",
     "test": "vitest run",
     "analyze:grids": "node scripts/codemods/analyze-kendo-grids.mjs",
@@ -13,6 +13,7 @@
     "audit:prod": "npm audit --omit=dev --audit-level=moderate"
   },
   "dependencies": {
+    "tabulator-tables": "^6.5.2",
     "vue": "^3.5.13"
   },
   "devDependencies": {
@@ -21,6 +22,8 @@
     "acorn": "^8.18.0",
     "eslint": "^9.18.0",
     "globals": "^15.14.0",
+    "jquery": "^2.2.4",
+    "jsdom": "^27.0.1",
     "vite": "^6.0.7",
     "vitest": "^3.2.4"
   },

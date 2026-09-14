@@ -23,6 +23,7 @@
     <link rel="stylesheet" type="text/css" href="@string.Format(Constants.WwwRoot + "/administration/kendo/styles/{0}/kendo.common-material.min.css", kendoVersion)"/>
 
     <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/farbtastic/farbtastic.css"/>
+    <link rel="stylesheet" type="text/css" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.grid.css" asp-append-version="true"/>
 
     //CSS
     if (supportRtl)
@@ -44,6 +45,8 @@
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/jquery.validate.min.js"></script>
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/jquery.validate.unobtrusive.min.js"></script>
     <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/admin.common.js"></script>
+    @*<admin-grid> runtime; Kendo below keeps serving the grids not converted yet*@
+    <script asp-location="Head" asp-src="@(Constants.WwwRoot)/administration/bundles/admin.grid.js" asp-append-version="true"></script>
     <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot + "/administration/kendo/scripts/{0}/kendo.ui.core.min.js", kendoVersion)"></script>
     <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot + "/administration/kendo/scripts/{0}/kendo.grid.js", kendoVersion)"></script>
     <script asp-location="Head" asp-src="@string.Format(Constants.WwwRoot + "/administration/kendo/scripts/{0}/cultures/kendo.culture.{1}.js", kendoVersion, CultureInfo.CurrentCulture.Name)"></script>
