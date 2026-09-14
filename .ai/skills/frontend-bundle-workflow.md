@@ -174,6 +174,7 @@ Commands (run from `adminapp/`):
 | `npm run lint` | eslint over the whole project (`src`, `scripts`, `e2e`, configs) |
 | `npm test` | Vitest, once |
 | `npm run analyze:grids` | read-only inventory of every `kendoGrid` in `src/Web` and `src/Plugins`, classified A/B/C, written to git-ignored `reports/` |
+| `npm run codemod:grids -- --path <text> [--write]` | converts `kendoGrid` scripts into `<admin-grid>` markup (dry run prints a diff); resolve and remove every `CODEMOD-REVIEW` marker before committing |
 | `npm run e2e` | Playwright smoke specs for the three panels (needs `GRAND_ADMIN_URL` and panel credentials, see README) |
 | `npm run e2e:har` | records HAR files of representative grid pages into git-ignored `e2e/har/` |
 
