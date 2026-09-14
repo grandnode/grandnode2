@@ -91,9 +91,16 @@ export class GrandGrid {
         this.editMode = config.editMode || 'None'
         this.commands = config.commands || null
         this.selectable = config.selectable === 'Checkbox'
+        this.selectableRow = config.selectable === 'Row'
         this.detail = config.detail || null
+        this._detailVisible = this.detail?.visibleIf ? compileCondition(this.detail.visibleIf) : null
         this._selected = new Set()
+        this._selectedItem = null
         this._edit = null
+        //batch (Kendo incell + toolbar save/cancel): cell being edited, changed rows and their originals
+        this._cellEdit = null
+        this._dirty = new Map()
+        this._originals = new Map()
         this._expanded = new Map()
         this._detailGrids = new Map()
         this._headerCheckbox = null
@@ -112,7 +119,8 @@ export class GrandGrid {
             onChange: () => this._render(),
             //set by the Kendo shim only; <admin-grid> configurations are JSON
             parameterMap: typeof config.parameterMap === 'function' ? config.parameterMap : null,
-            schema: config.schema || null
+            schema: config.schema || null,
+            data: Array.isArray(config.data) ? config.data : null
         })
         this.api = createKendoApi(this)
         this._build()
@@ -176,13 +184,19 @@ export class GrandGrid {
     _build() {
         const { doc, element } = this
         element.classList.add('grand-grid')
+        if (this.selectableRow) element.classList.add('grand-grid-row-select')
         element.setAttribute('data-role', 'grid')
         if (this.rtl) element.setAttribute('dir', 'rtl')
         element.textContent = ''
 
-        if (this.config.toolbar?.create && this.editMode === 'Inline' && this.config.transport?.create) {
+        const toolbarConfig = this.config.toolbar || {}
+        const hasCreate = toolbarConfig.create && this.editMode === 'Inline' && this.config.transport?.create
+        const hasBatchButtons = this.editMode === 'Batch' && (toolbarConfig.save || toolbarConfig.cancel)
+        if (hasCreate || hasBatchButtons) {
             const toolbar = el(doc, 'div', 'grand-grid-toolbar')
-            toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-success grand-grid-add', 'fa fa-plus', this.config.toolbar.create, () => this.addRow()))
+            if (hasCreate) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-success grand-grid-add', 'fa fa-plus', toolbarConfig.create, () => this.addRow()))
+            if (hasBatchButtons && toolbarConfig.save) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-primary grand-grid-save-changes', 'fa fa-check', toolbarConfig.save, () => this.saveChanges()))
+            if (hasBatchButtons && toolbarConfig.cancel) toolbar.appendChild(iconButton(doc, 'btn btn-sm btn-default grand-grid-cancel-changes', 'fa fa-ban', toolbarConfig.cancel, () => this.cancelChanges()))
             element.appendChild(toolbar)
         }
         this.tableElement = el(doc, 'div', 'grand-grid-table')
@@ -297,6 +311,19 @@ export class GrandGrid {
         if (this._isEditing(row) && column.field && column.editable !== false && column.editor && column.editor !== 'None') {
             return this._editorFor(column, item)
         }
+        if (this._cellEdit && this._cellEdit.item === item && this._cellEdit.column === column) {
+            return this._cellEditorFor(column, item)
+        }
+        const content = this._formatCellContent(item, column)
+        if (this._dirty.get(item)?.has(column.field)) {
+            const holder = el(this.doc, 'div', 'grand-grid-dirty')
+            if (content) holder.append(content)
+            return holder
+        }
+        return content
+    }
+
+    _formatCellContent(item, column) {
         if (column.renderHtml) {
             //Kendo shim only: a compiled Kendo template returns HTML like it did in Kendo
             return this._html(column.renderHtml(item))
@@ -339,6 +366,7 @@ export class GrandGrid {
             item,
             value,
             culture: this.culture,
+            texts: this.texts,
             grid: this.api,
             doc: this.doc,
             commit: () => this.saveRow(),
@@ -398,6 +426,9 @@ export class GrandGrid {
         input.type = 'checkbox'
         input.className = 'grand-grid-select checkboxGroups'
         input.value = id
+        //selection-name: ticked rows of the page are posted with the grid's form, like the
+        //Kendo checkbox templates named SelectedProductIds
+        if (this.config.selectionName) input.name = this.config.selectionName
         input.checked = this._selected.has(id)
         if (this.texts.selectRow) input.setAttribute('aria-label', this.texts.selectRow)
         input.addEventListener('change', () => {
@@ -450,6 +481,8 @@ export class GrandGrid {
 
     _detailToggle(row) {
         const item = row.getData()
+        //detail visible-if: rows without details get no expander (Kendo views removed it in dataBound)
+        if (this._detailVisible && !this._detailVisible(item, { texts: this.texts })) return ''
         const expanded = this._expanded.has(item)
         const button = iconButton(this.doc, 'grand-grid-detail-toggle', expanded ? 'fa fa-minus-square-o' : 'fa fa-plus-square-o', null, () => this.toggleDetail(item))
         button.setAttribute('aria-expanded', String(expanded))
@@ -464,6 +497,7 @@ export class GrandGrid {
         const item = row.getData()
         const rowElement = row.getElement()
         rowElement.classList.toggle('grand-grid-edit-row', this._isEditing(row))
+        if (this.selectableRow) rowElement.classList.toggle('grand-grid-selected', this._selectedItem === item)
         const holder = this._expanded.get(item)
         if (holder) rowElement.appendChild(holder)
     }
@@ -484,27 +518,36 @@ export class GrandGrid {
         } else {
             const holder = el(this.doc, 'div', 'grand-grid-detail')
             this._expanded.set(item, holder)
+            let child = null
+            let childElement = null
             if (this.detail?.columns) {
                 const params = {}
                 for (const { name, field } of this.detail.params || []) params[name] = readPath(item, field)
-                const childElement = el(this.doc, 'div')
+                childElement = el(this.doc, 'div')
                 holder.appendChild(childElement)
-                const childConfig = {
-                    ...this.detail,
-                    transport: { ...(this.detail.transport || {}), read: DataSource.urlWithParams(this.detail.transport.read, params) }
+                const transport = { ...(this.detail.transport || {}) }
+                //every operation of the detail grid carries the master row parameters
+                for (const operation of ['read', 'create', 'update', 'destroy']) {
+                    if (typeof transport[operation] === 'string') transport[operation] = DataSource.urlWithParams(transport[operation], params)
                 }
-                const child = new GrandGrid(childElement, childConfig, { ...this.deps, parent: this })
+                const childConfig = { ...this.detail, transport }
+                child = new GrandGrid(childElement, childConfig, { ...this.deps, parent: this })
                 this._detailGrids.set(item, child)
+                //$(detailElement).data('kendoGrid') works for detail grids too
+                if (window.jQuery) window.jQuery.data(childElement, 'kendoGrid', child.api)
                 child.ready.then(() => child.dataSource.read())
             }
-            this._fire('detailInit', { sender: this.api, data: item, detailCell: holder, masterRow: row.getElement() })
+            this._fire('detailInit', { sender: this.api, data: item, detailCell: holder, masterRow: row.getElement(), detailElement: childElement, detailGrid: child?.api })
         }
         row.reformat()
     }
 
     _onClick(e) {
         const target = e.target.closest('[data-grid-click]')
-        if (!target || target.closest('.grand-grid') !== this.element) return
+        if (!target || target.closest('.grand-grid') !== this.element) {
+            this._onRowClick(e)
+            return
+        }
         const row = target.closest('.tabulator-row')
         const item = row ? this.dataItem(row) : null
         const fn = resolveGlobalFunction(target.getAttribute('data-grid-click'))
@@ -514,6 +557,177 @@ export class GrandGrid {
         }
         e.preventDefault()
         fn.call(this.api, item, e, this.api)
+    }
+
+    _ownRow(target) {
+        const row = target.closest('.tabulator-row')
+        //rows of a detail grid belong to that grid
+        if (!row || row.closest('.grand-grid') !== this.element) return null
+        return row
+    }
+
+    _onRowClick(e) {
+        if (!this.selectableRow && this.editMode !== 'Batch') return
+        if (e.target.closest('a, button, input, select, textarea, label')) return
+        const rowElement = this._ownRow(e.target)
+        if (!rowElement) return
+        const item = this.dataItem(rowElement)
+        if (!item) return
+        if (this.editMode === 'Batch') {
+            const cell = e.target.closest('.tabulator-cell')
+            const marker = cell && Array.from(cell.classList).find(c => /^grand-grid-column-\d+$/.test(c))
+            const column = marker ? this.columns[Number(marker.slice('grand-grid-column-'.length))] : null
+            if (column && column.field && column.editor && column.editor !== 'None' && column.editable !== false) {
+                this.editCell(item, column)
+                return
+            }
+            //a click outside an editable cell closes the cell being edited
+            this.commitCell()
+        }
+        if (this.selectableRow) this.selectRow(item)
+    }
+
+    /** Row selection (selectable="Row", Kendo selectable: true): one row at a time. */
+    selectRow(item) {
+        this._selectedItem = item
+        for (const row of this.table.getRows()) {
+            row.getElement().classList.toggle('grand-grid-selected', row.getData() === item)
+        }
+        this._fire('change', { sender: this.api })
+    }
+
+    selectedRowElement() {
+        if (!this._selectedItem) return null
+        return this._findRow(this._selectedItem)?.getElement() || null
+    }
+
+    //-- batch editing -----------------------------------------------------------------------
+
+    /** Opens the editor of one cell (edit-mode="Batch"). */
+    editCell(item, column) {
+        if (this.editMode !== 'Batch') return
+        if (this._cellEdit?.item === item && this._cellEdit.column === column) return
+        if (this._cellEdit && !this.commitCell()) return
+        const row = this._findRow(item)
+        if (!row) return
+        this._cellEdit = { item, column, editor: null }
+        row.reformat()
+        this._cellEdit?.editor?.focus?.()
+    }
+
+    _cellEditorFor(column, item) {
+        const edit = this._cellEdit
+        const editor = createEditor({
+            column,
+            item,
+            value: readPath(item, column.field),
+            culture: this.culture,
+            texts: this.texts,
+            grid: this.api,
+            doc: this.doc,
+            commit: () => this.commitCell(),
+            cancel: () => this.cancelCell()
+        })
+        edit.editor = editor
+        editor.element.addEventListener('focusout', e => {
+            if (this._cellEdit !== edit) return
+            if (e.relatedTarget && editor.element.contains(e.relatedTarget)) return
+            //a checkbox or select loses focus to the browser chrome while being used
+            setTimeout(() => {
+                if (this._cellEdit === edit && !editor.element.contains(this.doc.activeElement)) this.commitCell()
+            }, 0)
+        })
+        return editor.element
+    }
+
+    /** Writes the edited cell value into the row and marks it changed. False when invalid. */
+    commitCell() {
+        const edit = this._cellEdit
+        if (!edit) return true
+        const { item, column, editor } = edit
+        if (editor) {
+            if (editor.validate()) {
+                editor.focus?.()
+                return false
+            }
+            const value = editor.getValue()
+            const previous = readPath(item, column.field)
+            if (!this._originals.has(item)) this._originals.set(item, { ...item })
+            item[column.field] = value
+            if (column.textField && typeof editor.getText === 'function') item[column.textField] = editor.getText()
+            const original = this._originals.get(item)[column.field]
+            const changed = String(value ?? '') !== String(original ?? '')
+            const fields = this._dirty.get(item) || new Set()
+            if (changed) fields.add(column.field)
+            else fields.delete(column.field)
+            if (fields.size) this._dirty.set(item, fields)
+            else this._dirty.delete(item)
+            if (previous !== value) this._fire('save', { sender: this.api, model: item, values: { [column.field]: value } })
+        }
+        this._cellEdit = null
+        this._findRow(item)?.reformat()
+        return true
+    }
+
+    cancelCell() {
+        const edit = this._cellEdit
+        if (!edit) return
+        this._cellEdit = null
+        this._findRow(edit.item)?.reformat()
+    }
+
+    hasChanges() {
+        return this._dirty.size > 0 || this.dataSource.hasChanges()
+    }
+
+    /**
+     * Sends the changed and removed rows (Kendo saveChanges). With batch-prefix="products"
+     * all rows go in one request per operation as products[i].Field; without it one
+     * request per row, like a Kendo data source without batch.
+     */
+    async saveChanges() {
+        if (!this.commitCell()) return false
+        const updated = this.dataSource.data().filter(item => this._dirty.has(item))
+        const removed = this.dataSource._destroyed.map(entry => entry.item)
+        let ok = true
+        const prefix = this.config.batchPrefix
+        const send = async (operation, items) => {
+            if (!items.length || !this.config.transport?.[operation]) return true
+            if (prefix) {
+                const fields = {}
+                items.forEach((item, index) => {
+                    const serialized = this._serializeItem(item, operation)
+                    for (const [name, value] of Object.entries(serialized)) fields[`${prefix}[${index}].${name}`] = value
+                })
+                return this.dataSource.saveFields(operation, fields)
+            }
+            for (const item of items) {
+                if (!(await this.dataSource.save(operation, item))) return false
+            }
+            return true
+        }
+        if (updated.length) ok = await send('update', updated)
+        if (ok && removed.length) ok = await send('destroy', removed)
+        if (!ok) return false
+        this._dirty.clear()
+        this._originals.clear()
+        this.dataSource._destroyed = []
+        if (updated.length || removed.length) await this.dataSource.read()
+        return true
+    }
+
+    /** Restores changed and removed rows without a request (Kendo cancelChanges). */
+    cancelChanges() {
+        this.cancelEdit()
+        this._cellEdit = null
+        for (const [item, original] of this._originals) {
+            for (const key of Object.keys(item)) if (!(key in original)) delete item[key]
+            Object.assign(item, original)
+        }
+        this._originals.clear()
+        this._dirty.clear()
+        if (this.dataSource.hasChanges()) this.dataSource.cancelChanges()
+        else return this._render()
     }
 
     _applyResponsive() {
@@ -538,6 +752,15 @@ export class GrandGrid {
     async _render() {
         await this.ready
         this._edit = null
+        this._cellEdit = null
+        const rows = this.dataSource.data()
+        if (this._selectedItem && !rows.includes(this._selectedItem)) this._selectedItem = null
+        for (const item of Array.from(this._dirty.keys())) {
+            if (!rows.includes(item) && !this.dataSource._destroyed.some(entry => entry.item === item)) {
+                this._dirty.delete(item)
+                this._originals.delete(item)
+            }
+        }
         this._detailGrids.forEach(grid => grid.destroy())
         this._detailGrids.clear()
         this._expanded.clear()
@@ -639,6 +862,12 @@ export class GrandGrid {
         if (itemOrRow && (itemOrRow.nodeType === 1 || itemOrRow.jquery)) item = this.dataItem(itemOrRow)
         if (!item) return false
         if (this.config.confirmDestroy && !window.confirm(this.texts.deleteConfirmation || this.texts.areYouSure || 'Are you sure you want to delete this record?')) return false
+        if (this.editMode === 'Batch') {
+            //removed locally; saveChanges sends it (Kendo incell mode)
+            if (this._cellEdit?.item === item) this._cellEdit = null
+            this.dataSource.remove(item)
+            return true
+        }
         const ok = await this.dataSource.save('destroy', item)
         if (!ok) return false
         const index = this.dataSource.indexOf(item)

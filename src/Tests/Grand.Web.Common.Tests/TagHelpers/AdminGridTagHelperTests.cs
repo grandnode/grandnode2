@@ -309,6 +309,87 @@ public class AdminGridTagHelperTests
     }
 
     [TestMethod]
+    public async Task Process_Detail_SerializesDestroyVisibilityAndDataBound()
+    {
+        var output = await RunGrid(CreateGrid(),
+            new Element(new GridColumnTagHelper { Field = "ProductAttribute" }),
+            new Element(new GridDetailTagHelper(_urlHelperFactoryMock.Object) {
+                    ViewContext = _viewContext, ReadUrl = "/Admin/Product/ProductAttributeValueList",
+                    DestroyUrl = "/Admin/Product/ProductAttributeValueDelete", Param = "productAttributeMappingId:Id",
+                    ConfirmDestroy = true, VisibleIf = "AttributeControlTypeId != 4", OnDataBound = "bindValuePopups"
+                }, null,
+                new Element(new GridColumnTagHelper { Field = "Name" }),
+                new Element(new GridCommandsTagHelper { Destroy = true })));
+
+        var detail = Config(output).GetProperty("detail");
+        Assert.AreEqual("/Admin/Product/ProductAttributeValueDelete", detail.GetProperty("transport").GetProperty("destroy").GetString());
+        Assert.IsTrue(detail.GetProperty("confirmDestroy").GetBoolean());
+        Assert.AreEqual("AttributeControlTypeId != 4", detail.GetProperty("visibleIf").GetString());
+        Assert.AreEqual("bindValuePopups", detail.GetProperty("events").GetProperty("dataBound").GetString());
+        Assert.IsTrue(detail.GetProperty("commands").GetProperty("destroy").GetBoolean());
+    }
+
+    [TestMethod]
+    public async Task Process_BatchEditing_SerializesPrefixAndToolbarButtons()
+    {
+        var grid = CreateGrid(g =>
+        {
+            g.EditMode = GridEditMode.Batch;
+            g.BatchPrefix = "products";
+        });
+        var output = await RunGrid(grid,
+            new Element(new GridToolbarSaveTagHelper(_translationServiceMock.Object)),
+            new Element(new GridToolbarCancelTagHelper(_translationServiceMock.Object) { Text = "Cancel changes" }),
+            new Element(new GridColumnTagHelper { Field = "Price", Editor = GridEditor.Numeric, Decimals = 4 }));
+
+        var config = Config(output);
+        Assert.AreEqual("Batch", config.GetProperty("editMode").GetString());
+        Assert.AreEqual("products", config.GetProperty("batchPrefix").GetString());
+        var toolbar = config.GetProperty("toolbar");
+        Assert.AreEqual("[Admin.Common.SaveChanges]", toolbar.GetProperty("save").GetString());
+        Assert.AreEqual("Cancel changes", toolbar.GetProperty("cancel").GetString());
+        Assert.IsFalse(toolbar.TryGetProperty("create", out _));
+    }
+
+    [TestMethod]
+    public async Task Process_RowSelectionNamedCheckboxesAndRemoteFilter_AreSerialized()
+    {
+        var rowGrid = Config(await RunGrid(CreateGrid(g => g.Selectable = GridSelectable.Row)));
+        Assert.AreEqual("Row", rowGrid.GetProperty("selectable").GetString());
+
+        var checkboxGrid = Config(await RunGrid(CreateGrid(g =>
+            {
+                g.Selectable = GridSelectable.Checkbox;
+                g.SelectionName = "SelectedProductIds";
+            }),
+            new Element(new GridColumnTagHelper {
+                Field = "CategoryId", Editor = GridEditor.Select, OptionsUrl = "/Admin/Search/Category",
+                OptionsFilter = "startswith", OptionLabel = "Select category...", TextField = "Category"
+            })));
+        Assert.AreEqual("SelectedProductIds", checkboxGrid.GetProperty("selectionName").GetString());
+        var column = checkboxGrid.GetProperty("columns")[0];
+        Assert.AreEqual("startswith", column.GetProperty("optionsFilter").GetString());
+        Assert.AreEqual("/Admin/Search/Category", column.GetProperty("optionsUrl").GetString());
+    }
+
+    [TestMethod]
+    public async Task Process_LocalData_KeepsRowPropertyNames()
+    {
+        var rows = new[] { new { AuthMethodName = "Google", Email = "a@b.c", ExternalIdentifier = "<x>" } };
+        var config = Config(await RunGrid(CreateGrid(g =>
+        {
+            g.ReadUrl = null;
+            g.Data = rows;
+        })));
+
+        var data = config.GetProperty("data");
+        Assert.AreEqual(JsonValueKind.Array, data.ValueKind);
+        Assert.AreEqual("Google", data[0].GetProperty("AuthMethodName").GetString());
+        Assert.AreEqual("<x>", data[0].GetProperty("ExternalIdentifier").GetString());
+        Assert.IsFalse(config.GetProperty("transport").TryGetProperty("read", out _));
+    }
+
+    [TestMethod]
     public async Task Process_Rtl_FollowsWorkingLanguageUnlessIgnoredForAdminArea()
     {
         _workingLanguage.Rtl = true;

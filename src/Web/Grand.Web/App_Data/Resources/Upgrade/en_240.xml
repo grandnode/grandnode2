@@ -255,6 +255,9 @@
 	<Resource Name="store.portal" Area="Front">
 		<Value>Store portal</Value>
 	</Resource>
+	<Resource Name="admin.common.grid.cancelchanges" Area="Admin">
+		<Value>Cancel changes</Value>
+	</Resource>
 	<Resource Name="admin.common.grid.firstpage" Area="Admin">
 		<Value>Go to the first page</Value>
 	</Resource>

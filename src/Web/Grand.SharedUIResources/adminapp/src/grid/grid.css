@@ -245,3 +245,41 @@
 [data-theme="dark"] .grand-grid .tabulator-row.grand-grid-edit-row {
     background-color: rgba(255, 220, 120, 0.08);
 }
+
+/* selectable="Row" */
+.grand-grid .tabulator-row.grand-grid-selected,
+.grand-grid .tabulator-row.grand-grid-selected:hover {
+    background-color: #d9ecf7;
+}
+
+.grand-grid.grand-grid-row-select .tabulator-row {
+    cursor: pointer;
+}
+
+/* edit-mode="Batch": a changed cell keeps a corner marker until the changes are saved */
+.grand-grid .grand-grid-dirty {
+    position: relative;
+    width: 100%;
+}
+
+.grand-grid .grand-grid-dirty::before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    inset-inline-start: -4px;
+    border-style: solid;
+    border-width: 6px 6px 0 0;
+    border-color: #e53935 transparent transparent transparent;
+}
+
+[dir="rtl"] .grand-grid .grand-grid-dirty::before {
+    border-width: 6px 0 0 6px;
+    border-color: #e53935 transparent transparent transparent;
+}
+
+.grand-grid .grand-grid-select-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+}

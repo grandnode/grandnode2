@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using System.Globalization;
+using System.Text.Json;
 
 namespace Grand.Web.Common.TagHelpers.Admin;
 
@@ -21,7 +22,8 @@ namespace Grand.Web.Common.TagHelpers.Admin;
 ///     grid-toolbar-create, grid-detail, grid-text.
 /// </summary>
 [HtmlTargetElement("admin-grid", Attributes = "id")]
-[RestrictChildren("grid-column", "grid-commands", "grid-toolbar-create", "grid-detail", "grid-text")]
+[RestrictChildren("grid-column", "grid-commands", "grid-toolbar-create", "grid-toolbar-save", "grid-toolbar-cancel",
+    "grid-detail", "grid-text")]
 public class AdminGridTagHelper : TagHelper
 {
     internal static readonly object ContextKey = typeof(GridBuilder);
@@ -85,6 +87,21 @@ public class AdminGridTagHelper : TagHelper
 
     public GridSelectable Selectable { get; set; } = GridSelectable.None;
 
+    /// <summary>
+    ///     Name of the checkbox inputs of selectable="Checkbox", so the ticked rows of the page are
+    ///     posted with the surrounding form (e.g. SelectedProductIds).
+    /// </summary>
+    public string SelectionName { get; set; }
+
+    /// <summary>
+    ///     edit-mode="Batch": posts all changed rows in one request as prefix[i].Field (the
+    ///     Kendo batch parameterMap pattern). Without it each row is posted on its own.
+    /// </summary>
+    public string BatchPrefix { get; set; }
+
+    /// <summary>Rows rendered with the page for a grid without read-url (Kendo dataSource.data).</summary>
+    public object Data { get; set; }
+
     /// <summary>Name of a global function returning extra read data (Kendo transport.read.data).</summary>
     public string AdditionalData { get; set; }
 
@@ -126,6 +143,10 @@ public class AdminGridTagHelper : TagHelper
         grid.ReloadAfterSave = ReloadAfterSave ? null : false;
         grid.ConfirmDestroy = ConfirmDestroy ? true : null;
         grid.Selectable = Selectable;
+        grid.SelectionName = SelectionName;
+        grid.BatchPrefix = BatchPrefix;
+        //own serializer: the rows keep their property names (the grid options are camelCase)
+        grid.Data = Data is null ? null : JsonSerializer.SerializeToElement(Data);
         grid.AdditionalData = AdditionalData;
         grid.SearchForm = SearchForm;
         grid.Events = Events();

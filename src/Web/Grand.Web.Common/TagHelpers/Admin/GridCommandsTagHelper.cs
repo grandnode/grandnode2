@@ -93,9 +93,54 @@ public class GridToolbarCreateTagHelper : TagHelper
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
         var builder = (GridBuilder)context.Items[AdminGridTagHelper.ContextKey];
-        builder.Grid.Toolbar = new GridToolbar {
-            Create = string.IsNullOrEmpty(Text) ? _translationService.GetResource("Admin.Common.AddNewRecord") : Text
-        };
+        builder.Grid.Toolbar ??= new GridToolbar();
+        builder.Grid.Toolbar.Create = string.IsNullOrEmpty(Text) ? _translationService.GetResource("Admin.Common.AddNewRecord") : Text;
+        output.SuppressOutput();
+    }
+}
+
+/// <summary>Toolbar button that sends the changed rows of edit-mode="Batch" (Kendo toolbar: ["save"]).</summary>
+[HtmlTargetElement("grid-toolbar-save", ParentTag = "admin-grid", TagStructure = TagStructure.WithoutEndTag)]
+public class GridToolbarSaveTagHelper : TagHelper
+{
+    private readonly ITranslationService _translationService;
+
+    public GridToolbarSaveTagHelper(ITranslationService translationService)
+    {
+        _translationService = translationService;
+    }
+
+    /// <summary>Button text; defaults to Admin.Common.SaveChanges.</summary>
+    public string Text { get; set; }
+
+    public override void Process(TagHelperContext context, TagHelperOutput output)
+    {
+        var builder = (GridBuilder)context.Items[AdminGridTagHelper.ContextKey];
+        builder.Grid.Toolbar ??= new GridToolbar();
+        builder.Grid.Toolbar.Save = string.IsNullOrEmpty(Text) ? _translationService.GetResource("Admin.Common.SaveChanges") : Text;
+        output.SuppressOutput();
+    }
+}
+
+/// <summary>Toolbar button that restores the rows of edit-mode="Batch" (Kendo toolbar: ["cancel"]).</summary>
+[HtmlTargetElement("grid-toolbar-cancel", ParentTag = "admin-grid", TagStructure = TagStructure.WithoutEndTag)]
+public class GridToolbarCancelTagHelper : TagHelper
+{
+    private readonly ITranslationService _translationService;
+
+    public GridToolbarCancelTagHelper(ITranslationService translationService)
+    {
+        _translationService = translationService;
+    }
+
+    /// <summary>Button text; defaults to Admin.Common.Grid.CancelChanges.</summary>
+    public string Text { get; set; }
+
+    public override void Process(TagHelperContext context, TagHelperOutput output)
+    {
+        var builder = (GridBuilder)context.Items[AdminGridTagHelper.ContextKey];
+        builder.Grid.Toolbar ??= new GridToolbar();
+        builder.Grid.Toolbar.Cancel = string.IsNullOrEmpty(Text) ? _translationService.GetResource("Admin.Common.Grid.CancelChanges") : Text;
         output.SuppressOutput();
     }
 }
@@ -132,12 +177,25 @@ public class GridDetailTagHelper : TagHelper
     }
 
     public string ReadUrl { get; set; }
+
+    /// <summary>Destroy URL of the detail rows; the master row parameters are appended like for read.</summary>
+    public string DestroyUrl { get; set; }
+
     public string Controller { get; set; }
     public string ReadAction { get; set; }
     public string Param { get; set; }
     public string Key { get; set; }
     public GridPager Pager { get; set; } = GridPager.Compact;
     public int? PageSize { get; set; }
+
+    /// <summary>Asks before a detail row is deleted.</summary>
+    public bool ConfirmDestroy { get; set; }
+
+    /// <summary>Condition (admin.grid.js expression syntax) on the master row that shows its expander.</summary>
+    public string VisibleIf { get; set; }
+
+    /// <summary>Global function called after each detail grid rendered its rows.</summary>
+    public string OnDataBound { get; set; }
 
     [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
 
@@ -149,7 +207,10 @@ public class GridDetailTagHelper : TagHelper
             Pager = Pager,
             PageSize = PageSize,
             Params = ParseParams(Param),
-            Transport = new GridTransport { Read = ResolveUrl() }
+            Transport = new GridTransport { Read = ResolveUrl(), Destroy = string.IsNullOrEmpty(DestroyUrl) ? null : DestroyUrl },
+            ConfirmDestroy = ConfirmDestroy ? true : null,
+            VisibleIf = string.IsNullOrWhiteSpace(VisibleIf) ? null : VisibleIf,
+            Events = string.IsNullOrWhiteSpace(OnDataBound) ? null : new Dictionary<string, string> { ["dataBound"] = OnDataBound }
         };
         context.Items[AdminGridTagHelper.ContextKey] = new GridBuilder(detail, parent.Id, parent.Root);
         await output.GetChildContentAsync();

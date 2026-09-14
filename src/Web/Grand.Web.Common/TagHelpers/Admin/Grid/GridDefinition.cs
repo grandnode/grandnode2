@@ -7,7 +7,10 @@ namespace Grand.Web.Common.TagHelpers.Admin.Grid;
 public enum GridEditMode
 {
     None,
-    Inline
+    Inline,
+
+    /// <summary>Cells edit in place; the toolbar Save changes button sends the changed rows (Kendo incell).</summary>
+    Batch
 }
 
 public enum GridPager
@@ -20,7 +23,10 @@ public enum GridPager
 public enum GridSelectable
 {
     None,
-    Checkbox
+    Checkbox,
+
+    /// <summary>One row selected by clicking it (Kendo selectable: true).</summary>
+    Row
 }
 
 public enum GridEditor
@@ -62,6 +68,12 @@ public class GridDefinition
     public bool? ReloadAfterSave { get; set; }
     public bool? ConfirmDestroy { get; set; }
     public GridSelectable Selectable { get; set; } = GridSelectable.None;
+    public string SelectionName { get; set; }
+    public string BatchPrefix { get; set; }
+
+    /// <summary>Local rows for a grid without a read URL, serialized with their own property names.</summary>
+    public JsonElement? Data { get; set; }
+
     public string AdditionalData { get; set; }
     public string SearchForm { get; set; }
     public GridToolbar Toolbar { get; set; }
@@ -98,6 +110,8 @@ public class GridTransport
 public class GridToolbar
 {
     public string Create { get; set; }
+    public string Save { get; set; }
+    public string Cancel { get; set; }
 }
 
 public class GridColumnDefinition
@@ -119,6 +133,7 @@ public class GridColumnDefinition
     public string OptionTextField { get; set; }
     public string OptionValueField { get; set; }
     public string OptionLabel { get; set; }
+    public string OptionsFilter { get; set; }
     public string TextField { get; set; }
     public string DefaultValue { get; set; }
     public GridAlign? Align { get; set; }
@@ -159,6 +174,9 @@ public class GridCommand
 public class GridDetailDefinition : GridDefinition
 {
     public IList<GridDetailParam> Params { get; set; }
+
+    /// <summary>Condition (admin.grid.js expression syntax) that shows the expander of a master row.</summary>
+    public string VisibleIf { get; set; }
 }
 
 public class GridDetailParam

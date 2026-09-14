@@ -43,6 +43,8 @@ function resolve(placeholder, item, scope) {
     const value = readPath(item, placeholder.path, scope)
     if (value == null) return ''
     if (placeholder.format) return formatValue(value, placeholder.format, scope?.culture)
+    //a list of strings prints comma separated, like a Kendo template converting an array
+    if (Array.isArray(value)) return value.filter(v => v == null || typeof v !== 'object').map(v => v ?? '').join(',')
     return typeof value === 'object' ? '' : String(value)
 }
 

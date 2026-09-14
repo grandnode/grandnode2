@@ -28,10 +28,11 @@ export function createKendoApi(grid) {
         remove: item => ds.remove(item),
         sync: () => ds.sync(),
         cancelChanges: () => {
+            if (grid.editMode === 'Batch') return grid.cancelChanges()
             grid.cancelEdit()
             ds.cancelChanges()
         },
-        hasChanges: () => ds.hasChanges()
+        hasChanges: () => (grid.editMode === 'Batch' ? grid.hasChanges() : ds.hasChanges())
     }
 
     const api = {
@@ -47,8 +48,12 @@ export function createKendoApi(grid) {
             return grid.selectedIds
         },
         dataItem: row => grid.dataItem(row),
-        /** Rows ticked in the checkbox column on the current page. */
+        /** The selected row (selectable="Row"), or the rows ticked in the checkbox column on the current page. */
         select: () => {
+            if (grid.selectableRow) {
+                const row = grid.selectedRowElement()
+                return wrap(row ? [row] : [])
+            }
             const rows = Array.from(grid.tableElement.querySelectorAll('input.grand-grid-select:checked'))
                 .map(input => input.closest('.tabulator-row'))
                 .filter(Boolean)
@@ -63,6 +68,7 @@ export function createKendoApi(grid) {
         editRow: row => grid.editRow(row),
         saveRow: () => grid.saveRow(),
         cancelRow: () => grid.cancelEdit(),
+        saveChanges: () => grid.saveChanges(),
         removeRow: row => grid.destroyRow(row),
         cancelChanges: () => dataSource.cancelChanges(),
         destroy: () => grid.destroy()

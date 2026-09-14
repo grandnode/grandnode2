@@ -46,6 +46,13 @@ public class GridColumnTagHelper : TagHelper
     public string OptionValueField { get; set; }
     public string OptionLabel { get; set; }
 
+    /// <summary>
+    ///     Remote Select only: shows a search box that reloads options-url filtered on the option
+    ///     text field with this operator (startswith, contains), the query a Kendo DropDownList
+    ///     with serverFiltering sends.
+    /// </summary>
+    public string OptionsFilter { get; set; }
+
     /// <summary>Field of the row holding the display text of a Select value (e.g. StoreName for StoreId).</summary>
     public string TextField { get; set; }
 
@@ -84,6 +91,7 @@ public class GridColumnTagHelper : TagHelper
             OptionTextField = OptionTextField,
             OptionValueField = OptionValueField,
             OptionLabel = OptionLabel,
+            OptionsFilter = string.IsNullOrWhiteSpace(OptionsFilter) ? null : OptionsFilter,
             TextField = TextField,
             DefaultValue = DefaultValue,
             Align = Align == GridAlign.Default ? null : Align,

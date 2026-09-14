@@ -1,4 +1,5 @@
 import { getJson } from './transport.js'
+import { param } from './param.js'
 import { parseNumber, toServerNumber } from './format.js'
 
 //Inline editors for <admin-grid> columns. Each editor is created for one cell of the row
@@ -145,14 +146,27 @@ export function clearRemoteOptionsCache() {
     remoteOptionsCache.clear()
 }
 
+/**
+ * URL of a server-filtered option list: the query a Kendo DropDownList with
+ * filter: "startswith" and serverFiltering sends (read by DataSourceRequestFilterBinder).
+ */
+export function filteredOptionsUrl(url, { text, operator = 'startswith', field = 'Name' }) {
+    if (!text) return url
+    const query = param({ filter: { logic: 'and', filters: [{ value: text, operator, field, ignoreCase: true }] } })
+    return url + (url.includes('?') ? '&' : '?') + query
+}
+
 function selectEditor(ctx) {
     const { column, doc } = ctx
     const element = doc.createElement('select')
     element.className = 'form-control form-control-sm'
     element.dataset.field = column.field
     if (column.required) element.required = true
-    const current = ctx.value == null ? '' : String(ctx.value)
+    const stored = ctx.value == null ? '' : String(ctx.value)
     const fill = options => {
+        //keep what is selected now (the stored value, or a choice made before filtering)
+        const selectedValue = element.options.length ? element.value : stored
+        const selectedText = element.selectedIndex >= 0 ? element.options[element.selectedIndex].textContent : null
         element.textContent = ''
         if (column.optionLabel != null) {
             const empty = doc.createElement('option')
@@ -165,38 +179,81 @@ function selectEditor(ctx) {
             const node = doc.createElement('option')
             node.value = option.value
             node.textContent = option.text
-            if (option.value === current) {
+            if (option.value === selectedValue) {
                 node.selected = true
                 found = true
             }
             element.appendChild(node)
         }
-        if (!found && current !== '') {
-            //keep the stored value selectable even when the list does not contain it
+        if (!found && selectedValue !== '') {
+            //keep the value selectable even when the (filtered) list does not contain it
             const node = doc.createElement('option')
-            node.value = current
-            node.textContent = ctx.item?.[column.textField] ?? current
+            node.value = selectedValue
+            node.textContent = selectedValue === stored ? (ctx.item?.[column.textField] ?? selectedText ?? stored) : (selectedText ?? selectedValue)
             node.selected = true
-            element.insertBefore(node, element.firstChild)
+            element.insertBefore(node, column.optionLabel != null ? element.options[1] || null : element.firstChild)
+        } else if (!found) {
+            element.value = ''
         }
+    }
+    const textField = column.optionTextField || 'Name'
+    let loading = 0
+    const load = text => {
+        const request = ++loading
+        element.disabled = true
+        return ctx.loadOptions(filteredOptionsUrl(column.optionsUrl, { text, operator: column.optionsFilter, field: textField }), { textField, valueField: column.optionValueField })
+            .then(options => { if (request === loading) fill(options) })
+            .catch(() => { })
+            .finally(() => { if (request === loading) element.disabled = false })
     }
     if (column.options) {
         fill(column.options)
     } else if (column.optionsUrl) {
         fill([])
-        element.disabled = true
-        ctx.loadOptions(column.optionsUrl, { textField: column.optionTextField, valueField: column.optionValueField })
-            .then(options => fill(options))
-            .catch(() => { })
-            .finally(() => { element.disabled = false })
+        load('')
     }
     keyHandlers(element, ctx)
-    return {
+    const editor = {
         element,
         getValue: () => element.value,
+        /** Display text of the selected option (for the row field named by text-field). */
+        getText: () => (element.selectedIndex >= 0 && element.value !== '' ? element.options[element.selectedIndex].textContent : ''),
         validate: () => markValidity(element, column.required && element.value === '' ? 'required' : null),
         focus: () => element.focus()
     }
+    if (column.optionsUrl && column.optionsFilter) {
+        //a search box above the list re-queries the server, like the Kendo filter input
+        const wrapper = doc.createElement('div')
+        wrapper.className = 'grand-grid-select-filter'
+        const search = doc.createElement('input')
+        search.type = 'search'
+        search.className = 'form-control form-control-sm'
+        search.autocomplete = 'off'
+        if (ctx.texts?.filter) search.placeholder = ctx.texts.filter
+        let timer = null
+        search.addEventListener('input', e => {
+            e.stopPropagation()
+            clearTimeout(timer)
+            timer = setTimeout(() => load(search.value.trim()), 300)
+        })
+        search.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                e.preventDefault()
+                clearTimeout(timer)
+                load(search.value.trim())
+            } else if (e.key === 'Escape') {
+                e.preventDefault()
+                ctx.cancel?.()
+            }
+        })
+        wrapper.appendChild(search)
+        wrapper.appendChild(element)
+        editor.element = wrapper
+        editor.select = element
+        editor.search = search
+        editor.focus = () => element.focus()
+    }
+    return editor
 }
 
 /**
@@ -213,6 +270,7 @@ export function createEditor(ctx) {
         case 'DateTime': return dateEditor(context, true)
         case 'Select': return selectEditor(context)
         case 'Custom': {
+            //factories registered by views receive the same context as the built-in editors
             const factory = customEditors.get(context.column.editorName)
             if (!factory) {
                 console.warn(`[admin-grid] editor "${context.column.editorName}" is not registered; using a text editor`)

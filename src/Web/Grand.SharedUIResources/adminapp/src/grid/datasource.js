@@ -85,7 +85,16 @@ export class DataSource {
 
     /** Reloads the current page. Resolves when the data is applied (or the read failed). */
     async read() {
-        if (!this.transport.read) return
+        if (!this.transport.read) {
+            //local rows rendered into the page by the server (<admin-grid data="...">)
+            if (Array.isArray(this.options.data)) {
+                this._data = this.options.data.slice()
+                this._total = this._data.length
+                this._destroyed = []
+                this.options.onChange?.()
+            }
+            return
+        }
         const sequence = ++this._readSequence
         const payload = this.readPayload()
         this.options.onRequestStart?.({ type: 'read', data: payload })
@@ -214,6 +223,16 @@ export class DataSource {
     async save(operation, item) {
         if (!this.transport[operation]) return false
         const fields = this.options.serializeItem ? this.options.serializeItem(item, operation) : { ...item }
+        return this.saveFields(operation, fields)
+    }
+
+    /**
+     * Posts already serialized fields, e.g. several rows flattened as products[0].Name for
+     * a batch grid (the Kendo batch parameterMap pattern).
+     * @returns {Promise<boolean>}
+     */
+    async saveFields(operation, fields) {
+        if (!this.transport[operation]) return false
         const payload = this._requestData(operation, fields)
         const url = this._url(operation, payload)
         this.options.onRequestStart?.({ type: operation, data: payload })
