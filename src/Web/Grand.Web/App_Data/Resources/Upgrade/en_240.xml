@@ -255,4 +255,37 @@
 	<Resource Name="store.portal" Area="Front">
 		<Value>Store portal</Value>
 	</Resource>
+	<Resource Name="admin.common.grid.firstpage" Area="Admin">
+		<Value>Go to the first page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.itemsperpage" Area="Admin">
+		<Value>items per page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.lastpage" Area="Admin">
+		<Value>Go to the last page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.nextpage" Area="Admin">
+		<Value>Go to the next page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.norecords" Area="Admin">
+		<Value>No items to display</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.pageinfo" Area="Admin">
+		<Value>{0} - {1} of {2} items</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.previouspage" Area="Admin">
+		<Value>Go to the previous page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.refresh" Area="Admin">
+		<Value>Refresh</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.selectall" Area="Admin">
+		<Value>Select all rows on this page</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.selectrow" Area="Admin">
+		<Value>Select row</Value>
+	</Resource>
+	<Resource Name="admin.common.grid.toggledetail" Area="Admin">
+		<Value>Show or hide details</Value>
+	</Resource>
 </Language>
