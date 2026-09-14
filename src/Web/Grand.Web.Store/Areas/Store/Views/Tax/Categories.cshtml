@@ -29,9 +29,9 @@
                                 <grid-toolbar-create/>
                                 <grid-column field="Name" title="@Loc["Admin.Configuration.Tax.Categories.Fields.Name"]" width="300" editor="Text"/>
                                 <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Tax.Categories.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer"/>
-                                @*categories of other stores are read-only here; the controller enforces it*@
+                                @*only the store's own categories can be changed (StoreTaxCategoryDataScope); global ones are read-only*@
                                 <grid-commands edit="true" destroy="true" width="200"
-                                               visible-if="StoreId == '' || StoreId == '@Model.StoreId'"/>
+                                               visible-if="StoreId == '@Model.StoreId'"/>
                             </admin-grid>
                         </div>
                     </div>
