@@ -58,7 +58,7 @@ steps:
   displayName: 'dotnet restore'
   inputs:
     command: 'restore'
-    projects: '**/*.sln'
+    projects: '**/*.slnx'
     feedsToUse: 'select'
 
 - task: DotNetCoreCLI@2

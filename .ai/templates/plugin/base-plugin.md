@@ -195,7 +195,7 @@ Required. Without it the plugin renders without an image in the admin plugin lis
 
 ## Checklist
 
-- [ ] Project added to `GrandNode.sln`.
+- [ ] Project added to `GrandNode.slnx`.
 - [ ] `SystemName` identical in `Manifest.cs`, `{Feature}Defaults`, and the output folder.
 - [ ] `Group` is one of the existing group names.
 - [ ] Output path set for Debug **and** Release.

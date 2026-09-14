@@ -22,7 +22,7 @@ Scaffold a new installable GrandNode plugin end to end, with the correct project
    - anything else → `.ai/skills/plugin-module.md`
 3. Read `.ai/templates/plugin/` and copy the skeleton files that apply. Read `.ai/examples/` for a worked end-to-end plugin.
 4. Pick the closest existing plugin in `src/Plugins/` and diff your scaffold against it. State which one you used.
-5. Create the project and add it to `GrandNode.sln`.
+5. Create the project and add it to `GrandNode.slnx`.
 6. Wire up in this order:
    1. `.csproj` — SDK, `Grand.Common.props` import, output path, `Private=false` references.
    2. `Manifest.cs` — `[assembly: PluginInfo(...)]` with an existing `Group` value.
