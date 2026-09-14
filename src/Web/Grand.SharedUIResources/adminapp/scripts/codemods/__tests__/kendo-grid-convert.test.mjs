@@ -74,6 +74,17 @@ describe('convertKendoTemplate', () => {
         expect(convertKendoTemplate('# for (var i = 0; i < 3; i++) { # x # } #').ok).toBe(false)
     })
 
+    it('refuses conditions that build attribute values', () => {
+        const result = convertKendoTemplate('<span class="label label-# if(OrderStatusId == 10) {#warning #} #">#=OrderStatus#</span>')
+        expect(result.ok).toBe(false)
+        expect(result.markers[0]).toContain('inside a tag')
+    })
+
+    it('translates nested conditions', () => {
+        expect(convertKendoTemplate('# if(!CalculateByPlugin) { if(UsePercentage) {# #=DiscountPercentage# % #} else {# #=DiscountAmount# #} } #').lines)
+            .toEqual(['<span data-if="!CalculateByPlugin"><span data-if="UsePercentage">{{ DiscountPercentage }} %</span> <span data-else>{{ DiscountAmount }}</span></span>'])
+    })
+
     it('detects single elements', () => {
         expect(singleElement('<a href="x"><span>1</span></a>')).toBe(true)
         expect(singleElement('<br/>')).toBe(true)
@@ -143,6 +154,33 @@ describe('convertCshtml fixtures', () => {
         expect(grids[0].action).toBe('review')
         expect(output).toContain('@* CODEMOD-REVIEW: checkbox column')
         expect(output).toContain('selectable="Checkbox"')
+    })
+
+    it('names popup checkboxes, keeps a pager without page sizes and refuses data objects', () => {
+        const src = [
+            '<div id="g"></div>',
+            '<script>',
+            '    function additionalData() { return {}; }',
+            '    $("#g").kendoGrid({',
+            '        dataSource: { transport: { read: { url: "/r", data: additionalData } }, pageSize: 5 },',
+            '        pageable: { refresh: true },',
+            '        columns: [',
+            '            { field: "Id", headerTemplate: "<input id=\'mastercheckbox\' type=\'checkbox\'/>", template: "<input type=\'checkbox\' name=\'SelectedProductIds\' value=\'#=Id#\' class=\'checkboxGroups\' />" },',
+            '            { field: "Name" }',
+            '        ]',
+            '    });',
+            '</script>',
+            ''
+        ].join('\n')
+        const { output, grids } = convertCshtml(src)
+        expect(grids[0].action).toBe('review')
+        expect(output).toContain('selectable="Checkbox"')
+        expect(output).toContain('selection-name="SelectedProductIds"')
+        expect(output).toContain('page-size="5"')
+        expect(output).toContain('page-sizes=""')
+        expect(output).toContain('additional-data="additionalData"')
+        const objectData = convertCshtml(src.replace('function additionalData() { return {}; }', 'var additionalData = { id: "1" };'))
+        expect(objectData.grids[0].action).toBe('skipped')
     })
 
     it('skips grids configured twice in Razor branches and partials injecting columns', () => {

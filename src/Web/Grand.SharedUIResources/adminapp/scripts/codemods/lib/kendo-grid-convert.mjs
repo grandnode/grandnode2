@@ -361,12 +361,23 @@ function pagerOf(config, ds, ctx, grid) {
         if (!(only && /GridPageSizes/.test(only.text))) {
             result.pageSizes = sizes.elements.map(e => (e.type === 'Literal' ? e.value : ctx.restore(e.name))).join(',')
         }
+    } else if (result.pager === 'Full') {
+        //a Kendo pager without pageSizes has no page size list; page-sizes="" turns off the default one
+        result.pageSizes = ''
     }
     return result
 }
 
+/** True when the script declares `function name(` (a global the adapter can call by name). */
+export function declaresFunction(text, name) {
+    return new RegExp(`(^|[^\\w$.])function\\s+${name.replace(/\$/g, '\\$')}\\s*\\(`).test(text)
+}
+
 function eventHandler(node, ctx, name, grid, extracted, gridId) {
-    if (node.type === 'Identifier') return node.name
+    if (node.type === 'Identifier') {
+        if (!declaresFunction(ctx.masked.text, node.name)) throw new GridConversionError(`${name} handler ${node.name} is not a function declared in the view`)
+        return node.name
+    }
     if (node.type === 'FunctionExpression') {
         const fnName = `on${pascal(gridId)}${name[0].toUpperCase()}${name.slice(1)}`
         const params = node.params.map(p => ctx.masked.text.slice(p.start, p.end)).join(', ')
@@ -403,7 +414,8 @@ export function buildGridModel(config, ctx, { id, scriptText }) {
         grid.transport[op] = stringValue(getProp(t, 'url'), ctx, `${op} url`)
         const data = getProp(t, 'data')
         if (data && !(data.type === 'Identifier' && data.name === 'addAntiForgeryToken')) {
-            if (op === 'read' && data.type === 'Identifier') grid.additionalData = data.name
+            //additional-data names a global function; a variable holding an object is not one
+            if (op === 'read' && data.type === 'Identifier' && declaresFunction(ctx.masked.text, data.name)) grid.additionalData = data.name
             else throw new GridConversionError(`${op} transport data is not addAntiForgeryToken`)
         }
     }
@@ -496,6 +508,9 @@ export function buildGridModel(config, ctx, { id, scriptText }) {
         if (getProp(node, 'command')) continue
         if (isCheckboxColumn(node)) {
             grid.selectable = 'Checkbox'
+            //a named checkbox (SelectedProductIds) was posted with the popup form
+            const named = /name\s*=\s*['"]([\w.]+)['"]/.exec(staticString(getProp(node, 'template')).value || '')
+            if (named) grid.selectionName = named[1]
             grid.markers.push('checkbox column: rewire the #mastercheckbox/checkboxGroups script to on-change (e.selectedIds) and clearSelection()')
             continue
         }
@@ -594,12 +609,13 @@ export function renderAdminGrid(grid, indent, blocks = []) {
     if (grid.additionalData) attrs.push(attr('additional-data', grid.additionalData))
     if (grid.pager !== 'Full') attrs.push(attr('pager', grid.pager))
     if (grid.pageSize != null) attrs.push(attr('page-size', grid.pageSize))
-    if (grid.pageSizes) attrs.push(attr('page-sizes', grid.pageSizes))
+    if (grid.pageSizes != null) attrs.push(attr('page-sizes', grid.pageSizes))
     if (grid.autoBind === false) attrs.push('auto-bind="false"')
     if (grid.editMode) attrs.push(attr('edit-mode', grid.editMode))
     if (grid.reloadAfterSave === false) attrs.push('reload-after-save="false"')
     if (grid.confirmDestroy) attrs.push('confirm-destroy="true"')
     if (grid.selectable) attrs.push(attr('selectable', grid.selectable))
+    if (grid.selectionName) attrs.push(attr('selection-name', grid.selectionName))
     if (grid.events.dataBound) attrs.push(attr('on-data-bound', grid.events.dataBound))
     if (grid.events.change) attrs.push(attr('on-change', grid.events.change))
 

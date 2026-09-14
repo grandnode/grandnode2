@@ -304,6 +304,12 @@ export function convertKendoTemplate(template, { restore = s => s, textFor = () 
                 if (out.raw && out.field && HTML_LIKE_FIELD.test(out.field)) rawFields.push(out.field)
                 run += out.text
             } else if (node.type === 'if') {
+                //a condition inside a tag builds attribute values (class="label-# if #...") -
+                //data-if works on elements only
+                if (run.lastIndexOf('<') > run.lastIndexOf('>')) {
+                    failure = `template code inside a tag or attribute "${node.condition}"`
+                    return []
+                }
                 flush()
                 const condition = convertCondition(node.condition, restore)
                 if (!condition) {
