@@ -1,6 +1,5 @@
 @model BlogCategoryModel
 
-@inject AdminAreaSettings adminAreaSettings
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
@@ -8,7 +7,16 @@
 {
     <div class="panel panel-default">
         <div class="panel-body">
-            <div id="posts-grid"></div>
+            <admin-grid id="posts-grid"
+                        read-url="@Url.Action("CategoryPostList", "Blog", new { categoryId = Model.Id, area })"
+                        destroy-url="@Url.Action("CategoryPostDelete", "Blog", new { categoryId = Model.Id, area })">
+                <grid-column field="Name" title="@Loc["Admin.Content.Blog.BlogCategory.Fields.Post"]">
+                    <cell-template>
+                        <a class="k-link" href="@Url.Action("Edit", "Blog", new { area })/{{ BlogPostId }}">{{ Name }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-commands destroy="true"/>
+            </admin-grid>
         </div>
         <div class="panel-footer">
             <a id="btnAddNewPost" href="@(Url.Action("BlogPostAddPopup", "Blog", new { categoryId = Model.Id, btnId = "btnRefreshPosts", formId = "category-form", area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Content.Blog.BlogCategory.AddNewPost"]</a>
@@ -29,69 +37,6 @@
                         $('.mfp-wrap').removeAttr('tabindex');
                     }
                 }
-            });
-            $("#posts-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("CategoryPostList", "Blog", new { categoryId = Model.Id, area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("CategoryPostDelete", "Blog", new { categoryId = Model.Id, area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                Name: {editable: false, type: "string" },
-                                BlogPostId: {editable: false, type: "string" }
-                            }
-                        }
-                    },
-                    requestEnd: function(e) {
-                        if(e.type=="update") {
-                            this.read();
-                        }
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                        field: "Name",
-                        title: "@Loc["Admin.Content.Blog.BlogCategory.Fields.Post"]",
-                        template: '<a class="k-link" href="@Url.Action("Edit", "Blog", new { area })/#=BlogPostId#">#=kendo.htmlEncode(Name)#</a>',
-                    },{
-                    command: [{
-                        name: "destroy",
-                        text: "@Loc["Admin.Common.Delete"]"
-                    }],
-                }]
             });
         });
     </script>

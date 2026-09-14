@@ -6,7 +6,18 @@
         <div class="panel panel-default">
             <partial name="Partials/WidgetZone.AppliedToCollections.Top" model="Model"/>
             <div class="panel-body">
-                <div id="collections-grid"></div>
+                <admin-grid id="collections-grid"
+                            key="CollectionId"
+                            read-url="@Url.Action("CollectionList", "Discount", new { discountId = Model.Id, area = area })"
+                            destroy-url="@Url.Action("CollectionDelete", "Discount", new { discountId = Model.Id, area = area })"
+                            pager="Compact">
+                    <grid-column field="CollectionName" title="@Loc["admin.marketing.Discounts.AppliedToCollections.Collection"]">
+                        <cell-template>
+                            <a class="k-link" href="@Url.Action("Edit", "Collection", new { area = area })/{{ CollectionId }}">{{ CollectionName }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-commands destroy="true" width="150"/>
+                </admin-grid>
             </div>
             <div class="panel-footer">
                 <a id="btnAddNewCollection" href="@(Url.Action("CollectionAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCollections", formId = "discount-form", area = area }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]</a>
@@ -28,66 +39,6 @@
                             $('.mfp-wrap').removeAttr('tabindex');
                         }
                     }
-                });
-                $("#collections-grid").kendoGrid({
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "@Html.Raw(Url.Action("CollectionList", "Discount", new { discountId = Model.Id, area = area }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            },
-                            destroy: {
-                                url: "@Html.Raw(Url.Action("CollectionDelete", "Discount", new { discountId = Model.Id, area = area }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            }
-                        },
-                        schema: {
-                            data: "Data",
-                            total: "Total",
-                            errors: "Errors",
-                            model: {
-                                id: "CollectionId",
-                                fields: {
-                                    CollectionName: {editable: false, type: "string" },
-                                    CollectionId: {editable: false, type: "string" }
-                                }
-                            }
-                        },
-                        error: function(e) {
-                            display_kendoui_grid_error(e);
-                            // Cancel the changes
-                            this.cancelChanges();
-                        },
-                        serverPaging: true,
-                        serverFiltering: true,
-                        serverSorting: true
-                    },
-                    pageable: {
-                        refresh: true,
-                        numeric: false,
-                        previousNext: false,
-                        info: false
-                    },
-                    editable: {
-                        confirmation: false,
-                        mode: "inline"
-                    },
-                    scrollable: false,
-                    columns: [{
-                        field: "CollectionName",
-                        title: "@Loc["admin.marketing.Discounts.AppliedToCollections.Collection"]",
-                        template: '<a class="k-link" href="@Url.Action("Edit", "Collection", new { area = area })/#=CollectionId#">#=kendo.htmlEncode(CollectionName)#</a>',
-                    }, {
-                        command: [{
-                            name: "destroy",
-                            text: "@Loc["Admin.Common.Delete"]"
-                        }],
-                        width: 150
-                    }]
                 });
             });
         </script>

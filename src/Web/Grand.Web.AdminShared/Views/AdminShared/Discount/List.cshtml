@@ -1,5 +1,4 @@
 @model DiscountListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["admin.marketing.Discounts"];
@@ -55,89 +54,35 @@
                 </div>
             </div>
             <div class="x_content">
-                <div id="discounts-grid"></div>
+                <admin-grid id="discounts-grid"
+                            read-url="@Url.Action("List", "Discount", new { area = area })"
+                            additional-data="additionalData">
+                    <grid-column field="Name" title="@Loc["admin.marketing.Discounts.Fields.Name"]" width="350">
+                        <cell-template>
+                            <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="DiscountTypeName" title="@Loc["admin.marketing.Discounts.Fields.DiscountType"]" width="250"/>
+                    <grid-column field="DiscountAmount" title="@Loc["admin.marketing.Discounts.Fields.Discount"]" width="200">
+                        <cell-template>
+                            <span data-if="!CalculateByPlugin"><span data-if="UsePercentage">{{ DiscountPercentage }} %</span> <span data-else>{{ DiscountAmount }} {{ CurrencyCode }}</span></span>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="StartDate" title="@Loc["admin.marketing.Discounts.Fields.StartDate"]" width="200" format="{0:G}"/>
+                    <grid-column field="EndDate" title="@Loc["admin.marketing.Discounts.Fields.EndDate"]" width="200" format="{0:G}"/>
+                    <grid-column field="TimesUsed" title="@Loc["admin.marketing.Discounts.Fields.TimesUsed"]" width="200"/>
+                    <grid-column field="IsEnabled" title="@Loc["admin.marketing.Discounts.Fields.IsEnabled"]" width="100" align="Center">
+                        <cell-template>
+                            <i data-if="IsEnabled" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                </admin-grid>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-        $(document).ready(function () {
-            $("#discounts-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("List", "Discount", new { area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "Name",
-                    title: "@Loc["admin.marketing.Discounts.Fields.Name"]",
-                    width: 350,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-                }, {
-                    field: "DiscountTypeName",
-                    title: "@Loc["admin.marketing.Discounts.Fields.DiscountType"]",
-                    width: 250
-                },{
-                    field: "DiscountAmount",
-                    title: "@Loc["admin.marketing.Discounts.Fields.Discount"]",
-                    width: 200,
-                    template: '# if(!CalculateByPlugin) { if(UsePercentage) {# #=DiscountPercentage# % #} else {#  #=DiscountAmount# #=CurrencyCode# #} } # '
-                }, {
-                    field: "StartDate",
-                    title: "@Loc["admin.marketing.Discounts.Fields.StartDate"]",
-                    width: 200,
-                    type: "date",
-                    format: "{0:G}"
-                }, {
-                    field: "EndDate",
-                    title: "@Loc["admin.marketing.Discounts.Fields.EndDate"]",
-                    width: 200,
-                    type: "date",
-                    format: "{0:G}"
-                }, {
-                    field: "TimesUsed",
-                    title: "@Loc["admin.marketing.Discounts.Fields.TimesUsed"]",
-                    width: 200
-                }, {
-                    field: "IsEnabled",
-                    title: "@Loc["admin.marketing.Discounts.Fields.IsEnabled"]",
-                    width: 100,
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    template: '# if(IsEnabled) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                }]
-            });
-        });
-</script>
 <script>
 
         $(document).ready(function () {

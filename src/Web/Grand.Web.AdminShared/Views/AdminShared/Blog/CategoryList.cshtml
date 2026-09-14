@@ -1,4 +1,3 @@
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Content.Blog.BlogCategories"];
@@ -23,7 +22,14 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="blogcategory-grid"></div>
+                            <admin-grid id="blogcategory-grid" read-url="@Url.Action("CategoryList", "Blog", new { area })">
+                                <grid-column field="Name" title="@Loc["Admin.Content.Blog.BlogCategory.Fields.Name"]" width="600">
+                                    <cell-template>
+                                        <a class="k-link" href="CategoryEdit/{{ Id }}">{{ Name }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="DisplayOrder" title="@Loc["Admin.Content.Blog.BlogCategory.Fields.DisplayOrder"]" width="100" align="Center"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -32,55 +38,3 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $("#blogcategory-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("CategoryList", "Blog", new { area }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Name",
-                title: "@Loc["Admin.Content.Blog.BlogCategory.Fields.Name"]",
-                width: 600,
-                template: '<a class="k-link" href="CategoryEdit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-            },
-            {
-                field: "DisplayOrder",
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                title: "@Loc["Admin.Content.Blog.BlogCategory.Fields.DisplayOrder"]",
-                width: 100,
-            }]
-        });
-    });
-</script>

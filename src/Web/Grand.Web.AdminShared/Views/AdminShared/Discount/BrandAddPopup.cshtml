@@ -1,5 +1,4 @@
 @model DiscountModel.AddBrandToDiscountModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "";
     //page title
@@ -47,7 +46,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <div id="brands-grid"></div>
+                            <admin-grid id="brands-grid"
+                                        read-url="@Url.Action("BrandAddPopupList", "Discount", new { area = area })"
+                                        additional-data="additionalData"
+                                        selectable="Checkbox"
+                                        selection-name="SelectedBrandIds">
+                                <grid-column field="Name" title="@Loc["Admin.Catalog.Brands.Fields.Name"]"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -85,60 +90,12 @@
                     }
                 });
             });
-            $("#brands-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("BrandAddPopupList", "Discount", new { area = area }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "Id",
-                    headerTemplate: "<input id='mastercheckbox' type='checkbox'/>",
-                    headerAttributes: { style: "text-align:center" },
-                    template: "<input type='checkbox' name='SelectedBrandIds' value='#=Id#' class='checkboxGroups' />",
-                    attributes: { style: "text-align:center" },
-                    width: 50
-                }, {
-                    field: "Name",
-                    title: "@Loc["Admin.Catalog.Brands.Fields.Name"]"
-                }
-                ]
-            });
 
             $('#search-brands').click(function() {
                 var grid = $('#brands-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
-                //clear selected checkboxes
-                $('.checkboxGroups').prop('checked', false).change();
+                grid.clearSelection();
                 return false;
             });
 
@@ -149,27 +106,12 @@
                 }
             });
 
-            //wire up checkboxes
-            $('#mastercheckbox').click(function() {
-                $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-            });
-
-            $('#brands-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
-                updateMasterCheckbox();
-            });
-
         function additionalData() {
             var data = {
                 SearchBrandName: $('#@Html.IdFor(model => model.SearchBrandName)').val(),
             };
             addAntiForgeryToken(data);
             return data;
-        }
-
-        function updateMasterCheckbox() {
-            var numChkBoxes = $('#brands-grid input[type=checkbox][id!=mastercheckbox]').length;
-            var numChkBoxesChecked = $('#brands-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
-            $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
         }
 
     </script>

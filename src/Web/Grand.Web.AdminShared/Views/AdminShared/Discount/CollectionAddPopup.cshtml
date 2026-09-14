@@ -1,5 +1,4 @@
 @model DiscountModel.AddCollectionToDiscountModel
-@inject AdminAreaSettings adminAreaSettings
 
 @{
     Layout = "";
@@ -49,7 +48,19 @@
                                     </div>
                                 </div>
                             </div>
-                            <div id="collections-grid"></div>
+                            <admin-grid id="collections-grid"
+                                        read-url="@Url.Action("CollectionAddPopupList", "Discount", new { area = area })"
+                                        additional-data="additionalData"
+                                        selectable="Checkbox"
+                                        selection-name="SelectedCollectionIds">
+                                <grid-column field="Name" title="@Loc["Admin.Catalog.Collections.Fields.Name"]"/>
+                                <grid-column field="Published" title="@Loc["Admin.Catalog.Collections.Fields.Published"]" width="100" align="Center">
+                                    <cell-template>
+                                        <i data-if="Published" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                        <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                    </cell-template>
+                                </grid-column>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -86,63 +97,10 @@
                 }
             });
         });
-        $("#collections-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("CollectionAddPopupList", "Discount", new { area = area }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Id",
-                headerTemplate: "<input id='mastercheckbox' type='checkbox'/>",
-                headerAttributes: { style: "text-align:center" },
-                template: "<input type='checkbox' name='SelectedCollectionIds' value='#=Id#' class='checkboxGroups' />",
-                attributes: { style: "text-align:center" },
-                width: 50
-            }, {
-                field: "Name",
-                title: "@Loc["Admin.Catalog.Collections.Fields.Name"]"
-            }, {
-                field: "Published",
-                title: "@Loc["Admin.Catalog.Collections.Fields.Published"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }]
-        });
             $('#search-collections').click(function() {
                 var grid = $('#collections-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
-                $('.checkboxGroups').prop('checked', false).change();
+                grid.clearSelection();
                 return false;
             });
 
@@ -153,27 +111,12 @@
                 }
             });
 
-            //wire up checkboxes
-            $('#mastercheckbox').click(function() {
-                $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-            });
-
-            $('#collections-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
-                updateMasterCheckbox();
-            });
-
         function additionalData() {
             var data = {
                 SearchCollectionName: $('#@Html.IdFor(model => model.SearchCollectionName)').val()
             };
             addAntiForgeryToken(data);
             return data;
-        }
-
-        function updateMasterCheckbox() {
-            var numChkBoxes = $('#collections-grid input[type=checkbox][id!=mastercheckbox]').length;
-            var numChkBoxesChecked = $('#collections-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
-            $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
         }
 
     </script>
