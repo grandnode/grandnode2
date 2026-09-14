@@ -9,7 +9,36 @@
     {
         <div class="panel panel-default">
             <div class="panel-body">
-                <div id="contactattributevalues-grid"></div>
+                <admin-grid id="contactattributevalues-grid"
+                            read-url="@Url.Action("ValueList", "ContactAttribute", new { contactAttributeId = Model.Id, area })"
+                            destroy-url="@(isReadOnly ? null : Url.Action("ValueDelete", "ContactAttribute", new { area }))"
+                            pager="Compact"
+                            confirm-destroy="true"
+                            on-data-bound="@(isReadOnly ? null : "bindContactAttributeValuePopups")">
+                    <grid-column field="Name" title="@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.Name"]">
+                        <cell-template>
+                            @if (!isReadOnly)
+                            {
+                                <a class="k-link editvalue" href="@Url.Action("ValueEditPopup", "ContactAttribute", new { area })/{{ Id }}?contactAttributeId=@Model.Id">{{ Name }}</a>
+                            }
+                            else
+                            {
+                                @:{{ Name }}
+                            }
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="IsPreSelected" title="@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.IsPreSelected"]" width="100" align="Center" min-screen-width="500">
+                        <cell-template>
+                            <i data-if="IsPreSelected" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.DisplayOrder"]" width="100" align="Center"/>
+                    @if (!isReadOnly)
+                    {
+                        <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+                    }
+                </admin-grid>
             </div>
             @if (!isReadOnly)
             {
@@ -42,137 +71,27 @@
                         }
                     });
 
-                    $("#contactattributevalues-grid").kendoGrid({
-                        dataBound: function () {
-                            $('.editvalue').magnificPopup({
-                                type: 'ajax',
-                                settings: { cache: false, async: false },
-                                midClick: true,
-                                callbacks: {
-                                    parseAjax: function (mfpResponse) {
-                                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
-                                    },
-                                    ajaxContentAdded: function () {
-                                        $('.mfp-wrap').removeAttr('tabindex');
-                                    }
-                                }
-                            });
-                        },
-                        dataSource: {
-                            transport: {
-                                read: {
-                                    url: "@Html.Raw(Url.Action("ValueList", "ContactAttribute", new { contactAttributeId = Model.Id, area }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                },
-                                destroy: {
-                                    url: "@Html.Raw(Url.Action("ValueDelete", "ContactAttribute", new { area }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                }
-                            },
-                            schema: {
-                                data: "Data",
-                                total: "Total",
-                                errors: "Errors",
-                                model: { id: "Id" }
-                            },
-                            error: function(e) {
-                                display_kendoui_grid_error(e);
-                                this.cancelChanges();
-                            },
-                            serverPaging: true,
-                            serverFiltering: true,
-                            serverSorting: true
-                        },
-                        pageable: { refresh: true, numeric: false, previousNext: false, info: false },
-                        editable: { confirmation: true, mode: "inline" },
-                        scrollable: false,
-                        columns: [{
-                            field: "Name",
-                            title: "@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.Name"]",
-                            template: "<a class='k-link editvalue' href=\"@Url.Action("ValueEditPopup", "ContactAttribute", new { area })/#=Id#?contactAttributeId=@Model.Id\">#=kendo.htmlEncode(Name)#</a>"
-                        }, {
-                            field: "IsPreSelected",
-                            title: "@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.IsPreSelected"]",
-                            width: 100,
-                            minScreenWidth: 500,
-                            headerAttributes: { style: "text-align:center" },
-                            attributes: { style: "text-align:center" },
-                            template: '# if(IsPreSelected) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                        }, {
-                            field: "DisplayOrder",
-                            title: "@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.DisplayOrder"]",
-                            headerAttributes: { style: "text-align:center" },
-                            attributes: { style: "text-align:center" },
-                            width: 100
-                        }, {
-                            command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
-                            title: "@Loc["Admin.Common.Delete"]",
-                            width: 100
-                        }]
-                    });
-
                     $('#btnRefresh').click(function () {
                         var grid = $("#contactattributevalues-grid").data('kendoGrid');
                         grid.dataSource.read();
                         return false;
                     });
                 });
-            </script>
-        }
-        else
-        {
-            <script>
-                $(document).ready(function () {
-                    $("#contactattributevalues-grid").kendoGrid({
-                        dataSource: {
-                            transport: {
-                                read: {
-                                    url: "@Html.Raw(Url.Action("ValueList", "ContactAttribute", new { contactAttributeId = Model.Id, area }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                }
+                function bindContactAttributeValuePopups() {
+                    $('.editvalue').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        midClick: true,
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
                             },
-                            schema: {
-                                data: "Data",
-                                total: "Total",
-                                errors: "Errors",
-                                model: { id: "Id" }
-                            },
-                            error: function(e) {
-                                display_kendoui_grid_error(e);
-                                this.cancelChanges();
-                            },
-                            serverPaging: true,
-                            serverFiltering: true,
-                            serverSorting: true
-                        },
-                        pageable: { refresh: true, numeric: false, previousNext: false, info: false },
-                        scrollable: false,
-                        columns: [{
-                            field: "Name",
-                            title: "@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.Name"]"
-                        }, {
-                            field: "IsPreSelected",
-                            title: "@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.IsPreSelected"]",
-                            width: 100,
-                            minScreenWidth: 500,
-                            headerAttributes: { style: "text-align:center" },
-                            attributes: { style: "text-align:center" },
-                            template: '# if(IsPreSelected) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                        }, {
-                            field: "DisplayOrder",
-                            title: "@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.DisplayOrder"]",
-                            headerAttributes: { style: "text-align:center" },
-                            attributes: { style: "text-align:center" },
-                            width: 100
-                        }]
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                            }
+                        }
                     });
-                });
+                }
             </script>
         }
     }

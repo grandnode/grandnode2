@@ -1,4 +1,3 @@
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Attributes.SpecificationAttributes"];
@@ -25,7 +24,14 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="specificationattributes-grid"></div>
+                            <admin-grid id="specificationattributes-grid" read-url="@Url.Action("List", "SpecificationAttribute", new { area })">
+                                <grid-column field="Name" title="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Fields.Name"]" width="300">
+                                    <cell-template>
+                                        <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Fields.DisplayOrder"]" width="100" align="Center"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -34,54 +40,3 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $("#specificationattributes-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("List", "SpecificationAttribute", new { area }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Name",
-                title: "@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Fields.Name"]",
-                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-                width: 300
-            }, {
-                field: "DisplayOrder",
-                title: "@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Fields.DisplayOrder"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-            }]
-        });
-    });
-</script>
