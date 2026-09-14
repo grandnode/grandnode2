@@ -303,7 +303,7 @@ public class OrderViewModelService : IOrderViewModelService
             orderTagId: model.OrderTag);
 
 
-        var primaryStoreCurrency = await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
+        var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency();
         if (primaryStoreCurrency == null)
             throw new Exception("Cannot load primary store currency");
 
@@ -423,7 +423,7 @@ public class OrderViewModelService : IOrderViewModelService
         // gate) to format each OrderItemModel's unit price/discount/subtotal/commission, which
         // Vendor's own OrderDetails.Products partial does render.
         var primaryStoreCurrency = await _currencyService.GetCurrencyByCode(order.PrimaryCurrencyCode) ??
-                                   await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
+                                   await _currencyService.GetPrimaryStoreCurrency();
 
         if (primaryStoreCurrency == null)
             throw new Exception("Cannot load primary store currency");

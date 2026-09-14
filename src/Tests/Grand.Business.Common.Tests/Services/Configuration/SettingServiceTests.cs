@@ -1,9 +1,11 @@
 ﻿using Grand.Business.Common.Services.Configuration;
 using Grand.Data;
 using Grand.Domain.Configuration;
+using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Text.Json;
 
 namespace Grand.Business.Common.Tests.Services.Configuration;
 
@@ -62,5 +64,65 @@ public class SettingServiceTests
     public void DeleteSetting_NullArgument_TrhowException()
     {
         Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteSetting(null));
+    }
+
+    [TestMethod]
+    public void LoadSetting_StoreHasItsOwnValue_ReturnsIt()
+    {
+        GivenStoredSettings(
+            Stored(string.Empty, "global-currency"),
+            Stored("store-1", "store-currency"));
+
+        var result = _service.LoadSetting(typeof(PrimaryCurrencySettings), "store-1");
+
+        Assert.AreEqual("store-currency", ((PrimaryCurrencySettings)result).CurrencyId);
+    }
+
+    [TestMethod]
+    public void LoadSetting_StoreHasNoValue_FallsBackToTheGlobalOne()
+    {
+        GivenStoredSettings(Stored(string.Empty, "global-currency"));
+
+        var result = _service.LoadSetting(typeof(PrimaryCurrencySettings), "store-1");
+
+        Assert.AreEqual("global-currency", ((PrimaryCurrencySettings)result).CurrencyId);
+    }
+
+    [TestMethod]
+    public void LoadSetting_AnotherStoreHasAValue_DoesNotLeakItAcrossStores()
+    {
+        GivenStoredSettings(
+            Stored(string.Empty, "global-currency"),
+            Stored("store-1", "store-currency"));
+
+        var result = _service.LoadSetting(typeof(PrimaryCurrencySettings), "store-2");
+
+        Assert.AreEqual("global-currency", ((PrimaryCurrencySettings)result).CurrencyId);
+    }
+
+    [TestMethod]
+    public void LoadSetting_NothingStored_ReturnsDefaultInstance()
+    {
+        GivenStoredSettings();
+
+        var result = _service.LoadSetting(typeof(PrimaryCurrencySettings), "store-1");
+
+        Assert.IsNull(((PrimaryCurrencySettings)result).CurrencyId);
+    }
+
+    private static Setting Stored(string storeId, string currencyId)
+    {
+        return new Setting {
+            Name = nameof(PrimaryCurrencySettings).ToLowerInvariant(),
+            StoreId = storeId,
+            Metadata = JsonSerializer.Serialize(new PrimaryCurrencySettings { CurrencyId = currencyId })
+        };
+    }
+
+    private void GivenStoredSettings(params Setting[] settings)
+    {
+        _repositoryMock.Setup(x => x.Table).Returns(settings.AsQueryable());
+        _cacheMock.Setup(c => c.Get(It.IsAny<string>(), It.IsAny<Func<ISettings>>()))
+            .Returns((string _, Func<ISettings> acquire) => acquire());
     }
 }

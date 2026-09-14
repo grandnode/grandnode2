@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Directory;
+﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -193,9 +193,8 @@ public class ShippingByWeightController : BaseController
         var model = new ShippingByWeightModel {
             //the owner cannot create records for another store
             StoreId = CurrentStoreId,
-            //CurrencySettings is resolved per current store, so this already honours a store override
-            PrimaryStoreCurrencyCode =
-                (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
+            //PrimaryCurrencySettings is resolved per current store, so this already honours a store override
+            PrimaryStoreCurrencyCode = (await _currencyService.GetPrimaryStoreCurrency())?.CurrencyCode,
             BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name,
             To = 1000000
         };
@@ -258,9 +257,8 @@ public class ShippingByWeightController : BaseController
             PercentageRateOfSubtotal = sbw.PercentageRateOfSubtotal,
             RatePerWeightUnit = sbw.RatePerWeightUnit,
             LowerWeightLimit = sbw.LowerWeightLimit,
-            //CurrencySettings is resolved per current store, so this already honours a store override
-            PrimaryStoreCurrencyCode =
-                (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
+            //PrimaryCurrencySettings is resolved per current store, so this already honours a store override
+            PrimaryStoreCurrencyCode = (await _currencyService.GetPrimaryStoreCurrency())?.CurrencyCode,
             BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name
         };
 

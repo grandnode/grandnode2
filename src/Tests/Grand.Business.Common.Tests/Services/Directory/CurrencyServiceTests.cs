@@ -4,6 +4,8 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
 using Grand.Data.Mongo;
 using Grand.Domain.Directory;
+using Grand.Domain.Stores;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel;
@@ -19,6 +21,7 @@ public class CurrencyServiceTests
 {
     private Mock<IAclService> _aclService;
     private Mock<ICacheBase> _cacheManager;
+    private PrimaryCurrencySettings _primaryCurrencySettings;
     private IRepository<Currency> _currencyRepository;
     private ICurrencyService _currencyService;
     private CurrencySettings _currencySettings;
@@ -74,6 +77,7 @@ public class CurrencyServiceTests
             IMongoCollection.Insert(currencyRUR);
 
             tempCurrencyRepository.Setup(x => x.Table).Returns(IMongoCollection.Table);
+            tempCurrencyRepository.Setup(x => x.GetByIdAsync(It.IsAny<string>())).ReturnsAsync((Currency)null);
             tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyUSD.Id)).ReturnsAsync(currencyUSD);
             tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyEUR.Id)).ReturnsAsync(currencyEUR);
             tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyRUR.Id)).ReturnsAsync(currencyRUR);
@@ -90,14 +94,14 @@ public class CurrencyServiceTests
         _serviceProvider = new Mock<IServiceProvider>().Object;
 
         _currencySettings = new CurrencySettings {
-            PrimaryStoreCurrencyId = currencyUSD.Id,
             PrimaryExchangeRateCurrencyId = currencyEUR.Id
         };
+        _primaryCurrencySettings = new PrimaryCurrencySettings { CurrencyId = currencyUSD.Id };
 
 
         _currencyService = new CurrencyService(
             _cacheManager.Object, _currencyRepository, _aclService.Object,
-            _currencySettings, _eventPublisher);
+            _currencySettings, _primaryCurrencySettings, _eventPublisher);
 
         //tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToCategories, "", "", false)).ReturnsAsync(new List<Discount>());
     }
@@ -160,11 +164,40 @@ public class CurrencyServiceTests
     [TestMethod]
     public async Task GetPrimaryStoreCurrency_ReturnExpectedValue()
     {
-        _currencySettings.PrimaryStoreCurrencyId = currencyUSD.Id;
+        _primaryCurrencySettings.CurrencyId = currencyUSD.Id;
         _cacheManager.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<Currency>>>()))
             .Returns(Task.FromResult(currencyUSD));
         var result = await _currencyService.GetPrimaryStoreCurrency();
         Assert.AreEqual(result.Id, currencyUSD.Id);
+    }
+
+    [TestMethod]
+    public async Task GetPrimaryStoreCurrency_ReadsTheCurrencyFromPrimaryCurrencySettings()
+    {
+        _primaryCurrencySettings.CurrencyId = currencyRUR.Id;
+        ResolveCurrencyByIdFromRepository();
+
+        var result = await _currencyService.GetPrimaryStoreCurrency();
+
+        Assert.AreEqual(currencyRUR.Id, result.Id);
+    }
+
+    [TestMethod]
+    public async Task GetPrimaryExchangeRateCurrency_IsIndependentOfThePrimaryStoreCurrency()
+    {
+        _primaryCurrencySettings.CurrencyId = currencyRUR.Id;
+        _currencySettings.PrimaryExchangeRateCurrencyId = currencyEUR.Id;
+        ResolveCurrencyByIdFromRepository();
+
+        var result = await _currencyService.GetPrimaryExchangeRateCurrency();
+
+        Assert.AreEqual(currencyEUR.Id, result.Id);
+    }
+
+    private void ResolveCurrencyByIdFromRepository()
+    {
+        _cacheManager.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<Currency>>>()))
+            .Returns((string _, Func<Task<Currency>> acquire) => acquire());
     }
 
     [TestMethod]

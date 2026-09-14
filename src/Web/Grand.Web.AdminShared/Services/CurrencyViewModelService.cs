@@ -76,9 +76,30 @@ public class CurrencyViewModelService : ICurrencyViewModelService
 
     public virtual async Task MarkAsPrimaryStoreCurrency(string id)
     {
-        _currencySettings.PrimaryStoreCurrencyId = id;
-        await _settingService.SaveSetting(_currencySettings);
+        var primaryCurrencySettings = await _settingService.LoadSetting<PrimaryCurrencySettings>();
+        primaryCurrencySettings.CurrencyId = id;
+        await _settingService.SaveSetting(primaryCurrencySettings);
         await _cacheBase.Clear();
+    }
+
+    /// <summary>
+    ///     The currency each store's prices are stored in - its own override where it has one, the global value
+    ///     otherwise. The empty store id covers the global value itself, which applies when no store exists yet.
+    /// </summary>
+    private async Task<HashSet<string>> EffectivePrimaryCurrencyIds()
+    {
+        var storeIds = (await _storeService.GetAllStores()).Select(s => s.Id).Append(string.Empty);
+
+        var currencyIds = new HashSet<string>();
+        foreach (var storeId in storeIds)
+            currencyIds.Add((await _settingService.LoadSetting<PrimaryCurrencySettings>(storeId)).CurrencyId);
+
+        return currencyIds;
+    }
+
+    private async Task<string> EffectivePrimaryCurrencyId(string storeId)
+    {
+        return (await _settingService.LoadSetting<PrimaryCurrencySettings>(storeId)).CurrencyId;
     }
 
     public virtual async Task<(bool canProceed, string message)> ValidateCurrencyUnpublish(string currencyId,
@@ -90,6 +111,10 @@ public class CurrencyViewModelService : ICurrencyViewModelService
         var allCurrencies = await _currencyService.GetAllCurrencies();
         if (allCurrencies.Count == 1 && allCurrencies[0].Id == currencyId)
             return (false, "At least one published currency is required.");
+
+        //a store cannot be left with an unpublished currency its prices are stored in
+        if ((await EffectivePrimaryCurrencyIds()).Contains(currencyId))
+            return (false, _translationService.GetResource("Admin.Configuration.Currencies.CantUnpublishPrimary"));
 
         return (true, string.Empty);
     }
@@ -108,6 +133,14 @@ public class CurrencyViewModelService : ICurrencyViewModelService
 
         foreach (var store in await _storeService.GetAllStores())
         {
+            //a store's prices are stored in its primary currency - it must stay available there
+            if (await EffectivePrimaryCurrencyId(store.Id) == currency.Id &&
+                (!model.Published || (limitedToStores && !model.Stores.Contains(store.Id))))
+                return (false, string.Format(
+                    _translationService.GetResource("Admin.Configuration.Currencies.CantLimitPrimaryStores"),
+                    store.Name));
+
+
             if (otherCurrencies.Any(c => !c.LimitedToStores || c.Stores.Contains(store.Id)))
                 continue;
 
@@ -123,7 +156,7 @@ public class CurrencyViewModelService : ICurrencyViewModelService
 
     public virtual async Task<(bool canDelete, string message)> ValidateCurrencyDelete(Currency currency)
     {
-        if (currency.Id == _currencySettings.PrimaryStoreCurrencyId)
+        if ((await EffectivePrimaryCurrencyIds()).Contains(currency.Id))
             return (false, _translationService.GetResource("Admin.Configuration.Currencies.CantDeletePrimary"));
 
         if (currency.Id == _currencySettings.PrimaryExchangeRateCurrencyId)

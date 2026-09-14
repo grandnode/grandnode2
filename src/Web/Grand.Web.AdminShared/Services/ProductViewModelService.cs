@@ -137,7 +137,7 @@ public class ProductViewModelService(
                 IsDefault = picture.IsDefault
             });
         model.PrimaryStoreCurrencyCode =
-            (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
+            (await currencyService.GetPrimaryStoreCurrency())?.CurrencyCode;
     }
 
     public virtual async Task PrepareTierPriceModel(ProductModel.TierPriceModel model)
@@ -257,7 +257,7 @@ public class ProductViewModelService(
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        model.PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
+        model.PrimaryStoreCurrencyCode = (await currencyService.GetPrimaryStoreCurrency())?.CurrencyCode;
         model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId))?.Name;
         model.BaseDimensionIn = (await measureService.GetMeasureDimensionById(measureSettings.BaseDimensionId))?.Name;
 
@@ -1796,7 +1796,7 @@ public class ProductViewModelService(
             //image squares
             DisplayImageSquaresPicture =
                 productAttributeMapping.AttributeControlTypeId == AttributeControlType.ImageSquares,
-            PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))
+            PrimaryStoreCurrencyCode = (await currencyService.GetPrimaryStoreCurrency())
                 ?.CurrencyCode,
             //default qantity for associated product
             Quantity = 1
@@ -1852,7 +1852,7 @@ public class ProductViewModelService(
                     : "",
                 Cost = x.Cost,
                 PrimaryStoreCurrencyCode =
-                    (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
+                    (await currencyService.GetPrimaryStoreCurrency())?.CurrencyCode,
                 Quantity = x.Quantity,
                 IsPreSelected = x.IsPreSelected,
                 DisplayOrder = x.DisplayOrder,
@@ -1884,7 +1884,7 @@ public class ProductViewModelService(
             PriceAdjustment = pav.PriceAdjustment,
             WeightAdjustment = pav.WeightAdjustment,
             Cost = pav.Cost,
-            PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))
+            PrimaryStoreCurrencyCode = (await currencyService.GetPrimaryStoreCurrency())
                 ?.CurrencyCode,
             Quantity = pav.Quantity,
             IsPreSelected = pav.IsPreSelected,

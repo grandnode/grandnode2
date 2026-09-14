@@ -230,8 +230,7 @@ public class SettingController(
             ActiveStore = storeScope
         };
 
-        var currencySettings = await settingService.LoadSetting<CurrencySettings>();
-        var currency = await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId);
+        var currency = await currencyService.GetPrimaryStoreCurrency();
 
         //loyal
         model.LoyaltyPointsSettings.PrimaryStoreCurrencyCode = currency?.CurrencyCode;

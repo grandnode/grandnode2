@@ -75,6 +75,22 @@
                     template: '# if(LimitedToStores) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
                 },
                 {
+                    field: "IsPrimaryStoreCurrency",
+                    title: "@Loc["Admin.Configuration.Currencies.SetPrimaryCurrency"]",
+                    width: 180,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: function (dataItem) {
+                        if (dataItem.IsPrimaryStoreCurrency) {
+                            return '<span class="badge badge-warning"><i class="fa fa-star"></i> @Loc["Admin.Configuration.Currencies.Fields.IsPrimaryStoreCurrency"]</span>';
+                        }
+                        if (dataItem.IsAssignedToCurrentStore && dataItem.Published) {
+                            return '<a onclick="setPrimaryCurrency(\'' + dataItem.Id + '\', false)" class="btn btn-sm btn-warning" title="@Loc["Admin.Configuration.Currencies.SetPrimaryCurrency"]"><i class="fa fa-star"></i> @Loc["Admin.Configuration.Currencies.SetPrimaryCurrency"]</a>';
+                        }
+                        return '<span class="text-muted">-</span>';
+                    }
+                },
+                {
                     field: "IsDefaultStoreCurrency",
                     title: "@Loc["Admin.Configuration.Currencies.SetDefaultCurrency"]",
                     width: 180,
@@ -151,6 +167,32 @@
             },
             error: function () {
                 alert('Failed to update currency');
+            }
+        });
+    }
+
+    function setPrimaryCurrency(id, confirmed) {
+        var postData = { id: id, confirmed: confirmed };
+        addAntiForgeryToken(postData);
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@Html.Raw(Url.Action("SetPrimaryCurrency", "Currency", new { area = Constants.AreaStore }))",
+            data: postData,
+            success: function (data) {
+                if (data.success) {
+                    var grid = $("#currencies-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                } else if (data.requiresConfirmation) {
+                    if (confirm(data.message)) {
+                        setPrimaryCurrency(id, true);
+                    }
+                } else {
+                    alert(data.message);
+                }
+            },
+            error: function () {
+                alert('Failed to set primary currency');
             }
         });
     }

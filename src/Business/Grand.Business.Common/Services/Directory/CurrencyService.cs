@@ -24,17 +24,20 @@ public class CurrencyService : ICurrencyService
     /// <param name="currencyRepository">Currency repository</param>
     /// <param name="aclService">ACL service</param>
     /// <param name="currencySettings">Currency settings</param>
+    /// <param name="primaryCurrencySettings">Primary currency settings, store-scoped</param>
     /// <param name="mediator">Mediator</param>
     public CurrencyService(ICacheBase cacheBase,
         IRepository<Currency> currencyRepository,
         IAclService aclService,
         CurrencySettings currencySettings,
+        PrimaryCurrencySettings primaryCurrencySettings,
         IMediator mediator)
     {
         _cacheBase = cacheBase;
         _currencyRepository = currencyRepository;
         _aclService = aclService;
         _currencySettings = currencySettings;
+        _primaryCurrencySettings = primaryCurrencySettings;
         _mediator = mediator;
     }
 
@@ -47,6 +50,7 @@ public class CurrencyService : ICurrencyService
     private readonly ICacheBase _cacheBase;
     private readonly IMediator _mediator;
     private readonly CurrencySettings _currencySettings;
+    private readonly PrimaryCurrencySettings _primaryCurrencySettings;
     private Currency _primaryCurrency;
     private Currency _primaryExchangeRateCurrency;
 
@@ -66,12 +70,13 @@ public class CurrencyService : ICurrencyService
     }
 
     /// <summary>
-    ///     Gets primary store currency
+    ///     Gets primary store currency - the currency prices are stored in. PrimaryCurrencySettings is resolved for
+    ///     the current store, so a store overriding it gets its own currency and every other store the global one.
     /// </summary>
     /// <returns>Currency</returns>
     public async Task<Currency> GetPrimaryStoreCurrency()
     {
-        return _primaryCurrency ??= await GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
+        return _primaryCurrency ??= await GetCurrencyById(_primaryCurrencySettings.CurrencyId);
     }
 
     /// <summary>

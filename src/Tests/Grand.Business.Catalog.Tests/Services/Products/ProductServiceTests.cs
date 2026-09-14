@@ -862,4 +862,59 @@ public class ProductServiceTests
         Assert.IsNotNull(result);
         Assert.HasCount(1, result.AppliedDiscounts);
     }
+
+    [TestMethod]
+    public async Task CountSharedProducts_ProductAvailableInEveryStore_IsCountedAsShared()
+    {
+        //Arrange
+        await _productRepository.InsertAsync(new Product { LimitedToStores = false });
+
+        //Act
+        var result = await _productService.CountSharedProducts("store-1");
+
+        //Assert
+        Assert.AreEqual(1, result);
+    }
+
+    [TestMethod]
+    public async Task CountSharedProducts_ProductLimitedToThisStoreOnly_IsNotCountedAsShared()
+    {
+        //Arrange
+        await _productRepository.InsertAsync(new Product
+            { LimitedToStores = true, Stores = new List<string> { "store-1" } });
+
+        //Act
+        var result = await _productService.CountSharedProducts("store-1");
+
+        //Assert
+        Assert.AreEqual(0, result);
+    }
+
+    [TestMethod]
+    public async Task CountSharedProducts_ProductLimitedToThisStoreAndAnother_IsCountedAsShared()
+    {
+        //Arrange
+        await _productRepository.InsertAsync(new Product
+            { LimitedToStores = true, Stores = new List<string> { "store-1", "store-2" } });
+
+        //Act
+        var result = await _productService.CountSharedProducts("store-1");
+
+        //Assert
+        Assert.AreEqual(1, result);
+    }
+
+    [TestMethod]
+    public async Task CountSharedProducts_ProductLimitedToAnotherStoreOnly_IsNotCountedAsShared()
+    {
+        //Arrange
+        await _productRepository.InsertAsync(new Product
+            { LimitedToStores = true, Stores = new List<string> { "store-2", "store-3" } });
+
+        //Act
+        var result = await _productService.CountSharedProducts("store-1");
+
+        //Assert
+        Assert.AreEqual(0, result);
+    }
 }

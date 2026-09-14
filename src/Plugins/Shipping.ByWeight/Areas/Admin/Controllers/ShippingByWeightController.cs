@@ -176,7 +176,7 @@ public class ShippingByWeightController : BaseShippingController
     {
         var model = new ShippingByWeightModel {
             PrimaryStoreCurrencyCode =
-                (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode,
+                (await _currencyService.GetPrimaryStoreCurrency()).CurrencyCode,
             BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name,
             To = 1000000
         };
@@ -255,7 +255,7 @@ public class ShippingByWeightController : BaseShippingController
             RatePerWeightUnit = sbw.RatePerWeightUnit,
             LowerWeightLimit = sbw.LowerWeightLimit,
             PrimaryStoreCurrencyCode =
-                (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId)).CurrencyCode,
+                (await _currencyService.GetPrimaryStoreCurrency()).CurrencyCode,
             BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name
         };
 
