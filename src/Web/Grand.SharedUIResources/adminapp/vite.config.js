@@ -7,7 +7,8 @@ const resolve = p => fileURLToPath(new URL(p, import.meta.url))
 //so scripts/build.mjs runs one build per entry and passes the entry name in ADMIN_ENTRY.
 export const entries = {
     'admin.core': './src/admin.core.js',
-    'admin.grid': './src/admin.grid.js'
+    'admin.grid': './src/admin.grid.js',
+    'admin.legacy': './src/admin.legacy.js'
 }
 
 export default defineConfig(() => {

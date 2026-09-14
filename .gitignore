@@ -386,3 +386,4 @@ docs/superpowers/
 
 # admin panel bundles no panel loads yet; committed once a Head* partial references them
 src/Web/Grand.SharedUIResources/wwwroot/administration/bundles/admin.core.js
+src/Web/Grand.SharedUIResources/wwwroot/administration/bundles/admin.legacy.js
