@@ -7,6 +7,13 @@
 .grand-grid {
     position: relative;
     width: 100%;
+    /*
+     * a formatting context of its own, like the Kendo grid (a flex container): the grid sits
+     * next to or below floated siblings instead of overlapping them - the add-product popups
+     * float their search header, and a positioned block box on top of it swallowed the clicks
+     * on Search and Save
+     */
+    display: flow-root;
 }
 
 .grand-grid .tabulator {

@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Infrastructure;
 using Grand.Web.Common.TagHelpers.Admin.Grid;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -103,11 +104,13 @@ public class GridToolbarCreateTagHelper : TagHelper
 [HtmlTargetElement("grid-toolbar-save", ParentTag = "admin-grid", TagStructure = TagStructure.WithoutEndTag)]
 public class GridToolbarSaveTagHelper : TagHelper
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly ITranslationService _translationService;
 
-    public GridToolbarSaveTagHelper(ITranslationService translationService)
+    public GridToolbarSaveTagHelper(ITranslationService translationService, IContextAccessor contextAccessor)
     {
         _translationService = translationService;
+        _contextAccessor = contextAccessor;
     }
 
     /// <summary>Button text; defaults to Admin.Common.SaveChanges.</summary>
@@ -117,7 +120,9 @@ public class GridToolbarSaveTagHelper : TagHelper
     {
         var builder = (GridBuilder)context.Items[AdminGridTagHelper.ContextKey];
         builder.Grid.Toolbar ??= new GridToolbar();
-        builder.Grid.Toolbar.Save = string.IsNullOrEmpty(Text) ? _translationService.GetResource("Admin.Common.SaveChanges") : Text;
+        builder.Grid.Toolbar.Save = string.IsNullOrEmpty(Text)
+            ? GridToolbarText.Get(_translationService, _contextAccessor, "Admin.Common.SaveChanges", "Save changes")
+            : Text;
         output.SuppressOutput();
     }
 }
@@ -126,11 +131,13 @@ public class GridToolbarSaveTagHelper : TagHelper
 [HtmlTargetElement("grid-toolbar-cancel", ParentTag = "admin-grid", TagStructure = TagStructure.WithoutEndTag)]
 public class GridToolbarCancelTagHelper : TagHelper
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly ITranslationService _translationService;
 
-    public GridToolbarCancelTagHelper(ITranslationService translationService)
+    public GridToolbarCancelTagHelper(ITranslationService translationService, IContextAccessor contextAccessor)
     {
         _translationService = translationService;
+        _contextAccessor = contextAccessor;
     }
 
     /// <summary>Button text; defaults to Admin.Common.Grid.CancelChanges.</summary>
@@ -140,8 +147,24 @@ public class GridToolbarCancelTagHelper : TagHelper
     {
         var builder = (GridBuilder)context.Items[AdminGridTagHelper.ContextKey];
         builder.Grid.Toolbar ??= new GridToolbar();
-        builder.Grid.Toolbar.Cancel = string.IsNullOrEmpty(Text) ? _translationService.GetResource("Admin.Common.Grid.CancelChanges") : Text;
+        builder.Grid.Toolbar.Cancel = string.IsNullOrEmpty(Text)
+            ? GridToolbarText.Get(_translationService, _contextAccessor, "Admin.Common.Grid.CancelChanges", "Cancel changes")
+            : Text;
         output.SuppressOutput();
+    }
+}
+
+internal static class GridToolbarText
+{
+    /// <summary>
+    ///     The resource in the working language, or the Kendo default text when the resource is
+    ///     missing (a database that never imported the upgrade resources), never the raw key.
+    /// </summary>
+    public static string Get(ITranslationService translationService, IContextAccessor contextAccessor, string key, string fallback)
+    {
+        var languageId = contextAccessor.WorkContext?.WorkingLanguage?.Id;
+        var value = languageId is null ? null : translationService.GetResource(key, languageId, string.Empty, true);
+        return string.IsNullOrEmpty(value) ? fallback : value;
     }
 }
 

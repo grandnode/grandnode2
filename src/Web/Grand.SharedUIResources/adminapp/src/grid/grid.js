@@ -120,7 +120,8 @@ export class GrandGrid {
             //set by the Kendo shim only; <admin-grid> configurations are JSON
             parameterMap: typeof config.parameterMap === 'function' ? config.parameterMap : null,
             schema: config.schema || null,
-            data: Array.isArray(config.data) ? config.data : null
+            data: Array.isArray(config.data) ? config.data : null,
+            serverPaging: config.serverPaging
         })
         this.api = createKendoApi(this)
         this._build()
@@ -151,6 +152,9 @@ export class GrandGrid {
             if (fn) Object.assign(data, fn.call(this.api) || {})
             else console.warn(`[admin-grid] additional-data function "${this.config.additionalData}" is not defined`)
         }
+        //like the $.extend the Kendo transport used: fields a view reads from elements that
+        //are not on the page ($('#CountryId').val() is undefined) are not sent at all
+        for (const name of Object.keys(data)) if (data[name] === undefined) delete data[name]
         return data
     }
 
@@ -220,6 +224,7 @@ export class GrandGrid {
             data: []
         })
         this.ready = new Promise(resolve => this.table.on('tableBuilt', resolve))
+        this.table.on('renderComplete', () => this._onRenderComplete())
         this.ready.then(() => {
             this._applyResponsive()
             if (this.columns.some(c => c.minScreenWidth)) {
@@ -764,11 +769,32 @@ export class GrandGrid {
         this._detailGrids.forEach(grid => grid.destroy())
         this._detailGrids.clear()
         this._expanded.clear()
-        await this.table.setData(this.dataSource.data())
+        this._settingData = true
+        try {
+            await this.table.setData(this.dataSource.data())
+        } finally {
+            this._settingData = false
+        }
         renderPager(this.pagerElement, this._pagerOptions())
         this._updateHeaderCheckbox()
-        this._fire('dataBound', { sender: this.api })
-        this.element.dispatchEvent(new CustomEvent('grand-grid:databound', { bubbles: true, detail: { grid: this.api } }))
+        this._bound = true
+        this._dataBound(false)
+    }
+
+    _dataBound(rerendered) {
+        this._fire('dataBound', { sender: this.api, rerendered })
+        this.element.dispatchEvent(new CustomEvent('grand-grid:databound', { bubbles: true, detail: { grid: this.api, rerendered } }))
+    }
+
+    /**
+     * Tabulator renders the rows again on its own when the layout changes (a tab shown and
+     * kendo.resize, columns hidden for the window width): the cells are new elements, so
+     * whatever a dataBound handler bound to them (the magnificPopup edit links) is gone.
+     * Kendo rows stayed until the next dataBound, so dataBound runs again here.
+     */
+    _onRenderComplete() {
+        if (!this._bound || this._settingData) return
+        this._dataBound(true)
     }
 
     /** Returns the data item of a row element (or any element inside it). */
@@ -874,6 +900,8 @@ export class GrandGrid {
         if (index >= 0) {
             this.dataSource._data.splice(index, 1)
             this.dataSource._total = Math.max(0, this.dataSource._total - 1)
+            const all = this.dataSource._all
+            if (all && all.includes(item)) all.splice(all.indexOf(item), 1)
         }
         if (this.config.reloadAfterDestroy) await this.dataSource.read()
         else await this._render()

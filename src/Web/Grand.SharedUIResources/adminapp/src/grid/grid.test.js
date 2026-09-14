@@ -69,6 +69,7 @@ class FakeTabulator {
     }
 
     async setData(data) {
+        this.handlers.renderComplete?.()
         this.rows.forEach(row => row.getElement().remove())
         this.rows = data.map(item => this._row(item))
         for (const row of this.rows) {
@@ -326,5 +327,38 @@ describe('template lists', () => {
         const host = document.createElement('div')
         host.appendChild(compileTemplate('<span>{{ Warnings }}</span>').render({ Warnings: ['a', 'b'] }, {}))
         expect(host.textContent).toBe('a,b')
+    })
+})
+
+describe('additional data', () => {
+    it('leaves out fields whose value is undefined, like $.extend in the Kendo transport', async () => {
+        window.gridSearch = () => ({ StartDate: '', CountryId: undefined, LoadNotShipped: false })
+        const post = vi.fn(async () => ({ Data: [], Total: 0 }))
+        const grid = createGrid({ transport: { read: '/list' }, additionalData: 'gridSearch', columns: [{ field: 'Id' }] }, post)
+        await grid.ready
+        await grid.dataSource.read()
+        const payload = post.mock.calls[0][1]
+        expect(payload).toMatchObject({ StartDate: '', LoadNotShipped: false })
+        expect('CountryId' in payload).toBe(false)
+        delete window.gridSearch
+    })
+})
+
+describe('dataBound after Tabulator renders the rows again', () => {
+    it('runs dataBound once per data change and again when the table re-renders on its own', async () => {
+        const bound = vi.fn()
+        window.onRowsBound = bound
+        const grid = createGrid({ data: [{ Id: '1' }], events: { dataBound: 'onRowsBound' }, columns: [{ field: 'Id' }] })
+        await grid.ready
+        grid.table.handlers.renderComplete()
+        expect(bound).not.toHaveBeenCalled()
+        await grid.dataSource.read()
+        await vi.waitFor(() => expect(bound).toHaveBeenCalledTimes(1))
+        expect(bound.mock.calls[0][0].rerendered).toBe(false)
+        //kendo.resize -> table.redraw(true) re-creates the cells
+        grid.table.handlers.renderComplete()
+        expect(bound).toHaveBeenCalledTimes(2)
+        expect(bound.mock.calls[1][0].rerendered).toBe(true)
+        delete window.onRowsBound
     })
 })

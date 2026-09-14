@@ -192,3 +192,28 @@ describe('postForm', () => {
             .rejects.toEqual({ errorThrown: 'Bad Request', status: 400 })
     })
 })
+
+describe('DataSource client paging (serverPaging: false)', () => {
+    it('reads once without paging fields and cuts the pages locally', async () => {
+        const rows = Array.from({ length: 5 }, (_, i) => ({ Id: String(i + 1) }))
+        const post = fakePost([{ Data: rows, Total: 5 }, { Data: rows.slice(0, 4), Total: 4 }])
+        const changes = vi.fn()
+        const ds = new DataSource({ transport: { read: '/list' }, pageSize: 2, serverPaging: false, onChange: changes, post })
+        await ds.read()
+        expect(post.calls[0].body).toBe('__RequestVerificationToken=token-1')
+        expect(ds.data().map(r => r.Id)).toEqual(['1', '2'])
+        expect(ds.total()).toBe(5)
+        expect(ds.totalPages()).toBe(3)
+
+        await ds.page(3)
+        expect(post).toHaveBeenCalledTimes(1)
+        expect(ds.data().map(r => r.Id)).toEqual(['5'])
+
+        ds.remove(ds.data()[0])
+        expect(ds.total()).toBe(4)
+        await ds.read()
+        expect(ds.page()).toBe(2)
+        expect(ds.data().map(r => r.Id)).toEqual(['3', '4'])
+        expect(changes).toHaveBeenCalled()
+    })
+})

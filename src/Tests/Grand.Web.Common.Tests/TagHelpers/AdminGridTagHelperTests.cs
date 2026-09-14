@@ -338,8 +338,8 @@ public class AdminGridTagHelperTests
             g.BatchPrefix = "products";
         });
         var output = await RunGrid(grid,
-            new Element(new GridToolbarSaveTagHelper(_translationServiceMock.Object)),
-            new Element(new GridToolbarCancelTagHelper(_translationServiceMock.Object) { Text = "Cancel changes" }),
+            new Element(new GridToolbarSaveTagHelper(_translationServiceMock.Object, _contextAccessorMock.Object)),
+            new Element(new GridToolbarCancelTagHelper(_translationServiceMock.Object, _contextAccessorMock.Object)),
             new Element(new GridColumnTagHelper { Field = "Price", Editor = GridEditor.Numeric, Decimals = 4 }));
 
         var config = Config(output);
@@ -347,8 +347,15 @@ public class AdminGridTagHelperTests
         Assert.AreEqual("products", config.GetProperty("batchPrefix").GetString());
         var toolbar = config.GetProperty("toolbar");
         Assert.AreEqual("[Admin.Common.SaveChanges]", toolbar.GetProperty("save").GetString());
-        Assert.AreEqual("Cancel changes", toolbar.GetProperty("cancel").GetString());
+        Assert.AreEqual("[Admin.Common.Grid.CancelChanges]", toolbar.GetProperty("cancel").GetString());
         Assert.IsFalse(toolbar.TryGetProperty("create", out _));
+
+        _translationServiceMock
+            .Setup(x => x.GetResource("Admin.Common.Grid.CancelChanges", "lang1", string.Empty, true))
+            .Returns(string.Empty);
+        var missing = Config(await RunGrid(CreateGrid(g => g.EditMode = GridEditMode.Batch),
+            new Element(new GridToolbarCancelTagHelper(_translationServiceMock.Object, _contextAccessorMock.Object))));
+        Assert.AreEqual("Cancel changes", missing.GetProperty("toolbar").GetProperty("cancel").GetString());
     }
 
     [TestMethod]
@@ -373,6 +380,19 @@ public class AdminGridTagHelperTests
     }
 
     [TestMethod]
+    public async Task Process_ServerPagingOff_KeepsPageSizeAndFlagsClientPaging()
+    {
+        var config = Config(await RunGrid(CreateGrid(g =>
+        {
+            g.ReadUrl = "/Admin/Customer/AddressesSelect";
+            g.ServerPaging = false;
+        })));
+
+        Assert.IsFalse(config.GetProperty("serverPaging").GetBoolean());
+        Assert.AreEqual(15, config.GetProperty("pageSize").GetInt32());
+    }
+
+    [TestMethod]
     public async Task Process_LocalData_KeepsRowPropertyNames()
     {
         var rows = new[] { new { AuthMethodName = "Google", Email = "a@b.c", ExternalIdentifier = "<x>" } };
@@ -382,6 +402,7 @@ public class AdminGridTagHelperTests
             g.Data = rows;
         })));
 
+        Assert.IsFalse(config.TryGetProperty("serverPaging", out _));
         var data = config.GetProperty("data");
         Assert.AreEqual(JsonValueKind.Array, data.ValueKind);
         Assert.AreEqual("Google", data[0].GetProperty("AuthMethodName").GetString());

@@ -63,6 +63,7 @@ public class GridDefinition
     public int? PageSize { get; set; }
     public IList<int> PageSizes { get; set; }
     public GridPager Pager { get; set; } = GridPager.Full;
+    public bool? ServerPaging { get; set; }
     public bool? AutoBind { get; set; }
     public GridEditMode EditMode { get; set; } = GridEditMode.None;
     public bool? ReloadAfterSave { get; set; }

@@ -40,6 +40,22 @@ export class DataSource {
         this._destroyed = []
         this._post = options.post || postForm
         this._readSequence = 0
+        //serverPaging: false - the server returns every row and pages are cut here (Kendo
+        //dataSource without serverPaging)
+        this._clientPaging = options.serverPaging === false
+        this._all = null
+    }
+
+    _slice() {
+        const all = this._all || []
+        this._total = all.length
+        if (this._pageSize) {
+            if (this._page > this.totalPages()) this._page = this.totalPages()
+            const start = (this._page - 1) * this._pageSize
+            this._data = all.slice(start, start + this._pageSize)
+        } else {
+            this._data = all.slice()
+        }
     }
 
     _requestData(operation, data) {
@@ -74,7 +90,7 @@ export class DataSource {
     readPayload() {
         const additional = this.options.additionalData ? this.options.additionalData() || {} : {}
         const payload = { ...additional }
-        if (this._pageSize) {
+        if (this._pageSize && !this._clientPaging) {
             payload.take = this._pageSize
             payload.skip = (this._page - 1) * this._pageSize
             payload.page = this._page
@@ -120,6 +136,12 @@ export class DataSource {
         this._total = typeof total === 'number' ? total : this._data.length
         this._extraData = response && typeof response === 'object' ? response.ExtraData ?? null : null
         this._destroyed = []
+        if (this._clientPaging) {
+            this._all = this._data
+            this._slice()
+            this.options.onChange?.()
+            return
+        }
         //deleting the last row of the last page leaves an empty page behind
         if (this._data.length === 0 && this._page > 1 && this._pageSize && this._total > 0) {
             this._page = this.totalPages()
@@ -132,6 +154,11 @@ export class DataSource {
     page(value) {
         if (value === undefined) return this._page
         this._page = Math.max(1, Number(value) || 1)
+        if (this._clientPaging && this._all) {
+            this._slice()
+            this.options.onChange?.()
+            return Promise.resolve()
+        }
         return this.read()
     }
 
@@ -139,6 +166,11 @@ export class DataSource {
         if (value === undefined) return this._pageSize
         this._pageSize = Number(value) || null
         this._page = 1
+        if (this._clientPaging && this._all) {
+            this._slice()
+            this.options.onChange?.()
+            return Promise.resolve()
+        }
         return this.read()
     }
 
@@ -181,6 +213,7 @@ export class DataSource {
         if (index < 0) return
         this._data.splice(index, 1)
         this._total = Math.max(0, this._total - 1)
+        if (this._all) this._all.splice(this._all.indexOf(item), 1)
         this._destroyed.push({ item, index })
         this.options.onChange?.()
     }

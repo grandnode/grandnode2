@@ -74,6 +74,12 @@ public class AdminGridTagHelper : TagHelper
 
     public GridPager Pager { get; set; } = GridPager.Full;
 
+    /// <summary>
+    ///     false: the read URL returns every row and the grid cuts the pages itself, sending no
+    ///     paging fields (a Kendo data source without serverPaging).
+    /// </summary>
+    public bool ServerPaging { get; set; } = true;
+
     /// <summary>false for grids loaded by tabstrip_on_tab_show (Kendo autoBind: false).</summary>
     public bool AutoBind { get; set; } = true;
 
@@ -138,6 +144,7 @@ public class AdminGridTagHelper : TagHelper
         grid.PageSize = PageSize ?? (Pager == GridPager.Full ? _adminAreaSettings.DefaultGridPageSize : null);
         if (Pager == GridPager.Full)
             grid.PageSizes = ParsePageSizes(PageSizes ?? _adminAreaSettings.GridPageSizes);
+        grid.ServerPaging = ServerPaging ? null : false;
         grid.AutoBind = AutoBind ? null : false;
         grid.EditMode = EditMode;
         grid.ReloadAfterSave = ReloadAfterSave ? null : false;
