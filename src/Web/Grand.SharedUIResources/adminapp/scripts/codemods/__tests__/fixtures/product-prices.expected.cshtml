@@ -1,0 +1,60 @@
+@using Grand.Business.Core.Interfaces.Common.Directory
+@model ProductModel
+@inject ICurrencyService currencyService
+@{
+    var currencies = await currencyService.GetAllCurrencies();
+    var defaultCurrency = await currencyService.GetPrimaryStoreCurrency();
+    currencies = currencies.Where(x => x.Id != defaultCurrency.Id).ToList();
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@if (!string.IsNullOrEmpty(Model.Id) && currencies.Count > 0)
+{
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <admin-grid id="productprices-grid"
+                        read-url="@Url.Action("ProductPriceList", "Product", new { productId = Model.Id, area = area })"
+                        create-url="@Url.Action("ProductPriceInsert", "Product", new { productId = Model.Id, area = area })"
+                        update-url="@Url.Action("ProductPriceUpdate", "Product", new { productId = Model.Id, area = area })"
+                        destroy-url="@Url.Action("ProductPriceDelete", "Product", new { productId = Model.Id, area = area })"
+                        pager="Compact"
+                        auto-bind="false"
+                        edit-mode="Inline"
+                        confirm-destroy="true">
+                <grid-toolbar-create text="@Loc[$"{Scope.ResourceKeyPrefix}.Common.AddNewRecord"]"/>
+                @* CODEMOD-REVIEW: custom Kendo editor (currencyDropDownEditor) needs a Select/Custom editor by hand *@
+                <grid-column field="CurrencyCode" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductPrices.Fields.CurrencyCode"]" width="200" editor="Text"/>
+                <grid-column field="Price" title="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.ProductPrices.Fields.Price"]" width="100" align="Center" format="{0:n2}" editor="Numeric" default-value="0"/>
+                <grid-commands edit="true" destroy="true" width="200"/>
+            </admin-grid>
+        </div>
+    </div>
+    <script>
+
+        //local datasource
+        var allCurrencies = [
+            @for (var i = 0; i < currencies.Count; i++)
+            {
+                var currencyItem = currencies[i];
+                <text>
+                    {
+                        Id: '@(currencyItem.CurrencyCode)',
+                        Name: "@(currencyItem.CurrencyCode)"
+                    }
+                    </text>
+                if (i != currencies.Count - 1)
+                {
+                    <text>,</text>
+                }
+            }
+        ];
+
+        function currencyDropDownEditor(container, options) {
+            $('<input required data-text-field="Name" data-value-field="Id" data-bind="value:CurrencyCode"/>')
+                .appendTo(container)
+                .kendoDropDownList({
+                    autoBind: true,
+                    dataSource: allCurrencies
+                });
+        }
+    </script>
+}

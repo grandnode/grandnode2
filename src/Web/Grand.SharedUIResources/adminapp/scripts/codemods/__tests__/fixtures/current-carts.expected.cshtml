@@ -1,0 +1,35 @@
+﻿@inject AdminAreaSettings adminAreaSettings
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <admin-grid id="carts-grid" read-url="@Url.Action("CurrentCarts", "ShoppingCart", new { area = Constants.AreaAdmin })">
+            <grid-column field="CustomerId" title="@Loc["Admin.CurrentCarts.Customer"]">
+                <cell-template>
+                    <a href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/{{ CustomerId }}">{{ CustomerEmail }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="TotalItems" title="@Loc["Admin.CurrentCarts.TotalItems"]" width="150"/>
+            <grid-detail read-url="@Url.Action("GetCartDetails", "ShoppingCart", new { area = Constants.AreaAdmin })" param="customerId:CustomerId">
+                @* CODEMOD-REVIEW: #=AttributeInfo# was raw HTML in Kendo and is encoded now; use {{{ AttributeInfo }}} only if the server builds it as markup *@
+                <grid-column field="ProductName" title="@Loc["Admin.CurrentCarts.Product"]" width="400">
+                    <cell-template>
+                        <a href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/{{ ProductId }}">{{ ProductName }}</a>
+                        <span data-if="AttributeInfo && AttributeInfo.length > 0"><br />{{ AttributeInfo }}</span>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Quantity" title="@Loc["Admin.CurrentCarts.Quantity"]" width="150"/>
+                <grid-column field="UnitPrice" title="@Loc["Admin.CurrentCarts.UnitPrice"]" width="150"/>
+                <grid-column field="Total" title="@Loc["Admin.CurrentCarts.Total"]" width="150"/>
+                @if (!adminAreaSettings.HideStoreColumn)
+                {
+                    <grid-column field="Store" title="@Loc["Admin.CurrentCarts.Store"]" width="150"/>
+                }
+                <grid-column field="UpdatedOn" title="@Loc["Admin.CurrentCarts.UpdatedOn"]" width="150" format="{0:G}"/>
+            </grid-detail>
+        </admin-grid>
+    </div>
+</div>
+<script>
+
+//details grid
+</script>

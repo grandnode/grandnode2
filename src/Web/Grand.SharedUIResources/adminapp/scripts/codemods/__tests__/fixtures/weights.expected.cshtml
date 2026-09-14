@@ -1,0 +1,67 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <div class="panel">
+            <div class="x_title">
+                <div class="x_content form">
+                    <div class="note note-info">
+                        @Loc["Admin.Configuration.Measures.Weights.Description"]
+                    </div>
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="x_content">
+                                <admin-grid id="measureweight-grid"
+                                            read-url="@Url.Action("Weights", "Measure", new { area = Constants.AreaAdmin })"
+                                            create-url="@Url.Action("WeightAdd", "Measure", new { area = Constants.AreaAdmin })"
+                                            update-url="@Url.Action("WeightUpdate", "Measure", new { area = Constants.AreaAdmin })"
+                                            destroy-url="@Url.Action("WeightDelete", "Measure", new { area = Constants.AreaAdmin })"
+                                            pager="Compact"
+                                            edit-mode="Inline">
+                                    <grid-toolbar-create/>
+                                    <grid-text name="markAsPrimaryWeight" value="@Loc["Admin.Configuration.Measures.Weights.Fields.MarkAsPrimaryWeight"]"/>
+                                    <grid-column field="Name" title="@Loc["Admin.Configuration.Measures.Weights.Fields.Name"]" width="300" editor="Text"/>
+                                    <grid-column field="SystemKeyword" title="@Loc["Admin.Configuration.Measures.Weights.Fields.SystemKeyword"]" width="200" editor="Text"/>
+                                    @* CODEMOD-REVIEW: custom Kendo editor (inline function) needs a Select/Custom editor by hand *@
+                                    <grid-column field="Ratio" title="@Loc["Admin.Configuration.Measures.Weights.Fields.Ratio"]" width="200" editor="Numeric" decimals="8" default-value="0"/>
+                                    <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Measures.Weights.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
+                                    @* CODEMOD-REVIEW: inline on* handler in the template: placeholders are dropped from on* attributes; use data-grid-click="fn" with fn(dataItem, event, grid) *@
+                                    <grid-column field="Id" title="@Loc["Admin.Configuration.Measures.Weights.Fields.IsPrimaryWeight"]" width="150">
+                                        <cell-template>
+                                            <a onclick="markAsPrimaryWeight('{{ Id }}')" class="k-button">
+                                            <i data-if="IsPrimaryWeight" class="fa fa-check" aria-hidden="true" style="color:green;margin-right:5px;"></i>
+                                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red;margin-right:5px;"></i>
+                                            {{ $texts.markAsPrimaryWeight }}</a>
+                                        </cell-template>
+                                    </grid-column>
+                                    <grid-commands edit="true" destroy="true" width="200"/>
+                                </admin-grid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function markAsPrimaryWeight(id) {
+        if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
+            var postData = {
+                id: id
+            };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.Action("MarkAsPrimaryWeight", "Measure", new { area = Constants.AreaAdmin }))",
+                data: postData,
+                success: function(data) {
+                    var grid = $("#measureweight-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    alert('Failed to update weight');
+                }
+            });
+        }
+    }
+</script>

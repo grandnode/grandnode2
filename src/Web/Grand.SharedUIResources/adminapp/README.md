@@ -14,7 +14,8 @@ What exists today:
 | `src/admin.legacy.js`, `src/legacy/` | `$.fn.kendoGrid` shim and Kendo template compiler; built and tested, not loaded by any panel |
 | `src/admin.core.js` | bundle entry; only reserves `window.GrandAdmin` |
 | `scripts/codemods/analyze-kendo-grids.mjs` | read-only inventory and A/B/C classification of every `kendoGrid` in the views |
-| `scripts/codemods/lib/` | Razor masking and grid analysis used by the analyzer (unit tested) |
+| `scripts/codemods/kendo-grid-to-admin-grid.mjs` | codemod converting `kendoGrid` initialisations into `<admin-grid>` markup |
+| `scripts/codemods/lib/` | Razor masking, grid analysis, template and grid conversion used by the analyzer and the codemod (unit tested) |
 | `e2e/` | Playwright smoke specs for the three panels and a HAR recorder |
 
 `HeadAdmin`, `HeadStore` and `HeadVendor` load `admin.grid.js` and `admin.grid.css` next
@@ -79,6 +80,37 @@ It writes `reports/kendo-grids.csv` (one row per grid) and
 `reports/kendo-grids.summary.md` (totals, per project, reasons, formats, external
 `.data("kendoGrid")` usage). `reports/` is git-ignored. Options:
 `-- --root <repo root>`, `-- --out <dir>`.
+
+## Kendo grid codemod
+
+```
+npm run codemod:grids -- --path Grand.Web.AdminShared/Views/AdminShared/Product   # dry run, prints a diff
+npm run codemod:grids -- --path Grand.Web.AdminShared --write                     # rewrites the views
+```
+
+Stage 2 of the migration: replaces each `kendoGrid({ ... })` with `<admin-grid>` markup in
+place of its `<div id="...">` placeholder, in the style of the hand-converted pilot views,
+and removes the grid script (plus a `detailInit` function it owned and the
+`$(document).ready` / `<script>` wrappers left empty). Kendo templates become cell templates
+(`#: #` and `#= #` output is encoded, `# if #` becomes `data-if` / `data-else`, localized
+text moves to `<grid-text>`), Razor `@if` column blocks are kept, and the schema field types
+of inline-edit grids become editors.
+
+Every grid ends in one of three states, listed in the summary:
+
+- **converted** - nothing to review;
+- **converted with review markers** - `@* CODEMOD-REVIEW: reason *@` comments sit next to what
+  a person must check (raw `#= #` output of fields that look like server-built HTML, custom
+  Kendo editors, checkbox columns wired by hand, `dataBound` handlers, inline `on*` handlers
+  in templates). Resolve and remove every marker before committing;
+- **skipped** - left on Kendo with the reasons (partials injecting columns, the same grid
+  configured in several Razor branches, `batch`/`incell` editing, custom toolbars,
+  `requestEnd` handlers other than the reload pattern, template code it cannot translate).
+
+Options: `--path <text>` (repeatable, matched against the repository path), `--write`,
+`--quiet` (summary only), `--root <repo root>`. The fixtures in
+`scripts/codemods/__tests__/fixtures` are pilot views before their conversion and the
+output a reviewer starts from.
 
 ## End-to-end smoke tests
 
