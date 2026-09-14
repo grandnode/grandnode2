@@ -1,7 +1,5 @@
-﻿@using System.Text.Encodings.Web
-@using Grand.Domain.Localization
+﻿@using Grand.Domain.Localization
 @model LanguageModel
-@inject AdminAreaSettings adminAreaSettings
 <vc:admin-widget widget-zone="language_details_resources_top" additional-data="Model"/>
 <div class="panel panel-default">
     @if (string.IsNullOrEmpty(Model.Id))
@@ -34,161 +32,29 @@
             </div>
         </div>
     </div>
-    <div class="panel-body">
-        <div id="resources-grid"></div>
-    </div>
+    @if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel-body">
+            <admin-grid id="resources-grid"
+                        read-url="@Url.Action("Resources", "Language", new { languageId = Model.Id, area = Constants.AreaAdmin })"
+                        create-url="@Url.Action("ResourceAdd", "Language", new { languageId = Model.Id, area = Constants.AreaAdmin })"
+                        update-url="@Url.Action("ResourceUpdate", "Language", new { area = Constants.AreaAdmin })"
+                        destroy-url="@Url.Action("ResourceDelete", "Language", new { area = Constants.AreaAdmin })"
+                        additional-data="additionalData"
+                        edit-mode="Inline">
+                <grid-toolbar-create/>
+                <grid-column field="Name" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Name"]" width="300" editor="Text"/>
+                <grid-column field="Value" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Value"]" width="300" editor="Text"/>
+                <grid-column field="Area" title="@Loc["Admin.Configuration.Languages.Resources.Fields.Area"]" width="100"
+                             editor="Select" options="EnumTranslationService.ToSelectList(TranslationResourceArea.Common)"/>
+                <grid-commands edit="true" destroy="true" width="200"/>
+            </admin-grid>
+        </div>
+    }
 </div>
 <vc:admin-widget widget-zone="language_details_resources_bottom" additional-data="Model"/>
 @if (!string.IsNullOrEmpty(Model.Id))
 {
-    <script>
-            @{
-                var areas = EnumTranslationService.ToSelectList(TranslationResourceArea.Common);
-            }
-            var allArea = [
-                @foreach (var method in areas)
-                {
-                    <text>
-                        {
-                            Id: '@(method.Value)',
-                            Name: "@Html.Raw(JavaScriptEncoder.Default.Encode(method.Text))"
-                        },
-                        </text>
-                }
-            ];
-
-            function getName(fieldNameValue){
-                var returnValue = "";
-                allArea.forEach(function(element) {
-                   if(element.Id == fieldNameValue ){
-                      returnValue = element.Name;
-                    }
-                });
-                return returnValue;
-            }
-
-            $(document).ready(function() {
-                var _grid = $("#resources-grid").kendoGrid({
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "@Html.Raw(Url.Action("Resources", "Language", new { languageId = Model.Id, area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                //contentType: "application/json",
-                                data: additionalData
-                            },
-                            create: {
-                                url: "@Html.Raw(Url.Action("ResourceAdd", "Language", new { languageId = Model.Id, area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            },
-                            update: {
-                                url: "@Html.Raw(Url.Action("ResourceUpdate", "Language", new { area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            },
-                            destroy: {
-                                url: "@Html.Raw(Url.Action("ResourceDelete", "Language", new { area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            },
-                        },
-                        schema: {
-                            data: "Data",
-                            total: "Total",
-                            errors: "Errors",
-                            model: {
-                                id: "Id",
-                                fields: {
-                                    Area: { editable: true, type: "string" },
-                                    Name: { editable: true, type: "string" },
-                                    Value: { editable: true, type: "string" },
-                                    Id: { editable: false, type: "string" }
-                                }
-                            }
-                        },
-                        requestEnd: function(e) {
-                            if (e.type == "create" || e.type == "update") {
-                                this.read();
-                            }
-                        },
-                        error: function(e) {
-                            display_kendoui_grid_error(e);
-                            // Cancel the changes
-                            this.cancelChanges();
-                        },
-                        pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                        serverPaging: true,
-                        serverFiltering: false,
-                        serverSorting: false
-                    },
-                    pageable: {
-                        refresh: true,
-                        pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                    },
-                    toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
-                    editable: {
-                        confirmation: false,
-                        mode: "inline"
-                    },
-                    scrollable: false,
-                    columns: [
-                        {
-                            field: "Name",
-                            title: "@Loc["Admin.Configuration.Languages.Resources.Fields.Name"]",
-                            width: 300,
-                            filterable: true,
-                            sortable: true
-                        }, {
-                            field: "Value",
-                            title: "@Loc["Admin.Configuration.Languages.Resources.Fields.Value"]",
-                            width: 300,
-                            filterable: true,
-                            sortable: true
-
-                        }, {
-                            field: "Area",
-                            title: "@Loc["Admin.Configuration.Languages.Resources.Fields.Area"]",
-                            width: 100,
-                            template: "#=getName(Area)#",
-                            editor: function (container, options) {
-                                $("<input data-bind='value:Area' />")
-                                    .attr("id", "ddl_Area")
-                                    .appendTo(container)
-                                    .kendoDropDownList({
-                                        dataSource: allArea,
-                                        dataTextField: "Name",
-                                        dataValueField: "Id",
-                                        template: "<span data-id='${data.id}'>${data.Name}</span>",                                        
-                                    });
-                            }
-                        },
-                        {
-                            command: [
-                                {
-                                    name: "edit",
-                                    text: {
-                                        edit: "@Loc["Admin.Common.Edit"]",
-                                        update: "@Loc["Admin.Common.Update"]",
-                                        cancel: "@Loc["Admin.Common.Cancel"]"
-                                    }
-                                }, {
-                                    name: "destroy",
-                                    text: "@Loc["Admin.Common.Delete"]"
-                                }
-                            ],
-                            width: 200,
-                            filterable: false
-                        }
-                    ]
-                });
-            });
-
-    </script>
     <script>
             $(document).ready(function() {
                 $('#search-resources').click(function() {
