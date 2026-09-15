@@ -1,5 +1,4 @@
 ﻿@model AffiliatedOrderListModel
-@inject AdminAreaSettings adminAreaSettings
 
 <div class="form-horizontal">
     <div class="form-body">
@@ -43,74 +42,34 @@
     </div>
 </div>
 <div class="x_content">
-    <div id="orders-grid"></div>
+    <admin-grid id="orders-grid"
+                read-url="@Url.Action("AffiliatedOrderList", "Affiliate", new { area = Constants.AreaAdmin })"
+                additional-data="additionalData"
+                auto-bind="false">
+        <grid-column field="OrderNumber" title="@Loc["Admin.Affiliates.Orders.Order"]" width="80">
+            <cell-template>
+                <a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ OrderNumber }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="OrderStatus" title="@Loc["Admin.Affiliates.Orders.OrderStatus"]">
+            <cell-template>
+                <a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ OrderStatus }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="PaymentStatus" title="@Loc["Admin.Affiliates.Orders.PaymentStatus"]">
+            <cell-template>
+                <a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ PaymentStatus }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="ShippingStatus" title="@Loc["Admin.Affiliates.Orders.ShippingStatus"]">
+            <cell-template>
+                <a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/{{ Id }}">{{ ShippingStatus }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="OrderTotal" title="@Loc["Admin.Affiliates.Orders.OrderTotal"]"/>
+        <grid-column field="CreatedOn" title="@Loc["Admin.Affiliates.Orders.CreatedOn"]" format="{0:G}"/>
+    </admin-grid>
 </div>
-<script>
-    $(document).ready(function () {
-        $("#orders-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("AffiliatedOrderList", "Affiliate", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            autoBind: false,
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "OrderNumber",
-                title: "@Loc["Admin.Affiliates.Orders.Order"]",
-                width: 80,
-                template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=Id#">#=OrderNumber#</a>'
-            }, {
-                field: "OrderStatus",
-                title: "@Loc["Admin.Affiliates.Orders.OrderStatus"]",
-                template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=Id#">#=OrderStatus#</a>'
-            }, {
-                field: "PaymentStatus",
-                title: "@Loc["Admin.Affiliates.Orders.PaymentStatus"]",
-                template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=Id#">#=PaymentStatus#</a>'
-            },{
-                field: "ShippingStatus",
-                title: "@Loc["Admin.Affiliates.Orders.ShippingStatus"]",
-                template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=Id#">#=ShippingStatus#</a>'
-            },{
-                field: "OrderTotal",
-                title: "@Loc["Admin.Affiliates.Orders.OrderTotal"]"
-            },{
-                field: "CreatedOn",
-                title: "@Loc["Admin.Affiliates.Orders.CreatedOn"]",
-                type: "date",
-                format: "{0:G}"
-            }]
-        });
-    });
-</script>
 <script>
 
     var selectedIds = [];

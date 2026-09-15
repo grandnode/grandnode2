@@ -1,77 +1,14 @@
 ﻿@model VendorModel
 
-<div id="vendornotes-grid"></div>
-<script>
-    $(document).ready(function () {
-        $("#vendornotes-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("VendorNotesSelect", "Vendor", new { vendorId = Model.Id, area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    },
-                    destroy: {
-                        url: "@Html.Raw(Url.Action("VendorNoteDelete", "Vendor", new { vendorId = Model.Id, area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors",
-                    model: {
-                        id: "Id",
-                        fields: {
-                            //do not implicitly specify all fields
-                            //we do it only for fields which implicitly require it
-                            //otherwise, they'll be formatted wrong way
-                            CreatedOn: {type: "date" }
-                        }
-                    }
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            autoBind: false,
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "CreatedOn",
-                title: "@Loc["Admin.Vendors.VendorNotes.Fields.CreatedOn"]",
-                width: 200,
-                type: "date",
-                format: "{0:G}"
-            }, {
-                field: "Note",
-                title: "@Loc["Admin.Vendors.VendorNotes.Fields.Note"]",
-                encoded: false
-            }, {
-                command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
-                title: "@Loc["Admin.Common.Delete"]",
-                width: 100
-            }]
-        });
-    });
-</script>
+<admin-grid id="vendornotes-grid"
+            read-url="@Url.Action("VendorNotesSelect", "Vendor", new { vendorId = Model.Id, area = Constants.AreaAdmin })"
+            destroy-url="@Url.Action("VendorNoteDelete", "Vendor", new { vendorId = Model.Id, area = Constants.AreaAdmin })"
+            pager="Compact"
+            auto-bind="false">
+    <grid-column field="CreatedOn" title="@Loc["Admin.Vendors.VendorNotes.Fields.CreatedOn"]" width="200" format="{0:G}"/>
+    <grid-column field="Note" title="@Loc["Admin.Vendors.VendorNotes.Fields.Note"]"/>
+    <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+</admin-grid>
 <p>
     <strong>
         @Loc["Admin.Vendors.VendorNotes.AddTitle"]

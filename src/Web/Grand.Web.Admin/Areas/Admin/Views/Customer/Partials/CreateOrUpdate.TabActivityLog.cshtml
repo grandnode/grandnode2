@@ -13,80 +13,28 @@
 
         <div class="panel panel-default">
             <div class="panel-body">
-                <div id="contactform-grid"></div>
-            </div>
-        </div>
-        <script>
-            $(document).ready(function () {
-                $("#contactform-grid").kendoGrid({
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "@Html.Raw(Url.Action("ContactFormList", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            }
-                        },
-                        schema: {
-                            data: "Data",
-                            total: "Total",
-                            errors: "Errors"
-                        },
-                        error: function(e) {
-                            display_kendoui_grid_error(e);
-                            // Cancel the changes
-                            this.cancelChanges();
-                        },
-                        pageSize: @(defaultGridPageSize),
-                        serverPaging: true,
-                        serverFiltering: true,
-                        serverSorting: true
-                    },
-                    autoBind: false,
-                    pageable: {
-                        refresh: true,
-                        pageSizes: [@(gridPageSizes)]
-                    },
-                    scrollable: false,
-                    columns: [{
-                        field: "CreatedOn",
-                        title: "@Loc["Admin.System.ContactForm.Fields.CreatedOn"]",
-                        width: 100,
-                        type: "date",
-                        format: "{0:G}"
-                    },
+                <admin-grid id="contactform-grid"
+                            read-url="@Url.Action("ContactFormList", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin })"
+                            page-size="@(defaultGridPageSize)"
+                            page-sizes="@(gridPageSizes)"
+                            auto-bind="false">
+                    <grid-text name="view" value="@Loc["admin.common.view"]"/>
+                    <grid-column field="CreatedOn" title="@Loc["Admin.System.ContactForm.Fields.CreatedOn"]" width="100" format="{0:G}"/>
                     @if (!adminAreaSettings.HideStoreColumn)
                     {
-                        <text>
-                        {
-                            field: "Store",
-                            title: "@Loc["Admin.System.ContactForm.Fields.Store"]",
-                            width: 100
-                        },
-                        </text>
+                        <grid-column field="Store" title="@Loc["Admin.System.ContactForm.Fields.Store"]" width="100"/>
                     }
-                    {
-                        field: "Email",
-                        title: "@Loc["Admin.System.ContactForm.Fields.FullName"]",
-                        width: 150
-                    }, {
-                        field: "IpAddress",
-                        title: "@Loc["Admin.System.ContactForm.Fields.IpAddress"]",
-                        width: 50
-                    }, {
-                        field: "Subject",
-                        title: "@Loc["Admin.System.ContactForm.Fields.Subject"]",
-                        width: 300
-                    }, {
-                        field: "Id",
-                        title: "@Loc["Admin.Common.View"]",
-                        width: 30,
-                        template: '<a href="@Url.Action("Details", "ContactForm", new { area = Constants.AreaAdmin })/#=Id#">@Loc["admin.common.view"]</a>'
-                    }]
-                });
-            });
-        </script>
+                    <grid-column field="Email" title="@Loc["Admin.System.ContactForm.Fields.FullName"]" width="150"/>
+                    <grid-column field="IpAddress" title="@Loc["Admin.System.ContactForm.Fields.IpAddress"]" width="50"/>
+                    <grid-column field="Subject" title="@Loc["Admin.System.ContactForm.Fields.Subject"]" width="300"/>
+                    <grid-column field="Id" title="@Loc["Admin.Common.View"]" width="30">
+                        <cell-template>
+                            <a href="@Url.Action("Details", "ContactForm", new { area = Constants.AreaAdmin })/{{ Id }}">{{ $texts.view }}</a>
+                        </cell-template>
+                    </grid-column>
+                </admin-grid>
+            </div>
+        </div>
     }
 
     @if (await permissionService.Authorize(PermissionSystemName.MessageQueue) && !string.IsNullOrEmpty(Model.Email))
@@ -96,7 +44,19 @@
 
         <div class="panel panel-default">
             <div class="panel-body">
-                <div id="queuedEmails-grid"></div>
+                <admin-grid id="queuedEmails-grid"
+                            read-url="@Url.Action("QueuedEmailList", "QueuedEmail", new { area = Constants.AreaAdmin })"
+                            additional-data="queadditionalData"
+                            auto-bind="false">
+                    <grid-column field="Subject" title="@Loc["Admin.System.QueuedEmails.Fields.Subject"]" width="300">
+                        <cell-template>
+                            <a class="k-link" href="@Url.Action("Edit", "QueuedEmail", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Subject }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="CreatedOn" title="@Loc["Admin.System.QueuedEmails.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+                    <grid-column field="SentOn" title="@Loc["Admin.System.QueuedEmails.Fields.SentOn"]" width="100" format="{0:G}"/>
+                    <grid-column field="PriorityName" title="@Loc["Admin.System.QueuedEmails.Fields.Priority"]" width="50"/>
+                </admin-grid>
             </div>
         </div>
         <script>
@@ -112,62 +72,6 @@
                 addAntiForgeryToken(data);
                 return data;
             }
-            $(document).ready(function () {
-                $("#queuedEmails-grid").kendoGrid({
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "@Html.Raw(Url.Action("QueuedEmailList", "QueuedEmail", new { area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: queadditionalData
-                            }
-                        },
-                        schema: {
-                            data: "Data",
-                            total: "Total",
-                            errors: "Errors"
-                        },
-                        error: function(e) {
-                            display_kendoui_grid_error(e);
-                            // Cancel the changes
-                            this.cancelChanges();
-                        },
-                        pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                        serverPaging: true,
-                        serverFiltering: true,
-                        serverSorting: true
-                    },
-                    autoBind: false,
-                    pageable: {
-                        refresh: true,
-                        pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                    },
-                    scrollable: false,
-                    columns: [{
-                        field: "Subject",
-                        title: "@Loc["Admin.System.QueuedEmails.Fields.Subject"]",
-                        width: 300,
-                        template: '<a class="k-link" href="@Url.Action("Edit", "QueuedEmail", new { area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(Subject)#</a>'
-                    }, {
-                        field: "CreatedOn",
-                        title: "@Loc["Admin.System.QueuedEmails.Fields.CreatedOn"]",
-                        width: 100,
-                        type: "date",
-                        format: "{0:G}"
-                    }, {
-                        field: "SentOn",
-                        title: "@Loc["Admin.System.QueuedEmails.Fields.SentOn"]",
-                        width: 100,
-                        type: "date",
-                        format: "{0:G}"
-                    }, {
-                        field: "PriorityName",
-                        title: "@Loc["Admin.System.QueuedEmails.Fields.Priority"]",
-                        width: 50
-                    }]
-                });
-            });
         </script>
     }
 }

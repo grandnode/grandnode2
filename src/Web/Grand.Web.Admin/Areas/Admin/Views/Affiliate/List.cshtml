@@ -1,5 +1,4 @@
 ﻿@model AffiliateListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Affiliates"];
@@ -86,7 +85,23 @@
                 </div>
             </div>
             <div class="x_content">
-                <div id="affiliates-grid"></div>
+                <admin-grid id="affiliates-grid"
+                            read-url="@Url.Action("List", "Affiliate", new { area = Constants.AreaAdmin })"
+                            additional-data="additionalData">
+                    <grid-column field="Address.Email" title="@Loc["Admin.Address.Fields.Email"]" width="200">
+                        <cell-template>
+                            <a class="k-link" href="Edit/{{ Id }}">{{ Address.Email }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="Address.FirstName" title="@Loc["Admin.Address.Fields.FirstName"]" width="200"/>
+                    <grid-column field="Address.LastName" title="@Loc["Admin.Address.Fields.LastName"]" width="200"/>
+                    <grid-column field="Active" title="@Loc["Admin.Affiliates.Fields.Active"]" width="100" align="Center">
+                        <cell-template>
+                            <i data-if="Active" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                </admin-grid>
             </div>
         </div>
     </div>
@@ -111,67 +126,6 @@
 </script>
 
 
-<script>
-        $(document).ready(function () {
-            $("#affiliates-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("List", "Affiliate", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [
-                {
-                    field: "Address.Email",
-                    title: "@Loc["Admin.Address.Fields.Email"]",
-                    width: 200,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=Address.Email#</a>',
-                }, {
-                    field: "Address.FirstName",
-                    title: "@Loc["Admin.Address.Fields.FirstName"]",
-                    width: 200,
-                }, {
-                    field: "Address.LastName",
-                    title: "@Loc["Admin.Address.Fields.LastName"]",
-                    width: 200
-                }, {
-                    field: "Active",
-                    title: "@Loc["Admin.Affiliates.Fields.Active"]",
-                    width: 100,
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    template: '# if(Active) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                }]
-            });
-        });
-</script>
 <script>
     $(document).ready(function () {
 

@@ -1,5 +1,4 @@
 ﻿@model CustomerListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Customers.Customers"];
@@ -135,7 +134,43 @@
                     </div>
                 </div>
                 <div class="x_content">
-                    <div id="customers-grid"></div>
+                    <admin-grid id="customers-grid"
+                                read-url="@Url.Action("CustomerList", "Customer", new { area = Constants.AreaAdmin })"
+                                additional-data="additionalData"
+                                selectable="Checkbox"
+                                on-change="onCustomersSelectionChange">
+                        <grid-column field="Email" title="@Loc["Admin.Customers.Customers.Fields.Email"]" width="200">
+                            <cell-template>
+                                <a class="k-link" href="Edit/{{ Id }}">{{ Email }}</a>
+                            </cell-template>
+                        </grid-column>
+                        @if (Model.UsernamesEnabled)
+                        {
+                            <grid-column field="Username" title="@Loc["Admin.Customers.Customers.Fields.Username"]" width="200"/>
+                        }
+                        <grid-column field="FullName" title="@Loc["Admin.Customers.Customers.Fields.FullName"]" width="200"/>
+                        <grid-column field="CustomerGroupNames" title="@Loc["Admin.Customers.Customers.Fields.CustomerGroups"]" width="200"/>
+                        @if (Model.CompanyEnabled)
+                        {
+                            <grid-column field="Company" title="@Loc["Admin.Customers.Customers.Fields.Company"]" width="200" min-screen-width="770"/>
+                        }
+                        @if (Model.PhoneEnabled)
+                        {
+                            <grid-column field="Phone" title="@Loc["Admin.Customers.Customers.Fields.Phone"]" width="200" min-screen-width="770"/>
+                        }
+                        @if (Model.ZipPostalCodeEnabled)
+                        {
+                            <grid-column field="ZipPostalCode" title="@Loc["Admin.Customers.Customers.Fields.ZipPostalCode"]" width="200" min-screen-width="770"/>
+                        }
+                        <grid-column field="Active" title="@Loc["Admin.Customers.Customers.Fields.Active"]" width="100" align="Center">
+                            <cell-template>
+                                <i data-if="Active" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            </cell-template>
+                        </grid-column>
+                        <grid-column field="CreatedOn" title="@Loc["Admin.Customers.Customers.Fields.CreatedOn"]" width="200" format="{0:G}" min-screen-width="770"/>
+                        <grid-column field="LastActivityDate" title="@Loc["Admin.Customers.Customers.Fields.LastActivityDate"]" width="200" format="{0:G}"/>
+                    </admin-grid>
                 </div>
             </div>
         </div>
@@ -151,126 +186,16 @@
                 $('.filter-text-close').toggle();
             });
 
-                $("#customers-grid").kendoGrid({
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "@Html.Raw(Url.Action("CustomerList", "Customer", new { area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: additionalData
-                            }
-                        },
-                        schema: {
-                            data: "Data",
-                            total: "Total",
-                            errors: "Errors"
-                        },
-                        error: function(e) {
-                            display_kendoui_grid_error(e);
-                            // Cancel the changes
-                            this.cancelChanges();
-                        },
-                        pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                        serverPaging: true,
-                        serverFiltering: true,
-                        serverSorting: true
-                    },
-                    pageable: {
-                        refresh: true,
-                        pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                    },
-                    scrollable: false,
-                    dataBound: onDataBound,
-                    columns: [{
-                            field: "Id",
-                            headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox '><input id='mastercheckbox' type='checkbox'/><div class='control__indicator control__indicator_customers mt-top'></div></label>",
-                            headerAttributes: { style: "text-align:center" },
-                            attributes: { style: "text-align:center" },
-                            template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox mt-NoMargin'><input type='checkbox' value='#=Id#' class='checkboxGroups'/><div class='control__indicator control__indicator_customers mt-NoMargin'></div></label>",
-                            width: 40
-                        }, {
-                            field: "Email",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Email"]",
-                            width: 200,
-                            template: '<a class="k-link" href="Edit/#=Id#">#=Email#</a>',
-                        },
-                        @if (Model.UsernamesEnabled)
-                        {
-                            <text>{
-                                field: "Username",
-                                title: "@Loc["Admin.Customers.Customers.Fields.Username"]",
-                                width: 200
-                            },</text>
-                        }
-                        {
-                            field: "FullName",
-                            title: "@Loc["Admin.Customers.Customers.Fields.FullName"]",
-                            width: 200,
-                            encoded: true,
-                        }, {
-                            field: "CustomerGroupNames",
-                            title: "@Loc["Admin.Customers.Customers.Fields.CustomerGroups"]",
-                            width: 200
-                        },
-
-                        @if (Model.CompanyEnabled)
-                        {
-                            <text>{
-                            field: "Company",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Company"]",
-                            width: 200,
-                            minScreenWidth: 770,
-                            },</text>
-                        }
-/**/
-                        @if (Model.PhoneEnabled)
-                        {
-                            <text>{
-                            field: "Phone",
-                            title: "@Loc["Admin.Customers.Customers.Fields.Phone"]",
-                            width: 200,
-                            minScreenWidth: 770,
-                            },</text>
-                        }
-/**/
-                        @if (Model.ZipPostalCodeEnabled)
-                        {
-                            <text>{
-                            field: "ZipPostalCode",
-                            title: "@Loc["Admin.Customers.Customers.Fields.ZipPostalCode"]",
-                            width: 200,
-                            minScreenWidth: 770,
-                            },</text>
-                        }
-                    {
-                        field: "Active",
-                        title: "@Loc["Admin.Customers.Customers.Fields.Active"]",
-                        width: 100,
-                        headerAttributes: { style: "text-align:center" },
-                        attributes: { style: "text-align:center" },
-                        template: '# if(Active) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                    }, {
-                        field: "CreatedOn",
-                        title: "@Loc["Admin.Customers.Customers.Fields.CreatedOn"]",
-                        width: 200,
-                        type: "date",
-                        format: "{0:G}",
-                        minScreenWidth: 770,
-                    }, {
-                        field: "LastActivityDate",
-                        title: "@Loc["Admin.Customers.Customers.Fields.LastActivityDate"]",
-                        width: 200,
-                        type: "date",
-                        format: "{0:G}"
-                    }]
-                });
             });
     </script>
 
     <script>
 
             var selectedIds = [];
+
+            function onCustomersSelectionChange(e) {
+                selectedIds = e.selectedIds;
+            }
 
             $(document).ready(function () {
 
@@ -279,9 +204,7 @@
                     var grid = $('#customers-grid').data('kendoGrid');
                     grid.dataSource.page(1); //new search. Set page size to 1
                     //grid.dataSource.read(); we already loaded the grid above using "page" function
-                    //clear selected checkboxes
-                    $('.checkboxGroups').prop('checked', false).change();
-                    selectedIds = [];
+                    $('#customers-grid').data('kendoGrid').clearSelection();
                     return false;
                 });
                 $("#@Html.IdFor(model => model.SearchCustomerTagIds)").keydown(function (event) {
@@ -369,50 +292,10 @@
                     return false;
                 });
 
-                $('#mastercheckbox').click(function () {
-                    $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-                });
 
-                //wire up checkboxes.
-                $('#customers-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
-                    var $check = $(this);
-                    if ($check.is(":checked") == true) {
-                        var checked = jQuery.inArray($check.val(), selectedIds);
-                        if (checked == -1) {
-                            //add id to selectedIds.
-                            selectedIds.push($check.val());
-                        }
-                    }
-                    else {
-                        var checked = jQuery.inArray($check.val(), selectedIds);
-                        if (checked > -1) {
-                            //remove id from selectedIds.
-                            selectedIds = $.grep(selectedIds, function (item, index) {
-                                return item != $check.val();
-                            });
-                        }
-                    }
-                    updateMasterCheckbox();
-                });
             });
 
-            function onDataBound(e) {
 
-                $('#customers-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
-                    var currentId = $(this).val();
-                    var checked = jQuery.inArray(currentId, selectedIds);
-                    //set checked based on if current checkbox's value is in selectedIds.
-                    $(this).prop('checked', checked > -1);
-                });
-
-                updateMasterCheckbox();
-            }
-
-            function updateMasterCheckbox() {
-                var numChkBoxes = $('#customers-grid input[type=checkbox][id!=mastercheckbox]').length;
-                var numChkBoxesChecked = $('#customers-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
-                $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
-            }
 
             function additionalData() {
                 var customerGroupIds = [];
