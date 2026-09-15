@@ -94,7 +94,9 @@ and removes the grid script (plus a `detailInit` function it owned and the
 `$(document).ready` / `<script>` wrappers left empty). Kendo templates become cell templates
 (`#: #` and `#= #` output is encoded, `# if #` becomes `data-if` / `data-else`, localized
 text moves to `<grid-text>`), Razor `@if` column blocks are kept, and the schema field types
-of inline-edit grids become editors.
+of inline-edit grids become editors. A checkbox column whose value is another field than the
+key (`Ids` holding `id:productId`) makes that field the `key` of a read-only grid, so
+`selectedIds` post what the checkboxes posted.
 
 Every grid ends in one of three states, listed in the summary:
 

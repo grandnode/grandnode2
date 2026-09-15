@@ -69,6 +69,12 @@ describe('convertKendoTemplate', () => {
         expect(texts).toEqual(['__RZ0__'])
     })
 
+    it('prints null-guarded fields as plain placeholders', () => {
+        expect(convertKendoTemplate('#=kendo.htmlEncode(Title == null ? "" : Title)#').lines).toEqual(['{{ Title }}'])
+        expect(convertKendoTemplate('#:Title ? Title : ""#').lines).toEqual(['{{ Title }}'])
+        expect(convertKendoTemplate('#=kendo.htmlEncode(Title == null ? "" : Name)#').ok).toBe(false)
+    })
+
     it('reports code it cannot translate', () => {
         expect(convertKendoTemplate('#=ratingCellTemplate(Rating)#').ok).toBe(false)
         expect(convertKendoTemplate('# for (var i = 0; i < 3; i++) { # x # } #').ok).toBe(false)
@@ -104,6 +110,8 @@ describe('helpers', () => {
         const decimals = parameterMapDecimals('function (data, operation) { if (operation != "read") { data.Ratio = kendo.toString(data.Ratio, "n8"); return data; } else { return data; } }')
         expect([...decimals]).toEqual([['Ratio', 8]])
         expect(() => parameterMapDecimals('function (data, operation) { return JSON.stringify(data); }')).toThrow('parameterMap')
+        expect(parameterMapDecimals('function (data, operation) { if (operation != "read") { return data; } else { return data; } }').size).toBe(0)
+        expect(parameterMapDecimals('function (data, operation) { return data; }').size).toBe(0)
     })
 
     it('removes ready handlers and script elements left empty', () => {
@@ -154,6 +162,46 @@ describe('convertCshtml fixtures', () => {
         expect(grids[0].action).toBe('review')
         expect(output).toContain('@* CODEMOD-REVIEW: checkbox column')
         expect(output).toContain('selectable="Checkbox"')
+    })
+
+    it('makes the field a checkbox holds the key of a read-only grid', () => {
+        const grid = checkbox => [
+            '<div id="g"></div>',
+            '<script>',
+            '    $("#g").kendoGrid({',
+            '        dataSource: { transport: { read: { url: "/r" } } },',
+            '        columns: [',
+            `            { field: "Id", headerTemplate: "<input id='mastercheckbox' type='checkbox'/>", template: "${checkbox}" },`,
+            '            { field: "Title" }',
+            '        ]',
+            '    });',
+            '</script>'
+        ].join('\n')
+        const composite = convertCshtml(grid("<input type='checkbox' value='#=Ids#' class='checkboxGroups'/>"))
+        expect(composite.output).toMatch(/<admin-grid id="g"\s+key="Ids"/)
+        const plain = convertCshtml(grid("<input type='checkbox' value='#=Id#' class='checkboxGroups'/>"))
+        expect(plain.output).not.toContain('key=')
+        const computed = convertCshtml(grid("<input type='checkbox' value='#=Id#:#=ProductId#' class='checkboxGroups'/>"))
+        expect(computed.grids[0].action).toBe('skipped')
+    })
+
+    it('reads decimals from a numeric editor whose format holds braces', () => {
+        const src = [
+            '<div id="g"></div>',
+            '<script>',
+            '    $("#g").kendoGrid({',
+            '        dataSource: { transport: { read: { url: "/r" }, update: { url: "/u" } }, schema: { model: { id: "Id", fields: { Price: { editable: true, type: "number" } } } } },',
+            '        editable: { mode: "inline" },',
+            '        columns: [',
+            `            { field: "Price", editor: function (container, options) { $('<input name="' + options.field + '"/>').appendTo(container).kendoNumericTextBox({ format: "{0:n4}", decimals: 4 }); } },`,
+            '            { command: ["edit"] }',
+            '        ]',
+            '    });',
+            '</script>'
+        ].join('\n')
+        const { output, grids } = convertCshtml(src)
+        expect(output).toContain('<grid-column field="Price" editor="Numeric" decimals="4"/>')
+        expect(grids[0].markers).toEqual([])
     })
 
     it('names popup checkboxes, keeps a pager without page sizes and refuses data objects', () => {

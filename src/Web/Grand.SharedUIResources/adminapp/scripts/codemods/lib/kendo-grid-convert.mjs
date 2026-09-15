@@ -240,7 +240,7 @@ function columnOf(node, ctx, grid, fields, editing) {
         }
         if (editor) {
             const code = normalize(ctx.masked.text.slice(editor.start, editor.end))
-            const numeric = /kendoNumericTextBox\(\{[^}]*decimals\s*:\s*(\d+)/.exec(code)
+            const numeric = /kendoNumericTextBox\(\{(?:[^{}]|\{\d+:[^{}]*\})*decimals\s*:\s*(\d+)/.exec(code)
             if (numeric && !/kendoDropDownList/.test(code)) {
                 column.editor = 'Numeric'
                 column.decimals = Number(numeric[1])
@@ -325,6 +325,8 @@ function detailOf(ctx, grid, detailInit, scriptText) {
  * @returns {Map<string, number>} field -> decimals
  */
 export function parameterMapDecimals(code) {
+    //a parameterMap that returns the data unchanged on every branch changes nothing
+    if (/^function\s*\(\s*(\w+)\s*(?:,\s*(\w+)\s*)?\)\s*\{\s*(?:return\s+\1\s*;?|if\s*\(\s*\2\s*!==?\s*["']read["']\s*\)\s*\{\s*return\s+\1\s*;?\s*\}\s*else\s*\{\s*return\s+\1\s*;?\s*\})\s*\}$/.test(code)) return new Map()
     const m = /^function\s*\(\s*(\w+)\s*,\s*(\w+)\s*\)\s*\{\s*if\s*\(\s*\2\s*!==?\s*["']read["']\s*\)\s*\{\s*((?:\1\.\w+\s*=\s*kendo\.toString\(\s*\1\.\w+\s*,\s*["']n\d+["']\s*\)\s*;?\s*)+)return\s+\1\s*;?\s*\}\s*(?:else\s*\{\s*)?return\s+\1\s*;?\s*\}?\s*\}$/.exec(code)
     if (!m) throw new GridConversionError('parameterMap')
     const decimals = new Map()
@@ -510,9 +512,19 @@ export function buildGridModel(config, ctx, { id, scriptText }) {
         if (getProp(node, 'command')) continue
         if (isCheckboxColumn(node)) {
             grid.selectable = 'Checkbox'
+            const checkboxTemplate = staticString(getProp(node, 'template')).value || ''
             //a named checkbox (SelectedProductIds) was posted with the popup form
-            const named = /name\s*=\s*['"]([\w.]+)['"]/.exec(staticString(getProp(node, 'template')).value || '')
+            const named = /name\s*=\s*['"]([\w.]+)['"]/.exec(checkboxTemplate)
             if (named) grid.selectionName = named[1]
+            //selectedIds are the key values; a checkbox holding another field (Ids = "id:productId") makes that field the key
+            const value = /value\s*=\s*['"]#[=:]\s*([\w.]+)\s*#['"]/.exec(checkboxTemplate)
+            if (!value) throw new GridConversionError('checkbox value is not a single field')
+            if (value[1] !== grid.key) {
+                if (grid.transport.create || grid.transport.update || grid.transport.destroy || fields.id) {
+                    throw new GridConversionError(`checkbox value ${value[1]} is not the key of an editable grid`)
+                }
+                grid.key = value[1]
+            }
             grid.markers.push('checkbox column: rewire the #mastercheckbox/checkboxGroups script to on-change (e.selectedIds) and clearSelection()')
             continue
         }

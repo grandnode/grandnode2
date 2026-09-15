@@ -159,6 +159,17 @@ export function convertOutput(part, restore = s => s) {
         node = node.arguments[0]
         raw = false
     }
+    //Field == null ? "" : Field (or Field ? Field : ""): an empty cell for null, which {{ Field }} prints anyway
+    if (node.type === 'ConditionalExpression') {
+        const empty = n => n.type === 'Literal' && n.value === ''
+        const test = node.test
+        const nullTest = test.type === 'BinaryExpression' && ['==', '==='].includes(test.operator) && test.right.type === 'Literal' && test.right.value === null
+        const path = pathOf(nullTest ? test.left : test)
+        if (path && ((nullTest && empty(node.consequent) && pathOf(node.alternate) === path) ||
+            (!nullTest && pathOf(node.consequent) === path && empty(node.alternate)))) {
+            node = node.consequent.type === 'Literal' ? node.alternate : node.consequent
+        }
+    }
     if (node.type === 'CallExpression' && pathOf(node.callee) === 'kendo.toString' && node.arguments.length === 2 &&
         node.arguments[1].type === 'Literal' && typeof node.arguments[1].value === 'string') {
         const path = pathOf(node.arguments[0])
