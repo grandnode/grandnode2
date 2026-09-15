@@ -1,6 +1,5 @@
 ﻿@using Constants = Grand.SharedUIResources.Constants
 @model Grand.Web.AdminShared.Models.PushNotifications.MessagesModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "_AdminLayout";
     //page title
@@ -30,7 +29,13 @@
                                 </div>
                             }
 
-                            <div id="messages-grid"></div>
+                            <admin-grid id="messages-grid" read-url="@Url.Action("PushMessagesList", "PushNotifications", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin })">
+                                <grid-column field="Id" title="@Loc["Admin.PushNotifications.Message.Fields.Id"]" width="100"/>
+                                <grid-column field="Title" title="@Loc["Admin.PushNotifications.Message.Fields.Title"]" width="200"/>
+                                <grid-column field="Text" title="@Loc["PushNotifications.Message.Fields.Text"]" width="400"/>
+                                <grid-column field="NumberOfReceivers" title="@Loc["Admin.PushNotifications.Message.Fields.NumberOfReceivers"]" width="100"/>
+                                <grid-column field="SentOn" title="@Loc["Admin.PushNotifications.Message.Fields.SentOn"]" width="200" format="{0:G}"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -39,71 +44,6 @@
     </div>
 </div>
 
-<script>
-$(document).ready(function () {
-    $("#messages-grid").kendoGrid({
-        dataSource: {
-            type: "json",
-            transport: {
-                read: {
-                    url: "@Html.Raw(Url.Action("PushMessagesList", "PushNotifications", new { area = Grand.Web.Admin.Extensions.Constants.AreaAdmin }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: addAntiForgeryToken
-                }
-            },
-            schema: {
-                data: "Data",
-                total: "Total",
-                errors: "Errors"
-            },
-            error: function(e) {
-                display_kendoui_grid_error(e);
-                // Cancel the changes
-                this.cancelChanges();
-            },
-            pageSize: @(adminAreaSettings.DefaultGridPageSize),
-            serverPaging: true,
-            serverFiltering: true,
-            serverSorting: true
-        },
-        pageable: {
-            refresh: true,
-            pageSizes: [@adminAreaSettings.GridPageSizes]
-        },
-        editable: {
-            confirmation: "@Loc["Admin.Common.DeleteConfirmation"]",
-            mode: "inline"
-        },
-        scrollable: false,
-        columns: [
-        {
-            field: "Id",
-            title: "@Loc["Admin.PushNotifications.Message.Fields.Id"]",
-            width: 100
-        }, {
-            field: "Title",
-            title: "@Loc["Admin.PushNotifications.Message.Fields.Title"]",
-            width: 200
-        }, {
-            field: "Text",
-            title: "@Loc["PushNotifications.Message.Fields.Text"]",
-            width: 400
-        }, {
-            field: "NumberOfReceivers",
-            title: "@Loc["Admin.PushNotifications.Message.Fields.NumberOfReceivers"]",
-            width: 100
-        }, {
-            field: "SentOn",
-            title: "@Loc["Admin.PushNotifications.Message.Fields.SentOn"]",
-            width: 200,
-            type: "date",
-            format: "{0:G}"
-        }
-        ]
-    });
-});
-</script>
 
 @if (!(Model.Allowed == 0 && Model.Denied == 0))
 {

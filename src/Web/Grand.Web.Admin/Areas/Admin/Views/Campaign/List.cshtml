@@ -22,7 +22,16 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="campaigns-grid"></div>
+                            <admin-grid id="campaigns-grid"
+                                        read-url="@Url.Action("List", "Campaign", new { area = Constants.AreaAdmin })"
+                                        pager="Compact">
+                                <grid-column field="Name" title="@Loc["admin.marketing.Campaigns.Fields.Name"]">
+                                    <cell-template>
+                                        <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="CreatedOn" title="@Loc["admin.marketing.Campaigns.Fields.CreatedOn"]" width="200" format="{0:G}"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -31,54 +40,3 @@
     </div>
 </div>
 
-<script>
-$(document).ready(function () {
-    $("#campaigns-grid").kendoGrid({
-        dataSource: {
-            transport: {
-                read: {
-                    url: "@Html.Raw(Url.Action("List", "Campaign", new { area = Constants.AreaAdmin }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: addAntiForgeryToken
-                }
-            },
-            schema: {
-                data: "Data",
-                total: "Total",
-                errors: "Errors"
-            },
-            error: function(e) {
-                display_kendoui_grid_error(e);
-                // Cancel the changes
-                this.cancelChanges();
-            },
-            serverPaging: true,
-            serverFiltering: true,
-            serverSorting: true
-        },
-        pageable: {
-            refresh: true,
-            numeric: false,
-            previousNext: false,
-            info: false
-        },
-        editable: {
-            confirmation: false,
-            mode: "inline"
-        },
-        scrollable: false,
-        columns: [{
-            field: "Name",
-            title: "@Loc["admin.marketing.Campaigns.Fields.Name"]",
-            template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-        }, {
-            field: "CreatedOn",
-            title: "@Loc["admin.marketing.Campaigns.Fields.CreatedOn"]",
-            width: 200,
-            type: "date",
-            format: "{0:G}"
-        }]
-    });
-});
-</script>

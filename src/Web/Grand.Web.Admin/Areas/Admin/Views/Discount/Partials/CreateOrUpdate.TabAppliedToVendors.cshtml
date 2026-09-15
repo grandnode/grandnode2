@@ -5,7 +5,18 @@
         <div class="panel panel-default">
             <vc:admin-widget widget-zone="discount_details_applied_to_vendors_top" additional-data="Model"/>
             <div class="panel-body">
-                <div id="vendors-grid"></div>
+                <admin-grid id="vendors-grid"
+                            key="VendorId"
+                            read-url="@Url.Action("VendorList", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin })"
+                            destroy-url="@Url.Action("VendorDelete", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin })"
+                            pager="Compact">
+                    <grid-column field="VendorName" title="@Loc["admin.marketing.Discounts.AppliedToVendors.Vendor"]">
+                        <cell-template>
+                            <a class="k-link" href="@Url.Action("Edit", "Vendor", new { area = Constants.AreaAdmin })/{{ VendorId }}">{{ VendorName }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-commands destroy="true" width="150"/>
+                </admin-grid>
             </div>
             <div class="panel-footer">
                 <a id="btnAddNewVendor" href="@(Url.Action("VendorAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshVendors", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToVendors.AddNew"]</a>
@@ -28,66 +39,6 @@
                             $('.mfp-wrap').removeAttr('tabindex');
                         }
                     }
-                });
-                $("#vendors-grid").kendoGrid({
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "@Html.Raw(Url.Action("VendorList", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            },
-                            destroy: {
-                                url: "@Html.Raw(Url.Action("VendorDelete", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            }
-                        },
-                        schema: {
-                            data: "Data",
-                            total: "Total",
-                            errors: "Errors",
-                            model: {
-                                id: "VendorId",
-                                fields: {
-                                    VendorName: {editable: false, type: "string" },
-                                    VendorId: {editable: false, type: "string" }
-                                }
-                            }
-                        },
-                        error: function(e) {
-                            display_kendoui_grid_error(e);
-                            // Cancel the changes
-                            this.cancelChanges();
-                        },
-                        serverPaging: true,
-                        serverFiltering: true,
-                        serverSorting: true
-                    },
-                    pageable: {
-                        refresh: true,
-                        numeric: false,
-                        previousNext: false,
-                        info: false
-                    },
-                    editable: {
-                        confirmation: false,
-                        mode: "inline"
-                    },
-                    scrollable: false,
-                    columns: [{
-                        field: "VendorName",
-                        title: "@Loc["admin.marketing.Discounts.AppliedToVendors.Vendor"]",
-                        template: '<a class="k-link" href="@Url.Action("Edit", "Vendor", new { area = Constants.AreaAdmin })/#=VendorId#">#=kendo.htmlEncode(VendorName)#</a>',
-                    }, {
-                        command: [{
-                            name: "destroy",
-                            text: "@Loc["Admin.Common.Delete"]"
-                        }],
-                        width: 150
-                    }]
                 });
             });
         </script>

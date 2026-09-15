@@ -71,127 +71,33 @@
                     </div>
                 </div>
                 <div class="x_content">
-                    <div id="newsletter-subscriptions-grid"></div>
+                    <admin-grid id="newsletter-subscriptions-grid"
+                                read-url="@Url.Action("SubscriptionList", "NewsLetterSubscription", new { area = Constants.AreaAdmin })"
+                                update-url="@Url.Action("SubscriptionUpdate", "NewsLetterSubscription", new { area = Constants.AreaAdmin })"
+                                destroy-url="@Url.Action("SubscriptionDelete", "NewsLetterSubscription", new { area = Constants.AreaAdmin })"
+                                additional-data="additionalData"
+                                edit-mode="Inline">
+                        <grid-column field="Email" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Email"]" width="300" editor="Text"/>
+                        <grid-column field="Active" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Active"]" width="100" align="Center" editor="Checkbox">
+                            <cell-template>
+                                <i data-if="Active" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                            </cell-template>
+                        </grid-column>
+                        @if (!adminAreaSettings.HideStoreColumn)
+                        {
+                            <grid-column field="StoreName" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Store"]" width="150"/>
+                        }
+                        <grid-column field="Categories" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Categories"]" width="300"/>
+                        <grid-column field="CreatedOn" title="@Loc["admin.marketing.NewsLetterSubscriptions.Fields.CreatedOn"]" width="150"/>
+                        <grid-commands edit="true" destroy="true" width="200"/>
+                    </admin-grid>
                 </div>
             </div>
         </div>
     </div>
 
 
-    <script>
-        $(document).ready(function() {
-            $("#newsletter-subscriptions-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("SubscriptionList", "NewsLetterSubscription", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        },
-                        update: {
-                            url: "@Html.Raw(Url.Action("SubscriptionUpdate", "NewsLetterSubscription", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("SubscriptionDelete", "NewsLetterSubscription", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                Email: { editable: true, type: "string" },
-                                Active: { editable: true, type: "boolean" },
-                                StoreName: { editable: false, type: "string" },
-                                CreatedOn: { editable: false, type: "string" },
-                                Categories: { editable: false, type: "string"}
-                            }
-                        }
-                    },
-                    requestEnd: function(e) {
-                        if (e.type == "update") {
-                            this.read();
-                        }
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [
-                    {
-                        field: "Email",
-                        title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Email"]",
-                        width: 300
-                    }, {
-                        field: "Active",
-                        title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Active"]",
-                        width: 100,
-                        headerAttributes: { style: "text-align:center" },
-                        attributes: { style: "text-align:center" },
-                        template: '# if(Active) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                    },
-                    @if (!adminAreaSettings.HideStoreColumn)
-                    {
-                        <text>
-                        {
-                            field: "StoreName",
-                            title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Store"]",
-                            width: 150
-                        },
-                        </text>
-                    }
-                    {
-                        field: "Categories",
-                        title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Categories"]",
-                        width: 300
-                    }, {
-                        field: "CreatedOn",
-                        title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.CreatedOn"]",
-                        width: 150,
-                        type: "string"
-                    }, {
-                        command: [
-                            {
-                                name: "edit",
-                                text: {
-                                    edit: "@Loc["Admin.Common.Edit"]",
-                                    update: "@Loc["Admin.Common.Update"]",
-                                    cancel: "@Loc["Admin.Common.Cancel"]"
-                                }
-                            }, {
-                                name: "destroy",
-                                text: "@Loc["Admin.Common.Delete"]"
-                            }
-                        ],
-                        width: 200
-                    }
-                ]
-            });
-        });
-    </script>
 
     <script>
         $(document).ready(function() {
