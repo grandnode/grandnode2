@@ -16,7 +16,18 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="level-grid"></div>
+                            <admin-grid id="level-grid"
+                                        read-url="@Url.Action("Levels", "Course", new { area = Constants.AreaAdmin })"
+                                        create-url="@Url.Action("LevelAdd", "Course", new { area = Constants.AreaAdmin })"
+                                        update-url="@Url.Action("LevelUpdate", "Course", new { area = Constants.AreaAdmin })"
+                                        destroy-url="@Url.Action("LevelDelete", "Course", new { area = Constants.AreaAdmin })"
+                                        pager="Compact"
+                                        edit-mode="Inline">
+                                <grid-toolbar-create/>
+                                <grid-column field="Name" title="@Loc["Admin.Courses.Level.Fields.Name"]" width="400" editor="Text"/>
+                                <grid-column field="DisplayOrder" title="@Loc["Admin.Courses.Level.Fields.DisplayOrder"]" width="100" format="{0:0}" editor="Integer" default-value="0"/>
+                                <grid-commands edit="true" destroy="true" width="200"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -24,103 +35,3 @@
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function() {
-        $("#level-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("Levels", "Course", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    },
-                    create: {
-                        url: "@Html.Raw(Url.Action("LevelAdd", "Course", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    },
-                    update: {
-                        url: "@Html.Raw(Url.Action("LevelUpdate", "Course", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    },
-                    destroy: {
-                        url: "@Html.Raw(Url.Action("LevelDelete", "Course", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    },
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors",
-                    model: {
-                        id: "Id",
-                        fields: {
-                            Name: { editable: true, type: "string" },
-                            DisplayOrder: { editable: true, type: "number" },
-                            Id: { editable: false, type: "string" }
-                        }
-                    }
-                },
-                requestEnd: function (e) {
-                    if (e.type == "create" || e.type == "update") {
-                        this.read();
-                    }
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [
-            {
-                field: "Name",
-                title: "@Loc["Admin.Courses.Level.Fields.Name"]",
-                width: 400
-            }, {
-                field: "DisplayOrder",
-                title: "@Loc["Admin.Courses.Level.Fields.DisplayOrder"]",
-                //integer format
-                format: "{0:0}",
-                width: 100
-            }, {
-                command: [
-                {
-                    name: "edit",
-                    text: {
-                        edit: "@Loc["Admin.Common.Edit"]",
-                        update: "@Loc["Admin.Common.Update"]",
-                        cancel: "@Loc["Admin.Common.Cancel"]"
-                    }
-                }, {
-                    name: "destroy",
-                    text: "@Loc["Admin.Common.Delete"]"
-                        }
-                    ],
-                    width: 200
-                }
-            ]
-        });
-    });
-</script>

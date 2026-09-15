@@ -1,5 +1,4 @@
 ﻿@model MessageTemplateListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.Content.MessageTemplates"];
@@ -47,69 +46,28 @@
                         </div>
                     </div>
                     <div class="x_content">
-                        <div id="templates-grid"></div>
+                        <admin-grid id="templates-grid"
+                                    read-url="@Url.Action("List", "MessageTemplate", new { area = Constants.AreaAdmin })"
+                                    additional-data="additionalData">
+                            <grid-column field="Name" title="@Loc["Admin.Content.MessageTemplates.Fields.Name"]" width="200">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Subject" title="@Loc["Admin.Content.MessageTemplates.Fields.Subject"]" width="100"/>
+                            <grid-column field="IsActive" title="@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]" width="50" align="Center">
+                                <cell-template>
+                                    <i data-if="IsActive" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                </cell-template>
+                            </grid-column>
+                        </admin-grid>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function () {
-        $("#templates-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("List", "MessageTemplate", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Name",
-                title: "@Loc["Admin.Content.MessageTemplates.Fields.Name"]",
-                width: 200,
-                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-            }, {
-                field: "Subject",
-                title: "@Loc["Admin.Content.MessageTemplates.Fields.Subject"]",
-                width: 100,
-            }, {
-                field: "IsActive",
-                title: "@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]",
-                width: 50,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(IsActive) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }]
-        });
-    });
-</script>
 
 <script>
 

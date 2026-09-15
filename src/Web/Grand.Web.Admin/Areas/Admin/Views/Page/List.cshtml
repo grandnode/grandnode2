@@ -1,5 +1,4 @@
-﻿@inject AdminAreaSettings adminAreaSettings
-@model PageListModel
+﻿@model PageListModel
 @{
     //page title
     ViewBag.Title = Loc["Admin.Content.Pages"];
@@ -47,7 +46,33 @@
                         </div>
                     </div>
                     <div class="x_content">
-                        <div id="pages-grid"></div>
+                        <admin-grid id="pages-grid"
+                                    read-url="@Url.Action("List", "Page", new { area = Constants.AreaAdmin })"
+                                    additional-data="additionalData">
+                            <grid-column field="SystemName" title="@Loc["Admin.Content.Pages.Fields.SystemName"]">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}">{{ SystemName }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Title" title="@Loc["Admin.Content.Pages.Fields.Title"]">
+                                <cell-template>
+                                    {{ Title }}
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="IncludeInMenu" title="@Loc["Admin.Content.Pages.Fields.IncludeInMenu"]" width="100" align="Center">
+                                <cell-template>
+                                    <i data-if="IncludeInMenu" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="Published" title="@Loc["Admin.Content.Pages.Fields.Published"]" width="100" align="Center">
+                                <cell-template>
+                                    <i data-if="Published" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="DisplayOrder" title="@Loc["Admin.Content.Pages.Fields.DisplayOrder"]" width="100"/>
+                        </admin-grid>
                     </div>
                 </div>
             </div>
@@ -56,72 +81,6 @@
 </div>
 
 
-<script>
-    $(document).ready(function () {
-        $("#pages-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("List", "Page", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "SystemName",
-                title: "@Loc["Admin.Content.Pages.Fields.SystemName"]",
-                template: '<a class="k-link" href="Edit/#=Id#">#=SystemName#</a>',
-            }, {
-                field: "Title",
-                title: "@Loc["Admin.Content.Pages.Fields.Title"]",
-                template: '#=kendo.htmlEncode(Title == null ? "" : Title)#',
-            }, {
-                field: "IncludeInMenu",
-                title: "@Loc["Admin.Content.Pages.Fields.IncludeInMenu"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(IncludeInMenu) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
-                field: "Published",
-                title: "@Loc["Admin.Content.Pages.Fields.Published"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
-                field: "DisplayOrder",
-                title: "@Loc["Admin.Content.Pages.Fields.DisplayOrder"]",
-                width: 100
-            }]
-        });
-    });
-</script>
 
 <script>
 

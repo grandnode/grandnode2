@@ -21,7 +21,15 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="types-grid"></div>
+                            <admin-grid id="types-grid"
+                                        read-url="@Url.Action("ListType", "Document", new { area = Constants.AreaAdmin })"
+                                        pager="Compact">
+                                <grid-column field="Name" title="@Loc["Admin.Documents.Type.Fields.Name"]">
+                                    <cell-template>
+                                        <a class="k-link" href="EditType/{{ Id }}">{{ Name }}</a>
+                                    </cell-template>
+                                </grid-column>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -31,48 +39,3 @@
 </div>
 
 
-<script>
-    $(document).ready(function () {
-        $("#types-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("ListType", "Document", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Name",
-                title: "@Loc["Admin.Documents.Type.Fields.Name"]",
-                template: '<a class="k-link" href="EditType/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-            }]
-        });
-    });
-</script>

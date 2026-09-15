@@ -1,6 +1,5 @@
 ﻿@using Grand.Business.Core.Interfaces.Common.Localization
 @model DocumentListModel
-@inject AdminAreaSettings adminAreaSettings
 @inject ITranslationService translationService 
 @{
     //page title
@@ -75,7 +74,32 @@
                 </div>
             </div>
             <div class="x_content">
-                <div id="documents-grid"></div>
+                <admin-grid id="documents-grid"
+                            read-url="@Url.Action("ListDocuments", "Document", new { area = Constants.AreaAdmin })"
+                            additional-data="additionalData">
+                    <grid-column field="Number" title="@Loc["Admin.Documents.Document.Fields.Number"]">
+                        <cell-template>
+                            <a class="k-link" href="EditDocument/{{ Id }}">{{ Number }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="Name" title="@Loc["Admin.Documents.Document.Fields.Name"]">
+                        <cell-template>
+                            <a class="k-link" href="EditDocument/{{ Id }}">{{ Name }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="CustomerEmail" title="@Loc["Admin.Documents.Document.Fields.CustomerEmail"]">
+                        <cell-template>
+                            <a class="k-link" href="EditDocument/{{ Id }}">{{ CustomerEmail }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="Published" title="@Loc["Admin.Documents.Document.Fields.Published"]" width="100" align="Center" min-screen-width="500">
+                        <cell-template>
+                            <i data-if="Published" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="DisplayOrder" title="@Loc["Admin.Documents.Document.Fields.DisplayOrder"]" width="100" align="Center" min-screen-width="750"/>
+                </admin-grid>
             </div>
         </div>
     </div>
@@ -84,73 +108,6 @@
     $(document).ready(function () {
         $('#StatusId').val("-1");
 
-        $("#documents-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("ListDocuments", "Document", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors",
-                    
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Number",
-                title: "@Loc["Admin.Documents.Document.Fields.Number"]",
-                template: '<a class="k-link" href="EditDocument/#=Id#">#=kendo.htmlEncode(Number)#</a>',
-            },
-            {
-                field: "Name",
-                title: "@Loc["Admin.Documents.Document.Fields.Name"]",
-                template: '<a class="k-link" href="EditDocument/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-            },
-            {
-                field: "CustomerEmail",
-                title: "@Loc["Admin.Documents.Document.Fields.CustomerEmail"]",
-                template: '<a class="k-link" href="EditDocument/#=Id#">#=kendo.htmlEncode(CustomerEmail)#</a>',
-            },
-            {
-                field: "Published",
-                title: "@Loc["Admin.Documents.Document.Fields.Published"]",
-                width: 100,
-                minScreenWidth: 500,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
-                field: "DisplayOrder",
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                title: "@Loc["Admin.Documents.Document.Fields.DisplayOrder"]",
-                width: 100,    
-                minScreenWidth: 750,
-            }]
-        });
     });
 </script>
 <script>

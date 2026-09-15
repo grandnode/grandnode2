@@ -70,78 +70,27 @@
                     </div>
                 </div>
                 <div class="x_content">
-                    <div id="contactform-grid"></div>
+                    <admin-grid id="contactform-grid"
+                                read-url="@Url.Action("ContactFormList", "ContactForm", new { area = Constants.AreaAdmin })"
+                                additional-data="additionalData">
+                        <grid-column field="CreatedOn" title="@Loc["Admin.System.ContactForm.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+                        @if (!adminAreaSettings.HideStoreColumn)
+                        {
+                            <grid-column field="Store" title="@Loc["Admin.System.ContactForm.Fields.Store"]" width="100"/>
+                        }
+                        <grid-column field="Email" title="@Loc["Admin.System.ContactForm.Fields.FullName"]" width="150"/>
+                        <grid-column field="IpAddress" title="@Loc["Admin.System.ContactForm.Fields.IpAddress"]" width="50"/>
+                        <grid-column field="Subject" title="@Loc["Admin.System.ContactForm.Fields.Subject"]" width="300">
+                            <cell-template>
+                                <a class="k-link" href="Details/{{ Id }}">{{ Subject }}</a>
+                            </cell-template>
+                        </grid-column>
+                    </admin-grid>
                 </div>
             </div>
         </div>
     </div>
 </form>
-<script>
-$(document).ready(function () {
-    $("#contactform-grid").kendoGrid({
-        dataSource: {
-            transport: {
-                read: {
-                    url: "@Html.Raw(Url.Action("ContactFormList", "ContactForm", new { area = Constants.AreaAdmin }))",
-                    type: "POST",
-                    dataType: "json",
-                    data: additionalData
-                }
-            },
-            schema: {
-                data: "Data",
-                total: "Total",
-                errors: "Errors"
-            },
-            error: function(e) {
-                display_kendoui_grid_error(e);
-                // Cancel the changes
-                this.cancelChanges();
-            },
-            pageSize: @(adminAreaSettings.DefaultGridPageSize),
-            serverPaging: true,
-            serverFiltering: true,
-            serverSorting: true
-        },
-        pageable: {
-            refresh: true,
-            pageSizes: [@(adminAreaSettings.GridPageSizes)]
-        },
-        scrollable: false,
-        columns: [{
-            field: "CreatedOn",
-            title: "@Loc["Admin.System.ContactForm.Fields.CreatedOn"]",
-            width: 100,
-            type: "date",
-            format: "{0:G}"
-        },
-        @if (!adminAreaSettings.HideStoreColumn)
-        {
-            <text>
-            {
-                field: "Store",
-                title: "@Loc["Admin.System.ContactForm.Fields.Store"]",
-                width: 100
-            },
-            </text>
-        }
-        {
-            field: "Email",
-            title: "@Loc["Admin.System.ContactForm.Fields.FullName"]",
-            width: 150
-        }, {
-            field: "IpAddress",
-            title: "@Loc["Admin.System.ContactForm.Fields.IpAddress"]",
-            width: 50
-        }, {
-            field: "Subject",
-            title: "@Loc["Admin.System.ContactForm.Fields.Subject"]",
-            width: 300,
-                template: '<a class="k-link" href="Details/#=Id#">#=kendo.htmlEncode(Subject)#</a>',
-        }]
-    });
-});
-</script>
 <script>
 $(document).ready(function () {
 
