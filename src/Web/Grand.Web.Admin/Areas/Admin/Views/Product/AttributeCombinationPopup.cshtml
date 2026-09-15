@@ -1,5 +1,4 @@
-﻿@using System.Text.Encodings.Web
-@using Grand.Business.Core.Interfaces.Common.Directory
+﻿@using Grand.Business.Core.Interfaces.Common.Directory
 @using Grand.Business.Core.Interfaces.Common.Stores
 @model ProductAttributeCombinationModel
 @inject IStoreService _storeService
@@ -250,7 +249,27 @@
                                 @Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices"] [@Model.PrimaryStoreCurrencyCode]
                             </div>
                             <div class="panel-body">
-                                <div id="tierprices-grid"></div>
+                                @{
+                                    var tierPriceStores = new List<SelectListItem> { new(Loc["Admin.Settings.AllSettings.Fields.StoreName.AllStores"], "") };
+                                    tierPriceStores.AddRange((await _storeService.GetAllStores()).Select(store => new SelectListItem(store.Shortcut ?? "", store.Id)));
+                                    var tierPriceCustomerGroups = new List<SelectListItem> { new(Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup.All"], "") };
+                                    tierPriceCustomerGroups.AddRange((await _groupService.GetAllCustomerGroups(showHidden: true)).Select(group => new SelectListItem(group.Name ?? "", group.Id)));
+                                }
+                                <admin-grid id="tierprices-grid"
+                                            read-url="@Url.Action("ProductAttributeCombinationTierPriceList", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
+                                            create-url="@Url.Action("ProductAttributeCombinationTierPriceInsert", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
+                                            update-url="@Url.Action("ProductAttributeCombinationTierPriceUpdate", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
+                                            destroy-url="@Url.Action("ProductAttributeCombinationTierPriceDelete", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin })"
+                                            pager="Compact"
+                                            edit-mode="Inline">
+                                    <grid-toolbar-create/>
+                                    @* the "All" choices were ' ' in the Kendo lists; the controller trims both to "" *@
+                                    <grid-column field="StoreId" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Store"]" width="250" editor="Select" options="tierPriceStores" text-field="Store"/>
+                                    <grid-column field="CustomerGroupId" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.CustomerGroup"]" width="250" editor="Select" options="tierPriceCustomerGroups" text-field="CustomerGroup"/>
+                                    <grid-column field="Quantity" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Quantity"]" width="150" format="{0:0}" editor="Integer" default-value="0"/>
+                                    <grid-column field="Price" title="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Price"]" width="150" editor="Numeric" decimals="4" default-value="0"/>
+                                    <grid-commands edit="true" destroy="true" width="200"/>
+                                </admin-grid>
                             </div>
                         </div>
                     }
@@ -290,187 +309,4 @@
             });
         });
     </script>
-@if (!string.IsNullOrEmpty(Model.Id))
-{
-    <script>
-                //local datasource
-                var allStores = [
-                    {
-                        Id : ' ',
-                        Name : "@Loc["Admin.Settings.AllSettings.Fields.StoreName.AllStores"]"
-                    }
-                    @{
-                        var allStores = await _storeService.GetAllStores();
-                    }
-                    @foreach (var store in allStores)
-                    {
-                        <text>
-                                , {
-                                    Id: "@(store.Id)",
-                                    Name: "@(Html.Raw(JavaScriptEncoder.Default.Encode(string.IsNullOrEmpty(store.Shortcut) ? "" : store.Shortcut)))"
-                                }
-                                </text>
-                    }
-
-                ];
-
-                var allCustomerGroups = [
-                    {
-                        Id : ' ',
-                        Name : "@Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup.All"]"
-                    }
-                    @{
-                        var allCustomerGroups = await _groupService.GetAllCustomerGroups(showHidden: true);
-                    }
-                    @foreach (var customerGroup in allCustomerGroups)
-                    {
-                        <text>
-                            , {
-                    Id: "@(customerGroup.Id)",
-                    Name: "@(Html.Raw(JavaScriptEncoder.Default.Encode(string.IsNullOrEmpty(customerGroup.Name) ? "" : customerGroup.Name))))"
-                }
-                </text>
-                    }
-                ];
-
-                function storeDropDownEditor(container, options) {
-                    $('<input required data-text-field="Name" data-value-field="Id" data-bind="value:StoreId"/>')
-                        .appendTo(container)
-                        .kendoDropDownList({
-                            autoBind: true,
-                            dataSource: allStores,
-                        });
-                }
-
-                function customerGroupDropDownEditor(container, options) {
-                    $('<input required data-text-field="Name" data-value-field="Id" data-bind="value:CustomerGroupId"/>')
-                        .appendTo(container)
-                        .kendoDropDownList({
-                            autoBind: true,
-                            dataSource: allCustomerGroups,
-
-                        });
-                }
-
-                    $("#tierprices-grid").kendoGrid({
-                        dataSource: {
-                            transport: {
-                                read: {
-                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceList", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                },
-                                create: {
-                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceInsert", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                },
-                                update: {
-                                    url:"@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceUpdate", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                },
-                                destroy: {
-                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceDelete", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: addAntiForgeryToken
-                                }
-                            },
-                            schema: {
-                                data: "Data",
-                                total: "Total",
-                                errors: "Errors",
-                                model: {
-                                    id: "Id",
-                                    fields: {
-                                        Store: { editable: true, type: "string" },
-                                        StoreId: { editable: true, type: "string" },
-                                        CustomerGroup: { editable: true, type: "string" },
-                                        CustomerGroupId: { editable: true, type: "string" },
-                                        Quantity: { editable: true, type: "number" },
-                                        Price: { editable: true, type: "number" },
-                                        Id: { editable: false, type: "string" }
-                                    }
-                                }
-                            },
-                            requestEnd: function (e) {
-                                if (e.type == "create" || e.type == "update") {
-                                    this.read();
-                                }
-                            },
-                            error: function (e) {
-                                display_kendoui_grid_error(e);
-                                // Cancel the changes
-                                this.cancelChanges();
-                            },
-                            serverPaging: true,
-                            serverFiltering: true,
-                            serverSorting: true
-                        },
-                        pageable: {
-                            refresh: true,
-                            numeric: false,
-                            previousNext: false,
-                            info: false
-                        },
-                        toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
-                        editable: {
-                            confirmation: false,
-                            mode: "inline"
-                        },
-                        scrollable: false,
-                        columns: [{
-                            field: "StoreId",
-                            title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Store"]",
-                            width: 250,
-                            editor: storeDropDownEditor,
-                            template: "#:Store#"
-                        },
-                        {
-                            field: "CustomerGroupId",
-                            title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.CustomerGroup"]",
-                            width: 250,
-                            editor: customerGroupDropDownEditor,
-                            template: "#:CustomerGroup#"
-                        },
-
-                        {
-                            field: "Quantity",
-                            title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Quantity"]",
-                            width: 150,
-                            format: "{0:0}"
-                        }, {
-                            field: "Price",
-                            title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Price"]",
-                            width: 150,
-                            editor: function (container, options) {
-                                $('<input name="' + options.field + '"/>')
-                                        .appendTo(container)
-                                        .kendoNumericTextBox({
-                                            format: "{0:n4}",
-                                            decimals: 4
-                                        });
-                            }
-                        },{
-                            command: [{
-                                name: "edit",
-                                text: {
-                                    edit: "@Loc["Admin.Common.Edit"]",
-                                    update: "@Loc["Admin.Common.Update"]",
-                                    cancel: "@Loc["Admin.Common.Cancel"]"
-                                }
-                            }, {
-                                name: "destroy",
-                                text: "@Loc["Admin.Common.Delete"]"
-                            }],
-                            width: 200
-                        }]
-                    });
-
-        </script>
-}
 </form>

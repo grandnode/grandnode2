@@ -1,64 +1,12 @@
-﻿@inject AdminAreaSettings adminAreaSettings
-@model ProductTagModel
+﻿@model ProductTagModel
 <div class="panel panel-default">
     <div class="panel-body">
-        <div id="product-tags-grid"></div>
+        <admin-grid id="product-tags-grid" read-url="@Url.Action("Products", "ProductTags", new { tagId = Model.Id, area = Constants.AreaAdmin })">
+            <grid-column field="Name" title="@Loc["Admin.Catalog.ProductTags.Fields.ProductName"]" width="300">
+                <cell-template>
+                    <a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/{{ Id }}">{{ Name }}</a>
+                </cell-template>
+            </grid-column>
+        </admin-grid>
     </div>
 </div>
-<script>
-        $(document).ready(function () {
-            $("#product-tags-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("Products", "ProductTags", new { tagId = Model.Id, area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                Name: { editable: true, type: "string" },
-                                Id: { editable: false, type: "string" }
-                            }
-                        }
-                    },
-                    requestEnd: function (e) {
-                        if (e.type == "create" || e.type == "update") {
-                            this.read();
-                        }
-                    },
-                    error: function (e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                editable: {
-                    confirmation: true,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "Name",
-                    title: "@Loc["Admin.Catalog.ProductTags.Fields.ProductName"]",
-                    width: 300,
-                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-                }]
-            });
-        });
-</script>

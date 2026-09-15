@@ -1,5 +1,4 @@
 ﻿@model CategoryListModel
-@inject AdminAreaSettings adminAreaSettings
 
 @{
     //page title
@@ -56,90 +55,38 @@
                 </div>
             </div>
             <div class="x_content">
-                <div id="categories-grid"></div>
+                <admin-grid id="categories-grid"
+                            read-url="@Url.Action("List", "Category", new { area = Constants.AreaAdmin })"
+                            additional-data="additionalData">
+                    <grid-column field="Breadcrumb" title="@Loc["Admin.Catalog.Categories.Fields.Name"]">
+                        <cell-template>
+                            <a class="k-link" href="Edit/{{ Id }}">{{ Breadcrumb }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="ShowOnHomePage" title="@Loc["Admin.Catalog.Categories.Fields.ShowOnHomePage"]" width="175" align="Center" min-screen-width="750">
+                        <cell-template>
+                            <i data-if="ShowOnHomePage" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="IncludeInMenu" title="@Loc["Admin.Catalog.Categories.Fields.ShowInMenu"]" width="175" align="Center" min-screen-width="750">
+                        <cell-template>
+                            <i data-if="IncludeInMenu" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="Published" title="@Loc["Admin.Catalog.Categories.Fields.Published"]" width="100" align="Center" min-screen-width="500">
+                        <cell-template>
+                            <i data-if="Published" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="DisplayOrder" title="@Loc["Admin.Catalog.Categories.Fields.DisplayOrder"]" width="125" align="Center" min-screen-width="750"/>
+                </admin-grid>
             </div>
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function () {
-        $("#categories-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("List", "Category", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors",
-                    
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                pageSizes: [@(adminAreaSettings.GridPageSizes)]
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Breadcrumb",
-                title: "@Loc["Admin.Catalog.Categories.Fields.Name"]",
-                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Breadcrumb)#</a>',
-            },
-            {
-                field: "ShowOnHomePage",
-                title: "@Loc["Admin.Catalog.Categories.Fields.ShowOnHomePage"]",
-                width: 175,
-                minScreenWidth: 750,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(ShowOnHomePage) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            },
-            {
-                field: "IncludeInMenu",
-                title: "@Loc["Admin.Catalog.Categories.Fields.ShowInMenu"]",
-                width: 175,
-                minScreenWidth: 750,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(IncludeInMenu) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            },
-            {
-                field: "Published",
-                title: "@Loc["Admin.Catalog.Categories.Fields.Published"]",
-                width: 100,
-                minScreenWidth: 500,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
-                field: "DisplayOrder",
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                title: "@Loc["Admin.Catalog.Categories.Fields.DisplayOrder"]",
-                width: 125,    
-                minScreenWidth: 750,
-            }]
-        });
-    });
-</script>
 <script>
     $(document).ready(function () {
         //search button
