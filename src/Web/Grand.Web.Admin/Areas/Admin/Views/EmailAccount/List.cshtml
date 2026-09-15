@@ -19,63 +19,27 @@
                 </div>
             </div>
             <div class="x_content form">
-                <div id="email-accounts-grid"></div>
+                <admin-grid id="email-accounts-grid"
+                            read-url="@Url.Action("List", "EmailAccount", new { area = Constants.AreaAdmin })"
+                            pager="Compact">
+                    <grid-text name="markAsDefaultEmail" value="@Loc["Admin.Configuration.EmailAccounts.Fields.MarkAsDefaultEmail"]"/>
+                    <grid-column field="Email" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Email"]">
+                        <cell-template>
+                            <a class="k-link" href="Edit/{{ Id }}">{{ Email }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="DisplayName" title="@Loc["Admin.Configuration.EmailAccounts.Fields.DisplayName"]"/>
+                    <grid-column field="Host" title="@Loc["Admin.Configuration.EmailAccounts.Fields.Host"]"/>
+                    <grid-column field="Id" title="@Loc["Admin.Configuration.EmailAccounts.Fields.IsDefaultEmailAccount"]">
+                        <cell-template>
+                            <a href="@Url.Action("MarkAsDefaultEmail", "EmailAccount", new { area = Constants.AreaAdmin })/{{ Id }}" class="k-button">
+                            <i data-if="IsDefaultEmailAccount" class="fa fa-check" aria-hidden="true" style="color:green;margin-right:5px;"></i>
+                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red;margin-right:5px;"></i>
+                            {{ $texts.markAsDefaultEmail }}</a>
+                        </cell-template>
+                    </grid-column>
+                </admin-grid>
             </div>
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function () {
-        $("#email-accounts-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("List", "EmailAccount", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Email",
-                title: "@Loc["Admin.Configuration.EmailAccounts.Fields.Email"]",
-                template: '<a class="k-link" href="Edit/#=Id#">#=Email#</a>',
-            }, {
-                field: "DisplayName",
-                title: "@Loc["Admin.Configuration.EmailAccounts.Fields.DisplayName"]"
-            }, {
-                field: "Host",
-                title: "@Loc["Admin.Configuration.EmailAccounts.Fields.Host"]"
-            }, {
-                field: "Id",
-                title: "@Loc["Admin.Configuration.EmailAccounts.Fields.IsDefaultEmailAccount"]",
-                    template: '<a href="@Url.Action("MarkAsDefaultEmail", "EmailAccount", new { area = Constants.AreaAdmin })/#=Id#" class="k-button"># if(IsDefaultEmailAccount) {# <i class="fa fa-check" aria-hidden="true" style="color:green;margin-right:5px;"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red;margin-right:5px;"></i> #} #  @Loc["Admin.Configuration.EmailAccounts.Fields.MarkAsDefaultEmail"]</a>'
-            }]
-        });
-    });
-</script>

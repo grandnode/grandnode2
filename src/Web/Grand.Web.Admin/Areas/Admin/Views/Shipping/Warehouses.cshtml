@@ -23,7 +23,22 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="warehouse-grid"></div>
+                            <admin-grid id="warehouse-grid"
+                                        read-url="@Url.Action("Warehouses", "Shipping", new { area = Constants.AreaAdmin })"
+                                        pager="Compact">
+                                <grid-column field="Code" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Code"]">
+                                    <cell-template>
+                                        <a class="k-link" href="EditWarehouse/{{ Id }}">{{ Code }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Name"]">
+                                    <cell-template>
+                                        <a class="k-link" href="EditWarehouse/{{ Id }}">{{ Name }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="StoreName" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Store"]"/>
+                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.Warehouses.Fields.DisplayOrder"]"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -32,61 +47,3 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $("#warehouse-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("Warehouses", "Shipping", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Code",
-                title: "@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Code"]",
-                template: '<a class="k-link" href="EditWarehouse/#=Id#">#=kendo.htmlEncode(Code)#</a>',
-            },
-                {
-                field: "Name",
-                title: "@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Name"]",
-                template: '<a class="k-link" href="EditWarehouse/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-            },
-            {
-                field: "StoreName",
-                title: "@Loc["Admin.Configuration.Shipping.Warehouses.Fields.Store"]",
-            },
-            {
-                field: "DisplayOrder",
-                title: "@Loc["Admin.Configuration.Shipping.Warehouses.Fields.DisplayOrder"]",
-            }]
-        });
-    });
-</script>

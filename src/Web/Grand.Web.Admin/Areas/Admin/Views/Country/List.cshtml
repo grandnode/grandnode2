@@ -43,7 +43,46 @@
                         </div>
                     </div>
                     <div class="x_content">
-                        <div id="countries-grid"></div>
+                        <admin-grid id="countries-grid"
+                                    read-url="@Url.Action("CountryList", "Country", new { area = Constants.AreaAdmin })"
+                                    additional-data="additionalData"
+                                    pager="Compact"
+                                    selectable="Checkbox"
+                                    on-change="onCountriesSelectionChange">
+                            <grid-column field="Name" title="@Loc["Admin.Configuration.Countries.Fields.Name"]" width="300">
+                                <cell-template>
+                                    <a class="k-link" href="Edit/{{ Id }}">{{ Name }}</a>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="AllowsBilling" title="@Loc["Admin.Configuration.Countries.Fields.AllowsBilling"]" width="100" align="Center">
+                                <cell-template>
+                                    <i data-if="AllowsBilling" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="AllowsShipping" title="@Loc["Admin.Configuration.Countries.Fields.AllowsShipping"]" width="100" align="Center">
+                                <cell-template>
+                                    <i data-if="AllowsShipping" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="TwoLetterIsoCode" title="@Loc["Admin.Configuration.Countries.Fields.TwoLetterIsoCode"]" width="100"/>
+                            <grid-column field="ThreeLetterIsoCode" title="@Loc["Admin.Configuration.Countries.Fields.ThreeLetterIsoCode"]" width="100"/>
+                            <grid-column field="NumericIsoCode" title="@Loc["Admin.Configuration.Countries.Fields.NumericIsoCode"]" width="100"/>
+                            <grid-column field="SubjectToVat" title="@Loc["Admin.Configuration.Countries.Fields.SubjectToVat"]" width="100" align="Center">
+                                <cell-template>
+                                    <i data-if="SubjectToVat" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                </cell-template>
+                            </grid-column>
+                            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Countries.Fields.DisplayOrder"]" width="100"/>
+                            <grid-column field="Published" title="@Loc["Admin.Configuration.Countries.Fields.Published"]" width="100" align="Center">
+                                <cell-template>
+                                    <i data-if="Published" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                                    <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                                </cell-template>
+                            </grid-column>
+                        </admin-grid>
                     </div>
                 </div>
             </div>
@@ -52,103 +91,13 @@
 </div>
 
 
-<script>
-    $(document).ready(function () {
-        $("#countries-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("CountryList", "Country", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: additionalData
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function (e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            scrollable: false,
-            dataBound: onDataBound,
-            columns: [{
-                field: "Id",
-                headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input id='mastercheckbox' type='checkbox'/> <div class='control__indicator'></div></label>",
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input type='checkbox' value='#=Id#' class='checkboxGroups'/> <div class='control__indicator'></div></label>",
-                width: 50
-            }, {
-                field: "Name",
-                title: "@Loc["Admin.Configuration.Countries.Fields.Name"]",
-                width: 300,
-                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-            }, {
-                field: "AllowsBilling",
-                title: "@Loc["Admin.Configuration.Countries.Fields.AllowsBilling"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(AllowsBilling) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
-                field: "AllowsShipping",
-                title: "@Loc["Admin.Configuration.Countries.Fields.AllowsShipping"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(AllowsShipping) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
-                field: "TwoLetterIsoCode",
-                title: "@Loc["Admin.Configuration.Countries.Fields.TwoLetterIsoCode"]",
-                width: 100
-            }, {
-                field: "ThreeLetterIsoCode",
-                title: "@Loc["Admin.Configuration.Countries.Fields.ThreeLetterIsoCode"]",
-                width: 100
-            }, {
-                field: "NumericIsoCode",
-                title: "@Loc["Admin.Configuration.Countries.Fields.NumericIsoCode"]",
-                width: 100
-            }, {
-                field: "SubjectToVat",
-                title: "@Loc["Admin.Configuration.Countries.Fields.SubjectToVat"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(SubjectToVat) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }, {
-                field: "DisplayOrder",
-                title: "@Loc["Admin.Configuration.Countries.Fields.DisplayOrder"]",
-                width: 100
-            }, {
-                field: "Published",
-                title: "@Loc["Admin.Configuration.Countries.Fields.Published"]",
-                width: 100,
-                headerAttributes: { style: "text-align:center" },
-                attributes: { style: "text-align:center" },
-                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-            }]
-        });
-    });
-</script>
 
 <script>
         var selectedIds = [];
+
+        function onCountriesSelectionChange(e) {
+            selectedIds = e.selectedIds;
+        }
 
         $(document).ready(function () {
 
@@ -206,49 +155,10 @@
                 return false;
             });
             
-            $('#mastercheckbox').click(function () {
-                $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-            });
 
-            //wire up checkboxes.
-            $('#countries-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
-                var $check = $(this);
-                if ($check.is(":checked") == true) {
-                    var checked = jQuery.inArray($check.val(), selectedIds);
-                    if (checked == -1) {
-                        //add id to selectedIds.
-                        selectedIds.push($check.val());
-                    }
-                }
-                else {
-                    var checked = jQuery.inArray($check.val(), selectedIds);
-                    if (checked > -1) {
-                        //remove id from selectedIds.
-                        selectedIds = $.grep(selectedIds, function (item, index) {
-                            return item != $check.val();
-                        });
-                    }
-                }
-                updateMasterCheckbox();
-            });
         });
 
-    function onDataBound(e) {
 
-        $('#countries-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
-            var currentId = $(this).val();
-            var checked = jQuery.inArray(currentId, selectedIds);
-            $(this).prop('checked', checked > -1);
-        });
-
-        updateMasterCheckbox();
-    }
-
-    function updateMasterCheckbox() {
-        var numChkBoxes = $('#countries-grid input[type=checkbox][id!=mastercheckbox]').length;
-        var numChkBoxesChecked = $('#countries-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
-        $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
-    }
 </script>
 
 <div id="importexcel-window" style="display:none;">

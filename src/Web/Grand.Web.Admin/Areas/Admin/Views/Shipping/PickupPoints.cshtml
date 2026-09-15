@@ -22,7 +22,18 @@
                 <div class="form-horizontal">
                     <div class="form-body">
                         <div class="x_content">
-                            <div id="pickupPoints-grid"></div>
+                            <admin-grid id="pickupPoints-grid"
+                                        read-url="@Url.Action("PickupPoints", "Shipping", new { area = Constants.AreaAdmin })"
+                                        pager="Compact">
+                                <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.PickupPoint.Fields.Name"]">
+                                    <cell-template>
+                                        <a class="k-link" href="EditPickupPoint/{{ Id }}">{{ Name }}</a>
+                                    </cell-template>
+                                </grid-column>
+                                <grid-column field="StoreName" title="@Loc["Admin.Configuration.Shipping.PickupPoint.Fields.Stores"]"/>
+                                <grid-column field="Description" title="@Loc["Admin.Configuration.Shipping.PickupPoint.Fields.Description"]"/>
+                                <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.PickupPoint.Fields.DisplayOrder"]" width="120"/>
+                            </admin-grid>
                         </div>
                     </div>
                 </div>
@@ -31,61 +42,3 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function () {
-        $("#pickupPoints-grid").kendoGrid({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("PickupPoints", "Shipping", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors"
-                },
-                error: function(e) {
-                    display_kendoui_grid_error(e);
-                    // Cancel the changes
-                    this.cancelChanges();
-                },
-                serverPaging: true,
-                serverFiltering: true,
-                serverSorting: true
-            },
-            pageable: {
-                refresh: true,
-                numeric: false,
-                previousNext: false,
-                info: false
-            },
-            editable: {
-                confirmation: false,
-                mode: "inline"
-            },
-            scrollable: false,
-            columns: [{
-                field: "Name",
-                title: "@Loc["Admin.Configuration.Shipping.PickupPoint.Fields.Name"]",
-                template: '<a class="k-link" href="EditPickupPoint/#=Id#">#=kendo.htmlEncode(Name)#</a>',
-            },
-            {
-                field: "StoreName",
-                title: "@Loc["Admin.Configuration.Shipping.PickupPoint.Fields.Stores"]",
-            },
-            {
-                field: "Description",
-                title: "@Loc["Admin.Configuration.Shipping.PickupPoint.Fields.Description"]"
-            },
-            {
-                field: "DisplayOrder",
-                title: "@Loc["Admin.Configuration.Shipping.PickupPoint.Fields.DisplayOrder"]",
-                width: 120,
-            }]
-        });
-    });
-</script>

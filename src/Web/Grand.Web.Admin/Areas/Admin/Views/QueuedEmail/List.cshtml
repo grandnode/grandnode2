@@ -1,5 +1,4 @@
 ﻿@model QueuedEmailListModel
-@inject AdminAreaSettings adminAreaSettings
 @{
     //page title
     ViewBag.Title = Loc["Admin.System.QueuedEmails"];
@@ -92,87 +91,33 @@
                     </div>
                 </div>
                 <div class="x_content">
-                    <div id="queuedEmails-grid"></div>
+                    <admin-grid id="queuedEmails-grid"
+                                read-url="@Url.Action("QueuedEmailList", "QueuedEmail", new { area = Constants.AreaAdmin })"
+                                additional-data="additionalData"
+                                selectable="Checkbox"
+                                on-change="onQueuedEmailsSelectionChange">
+                        <grid-column field="Subject" title="@Loc["Admin.System.QueuedEmails.Fields.Subject"]" width="300">
+                            <cell-template>
+                                <a class="k-link" href="Edit/{{ Id }}">{{ Subject }}</a>
+                            </cell-template>
+                        </grid-column>
+                        <grid-column field="From" title="@Loc["Admin.System.QueuedEmails.Fields.From"]" width="100"/>
+                        <grid-column field="To" title="@Loc["Admin.System.QueuedEmails.Fields.To"]" width="100"/>
+                        <grid-column field="CreatedOn" title="@Loc["Admin.System.QueuedEmails.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+                        <grid-column field="SentOn" title="@Loc["Admin.System.QueuedEmails.Fields.SentOn"]" width="100" format="{0:G}"/>
+                        <grid-column field="PriorityName" title="@Loc["Admin.System.QueuedEmails.Fields.Priority"]" width="50"/>
+                    </admin-grid>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        $(document).ready(function () {
-            $("#queuedEmails-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("QueuedEmailList", "QueuedEmail", new { area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: additionalData
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors"
-                    },
-                    error: function(e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
-                },
-                scrollable: false,
-                dataBound: onDataBound,
-                columns: [{
-                    field: "Id",
-                    headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input id='mastercheckbox' type='checkbox'/> <div class='control__indicator'></div></label>",
-                    headerAttributes: { style: "text-align:center" },
-                    attributes: { style: "text-align:center" },
-                    template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input type='checkbox' value='#=Id#' class='checkboxGroups'/> <div class='control__indicator'></div></label>",
-                    width: 60
-                }, {
-                    field: "Subject",
-                    title: "@Loc["Admin.System.QueuedEmails.Fields.Subject"]",
-                    width: 300,
-                    template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Subject)#</a>',
-                }, {
-                    field: "From",
-                    title: "@Loc["Admin.System.QueuedEmails.Fields.From"]",
-                    width: 100
-                }, {
-                    field: "To",
-                    title: "@Loc["Admin.System.QueuedEmails.Fields.To"]",
-                    width: 100
-                }, {
-                    field: "CreatedOn",
-                    title: "@Loc["Admin.System.QueuedEmails.Fields.CreatedOn"]",
-                    width: 100,
-                    type: "date",
-                    format: "{0:G}"
-                }, {
-                    field: "SentOn",
-                    title: "@Loc["Admin.System.QueuedEmails.Fields.SentOn"]",
-                    width: 100,
-                    type: "date",
-                    format: "{0:G}"
-                }, {
-                    field: "PriorityName",
-                    title: "@Loc["Admin.System.QueuedEmails.Fields.Priority"]",
-                    width: 50
-                }]
-            });
-        });
-    </script>
-    <script>
         var selectedIds = [];
+
+        function onQueuedEmailsSelectionChange(e) {
+            selectedIds = e.selectedIds;
+        }
 
         $(document).ready(function () {
 
@@ -182,9 +127,7 @@
                 var grid = $('#queuedEmails-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
-                //clear selected checkboxes
-                $('.checkboxGroups').prop('checked', false).change();
-                selectedIds = [];
+                $('#queuedEmails-grid').data('kendoGrid').clearSelection();
                 return false;
             });
 
@@ -227,9 +170,7 @@
                         var grid = $('#queuedEmails-grid').data('kendoGrid');
                         grid.dataSource.page(1); //new search. Set page size to 1
                         //grid.dataSource.read(); we already loaded the grid above using "page" function
-                        //clear selected checkboxes
-                        $('.checkboxGroups').prop('checked', false).change();
-                        selectedIds = [];
+                        $('#queuedEmails-grid').data('kendoGrid').clearSelection();
                     },
                     error:function (xhr, ajaxOptions, thrownError){
                         alert(thrownError);
@@ -239,31 +180,7 @@
                 return false;
             });
 
-            $('#mastercheckbox').click(function () {
-                $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
-            });
 
-            //wire up checkboxes.
-            $('#queuedEmails-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
-                var $check = $(this);
-                if ($check.is(":checked") == true) {
-                    var checked = jQuery.inArray($check.val(), selectedIds);
-                    if (checked == -1) {
-                        //add id to selectedIds.
-                        selectedIds.push($check.val());
-                    }
-                }
-                else {
-                    var checked = jQuery.inArray($check.val(), selectedIds);
-                    if (checked > -1) {
-                        //remove id from selectedIds.
-                        selectedIds = $.grep(selectedIds, function (item, index) {
-                            return item != $check.val();
-                        });
-                    }
-                }
-                updateMasterCheckbox();
-            });
         });
 
         function additionalData() {
@@ -280,22 +197,6 @@
             return data;
         }
 
-        function onDataBound(e) {
 
-            $('#queuedEmails-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
-                var currentId = $(this).val();
-                var checked = jQuery.inArray(currentId, selectedIds);
-                //set checked based on if current checkbox's value is in selectedIds.
-                $(this).prop('checked', checked > -1);
-            });
-
-            updateMasterCheckbox();
-        }
-
-        function updateMasterCheckbox() {
-            var numChkBoxes = $('#queuedEmails-grid input[type=checkbox][id!=mastercheckbox]').length;
-            var numChkBoxesChecked = $('#queuedEmails-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
-            $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
-        }
     </script>
 </form>

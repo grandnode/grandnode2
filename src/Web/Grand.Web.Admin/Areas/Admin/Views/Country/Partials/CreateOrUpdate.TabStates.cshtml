@@ -5,7 +5,27 @@
     {
         <div class="panel panel-default">
             <div class="panel-body">
-                <div id="states-grid"></div>
+                <admin-grid id="states-grid"
+                            read-url="@Url.Action("States", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin })"
+                            destroy-url="@Url.Action("StateDelete", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin })"
+                            pager="Compact"
+                            confirm-destroy="true"
+                            on-data-bound="onStatesGridDataBound">
+                    <grid-column field="Name" title="@Loc["Admin.Configuration.Countries.States.Fields.Name"]" width="300">
+                        <cell-template>
+                            <a class="k-link editstate" href="@Url.Action("StateEditPopup", "Country", new { area = Constants.AreaAdmin })/{{ Id }}?countryId=@(Model.Id)">{{ Name }}</a>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="Abbreviation" title="@Loc["Admin.Configuration.Countries.States.Fields.Abbreviation"]" width="150"/>
+                    <grid-column field="Published" title="@Loc["Admin.Configuration.Countries.States.Fields.Published"]" width="100" align="Center">
+                        <cell-template>
+                            <i data-if="Published" class="fa fa-check" aria-hidden="true" style="color:green"></i>
+                            <i data-else class="fa fa-times" aria-hidden="true" style="color:red"></i>
+                        </cell-template>
+                    </grid-column>
+                    <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Countries.States.Fields.DisplayOrder"]" width="100"/>
+                    <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>
+                </admin-grid>
             </div>
             <div class="panel-footer">
                 <a id="btnAddNewState" href="@(Url.Action("StateCreatePopup", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Configuration.Countries.States.AddNew"]</a>
@@ -28,92 +48,22 @@
                         }
                     }
                 });
-                $("#states-grid").kendoGrid({
-                    dataBound: function () {
-                        $('.editstate').magnificPopup({
-                            type: 'ajax',
-                            settings: { cache: false, async: false },
-                            midClick: true,
-                            callbacks: {
-                                parseAjax: function (mfpResponse) {
-                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
-                                },
-                                ajaxContentAdded: function () {
-                                    $('.mfp-wrap').removeAttr('tabindex');
-                                }
-                            }
-                        });
-                    },
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "@Html.Raw(Url.Action("States", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            },
-                            destroy: {
-                                url: "@Html.Raw(Url.Action("StateDelete", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin }))",
-                                type: "POST",
-                                dataType: "json",
-                                data: addAntiForgeryToken
-                            }
-                        },
-                        schema: {
-                            data: "Data",
-                            total: "Total",
-                            errors: "Errors",
-                            model: {
-                                id: "Id",
-                            }
-                        },
-                        error: function(e) {
-                            display_kendoui_grid_error(e);
-                            // Cancel the changes
-                            this.cancelChanges();
-                        },
-                        serverPaging: true,
-                        serverFiltering: true,
-                        serverSorting: true
-                    },
-                    pageable: {
-                        refresh: true,
-                        numeric: false,
-                        previousNext: false,
-                        info: false
-                    },
-                    editable: {
-                        confirmation: true,
-                        mode: "inline"
-                    },
-                    scrollable: false,
-                    columns: [{
-                        field: "Name",
-                        title: "@Loc["Admin.Configuration.Countries.States.Fields.Name"]",
-                        width: 300,
-                        template: "<a class=\"k-link editstate\" href=\"@Url.Action("StateEditPopup", "Country", new { area = Constants.AreaAdmin })/#=Id#?countryId=@(Model.Id)\">#=Name#</a>",
-                    }, {
-                        field: "Abbreviation",
-                        title: "@Loc["Admin.Configuration.Countries.States.Fields.Abbreviation"]",
-                        width: 150
-                    }, {
-                        field: "Published",
-                        title: "@Loc["Admin.Configuration.Countries.States.Fields.Published"]",
-                        width: 100,
-                        headerAttributes: { style: "text-align:center" },
-                        attributes: { style: "text-align:center" },
-                        template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                    }, {
-                        field: "DisplayOrder",
-                        title: "@Loc["Admin.Configuration.Countries.States.Fields.DisplayOrder"]",
-                        width: 100
-                    }, {
-                        command: {name: "destroy", text: "@Loc["Admin.Common.Delete"]"},
-                        title: "@Loc["Admin.Common.Delete"]",
-                        width: 100
-                    }]
-                });
             });
+            function onStatesGridDataBound() {
+                $('.editstate').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    midClick: true,
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
+            }
         </script>
         <script>
             $(document).ready(function () {
